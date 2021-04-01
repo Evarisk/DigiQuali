@@ -46,3 +46,9 @@ MyPageName = Nom de ma page
 #
 MyWidget = Mon widget
 MyWidgetDescription = Description de mon widget
+
+#
+# Traduction pour DoliSMQ
+#
+
+DoliSMQHelpAuditDateStart = La date de début d'audit
