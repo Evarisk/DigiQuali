@@ -262,21 +262,22 @@ class modDoliSMQ extends DolibarrModules
 		// Permissions provided by this module
 		$this->rights = array();
 		$r = 0;
+
 		// Add here entries to declare new permissions
 		/* BEGIN MODULEBUILDER PERMISSIONS */
 		$this->rights[$r][0] = $this->numero + $r; // Permission id (must not be already used)
 		$this->rights[$r][1] = 'Read objects of DoliSMQ'; // Permission label
-		$this->rights[$r][4] = 'audit'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$this->rights[$r][4] = 'question'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero + $r; // Permission id (must not be already used)
 		$this->rights[$r][1] = 'Create/Update objects of DoliSMQ'; // Permission label
-		$this->rights[$r][4] = 'audit'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$this->rights[$r][4] = 'question'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero + $r; // Permission id (must not be already used)
 		$this->rights[$r][1] = 'Delete objects of DoliSMQ'; // Permission label
-		$this->rights[$r][4] = 'audit'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$this->rights[$r][4] = 'question'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		/* END MODULEBUILDER PERMISSIONS */
@@ -284,12 +285,14 @@ class modDoliSMQ extends DolibarrModules
 		// Main menu entries to add
 		$this->menu = array();
 		$r = 0;
+		$langs->load("dolismq@dolismq");
+
 		// Add here entries to declare new menus
 		/* BEGIN MODULEBUILDER TOPMENU */
 		$this->menu[$r++] = array(
 			'fk_menu'=>'', // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
 			'type'=>'top', // This is a Top menu entry
-			'titre'=>'ModuleDoliSMQName',
+			'titre'=>'DoliSMQ',
 			'mainmenu'=>'dolismq',
 			'leftmenu'=>'',
 			'url'=>'/dolismq/dolismqindex.php',
@@ -300,144 +303,35 @@ class modDoliSMQ extends DolibarrModules
 			'target'=>'',
 			'user'=>2, // 0=Menu for internal users, 1=external users, 2=both
 		);
-		/* END MODULEBUILDER TOPMENU */
-		/* BEGIN MODULEBUILDER LEFTMENU AUDIT
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq',      // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type'=>'left',                          // This is a Top menu entry
-			'titre'=>'Audit',
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'audit',
-			'url'=>'/dolismq/dolismqindex.php',
-			'langs'=>'dolismq@dolismq',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-			'position'=>1000+$r,
-			'enabled'=>'$conf->dolismq->enabled',  // Define condition to show or hide menu entry. Use '$conf->dolismq->enabled' if entry must be visible if module is enabled.
-			'perms'=>'$user->rights->dolismq->audit->read',			                // Use 'perms'=>'$user->rights->dolismq->level1->level2' if you want your menu with a permission rules
-			'target'=>'',
-			'user'=>2,				                // 0=Menu for internal users, 1=external users, 2=both
-		);
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=audit',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type'=>'left',			                // This is a Left menu entry
-			'titre'=>'List_Audit',
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_audit_list',
-			'url'=>'/dolismq/audit_list.php',
-			'langs'=>'dolismq@dolismq',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-			'position'=>1000+$r,
-			'enabled'=>'$conf->dolismq->enabled',  // Define condition to show or hide menu entry. Use '$conf->dolismq->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-			'perms'=>'$user->rights->dolismq->audit->read',			                // Use 'perms'=>'$user->rights->dolismq->level1->level2' if you want your menu with a permission rules
-			'target'=>'',
-			'user'=>2,				                // 0=Menu for internal users, 1=external users, 2=both
-		);
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=audit',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type'=>'left',			                // This is a Left menu entry
-			'titre'=>'New_Audit',
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_audit_new',
-			'url'=>'/dolismq/audit_card.php?action=create',
-			'langs'=>'dolismq@dolismq',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-			'position'=>1000+$r,
-			'enabled'=>'$conf->dolismq->enabled',  // Define condition to show or hide menu entry. Use '$conf->dolismq->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-			'perms'=>'$user->rights->dolismq->audit->write',			                // Use 'perms'=>'$user->rights->dolismq->level1->level2' if you want your menu with a permission rules
-			'target'=>'',
-			'user'=>2,				                // 0=Menu for internal users, 1=external users, 2=both
-		);
-		*/
 
         $this->menu[$r++]=array(
-            // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
             'fk_menu'=>'fk_mainmenu=dolismq',
-            // This is a Left menu entry
             'type'=>'left',
-            'titre'=>'List Audit',
+            'titre'=>$langs->trans('QuestionList'),
             'mainmenu'=>'dolismq',
-            'leftmenu'=>'dolismq_audit',
-            'url'=>'/dolismq/audit_list.php',
-            // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+            'leftmenu'=>'dolismq_question',
+            'url'=>'/dolismq/question_list.php',
             'langs'=>'dolismq@dolismq',
             'position'=>1100+$r,
-            // Define condition to show or hide menu entry. Use '$conf->dolismq->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
             'enabled'=>'$conf->dolismq->enabled',
-            // Use 'perms'=>'$user->rights->dolismq->level1->level2' if you want your menu with a permission rules
             'perms'=>'1',
             'target'=>'',
-            // 0=Menu for internal users, 1=external users, 2=both
             'user'=>2,
         );
         $this->menu[$r++]=array(
-            // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-            'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_audit',
-            // This is a Left menu entry
+            'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_question',
             'type'=>'left',
-            'titre'=>'New Audit',
+			'titre'=>$langs->trans('NewQuestion'),
             'mainmenu'=>'dolismq',
-            'leftmenu'=>'dolismq_audit',
-            'url'=>'/dolismq/audit_card.php?action=create',
-            // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+            'leftmenu'=>'dolismq_question',
+            'url'=>'/dolismq/question_card.php?action=create',
             'langs'=>'dolismq@dolismq',
             'position'=>1100+$r,
-            // Define condition to show or hide menu entry. Use '$conf->dolismq->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
             'enabled'=>'$conf->dolismq->enabled',
-            // Use 'perms'=>'$user->rights->dolismq->level1->level2' if you want your menu with a permission rules
             'perms'=>'1',
             'target'=>'',
-            // 0=Menu for internal users, 1=external users, 2=both
             'user'=>2
         );
-
-		/* END MODULEBUILDER LEFTMENU AUDIT */
-		// Exports profiles provided by this module
-		$r = 1;
-		/* BEGIN MODULEBUILDER EXPORT AUDIT */
-		/*
-		$langs->load("dolismq@dolismq");
-		$this->export_code[$r]=$this->rights_class.'_'.$r;
-		$this->export_label[$r]='AuditLines';	// Translation key (used only if key ExportDataset_xxx_z not found)
-		$this->export_icon[$r]='audit@dolismq';
-		// Define $this->export_fields_array, $this->export_TypeFields_array and $this->export_entities_array
-		$keyforclass = 'Audit'; $keyforclassfile='/dolismq/class/audit.class.php'; $keyforelement='audit@dolismq';
-		include DOL_DOCUMENT_ROOT.'/core/commonfieldsinexport.inc.php';
-		//$this->export_fields_array[$r]['t.fieldtoadd']='FieldToAdd'; $this->export_TypeFields_array[$r]['t.fieldtoadd']='Text';
-		//unset($this->export_fields_array[$r]['t.fieldtoremove']);
-		//$keyforclass = 'AuditLine'; $keyforclassfile='/dolismq/class/audit.class.php'; $keyforelement='auditline@dolismq'; $keyforalias='tl';
-		//include DOL_DOCUMENT_ROOT.'/core/commonfieldsinexport.inc.php';
-		$keyforselect='audit'; $keyforaliasextra='extra'; $keyforelement='audit@dolismq';
-		include DOL_DOCUMENT_ROOT.'/core/extrafieldsinexport.inc.php';
-		//$keyforselect='auditline'; $keyforaliasextra='extraline'; $keyforelement='auditline@dolismq';
-		//include DOL_DOCUMENT_ROOT.'/core/extrafieldsinexport.inc.php';
-		//$this->export_dependencies_array[$r] = array('auditline'=>array('tl.rowid','tl.ref')); // To force to activate one or several fields if we select some fields that need same (like to select a unique key if we ask a field of a child to avoid the DISTINCT to discard them, or for computed field than need several other fields)
-		//$this->export_special_array[$r] = array('t.field'=>'...');
-		//$this->export_examplevalues_array[$r] = array('t.field'=>'Example');
-		//$this->export_help_array[$r] = array('t.field'=>'FieldDescHelp');
-		$this->export_sql_start[$r]='SELECT DISTINCT ';
-		$this->export_sql_end[$r]  =' FROM '.MAIN_DB_PREFIX.'audit as t';
-		//$this->export_sql_end[$r]  =' LEFT JOIN '.MAIN_DB_PREFIX.'audit_line as tl ON tl.fk_audit = t.rowid';
-		$this->export_sql_end[$r] .=' WHERE 1 = 1';
-		$this->export_sql_end[$r] .=' AND t.entity IN ('.getEntity('audit').')';
-		$r++; */
-		/* END MODULEBUILDER EXPORT AUDIT */
-
-		// Imports profiles provided by this module
-		$r = 1;
-		/* BEGIN MODULEBUILDER IMPORT AUDIT */
-		/*
-		 $langs->load("dolismq@dolismq");
-		 $this->export_code[$r]=$this->rights_class.'_'.$r;
-		 $this->export_label[$r]='AuditLines';	// Translation key (used only if key ExportDataset_xxx_z not found)
-		 $this->export_icon[$r]='audit@dolismq';
-		 $keyforclass = 'Audit'; $keyforclassfile='/dolismq/class/audit.class.php'; $keyforelement='audit@dolismq';
-		 include DOL_DOCUMENT_ROOT.'/core/commonfieldsinexport.inc.php';
-		 $keyforselect='audit'; $keyforaliasextra='extra'; $keyforelement='audit@dolismq';
-		 include DOL_DOCUMENT_ROOT.'/core/extrafieldsinexport.inc.php';
-		 //$this->export_dependencies_array[$r]=array('mysubobject'=>'ts.rowid', 't.myfield'=>array('t.myfield2','t.myfield3')); // To force to activate one or several fields if we select some fields that need same (like to select a unique key if we ask a field of a child to avoid the DISTINCT to discard them, or for computed field than need several other fields)
-		 $this->export_sql_start[$r]='SELECT DISTINCT ';
-		 $this->export_sql_end[$r]  =' FROM '.MAIN_DB_PREFIX.'audit as t';
-		 $this->export_sql_end[$r] .=' WHERE 1 = 1';
-		 $this->export_sql_end[$r] .=' AND t.entity IN ('.getEntity('audit').')';
-		 $r++; */
-		/* END MODULEBUILDER IMPORT AUDIT */
 	}
 
 	/**
@@ -452,8 +346,16 @@ class modDoliSMQ extends DolibarrModules
 	{
 		global $conf, $langs;
 
-		$result = $this->_load_tables('/dolismq/sql/');
-		if ($result < 0) return -1; // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
+		$sql = array();
+		$this->_load_tables('/dolismq/sql/');
+
+		// Load sql sub folders
+		$sqlFolder = scandir(__DIR__ . '/../../sql');
+		foreach ($sqlFolder as $subFolder) {
+			if ( ! preg_match('/\./', $subFolder)) {
+				$this->_load_tables('/dolismq/sql/' . $subFolder . '/');
+			}
+		}
 
 		// Create extrafields during init
 		//include_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
