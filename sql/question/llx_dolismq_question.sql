@@ -28,5 +28,5 @@ CREATE TABLE llx_dolismq_question(
 	photo_ok      text,
 	photo_ko      text,
 	fk_user_creat integer NOT NULL,
-	fk_user_modif integer,
+	fk_user_modif integer
 ) ENGINE=innodb;

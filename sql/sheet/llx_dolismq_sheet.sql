@@ -25,5 +25,5 @@ CREATE TABLE llx_dolismq_sheet(
 	type          varchar(128),
 	label         varchar(255),
 	fk_user_creat integer NOT NULL,
-	fk_user_modif integer,
+	fk_user_modif integer
 ) ENGINE=innodb;
