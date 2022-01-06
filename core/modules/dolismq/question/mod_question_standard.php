@@ -17,17 +17,15 @@
  */
 
 /**
- *	\file       htdocs/custom/digiriskdolibarr/core/modules/digiriskdolibarr/mod_accident_standard.php
- * \ingroup     digiriskdolibarr
+ *	\file       htdocs/custom/dolismq/core/modules/dolismq/mod_question_standard.php
+ * \ingroup     dolismq
  *	\brief      File containing class for numbering module Standard
  */
 
-require_once __DIR__ . '/../../digiriskdocuments/modules_digiriskdocuments.php';
-
 /**
- * 	Class to manage accident numbering rules Standard
+ * 	Class to manage question numbering rules Standard
  */
-class mod_accident_standard extends ModeleNumRefDigiriskDocuments
+class mod_question_standard
 {
 	/**
 	 * Dolibarr version of the loaded document
@@ -38,7 +36,7 @@ class mod_accident_standard extends ModeleNumRefDigiriskDocuments
 	/**
 	 * @var string document prefix
 	 */
-	public $prefix = 'ACC';
+	public $prefix = 'QU';
 
 	/**
 	 * @var string model name
@@ -53,13 +51,23 @@ class mod_accident_standard extends ModeleNumRefDigiriskDocuments
 	/**
 	 *  Returns the description of the numbering model
 	 *
-	 *  @return     string      Texte descripif
+	 *  @return     string      Texte descriptif
 	 */
 	public function info()
 	{
 		global $langs;
-		$langs->load("digiriskdolibarr@digiriskdolibarr");
-		return $langs->trans('DigiriskAccidentStandardModel', $this->prefix);
+		$langs->load("dolismq@dolismq");
+		return $langs->trans('DigiriskQuestionStandardModel', $this->prefix);
+	}
+
+	/**
+	 *	Return if a module can be used or not
+	 *
+	 *	@return		boolean     true if module can be used
+	 */
+	public function isEnabled()
+	{
+		return true;
 	}
 
 	/**
@@ -85,7 +93,7 @@ class mod_accident_standard extends ModeleNumRefDigiriskDocuments
 		// first we get the max value
 		$posindice = strlen($this->prefix) + 1;
 		$sql       = "SELECT MAX(CAST(SUBSTRING(ref FROM " . $posindice . ") AS SIGNED)) as max";
-		$sql      .= " FROM " . MAIN_DB_PREFIX . "digiriskdolibarr_accident";
+		$sql      .= " FROM " . MAIN_DB_PREFIX . "dolismq_question";
 		$sql      .= " WHERE ref LIKE '" . $db->escape($this->prefix) . "%'";
 		if ($object->ismultientitymanaged == 1) {
 			$sql .= " AND entity = " . $conf->entity;
@@ -97,14 +105,31 @@ class mod_accident_standard extends ModeleNumRefDigiriskDocuments
 			if ($obj) $max = intval($obj->max);
 			else $max      = 0;
 		} else {
-			dol_syslog("mod_accident_standard::getNextValue", LOG_DEBUG);
+			dol_syslog("mod_question_standard::getNextValue", LOG_DEBUG);
 			return -1;
 		}
 
 		if ($max >= (pow(10, 4) - 1)) $num = $max + 1; // If counter > 9999, we do not format on 4 chars, we take number as it is
 		else $num                          = sprintf("%s", $max + 1);
 
-		dol_syslog("mod_accident_standard::getNextValue return " . $this->prefix . $num);
+		dol_syslog("mod_question_standard::getNextValue return " . $this->prefix . $num);
 		return $this->prefix . $num;
+	}
+
+	/**
+	 *	Returns version of numbering module
+	 *
+	 *	@return     string      Valeur
+	 */
+	public function getVersion()
+	{
+		global $langs;
+		$langs->load("admin");
+
+		if ($this->version == 'development') return $langs->trans("VersionDevelopment");
+		if ($this->version == 'experimental') return $langs->trans("VersionExperimental");
+		if ($this->version == 'dolibarr') return DOL_VERSION;
+		if ($this->version) return $this->version;
+		return $langs->trans("NotAvailable");
 	}
 }
