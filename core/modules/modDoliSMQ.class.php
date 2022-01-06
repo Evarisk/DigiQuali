@@ -2,7 +2,7 @@
 /* Copyright (C) 2004-2018  Laurent Destailleur     <eldy@users.sourceforge.net>
  * Copyright (C) 2018-2019  Nicolas ZABOURI         <info@inovea-conseil.com>
  * Copyright (C) 2019-2020  Frédéric France         <frederic.france@netlogic.fr>
- * Copyright (C) 2021 SuperAdmin
+ * Copyright (C) 2019-2022 Eoxia <dev@eoxia.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,27 +52,27 @@ class modDoliSMQ extends DolibarrModules
 
 		// Family can be 'base' (core modules),'crm','financial','hr','projects','products','ecm','technic' (transverse modules),'interface' (link with external tools),'other','...'
 		// It is used to group modules by family in module setup page
-		$this->family = "other";
+		$this->family = "";
 
 		// Module position in the family on 2 digits ('01', '10', '20', ...)
-		$this->module_position = '90';
+		$this->module_position = '';
 
 		// Gives the possibility for the module, to provide his own family info and position of this family (Overwrite $this->family and $this->module_position. Avoid this)
-		//$this->familyinfo = array('myownfamily' => array('position' => '01', 'label' => $langs->trans("MyOwnFamily")));
+		$this->familyinfo = array('Evarisk' => array('position' => '01', 'label' => $langs->trans("Evarisk")));
 		// Module label (no space allowed), used if translation string 'ModuleDoliSMQName' not found (DoliSMQ is name of module).
 		$this->name = preg_replace('/^mod/i', '', get_class($this));
 
 		// Module description, used if translation string 'ModuleDoliSMQDesc' not found (DoliSMQ is name of module).
-		$this->description = "DoliSMQDescription";
+		$this->description = $langs->trans("DoliSMQDescription");
 		// Used only if file README.md and README-LL.md not found.
-		$this->descriptionlong = "DoliSMQDescription";
+		$this->descriptionlong = $langs->trans("DoliSMQDescriptionLong");
 
 		// Author
-		$this->editor_name = 'Editor name';
-		$this->editor_url = 'https://www.example.com';
+		$this->editor_name = 'Evarisk';
+		$this->editor_url = 'https://evarisk.com/';
 
 		// Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-		$this->version = '1.0';
+		$this->version = '1.0.0';
 		// Url to the file with your last numberversion of this module
 		//$this->url_last_version = 'http://www.example.com/versionmodule.txt';
 
@@ -83,7 +83,7 @@ class modDoliSMQ extends DolibarrModules
 		// If file is in theme/yourtheme/img directory under name object_pictovalue.png, use this->picto='pictovalue'
 		// If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
 		// To use a supported fa-xxx css style of font awesome, use this->picto='xxx'
-		$this->picto = 'generic';
+		$this->picto = 'dolismq@dolismq';
 
 		// Define some features supported by module (triggers, login, substitutions, menus, css, etc...)
 		$this->module_parts = array(
@@ -144,8 +144,8 @@ class modDoliSMQ extends DolibarrModules
 		$this->langfiles = array("dolismq@dolismq");
 
 		// Prerequisites
-		$this->phpmin = array(5, 5); // Minimum version of PHP required by module
-		$this->need_dolibarr_version = array(11, -3); // Minimum version of Dolibarr required by module
+		$this->phpmin = array(5, 6); // Minimum version of PHP required by module
+		$this->need_dolibarr_version = array(13, -3); // Minimum version of Dolibarr required by module
 
 		// Messages at activation
 		$this->warnings_activation = array(); // Warning to show when we activate module. array('always'='text') or array('FR'='textfr','ES'='textes'...)
@@ -158,7 +158,10 @@ class modDoliSMQ extends DolibarrModules
 		// Example: $this->const=array(1 => array('DOLISMQ_MYNEWCONST1', 'chaine', 'myvalue', 'This is a constant to add', 1),
 		//                             2 => array('DOLISMQ_MYNEWCONST2', 'chaine', 'myvalue', 'This is another constant to add', 0, 'current', 1)
 		// );
-		$this->const = array();
+		$this->const = array(
+			// CONST SHEET
+			50 => array('DOLISMQ_SHEET_ADDON','chaine', 'mod_sheet_standard' ,'', $conf->entity),
+		);
 
 		// Some keys to add into the overwriting translation tables
 		/*$this->overwrite_translation = array(
@@ -264,23 +267,68 @@ class modDoliSMQ extends DolibarrModules
 		$r = 0;
 
 		// Add here entries to declare new permissions
-		/* BEGIN MODULEBUILDER PERMISSIONS */
-		$this->rights[$r][0] = $this->numero + $r; // Permission id (must not be already used)
-		$this->rights[$r][1] = 'Read objects of DoliSMQ'; // Permission label
+
+		/* module PERMISSIONS */
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][1] = $langs->trans('LireDoliSMQ');
+		$this->rights[$r][4] = 'lire';
+		$this->rights[$r][5] = 1;
+		$r++;
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][1] = $langs->trans('ReadDoliSMQ');
+		$this->rights[$r][4] = 'read';
+		$this->rights[$r][5] = 1;
+		$r++;
+
+		/* CONTROL PERMISSSIONS */
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
+		$this->rights[$r][1] = $langs->trans('ReadControl'); // Permission label
+		$this->rights[$r][4] = 'control'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$r++;
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
+		$this->rights[$r][1] = $langs->trans('CreateControl'); // Permission label
+		$this->rights[$r][4] = 'control'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$r++;
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
+		$this->rights[$r][1] = $langs->trans('DeleteControl'); // Permission label
+		$this->rights[$r][4] = 'control'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$r++;
+
+		/* QUESTION PERMISSSIONS */
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
+		$this->rights[$r][1] = $langs->trans('ReadQuestion'); // Permission label
 		$this->rights[$r][4] = 'question'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
-		$this->rights[$r][0] = $this->numero + $r; // Permission id (must not be already used)
-		$this->rights[$r][1] = 'Create/Update objects of DoliSMQ'; // Permission label
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
+		$this->rights[$r][1] = $langs->trans('CreateQuestion'); // Permission label
 		$this->rights[$r][4] = 'question'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
-		$this->rights[$r][0] = $this->numero + $r; // Permission id (must not be already used)
-		$this->rights[$r][1] = 'Delete objects of DoliSMQ'; // Permission label
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
+		$this->rights[$r][1] = $langs->trans('DeleteQuestion'); // Permission label
 		$this->rights[$r][4] = 'question'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
-		/* END MODULEBUILDER PERMISSIONS */
+
+		/* SHEET PERMISSSIONS */
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
+		$this->rights[$r][1] = $langs->trans('ReadSheet'); // Permission label
+		$this->rights[$r][4] = 'sheet'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$r++;
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
+		$this->rights[$r][1] = $langs->trans('CreateSheet'); // Permission label
+		$this->rights[$r][4] = 'sheet'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$r++;
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1); // Permission id (must not be already used)
+		$this->rights[$r][1] = $langs->trans('DeleteSheet'); // Permission label
+		$this->rights[$r][4] = 'sheet'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 
 		// Main menu entries to add
 		$this->menu = array();
@@ -289,19 +337,48 @@ class modDoliSMQ extends DolibarrModules
 
 		// Add here entries to declare new menus
 		/* BEGIN MODULEBUILDER TOPMENU */
-		$this->menu[$r++] = array(
-			'fk_menu'=>'', // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type'=>'top', // This is a Top menu entry
-			'titre'=>'DoliSMQ',
+		$this->menu[$r++]=array(
+			'fk_menu'  => '', // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'     => 'top', // This is a Top menu entry
+			'titre'    => 'DoliSMQ',
+			'mainmenu' => 'dolismq',
+			'leftmenu' => '',
+			'url'      => '/dolismq/dolismqindex.php',
+			'langs'    => 'dolismq@dolismq', // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position' => 1000 + $r,
+			'enabled'  => '$conf->dolismq->enabled', // Define condition to show or hide menu entry. Use '$conf->dolismq->enabled' if entry must be visible if module is enabled.
+			'perms'    => '$user->rights->dolismq->lire',  // Use 'perms'=>'$user->rights->dolismq->level1->level2' if you want your menu with a permission rules
+			'target'   => '',
+			'user'     => 2, // 0=Menu for internal users, 1=external users, 2=both
+		);
+
+		$this->menu[$r++]=array(
+			'fk_menu'=>'fk_mainmenu=dolismq',
+			'type'=>'left',
+			'titre'=>$langs->trans('SheetList'),
 			'mainmenu'=>'dolismq',
-			'leftmenu'=>'',
-			'url'=>'/dolismq/dolismqindex.php',
-			'langs'=>'dolismq@dolismq', // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
-			'position'=>1000 + $r,
-			'enabled'=>'$conf->dolismq->enabled', // Define condition to show or hide menu entry. Use '$conf->dolismq->enabled' if entry must be visible if module is enabled.
-			'perms'=>'1', // Use 'perms'=>'$user->rights->dolismq->audit->read' if you want your menu with a permission rules
+			'leftmenu'=>'dolismq_sheet',
+			'url'=>'/dolismq/view/sheet/sheet_list.php',
+			'langs'=>'dolismq@dolismq',
+			'position'=>1100+$r,
+			'enabled'=>'$conf->dolismq->enabled',
+			'perms'=>'1',
 			'target'=>'',
-			'user'=>2, // 0=Menu for internal users, 1=external users, 2=both
+			'user'=>2,
+		);
+		$this->menu[$r++]=array(
+			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_sheet',
+			'type'=>'left',
+			'titre'=>$langs->trans('NewSheet'),
+			'mainmenu'=>'dolismq',
+			'leftmenu'=>'dolismq_sheet',
+			'url'=>'/dolismq/view/sheet/sheet_card.php?action=create',
+			'langs'=>'dolismq@dolismq',
+			'position'=>1100+$r,
+			'enabled'=>'$conf->dolismq->enabled',
+			'perms'=>'1',
+			'target'=>'',
+			'user'=>2
 		);
 
         $this->menu[$r++]=array(
@@ -347,7 +424,7 @@ class modDoliSMQ extends DolibarrModules
 		global $conf, $langs;
 
 		$sql = array();
-		$this->_load_tables('/dolismq/sql/');
+		$result = $this->_load_tables('/dolismq/sql/');
 
 		// Load sql sub folders
 		$sqlFolder = scandir(__DIR__ . '/../../sql');
@@ -357,53 +434,10 @@ class modDoliSMQ extends DolibarrModules
 			}
 		}
 
-		// Create extrafields during init
-		//include_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
-		//$extrafields = new ExtraFields($this->db);
-		//$result1=$extrafields->addExtraField('dolismq_myattr1', "New Attr 1 label", 'boolean', 1,  3, 'thirdparty',   0, 0, '', '', 1, '', 0, 0, '', '', 'dolismq@dolismq', '$conf->dolismq->enabled');
-		//$result2=$extrafields->addExtraField('dolismq_myattr2', "New Attr 2 label", 'varchar', 1, 10, 'project',      0, 0, '', '', 1, '', 0, 0, '', '', 'dolismq@dolismq', '$conf->dolismq->enabled');
-		//$result3=$extrafields->addExtraField('dolismq_myattr3', "New Attr 3 label", 'varchar', 1, 10, 'bank_account', 0, 0, '', '', 1, '', 0, 0, '', '', 'dolismq@dolismq', '$conf->dolismq->enabled');
-		//$result4=$extrafields->addExtraField('dolismq_myattr4', "New Attr 4 label", 'select',  1,  3, 'thirdparty',   0, 1, '', array('options'=>array('code1'=>'Val1','code2'=>'Val2','code3'=>'Val3')), 1,'', 0, 0, '', '', 'dolismq@dolismq', '$conf->dolismq->enabled');
-		//$result5=$extrafields->addExtraField('dolismq_myattr5', "New Attr 5 label", 'text',    1, 10, 'user',         0, 0, '', '', 1, '', 0, 0, '', '', 'dolismq@dolismq', '$conf->dolismq->enabled');
+		if ($result < 0) return -1; // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
 
 		// Permissions
 		$this->remove($options);
-
-		$sql = array();
-
-		// Document templates
-		$moduledir = 'dolismq';
-		$myTmpObjects = array();
-		$myTmpObjects['Audit'] = array('includerefgeneration'=>0, 'includedocgeneration'=>0);
-
-		foreach ($myTmpObjects as $myTmpObjectKey => $myTmpObjectArray) {
-			if ($myTmpObjectKey == 'Audit') continue;
-			if ($myTmpObjectArray['includerefgeneration']) {
-				$src = DOL_DOCUMENT_ROOT.'/install/doctemplates/dolismq/template_audits.odt';
-				$dirodt = DOL_DATA_ROOT.'/doctemplates/dolismq';
-				$dest = $dirodt.'/template_audits.odt';
-
-				if (file_exists($src) && !file_exists($dest))
-				{
-					require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
-					dol_mkdir($dirodt);
-					$result = dol_copy($src, $dest, 0, 0);
-					if ($result < 0)
-					{
-						$langs->load("errors");
-						$this->error = $langs->trans('ErrorFailToCopyFile', $src, $dest);
-						return 0;
-					}
-				}
-
-				$sql = array_merge($sql, array(
-					"DELETE FROM ".MAIN_DB_PREFIX."document_model WHERE nom = 'standard_".strtolower($myTmpObjectKey)."' AND type = '".strtolower($myTmpObjectKey)."' AND entity = ".$conf->entity,
-					"INSERT INTO ".MAIN_DB_PREFIX."document_model (nom, type, entity) VALUES('standard_".strtolower($myTmpObjectKey)."','".strtolower($myTmpObjectKey)."',".$conf->entity.")",
-					"DELETE FROM ".MAIN_DB_PREFIX."document_model WHERE nom = 'generic_".strtolower($myTmpObjectKey)."_odt' AND type = '".strtolower($myTmpObjectKey)."' AND entity = ".$conf->entity,
-					"INSERT INTO ".MAIN_DB_PREFIX."document_model (nom, type, entity) VALUES('generic_".strtolower($myTmpObjectKey)."_odt', '".strtolower($myTmpObjectKey)."', ".$conf->entity.")"
-				));
-			}
-		}
 
 		return $this->_init($sql, $options);
 	}
