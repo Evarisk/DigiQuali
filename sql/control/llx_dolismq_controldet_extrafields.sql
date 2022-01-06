@@ -1,4 +1,4 @@
--- Copyright (C) ---Put here your own copyright and developer email---
+-- Copyright (C) 2021 EOXIA <dev@eoxia.com>
 --
 -- This program is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -13,7 +13,9 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program. If not, see https://www.gnu.org/licenses/.
 
-
--- BEGIN MODULEBUILDER INDEXES
-ALTER TABLE llx_dolismq_audit_extrafields ADD INDEX idx_audit_fk_object(fk_object);
--- END MODULEBUILDER INDEXES
+create table llx_dolismq_controldet_extrafields(
+    rowid      integer AUTO_INCREMENT PRIMARY KEY,
+    tms        timestamp,
+    import_key varchar(14),
+    fk_object  integer NOT NULL
+) ENGINE=innodb;
