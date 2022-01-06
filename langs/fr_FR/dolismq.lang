@@ -52,3 +52,10 @@ MyWidgetDescription = Description de mon widget
 #
 
 DoliSMQHelpAuditDateStart = La date de début d'audit
+
+#
+# Questions
+#
+
+NewQuestion = Ajouter une question
+QuestionList = Liste des questions
