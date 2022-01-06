@@ -16,18 +16,18 @@
  */
 
 /**
- * \file    lib/dolismq_audit.lib.php
+ * \file    lib/dolismq_question.lib.php
  * \ingroup dolismq
- * \brief   Library files with common functions for Audit
+ * \brief   Library files with common functions for Question
  */
 
 /**
- * Prepare array of tabs for Audit
+ * Prepare array of tabs for Question
  *
- * @param	Audit	$object		Audit
+ * @param	Question	$object		Question
  * @return 	array					Array of tabs
  */
-function auditPrepareHead($object)
+function questionPrepareHead($object)
 {
 	global $db, $langs, $conf;
 
@@ -36,7 +36,7 @@ function auditPrepareHead($object)
 	$h = 0;
 	$head = array();
 
-	$head[$h][0] = dol_buildpath("/dolismq/audit_card.php", 1).'?id='.$object->id;
+	$head[$h][0] = dol_buildpath("/dolismq/question_card.php", 1).'?id='.$object->id;
 	$head[$h][1] = $langs->trans("Card");
 	$head[$h][2] = 'card';
 	$h++;
@@ -46,7 +46,7 @@ function auditPrepareHead($object)
 		$nbNote = 0;
 		if (!empty($object->note_private)) $nbNote++;
 		if (!empty($object->note_public)) $nbNote++;
-		$head[$h][0] = dol_buildpath('/dolismq/audit_note.php', 1).'?id='.$object->id;
+		$head[$h][0] = dol_buildpath('/dolismq/question_note.php', 1).'?id='.$object->id;
 		$head[$h][1] = $langs->trans('Notes');
 		if ($nbNote > 0) $head[$h][1] .= (empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER) ? '<span class="badge marginleftonlyshort">'.$nbNote.'</span>' : '');
 		$head[$h][2] = 'note';
@@ -55,16 +55,16 @@ function auditPrepareHead($object)
 
 	require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 	require_once DOL_DOCUMENT_ROOT.'/core/class/link.class.php';
-	$upload_dir = $conf->dolismq->dir_output."/audit/".dol_sanitizeFileName($object->ref);
+	$upload_dir = $conf->dolismq->dir_output."/question/".dol_sanitizeFileName($object->ref);
 	$nbFiles = count(dol_dir_list($upload_dir, 'files', 0, '', '(\.meta|_preview.*\.png)$'));
 	$nbLinks = Link::count($db, $object->element, $object->id);
-	$head[$h][0] = dol_buildpath("/dolismq/audit_document.php", 1).'?id='.$object->id;
+	$head[$h][0] = dol_buildpath("/dolismq/question_document.php", 1).'?id='.$object->id;
 	$head[$h][1] = $langs->trans('Documents');
 	if (($nbFiles + $nbLinks) > 0) $head[$h][1] .= '<span class="badge marginleftonlyshort">'.($nbFiles + $nbLinks).'</span>';
 	$head[$h][2] = 'document';
 	$h++;
 
-	$head[$h][0] = dol_buildpath("/dolismq/audit_agenda.php", 1).'?id='.$object->id;
+	$head[$h][0] = dol_buildpath("/dolismq/question_agenda.php", 1).'?id='.$object->id;
 	$head[$h][1] = $langs->trans("Events");
 	$head[$h][2] = 'agenda';
 	$h++;
@@ -77,9 +77,9 @@ function auditPrepareHead($object)
 	//$this->tabs = array(
 	//	'entity:-tabname:Title:@dolismq:/dolismq/mypage.php?id=__ID__'
 	//); // to remove a tab
-	complete_head_from_modules($conf, $langs, $object, $head, $h, 'audit@dolismq');
+	complete_head_from_modules($conf, $langs, $object, $head, $h, 'question@dolismq');
 
-	complete_head_from_modules($conf, $langs, $object, $head, $h, 'audit@dolismq', 'remove');
+	complete_head_from_modules($conf, $langs, $object, $head, $h, 'question@dolismq', 'remove');
 
 	return $head;
 }

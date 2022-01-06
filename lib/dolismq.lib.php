@@ -52,6 +52,11 @@ function dolismqAdminPrepareHead()
 	$head[$h][2] = 'about';
 	$h++;
 
+	$head[$h][0] = dol_buildpath("/dolismq/admin/question.php", 1);
+	$head[$h][1] = $langs->trans("Question");
+	$head[$h][2] = 'question';
+	$h++;
+
 	// Show more tabs from modules
 	// Entries must be declared in modules descriptor with line
 	//$this->tabs = array(
