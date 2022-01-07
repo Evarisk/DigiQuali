@@ -65,6 +65,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 
 require_once __DIR__.'/../../class/sheet.class.php';
+require_once __DIR__.'/../../class/question.class.php';
 require_once __DIR__.'/../../lib/dolismq_sheet.lib.php';
 require_once __DIR__.'/../../core/modules/dolismq/sheet/mod_sheet_standard.php';
 
@@ -86,6 +87,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 
 // Initialize technical objects
 $object      = new Sheet($db);
+$question    = new Question($db);
 $extrafields = new ExtraFields($db);
 $refSheetMod = new $conf->global->DOLISMQ_SHEET_ADDON($db);
 
@@ -148,7 +150,15 @@ if (empty($reshook))
 		}
 	}
 
+	if ($action == 'addQuestion') {
+		$questionId = GETPOST('questionId');
+		$question->fetch($questionId);
+		$question->add_object_linked($object->element,$id);
 
+
+		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
+		exit;
+	}
 	$triggermodname = 'DOLISMQ_AUDIT_MODIFY'; // Name of trigger action code to execute when we modify record
 
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
@@ -337,6 +347,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	//$keyforbreak='fieldkeytoswitchonsecondcolumn';	// We change column just before this field
 	//unset($object->fields['fk_project']);				// Hide field already shown in banner
 	//unset($object->fields['fk_soc']);					// Hide field already shown in banner
+
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
@@ -348,6 +359,77 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
+	// PREVENTIONPLAN LINES
+	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
+	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '');
+	print '<table id="tablelines" class="noborder noshadow" width="100%">';
+
+	global $forceall, $forcetoshowtitlelines;
+
+	if (empty($forceall)) $forceall = 0;
+
+	// Define colspan for the button 'Add'
+	$colspan = 3;
+
+	// Lines
+	$object->fetchQuestionsLinked($id, 'sheet');
+	$questionIds = $object->linkedObjectsIds;
+
+	print '<tr class="liste_titre">';
+	print '<td><span>' . $langs->trans('Label') . '</span></td>';
+	print '<td>' . $langs->trans('PhotoOk') . '</td>';
+	print '<td class="center" colspan="' . $colspan . '">' . $langs->trans('PhotoKo') . '</td>';
+	print '</tr>';
+
+	if ( ! empty($questionIds['question']) && $questionIds > 0) {
+		print '<tr>';
+		foreach ($questionIds['question'] as $questionId) {
+			$item = $question;
+			$item->fetch($questionId);
+
+			print '<tr>';
+			print '<td>';
+			print $item->ref;
+			print '</td>';
+
+			print '<td>';
+			print $item->photo_ok;
+			print '</td>';
+
+			$coldisplay++;
+			print '<td>';
+			print $item->photo_ko;
+			print '</td>';
+
+			$coldisplay++;
+			print '<td class="center">'; ?>
+
+			<?php
+			print '</td>';
+
+			$coldisplay += $colspan;
+
+
+			print '</tr>';
+
+
+		}
+
+		print '</tr>';
+	}
+	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+	print '<input type="hidden" name="token" value="' . newToken() . '">';
+	print '<input type="hidden" name="action" value="addQuestion">';
+	print '<input type="hidden" name="id" value="'.$id.'">';
+
+	print '<td class="minwidth300">';
+	print $question->select_question_list(0,  'questionId',  '',  '1',  0, 0, array(), '', 0, 0, 'disabled', '', false, 1);
+	print '</td>';
+	print '<td>';
+	print ' &nbsp; <input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
+	print '</td>';
+
+	print '</form>';
 	print dol_get_fiche_end();
 
 
