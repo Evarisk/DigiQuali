@@ -17,9 +17,9 @@
  */
 
 /**
- *   	\file       question_card.php
+ *   	\file       control_card.php
  *		\ingroup    dolismq
- *		\brief      Page to create/edit/view question
+ *		\brief      Page to create/edit/view control
  */
 
 //if (! defined('NOREQUIREDB'))              define('NOREQUIREDB', '1');				// Do not create database handler $db
@@ -54,8 +54,9 @@ if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1))."/main.inc.php")) $
 if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php")) $res = @include dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php";
 // Try main.inc.php using relative path
 if (!$res && file_exists("../main.inc.php")) $res = @include "../main.inc.php";
-if (!$res && file_exists("../../main.inc.php")) $res = @include "../../main.inc.php";
-if (!$res && file_exists("../../../main.inc.php")) $res = @include "../../../main.inc.php";
+if ( ! $res && file_exists("../../main.inc.php")) $res       = @include "../../main.inc.php";
+if ( ! $res && file_exists("../../../main.inc.php")) $res    = @include "../../../main.inc.php";
+if ( ! $res && file_exists("../../../../main.inc.php")) $res = @include "../../../../main.inc.php";
 if (!$res) die("Include of main fails");
 
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
@@ -63,9 +64,10 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 
-require_once './class/question.class.php';
-require_once './core/modules/dolismq/question/mod_question_standard.php';
-require_once './lib/dolismq_question.lib.php';
+require_once __DIR__.'/../../class/control.class.php';
+require_once __DIR__.'/../../class/sheet.class.php';
+require_once __DIR__.'/../../lib/dolismq_control.lib.php';
+require_once __DIR__.'/../../core/modules/dolismq/control/mod_control_standard.php';
 
 global $langs, $conf, $user, $db;
 
@@ -78,18 +80,19 @@ $ref        = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 $confirm    = GETPOST('confirm', 'alpha');
 $cancel     = GETPOST('cancel', 'aZ09');
-$contextpage = GETPOST('contextpage', 'aZ') ?GETPOST('contextpage', 'aZ') : 'questioncard'; // To manage different context of search
+$contextpage = GETPOST('contextpage', 'aZ') ?GETPOST('contextpage', 'aZ') : 'controlcard'; // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 //$lineid   = GETPOST('lineid', 'int');
 
 // Initialize technical objects
-$object         = new Question($db);
-$extrafields    = new ExtraFields($db);
-$refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($db);
+$object        = new Control($db);
+$sheet         = new Sheet($db);
+$extrafields   = new ExtraFields($db);
+$refControlMod = new $conf->global->DOLISMQ_CONTROL_ADDON($db);
 
 $diroutputmassaction = $conf->dolismq->dir_output.'/temp/massgeneration/'.$user->id;
-$hookmanager->initHooks(array('questioncard', 'globalcard')); // Note that conf->hooks_modules contains array
+$hookmanager->initHooks(array('controlcard', 'globalcard')); // Note that conf->hooks_modules contains array
 
 // Fetch optionals attributes and labels
 $extrafields->fetch_name_optionals_label($object->table_element);
@@ -110,11 +113,11 @@ if (empty($action) && empty($id) && empty($ref)) $action = 'view';
 include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
 
 
-$permissiontoread = $user->rights->dolismq->question->read;
-$permissiontoadd = $user->rights->dolismq->question->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
-$permissiontodelete = $user->rights->dolismq->question->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
-$permissionnote = $user->rights->dolismq->question->write; // Used by the include of actions_setnotes.inc.php
-$permissiondellink = $user->rights->dolismq->question->write; // Used by the include of actions_dellink.inc.php
+$permissiontoread = $user->rights->dolismq->control->read;
+$permissiontoadd = $user->rights->dolismq->control->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
+$permissiontodelete = $user->rights->dolismq->control->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
+$permissionnote = $user->rights->dolismq->control->write; // Used by the include of actions_setnotes.inc.php
+$permissiondellink = $user->rights->dolismq->control->write; // Used by the include of actions_dellink.inc.php
 $upload_dir = $conf->dolismq->multidir_output[isset($object->entity) ? $object->entity : 1];
 
 // Security check - Protection if external user
@@ -138,20 +141,29 @@ if (empty($reshook))
 {
 	$error = 0;
 
-	$backurlforlist = dol_buildpath('/dolismq/question_list.php', 1);
+	$backurlforlist = dol_buildpath('/dolismq/view/control/control_list.php', 1);
 
 	if (empty($backtopage) || ($cancel && empty($id))) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) $backtopage = $backurlforlist;
-			else $backtopage = dol_buildpath('/dolismq/question_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
+			else $backtopage = dol_buildpath('/dolismq/view/control/control_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
 		}
 	}
 
+	if ($action == 'addQuestion') {
+		$questionId = GETPOST('questionId');
+		$question->fetch($questionId);
+		$question->add_object_linked($object->element,$id);
 
+
+		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
+		exit;
+	}
 	$triggermodname = 'DOLISMQ_AUDIT_MODIFY'; // Name of trigger action code to execute when we modify record
 
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
+
 
 	// Actions when linking object each other
 	include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';
@@ -177,7 +189,7 @@ if (empty($reshook))
 	// Actions to send emails
 	$triggersendname = 'DOLISMQ_AUDIT_SENTBYMAIL';
 	$autocopy = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
-	$trackid = 'question'.$object->id;
+	$trackid = 'control'.$object->id;
 	include DOL_DOCUMENT_ROOT.'/core/actions_sendmails.inc.php';
 }
 
@@ -186,38 +198,23 @@ if (empty($reshook))
 
 /*
  * View
- *
- * Put here all code to build page
  */
 
 $form = new Form($db);
 $formfile = new FormFile($db);
 $formproject = new FormProjets($db);
 
-$title = $langs->trans("Question");
+$title         = $langs->trans("Control");
+$title_create  = $langs->trans("NewControl");
+$title_edit    = $langs->trans("ModifyControl");
+
 $help_url = '';
+
 llxHeader('', $title, $help_url);
 
-// Example : Adding jquery code
-print '<script type="text/javascript" language="javascript">
-jQuery(document).ready(function() {
-	function init_myfunc()
-	{
-		jQuery("#myid").removeAttr(\'disabled\');
-		jQuery("#myid").attr(\'disabled\',\'disabled\');
-	}
-	init_myfunc();
-	jQuery("#mybutton").click(function() {
-		init_myfunc();
-	});
-});
-</script>';
-
-
 // Part to create
-if ($action == 'create')
-{
-	print load_fiche_titre($langs->trans("NewObject", $langs->transnoentitiesnoconv("Question")), '', 'object_'.$object->picto);
+if ($action == 'create') {
+	print load_fiche_titre($title_create, '', "dolismq@dolismq");
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
@@ -225,37 +222,51 @@ if ($action == 'create')
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 	if ($backtopageforcancel) print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
 
-	print dol_get_fiche_head(array(), '');
+	print dol_get_fiche_head();
 
-	// Set some default values
-	//if (! GETPOSTISSET('fieldname')) $_POST['fieldname'] = 'myvalue';
+	print '<table class="border centpercent tableforfieldcreate control-table">'."\n";
 
-	print '<table class="border centpercent tableforfieldcreate">'."\n";
-
-	// Common attributes
-//	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_add.tpl.php';
-
-	print '<tr><td class="fieldrequired">' . $langs->trans("Ref") . '</td><td>';
-	print '<input hidden class="flat" type="text" size="36" name="ref" id="ref" value="' . $refQuestionMod->getNextValue($object) . '">';
-	print $refQuestionMod->getNextValue($object);
+	//Ref -- Ref
+	print '<tr><td class="fieldrequired minwidth400">' . $langs->trans("Ref") . '</td><td>';
+	print '<input hidden class="flat" type="text" size="36" name="ref" id="ref" value="' . $refControlMod->getNextValue($object) . '">';
+	print $refControlMod->getNextValue($object);
 	print '</td></tr>';
 
-	print '<tr><td><label class="fieldrequired" for="description">' . $langs->trans("Description") . '</label></td><td>';
-	$doleditor = new DolEditor('description', $conf->global->DIGIRISK_LOCATION_OF_DETAILED_INSTRUCTION ? $conf->global->DIGIRISK_LOCATION_OF_DETAILED_INSTRUCTION : '', '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
-	$doleditor->Create();
+	//FK User controller
+	if ($conf->global->DOLISQM_USER_CONTROLLER < 0 || empty($conf->global->DOLISQM_USER_CONTROLLER)) {
+		$userlist = $form->select_dolusers(( ! empty(GETPOST('fk_user_controller')) ? GETPOST('fk_user_controller') : $user->id), '', 0, null, 0, '', '', $conf->entity, 0, 0, 'AND u.statut = 1', 0, '', 'minwidth300', 0, 1);
+		print '<tr>';
+		print '<td class="fieldrequired minwidth400" style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
+		print '<td>';
+		print $form->selectarray('fk_user_controller', $userlist, ( ! empty(GETPOST('fk_user_controller')) ? GETPOST('fk_user_controller') : $user->id), $langs->trans('SelectUser'), null, null, null, "40%", 0, 0, '', 'minwidth300', 1);
+		print ' <a href="' . DOL_URL_ROOT . '/user/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddUser") . '"></span></a>';
+		print '</td></tr>';
+	} else {
+		$usertmp->fetch($conf->global->DOLISQM_USER_CONTROLLER);
+		print '<tr>';
+		print '<td class="fieldrequired minwidth400" style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
+		print '<td>' . $usertmp->getNomUrl(1) . '</td>';
+		print '<input type="hidden" name="fk_user_controller" value="' . $conf->global->DOLISQM_USER_CONTROLLER . '">';
+		print '</td></tr>';
+	}
+
+	//FK Product
+	print '<tr><td class="fieldrequired minwidth400">' . img_picto('', 'building') . ' ' . $langs->trans("ExtSociety") . '</td><td>';
+	$events    = array();
+	$events[1] = array('method' => 'getContacts', 'url' => dol_buildpath('/custom/digiriskdolibarr/core/ajax/contacts.php?showempty=1', 1), 'htmlname' => 'ext_society_responsible', 'params' => array('add-customer-contact' => 'disabled'));
+	print $form->select_produits(GETPOST('fk_product'), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProducts', 0, 'minwidth300');
+	print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
 	print '</td></tr>';
 
-	print '<tr><td><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>';
-	print '<i class="fas fa-file"></i>';
+	//FK SHEET
+	print '<tr class="oddeven"><td>' . $langs->trans("SheetLinked") . '</td><td>';
+	print $sheet->select_sheet_list();
 	print '</td></tr>';
 
-	print '<tr><td><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>';
-	print '<i class="fas fa-file"></i>';
-	print '</td></tr>';
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
 
-	print '</table>'."\n";
+	print '</table>';
 
 	print dol_get_fiche_end();
 
@@ -266,14 +277,11 @@ if ($action == 'create')
 	print '</div>';
 
 	print '</form>';
-
-	//dol_set_focus('input[name="ref"]');
 }
 
 // Part to edit record
-if (($id || $ref) && $action == 'edit')
-{
-	print load_fiche_titre($langs->trans("Question"), '', 'object_'.$object->picto);
+if (($id || $ref) && $action == 'edit') {
+	print load_fiche_titre($title_edit, '', "dolismq@dolismq");
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
@@ -284,7 +292,7 @@ if (($id || $ref) && $action == 'edit')
 
 	print dol_get_fiche_head();
 
-	print '<table class="border centpercent tableforfieldedit">'."\n";
+	print '<table class="border centpercent tableforfieldedit control-table">'."\n";
 
 	// Common attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_edit.tpl.php';
@@ -308,14 +316,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 {
 	$res = $object->fetch_optionals();
 
-	$head = questionPrepareHead($object);
-	print dol_get_fiche_head($head, 'card', $langs->trans("Question"), -1, $object->picto);
+	$head = controlPrepareHead($object);
+	print dol_get_fiche_head($head, 'card', $langs->trans("Control"), -1, $object->picto);
 
 	$formconfirm = '';
 
 	// Confirmation to delete
 	if ($action == 'delete') {
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('DeleteQuestion'), $langs->trans('ConfirmDeleteObject'), 'confirm_delete', '', 0, 1);
+		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('DeleteControl'), $langs->trans('ConfirmDeleteObject'), 'confirm_delete', '', 0, 1);
 	}
 	// Confirmation to delete line
 	if ($action == 'deleteline') {
@@ -324,15 +332,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Clone confirmation
 	if ($action == 'clone') {
 		// Create an array for form
-		$formquestion = array();
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('ToClone'), $langs->trans('ConfirmCloneAsk', $object->ref), 'confirm_clone', $formquestion, 'yes', 1);
+		$formcontrol = array();
+		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('ToClone'), $langs->trans('ConfirmCloneAsk', $object->ref), 'confirm_clone', $formcontrol, 'yes', 1);
 	}
 
 	// Confirmation of action xxxx
 	if ($action == 'xxx')
 	{
-		$formquestion = array();
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('XXX'), $text, 'confirm_xxx', $formquestion, 0, 1, 220);
+		$formcontrol = array();
+		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('XXX'), $text, 'confirm_xxx', $formcontrol, 0, 1, 220);
 	}
 
 	// Call Hook formConfirm
@@ -347,7 +355,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.dol_buildpath('/dolismq/question_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="'.dol_buildpath('/dolismq/control_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
 
 	$morehtmlref = '<div class="refidno">';
 	$morehtmlref .= '</div>';
@@ -365,6 +373,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	//$keyforbreak='fieldkeytoswitchonsecondcolumn';	// We change column just before this field
 	//unset($object->fields['fk_project']);				// Hide field already shown in banner
 	//unset($object->fields['fk_soc']);					// Hide field already shown in banner
+
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
@@ -376,6 +385,77 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
+	// PREVENTIONPLAN LINES
+	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
+	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '');
+	print '<table id="tablelines" class="noborder noshadow" width="100%">';
+
+	global $forceall, $forcetoshowtitlelines;
+
+	if (empty($forceall)) $forceall = 0;
+
+	// Define colspan for the button 'Add'
+	$colspan = 3;
+
+	// Lines
+	$object->fetchQuestionsLinked($id, 'control');
+	$questionIds = $object->linkedObjectsIds;
+
+	print '<tr class="liste_titre">';
+	print '<td><span>' . $langs->trans('Label') . '</span></td>';
+	print '<td>' . $langs->trans('PhotoOk') . '</td>';
+	print '<td class="center" colspan="' . $colspan . '">' . $langs->trans('PhotoKo') . '</td>';
+	print '</tr>';
+
+	if ( ! empty($questionIds['question']) && $questionIds > 0) {
+		print '<tr>';
+		foreach ($questionIds['question'] as $questionId) {
+			$item = $question;
+			$item->fetch($questionId);
+
+			print '<tr>';
+			print '<td>';
+			print $item->ref;
+			print '</td>';
+
+			print '<td>';
+			print $item->photo_ok;
+			print '</td>';
+
+			$coldisplay++;
+			print '<td>';
+			print $item->photo_ko;
+			print '</td>';
+
+			$coldisplay++;
+			print '<td class="center">'; ?>
+
+			<?php
+			print '</td>';
+
+			$coldisplay += $colspan;
+
+
+			print '</tr>';
+
+
+		}
+
+		print '</tr>';
+	}
+	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+	print '<input type="hidden" name="token" value="' . newToken() . '">';
+	print '<input type="hidden" name="action" value="addQuestion">';
+	print '<input type="hidden" name="id" value="'.$id.'">';
+
+	print '<td class="minwidth300">';
+	print $question->select_question_list(0,  'questionId',  '',  '1',  0, 0, array(), '', 0, 0, 'disabled', '', false, 1);
+	print '</td>';
+	print '<td>';
+	print ' &nbsp; <input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
+	print '</td>';
+
+	print '</form>';
 	print dol_get_fiche_end();
 
 
