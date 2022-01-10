@@ -136,7 +136,7 @@ class modDoliSMQ extends DolibarrModules
 		// A condition to hide module
 		$this->hidden = false;
 		// List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
-		$this->depends = array();
+		$this->depends = array('modFckeditor', 'modProduct', 'modProductBatch');
 		$this->requiredby = array(); // List of module class names as string to disable if this one is disabled. Example: array('modModuleToDisable1', ...)
 		$this->conflictwith = array(); // List of module class names as string this module is in conflict with. Example: array('modModuleToDisable1', ...)
 
@@ -161,6 +161,12 @@ class modDoliSMQ extends DolibarrModules
 		$this->const = array(
 			// CONST SHEET
 			50 => array('DOLISMQ_SHEET_ADDON','chaine', 'mod_sheet_standard' ,'', $conf->entity),
+
+			// CONST QUESTION
+			60 => array('DOLISMQ_QUESTION_ADDON','chaine', 'mod_question_standard' ,'', $conf->entity),
+
+			// CONST CONTROL
+			70 => array('DOLISMQ_CONTROL_ADDON','chaine', 'mod_control_standard' ,'', $conf->entity),
 		);
 
 		// Some keys to add into the overwriting translation tables
@@ -373,6 +379,35 @@ class modDoliSMQ extends DolibarrModules
 			'mainmenu'=>'dolismq',
 			'leftmenu'=>'dolismq_sheet',
 			'url'=>'/dolismq/view/sheet/sheet_card.php?action=create',
+			'langs'=>'dolismq@dolismq',
+			'position'=>1100+$r,
+			'enabled'=>'$conf->dolismq->enabled',
+			'perms'=>'1',
+			'target'=>'',
+			'user'=>2
+		);
+
+		$this->menu[$r++]=array(
+			'fk_menu'=>'fk_mainmenu=dolismq',
+			'type'=>'left',
+			'titre'=>$langs->trans('ControlList'),
+			'mainmenu'=>'dolismq',
+			'leftmenu'=>'dolismq_control',
+			'url'=>'/dolismq/view/control/control_list.php',
+			'langs'=>'dolismq@dolismq',
+			'position'=>1100+$r,
+			'enabled'=>'$conf->dolismq->enabled',
+			'perms'=>'1',
+			'target'=>'',
+			'user'=>2,
+		);
+		$this->menu[$r++]=array(
+			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_control',
+			'type'=>'left',
+			'titre'=>$langs->trans('NewControl'),
+			'mainmenu'=>'dolismq',
+			'leftmenu'=>'dolismq_control',
+			'url'=>'/dolismq/view/control/control_card.php?action=create',
 			'langs'=>'dolismq@dolismq',
 			'position'=>1100+$r,
 			'enabled'=>'$conf->dolismq->enabled',

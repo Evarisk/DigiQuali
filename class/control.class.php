@@ -17,18 +17,18 @@
  */
 
 /**
- * \file        class/sheet.class.php
+ * \file        class/control.class.php
  * \ingroup     dolismq
- * \brief       This file is a CRUD class file for Sheet (Create/Read/Update/Delete)
+ * \brief       This file is a CRUD class file for Control (Create/Read/Update/Delete)
  */
 
 // Put here all includes required by your class file
 require_once DOL_DOCUMENT_ROOT . '/core/class/commonobject.class.php';
 
 /**
- * Class for Sheet
+ * Class for Control
  */
-class Sheet extends CommonObject
+class Control extends CommonObject
 {
 	/**
 	 * @var string ID of module.
@@ -38,12 +38,12 @@ class Sheet extends CommonObject
 	/**
 	 * @var string ID to identify managed object.
 	 */
-	public $element = 'sheet';
+	public $element = 'control';
 
 	/**
 	 * @var string Name of table without prefix where object is stored. This is also the key used for extrafields management.
 	 */
-	public $table_element = 'dolismq_sheet';
+	public $table_element = 'dolismq_control';
 
 	/**
 	 * @var int  Does this object support multicompany module ?
@@ -57,9 +57,9 @@ class Sheet extends CommonObject
 	public $isextrafieldmanaged = 1;
 
 	/**
-	 * @var string String with name of icon for sheet. Must be the part after the 'object_' into object_sheet.png
+	 * @var string String with name of icon for control. Must be the part after the 'object_' into object_control.png
 	 */
-	public $picto = 'sheet@dolismq';
+	public $picto = 'control@dolismq';
 
 
 	const STATUS_DRAFT     = 0;
@@ -70,18 +70,21 @@ class Sheet extends CommonObject
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
 	 */
 	public $fields = array(
-		'rowid'         => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
-		'ref'           => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
-		'ref_ext'       => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "External reference of object"),
-		'entity'        => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
-		'date_creation' => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => -2,),
-		'tms'           => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => -2,),
-		'import_key'    => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
-		'status'        => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '0', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'arrayofkeyval' => array('0' => 'Brouillon', '1' => 'Valid&eacute;', '9' => 'Annul&eacute;'),),
-		'type'          => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
-		'label'         => array('type' => 'varchar(255)', 'label' => 'Label', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth300', 'help' => "Help text", 'showoncombobox' => '1',),
-		'fk_user_creat' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => -2, 'foreignkey' => 'user.rowid',),
-		'fk_user_modif' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => -2,),
+		'rowid'              => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
+		'ref'                => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
+		'ref_ext'            => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "External reference of object"),
+		'entity'             => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
+		'date_creation'      => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => -2,),
+		'tms'                => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => -2,),
+		'import_key'         => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
+		'status'             => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '0', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'arrayofkeyval' => array('0' => 'Brouillon', '1' => 'Valid&eacute;', '9' => 'Annul&eacute;'),),
+		'type'               => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
+		'fk_user_creat'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => -2, 'foreignkey' => 'user.rowid',),
+		'fk_user_modif'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => -2,),
+		'fk_sheet'           => array('type' => 'integer', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 150, 'notnull' => 1, 'visible' => -2,),
+		'fk_user_controller' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'FKUserController', 'enabled' => '1', 'position' => 160, 'notnull' => 1, 'visible' => -2, 'foreignkey' => 'user.rowid'),
+		'fk_product'         => array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'FKProduct', 'enabled' => '1', 'position' => 170, 'notnull' => 1, 'visible' => -2, 'foreignkey' => 'product.rowid'),
+		'fk_lot'             => array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'FKLot', 'enabled' => '1', 'position' => 180, 'notnull' => 1, 'visible' => -2, 'foreignkey' => 'productlot.rowid'),
 	);
 
 	public $rowid;
@@ -96,6 +99,10 @@ class Sheet extends CommonObject
 	public $label;
 	public $fk_user_creat;
 	public $fk_user_modif;
+	public $fk_sheet;
+	public $fk_user_controller;
+	public $fk_product;
+	public $fk_lot;
 
 
 	/**
@@ -395,8 +402,8 @@ class Sheet extends CommonObject
 			return 0;
 		}
 
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->sheet->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->sheet->sheet_advance->validate))))
+		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->control->write))
+		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->control->control_advance->validate))))
 		 {
 		 $this->error='NotEnoughPermissions';
 		 dol_syslog(get_class($this)."::valid ".$this->error, LOG_ERR);
@@ -446,23 +453,23 @@ class Sheet extends CommonObject
 			// Rename directory if dir was a temporary ref
 			if (preg_match('/^[\(]?PROV/i', $this->ref)) {
 				// Now we rename also files into index
-				$sql   = 'UPDATE ' . MAIN_DB_PREFIX . "ecm_files set filename = CONCAT('" . $this->db->escape($this->newref) . "', SUBSTR(filename, " . (strlen($this->ref) + 1) . ")), filepath = 'sheet/" . $this->db->escape($this->newref) . "'";
-				$sql  .= " WHERE filename LIKE '" . $this->db->escape($this->ref) . "%' AND filepath = 'sheet/" . $this->db->escape($this->ref) . "' and entity = " . $conf->entity;
+				$sql   = 'UPDATE ' . MAIN_DB_PREFIX . "ecm_files set filename = CONCAT('" . $this->db->escape($this->newref) . "', SUBSTR(filename, " . (strlen($this->ref) + 1) . ")), filepath = 'control/" . $this->db->escape($this->newref) . "'";
+				$sql  .= " WHERE filename LIKE '" . $this->db->escape($this->ref) . "%' AND filepath = 'control/" . $this->db->escape($this->ref) . "' and entity = " . $conf->entity;
 				$resql = $this->db->query($sql);
 				if ( ! $resql) { $error++; $this->error = $this->db->lasterror(); }
 
 				// We rename directory ($this->ref = old ref, $num = new ref) in order not to lose the attachments
 				$oldref    = dol_sanitizeFileName($this->ref);
 				$newref    = dol_sanitizeFileName($num);
-				$dirsource = $conf->dolismq->dir_output . '/sheet/' . $oldref;
-				$dirdest   = $conf->dolismq->dir_output . '/sheet/' . $newref;
+				$dirsource = $conf->dolismq->dir_output . '/control/' . $oldref;
+				$dirdest   = $conf->dolismq->dir_output . '/control/' . $newref;
 				if ( ! $error && file_exists($dirsource)) {
 					dol_syslog(get_class($this) . "::validate() rename dir " . $dirsource . " into " . $dirdest);
 
 					if (@rename($dirsource, $dirdest)) {
 						dol_syslog("Rename ok");
 						// Rename docs starting with $oldref with $newref
-						$listoffiles = dol_dir_list($conf->dolismq->dir_output . '/sheet/' . $newref, 'files', 1, '^' . preg_quote($oldref, '/'));
+						$listoffiles = dol_dir_list($conf->dolismq->dir_output . '/control/' . $newref, 'files', 1, '^' . preg_quote($oldref, '/'));
 						foreach ($listoffiles as $fileentry) {
 							$dirsource = $fileentry['name'];
 							$dirdest   = preg_replace('/^' . preg_quote($oldref, '/') . '/', $newref, $dirsource);
@@ -581,14 +588,14 @@ class Sheet extends CommonObject
 
 		$result = '';
 
-		$label = img_picto('', $this->picto) . ' <u>' . $langs->trans("Sheet") . '</u>';
+		$label = img_picto('', $this->picto) . ' <u>' . $langs->trans("Control") . '</u>';
 		if (isset($this->status)) {
 			$label .= ' ' . $this->getLibStatut(5);
 		}
 		$label .= '<br>';
 		$label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->ref;
 
-		$url = dol_buildpath('/dolismq/view/sheet/sheet_card.php', 1) . '?id=' . $this->id;
+		$url = dol_buildpath('/dolismq/view/control/control_card.php', 1) . '?id=' . $this->id;
 
 		if ($option != 'nolink') {
 			// Add param to save lastsearch_values or not
@@ -600,7 +607,7 @@ class Sheet extends CommonObject
 		$linkclose = '';
 		if (empty($notooltip)) {
 			if ( ! empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER)) {
-				$label      = $langs->trans("ShowSheet");
+				$label      = $langs->trans("ShowControl");
 				$linkclose .= ' alt="' . dol_escape_htmltag($label, 1) . '"';
 			}
 			$linkclose .= ' title="' . dol_escape_htmltag($label, 1) . '"';
@@ -646,7 +653,7 @@ class Sheet extends CommonObject
 		//if ($withpicto != 2) $result.=(($addlabel && $this->label) ? $sep . dol_trunc($this->label, ($addlabel > 1 ? $addlabel : 0)) : '');
 
 		global $action, $hookmanager;
-		$hookmanager->initHooks(array('sheetdao'));
+		$hookmanager->initHooks(array('controldao'));
 		$parameters               = array('id' => $this->id, 'getnomurl' => $result);
 		$reshook                  = $hookmanager->executeHooks('getNomUrl', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 		if ($reshook > 0) $result = $hookmanager->resPrint;
@@ -761,8 +768,8 @@ class Sheet extends CommonObject
 	{
 		$this->lines = array();
 
-		$objectline = new SheetLine($this->db);
-		$result     = $objectline->fetchAll('ASC', 'position', 0, 0, array('customsql' => 'fk_sheet = ' . $this->id));
+		$objectline = new ControlLine($this->db);
+		$result     = $objectline->fetchAll('ASC', 'position', 0, 0, array('customsql' => 'fk_control = ' . $this->id));
 
 		if (is_numeric($result)) {
 			$this->error  = $this->error;
@@ -785,7 +792,7 @@ class Sheet extends CommonObject
 		$langs->load("dolismq@dolismq");
 
 		if (empty($conf->global->DOLISMQ_AUDIT_ADDON)) {
-			$conf->global->DOLISMQ_AUDIT_ADDON = 'mod_sheet_standard';
+			$conf->global->DOLISMQ_AUDIT_ADDON = 'mod_control_standard';
 		}
 
 		if ( ! empty($conf->global->DOLISMQ_AUDIT_ADDON)) {
@@ -850,7 +857,7 @@ class Sheet extends CommonObject
 		$langs->load("dolismq@dolismq");
 
 		if ( ! dol_strlen($modele)) {
-			$modele = 'standard_sheet';
+			$modele = 'standard_control';
 
 			if ( ! empty($this->model_pdf)) {
 				$modele = $this->model_pdf;
@@ -898,109 +905,6 @@ class Sheet extends CommonObject
 		return $error;
 	}
 
-	/**
-	 *  Output html form to select a third party.
-	 *  Note, you must use the select_company to get the component to select a third party. This function must only be called by select_company.
-	 *
-	 * @param string $selected   Preselected type
-	 * @param string $htmlname   Name of field in form
-	 * @param string $filter     Optional filters criteras (example: 's.rowid <> x', 's.client in (1,3)')
-	 * @param string $showempty  Add an empty field (Can be '1' or text to use on empty line like 'SelectThirdParty')
-	 * @param int    $showtype   Show third party type in combolist (customer, prospect or supplier)
-	 * @param int    $forcecombo Force to use standard HTML select component without beautification
-	 * @param array  $events     Event options. Example: array(array('method'=>'getContacts', 'url'=>dol_buildpath('/core/ajax/contacts.php',1), 'htmlname'=>'contactid', 'params'=>array('add-customer-contact'=>'disabled')))
-	 * @param string $filterkey  Filter on key value
-	 * @param int    $outputmode 0=HTML select string, 1=Array
-	 * @param int    $limit      Limit number of answers
-	 * @param string $morecss    Add more css styles to the SELECT component
-	 * @param string $moreparam  Add more parameters onto the select tag. For example 'style="width: 95%"' to avoid select2 component to go over parent container
-	 * @param bool   $multiple   add [] in the name of element and add 'multiple' attribut
-	 * @return       string      HTML string with
-	 * @throws Exception
-	 */
-	public function select_sheet_list($selected = '', $htmlname = 'fk_sheet', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth100', $moreparam = '', $multiple = false, $noroot = 0)
-	{
-		// phpcs:enable
-		global $conf, $user, $langs;
-
-		$out      = '';
-		$num      = 0;
-		$outarray = array();
-
-		if ($selected === '') $selected           = array();
-		elseif ( ! is_array($selected)) $selected = array($selected);
-
-		// Clean $filter that may contains sql conditions so sql code
-		if (function_exists('testSqlAndScriptInject')) {
-			if (testSqlAndScriptInject($filter, 3) > 0) {
-				$filter = '';
-			}
-		}
-		// On recherche les societes
-		$sql  = "SELECT *";
-		$sql .= " FROM " . MAIN_DB_PREFIX . "dolismq_sheet as s";
-
-		$sql              .= " WHERE s.entity IN (" . getEntity($this->table_element) . ")";
-		if ($filter) $sql .= " AND (" . $filter . ")";
-		if ($moreparam > 0 ) {
-			$children = $this->fetchDigiriskElementFlat($moreparam);
-			if ( ! empty($children) && $children > 0) {
-				foreach ($children as $key => $value) {
-					$sql .= " AND NOT s.rowid =" . $key;
-				}
-			}
-			$sql .= " AND NOT s.rowid =" . $moreparam;
-		}
-
-		$sql .= $this->db->order("rowid", "ASC");
-		$sql .= $this->db->plimit($limit, 0);
-
-		// Build output string
-		dol_syslog(get_class($this) . "::select_sheet_list", LOG_DEBUG);
-		$resql = $this->db->query($sql);
-		if ($resql) {
-			if ( ! $forcecombo) {
-				include_once DOL_DOCUMENT_ROOT . '/core/lib/ajax.lib.php';
-				$out .= ajax_combobox($htmlname, $events, 0);
-			}
-
-			// Construct $out and $outarray
-			$out .= '<select id="' . $htmlname . '" class="flat' . ($morecss ? ' ' . $morecss : '') . '"' . ($moreparam ? ' ' . $moreparam : '') . ' name="' . $htmlname . ($multiple ? '[]' : '') . '" ' . ($multiple ? 'multiple' : '') . '>' . "\n";
-
-			$num                  = $this->db->num_rows($resql);
-			$i                    = 0;
-			if ( ! $noroot) $out .= '<option value="0" selected>' . $langs->trans('Root') . ' : ' . $conf->global->MAIN_INFO_SOCIETE_NOM . '</option>';
-
-			if ($num) {
-				while ($i < $num) {
-					$obj   = $this->db->fetch_object($resql);
-					$label = $obj->ref . ' - ' . $obj->label;
-
-
-					if (empty($outputmode)) {
-						if (in_array($obj->rowid, $selected)) {
-							$out .= '<option value="' . $obj->rowid . '" selected>' . $label . '</option>';
-						} else {
-							$out .= '<option value="' . $obj->rowid . '">' . $label . '</option>';
-						}
-					} else {
-						array_push($outarray, array('key' => $obj->rowid, 'value' => $label, 'label' => $label));
-					}
-
-					$i++;
-					if (($i % 10) == 0) $out .= "\n";
-				}
-			}
-			$out .= '</select>' . "\n";
-		} else {
-			dol_print_error($this->db);
-		}
-
-		$this->result = array('nbofsheets' => $num);
-
-		if ($outputmode) return $outarray;
-		return $out;
-	}
 
 	/**
 	 *	Fetch array of objects linked to current object (object of enabled modules only). Links are loaded into
