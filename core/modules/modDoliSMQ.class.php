@@ -127,7 +127,12 @@ class modDoliSMQ extends DolibarrModules
 
 		// Data directories to create when module is enabled.
 		// Example: this->dirs = array("/dolismq/temp","/dolismq/subdir");
-		$this->dirs = array("/dolismq/temp");
+		$this->dirs = array(
+			"/dolismq/temp",
+			"/ecm/dolismq",
+			"/ecm/dolismq/medias"
+		);
+
 
 		// Config pages. Put here list of php page, stored into dolismq/admin directory, to use to setup module.
 		$this->config_page_url = array("setup.php@dolismq");
