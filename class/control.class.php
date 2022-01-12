@@ -1,6 +1,5 @@
 <?php
-/* Copyright (C) 2017  Laurent Destailleur <eldy@users.sourceforge.net>
- * Copyright (C) ---Put here your own copyright and developer email---
+/* Copyright (C) 2021 EOXIA <dev@eoxia.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+
 
 /**
  * \file        class/control.class.php
@@ -62,9 +62,9 @@ class Control extends CommonObject
 	public $picto = 'control@dolismq';
 
 
-	const STATUS_DRAFT     = 0;
-	const STATUS_VALIDATED = 1;
-	const STATUS_CANCELED  = 9;
+	const STATUS_DRAFT = 0;
+	const STATUS_OK    = 1;
+	const STATUS_KO    = 2;
 
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
@@ -74,15 +74,15 @@ class Control extends CommonObject
 		'ref'                => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
 		'ref_ext'            => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "External reference of object"),
 		'entity'             => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
-		'date_creation'      => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => -2,),
-		'tms'                => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => -2,),
+		'date_creation'      => array('type' => 'datetime', 'label' => 'ControlDate', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 1,),
+		'tms'                => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
 		'import_key'         => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
-		'status'             => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '0', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'arrayofkeyval' => array('0' => 'Brouillon', '1' => 'Valid&eacute;', '9' => 'Annul&eacute;'),),
+		'status'             => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'arrayofkeyval' => array('0' => 'Draft', '1' => 'OK', '2' => 'KO'), 'default' => '0'),
 		'type'               => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
-		'fk_user_creat'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => -2, 'foreignkey' => 'user.rowid',),
-		'fk_user_modif'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => -2,),
+		'fk_user_creat'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',),
+		'fk_user_modif'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
 		'fk_sheet'           => array('type' => 'integer', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 150, 'notnull' => 1, 'visible' => -2,),
-		'fk_user_controller' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'FKUserController', 'enabled' => '1', 'position' => 160, 'notnull' => 1, 'visible' => -2, 'foreignkey' => 'user.rowid'),
+		'fk_user_controller' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'FKUserController', 'enabled' => '1', 'position' => 45, 'notnull' => 1, 'visible' => -2, 'foreignkey' => 'user.rowid'),
 		'fk_product'         => array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'FKProduct', 'enabled' => '1', 'position' => 170, 'notnull' => 1, 'visible' => -2, 'foreignkey' => 'product.rowid'),
 		'fk_lot'             => array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'FKLot', 'enabled' => '1', 'position' => 180, 'notnull' => 1, 'visible' => -2, 'foreignkey' => 'productlot.rowid'),
 	);
@@ -523,6 +523,24 @@ class Control extends CommonObject
 	}
 
 	/**
+	 *	Set pending signature status
+	 *
+	 *	@param	User	$user			Object user that modify
+	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
+	 *	@return	int						<0 if KO, >0 if OK
+	 */
+	public function setStatusControl($user, $status, $notrigger = 0)
+	{
+		if ($status == self::STATUS_OK) {
+			$trigger_name = 'CONTROL_OK';
+		} else {
+			$trigger_name = 'CONTROL_KO';
+		}
+
+		return $this->setStatusCommon($user, $status, $notrigger, $trigger_name);
+	}
+
+	/**
 	 *	Set cancel status
 	 *
 	 *	@param	User	$user			Object user that modify
@@ -688,16 +706,16 @@ class Control extends CommonObject
 			global $langs;
 			//$langs->load("dolismq@dolismq");
 			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('Draft');
-			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('Enabled');
-			$this->labelStatus[self::STATUS_CANCELED]       = $langs->trans('Disabled');
+			$this->labelStatus[self::STATUS_OK]      = $langs->trans('OK');
+			$this->labelStatus[self::STATUS_KO]       = $langs->trans('KO');
 			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('Draft');
-			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Enabled');
-			$this->labelStatusShort[self::STATUS_CANCELED]  = $langs->trans('Disabled');
+			$this->labelStatusShort[self::STATUS_OK] = $langs->trans('OK');
+			$this->labelStatusShort[self::STATUS_KO]  = $langs->trans('KO');
 		}
 
 		$statusType = 'status' . $status;
-		//if ($status == self::STATUS_VALIDATED) $statusType = 'status1';
-		if ($status == self::STATUS_CANCELED) $statusType = 'status6';
+		if ($status == self::STATUS_OK) $statusType = 'status4';
+		if ($status == self::STATUS_KO) $statusType = 'status8';
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}

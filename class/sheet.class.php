@@ -918,7 +918,7 @@ class Sheet extends CommonObject
 	 * @return       string      HTML string with
 	 * @throws Exception
 	 */
-	public function select_sheet_list($selected = '', $htmlname = 'fk_sheet', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth100', $moreparam = '', $multiple = false, $noroot = 0)
+	public function select_sheet_list($selected = '', $htmlname = 'fk_sheet', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth300', $moreparam = '', $multiple = false, $noroot = 0)
 	{
 		// phpcs:enable
 		global $conf, $user, $langs;
