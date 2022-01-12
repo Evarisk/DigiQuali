@@ -67,3 +67,13 @@ QuestionList = Liste des questions
 
 NewSheet = Ajouter une fiche modèle
 SheetList = Liste des fiches modèles
+
+
+#
+# Control
+#
+
+NewControl = Nouveau contrôle
+ControlList = Liste des contrôles
+FKUserController = Contrôleur
+ControlDate = Date de contrôle

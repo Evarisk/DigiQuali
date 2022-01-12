@@ -63,11 +63,14 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
+require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
+require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 
 require_once __DIR__.'/../../class/control.class.php';
 require_once __DIR__.'/../../class/sheet.class.php';
 require_once __DIR__.'/../../lib/dolismq_control.lib.php';
 require_once __DIR__.'/../../core/modules/dolismq/control/mod_control_standard.php';
+require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 
 global $langs, $conf, $user, $db;
 
@@ -88,6 +91,9 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Initialize technical objects
 $object        = new Control($db);
 $sheet         = new Sheet($db);
+$usertmp       = new User($db);
+$product       = new Product($db);
+$productlot    = new Productlot($db);
 $extrafields   = new ExtraFields($db);
 $refControlMod = new $conf->global->DOLISMQ_CONTROL_ADDON($db);
 
@@ -186,6 +192,24 @@ if (empty($reshook))
 		$object->setProject(GETPOST('projectid', 'int'));
 	}
 
+	if ($action == 'confirm_closeas' && $permissiontoadd && !GETPOST('cancel', 'alpha')) {
+		$object->fetch($id);
+		if ( ! $error) {
+			$result = $object->setStatusControl($user, GETPOST('status', 'int'));
+			if ($result > 0) {
+				// Set Status Control
+				$urltogo = str_replace('__ID__', $result, $backtopage);
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
+				header("Location: " . $urltogo);
+				exit;
+			} else {
+				// Set Status Control error
+				if ( ! empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
+				else setEventMessages($object->error, null, 'errors');
+			}
+		}
+	}
+
 	// Actions to send emails
 	$triggersendname = 'DOLISMQ_AUDIT_SENTBYMAIL';
 	$autocopy = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
@@ -251,15 +275,23 @@ if ($action == 'create') {
 	}
 
 	//FK Product
-	print '<tr><td class="fieldrequired minwidth400">' . img_picto('', 'building') . ' ' . $langs->trans("ExtSociety") . '</td><td>';
+	print '<tr><td class="fieldrequired minwidth400">' . img_picto('', 'building') . ' ' . $langs->trans("Product") . '</td><td>';
 	$events    = array();
-	$events[1] = array('method' => 'getContacts', 'url' => dol_buildpath('/custom/digiriskdolibarr/core/ajax/contacts.php?showempty=1', 1), 'htmlname' => 'ext_society_responsible', 'params' => array('add-customer-contact' => 'disabled'));
+	$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/digiriskdolibarr/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_lot');
 	print $form->select_produits(GETPOST('fk_product'), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProducts', 0, 'minwidth300');
 	print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
 	print '</td></tr>';
 
+	//FK LOT
+	print '<tr><td class="fieldrequired minwidth400">';
+	$htmltext = img_picto('', 'address') . ' ' . $langs->trans("Lot");
+	print $form->textwithpicto($htmltext, $langs->trans('ContactNoEmail'));
+	print '</td><td>';
+	print dolismq_select_product_lots((empty(GETPOST('fk_product', 'int')) ? 1 : GETPOST('fk_product', 'int')), GETPOST('fk_lot'), 'fk_lot', 1, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_lot');
+	print '</td></tr>';
+
 	//FK SHEET
-	print '<tr class="oddeven"><td>' . $langs->trans("SheetLinked") . '</td><td>';
+	print '<tr><td class="fieldrequired minwidth400">' . $langs->trans("SheetLinked") . '</td><td>';
 	print $sheet->select_sheet_list();
 	print '</td></tr>';
 
@@ -336,6 +368,24 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('ToClone'), $langs->trans('ConfirmCloneAsk', $object->ref), 'confirm_clone', $formcontrol, 'yes', 1);
 	}
 
+	if ($action == 'closeas') {
+		//Form to close proposal (signed or not)
+		$formquestion = array(
+			array('type' => 'select', 'name' => 'status', 'label' => '<span class="fieldrequired">' . $langs->trans("CloseAs") . '</span>', 'values' => array($object::STATUS_OK => $object->LibStatut($object::STATUS_OK), $object::STATUS_KO => $object->LibStatut($object::STATUS_KO))),
+			array('type' => 'text', 'name' => 'note_private', 'label' => $langs->trans("Note"), 'value' => '')                // Field to complete private note (not replace)
+		);
+
+		if (!empty($conf->notification->enabled)) {
+			require_once DOL_DOCUMENT_ROOT . '/core/class/notify.class.php';
+			$notify = new Notify($db);
+			$formquestion = array_merge($formquestion, array(
+				array('type' => 'onecolumn', 'value' => $notify->confirmMessage('PROPAL_CLOSE_SIGNED', $object->socid, $object)),
+			));
+		}
+
+		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('SetAcceptedRefused'), $text, 'confirm_closeas', $formquestion, '', 1, 250);
+	}
+
 	// Confirmation of action xxxx
 	if ($action == 'xxx')
 	{
@@ -363,7 +413,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
-
 	print '<div class="fichecenter">';
 	print '<div class="fichehalfleft">';
 	print '<div class="underbanner clearboth"></div>';
@@ -374,7 +423,52 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	//unset($object->fields['fk_project']);				// Hide field already shown in banner
 	//unset($object->fields['fk_soc']);					// Hide field already shown in banner
 
+	//FKUserController -- Contrôleur
+	print '<tr><td class="titlefield">';
+	print $langs->trans("FKUserController");
+	print '</td>';
+	print '<td>';
+	$usertmp->fetch($object->fk_user_controller);
+	if ($usertmp > 0) {
+		print $usertmp->getNomUrl(1);
+	}
+	print '</td></tr>';
+
+	//Address -- Adresse
+	print '<tr><td class="titlefield">';
+	print $langs->trans("Address");
+	print '</td>';
+	print '<td>';
+	print $usertmp->address;
+	print '</td></tr>';
+
+	//Address -- Adresse
+	print '<tr><td class="titlefield">';
+	print $langs->trans("Login");
+	print '</td>';
+	print '<td>';
+	print $usertmp->login;
+	print '</td></tr>';
+
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
+
+	$product->fetch($object->fk_product);
+
+	// -- Contrôleur
+	print '<tr><td class="titlefield">';
+	print $langs->trans("FKUserController");
+	print '</td>';
+	print '<td>';
+
+	print '</td></tr>';
+
+	//FKLot -- Numéro de série
+	print '<tr><td class="titlefield">';
+	print $langs->trans("SerialNumber");
+	print '</td>';
+	print '<td>';
+	print $object->fk_lot;
+	print '</td></tr>';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php';
@@ -384,6 +478,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '</div>';
 
 	print '<div class="clearboth"></div>';
+
+	// Close as accepted/refused
+	if ($object->statut == Control::STATUS_DRAFT) {
+		if ($permissiontoadd) {
+			print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=closeas'.(empty($conf->global->MAIN_JUMP_TAG) ? '' : '#close').'"';
+			print '>'.$langs->trans('SetOK/KO').'</a>';
+		} else {
+			print '<a class="butActionRefused classfortooltip" href="#" title="'.$langs->trans("NotEnoughPermissions").'"';
+			print '>'.$langs->trans('SetOK/KO').'</a>';
+		}
+	}
 
 	// PREVENTIONPLAN LINES
 	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
@@ -514,7 +619,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 
 	// Buttons for actions
-
 	if ($action != 'presend' && $action != 'editline') {
 		print '<div class="tabsAction">'."\n";
 		$parameters = array();
