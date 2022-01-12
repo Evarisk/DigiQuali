@@ -576,9 +576,9 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 	let idToSave = $(this).attr('value')
 	let mediaGalleryModal = $(this).closest('.modal-container')
 	let filesLinked = mediaGalleryModal.find('.clicked-photo')
-	let modalFrom = $('.modal-active:not(.modal-photo)')
-
-	let riskId = modalFrom.attr('value')
+	//let modalFrom = $('.modal-active:not(.modal-photo)')
+	//
+	//let riskId = modalFrom.attr('value')
 	let mediaLinked = ''
 	let type = $(this).find('.type-from').val()
 
@@ -596,84 +596,40 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 	favorite = favorite.split('vVv')[0]
 	favorite = favorite.replace(/\ /, '')
 	window.eoxiaJS.loader.display($(this));
-
-	if (type === 'riskassessment') {
-		mediaLinked = modalFrom.find('.element-linked-medias')
-		window.eoxiaJS.loader.display(mediaLinked);
-
-		let riskAssessmentPhoto = ''
-		riskAssessmentPhoto = $('.risk-evaluation-photo-'+idToSave+'.risk-'+riskId)
-
-		let filepath = modalFrom.find('.risk-evaluation-photo-single .filepath-to-riskassessment').val()
-		let newPhoto = filepath + favorite.replace(/\./, '_small.')
-
-		$.ajax({
-			url: document.URL + "&action=addFiles",
-			type: "POST",
-			data: JSON.stringify({
-				risk_id: riskId,
-				riskassessment_id: idToSave,
-				filenames: filenames,
-			}),
-			processData: false,
-			contentType: false,
-			success: function ( ) {
-				$('.wpeo-loader').removeClass('wpeo-loader')
-				parent.removeClass('modal-active')
-				riskAssessmentPhoto.each( function() {
-					$(this).find('.clicked-photo-preview').attr('src',newPhoto )
-					$(this).find('.filename').attr('value', favorite.match(/_small/) ? favorite.replace(/\./, '_small.') : favorite)
-				});
-				mediaLinked.load(document.URL+'&favorite='+favorite + ' .element-linked-medias-'+idToSave+'.risk-'+riskId)
-				modalFrom.find('.messageSuccessSavePhoto').removeClass('hidden')
-			},
-			error: function ( ) {
-				modalFrom.find('.messageErrorSavePhoto').removeClass('hidden')
-			}
-		});
-
-	} else if (type === 'digiriskelement') {
-		mediaLinked = $('#digirisk_element_medias_modal_'+idToSave).find('.element-linked-medias')
-		window.eoxiaJS.loader.display(mediaLinked);
-
-		let digiriskElementPhoto = ''
-		digiriskElementPhoto = $('.digirisk-element-'+idToSave).find('.clicked-photo-preview')
-
-		let filepath = $('.digirisk-element-'+idToSave).find('.filepath-to-digiriskelement').val()
-		let newPhoto = filepath + favorite.replace(/\./, '_small.')
-
-		$.ajax({
-			url: document.URL + "&action=addDigiriskElementFiles",
-			type: "POST",
-			data: JSON.stringify({
-				digiriskelement_id: idToSave,
-				filenames: filenames,
-			}),
-			processData: false,
-			contentType: false,
-			success: function ( resp ) {
-				$('.wpeo-loader').removeClass('wpeo-loader')
-				parent.removeClass('modal-active')
-				digiriskElementPhoto.attr('src',newPhoto )
-
-				let photoContainer = digiriskElementPhoto.closest('.open-media-gallery')
-				photoContainer.removeClass('open-media-gallery')
-				photoContainer.addClass('open-medias-linked')
-				photoContainer.addClass('digirisk-element')
-				photoContainer.closest('.unit-container').find('.digirisk-element-medias-modal').load(document.URL+ ' #digirisk_element_medias_modal_'+idToSave)
-
-				if (idToSave === currentElementID) {
-					let digiriskBanner = $('.arearef.heightref')
-					digiriskBanner.load(document.URL+'&favorite='+favorite + ' .arearef.heightref')
-				}
-				mediaLinked.load(document.URL+'&favorite='+favorite + ' .element-linked-medias-'+idToSave+'.digirisk-element')
-				modalFrom.find('.messageSuccessSavePhoto').removeClass('hidden')
-			},
-			error: function ( ) {
-				modalFrom.find('.messageErrorSavePhoto').removeClass('hidden')
-			}
-		});
+	//mediaLinked = modalFrom.find('.element-linked-medias')
+	//window.eoxiaJS.loader.display(mediaLinked);
+	let url = document.URL + '&'
+	let separator = '&'
+	if (url.match(/action=create/)) {
+		url = document.URL.split(/\?/)[0]
+		separator = '?'
 	}
+	$.ajax({
+		url: url + separator + "action=addFiles",
+		type: "POST",
+		data: JSON.stringify({
+			filenames: filenames,
+			questionId: currentElementID,
+			type: type
+		}),
+		processData: false,
+		contentType: false,
+		success: function ( resp ) {
+			$('.wpeo-loader').removeClass('wpeo-loader')
+			parent.removeClass('modal-active')
+			console.log(resp)
+			$('.tabBar').load(document.URL + ' .tabBar')
+			//riskAssessmentPhoto.each( function() {
+			//	$(this).find('.clicked-photo-preview').attr('src',newPhoto )
+			//	$(this).find('.filename').attr('value', favorite.match(/_small/) ? favorite.replace(/\./, '_small.') : favorite)
+			//});
+			//mediaLinked.load(document.URL+'&favorite='+favorite + ' .element-linked-medias-'+idToSave+'.risk-'+riskId)
+			//modalFrom.find('.messageSuccessSavePhoto').removeClass('hidden')
+		},
+		error: function ( ) {
+			modalFrom.find('.messageErrorSavePhoto').removeClass('hidden')
+		}
+	});
 };
 
 /**
@@ -716,9 +672,15 @@ window.eoxiaJS.mediaGallery.sendPhoto = function( event ) {
 		console.log(formdata)
 
 	})
+	let url = document.URL + '&'
+	let separator = '&'
+	if (url.match(/action=create/)) {
+		url = document.URL.split(/\?/)[0]
+		separator = '?'
+	}
 
 	$.ajax({
-		url: document.URL + "&action=uploadPhoto",
+		url:  url + separator + "action=uploadPhoto",
 		type: "POST",
 		data: formdata,
 		processData: false,
@@ -944,3 +906,87 @@ window.eoxiaJS.mediaGallery.addToFavorite = function( event ) {
 	}
 
 };
+
+
+/**
+ * @namespace EO_Framework_Loader
+ *
+ * @author Eoxia <dev@eoxia.com>
+ * @copyright 2015-2018 Eoxia
+ */
+
+/*
+ * Gestion du loader.
+ *
+ * @since 1.0.0
+ * @version 1.0.0
+ */
+if ( ! window.eoxiaJS.loader ) {
+
+	/**
+	 * [loader description]
+	 *
+	 * @memberof EO_Framework_Loader
+	 *
+	 * @type {Object}
+	 */
+	window.eoxiaJS.loader = {};
+
+	/**
+	 * [description]
+	 *
+	 * @memberof EO_Framework_Loader
+	 *
+	 * @returns {void} [description]
+	 */
+	window.eoxiaJS.loader.init = function() {
+		window.eoxiaJS.loader.event();
+	};
+
+	/**
+	 * [description]
+	 *
+	 * @memberof EO_Framework_Loader
+	 *
+	 * @returns {void} [description]
+	 */
+	window.eoxiaJS.loader.event = function() {
+	};
+
+	/**
+	 * [description]
+	 *
+	 * @memberof EO_Framework_Loader
+	 *
+	 * @param  {void} element [description]
+	 * @returns {void}         [description]
+	 */
+	window.eoxiaJS.loader.display = function( element ) {
+		// Loader spécial pour les "button-progress".
+		if ( element.hasClass( 'button-progress' ) ) {
+			element.addClass( 'button-load' )
+		} else {
+			element.addClass( 'wpeo-loader' );
+			var el = $( '<span class="loader-spin"></span>' );
+			element[0].loaderElement = el;
+			element.append( element[0].loaderElement );
+		}
+	};
+
+	/**
+	 * [description]
+	 *
+	 * @memberof EO_Framework_Loader
+	 *
+	 * @param  {jQuery} element [description]
+	 * @returns {void}         [description]
+	 */
+	window.eoxiaJS.loader.remove = function( element ) {
+		if ( 0 < element.length && ! element.hasClass( 'button-progress' ) ) {
+			element.removeClass( 'wpeo-loader' );
+
+			$( element[0].loaderElement ).remove();
+		}
+	};
+}
+
