@@ -129,6 +129,7 @@ class modDoliSMQ extends DolibarrModules
 		// Example: this->dirs = array("/dolismq/temp","/dolismq/subdir");
 		$this->dirs = array(
 			"/dolismq/temp",
+			"/dolismq/question",
 			"/ecm/dolismq",
 			"/ecm/dolismq/medias"
 		);

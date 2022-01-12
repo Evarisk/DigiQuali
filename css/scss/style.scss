@@ -1,0 +1,26 @@
+@import "variable/variable";
+
+@import "element/element";
+@import "module/module";
+@import "page/page";
+@import "table/table";
+@import "modal/modal";
+
+@import "responsive/responsive";
+
+.preview-photo {
+  z-index: 1003 !important;
+}
+
+.imgTabTitle {
+  max-height: 32px !important;
+}
+
+.dropdown-toggle::after {
+  display: none;
+}
+
+.favorite-photo {
+  border: 5px solid #0d8aff;
+}
+

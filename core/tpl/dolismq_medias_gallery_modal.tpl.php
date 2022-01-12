@@ -1,7 +1,8 @@
 <?php
+
 if ( ! $error && $action == "uploadPhoto" && ! empty($conf->global->MAIN_UPLOAD_DOC)) {
 	// Define relativepath and upload_dir
-	$relativepath                                             = 'digiriskdolibarr/medias';
+	$relativepath                                             = 'dolismq/medias';
 	$upload_dir                                               = $conf->ecm->dir_output . '/' . $relativepath;
 	if (is_array($_FILES['userfile']['tmp_name'])) $userfiles = $_FILES['userfile']['tmp_name'];
 	else $userfiles                                           = array($_FILES['userfile']['tmp_name']);
@@ -17,9 +18,12 @@ if ( ! $error && $action == "uploadPhoto" && ! empty($conf->global->MAIN_UPLOAD_
 			}
 		}
 	}
+
 	if ( ! $error) {
 		$generatethumbs = 1;
+
 		$res            = dol_add_file_process($upload_dir, 0, 1, 'userfile', '', null, '', $generatethumbs);
+
 		if ($res > 0) {
 			$result = $ecmdir->changeNbOfFiles('+');
 		}
@@ -27,7 +31,7 @@ if ( ! $error && $action == "uploadPhoto" && ! empty($conf->global->MAIN_UPLOAD_
 }
 ?>
 <!-- START MEDIA GALLERY MODAL -->
-<div class="wpeo-modal modal-photo" id="media_gallery" data-id="<?php echo $object->id ?>">
+<div class="wpeo-modal modal-photo" id="media_gallery" data-id="<?php echo $object->id ?: 0?>">
 	<div class="modal-container wpeo-modal-event">
 		<!-- Modal-Header -->
 		<div class="modal-header">
@@ -56,7 +60,7 @@ if ( ! $error && $action == "uploadPhoto" && ! empty($conf->global->MAIN_UPLOAD_
 			// To attach new file
 			if (( ! empty($conf->use_javascript_ajax) && empty($conf->global->MAIN_ECM_DISABLE_JS)) || ! empty($section)) {
 				$sectiondir = GETPOST('file', 'alpha') ? GETPOST('file', 'alpha') : GETPOST('section_dir', 'alpha');
-				print '<!-- Start form to attach new file in digiriskdolibarr_photo_view.tpl.tpl.php sectionid=' . $section . ' sectiondir=' . $sectiondir . ' -->' . "\n";
+				print '<!-- Start form to attach new file in dolismq_photo_view.tpl.tpl.php sectionid=' . $section . ' sectiondir=' . $sectiondir . ' -->' . "\n";
 				include_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
 				print '<strong>' . $langs->trans('AddFile') . '</strong>'
 				?>
@@ -80,8 +84,8 @@ if ( ! $error && $action == "uploadPhoto" && ! empty($conf->global->MAIN_UPLOAD_
 			<div class="ecm-photo-list-content">
 				<div class="wpeo-gridlayout grid-4 grid-gap-3 grid-margin-2 ecm-photo-list ecm-photo-list">
 					<?php
-					$relativepath = 'digiriskdolibarr/medias/thumbs';
-					print digirisk_show_medias('ecm', $conf->ecm->multidir_output[$conf->entity] . '/digiriskdolibarr/medias/thumbs', 'small');
+					$relativepath = 'dolismq/medias/thumbs';
+					print dolismq_show_medias('ecm', $conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/thumbs', 'small');
 					?>
 				</div>
 			</div>
