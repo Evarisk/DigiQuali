@@ -600,7 +600,7 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 	//window.eoxiaJS.loader.display(mediaLinked);
 	let url = document.URL + '&'
 	let separator = '&'
-	if (url.match(/action=create/)) {
+	if (url.match(/action=/)) {
 		url = document.URL.split(/\?/)[0]
 		separator = '?'
 	}
@@ -674,7 +674,7 @@ window.eoxiaJS.mediaGallery.sendPhoto = function( event ) {
 	})
 	let url = document.URL + '&'
 	let separator = '&'
-	if (url.match(/action=create/)) {
+	if (url.match(/action=/)) {
 		url = document.URL.split(/\?/)[0]
 		separator = '?'
 	}
@@ -729,7 +729,7 @@ window.eoxiaJS.mediaGallery.unlinkFile = function( event ) {
 	let filename = $(this).find('.filename').val()
 	let querySeparator = '?'
 	let riskId = $(this).closest('.modal-risk').attr('value')
-	let type = $(this).closest('.modal-container').find('.type-from').val()
+	let type = $(this).closest('.tabBar').find('.type-from').val()
 	var params = new window.URLSearchParams(window.location.search);
 	var currentElementID = params.get('id')
 
@@ -738,68 +738,42 @@ window.eoxiaJS.mediaGallery.unlinkFile = function( event ) {
 	let previousName = ''
 	let newPhoto = ''
 
-
 	window.eoxiaJS.loader.display($(this).closest('.media-container'));
 
 	document.URL.match('/?/') ? querySeparator = '&' : 1
 
-	if (type === 'riskassessment') {
-		let riskAssessmentPhoto = $('.risk-evaluation-photo-'+element_linked_id)
-		previousPhoto = $(this).closest('.modal-container').find('.risk-evaluation-photo .clicked-photo-preview')
-		previousName = previousPhoto[0].src.trim().split(/thumbs%2F/)[1].split(/"/)[0]
+	//let riskAssessmentPhoto = $('.risk-evaluation-photo-'+element_linked_id)
+	previousPhoto = $(this).closest('.tabBar').find('.clicked-photo-preview')
+	previousName = previousPhoto[0].src.trim().split(/thumbs%2F/)[1].split(/"/)[0]
 
-		if (previousName == filename.replace(/\./, '_small.')) {
-			newPhoto = previousPhoto[0].src.replace(previousName, '')
-		} else {
-			newPhoto = previousPhoto[0].src
-		}
-
-		$.ajax({
-			url: document.URL + querySeparator + "action=unlinkFile",
-			type: "POST",
-			data: JSON.stringify({
-				risk_id: riskId,
-				riskassessment_id: element_linked_id,
-				filename: filename,
-			}),
-			processData: false,
-			success: function ( ) {
-				$('.wpeo-loader').removeClass('wpeo-loader')
-				riskAssessmentPhoto.each( function() {
-					$(this).find('.clicked-photo-preview').attr('src',newPhoto )
-				});
-				mediaContainer.hide()
-			}
-		});
-	} else if (type === 'digiriskelement') {
-		previousPhoto = $('.digirisk-element-'+element_linked_id).find('.photo.clicked-photo-preview')
-		previousName = previousPhoto[0].src.trim().split(/thumbs%2F/)[1].split(/"/)[0]
-
-		if (previousName == filename.replace(/\./, '_small.')) {
-			newPhoto = previousPhoto[0].src.replace(previousName, '')
-		} else {
-			newPhoto = previousPhoto[0].src
-		}
-
-		$.ajax({
-			url: document.URL + querySeparator + "action=unlinkDigiriskElementFile",
-			type: "POST",
-			data: JSON.stringify({
-				digiriskelement_id: element_linked_id,
-				filename: filename,
-			}),
-			processData: false,
-			success: function ( ) {
-				$('.wpeo-loader').removeClass('wpeo-loader')
-				previousPhoto.attr('src',newPhoto)
-				mediaContainer.hide()
-				if (element_linked_id === currentElementID) {
-					let digiriskBanner = $('.arearef.heightref')
-					digiriskBanner.find('input[value="'+filename+'"]').siblings('').hide()
-				}
-			}
-		});
+	if (previousName == filename.replace(/\./, '_small.')) {
+		newPhoto = previousPhoto[0].src.replace(previousName, '')
+	} else {
+		newPhoto = previousPhoto[0].src
 	}
+	let url = document.URL + '&'
+	let separator = '&'
+	if (url.match(/action=/)) {
+		url = document.URL.split(/\?/)[0]
+		separator = '?'
+	}
+	$.ajax({
+		url: url + separator + "action=unlinkFile",
+		type: "POST",
+		data: JSON.stringify({
+			filename: filename,
+			type: type,
+			id: currentElementID
+		}),
+		processData: false,
+		success: function ( ) {
+			$('.wpeo-loader').removeClass('wpeo-loader')
+			//riskAssessmentPhoto.each( function() {
+			//	$(this).find('.clicked-photo-preview').attr('src',newPhoto )
+			//});
+			mediaContainer.hide()
+		}
+	});
 
 };
 

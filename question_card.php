@@ -306,6 +306,7 @@ if (empty($reshook))
 	{
 		$object->setProject(GETPOST('projectid', 'int'));
 	}
+
 	if ( ! $error && $action == "addFiles") {
 		$data = json_decode(file_get_contents('php://input'), true);
 
@@ -354,6 +355,46 @@ if (empty($reshook))
 		}
 		exit;
 	}
+
+	if ( ! $error && $action == "unlinkFile" && $permissiontodelete) {
+		$data = json_decode(file_get_contents('php://input'), true);
+
+		$filename = $data['filename'];
+		$type     = $data['type'];
+		$id     = $data['id'];
+
+		if ($id > 0) {
+			$object->fetch($id);
+			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $object->ref . '/' . $type;
+		} else {
+			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/' . $type;
+		}
+
+
+		$files = dol_dir_list($pathToQuestionPhoto);
+
+		foreach ($files as $file) {
+			if (is_file($file['fullname']) && $file['name'] == $filename) {
+
+				unlink($file['fullname']);
+			}
+		}
+		$files = dol_dir_list($pathToQuestionPhoto . '/thumbs');
+		foreach ($files as $file) {
+			if (preg_match('/' . preg_split('/\./', $filename)[0] . '/', $file['name'])) {
+				unlink($file['fullname']);
+			}
+		}
+//		if ($riskassessment->photo == $filename) {
+//			$riskassessment->photo = '';
+//			$riskassessment->update($user, true);
+//		}
+		$urltogo = str_replace('__ID__', $id, $backtopage);
+		$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
+		header("Location: " . $urltogo);
+		exit;
+	}
+
 
 	// Actions to send emails
 	$triggersendname = 'DOLISMQ_AUDIT_SENTBYMAIL';
