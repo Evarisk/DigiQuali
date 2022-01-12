@@ -62,10 +62,13 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 
 require_once './class/question.class.php';
 require_once './core/modules/dolismq/question/mod_question_standard.php';
 require_once './lib/dolismq_question.lib.php';
+require_once './lib/dolismq_function.lib.php';
 
 global $langs, $conf, $user, $db;
 
@@ -150,6 +153,136 @@ if (empty($reshook))
 
 	$triggermodname = 'DOLISMQ_AUDIT_MODIFY'; // Name of trigger action code to execute when we modify record
 
+	if ($action == 'add' && !empty($permissiontoadd)) {
+
+		foreach ($object->fields as $key => $val) {
+			if ($object->fields[$key]['type'] == 'duration') {
+				if (GETPOST($key.'hour') == '' && GETPOST($key.'min') == '') {
+					continue; // The field was not submited to be edited
+				}
+			} else {
+				if (!GETPOSTISSET($key)) {
+					continue; // The field was not submited to be edited
+				}
+			}
+			// Ignore special fields
+			if (in_array($key, array('rowid', 'entity', 'import_key'))) {
+				continue;
+			}
+			if (in_array($key, array('date_creation', 'tms', 'fk_user_creat', 'fk_user_modif'))) {
+				if (!in_array(abs($val['visible']), array(1, 3))) {
+					continue; // Only 1 and 3 that are case to create
+				}
+			}
+
+			// Set value to insert
+			if (in_array($object->fields[$key]['type'], array('text', 'html'))) {
+				$value = GETPOST($key, 'restricthtml');
+			} elseif ($object->fields[$key]['type'] == 'date') {
+				$value = dol_mktime(12, 0, 0, GETPOST($key.'month', 'int'), GETPOST($key.'day', 'int'), GETPOST($key.'year', 'int'));	// for date without hour, we use gmt
+			} elseif ($object->fields[$key]['type'] == 'datetime') {
+				$value = dol_mktime(GETPOST($key.'hour', 'int'), GETPOST($key.'min', 'int'), GETPOST($key.'sec', 'int'), GETPOST($key.'month', 'int'), GETPOST($key.'day', 'int'), GETPOST($key.'year', 'int'), 'tzuserrel');
+			} elseif ($object->fields[$key]['type'] == 'duration') {
+				$value = 60 * 60 * GETPOST($key.'hour', 'int') + 60 * GETPOST($key.'min', 'int');
+			} elseif (preg_match('/^(integer|price|real|double)/', $object->fields[$key]['type'])) {
+				$value = price2num(GETPOST($key, 'alphanohtml')); // To fix decimal separator according to lang setup
+			} elseif ($object->fields[$key]['type'] == 'boolean') {
+				$value = ((GETPOST($key) == '1' || GETPOST($key) == 'on') ? 1 : 0);
+			} elseif ($object->fields[$key]['type'] == 'reference') {
+				$tmparraykey = array_keys($object->param_list);
+				$value = $tmparraykey[GETPOST($key)].','.GETPOST($key.'2');
+			} else {
+				$value = GETPOST($key, 'alphanohtml');
+			}
+			if (preg_match('/^integer:/i', $object->fields[$key]['type']) && $value == '-1') {
+				$value = ''; // This is an implicit foreign key field
+			}
+			if (!empty($object->fields[$key]['foreignkey']) && $value == '-1') {
+				$value = ''; // This is an explicit foreign key field
+			}
+
+			//var_dump($key.' '.$value.' '.$object->fields[$key]['type']);
+			$object->$key = $value;
+			if ($val['notnull'] > 0 && $object->$key == '' && !is_null($val['default']) && $val['default'] == '(PROV)') {
+				$object->$key = '(PROV)';
+			}
+			if ($val['notnull'] > 0 && $object->$key == '' && is_null($val['default'])) {
+				$error++;
+				setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv($val['label'])), null, 'errors');
+			}
+		}
+
+		// Fill array 'array_options' with data from add form
+		if (!$error) {
+			$ret = $extrafields->setOptionalsFromPost(null, $object);
+			if ($ret < 0) {
+				$error++;
+			}
+		}
+
+		if (!$error) {
+			$types = array('photo_ok', 'photo_ko');
+
+			foreach ($types as $type) {
+				$pathToTmpPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/' . $type;
+				$photo_list = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type);
+				if ( ! empty($photo_list)) {
+					foreach ($photo_list as $file) {
+						if ($file['type'] !== 'dir') {
+							$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object);
+							if (!is_dir($pathToQuestionPhoto)) {
+								mkdir($pathToQuestionPhoto);
+							}
+							$pathToQuestionPhotoType = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object) . '/' . $type;
+							if (!is_dir($pathToQuestionPhotoType)) {
+								mkdir($pathToQuestionPhotoType);
+							}
+
+							copy($file['fullname'], $pathToQuestionPhotoType . '/' . $file['name']);
+
+							global $maxwidthmini, $maxheightmini, $maxwidthsmall,$maxheightsmall ;
+							$destfull = $pathToQuestionPhotoType . '/' . $file['name'];
+
+							// Create thumbs
+							// We can't use $object->addThumbs here because there is no $object known
+							// Used on logon for example
+							$imgThumbSmall = vignette($destfull, $maxwidthsmall, $maxheightsmall, '_small', 50, "thumbs");
+							// Create mini thumbs for image (Ratio is near 16/9)
+							// Used on menu or for setup page for example
+							$imgThumbMini = vignette($destfull, $maxwidthmini, $maxheightmini, '_mini', 50, "thumbs");
+							unlink($file['fullname']);
+						}
+					}
+				}
+				$filesThumbs = dol_dir_list($pathToTmpPhoto . '/thumbs/');
+				if ( ! empty($filesThumbs)) {
+					foreach ($filesThumbs as $fileThumb) {
+						unlink($fileThumb['fullname']);
+					}
+				}
+			}
+
+			$result = $object->create($user);
+			if ($result > 0) {
+				// Creation OK
+				$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
+				header("Location: ".$urltogo);
+				exit;
+			} else {
+				// Creation KO
+				if (!empty($object->errors)) {
+					setEventMessages(null, $object->errors, 'errors');
+				} else {
+					setEventMessages($object->error, null, 'errors');
+				}
+				$action = 'create';
+			}
+		} else {
+			$action = 'create';
+		}
+	}
+
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
@@ -172,6 +305,54 @@ if (empty($reshook))
 	if ($action == 'classin' && $permissiontoadd)
 	{
 		$object->setProject(GETPOST('projectid', 'int'));
+	}
+	if ( ! $error && $action == "addFiles") {
+		$data = json_decode(file_get_contents('php://input'), true);
+
+		$filenames  = $data['filenames'];
+		$questionId = $data['questionId'];
+		$type 	    = $data['type'];
+		$object->fetch($questionId);
+		if (dol_strlen($object->ref) > 0) {
+			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $object->ref . '/' . $type;
+		} else {
+			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type ;
+		}
+		$filenames = preg_split('/vVv/', $filenames);
+		array_pop($filenames);
+
+		if ( ! (empty($filenames))) {
+			if ( ! is_dir($conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/')) {
+				dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/');
+			}
+			$object->photo = $filenames[0];
+
+			foreach ($filenames as $filename) {
+				$entity = ($conf->entity > 1) ? '/' . $conf->entity : '';
+
+
+				if (is_file($conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/' . $filename)) {
+					$pathToECMPhoto = $conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/' . $filename;
+
+					if ( ! is_dir($pathToQuestionPhoto)) {
+						mkdir($pathToQuestionPhoto);
+					}
+					copy($pathToECMPhoto, $pathToQuestionPhoto . '/' . $filename);
+
+					global $maxwidthmini, $maxheightmini, $maxwidthsmall,$maxheightsmall ;
+					$destfull = $pathToQuestionPhoto . '/' . $filename;
+
+					// Create thumbs
+					$imgThumbSmall = vignette($destfull, $maxwidthsmall, $maxheightsmall, '_small', 50, "thumbs");
+					// Create mini thumbs for image (Ratio is near 16/9)
+					$imgThumbMini = vignette($destfull, $maxwidthmini, $maxheightmini, '_mini', 50, "thumbs");
+				}
+			}
+			if ($object->id > 0) {
+				$object->update($user, true);
+			}
+		}
+		exit;
 	}
 
 	// Actions to send emails
@@ -196,22 +377,11 @@ $formproject = new FormProjets($db);
 
 $title = $langs->trans("Question");
 $help_url = '';
-llxHeader('', $title, $help_url);
+$morejs   = array("/dolismq/js/dolismq.js.php");
+$morecss  = array("/dolismq/css/dolismq.css");
 
-// Example : Adding jquery code
-print '<script type="text/javascript" language="javascript">
-jQuery(document).ready(function() {
-	function init_myfunc()
-	{
-		jQuery("#myid").removeAttr(\'disabled\');
-		jQuery("#myid").attr(\'disabled\',\'disabled\');
-	}
-	init_myfunc();
-	jQuery("#mybutton").click(function() {
-		init_myfunc();
-	});
-});
-</script>';
+llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
+
 
 
 // Part to create
@@ -219,7 +389,7 @@ if ($action == 'create')
 {
 	print load_fiche_titre($langs->trans("NewObject", $langs->transnoentitiesnoconv("Question")), '', 'object_'.$object->picto);
 
-	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
+	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'" id="createQuestionForm">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="add">';
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
@@ -241,16 +411,27 @@ if ($action == 'create')
 	print '</td></tr>';
 
 	print '<tr><td><label class="fieldrequired" for="description">' . $langs->trans("Description") . '</label></td><td>';
-	$doleditor = new DolEditor('description', $conf->global->DIGIRISK_LOCATION_OF_DETAILED_INSTRUCTION ? $conf->global->DIGIRISK_LOCATION_OF_DETAILED_INSTRUCTION : '', '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
+	$doleditor = new DolEditor('description', '', '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
 	print '</td></tr>';
 
-	print '<tr><td><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>';
-	print '<i class="fas fa-file"></i>';
+	print '<tr><td><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
+	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
+		<input type="hidden" class="type-from" value="photo_ok"/>
+		<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
+	</div>
+	<?php
+	$relativepath = 'dolismq/medias/thumbs';
+	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ok', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/tmp/QU0/photo_ok');
 	print '</td></tr>';
 
-	print '<tr><td><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>';
-	print '<i class="fas fa-file"></i>';
+	print '<tr><td><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
+	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
+		<input type="hidden" class="type-from" value="photo_ko"/>
+		<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
+	</div>
+	<?php
+	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ko', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/tmp/QU0/photo_ko');
 	print '</td></tr>';
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
@@ -269,6 +450,7 @@ if ($action == 'create')
 
 	//dol_set_focus('input[name="ref"]');
 }
+include DOL_DOCUMENT_ROOT . '/custom/dolismq/core/tpl/dolismq_medias_gallery_modal.tpl.php';
 
 // Part to edit record
 if (($id || $ref) && $action == 'edit')
@@ -287,7 +469,35 @@ if (($id || $ref) && $action == 'edit')
 	print '<table class="border centpercent tableforfieldedit">'."\n";
 
 	// Common attributes
-	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_edit.tpl.php';
+//	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_edit.tpl.php';
+
+	print '<tr><td class="fieldrequired">' . $langs->trans("Ref") . '</td><td>';
+	print $object->ref;
+	print '</td></tr>';
+
+	print '<tr><td><label class="fieldrequired" for="description">' . $langs->trans("Description") . '</label></td><td>';
+	$doleditor = new DolEditor('description', $object->description, '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
+	$doleditor->Create();
+	print '</td></tr>';
+
+	print '<tr><td><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
+	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
+		<input type="hidden" class="type-from" value="photo_ok"/>
+		<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
+	</div>
+	<?php
+	$relativepath = 'dolismq/medias/thumbs';
+	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/'. $object->ref . '/photo_ok');
+	print '</td></tr>';
+
+	print '<tr><td><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
+	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
+		<input type="hidden" class="type-from" value="photo_ko"/>
+		<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
+	</div>
+	<?php
+	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/'. $object->ref . '/photo_ko');
+	print '</td></tr>';
 
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_edit.tpl.php';
@@ -365,7 +575,31 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	//$keyforbreak='fieldkeytoswitchonsecondcolumn';	// We change column just before this field
 	//unset($object->fields['fk_project']);				// Hide field already shown in banner
 	//unset($object->fields['fk_soc']);					// Hide field already shown in banner
-	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
+//	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
+
+	//Description -- Description
+	print '<tr><td class="titlefield">';
+	print $langs->trans("Description");
+	print '</td>';
+	print '<td>';
+	print $object->description;
+	print '</td></tr>';
+
+	//Photo OK -- Photo OK
+	print '<tr><td class="titlefield">';
+	print $langs->trans("PhotoOk");
+	print '</td>';
+	print '<td>';
+	print dolismq_show_photos('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/' . $object->element . '/' . $object->ref . '/photo_ok', 'small', 5, 0, 0, 0, 160, 160, 0, 0, 0, $object->element . '/' . $object->ref . '/photo_ok');
+	print '</td></tr>';
+
+	//Photo KO -- Photo KO
+	print '<tr><td class="titlefield">';
+	print $langs->trans("PhotoKo");
+	print '</td>';
+	print '<td>';
+	print dolismq_show_photos('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/' . $object->element . '/' . $object->ref . '/photo_ko', 'small', 5, 0, 0, 0, 160, 160, 0, 0, 0, $object->element . '/' . $object->ref . '/photo_ko');
+	print '</td></tr>';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php';
