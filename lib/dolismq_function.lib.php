@@ -1454,10 +1454,10 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 		if ($sortfield && $sortorder) {
 			$filearray = dol_sort_array($filearray, $sortfield, $sortorder);
 		}
-		$return .= '<div class=" wpeo-gridlayout grid-4 grid-gap-3 grid-margin-2 valigntop center centpercent" style="height:50%; border: 0; padding: 2px; border-spacing: 2px; border-collapse: separate;">';
+		$return .= '<td class=" wpeo-gridlayout grid-4 grid-gap-3 grid-margin-2 valigntop center centpercent" style="height:50%; border: 0; padding: 2px; border-spacing: 2px; border-collapse: separate;">';
 
 		foreach ($filearray as $key => $val) {
-			$return .= '<div class="media-container">';
+			$return .= '<td class="media-container">';
 			$photo   = '';
 			$file    = $val['name'];
 
@@ -1536,7 +1536,7 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 					if ($nbbyrow > 0) {
 						$return                                 .= '</td>';
 						if (($nbphoto % $nbbyrow) == 0) $return .= '</tr>';
-					} elseif ($nbbyrow < 0) $return .= '</div>';
+					} elseif ($nbbyrow < 0) $return .= '</td>';
 				}
 
 				if (empty($size)) {     // Format origine
@@ -1561,7 +1561,7 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 				<i class="fas fa-unlink button-icon"></i>
 			</div></div></div>';
 		}
-		$return .= "</div>\n";
+		$return .= "</td>\n";
 
 		if ($size == 1 || $size == 'small') {
 			if ($nbbyrow > 0) {
