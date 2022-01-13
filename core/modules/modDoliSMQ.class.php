@@ -142,7 +142,7 @@ class modDoliSMQ extends DolibarrModules
 		// A condition to hide module
 		$this->hidden = false;
 		// List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
-		$this->depends = array('modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda');
+		$this->depends = array('modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM');
 		$this->requiredby = array(); // List of module class names as string to disable if this one is disabled. Example: array('modModuleToDisable1', ...)
 		$this->conflictwith = array(); // List of module class names as string this module is in conflict with. Example: array('modModuleToDisable1', ...)
 
@@ -397,6 +397,35 @@ class modDoliSMQ extends DolibarrModules
 		$this->menu[$r++]=array(
 			'fk_menu'=>'fk_mainmenu=dolismq',
 			'type'=>'left',
+			'titre'=>$langs->trans('QuestionList'),
+			'mainmenu'=>'dolismq',
+			'leftmenu'=>'dolismq_question',
+			'url'=>'/dolismq/view/question/question_list.php',
+			'langs'=>'dolismq@dolismq',
+			'position'=>1100+$r,
+			'enabled'=>'$conf->dolismq->enabled',
+			'perms'=>'1',
+			'target'=>'',
+			'user'=>2,
+		);
+		$this->menu[$r++]=array(
+			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_question',
+			'type'=>'left',
+			'titre'=>$langs->trans('NewQuestion'),
+			'mainmenu'=>'dolismq',
+			'leftmenu'=>'dolismq_question',
+			'url'=>'/dolismq/view/question/question_card.php?action=create',
+			'langs'=>'dolismq@dolismq',
+			'position'=>1100+$r,
+			'enabled'=>'$conf->dolismq->enabled',
+			'perms'=>'1',
+			'target'=>'',
+			'user'=>2
+		);
+
+		$this->menu[$r++]=array(
+			'fk_menu'=>'fk_mainmenu=dolismq',
+			'type'=>'left',
 			'titre'=>$langs->trans('ControlList'),
 			'mainmenu'=>'dolismq',
 			'leftmenu'=>'dolismq_control',
@@ -422,35 +451,6 @@ class modDoliSMQ extends DolibarrModules
 			'target'=>'',
 			'user'=>2
 		);
-
-        $this->menu[$r++]=array(
-            'fk_menu'=>'fk_mainmenu=dolismq',
-            'type'=>'left',
-            'titre'=>$langs->trans('QuestionList'),
-            'mainmenu'=>'dolismq',
-            'leftmenu'=>'dolismq_question',
-            'url'=>'/dolismq/view/question/question_list.php',
-            'langs'=>'dolismq@dolismq',
-            'position'=>1100+$r,
-            'enabled'=>'$conf->dolismq->enabled',
-            'perms'=>'1',
-            'target'=>'',
-            'user'=>2,
-        );
-        $this->menu[$r++]=array(
-            'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_question',
-            'type'=>'left',
-			'titre'=>$langs->trans('NewQuestion'),
-            'mainmenu'=>'dolismq',
-            'leftmenu'=>'dolismq_question',
-            'url'=>'/dolismq/view/question/question_card.php?action=create',
-            'langs'=>'dolismq@dolismq',
-            'position'=>1100+$r,
-            'enabled'=>'$conf->dolismq->enabled',
-            'perms'=>'1',
-            'target'=>'',
-            'user'=>2
-        );
 	}
 
 	/**
