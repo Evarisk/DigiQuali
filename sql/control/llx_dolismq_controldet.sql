@@ -28,5 +28,5 @@ CREATE TABLE llx_dolismq_controldet(
 	fk_user_creat integer NOT NULL,
 	fk_user_modif integer,
 	fk_control    integer NOT NULL,
-	fk_question   integer,
+	fk_question   integer
 ) ENGINE=innodb;
