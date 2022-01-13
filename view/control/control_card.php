@@ -491,7 +491,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
+	//FKProduct -- Produit
+	print '<tr><td class="titlefield">';
+	print $langs->trans("Product");
+	print '</td>';
+	print '<td>';
 	$product->fetch($object->fk_product);
+	if ($product > 0) {
+		print $product->getNomUrl(1);
+	}
+	print '<td>';
+
 
 	// -- Contrôleur
 	print '<tr><td class="titlefield">';
