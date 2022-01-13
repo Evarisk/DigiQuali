@@ -221,8 +221,10 @@ $title_create  = $langs->trans("NewSheet");
 $title_edit    = $langs->trans("ModifySheet");
 
 $help_url = '';
+$morejs   = array("/dolismq/js/dolismq.js.php");
+$morecss  = array("/dolismq/css/dolismq.css");
 
-llxHeader('', $title, $help_url);
+llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
 
 // Part to create
 if ($action == 'create') {

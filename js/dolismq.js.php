@@ -876,3 +876,51 @@ if ( ! window.eoxiaJS.loader ) {
 	};
 }
 
+
+/**
+ * Initialise l'objet "control" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ */
+window.eoxiaJS.control = {};
+
+/**
+ * La méthode appelée automatiquement par la bibliothèque EoxiaJS.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.control.init = function() {
+	window.eoxiaJS.control.event();
+};
+
+/**
+ * La méthode contenant tous les événements pour le control.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.control.event = function() {
+	$( document ).on( 'click', '.answer', window.eoxiaJS.control.selectAnswer );
+};
+
+/**
+ * Select an answer for a control question.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.control.selectAnswer = function ( event ) {
+	console.log('oui')
+	$(this).closest('td').find('span').attr('style', '')
+	$(this).closest('span').attr('style', 'border: solid; border-color:blue')
+	$(this).closest('td').find('.question-answer').val($(this).attr('value'))
+};

@@ -172,6 +172,16 @@ if (empty($reshook))
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
+	if ($action == 'save') {
+		$sheet->fetch($object->fk_sheet);
+		$object->fetchQuestionsLinked($sheet->id, 'sheet');
+		$questionIds = $object->linkedObjectsIds;
+		foreach ($questionIds as $questionId) {
+
+		}
+
+	}
+
 
 	// Actions when linking object each other
 	include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';
@@ -235,8 +245,10 @@ $title_create  = $langs->trans("NewControl");
 $title_edit    = $langs->trans("ModifyControl");
 
 $help_url = '';
+$morejs   = array("/dolismq/js/dolismq.js.php");
+$morecss  = array("/dolismq/css/dolismq.css");
 
-llxHeader('', $title, $help_url);
+llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
 
 // Part to create
 if ($action == 'create') {
@@ -570,9 +582,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$questionIds = $object->linkedObjectsIds;
 
 	print '<tr class="liste_titre">';
-	print '<td><span>' . $langs->trans('Label') . '</span></td>';
+	print '<td>' . $langs->trans('Ref') . '</td>';
+	print '<td>' . $langs->trans('Description') . '</td>';
 	print '<td>' . $langs->trans('PhotoOk') . '</td>';
-	print '<td class="center" colspan="' . $colspan . '">' . $langs->trans('PhotoKo') . '</td>';
+	print '<td>' . $langs->trans('PhotoKo') . '</td>';
+	print '<td class="center">' . $langs->trans('Answer') . '</td>';
+	print '<td>' . '</td>';
 	print '</tr>';
 
 	if ( ! empty($questionIds['question']) && $questionIds > 0) {
@@ -587,18 +602,38 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
 			print '<td>';
-			print $item->photo_ok;
+			print $item->description;
 			print '</td>';
 
-			$coldisplay++;
 			print '<td>';
-			print $item->photo_ko;
+			print '<img width="40" class="photo clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ok)) . '" >';
 			print '</td>';
 
-			$coldisplay++;
-			print '<td class="center">';
+			print '<td>';
+			print '<img width="40" class="photo clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ko)) . '" >';
 			print '</td>';
-			$coldisplay += $colspan;
+
+			print '<td class="center">';
+			print '<input type="hidden" class="question-answer" id="answer'. $item->id .'" value="0">';
+
+			print '<span class="answer" value="1">';
+			print '<i class="fas fa-check"></i>&nbsp&nbsp&nbsp&nbsp&nbsp';
+			print '</span>';
+
+			print '<span class="answer" value="2">';
+			print '<i class="fas fa-times"></i>&nbsp&nbsp&nbsp&nbsp&nbsp';
+			print '</span>';
+
+			print '<span class="answer" value="3">';
+			print '<i class="fas fa-tools"></i>&nbsp&nbsp&nbsp&nbsp&nbsp';
+			print '</span>';
+
+			print '<span class="answer" value="4">';
+			print 'N/A';
+			print '</span>';
+
+			print '</td>';
+
 			print '</tr>';
 		}
 		print '</tr>';
