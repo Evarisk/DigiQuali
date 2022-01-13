@@ -306,7 +306,7 @@ if ($user->socid && !in_array('batch', explode(',', $conf->global->MAIN_MODULES_
 
 $morehtmlref = '';
 
-dol_banner_tab($object, 'id', $linkback, $shownav, 'rowid', 'batch', $morehtmlref);
+dol_banner_tab($productlot, 'id', $linkback, $shownav, 'rowid', 'batch', $morehtmlref);
 
 print '<div class="fichecenter">';
 print '<div class="underbanner clearboth"></div>';
