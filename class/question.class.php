@@ -924,7 +924,7 @@ class Question extends CommonObject
 	 * @return       string      HTML string with
 	 * @throws Exception
 	 */
-	public function select_question_list($selected = '', $htmlname = 'socid', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth100', $moreparam = '', $multiple = false, $noroot = 0)
+	public function select_question_list($selected = '', $htmlname = 'socid', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth100', $moreparam = '', $multiple = false, $noroot = 0, $alreadyAdded = array())
 	{
 		// phpcs:enable
 		global $conf, $user, $langs;
@@ -987,7 +987,11 @@ class Question extends CommonObject
 						if (in_array($obj->rowid, $selected)) {
 							$out .= '<option value="' . $obj->rowid . '" selected>' . $label . '</option>';
 						} else {
-							$out .= '<option value="' . $obj->rowid . '">' . $label . '</option>';
+							if (in_array($obj->rowid, $alreadyAdded)) {
+								$out .= '<option disabled value="' . $obj->rowid . '">' . $label . '</option>';
+							} else {
+								$out .= '<option value="' . $obj->rowid . '">' . $label . '</option>';
+							}
 						}
 					} else {
 						array_push($outarray, array('key' => $obj->rowid, 'value' => $label, 'label' => $label));
