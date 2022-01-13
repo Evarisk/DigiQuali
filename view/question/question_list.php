@@ -56,6 +56,8 @@ if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1)))."/main.inc
 if (!$res && file_exists("../main.inc.php")) $res = @include "../main.inc.php";
 if (!$res && file_exists("../../main.inc.php")) $res = @include "../../main.inc.php";
 if (!$res && file_exists("../../../main.inc.php")) $res = @include "../../../main.inc.php";
+if ( ! $res && file_exists("../../../../main.inc.php")) $res = @include "../../../../main.inc.php";
+
 if (!$res) die("Include of main fails");
 
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
@@ -63,7 +65,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 
 // load dolismq libraries
-require_once __DIR__.'/class/question.class.php';
+require_once '../../class/question.class.php';
 
 // for other modules
 //dol_include_once('/othermodule/class/otherobject.class.php');
@@ -307,7 +309,7 @@ if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $
 {
 	$obj = $db->fetch_object($resql);
 	$id = $obj->rowid;
-	header("Location: ".dol_buildpath('/dolismq/question_card.php', 1).'?id='.$id);
+	header("Location: ".dol_buildpath('/dolismq/view/question/question_card.php', 1).'?id='.$id);
 	exit;
 }
 
@@ -370,7 +372,7 @@ print '<input type="hidden" name="sortfield" value="'.$sortfield.'">';
 print '<input type="hidden" name="sortorder" value="'.$sortorder.'">';
 print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
 
-$newcardbutton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/dolismq/question_card.php', 1).'?action=create&backtopage='.urlencode($_SERVER['PHP_SELF']), '', $permissiontoadd);
+$newcardbutton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/dolismq/view/question/question_card.php', 1).'?action=create', '', $permissiontoadd);
 
 print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'object_'.$object->picto, 0, $newcardbutton, '', $limit, 0, 0, 1);
 

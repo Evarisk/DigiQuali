@@ -56,6 +56,8 @@ if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1)))."/main.inc
 if (!$res && file_exists("../main.inc.php")) $res = @include "../main.inc.php";
 if (!$res && file_exists("../../main.inc.php")) $res = @include "../../main.inc.php";
 if (!$res && file_exists("../../../main.inc.php")) $res = @include "../../../main.inc.php";
+if ( ! $res && file_exists("../../../../main.inc.php")) $res = @include "../../../../main.inc.php";
+
 if (!$res) die("Include of main fails");
 
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
@@ -65,10 +67,10 @@ require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 
-require_once './class/question.class.php';
-require_once './core/modules/dolismq/question/mod_question_standard.php';
-require_once './lib/dolismq_question.lib.php';
-require_once './lib/dolismq_function.lib.php';
+require_once '../../class/question.class.php';
+require_once '../../core/modules/dolismq/question/mod_question_standard.php';
+require_once '../../lib/dolismq_question.lib.php';
+require_once '../../lib/dolismq_function.lib.php';
 
 global $langs, $conf, $user, $db;
 
@@ -141,12 +143,12 @@ if (empty($reshook))
 {
 	$error = 0;
 
-	$backurlforlist = dol_buildpath('/dolismq/question_list.php', 1);
+	$backurlforlist = dol_buildpath('/dolismq/view/question/question_list.php', 1);
 
 	if (empty($backtopage) || ($cancel && empty($id))) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) $backtopage = $backurlforlist;
-			else $backtopage = dol_buildpath('/dolismq/question_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
+			else $backtopage = dol_buildpath('/dolismq/view/question/question_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
 		}
 	}
 

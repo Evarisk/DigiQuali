@@ -594,7 +594,7 @@ class Question extends CommonObject
 		$label .= '<br>';
 		$label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->ref;
 
-		$url = dol_buildpath('/dolismq/question_card.php', 1) . '?id=' . $this->id;
+		$url = dol_buildpath('/dolismq/view/question/question_card.php', 1) . '?id=' . $this->id;
 
 		if ($option != 'nolink') {
 			// Add param to save lastsearch_values or not
