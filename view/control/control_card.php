@@ -411,18 +411,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		//Form to close proposal (signed or not)
 		$formquestion = array(
 			array('type' => 'select', 'name' => 'status', 'label' => '<span class="fieldrequired">' . $langs->trans("CloseAs") . '</span>', 'values' => array($object::STATUS_OK => $object->LibStatut($object::STATUS_OK), $object::STATUS_KO => $object->LibStatut($object::STATUS_KO))),
-			array('type' => 'text', 'name' => 'note_private', 'label' => $langs->trans("Note"), 'value' => '')                // Field to complete private note (not replace)
 		);
 
-		if (!empty($conf->notification->enabled)) {
-			require_once DOL_DOCUMENT_ROOT . '/core/class/notify.class.php';
-			$notify = new Notify($db);
-			$formquestion = array_merge($formquestion, array(
-				array('type' => 'onecolumn', 'value' => $notify->confirmMessage('PROPAL_CLOSE_SIGNED', $object->socid, $object)),
-			));
-		}
-
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('SetAcceptedRefused'), $text, 'confirm_closeas', $formquestion, '', 1, 250);
+		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $text, 'confirm_closeas', $formquestion, '', 1, 250);
 	}
 
 	// Confirmation of action xxxx
