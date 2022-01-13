@@ -275,7 +275,7 @@ if ($action == 'create') {
 	}
 
 	//FK Product
-	print '<tr><td class="fieldrequired minwidth400">' . img_picto('', 'building') . ' ' . $langs->trans("Product") . '</td><td>';
+	print '<tr><td class="fieldrequired minwidth400">' . img_picto('', 'product') . ' ' . $langs->trans("Product") . '</td><td>';
 	$events    = array();
 	$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/digiriskdolibarr/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_lot');
 	print $form->select_produits(GETPOST('fk_product'), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProducts', 0, 'minwidth300');
@@ -284,8 +284,7 @@ if ($action == 'create') {
 
 	//FK LOT
 	print '<tr><td class="fieldrequired minwidth400">';
-	$htmltext = img_picto('', 'address') . ' ' . $langs->trans("Lot");
-	print $form->textwithpicto($htmltext, $langs->trans('ContactNoEmail'));
+	print img_picto('', 'lot') . ' ' . $langs->trans("Lot");
 	print '</td><td>';
 	print dolismq_select_product_lots((empty(GETPOST('fk_product', 'int')) ? 1 : GETPOST('fk_product', 'int')), GETPOST('fk_lot'), 'fk_lot', 1, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_lot');
 	print '</td></tr>';
@@ -328,6 +327,44 @@ if (($id || $ref) && $action == 'edit') {
 
 	// Common attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_edit.tpl.php';
+
+	//FK User controller
+	if ($conf->global->DOLISQM_USER_CONTROLLER < 0 || empty($conf->global->DOLISQM_USER_CONTROLLER)) {
+		$userlist = $form->select_dolusers(( ! empty(GETPOST('fk_user_controller')) ? GETPOST('fk_user_controller') : $user->id), '', 0, null, 0, '', '', $conf->entity, 0, 0, 'AND u.statut = 1', 0, '', 'minwidth300', 0, 1);
+		print '<tr>';
+		print '<td class="fieldrequired minwidth400" style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
+		print '<td>';
+		print $form->selectarray('fk_user_controller', $userlist, ( ! empty(GETPOST('fk_user_controller')) ? GETPOST('fk_user_controller') : $user->id), $langs->trans('SelectUser'), null, null, null, "40%", 0, 0, '', 'minwidth300', 1);
+		print ' <a href="' . DOL_URL_ROOT . '/user/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddUser") . '"></span></a>';
+		print '</td></tr>';
+	} else {
+		$usertmp->fetch($conf->global->DOLISQM_USER_CONTROLLER);
+		print '<tr>';
+		print '<td class="fieldrequired minwidth400" style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
+		print '<td>' . $usertmp->getNomUrl(1) . '</td>';
+		print '<input type="hidden" name="fk_user_controller" value="' . $conf->global->DOLISQM_USER_CONTROLLER . '">';
+		print '</td></tr>';
+	}
+
+	//FK Product
+	print '<tr><td class="fieldrequired minwidth400">' . img_picto('', 'product') . ' ' . $langs->trans("Product") . '</td><td>';
+	$events    = array();
+	$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/digiriskdolibarr/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_lot');
+	print $form->select_produits($object->fk_product, 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProducts', 0, 'minwidth300');
+	print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
+	print '</td></tr>';
+
+	//FK LOT
+	print '<tr><td class="fieldrequired minwidth400">';
+	print img_picto('', 'lot') . ' ' . $langs->trans("Lot");
+	print '</td><td>';
+	print dolismq_select_product_lots((empty(GETPOST('fk_product', 'int')) ? $object->fk_product : GETPOST('fk_product', 'int')), $object->fk_lot, 'fk_lot', 1, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_lot');
+	print '</td></tr>';
+
+	//FK SHEET
+	print '<tr><td class="fieldrequired minwidth400">' . $langs->trans("SheetLinked") . '</td><td>';
+	print $sheet->select_sheet_list($object->fk_sheet);
+	print '</td></tr>';
 
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_edit.tpl.php';
@@ -456,8 +493,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// -- Contrôleur
 	print '<tr><td class="titlefield">';
-	print $langs->trans("FKUserController");
+	print $langs->trans("FKSheet");
 	print '</td>';
+	$sheet->fetch($object->fk_sheet);
+	if ($sheet > 0) {
+		print $sheet->getNomUrl(1);
+	}
 	print '<td>';
 
 	print '</td></tr>';
@@ -467,7 +508,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print $langs->trans("SerialNumber");
 	print '</td>';
 	print '<td>';
-	print $object->fk_lot;
+	$productlot->fetch($object->fk_lot);
+	if ($productlot > 0) {
+		print $productlot->getNomUrl(1);
+	}
 	print '</td></tr>';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
@@ -478,16 +522,31 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '</div>';
 
 	print '<div class="clearboth"></div>';
-
-	// Close as accepted/refused
-	if ($object->statut == Control::STATUS_DRAFT) {
-		if ($permissiontoadd) {
-			print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=closeas'.(empty($conf->global->MAIN_JUMP_TAG) ? '' : '#close').'"';
-			print '>'.$langs->trans('SetOK/KO').'</a>';
-		} else {
-			print '<a class="butActionRefused classfortooltip" href="#" title="'.$langs->trans("NotEnoughPermissions").'"';
-			print '>'.$langs->trans('SetOK/KO').'</a>';
+	// Buttons for actions
+	if ($action != 'presend' && $action != 'editline') {
+		print '<div class="tabsAction">'."\n";
+		$parameters = array();
+		$reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
+		if ($reshook < 0) {
+			setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 		}
+
+		if (empty($reshook)) {
+			// Close as accepted/refused
+			if ($object->statut == Control::STATUS_DRAFT) {
+				if ($permissiontoadd) {
+					print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=closeas'.(empty($conf->global->MAIN_JUMP_TAG) ? '' : '#close').'"';
+					print '>'.$langs->trans('SetOK/KO').'</a>';
+				} else {
+					print '<a class="butActionRefused classfortooltip" href="#" title="'.$langs->trans("NotEnoughPermissions").'"';
+					print '>'.$langs->trans('SetOK/KO').'</a>';
+				}
+			}
+			print dolGetButtonAction($langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=edit&token='.newToken(), '', $permissiontoadd);
+			// Delete (need delete permission, or if draft, just need create/modify permission)
+			print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
+		}
+		print '</div>'."\n";
 	}
 
 	// PREVENTIONPLAN LINES
