@@ -429,7 +429,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<input type="hidden" name="id" value="'.$id.'">';
 
 	print '<td class="minwidth300">';
-	print $question->select_question_list(0,  'questionId',  '',  '1',  0, 0, array(), '', 0, 0, 'disabled', '', false, 1, $questionIds['question']);
+	print $question->select_question_list(0,  'questionId',  '',  '1',  0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds['question']);
 	print '</td>';
 	print '<td>';
 	print ' &nbsp; <input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
