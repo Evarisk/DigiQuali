@@ -1085,4 +1085,285 @@ class Control extends CommonObject
 	}
 
 }
+class ControlLine extends CommonObjectLine
+{
+	/**
+	 * @var string ID to identify managed object
+	 */
+	public $element = 'controldet';
+
+	/**
+	 * @var string Name of table without prefix where object is stored
+	 */
+	public $table_element = 'dolismq_controldet';
+
+	public $ref = '';
+
+	public $date_creation = '';
+
+	public $comment = '';
+
+	public $answer = '';
+
+	public $fk_control = '';
+
+	public $fk_question = '';
+
+	/**
+	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
+	 */
+	public $fields = array(
+		'rowid'             => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'comment' => "Id"),
+		'ref'               => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 1, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
+		'ref_ext'           => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 0, 'visible' => 0,),
+		'entity'            => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
+		'date_creation'     => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 0,),
+		'tms'               => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
+		'status'            => array('type' => 'status', 'label' => 'Status', 'enabled' => '1', 'position' => 55, 'notnull' => 0, 'visible' => 0,),
+		'comment'           => array('type' => 'text', 'label' => 'Description', 'enabled' => '1', 'position' => 70, 'notnull' => -1, 'visible' => -1,),
+		'fk_question'       => array('type' => 'integer', 'label' => 'FkQuestion', 'enabled' => '1', 'position' => 90, 'notnull' => 1, 'visible' => 0,),
+		'fk_control'        => array('type' => 'integer', 'label' => 'FkControl', 'enabled' => '1', 'position' => 100, 'notnull' => 1, 'visible' => 0,),
+	);
+
+	/**
+	 * Constructor
+	 *
+	 * @param DoliDb $db Database handler
+	 */
+	public function __construct(DoliDB $db)
+	{
+		global $conf, $langs;
+
+		$this->db = $db;
+
+		if (empty($conf->global->MAIN_SHOW_TECHNICAL_ID) && isset($this->fields['rowid'])) $this->fields['rowid']['visible'] = 0;
+		if (empty($conf->multicompany->enabled) && isset($this->fields['entity'])) $this->fields['entity']['enabled']        = 0;
+	}
+
+	/**
+	 *	Load prevention plan line from database
+	 *
+	 *	@param	int		$rowid      id of invoice line to get
+	 *	@return	int					<0 if KO, >0 if OK
+	 */
+	public function fetch($rowid)
+	{
+		global $db;
+
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.description, t.category, t.prevention_method, t.fk_preventionplan, t.fk_element ';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiriskdolibarr_preventionplandet as t';
+		$sql .= ' WHERE t.rowid = ' . $rowid;
+		$sql .= ' AND entity IN (' . getEntity($this->table_element) . ')';
+
+		$result = $db->query($sql);
+		if ($result) {
+			$objp = $db->fetch_object($result);
+
+			$this->id                = $objp->rowid;
+			$this->ref               = $objp->ref;
+			$this->date_creation     = $objp->date_creation;
+			$this->description       = $objp->description;
+			$this->category          = $objp->category;
+			$this->prevention_method = $objp->prevention_method;
+			$this->fk_preventionplan = $objp->fk_preventionplan;
+			$this->fk_element        = $objp->fk_element;
+
+			$db->free($result);
+
+			return $this->id;
+		} else {
+			$this->error = $db->lasterror();
+			return -1;
+		}
+	}
+
+	/**
+	 *    Load preventionplan line line from database
+	 *
+	 * @param int $parent_id
+	 * @param int $limit
+	 * @return int <0 if KO, >0 if OK
+	 */
+	public function fetchAll($parent_id = 0, $limit = 0)
+	{
+		global $db;
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.description, t.category, t.prevention_method, t.fk_element';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiriskdolibarr_preventionplandet as t';
+		if ($parent_id > 0) {
+			$sql .= ' WHERE t.fk_preventionplan = ' . $parent_id;
+		} else {
+			$sql .= ' WHERE 1=1';
+		}
+		$sql .= ' AND entity IN (' . getEntity($this->table_element) . ')';
+
+
+		$result = $db->query($sql);
+
+		if ($result) {
+			$num = $db->num_rows($result);
+
+			$i = 0;
+			while ($i < ($limit ? min($limit, $num) : $num)) {
+				$obj = $db->fetch_object($result);
+
+				$record = new self($db);
+
+				$record->id                = $obj->rowid;
+				$record->ref               = $obj->ref;
+				$record->date_creation     = $obj->date_creation;
+				$record->description       = $obj->description;
+				$record->category          = $obj->category;
+				$record->prevention_method = $obj->prevention_method;
+				$record->fk_preventionplan = $obj->fk_preventionplan;
+				$record->fk_element        = $obj->fk_element;
+
+				$records[$record->id] = $record;
+
+				$i++;
+			}
+
+			$db->free($result);
+
+			return $records;
+		} else {
+			$this->error = $db->lasterror();
+			return -1;
+		}
+	}
+
+	/**
+	 *    Insert line into database
+	 *
+	 * @param User $user
+	 * @param bool $notrigger 1 no triggers
+	 * @return        int                                         <0 if KO, >0 if OK
+	 * @throws Exception
+	 */
+	public function insert(User $user, $notrigger = false)
+	{
+		global $db, $user;
+
+		// Clean parameters
+		$this->description = trim($this->description);
+
+		$db->begin();
+		$now = dol_now();
+
+		// Insertion dans base de la ligne
+		$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . 'digiriskdolibarr_preventionplandet';
+		$sql .= ' (ref, entity, date_creation, description, category, prevention_method, fk_preventionplan, fk_element';
+		$sql .= ')';
+		$sql .= " VALUES (";
+		$sql .= "'" . $db->escape($this->ref) . "'" . ", ";
+		$sql .= $this->entity . ", ";
+		$sql .= "'" . $db->escape($db->idate($now)) . "'" . ", ";
+		$sql .= "'" . $db->escape($this->description) . "'" . ", ";
+		$sql .= $this->category . ", ";
+		$sql .= "'" . $db->escape($this->prevention_method) . "'" . ", ";
+		$sql .= $this->fk_preventionplan . ", ";
+		$sql .= $this->fk_element ;
+
+		$sql .= ')';
+
+		dol_syslog(get_class($this) . "::insert", LOG_DEBUG);
+		$resql = $db->query($sql);
+
+		if ($resql) {
+			$this->id    = $db->last_insert_id(MAIN_DB_PREFIX . 'preventionplandet');
+			$this->rowid = $this->id; // For backward compatibility
+
+			$db->commit();
+			// Triggers
+			if ( ! $notrigger) {
+				// Call triggers
+				$this->call_trigger(strtoupper(get_class($this)) . '_CREATE', $user);
+				// End call triggers
+			}
+			return $this->id;
+		} else {
+			$this->error = $db->lasterror();
+			$db->rollback();
+			return -2;
+		}
+	}
+
+	/**
+	 *    Update line into database
+	 *
+	 * @param User $user User object
+	 * @param int $notrigger Disable triggers
+	 * @return        int                    <0 if KO, >0 if OK
+	 * @throws Exception
+	 */
+	public function update(User $user, $notrigger = false)
+	{
+		global $user, $db;
+
+		$error = 0;
+
+		// Clean parameters
+		$this->description = trim($this->description);
+
+		$db->begin();
+
+		// Mise a jour ligne en base
+		$sql  = "UPDATE " . MAIN_DB_PREFIX . "digiriskdolibarr_preventionplandet SET";
+		$sql .= " ref='" . $db->escape($this->ref) . "',";
+		$sql .= " description='" . $db->escape($this->description) . "',";
+		$sql .= " category=" . $db->escape($this->category) . ",";
+		$sql .= " prevention_method='" . $db->escape($this->prevention_method) . "'" . ",";
+		$sql .= " fk_preventionplan=" . $db->escape($this->fk_preventionplan) . ",";
+		$sql .= " fk_element=" . $db->escape($this->fk_element);
+
+		$sql .= " WHERE rowid = " . $this->id;
+
+		dol_syslog(get_class($this) . "::update", LOG_DEBUG);
+		$resql = $db->query($sql);
+
+		if ($resql) {
+			$db->commit();
+			// Triggers
+			if ( ! $notrigger) {
+				// Call triggers
+				$this->call_trigger(strtoupper(get_class($this)) . '_MODIFY', $user);
+				// End call triggers
+			}
+			return $this->id;
+		} else {
+			$this->error = $db->error();
+			$db->rollback();
+			return -2;
+		}
+	}
+
+	/**
+	 *    Delete line in database
+	 *
+	 * @return        int                   <0 if KO, >0 if OK
+	 * @throws Exception
+	 */
+	public function delete(User $user, $notrigger = false)
+	{
+		global $user, $db;
+
+		$db->begin();
+
+		$sql = "DELETE FROM " . MAIN_DB_PREFIX . "digiriskdolibarr_preventionplandet WHERE rowid = " . $this->id;
+		dol_syslog(get_class($this) . "::delete", LOG_DEBUG);
+		if ($db->query($sql)) {
+			$db->commit();
+			// Triggers
+			if ( ! $notrigger) {
+				// Call trigger
+				$this->call_trigger(strtoupper(get_class($this)) . '_DELETE', $user);
+				// End call triggers
+			}
+			return 1;
+		} else {
+			$this->error = $db->error() . " sql=" . $sql;
+			$db->rollback();
+			return -1;
+		}
+	}
+}
 
