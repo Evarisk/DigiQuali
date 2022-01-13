@@ -68,6 +68,7 @@ require_once __DIR__.'/../../class/sheet.class.php';
 require_once __DIR__.'/../../class/question.class.php';
 require_once __DIR__.'/../../lib/dolismq_sheet.lib.php';
 require_once __DIR__.'/../../core/modules/dolismq/sheet/mod_sheet_standard.php';
+require_once '../../lib/dolismq_function.lib.php';
 
 global $langs, $conf, $user, $db;
 
@@ -154,11 +155,18 @@ if (empty($reshook))
 		$questionId = GETPOST('questionId');
 		$question->fetch($questionId);
 		$question->add_object_linked($object->element,$id);
-
-
 		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 		exit;
 	}
+
+	if ($action == 'unlinkQuestion') {
+		$questionId = GETPOST('questionId');
+		$question->fetch($questionId);
+		$question->deleteObjectLinked($id,$object->element);
+		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
+		exit;
+	}
+
 	$triggermodname = 'DOLISMQ_AUDIT_MODIFY'; // Name of trigger action code to execute when we modify record
 
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
@@ -376,9 +384,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$questionIds = $object->linkedObjectsIds;
 
 	print '<tr class="liste_titre">';
-	print '<td><span>' . $langs->trans('Label') . '</span></td>';
+	print '<td>' . $langs->trans('Ref') . '</td>';
+	print '<td>' . $langs->trans('Description') . '</td>';
 	print '<td>' . $langs->trans('PhotoOk') . '</td>';
-	print '<td class="center" colspan="' . $colspan . '">' . $langs->trans('PhotoKo') . '</td>';
+	print '<td>' . $langs->trans('PhotoKo') . '</td>';
+	print '<td>' . '</td>';
 	print '</tr>';
 
 	if ( ! empty($questionIds['question']) && $questionIds > 0) {
@@ -393,22 +403,18 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
 			print '<td>';
-			print $item->photo_ok;
+			print $item->description;
 			print '</td>';
 
-			$coldisplay++;
-			print '<td>';
-			print $item->photo_ko;
-			print '</td>';
+			//à remplacer par un viewimage de l'image stockée dans $item->photo_ok et photo_ko
+			print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ok', 'small', 1, 0, 0, 0, 150, 150, 1, 0, 0, 'question/'. $item->ref . '/photo_ok');
 
-			$coldisplay++;
-			print '<td class="center">'; ?>
+			print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ko', 'small', 1, 0, 0, 0, 150, 150, 1, 0, 0, 'question/'. $item->ref . '/photo_ko');
 
-			<?php
-			print '</td>';
-
-			$coldisplay += $colspan;
-
+			print '<td class="center">';
+			print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=unlinkQuestion&questionId=' . $item->id . '">';
+			print img_delete();
+			print '</a>';			print '</td>';
 
 			print '</tr>';
 

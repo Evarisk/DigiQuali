@@ -1454,7 +1454,6 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 		if ($sortfield && $sortorder) {
 			$filearray = dol_sort_array($filearray, $sortfield, $sortorder);
 		}
-		$return .= '<td class=" wpeo-gridlayout grid-4 grid-gap-3 grid-margin-2 valigntop center centpercent" style="height:50%; border: 0; padding: 2px; border-spacing: 2px; border-collapse: separate;">';
 
 		foreach ($filearray as $key => $val) {
 			$return .= '<td class="media-container">';
