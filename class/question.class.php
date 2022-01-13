@@ -924,7 +924,7 @@ class Question extends CommonObject
 	 * @return       string      HTML string with
 	 * @throws Exception
 	 */
-	public function select_question_list($selected = '', $htmlname = 'socid', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth100', $moreparam = '', $multiple = false, $noroot = 0, $alreadyAdded = array())
+	public function select_question_list($selected = '', $htmlname = 'socid', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth100', $moreparam = '', $multiple = false, $alreadyAdded = array())
 	{
 		// phpcs:enable
 		global $conf, $user, $langs;
@@ -975,7 +975,6 @@ class Question extends CommonObject
 
 			$num                  = $this->db->num_rows($resql);
 			$i                    = 0;
-			if ( ! $noroot) $out .= '<option value="0" selected>' . $langs->trans('Root') . ' : ' . $conf->global->MAIN_INFO_SOCIETE_NOM . '</option>';
 
 			if ($num) {
 				while ($i < $num) {
@@ -987,8 +986,12 @@ class Question extends CommonObject
 						if (in_array($obj->rowid, $selected)) {
 							$out .= '<option value="' . $obj->rowid . '" selected>' . $label . '</option>';
 						} else {
-							if (in_array($obj->rowid, $alreadyAdded)) {
-								$out .= '<option disabled value="' . $obj->rowid . '">' . $label . '</option>';
+							if (!empty($alreadyAdded)) {
+								if (in_array($obj->rowid, $alreadyAdded)) {
+									$out .= '<option disabled value="' . $obj->rowid . '">' . $label . '</option>';
+								} else {
+									$out .= '<option value="' . $obj->rowid . '">' . $label . '</option>';
+								}
 							} else {
 								$out .= '<option value="' . $obj->rowid . '">' . $label . '</option>';
 							}
