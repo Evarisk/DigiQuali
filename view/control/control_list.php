@@ -213,7 +213,7 @@ $now = dol_now();
 
 //$help_url="EN:Module_Control|FR:Module_Control_FR|ES:Módulo_Control";
 $help_url = '';
-$title = $langs->trans('ListOf', $langs->transnoentitiesnoconv("Controls"));
+$title = $langs->trans("ControlList");
 
 
 // Build and execute select
