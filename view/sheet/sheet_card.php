@@ -155,6 +155,8 @@ if (empty($reshook))
 		$questionId = GETPOST('questionId');
 		$question->fetch($questionId);
 		$question->add_object_linked($object->element,$id);
+		setEventMessages($langs->trans('addQuestionLink') . ' ' . $question->ref, array());
+
 		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 		exit;
 	}
@@ -163,6 +165,8 @@ if (empty($reshook))
 		$questionId = GETPOST('questionId');
 		$question->fetch($questionId);
 		$question->deleteObjectLinked($id,$object->element);
+		setEventMessages($langs->trans('removeQuestionLink') . ' ' . $question->ref, array());
+
 		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 		exit;
 	}

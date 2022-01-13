@@ -60,7 +60,8 @@ DoliSMQHelpAuditDateStart = La date de début d'audit
 NewQuestion = Ajouter une question
 QuestionList = Liste des questions
 LinkedQuestionsList = Listes des questions liées
-
+addQuestionLink = Question ajoutée à la fiche modèle :
+removeQuestionLink = Question retirée de la fiche modèle :
 
 #
 # Sheet
