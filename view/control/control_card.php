@@ -222,6 +222,44 @@ if (empty($reshook))
 		}
 	}
 
+	// Action to set status STATUS_VALIDATED
+	if ($action == 'confirm_setValidated') {
+		$object->fetch($id);
+		if ( ! $error) {
+			$result = $object->setValidated($user, false);
+			if ($result > 0) {
+				// Set validated OK
+				$urltogo = str_replace('__ID__', $result, $backtopage);
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
+				header("Location: " . $urltogo);
+				exit;
+			} else {
+				// Set validated KO
+				if ( ! empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
+				else setEventMessages($object->error, null, 'errors');
+			}
+		}
+	}
+
+	// Action to set status STATUS_REOPENED
+	if ($action == 'confirm_setReopened') {
+		$object->fetch($id);
+		if ( ! $error) {
+			$result = $object->setDraft($user, false);
+			if ($result > 0) {
+				// Set reopened OK
+				$urltogo = str_replace('__ID__', $result, $backtopage);
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
+				header("Location: " . $urltogo);
+				exit;
+			} else {
+				// Set reopened KO
+				if ( ! empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
+				else setEventMessages($object->error, null, 'errors');
+			}
+		}
+	}
+
 	// Action to set status STATUS_LOCKED
 	if ($action == 'confirm_setLocked') {
 		$object->fetch($id);
@@ -447,10 +485,22 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $text, 'confirm_closeas', $formquestion, '', 1, 250);
 	}
 
+	// SetValidated confirmation
+	if (($action == 'setValidated' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile)))		// Output when action = clone if jmobile or no js
+		|| ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {							// Always output when not jmobile nor js
+		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('ValidateControl'), $langs->trans('ConfirmValidateControl', $object->ref), 'confirm_setValidated', '', 'yes', 'actionButtonValidate', 350, 600);
+	}
+
+	// SetReopened confirmation
+	if (($action == 'setReopened' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile)))		// Output when action = clone if jmobile or no js
+		|| ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {							// Always output when not jmobile nor js
+		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('ReOpenControl'), $langs->trans('ConfirmReOpenControl', $object->ref), 'confirm_setReopened', '', 'yes', 'actionButtonReOpen', 350, 600);
+	}
+
 	// SetLocked confirmation
 	if (($action == 'setLocked' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile)))		// Output when action = clone if jmobile or no js
 		|| ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {							// Always output when not jmobile nor js
-		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockQuestion'), $langs->trans('ConfirmLockQuestion', $object->ref), 'confirm_setLocked', '', 'yes', 'actionButtonLock', 350, 600);
+		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockControl'), $langs->trans('ConfirmLockControl', $object->ref), 'confirm_setLocked', '', 'yes', 'actionButtonLock', 350, 600);
 	}
 
 
@@ -584,14 +634,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print '>'.$langs->trans('SetOK/KO').'</a>';
 				}
 			}
-			print '<span class="' . (($object->status != 3 && $sheet->status == 2) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status != 3  && $sheet->status == 2) ? 'actionButtonLock' : '') . '" title="' . (($object->status != 3  && $sheet->status == 2) ? '' : dol_escape_htmltag($langs->trans("AllSignatoriesMustHaveSigned"))) . '">' . $langs->trans("Lock") . '</span>';
-			if ($object->status != 3) {
-				print dolGetButtonAction($langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=edit', '', $permissiontoadd);
-			}
+			print '<span class="' . (($object->status == 0 && $sheet->status == 2) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 0 && $sheet->status == 2) ? 'actionButtonValidate' : '') . '" title="' . (($object->status == 0  && $sheet->status == 2) ? '' : dol_escape_htmltag($langs->trans("AllSignatoriesMustHaveSigned"))) . '">' . $langs->trans("Validate") . '</span>';
+			print '<span class="' . (($object->status == 1 && $sheet->status == 2) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1  && $sheet->status == 2) ? 'actionButtonReOpen' : '') . '" title="' . (($object->status == 1  && $sheet->status == 2) ? '' : dol_escape_htmltag($langs->trans("AllSignatoriesMustHaveSigned"))) . '">' . $langs->trans("ReOpen") . '</span>';
+			print '<span class="' . (($object->status == 1 && $sheet->status == 2) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 && $sheet->status == 2) ? 'actionButtonLock' : '') . '" title="' . (($object->status == 1  && $sheet->status == 2) ? '' : dol_escape_htmltag($langs->trans("AllSignatoriesMustHaveSigned"))) . '">' . $langs->trans("Lock") . '</span>';
+
 			// Delete (need delete permission, or if draft, just need create/modify permission)
-			if ($object->status != 3) {
-				print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
-			}
+			print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 		}
 		print '</div>'."\n";
 	}

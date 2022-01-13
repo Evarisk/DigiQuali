@@ -217,7 +217,7 @@ $title = $langs->trans("ControlList");
 
 llxHeader('', $title, $help_url);
 
-$newcardbutton = dolGetButtonTitle($langs->trans('NewControl'), '', 'fa fa-plus-circle', dol_buildpath('/dolismq/view/control/control_card.php', 1).'?action=create&backtopage='.urlencode($_SERVER['PHP_SELF']), '', $permissiontoadd);
+$newcardbutton = dolGetButtonTitle($langs->trans('NewControl'), '', 'fa fa-plus-circle', dol_buildpath('/dolismq/view/control/control_card.php', 1).'?action=create', '', $permissiontoadd);
 
 include_once '../../core/tpl/dolismq_control_list.tpl.php';
 

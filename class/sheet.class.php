@@ -991,7 +991,7 @@ class Sheet extends CommonObject
 						if (in_array($obj->rowid, $selected)) {
 							$out .= '<option value="' . $obj->rowid . '" selected>' . $label . '</option>';
 						} else {
-							$out .= '<option value="' . $obj->rowid . '">' . $label . '</option>';
+							$out .= '<option value="' . $obj->rowid . '"'.(($obj->status == 2) ? '' : 'disabled').'>' . $label . '</option>';
 						}
 					} else {
 						array_push($outarray, array('key' => $obj->rowid, 'value' => $label, 'label' => $label));

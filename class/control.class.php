@@ -61,10 +61,9 @@ class Control extends CommonObject
 	 */
 	public $picto = 'control@dolismq';
 
-	const STATUS_DRAFT  = 0;
-	const STATUS_OK     = 1;
-	const STATUS_KO     = 2;
-	const STATUS_LOCKED = 3;
+	const STATUS_DRAFT     = 0;
+	const STATUS_VALIDATED = 1;
+	const STATUS_LOCKED    = 2;
 
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
@@ -523,6 +522,18 @@ class Control extends CommonObject
 	}
 
 	/**
+	 *	Set validate status
+	 *
+	 *	@param	User	$user			Object user that modify
+	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
+	 *	@return	int						<0 if KO, >0 if OK
+	 */
+	public function setValidated($user, $notrigger = 0)
+	{
+		return $this->setStatusCommon($user, self::STATUS_VALIDATED, $notrigger, 'CONTROL_VALIDATED');
+	}
+
+	/**
 	 *	Set lock status
 	 *
 	 *	@param	User	$user			Object user that modify
@@ -718,18 +729,15 @@ class Control extends CommonObject
 			global $langs;
 			//$langs->load("dolismq@dolismq");
 			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('Draft');
-			$this->labelStatus[self::STATUS_OK]      = $langs->trans('OK');
-			$this->labelStatus[self::STATUS_KO]       = $langs->trans('KO');
+			$this->labelStatus[self::STATUS_VALIDATED]       = $langs->trans('Validate');
 			$this->labelStatus[self::STATUS_LOCKED]       = $langs->trans('Lock');
 			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('Draft');
-			$this->labelStatusShort[self::STATUS_OK] = $langs->trans('OK');
-			$this->labelStatusShort[self::STATUS_KO]  = $langs->trans('KO');
+			$this->labelStatusShort[self::STATUS_VALIDATED]     = $langs->trans('Validate');
 			$this->labelStatusShort[self::STATUS_LOCKED]     = $langs->trans('Lock');
 		}
 
 		$statusType = 'status' . $status;
-		if ($status == self::STATUS_OK) $statusType = 'status4';
-		if ($status == self::STATUS_KO) $statusType = 'status8';
+		if ($status == self::STATUS_VALIDATED) $statusType = 'status4';
 		if ($status == self::STATUS_LOCKED) $statusType = 'status8';
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
