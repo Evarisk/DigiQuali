@@ -173,10 +173,49 @@ if (empty($reshook))
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
 	if ($action == 'save') {
+		$controldet = new ControlLine($db);
 		$sheet->fetch($object->fk_sheet);
 		$object->fetchQuestionsLinked($sheet->id, 'sheet');
 		$questionIds = $object->linkedObjectsIds;
 		foreach ($questionIds as $questionId) {
+			$controldettmp = $controldet;
+			//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
+			$controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
+
+			if ($controldettmp->id > 0) {
+
+				//sauvegarder réponse
+				$answer = GETPOST('answer'.$questionId);
+				if ($answer > 0) {
+					$controldettmp->answer = $answer;
+				}
+
+				//sauvegarder commentaire
+				$comment = GETPOST('comment'.$questionId);
+				if (dol_strlen($comment > 0)) {
+					$controldettmp->comment = $comment;
+				}
+
+				$controldettmp->update($user);
+			} else {
+				$controldettmp->fk_control  = $object->id;
+				$controldettmp->fk_question = $questionId;
+
+				//sauvegarder réponse
+				$answer = GETPOST('answer'.$questionId);
+				if ($answer > 0) {
+					$controldettmp->answer = $answer;
+				}
+
+				//sauvegarder commentaire
+				$comment = GETPOST('comment'.$questionId);
+				if (dol_strlen($comment > 0)) {
+					$controldettmp->comment = $comment;
+				}
+
+				$controldettmp->create($user);
+
+			}
 
 		}
 
@@ -693,7 +732,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
 			print '<td class="center">';
-			print '<input type="hidden" class="question-answer" id="answer'. $item->id .'" value="0">';
+			print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 
 			print '<span class="answer" value="1">';
 			print '<i class="fas fa-check"></i>&nbsp&nbsp&nbsp&nbsp&nbsp';
@@ -714,6 +753,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
 			print '</tr>';
+
+			print '<td>';
+			print $langs->trans('Comment');
+			print '</td>';
+			print '<td>';
+			print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" >';
+			print '</td>';
+
 		}
 		print '</tr>';
 	}
