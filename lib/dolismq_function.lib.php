@@ -1421,7 +1421,7 @@ function dolismq_show_medias($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, 
 	return $return;
 }
 
-function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, $nbbyrow = 5, $showfilename = 0, $showaction = 0, $maxHeight = 120, $maxWidth = 160, $nolink = 0, $notitle = 0, $usesharelink = 0, $subdir = "", $object = null, $favorite)
+function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, $nbbyrow = 5, $showfilename = 0, $showaction = 0, $maxHeight = 120, $maxWidth = 160, $nolink = 0, $notitle = 0, $usesharelink = 0, $subdir = "", $object = null, $favorite = '')
 {
 		global $conf, $user, $langs;
 

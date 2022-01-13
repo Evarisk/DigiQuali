@@ -407,14 +407,18 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
 			//à remplacer par un viewimage de l'image stockée dans $item->photo_ok et photo_ko
-			print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ok', 'small', 1, 0, 0, 0, 150, 150, 1, 0, 0, 'question/'. $item->ref . '/photo_ok');
+			print '<td>';
+			print '<img width="40" class="photo clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ok)) . '" >';
+			print '</td>';
 
-			print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ko', 'small', 1, 0, 0, 0, 150, 150, 1, 0, 0, 'question/'. $item->ref . '/photo_ko');
-
+			print '<td>';
+			print '<img width="40" class="photo clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ko)) . '" >';
+			print '</td>';
 			print '<td class="center">';
 			print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=unlinkQuestion&questionId=' . $item->id . '">';
 			print img_delete();
-			print '</a>';			print '</td>';
+			print '</a>';
+			print '</td>';
 
 			print '</tr>';
 
