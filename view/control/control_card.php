@@ -68,6 +68,7 @@ require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 
 require_once __DIR__.'/../../class/control.class.php';
 require_once __DIR__.'/../../class/sheet.class.php';
+require_once __DIR__.'/../../class/question.class.php';
 require_once __DIR__.'/../../lib/dolismq_control.lib.php';
 require_once __DIR__.'/../../core/modules/dolismq/control/mod_control_standard.php';
 require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
@@ -91,6 +92,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Initialize technical objects
 $object        = new Control($db);
 $sheet         = new Sheet($db);
+$question      = new Question($db);
 $usertmp       = new User($db);
 $product       = new Product($db);
 $productlot    = new Productlot($db);
@@ -495,6 +497,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<tr><td class="titlefield">';
 	print $langs->trans("FKSheet");
 	print '</td>';
+	print '<td>';
 	$sheet->fetch($object->fk_sheet);
 	if ($sheet > 0) {
 		print $sheet->getNomUrl(1);
@@ -562,7 +565,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$colspan = 3;
 
 	// Lines
-	$object->fetchQuestionsLinked($id, 'control');
+	$object->fetchQuestionsLinked($sheet->id, 'sheet');
 	$questionIds = $object->linkedObjectsIds;
 
 	print '<tr class="liste_titre">';
@@ -592,139 +595,69 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
 			$coldisplay++;
-			print '<td class="center">'; ?>
-
-			<?php
+			print '<td class="center">';
 			print '</td>';
-
 			$coldisplay += $colspan;
-
-
 			print '</tr>';
-
-
 		}
-
 		print '</tr>';
 	}
-	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
-	print '<input type="hidden" name="token" value="' . newToken() . '">';
-	print '<input type="hidden" name="action" value="addQuestion">';
-	print '<input type="hidden" name="id" value="'.$id.'">';
 
-	print '<td class="minwidth300">';
-	print $question->select_question_list(0,  'questionId',  '',  '1',  0, 0, array(), '', 0, 0, 'disabled', '', false, 1);
-	print '</td>';
-	print '<td>';
-	print ' &nbsp; <input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
-	print '</td>';
-
-	print '</form>';
 	print dol_get_fiche_end();
 
-
-	/*
-	 * Lines
-	 */
-
-	if (!empty($object->table_element_line))
-	{
-		// Show object lines
-		$result = $object->getLinesArray();
-
-		print '	<form name="addproduct" id="addproduct" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.(($action != 'editline') ? '#addline' : '#line_'.GETPOST('lineid', 'int')).'" method="POST">
-		<input type="hidden" name="token" value="' . newToken().'">
-		<input type="hidden" name="action" value="' . (($action != 'editline') ? 'addline' : 'updateline').'">
-		<input type="hidden" name="mode" value="">
-		<input type="hidden" name="id" value="' . $object->id.'">
-		';
-
-		if (!empty($conf->use_javascript_ajax) && $object->status == 0) {
-			include DOL_DOCUMENT_ROOT.'/core/tpl/ajaxrow.tpl.php';
-		}
-
-		print '<div class="div-table-responsive-no-min">';
-		if (!empty($object->lines) || ($object->status == $object::STATUS_DRAFT && $permissiontoadd && $action != 'selectlines' && $action != 'editline'))
-		{
-			print '<table id="tablelines" class="noborder noshadow" width="100%">';
-		}
-
-		if (!empty($object->lines))
-		{
-			$object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1);
-		}
-
-		// Form to add new line
-		if ($object->status == 0 && $permissiontoadd && $action != 'selectlines')
-		{
-			if ($action != 'editline')
-			{
-				// Add products/services form
-				$object->formAddObjectLine(1, $mysoc, $soc);
-
-				$parameters = array();
-				$reshook = $hookmanager->executeHooks('formAddObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-			}
-		}
-
-		if (!empty($object->lines) || ($object->status == $object::STATUS_DRAFT && $permissiontoadd && $action != 'selectlines' && $action != 'editline'))
-		{
-			print '</table>';
-		}
-		print '</div>';
-
-		print "</form>\n";
-	}
-
-
-	// Buttons for actions
-	if ($action != 'presend' && $action != 'editline') {
-		print '<div class="tabsAction">'."\n";
-		$parameters = array();
-		$reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-		if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
-
-		if (empty($reshook))
-		{
-//			// Send
-//			if (empty($user->socid)) {
-//				print dolGetButtonAction($langs->trans('SendMail'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=presend&mode=init#formmailbeforetitle');
+//
+//	/*
+//	 * Lines
+//	 */
+//
+//	if (!empty($object->table_element_line))
+//	{
+//		// Show object lines
+//		$result = $object->getLinesArray();
+//
+//		print '	<form name="addproduct" id="addproduct" action="'.$_SERVER["PHP_SELF"].'?id='.$object->id.(($action != 'editline') ? '#addline' : '#line_'.GETPOST('lineid', 'int')).'" method="POST">
+//		<input type="hidden" name="token" value="' . newToken().'">
+//		<input type="hidden" name="action" value="' . (($action != 'editline') ? 'addline' : 'updateline').'">
+//		<input type="hidden" name="mode" value="">
+//		<input type="hidden" name="id" value="' . $object->id.'">
+//		';
+//
+//		if (!empty($conf->use_javascript_ajax) && $object->status == 0) {
+//			include DOL_DOCUMENT_ROOT.'/core/tpl/ajaxrow.tpl.php';
+//		}
+//
+//		print '<div class="div-table-responsive-no-min">';
+//		if (!empty($object->lines) || ($object->status == $object::STATUS_DRAFT && $permissiontoadd && $action != 'selectlines' && $action != 'editline'))
+//		{
+//			print '<table id="tablelines" class="noborder noshadow" width="100%">';
+//		}
+//
+//		if (!empty($object->lines))
+//		{
+//			$object->printObjectLines($action, $mysoc, null, GETPOST('lineid', 'int'), 1);
+//		}
+//
+//		// Form to add new line
+//		if ($object->status == 0 && $permissiontoadd && $action != 'selectlines')
+//		{
+//			if ($action != 'editline')
+//			{
+//				// Add products/services form
+//				$object->formAddObjectLine(1, $mysoc, $soc);
+//
+//				$parameters = array();
+//				$reshook = $hookmanager->executeHooks('formAddObjectLine', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
 //			}
-
-//			// Back to draft
-//			if ($object->status == $object::STATUS_VALIDATED) {
-//				print dolGetButtonAction($langs->trans('SetToDraft'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=confirm_setdraft&confirm=yes', '', $permissiontoadd);
-//			}
-
-			print dolGetButtonAction($langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=edit', '', $permissiontoadd);
-
-//			// Validate
-//			if ($object->status == $object::STATUS_DRAFT) {
-//				if (empty($object->table_element_line) || (is_array($object->lines) && count($object->lines) > 0))	{
-//					print dolGetButtonAction($langs->trans('Validate'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=confirm_validate&confirm=yes', '', $permissiontoadd);
-//				} else {
-//					$langs->load("errors");
-//					//print dolGetButtonAction($langs->trans('Validate'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=confirm_validate&confirm=yes', '', 0);
-//					print '<a class="butActionRefused" href="" title="'.$langs->trans("ErrorAddAtLeastOneLineFirst").'">'.$langs->trans("Validate").'</a>';
-//				}
-//			}
-
-			// Clone
-//			print dolGetButtonAction($langs->trans('ToClone'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&socid='.$object->socid.'&action=clone&object=scrumsprint', '', $permissiontoadd);
-
-			// Delete (need delete permission, or if draft, just need create/modify permission)
-			print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
-		}
-		print '</div>'."\n";
-	}
-
-
-	// Select mail models is same action as presend
-	if (GETPOST('modelselected')) {
-		$action = 'presend';
-	}
-
-
+//		}
+//
+//		if (!empty($object->lines) || ($object->status == $object::STATUS_DRAFT && $permissiontoadd && $action != 'selectlines' && $action != 'editline'))
+//		{
+//			print '</table>';
+//		}
+//		print '</div>';
+//
+//		print "</form>\n";
+//	}
 }
 
 // End of page
