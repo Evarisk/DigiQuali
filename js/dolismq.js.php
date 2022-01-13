@@ -573,13 +573,9 @@ window.eoxiaJS.mediaGallery.selectPhoto = function( event ) {
  */
 window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 	let parent = $('#media_gallery')
-	let idToSave = $(this).attr('value')
 	let mediaGalleryModal = $(this).closest('.modal-container')
 	let filesLinked = mediaGalleryModal.find('.clicked-photo')
-	//let modalFrom = $('.modal-active:not(.modal-photo)')
-	//
-	//let riskId = modalFrom.attr('value')
-	let mediaLinked = ''
+
 	let type = $(this).find('.type-from').val()
 
 	var params = new window.URLSearchParams(window.location.search);
@@ -617,14 +613,7 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 		success: function ( resp ) {
 			$('.wpeo-loader').removeClass('wpeo-loader')
 			parent.removeClass('modal-active')
-			console.log(resp)
-			$('.tabBar').load(document.URL + ' .tabBar')
-			//riskAssessmentPhoto.each( function() {
-			//	$(this).find('.clicked-photo-preview').attr('src',newPhoto )
-			//	$(this).find('.filename').attr('value', favorite.match(/_small/) ? favorite.replace(/\./, '_small.') : favorite)
-			//});
-			//mediaLinked.load(document.URL+'&favorite='+favorite + ' .element-linked-medias-'+idToSave+'.risk-'+riskId)
-			//modalFrom.find('.messageSuccessSavePhoto').removeClass('hidden')
+			$('.tabBar').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar')
 		},
 		error: function ( ) {
 			modalFrom.find('.messageErrorSavePhoto').removeClass('hidden')
@@ -729,7 +718,7 @@ window.eoxiaJS.mediaGallery.unlinkFile = function( event ) {
 	let filename = $(this).find('.filename').val()
 	let querySeparator = '?'
 	let riskId = $(this).closest('.modal-risk').attr('value')
-	let type = $(this).closest('.tabBar').find('.type-from').val()
+	let type = $(this).closest('tr').find('.type-from').val()
 	var params = new window.URLSearchParams(window.location.search);
 	var currentElementID = params.get('id')
 

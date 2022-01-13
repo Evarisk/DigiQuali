@@ -406,7 +406,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print $item->description;
 			print '</td>';
 
-			//à remplacer par un viewimage de l'image stockée dans $item->photo_ok et photo_ko
 			print '<td>';
 			print '<img width="40" class="photo clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ok)) . '" >';
 			print '</td>';
