@@ -458,7 +458,8 @@ if ($action == 'create')
 	$doleditor->Create();
 	print '</td></tr>';
 
-	print '<tr><td><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
+	print '<tr class="linked-medias"><td><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
+	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value=""/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ok"/>
 		<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
@@ -468,7 +469,8 @@ if ($action == 'create')
 	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ok', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/tmp/QU0/photo_ok');
 	print '</td></tr>';
 
-	print '<tr><td><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
+	print '<tr class="linked-medias"><td><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
+	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value=""/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ko"/>
 		<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
@@ -523,23 +525,25 @@ if (($id || $ref) && $action == 'edit')
 	$doleditor->Create();
 	print '</td></tr>';
 
-	print '<tr><td><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
+	print '<tr class="linked-medias"><td><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
+	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value=""/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ok"/>
 		<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
 	</div>
 	<?php
 	$relativepath = 'dolismq/medias/thumbs';
-	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/'. $object->ref . '/photo_ok');
+	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/'. $object->ref . '/photo_ok', null, $object->photo_ok);
 	print '</td></tr>';
 
-	print '<tr><td><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
+	print '<tr class="linked-medias"><td><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
+	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value=""/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ko"/>
 		<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
 	</div>
 	<?php
-	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/'. $object->ref . '/photo_ko');
+	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/'. $object->ref . '/photo_ko', null, $object->photo_ko);
 	print '</td></tr>';
 
 	// Other attributes

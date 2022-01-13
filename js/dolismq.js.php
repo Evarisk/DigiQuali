@@ -786,22 +786,11 @@ window.eoxiaJS.mediaGallery.unlinkFile = function( event ) {
  * @return {void}
  */
 window.eoxiaJS.mediaGallery.addToFavorite = function( event ) {
-
 	event.preventDefault()
-	var params = new window.URLSearchParams(window.location.search);
-	var id = window.location.search.split(/id=/)[1]
-	let element_linked_id = $(this).find('.element-linked-id').val()
-	let filename = $(this).find('.filename').val()
-	let querySeparator = '?'
-	let mediaContainer = $(this).closest('.media-container')
-	let modalFrom = $('.modal-risk.modal-active')
-	let riskId = modalFrom.attr('value')
-	let type = $(this).closest('.modal-container').find('.type-from').val()
-	let previousPhoto = null
-	let elementPhotos = ''
+	let filename = $(this).closest('.media-gallery-favorite').find('.filename').attr('value')
 
 	//change star button style
-	let previousFavorite = $(this).closest('.element-linked-medias').find('.fas.fa-star')
+	let previousFavorite = $(this).closest('.linked-medias').find('.fas.fa-star')
 	let newFavorite = $(this).find('.far.fa-star')
 
 	previousFavorite.removeClass('fas')
@@ -809,74 +798,8 @@ window.eoxiaJS.mediaGallery.addToFavorite = function( event ) {
 	newFavorite.addClass('fas')
 	newFavorite.removeClass('far')
 
-	document.URL.match('/?/') ? querySeparator = '&' : 1
-
-	window.eoxiaJS.loader.display(mediaContainer);
-
-	if (type === 'riskassessment') {
-		previousPhoto = $(this).closest('.modal-container').find('.risk-evaluation-photo .clicked-photo-preview')
-		elementPhotos = $('.risk-evaluation-photo-'+element_linked_id+'.risk-'+riskId)
-
-		$(this).closest('.modal-content').find('.risk-evaluation-photo-single .filename').attr('value', filename)
-		let previousName = previousPhoto[0].src.trim().split(/thumbs%2F/)[1].split(/"/)[0]
-		let saveButton = $(this).closest('.modal-container').find('.risk-evaluation-save')
-		saveButton.addClass('button-disable')
-		$.ajax({
-			url: document.URL + querySeparator + "action=addToFavorite",
-			data: JSON.stringify({
-				riskassessment_id: element_linked_id,
-				filename: filename,
-			}),
-			type: "POST",
-			processData: false,
-			success: function ( ) {
-				let newPhoto = ''
-				if (previousName.length > 0 ) {
-					newPhoto = previousPhoto[0].src.trim().replace(previousName , filename.replace(/\./, '_small.'))
-				} else {
-					newPhoto = previousPhoto[0].src.trim() + filename.replace(/\./, '_small.')
-				}
-				elementPhotos.each( function() {
-					$(this).find('.clicked-photo-preview').attr('src',newPhoto )
-				});
-				saveButton.removeClass('button-disable')
-				$('.wpeo-loader').removeClass('wpeo-loader')
-			}
-		});
-	} else if (type === 'digiriskelement') {
-		previousPhoto = $('.digirisk-element-'+element_linked_id).find('.photo.clicked-photo-preview')
-
-		let previousName = previousPhoto[0].src.trim().split(/thumbs%2F/)[1].split(/"/)[0]
-
-		jQuery.ajax({
-			url: document.URL + querySeparator + "action=addDigiriskElementPhotoToFavorite",
-			type: "POST",
-			data: JSON.stringify({
-				digiriskelement_id: element_linked_id,
-				filename: filename,
-			}),
-			processData: false,
-			success: function ( resp ) {
-				let newPhoto = ''
-				console.log(id)
-				console.log(element_linked_id)
-				if (id === element_linked_id) {
-					console.log($('.arearef.heightref.valignmiddle.centpercent'))
-					console.log($(resp).find('.arearef.heightref.valignmiddle.centpercent'))
-					console.log(resp)
-
-					//$('.arearef.heightref.valignmiddle.centpercent').html($(resp).find('.arearef.heightref.valignmiddle.centpercent'))
-					$('.arearef.heightref.valignmiddle.centpercent').load(' .arearef.heightref.valignmiddle.centpercent')
-				}
-				if (previousName.length > 0 ) {
-					newPhoto = previousPhoto[0].src.trim().replace(previousName , filename.replace(/\./, '_small.'))
-				} else {
-					newPhoto = previousPhoto[0].src.trim() + filename.replace(/\./, '_small.')
-				}
-				previousPhoto.attr('src',newPhoto )
-				$('.wpeo-loader').removeClass('wpeo-loader')
-			}
-		});
+	if (filename.length > 0) {
+		$(this).closest('.linked-medias').find('.favorite-photo').val(filename)
 	}
 
 };
