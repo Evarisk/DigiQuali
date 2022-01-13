@@ -57,7 +57,8 @@ DoliSMQHelpAuditDateStart = La date de début d'audit
 # Questions
 #
 
-NewQuestion = Ajouter une question
+AddQuestion = Ajouter une question
+NewQuestion = Nouvelle question
 QuestionList = Liste des questions
 LinkedQuestionsList = Listes des questions liées
 addQuestionLink = Question ajoutée à la fiche modèle :
@@ -67,7 +68,8 @@ removeQuestionLink = Question retirée de la fiche modèle :
 # Sheet
 #
 
-NewSheet = Ajouter une fiche modèle
+AddSheet = Ajouter une question
+NewSheet = Nouvelle fiche modèle
 SheetList = Liste des fiches modèles
 SheetLinked = Modèle de contrôle
 FKSheet = Fiche Modèle
@@ -77,6 +79,7 @@ FKSheet = Fiche Modèle
 # Control
 #
 
+AddControl = Ajouter un contrôle
 NewControl = Nouveau contrôle
 ControlList = Liste des contrôles
 FKUserController = Contrôleur

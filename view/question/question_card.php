@@ -425,12 +425,10 @@ $morecss  = array("/dolismq/css/dolismq.css");
 
 llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
 
-
-
 // Part to create
 if ($action == 'create')
 {
-	print load_fiche_titre($langs->trans("NewObject", $langs->transnoentitiesnoconv("Question")), '', 'object_'.$object->picto);
+	print load_fiche_titre($langs->trans('NewQuestion'), '', 'dolismq@dolismq');
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'" id="createQuestionForm">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';

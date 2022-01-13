@@ -382,7 +382,7 @@ class modDoliSMQ extends DolibarrModules
 		$this->menu[$r++]=array(
 			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_sheet',
 			'type'=>'left',
-			'titre'=>$langs->trans('NewSheet'),
+			'titre'=>$langs->trans('AddSheet'),
 			'mainmenu'=>'dolismq',
 			'leftmenu'=>'dolismq_sheet',
 			'url'=>'/dolismq/view/sheet/sheet_card.php?action=create',
@@ -411,7 +411,7 @@ class modDoliSMQ extends DolibarrModules
 		$this->menu[$r++]=array(
 			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_question',
 			'type'=>'left',
-			'titre'=>$langs->trans('NewQuestion'),
+			'titre'=>$langs->trans('AddQuestion'),
 			'mainmenu'=>'dolismq',
 			'leftmenu'=>'dolismq_question',
 			'url'=>'/dolismq/view/question/question_card.php?action=create',
@@ -440,7 +440,7 @@ class modDoliSMQ extends DolibarrModules
 		$this->menu[$r++]=array(
 			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_control',
 			'type'=>'left',
-			'titre'=>$langs->trans('NewControl'),
+			'titre'=>$langs->trans('AddControl'),
 			'mainmenu'=>'dolismq',
 			'leftmenu'=>'dolismq_control',
 			'url'=>'/dolismq/view/control/control_card.php?action=create',
