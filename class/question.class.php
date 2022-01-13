@@ -64,7 +64,7 @@ class Question extends CommonObject
 
 	const STATUS_DRAFT     = 0;
 	const STATUS_VALIDATED = 1;
-	const STATUS_CANCELED  = 9;
+	const STATUS_LOCKED    = 2;
 
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
@@ -77,7 +77,7 @@ class Question extends CommonObject
 		'date_creation' => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => -2,),
 		'tms'           => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => -2,),
 		'import_key'    => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
-		'status'        => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '0', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'arrayofkeyval' => array('0' => 'Brouillon', '1' => 'Valid&eacute;', '9' => 'Annul&eacute;'),),
+		'status'        => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>'1',),
 		'type'          => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
 		'label'         => array('type' => 'varchar(255)', 'label' => 'Label', 'enabled' => '0', 'position' => 90, 'notnull' => 0, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth300', 'help' => "Help text", 'showoncombobox' => '1',),
 		'description'   => array('type' => 'text', 'label' => 'Description', 'enabled' => '1', 'position' => 100, 'notnull' => 1, 'visible' => 3,),
@@ -522,6 +522,19 @@ class Question extends CommonObject
 	}
 
 	/**
+	 *	Set lock status
+	 *
+	 *	@param	User	$user			Object user that modify
+	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
+	 *	@return	int						<0 if KO, >0 if OK
+	 */
+	public function setLocked($user, $notrigger = 0)
+	{
+		return $this->setStatusCommon($user, self::STATUS_LOCKED, $notrigger, 'QUESTION_LOCKED');
+	}
+
+
+	/**
 	 *	Set cancel status
 	 *
 	 *	@param	User	$user			Object user that modify
@@ -688,15 +701,14 @@ class Question extends CommonObject
 			//$langs->load("dolismq@dolismq");
 			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('Draft');
 			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('Enabled');
-			$this->labelStatus[self::STATUS_CANCELED]       = $langs->trans('Disabled');
+			$this->labelStatus[self::STATUS_LOCKED]         = $langs->trans('Locked');
 			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('Draft');
 			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Enabled');
-			$this->labelStatusShort[self::STATUS_CANCELED]  = $langs->trans('Disabled');
+			$this->labelStatusShort[self::STATUS_LOCKED]  = $langs->trans('Locked');
 		}
 
 		$statusType = 'status' . $status;
-		//if ($status == self::STATUS_VALIDATED) $statusType = 'status1';
-		if ($status == self::STATUS_CANCELED) $statusType = 'status6';
+		if ($status == self::STATUS_LOCKED) $statusType = 'status8';
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}
@@ -744,6 +756,28 @@ class Question extends CommonObject
 			$this->db->free($result);
 		} else {
 			dol_print_error($this->db);
+		}
+	}
+
+	/**
+	 * Check if question locked
+	 *
+	 * @param $fk_object
+	 * @param $object_type
+	 * @return int
+	 */
+	public function checkQuestionsLocked($questionIds)
+	{
+		if ( ! empty($questionIds['question']) && $questionIds > 0) {
+			foreach ($questionIds['question'] as $questionId) {
+				$this->fetch($questionId);
+				if ($this->status == 2) {
+					continue;
+				} else {
+					return 0;
+				}
+			}
+			return 1;
 		}
 	}
 

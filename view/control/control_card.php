@@ -222,6 +222,25 @@ if (empty($reshook))
 		}
 	}
 
+	// Action to set status STATUS_LOCKED
+	if ($action == 'confirm_setLocked') {
+		$object->fetch($id);
+		if ( ! $error) {
+			$result = $object->setLocked($user, false);
+			if ($result > 0) {
+				// Set locked OK
+				$urltogo = str_replace('__ID__', $result, $backtopage);
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
+				header("Location: " . $urltogo);
+				exit;
+			} else {
+				// Set locked KO
+				if ( ! empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
+				else setEventMessages($object->error, null, 'errors');
+			}
+		}
+	}
+
 	// Actions to send emails
 	$triggersendname = 'DOLISMQ_AUDIT_SENTBYMAIL';
 	$autocopy = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
@@ -428,6 +447,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $text, 'confirm_closeas', $formquestion, '', 1, 250);
 	}
 
+	// SetLocked confirmation
+	if (($action == 'setLocked' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile)))		// Output when action = clone if jmobile or no js
+		|| ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {							// Always output when not jmobile nor js
+		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockQuestion'), $langs->trans('ConfirmLockQuestion', $object->ref), 'confirm_setLocked', '', 'yes', 'actionButtonLock', 350, 600);
+	}
+
+
 	// Confirmation of action xxxx
 	if ($action == 'xxx')
 	{
@@ -549,7 +575,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		if (empty($reshook)) {
 			// Close as accepted/refused
-			if ($object->statut == Control::STATUS_DRAFT) {
+			if ($object->statut == 1) {
 				if ($permissiontoadd) {
 					print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=closeas'.(empty($conf->global->MAIN_JUMP_TAG) ? '' : '#close').'"';
 					print '>'.$langs->trans('SetOK/KO').'</a>';
@@ -558,9 +584,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print '>'.$langs->trans('SetOK/KO').'</a>';
 				}
 			}
-			print dolGetButtonAction($langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=edit&token='.newToken(), '', $permissiontoadd);
+			print '<span class="' . (($object->status != 3 && $sheet->status == 2) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status != 3  && $sheet->status == 2) ? 'actionButtonLock' : '') . '" title="' . (($object->status != 3  && $sheet->status == 2) ? '' : dol_escape_htmltag($langs->trans("AllSignatoriesMustHaveSigned"))) . '">' . $langs->trans("Lock") . '</span>';
+			if ($object->status != 3) {
+				print dolGetButtonAction($langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=edit', '', $permissiontoadd);
+			}
 			// Delete (need delete permission, or if draft, just need create/modify permission)
-			print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
+			if ($object->status != 3) {
+				print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
+			}
 		}
 		print '</div>'."\n";
 	}
