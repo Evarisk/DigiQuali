@@ -693,10 +693,10 @@ class Sheet extends CommonObject
 			//$langs->load("dolismq@dolismq");
 			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('Draft');
 			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('Enabled');
-			$this->labelStatus[self::STATUS_LOCKED]       = $langs->trans('Lock');
+			$this->labelStatus[self::STATUS_LOCKED]       = $langs->trans('Locked');
 			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('Draft');
 			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Enabled');
-			$this->labelStatusShort[self::STATUS_LOCKED]  = $langs->trans('Lock');
+			$this->labelStatusShort[self::STATUS_LOCKED]  = $langs->trans('Locked');
 		}
 
 		$statusType = 'status' . $status;
