@@ -161,7 +161,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 	 *  @param		int			$hideref			Do not show ref
 	 *	@return		int         					1 if OK, <=0 if KO
 	 */
-	public function write_file($object, $outputlangs, $srctemplatepath, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $digiriskelement)
+	public function write_file($object, $outputlangs, $srctemplatepath, $hidedetails = 0, $hidedesc = 0, $hideref = 0)
 	{
 		// phpcs:enable
 		global $user, $langs, $conf, $hookmanager, $action, $mysoc;
@@ -188,13 +188,9 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 //		$mod = new $conf->global->DIGIRISKDOLIBARR_GROUPMENTDOCUMENT_ADDON($this->db);
 //		$ref = $mod->getNextValue($object);
 
-		$object->ref = $ref;
 
-		$id = $object->create($user, true, $digiriskelement);
 
-		$object->fetch($id);
-
-		$dir = $conf->dolismq->multidir_output[isset($object->entity) ? $object->entity : 1] . '/controldocument/'. $digiriskelement->ref;
+		$dir = $conf->dolismq->multidir_output[isset($object->entity) ? $object->entity : 1] . '/controldocument/'. $object->ref;
 		$objectref = dol_sanitizeFileName($ref);
 		if (preg_match('/specimen/i', $objectref)) $dir .= '/specimen';
 
@@ -216,15 +212,15 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$filename = $objectref.'_'.$digiriskelement->label.'_'.$date.'.odt';
 			$filename = str_replace(' ', '_', $filename);
 			$filename = dol_sanitizeFileName($filename);
-
-			$object->last_main_doc = $filename;
-
-			$sql = "UPDATE ".MAIN_DB_PREFIX."dolismq_digiriskdocuments";
-			$sql .= " SET last_main_doc =" .(!empty($filename) ? "'".$this->db->escape($filename)."'" : 'null');
-			$sql .= " WHERE rowid = ".$object->id;
+//
+//			$object->last_main_doc = $filename;
+//
+//			$sql = "UPDATE ".MAIN_DB_PREFIX."dolismq_control";
+//			$sql .= " SET last_main_doc =" .(!empty($filename) ? "'".$this->db->escape($filename)."'" : 'null');
+//			$sql .= " WHERE rowid = ".$object->id;
 
 			dol_syslog("admin.lib::Insert last main doc", LOG_DEBUG);
-			$this->db->query($sql);
+//			$this->db->query($sql);
 			$file = $dir.'/'.$filename;
 
 			dol_mkdir($conf->dolismq->dir_temp);

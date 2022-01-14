@@ -866,7 +866,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<div class="fichecenter"><div class="fichehalfleft elementDocument">';
 
 		$objref    = dol_sanitizeFileName($object->ref);
-		$dir_files = $object->element . 'document';
+		$dir_files = $object->element . 'document/' . $objref;
 		$filedir   = $upload_dir . '/' . $dir_files;
 		$urlsource = $_SERVER["PHP_SELF"] . '?id=' . $id;
 
