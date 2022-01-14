@@ -63,6 +63,8 @@ QuestionList = Liste des questions
 LinkedQuestionsList = Listes des questions liées
 addQuestionLink = Question ajoutée à la fiche modèle :
 removeQuestionLink = Question retirée de la fiche modèle :
+LockQuestion = Verrouiller la question
+ConfirmLockQuestion = Êtes-vous sûr de vouloir verrouiller la question ? <br> Le verrouillage empêche toutes modifications de la question.
 
 #
 # Sheet
@@ -74,7 +76,8 @@ SheetList = Liste des fiches modèles
 SheetLinked = Modèle de contrôle
 FKSheet = Fiche Modèle
 AllQuestionsMustHaveLocked = Tous les questions doivent être verrouillé pour verrouiller la fiche modèle
-
+LockSheet = Verrouiller la fiche modèle
+ConfirmLockSheet = Êtes-vous sûr de vouloir verrouiller la fiche modèle ? <br> Le verrouillage empêche toutes modifications de la fiche modèle.
 
 #
 # Control
@@ -86,12 +89,17 @@ ControlList = Liste des contrôles
 FKUserController = Contrôleur
 ControlDate = Date de contrôle
 Controls = Contrôles
-ControlMustBeValidated = La fiche de contrôle doit être validé pour le rouvrir
 ControlMustBeDraft = La fiche de contrôle doit être brouillon pour accéder à cette fonctionnalité
-ControlMustBeInProgressToValidate = La fiche de contrôle est déjà validé
-ControlMustBeValidatedToLock = La fiche de contrôle doit être validé pour la verrouiller
+ControlMustBeValidated = La fiche de contrôle doit être validée pour la rouvrir
+ControlMustBeValidatedToLock = La fiche de contrôle doit être validée pour la verrouiller
 SetOK/KO = Apte/Inapte
 VerdictControl = Choix du verdict
+ValidateControl = Valider la fiche de contrôle
+ReOpenControl = Rouvrir la fiche de contrôle
+LockControl = Verrouiller la fiche de contrôle
+ConfirmValidateControl = Êtes-vous sûr de vouloir valider la fiche de contrôle ? <br> La validation permet d'accéder au choix du verdict de la fiche de contrôle.
+ConfirmReOpenControl = Êtes-vous sûr de vouloir rouvrir la fiche de contrôle ? <br> La réouverture supprime le verdit  de la fiche de contrôle.
+ConfirmLockControl = Êtes-vous sûr de vouloir verrouiller la fiche de contrôle ? <br> Le verrouillage empêche toutes modifications de la fiche de contrôle.
 
 #
 # ControlDet
