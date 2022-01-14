@@ -645,7 +645,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	//FKLot -- Numéro de série
 	print '<tr><td class="titlefield">';
-	print $langs->trans("SerialNumber");
+	print $langs->trans("LotSerial");
 	print '</td>';
 	print '<td>';
 	$productlot->fetch($object->fk_lot);
