@@ -356,7 +356,6 @@ if (empty($reshook))
 				}
 			}
 		}
-		exit;
 	}
 
 	if ( ! $error && $action == "unlinkFile" && $permissiontodelete) {
@@ -475,7 +474,7 @@ if ($action == 'create')
 	$doleditor->Create();
 	print '</td></tr>';
 
-	print '<tr class="linked-medias"><td><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
+	print '<tr class="linked-medias photo_ok"><td><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
 	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo GETPOST('favorite_photo_ok') ?>"/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ok"/>
@@ -486,7 +485,7 @@ if ($action == 'create')
 	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ok', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/tmp/QU0/photo_ok', null, GETPOST('favorite_photo_ok'));
 	print '</td></tr>';
 
-	print '<tr class="linked-medias"><td><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
+	print '<tr class="linked-medias photo_ko"><td><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
 	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo GETPOST('favorite_photo_ko') ?>"/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ko"/>

@@ -613,7 +613,7 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 		success: function ( resp ) {
 			$('.wpeo-loader').removeClass('wpeo-loader')
 			parent.removeClass('modal-active')
-			$('.tabBar').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar')
+			$('.tabBar .linked-medias.'+type+' .media-container').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .media-container')
 		},
 		error: function ( ) {
 			modalFrom.find('.messageErrorSavePhoto').removeClass('hidden')

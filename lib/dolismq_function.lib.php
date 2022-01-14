@@ -1575,7 +1575,10 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 			}
 		}
 	} else {
+		$return .= '<td class="media-container">';
+
 		print $langs->trans('NoMediaLinked');
+		print '</td>';
 	}
 	if (is_object($object)) {
 		$object->nbphoto = $nbphoto;
