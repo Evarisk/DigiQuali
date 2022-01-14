@@ -329,9 +329,9 @@ if (empty($reshook))
 				dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/');
 			}
 
-			if ( ! is_dir($conf->dolismq->multidir_output[$conf->entity] . '/question/' . (dol_strlen($object->ref) > 0 ? $object->ref : 'QU0') )) {
+			if ( ! is_dir($conf->dolismq->multidir_output[$conf->entity] . '/question/' . (dol_strlen($object->ref) > 0 ? $object->ref : 'tmp/QU0') )) {
 
-				dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/question/' . (dol_strlen($object->ref) > 0 ? $object->ref : 'QU0'));
+				dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/question/' . (dol_strlen($object->ref) > 0 ? $object->ref : 'tmp/QU0'));
 			}
 
 			foreach ($filenames as $filename) {
