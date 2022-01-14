@@ -78,13 +78,13 @@ class Control extends CommonObject
 		'import_key'         => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
 		'status'             => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0'),
 		'type'               => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
-		'verdict'            => array('type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => array('0' => 'OK', '1' => 'KO'),),
+		'verdict'            => array('type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => array('0' => '', '1' => 'OK', '2' => 'KO'),),
 		'fk_user_creat'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',),
 		'fk_user_modif'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
-		'fk_sheet'           => array('type' => 'integer', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 150, 'notnull' => 1, 'visible' => -2,),
-		'fk_user_controller' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'FKUserController', 'enabled' => '1', 'position' => 45, 'notnull' => 1, 'visible' => -2, 'foreignkey' => 'user.rowid'),
-		'fk_product'         => array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'FKProduct', 'enabled' => '1', 'position' => 170, 'notnull' => 1, 'visible' => -2, 'foreignkey' => 'product.rowid'),
-		'fk_lot'             => array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'FKLot', 'enabled' => '1', 'position' => 180, 'notnull' => 1, 'visible' => -2, 'foreignkey' => 'productlot.rowid'),
+		'fk_sheet'           => array('type' => 'integer:Sheet:custom/dolismq/class/sheet.class.php', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 13, 'notnull' => 1, 'visible' => 2,),
+		'fk_user_controller' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'FKUserController', 'enabled' => '1', 'position' => 14, 'notnull' => 1, 'visible' => 2, 'foreignkey' => 'user.rowid'),
+		'fk_product'         => array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'FKProduct', 'enabled' => '1', 'position' => 11, 'notnull' => 1, 'visible' => 2, 'foreignkey' => 'product.rowid'),
+		'fk_lot'             => array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'FKLot', 'enabled' => '1', 'position' => 12, 'notnull' => 1, 'visible' => 2, 'foreignkey' => 'productlot.rowid'),
 	);
 
 	public $rowid;
