@@ -614,6 +614,7 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 			$('.wpeo-loader').removeClass('wpeo-loader')
 			parent.removeClass('modal-active')
 			$('.tabBar .linked-medias.'+type+' .media-container').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .media-container')
+			$('.wpeo-modal.modal-photo').html($(resp).find('.wpeo-modal.modal-photo .modal-container'))
 		},
 		error: function ( ) {
 			modalFrom.find('.messageErrorSavePhoto').removeClass('hidden')
@@ -717,7 +718,6 @@ window.eoxiaJS.mediaGallery.unlinkFile = function( event ) {
 	let element_linked_id = $(this).find('.element-linked-id').val()
 	let filename = $(this).find('.filename').val()
 	let querySeparator = '?'
-	let riskId = $(this).closest('.modal-risk').attr('value')
 	let type = $(this).closest('tr').find('.type-from').val()
 	var params = new window.URLSearchParams(window.location.search);
 	var currentElementID = params.get('id')
@@ -732,14 +732,14 @@ window.eoxiaJS.mediaGallery.unlinkFile = function( event ) {
 	document.URL.match('/?/') ? querySeparator = '&' : 1
 
 	//let riskAssessmentPhoto = $('.risk-evaluation-photo-'+element_linked_id)
-	previousPhoto = $(this).closest('.tabBar').find('.clicked-photo-preview')
-	previousName = previousPhoto[0].src.trim().split(/thumbs%2F/)[1].split(/"/)[0]
-
-	if (previousName == filename.replace(/\./, '_small.')) {
-		newPhoto = previousPhoto[0].src.replace(previousName, '')
-	} else {
-		newPhoto = previousPhoto[0].src
-	}
+	//previousPhoto = $(this).closest('.tabBar').find('.clicked-photo-preview')
+	//previousName = previousPhoto[0].src.trim().split(/thumbs%2F/)[1].split(/"/)[0]
+	//
+	//if (previousName == filename.replace(/\./, '_small.')) {
+	//	newPhoto = previousPhoto[0].src.replace(previousName, '')
+	//} else {
+	//	newPhoto = previousPhoto[0].src
+	//}
 	let url = document.URL + '&'
 	let separator = '&'
 	if (url.match(/action=/)) {
