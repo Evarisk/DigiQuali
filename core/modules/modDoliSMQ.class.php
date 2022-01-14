@@ -482,6 +482,10 @@ class modDoliSMQ extends DolibarrModules
 			}
 		}
 
+		delDocumentModel('controldocument_odt', 'controldocument');
+
+		addDocumentModel('controldocument_odt', 'controldocument', 'ODT templates', 'DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH');
+
 		if ($result < 0) return -1; // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
 
 		// Permissions
