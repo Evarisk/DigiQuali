@@ -645,7 +645,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	//FKLot -- Numéro de série
 	print '<tr><td class="titlefield">';
-	print $langs->trans("LotSerial");
+	print $langs->trans("Batch");
 	print '</td>';
 	print '<td>';
 	$productlot->fetch($object->fk_lot);
@@ -672,7 +672,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		if (empty($reshook)) {
-			print '<a class="' . (($object->status != 2) ? 'butAction' : 'butActionRefused classfortooltip') . '" href="'.$_SERVER["PHP_SELF"].'?action=save&id='.$object->id.'" id="' . (($object->status != 2) ? 'actionButtonSave' : '') . '" title="' . (($object->status != 2) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeDraft"))) . '">' . $langs->trans("Save") . '</a>';
+			print '<a class="' . (($object->status != 2) ? 'saveButton butAction' : 'butActionRefused classfortooltip') . '" href="'.$_SERVER["PHP_SELF"].'?action=save&id='.$object->id.'" id="' . (($object->status != 2) ? 'actionButtonSave' : '') . '" title="' . (($object->status != 2) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeDraft"))) . '">' . $langs->trans("Save") . '</a>';
 			print '<span class="' . (($object->status == 0) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 0) ? 'actionButtonValidate' : '') . '" title="' . (($object->status == 0 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeDraft"))) . '">' . $langs->trans("Validate") . '</span>';
 			// Set verdict control
 			if ($object->status == 1) {
