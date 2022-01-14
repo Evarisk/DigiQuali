@@ -542,7 +542,7 @@ if (($id || $ref) && $action == 'edit')
 	print '</td></tr>';
 
 	print '<tr class="linked-medias"><td><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
-	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value=""/>
+	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo $object->photo_ok ?>"/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ok"/>
 		<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
@@ -553,7 +553,7 @@ if (($id || $ref) && $action == 'edit')
 	print '</td></tr>';
 
 	print '<tr class="linked-medias"><td><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
-	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value=""/>
+	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo $object->photo_ko ?>"/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ko"/>
 		<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
