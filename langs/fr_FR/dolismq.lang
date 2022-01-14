@@ -73,6 +73,7 @@ NewSheet = Nouvelle fiche modèle
 SheetList = Liste des fiches modèles
 SheetLinked = Modèle de contrôle
 FKSheet = Fiche Modèle
+AllQuestionsMustHaveLocked = Tous les questions doivent être verrouillé pour verrouiller la fiche modèle
 
 
 #
@@ -85,6 +86,10 @@ ControlList = Liste des contrôles
 FKUserController = Contrôleur
 ControlDate = Date de contrôle
 Controls = Contrôles
+ControlMustBeValidated = La fiche de contrôle doit être validé pour le rouvrir
+ControlMustBeDraft = La fiche de contrôle doit être brouillon pour accéder à cette fonctionnalité
+ControlMustBeInProgressToValidate = La fiche de contrôle est déjà validé
+ControlMustBeValidatedToLock = La fiche de contrôle doit être validé pour la verrouiller
 
 
 #
@@ -98,3 +103,4 @@ ReOpened = Rouvrir
 Vallidated = Validé
 Locked = Verrouillé
 Lock = Verrouiller
+
