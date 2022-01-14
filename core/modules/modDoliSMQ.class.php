@@ -368,35 +368,6 @@ class modDoliSMQ extends DolibarrModules
 		$this->menu[$r++]=array(
 			'fk_menu'=>'fk_mainmenu=dolismq',
 			'type'=>'left',
-			'titre'=>$langs->trans('SheetList'),
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_sheet',
-			'url'=>'/dolismq/view/sheet/sheet_list.php',
-			'langs'=>'dolismq@dolismq',
-			'position'=>1100+$r,
-			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'1',
-			'target'=>'',
-			'user'=>2,
-		);
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_sheet',
-			'type'=>'left',
-			'titre'=>$langs->trans('AddSheet'),
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_sheet',
-			'url'=>'/dolismq/view/sheet/sheet_card.php?action=create',
-			'langs'=>'dolismq@dolismq',
-			'position'=>1100+$r,
-			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'1',
-			'target'=>'',
-			'user'=>2
-		);
-
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq',
-			'type'=>'left',
 			'titre'=>$langs->trans('QuestionList'),
 			'mainmenu'=>'dolismq',
 			'leftmenu'=>'dolismq_question',
@@ -404,10 +375,11 @@ class modDoliSMQ extends DolibarrModules
 			'langs'=>'dolismq@dolismq',
 			'position'=>1100+$r,
 			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'1',
+			'perms'=>'$user->rights->dolismq->question->read',
 			'target'=>'',
 			'user'=>2,
 		);
+
 		$this->menu[$r++]=array(
 			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_question',
 			'type'=>'left',
@@ -418,7 +390,37 @@ class modDoliSMQ extends DolibarrModules
 			'langs'=>'dolismq@dolismq',
 			'position'=>1100+$r,
 			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'1',
+			'perms'=>'$user->rights->dolismq->question->write',
+			'target'=>'',
+			'user'=>2
+		);
+
+		$this->menu[$r++]=array(
+			'fk_menu'=>'fk_mainmenu=dolismq',
+			'type'=>'left',
+			'titre'=>$langs->trans('SheetList'),
+			'mainmenu'=>'dolismq',
+			'leftmenu'=>'dolismq_sheet',
+			'url'=>'/dolismq/view/sheet/sheet_list.php',
+			'langs'=>'dolismq@dolismq',
+			'position'=>1100+$r,
+			'enabled'=>'$conf->dolismq->enabled',
+			'perms'=>'$user->rights->dolismq->sheet->read',
+			'target'=>'',
+			'user'=>2,
+		);
+
+		$this->menu[$r++]=array(
+			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_sheet',
+			'type'=>'left',
+			'titre'=>$langs->trans('AddSheet'),
+			'mainmenu'=>'dolismq',
+			'leftmenu'=>'dolismq_sheet',
+			'url'=>'/dolismq/view/sheet/sheet_card.php?action=create',
+			'langs'=>'dolismq@dolismq',
+			'position'=>1100+$r,
+			'enabled'=>'$conf->dolismq->enabled',
+			'perms'=>'$user->rights->dolismq->sheet->write',
 			'target'=>'',
 			'user'=>2
 		);
@@ -433,10 +435,11 @@ class modDoliSMQ extends DolibarrModules
 			'langs'=>'dolismq@dolismq',
 			'position'=>1100+$r,
 			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'1',
+			'perms'=>'$user->rights->dolismq->control->read',
 			'target'=>'',
 			'user'=>2,
 		);
+
 		$this->menu[$r++]=array(
 			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_control',
 			'type'=>'left',
@@ -447,7 +450,7 @@ class modDoliSMQ extends DolibarrModules
 			'langs'=>'dolismq@dolismq',
 			'position'=>1100+$r,
 			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'1',
+			'perms'=>'$user->rights->dolismq->control->write',
 			'target'=>'',
 			'user'=>2
 		);
