@@ -57,6 +57,18 @@ DoliSMQHelpAuditDateStart = La date de début d'audit
 # Questions
 #
 
+# Rights - Droits
+ReadQuestion = Consulter les questions
+CreateQuestion = Créer/Modifier les questions
+DeleteQuestion = Supprimer les questions
+
+# Trigger - Déclencheur
+QuestionCreateTrigger = Question créée
+QuestionModifyTrigger = Question modifiée
+QuestionDeleteTrigger = Question supprimée
+QuestionLockedTrigger = Question verrouillée
+
+# Data - Donnée
 AddQuestion = Ajouter une question
 NewQuestion = Nouvelle question
 QuestionList = Liste des questions
@@ -70,6 +82,18 @@ ConfirmLockQuestion = Êtes-vous sûr de vouloir verrouiller la question ? <br> 
 # Sheet
 #
 
+# Rights - Droits
+ReadSheet = Consulter les fiches modèle
+CreateSheet = Créer/Modifier les fiches modèle
+DeleteSheet = Supprimer les fiches modèle
+
+# Trigger - Déclencheur
+SheetCreateTrigger = Fiche modèle créée
+SheetModifyTrigger = Fiche modèle modifiée
+SheetDeleteTrigger = Fiche modèle supprimée
+SheetLockedTrigger = Fiche modèle verrouillée
+
+# Data - Donnée
 AddSheet = Ajouter une fiche modèle
 NewSheet = Nouvelle fiche modèle
 SheetList = Liste des fiches modèles
@@ -83,6 +107,20 @@ ConfirmLockSheet = Êtes-vous sûr de vouloir verrouiller la fiche modèle ? <br
 # Control
 #
 
+# Rights - Droits
+ReadControl = Consulter les fiches de contrôle
+CreateControl = Créer/Modifier les fiches de contrôle
+DeleteControl = Supprimer les fiches de contrôle
+
+# Trigger - Déclencheur
+ControlCreateTrigger = Fiche contrôle créée
+ControlModifyTrigger = Fiche contrôle modifiée
+ControlDeleteTrigger = Fiche contrôle supprimée
+ControlDraftedTrigger = Fiche contrôle brouillon
+ControlValidatedTrigger = Fiche contrôle validée
+ControlLockedTrigger = Fiche contrôle verrouillée
+
+# Data - Donnée
 AddControl = Ajouter un contrôle
 NewControl = Nouveau contrôle
 ControlList = Liste des contrôles
@@ -105,6 +143,7 @@ ConfirmLockControl = Êtes-vous sûr de vouloir verrouiller la fiche de contrôl
 # ControlDet
 #
 
+# Data - Donnée
 AnswerSaved = Les réponses ont été sauvegardées
 
 
@@ -112,6 +151,7 @@ AnswerSaved = Les réponses ont été sauvegardées
 # Other
 #
 
+# Data - Donnée
 SelectProducts = Sélectionner un produit
 AddMedia = Ajouter un média
 NoMediaLinked = Pas de média lié
