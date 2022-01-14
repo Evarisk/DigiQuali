@@ -68,7 +68,7 @@ removeQuestionLink = Question retirée de la fiche modèle :
 # Sheet
 #
 
-AddSheet = Ajouter une question
+AddSheet = Ajouter une fiche modèle
 NewSheet = Nouvelle fiche modèle
 SheetList = Liste des fiches modèles
 SheetLinked = Modèle de contrôle
@@ -90,6 +90,12 @@ ControlMustBeValidated = La fiche de contrôle doit être validé pour le rouvri
 ControlMustBeDraft = La fiche de contrôle doit être brouillon pour accéder à cette fonctionnalité
 ControlMustBeInProgressToValidate = La fiche de contrôle est déjà validé
 ControlMustBeValidatedToLock = La fiche de contrôle doit être validé pour la verrouiller
+
+#
+# ControlDet
+#
+
+AnswerSaved = Les réponses ont été sauvegardées
 
 
 #

@@ -1158,8 +1158,9 @@ class ControlLine extends CommonObjectLine
 	{
 		global $db;
 
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.description, t.category, t.prevention_method, t.fk_preventionplan, t.fk_element ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiriskdolibarr_preventionplandet as t';
+
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.comment, t.fk_question, t.fk_control ';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
 		$sql .= ' WHERE t.rowid = ' . $rowid;
 		$sql .= ' AND entity IN (' . getEntity($this->table_element) . ')';
 
@@ -1170,11 +1171,11 @@ class ControlLine extends CommonObjectLine
 			$this->id                = $objp->rowid;
 			$this->ref               = $objp->ref;
 			$this->date_creation     = $objp->date_creation;
-			$this->description       = $objp->description;
-			$this->category          = $objp->category;
-			$this->prevention_method = $objp->prevention_method;
-			$this->fk_preventionplan = $objp->fk_preventionplan;
-			$this->fk_element        = $objp->fk_element;
+			$this->status       = $objp->status;
+			$this->answer          = $objp->answer;
+			$this->comment          = $objp->comment;
+			$this->fk_question = $objp->fk_question;
+			$this->fk_control = $objp->fk_control;
 
 			$db->free($result);
 
@@ -1192,17 +1193,12 @@ class ControlLine extends CommonObjectLine
 	 * @param int $limit
 	 * @return int <0 if KO, >0 if OK
 	 */
-	public function fetchAll($parent_id = 0, $limit = 0)
+	public function fetchAll($limit = 0)
 	{
 		global $db;
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.description, t.category, t.prevention_method, t.fk_element';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiriskdolibarr_preventionplandet as t';
-		if ($parent_id > 0) {
-			$sql .= ' WHERE t.fk_preventionplan = ' . $parent_id;
-		} else {
-			$sql .= ' WHERE 1=1';
-		}
-		$sql .= ' AND entity IN (' . getEntity($this->table_element) . ')';
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.comment, t.fk_question, t.fk_control ';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
+		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 
 
 		$result = $db->query($sql);
@@ -1219,11 +1215,10 @@ class ControlLine extends CommonObjectLine
 				$record->id                = $obj->rowid;
 				$record->ref               = $obj->ref;
 				$record->date_creation     = $obj->date_creation;
-				$record->description       = $obj->description;
-				$record->category          = $obj->category;
-				$record->prevention_method = $obj->prevention_method;
-				$record->fk_preventionplan = $obj->fk_preventionplan;
-				$record->fk_element        = $obj->fk_element;
+				$record->status       = $obj->status;
+				$record->comment          = $obj->comment;
+				$record->fk_question = $obj->fk_question;
+				$record->fk_control = $obj->fk_control;
 
 				$records[$record->id] = $record;
 
@@ -1237,6 +1232,58 @@ class ControlLine extends CommonObjectLine
 			$this->error = $db->lasterror();
 			return -1;
 		}
+	}
+
+
+	/**
+	 *    Load preventionplan line line from database
+	 *
+	 * @param int $control_id
+	 * @param int $question_id
+	 * @return int <0 if KO, >0 if OK
+	 */
+	public function fetchFromParentWithQuestion($control_id, $question_id, $limit = 0)
+	{
+		global $db;
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.comment, t.fk_question, t.fk_control ';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
+		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
+		$sql .= ' AND fk_control = ' . $control_id .' AND fk_question ='. $question_id;
+
+
+		$result = $db->query($sql);
+
+		if ($result) {
+			$num = $db->num_rows($result);
+
+			$i = 0;
+			while ($i < ($limit ? min($limit, $num) : $num)) {
+				$obj = $db->fetch_object($result);
+
+				$record = new self($db);
+
+				$record->id                = $obj->rowid;
+				$record->ref               = $obj->ref;
+				$record->date_creation     = $obj->date_creation;
+				$record->status       = $obj->status;
+				$record->answer          = $obj->answer;
+				$record->comment          = $obj->comment;
+				$record->fk_question = $obj->fk_question;
+				$record->fk_control = $obj->fk_control;
+
+				$records[$record->id] = $record;
+
+				$i++;
+			}
+
+			$db->free($result);
+
+			return $records;
+		} else {
+			$this->error = $db->lasterror();
+			return -1;
+		}
+
 	}
 
 	/**
@@ -1258,18 +1305,19 @@ class ControlLine extends CommonObjectLine
 		$now = dol_now();
 
 		// Insertion dans base de la ligne
-		$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . 'digiriskdolibarr_preventionplandet';
-		$sql .= ' (ref, entity, date_creation, description, category, prevention_method, fk_preventionplan, fk_element';
+		$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . 'dolismq_controldet';
+		$sql .= ' ( ref, entity, status, date_creation, answer, comment, fk_question, fk_control, fk_user_creat';
 		$sql .= ')';
 		$sql .= " VALUES (";
 		$sql .= "'" . $db->escape($this->ref) . "'" . ", ";
 		$sql .= $this->entity . ", ";
+		$sql .= 1 . ", ";
 		$sql .= "'" . $db->escape($db->idate($now)) . "'" . ", ";
-		$sql .= "'" . $db->escape($this->description) . "'" . ", ";
-		$sql .= $this->category . ", ";
-		$sql .= "'" . $db->escape($this->prevention_method) . "'" . ", ";
-		$sql .= $this->fk_preventionplan . ", ";
-		$sql .= $this->fk_element ;
+		$sql .= "'" . $db->escape($this->answer) . "'" . ", ";
+		$sql .= "'" . $db->escape($this->comment) . "'" . ", ";
+		$sql .= $this->fk_question . ", ";
+		$sql .= $this->fk_control . ", ";
+		$sql .= $user->id;
 
 		$sql .= ')';
 
@@ -1277,7 +1325,7 @@ class ControlLine extends CommonObjectLine
 		$resql = $db->query($sql);
 
 		if ($resql) {
-			$this->id    = $db->last_insert_id(MAIN_DB_PREFIX . 'preventionplandet');
+			$this->id    = $db->last_insert_id(MAIN_DB_PREFIX . 'controldet');
 			$this->rowid = $this->id; // For backward compatibility
 
 			$db->commit();
@@ -1315,17 +1363,19 @@ class ControlLine extends CommonObjectLine
 		$db->begin();
 
 		// Mise a jour ligne en base
-		$sql  = "UPDATE " . MAIN_DB_PREFIX . "digiriskdolibarr_preventionplandet SET";
+		$sql  = "UPDATE " . MAIN_DB_PREFIX . "dolismq_controldet SET";
+
 		$sql .= " ref='" . $db->escape($this->ref) . "',";
-		$sql .= " description='" . $db->escape($this->description) . "',";
-		$sql .= " category=" . $db->escape($this->category) . ",";
-		$sql .= " prevention_method='" . $db->escape($this->prevention_method) . "'" . ",";
-		$sql .= " fk_preventionplan=" . $db->escape($this->fk_preventionplan) . ",";
-		$sql .= " fk_element=" . $db->escape($this->fk_element);
+		$sql .= " status='" . $db->escape($this->status) . "',";
+		$sql .= " answer=" . $db->escape($this->answer) . ",";
+		$sql .= " comment=" . '"' . $db->escape($this->comment) . '"' .",";
+		$sql .= " fk_question=" . $db->escape($this->fk_question). ",";
+		$sql .= " fk_control=" . $db->escape($this->fk_control);
 
 		$sql .= " WHERE rowid = " . $this->id;
 
 		dol_syslog(get_class($this) . "::update", LOG_DEBUG);
+
 		$resql = $db->query($sql);
 
 		if ($resql) {
@@ -1356,7 +1406,7 @@ class ControlLine extends CommonObjectLine
 
 		$db->begin();
 
-		$sql = "DELETE FROM " . MAIN_DB_PREFIX . "digiriskdolibarr_preventionplandet WHERE rowid = " . $this->id;
+		$sql = "DELETE FROM " . MAIN_DB_PREFIX . "dolismq_controldet WHERE rowid = " . $this->id;
 		dol_syslog(get_class($this) . "::delete", LOG_DEBUG);
 		if ($db->query($sql)) {
 			$db->commit();

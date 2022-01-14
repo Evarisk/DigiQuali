@@ -907,6 +907,7 @@ window.eoxiaJS.control.init = function() {
  */
 window.eoxiaJS.control.event = function() {
 	$( document ).on( 'click', '.answer', window.eoxiaJS.control.selectAnswer );
+	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.writeComment );
 };
 
 /**
@@ -919,8 +920,34 @@ window.eoxiaJS.control.event = function() {
  * @return {void}
  */
 window.eoxiaJS.control.selectAnswer = function ( event ) {
-	console.log('oui')
 	$(this).closest('td').find('span').attr('style', '')
 	$(this).closest('span').attr('style', 'border: solid; border-color:blue')
 	$(this).closest('td').find('.question-answer').val($(this).attr('value'))
+
+	let postName = $(this).closest('td').find('.question-answer').attr('name')
+	let postValue = $(this).closest('td').find('.question-answer').val()
+	let actualPost = $(this).closest('.tabBar').find('.saveButton').attr('href')
+	$(this).closest('.tabBar').find('.saveButton').attr('href', actualPost + '&' + postName + '=' + postValue)
+};
+
+/**
+ * Write a comment for a control question.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.control.writeComment = function ( event ) {
+
+	let postName = $(this).closest('td').find('.question-comment').attr('name')
+	let postValue = $(this).closest('td').find('.question-comment').val()
+	let actualPost = $(this).closest('.tabBar').find('.saveButton').attr('href')
+
+	if (actualPost.match('&' + postName + '=')) {
+		actualPost = actualPost.split('&' + postName + '=')[0]
+	}
+
+	$(this).closest('.tabBar').find('.saveButton').attr('href', actualPost + '&' + postName + '=' + postValue)
 };

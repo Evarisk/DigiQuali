@@ -91,6 +91,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 
 // Initialize technical objects
 $object        = new Control($db);
+$controldet    = new ControlLine($db);
 $sheet         = new Sheet($db);
 $question      = new Question($db);
 $usertmp       = new User($db);
@@ -173,28 +174,32 @@ if (empty($reshook))
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
 	if ($action == 'save') {
+
 		$controldet = new ControlLine($db);
 		$sheet->fetch($object->fk_sheet);
 		$object->fetchQuestionsLinked($sheet->id, 'sheet');
 		$questionIds = $object->linkedObjectsIds;
-		foreach ($questionIds as $questionId) {
+		foreach ($questionIds['question'] as $questionId) {
 			$controldettmp = $controldet;
 			//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
-			$controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
+			$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
 
-			if ($controldettmp->id > 0) {
-
+			if ($result > 0 && is_array($result)) {
+				$controldettmp = array_shift($result);
 				//sauvegarder réponse
 				$answer = GETPOST('answer'.$questionId);
 				if ($answer > 0) {
 					$controldettmp->answer = $answer;
 				}
 
+
 				//sauvegarder commentaire
 				$comment = GETPOST('comment'.$questionId);
-				if (dol_strlen($comment > 0)) {
+
+				if (dol_strlen($comment) > 0) {
 					$controldettmp->comment = $comment;
 				}
+
 
 				$controldettmp->update($user);
 			} else {
@@ -209,16 +214,17 @@ if (empty($reshook))
 
 				//sauvegarder commentaire
 				$comment = GETPOST('comment'.$questionId);
-				if (dol_strlen($comment > 0)) {
+				if (dol_strlen($comment) > 0) {
 					$controldettmp->comment = $comment;
 				}
+				$controldettmp->entity = $conf->entity;
 
-				$controldettmp->create($user);
-
+				$controldettmp->insert($user);
 			}
-
 		}
-
+		setEventMessages($langs->trans('AnswerSaved') . ' ' . $question->ref, array());
+		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
+		exit;
 	}
 
 
@@ -673,7 +679,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print '>'.$langs->trans('SetOK/KO').'</a>';
 				}
 			}
-			print '<a class="' . (($object->status == 0) ? 'butAction' : 'butActionRefused classfortooltip') . '" href="'.$_SERVER["PHP_SELF"].'?action=save&id='.$object->id.'" id="' . (($object->status == 0) ? 'actionButtonSave' : '') . '" title="' . (($object->status == 0 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeDraft"))) . '">' . $langs->trans("Save") . '</a>';
+			print '<a class="' . (($object->status != 2) ? 'saveButton butAction' : 'butActionRefused classfortooltip') . '" href="'.$_SERVER["PHP_SELF"].'?action=save&id='.$object->id.'" id="' . (($object->status == 0) ? 'actionButtonSave' : '') . '" title="' . (($object->status == 0 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeDraft"))) . '">' . $langs->trans("Save") . '</a>';
 			print '<span class="' . (($object->status == 0) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 0) ? 'actionButtonValidate' : '') . '" title="' . (($object->status == 0 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeDraft"))) . '">' . $langs->trans("Validate") . '</span>';
 			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 ) ? 'actionButtonReOpen' : '') . '" title="' . (($object->status == 1 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidated"))) . '">' . $langs->trans("ReOpened") . '</span>';
 			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1) ? 'actionButtonLock' : '') . '" title="' . (($object->status == 1 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidatedToLock"))) . '">' . $langs->trans("Lock") . '</span>';
@@ -712,6 +718,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if ( ! empty($questionIds['question']) && $questionIds > 0) {
 		print '<tr>';
 		foreach ($questionIds['question'] as $questionId) {
+			$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
+			if ($result > 0 && is_array($result)) {
+				$itemControlDet = array_shift($result);
+				$answer = $itemControlDet->answer;
+				$comment = $itemControlDet->comment;
+			}
 			$item = $question;
 			$item->fetch($questionId);
 
@@ -735,19 +747,19 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '<td class="center">';
 			print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 
-			print '<span class="answer" value="1">';
+			print '<span class="answer" value="1" '. ($answer == 1 ? 'style="border: solid; border-color: blue"' : '').'>';
 			print '<i class="fas fa-check"></i>&nbsp&nbsp&nbsp&nbsp&nbsp';
 			print '</span>';
 
-			print '<span class="answer" value="2">';
+			print '<span class="answer" value="2" '. ($answer == 2 ? 'style="border: solid; border-color: blue"' : '').'>';
 			print '<i class="fas fa-times"></i>&nbsp&nbsp&nbsp&nbsp&nbsp';
 			print '</span>';
 
-			print '<span class="answer" value="3">';
+			print '<span class="answer" value="3" '. ($answer == 3 ? 'style="border: solid; border-color: blue"' : '').'>';
 			print '<i class="fas fa-tools"></i>&nbsp&nbsp&nbsp&nbsp&nbsp';
 			print '</span>';
 
-			print '<span class="answer" value="4">';
+			print '<span class="answer" value="4" '. ($answer == 4 ? 'style="border: solid; border-color: blue"' : '').'>';
 			print 'N/A';
 			print '</span>';
 
@@ -759,7 +771,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print $langs->trans('Comment');
 			print '</td>';
 			print '<td>';
-			print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" >';
+			print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'">';
 			print '</td>';
 
 		}
