@@ -263,7 +263,7 @@ function dolismqshowdocuments($modulepart, $modulesubdir, $filedir, $urlsource, 
 		}
 
 		// For normalized external modules.
-		$file = dol_buildpath('/' . $modulepart . '/core/modules/' . $modulepart . '/dolismqdocuments/' . strtolower($submodulepart) . '/modules_' . strtolower($submodulepart) . '.php', 0);
+		$file = dol_buildpath('/' . $modulepart . '/core/modules/' . $modulepart . '/' . strtolower($submodulepart) . '/modules_' . strtolower($submodulepart) . '.php', 0);
 		include_once $file;
 
 		$class = 'ModeleODT' . $submodulepart;
