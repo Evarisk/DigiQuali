@@ -750,19 +750,19 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '<td class="center">';
 			print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 
-			print '<span class="answer" value="1" '. ($answer == 1 ? 'style="border: solid; border-color: blue"' : '').'>';
+			print '<span class="' . ($object->status != 2 ? 'answer' : '') . '" value="1" '. ($answer == 1 ? 'style="border: solid; border-color: blue"' : '').'>';
 			print '<i class="fas fa-check"></i>&nbsp&nbsp&nbsp&nbsp&nbsp';
 			print '</span>';
 
-			print '<span class="answer" value="2" '. ($answer == 2 ? 'style="border: solid; border-color: blue"' : '').'>';
+			print '<span class="' . ($object->status != 2 ? 'answer' : '') . '" value="2" '. ($answer == 2 ? 'style="border: solid; border-color: blue"' : '').'>';
 			print '<i class="fas fa-times"></i>&nbsp&nbsp&nbsp&nbsp&nbsp';
 			print '</span>';
 
-			print '<span class="answer" value="3" '. ($answer == 3 ? 'style="border: solid; border-color: blue"' : '').'>';
+			print '<span class="' . ($object->status != 2 ? 'answer' : '') . '" value="3" '. ($answer == 3 ? 'style="border: solid; border-color: blue"' : '').'>';
 			print '<i class="fas fa-tools"></i>&nbsp&nbsp&nbsp&nbsp&nbsp';
 			print '</span>';
 
-			print '<span class="answer" value="4" '. ($answer == 4 ? 'style="border: solid; border-color: blue"' : '').'>';
+			print '<span class="' . ($object->status != 2 ? 'answer' : '') . '" value="4" '. ($answer == 4 ? 'style="border: solid; border-color: blue"' : '').'>';
 			print 'N/A';
 			print '</span>';
 
@@ -774,7 +774,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print $langs->trans('Comment');
 			print '</td>';
 			print '<td>';
-			print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'">';
+			print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>';
 			print '</td>';
 
 		}
