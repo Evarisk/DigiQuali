@@ -775,30 +775,29 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// PREVENTIONPLAN LINES
 	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
 	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '');
-	print '<table id="tablelines" class="noborder noshadow" width="100%">';
+	print '<div id="tablelines" class="control-audit noborder noshadow" width="100%">';
 
 	global $forceall, $forcetoshowtitlelines;
 
 	if (empty($forceall)) $forceall = 0;
 
-	// Define colspan for the button 'Add'
+// Define colspan for the button 'Add'
 	$colspan = 3;
 
-	// Lines
+// Lines
 	$object->fetchQuestionsLinked($sheet->id, 'sheet');
 	$questionIds = $object->linkedObjectsIds;
 
-	print '<tr class="liste_titre">';
-	print '<td>' . $langs->trans('Ref') . '</td>';
-	print '<td>' . $langs->trans('Description') . '</td>';
-	print '<td>' . $langs->trans('PhotoOk') . '</td>';
-	print '<td>' . $langs->trans('PhotoKo') . '</td>';
-	print '<td class="center">' . $langs->trans('Answer') . '</td>';
-	print '<td>' . '</td>';
-	print '</tr>';
+//	print '<tr class="liste_titre">';
+//	print '<td>' . $langs->trans('Ref') . '</td>';
+//	print '<td>' . $langs->trans('Description') . '</td>';
+//	print '<td>' . $langs->trans('PhotoOk') . '</td>';
+//	print '<td>' . $langs->trans('PhotoKo') . '</td>';
+//	print '<td class="center">' . $langs->trans('Answer') . '</td>';
+//	print '<td>' . '</td>';
+//	print '</tr>';
 
 	if ( ! empty($questionIds['question']) && $questionIds > 0) {
-		print '<tr>';
 		foreach ($questionIds['question'] as $questionId) {
 			$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
 			if ($result > 0 && is_array($result)) {
@@ -808,56 +807,49 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 			$item = $question;
 			$item->fetch($questionId);
+			?>
+			<div class="wpeo-table table-flex table-3">
+				<div class="table-row">
+					<div class="table-cell table-full">
+						<?php print $item->description; ?>
+					</div>
+					<div class="table-cell table-125">
+						<?php
+						print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ok)) . '" >';
+						print '<img width="40" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ko)) . '" >';
+						?>
+					</div>
+					<div class="table-cell table-200">
+						<?php
+						print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 
-			print '<tr>';
-			print '<td>';
-			print $item->ref;
-			print '</td>';
+						print '<span class="' . ($object->status != 2 ? 'answer' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" value="1">';
+						print '<i class="fas fa-check"></i>';
+						print '</span>';
 
-			print '<td>';
-			print $item->description;
-			print '</td>';
+						print '<span class="' . ($object->status != 2 ? 'answer' : '') . ' ' . ($answer == 2 ? 'active' : '') . '" value="2">';
+						print '<i class="fas fa-times"></i>';
+						print '</span>';
 
-			print '<td>';
-			print '<img width="40" class="photo clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ok)) . '" >';
-			print '</td>';
+						print '<span class="' . ($object->status != 2 ? 'answer' : '') . ' ' . ($answer == 3 ? 'active' : '') . '" value="3">';
+						print '<i class="fas fa-tools"></i>';
+						print '</span>';
 
-			print '<td>';
-			print '<img width="40" class="photo clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ko)) . '" >';
-			print '</td>';
-
-			print '<td class="center">';
-			print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
-
-			print '<span class="' . ($object->status != 2 ? 'answer' : '') . '" value="1" '. ($answer == 1 ? 'style="border: solid; border-color: blue"' : '').'>';
-			print '<i class="fas fa-check"></i>&nbsp&nbsp&nbsp&nbsp&nbsp';
-			print '</span>';
-
-			print '<span class="' . ($object->status != 2 ? 'answer' : '') . '" value="2" '. ($answer == 2 ? 'style="border: solid; border-color: blue"' : '').'>';
-			print '<i class="fas fa-times"></i>&nbsp&nbsp&nbsp&nbsp&nbsp';
-			print '</span>';
-
-			print '<span class="' . ($object->status != 2 ? 'answer' : '') . '" value="3" '. ($answer == 3 ? 'style="border: solid; border-color: blue"' : '').'>';
-			print '<i class="fas fa-tools"></i>&nbsp&nbsp&nbsp&nbsp&nbsp';
-			print '</span>';
-
-			print '<span class="' . ($object->status != 2 ? 'answer' : '') . '" value="4" '. ($answer == 4 ? 'style="border: solid; border-color: blue"' : '').'>';
-			print 'N/A';
-			print '</span>';
-
-			print '</td>';
-
-			print '</tr>';
-
-			print '<td>';
-			print $langs->trans('Comment');
-			print '</td>';
-			print '<td>';
-			print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>';
-			print '</td>';
-
+						print '<span class="' . ($object->status != 2 ? 'answer' : '') . ' ' . ($answer == 4 ? 'active' : '') . '" value="4">';
+						print 'N/A';
+						print '</span>';
+						?>
+					</div>
+				</div>
+				<div class="table-row">
+					<div class="table-cell table-full wpeo-gridlayout grid-4">
+						<div class="question-comment-title"><?php print $langs->trans('Comment'); ?></div>
+						<div class="gridw-3"><?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?></div>
+					</div>
+				</div>
+			</div>
+			<?php
 		}
-		print '</tr>';
 	}
 
 	print dol_get_fiche_end();

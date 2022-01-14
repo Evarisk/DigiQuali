@@ -920,12 +920,12 @@ window.eoxiaJS.control.event = function() {
  * @return {void}
  */
 window.eoxiaJS.control.selectAnswer = function ( event ) {
-	$(this).closest('td').find('span').attr('style', '')
-	$(this).closest('span').attr('style', 'border: solid; border-color:blue')
-	$(this).closest('td').find('.question-answer').val($(this).attr('value'))
+	$(this).closest('.table-cell').find('span').removeClass( 'active' );
+	$(this).closest('span').addClass( 'active' );
+	$(this).closest('.table-cell').find('.question-answer').val($(this).attr('value'))
 
-	let postName = $(this).closest('td').find('.question-answer').attr('name')
-	let postValue = $(this).closest('td').find('.question-answer').val()
+	let postName = $(this).closest('.table-cell').find('.question-answer').attr('name')
+	let postValue = $(this).closest('.table-cell').find('.question-answer').val()
 	let actualPost = $(this).closest('.tabBar').find('.saveButton').attr('href')
 	$(this).closest('.tabBar').find('.saveButton').attr('href', actualPost + '&' + postName + '=' + postValue)
 };
