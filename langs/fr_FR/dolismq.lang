@@ -90,6 +90,8 @@ ControlMustBeValidated = La fiche de contrôle doit être validé pour le rouvri
 ControlMustBeDraft = La fiche de contrôle doit être brouillon pour accéder à cette fonctionnalité
 ControlMustBeInProgressToValidate = La fiche de contrôle est déjà validé
 ControlMustBeValidatedToLock = La fiche de contrôle doit être validé pour la verrouiller
+SetOK/KO = Apte/Inapte
+VerdictControl = Choix du verdict
 
 #
 # ControlDet
@@ -109,4 +111,5 @@ ReOpened = Rouvrir
 Vallidated = Validé
 Locked = Verrouillé
 Lock = Verrouiller
+
 

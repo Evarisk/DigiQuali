@@ -76,8 +76,9 @@ class Control extends CommonObject
 		'date_creation'      => array('type' => 'datetime', 'label' => 'ControlDate', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 5,),
 		'tms'                => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
 		'import_key'         => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
-		'status'             => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => array('0' => 'Draft', '1' => 'OK', '2' => 'KO'), 'default' => '0'),
+		'status'             => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0'),
 		'type'               => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
+		'verdict'            => array('type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => array('0' => 'OK', '1' => 'KO'),),
 		'fk_user_creat'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',),
 		'fk_user_modif'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
 		'fk_sheet'           => array('type' => 'integer', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 150, 'notnull' => 1, 'visible' => -2,),
@@ -95,6 +96,7 @@ class Control extends CommonObject
 	public $import_key;
 	public $status;
 	public $type;
+	public $verdict;
 	public $label;
 	public $fk_user_creat;
 	public $fk_user_modif;
@@ -102,7 +104,6 @@ class Control extends CommonObject
 	public $fk_user_controller;
 	public $fk_product;
 	public $fk_lot;
-
 
 	/**
 	 * Constructor
@@ -543,24 +544,6 @@ class Control extends CommonObject
 	public function setLocked($user, $notrigger = 0)
 	{
 		return $this->setStatusCommon($user, self::STATUS_LOCKED, $notrigger, 'CONTROL_LOCKED');
-	}
-
-	/**
-	 *	Set pending signature status
-	 *
-	 *	@param	User	$user			Object user that modify
-	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
-	 *	@return	int						<0 if KO, >0 if OK
-	 */
-	public function setStatusControl($user, $status, $notrigger = 0)
-	{
-		if ($status == self::STATUS_OK) {
-			$trigger_name = 'CONTROL_OK';
-		} else {
-			$trigger_name = 'CONTROL_KO';
-		}
-
-		return $this->setStatusCommon($user, $status, $notrigger, $trigger_name);
 	}
 
 	/**
