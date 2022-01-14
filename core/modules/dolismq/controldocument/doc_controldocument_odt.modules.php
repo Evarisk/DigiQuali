@@ -191,8 +191,6 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 
 
 		$dir = $conf->dolismq->multidir_output[isset($object->entity) ? $object->entity : 1] . '/controldocument/'. $object->ref;
-		$objectref = dol_sanitizeFileName($ref);
-		if (preg_match('/specimen/i', $objectref)) $dir .= '/specimen';
 
 		if (!file_exists($dir))
 		{
@@ -209,7 +207,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$filename = preg_replace('/template_/','', $filename[1]);
 
 			$date = dol_print_date(dol_now(),'dayxcard');
-			$filename = $objectref.'_'.$digiriskelement->label.'_'.$date.'.odt';
+			$filename = $object->ref.'_'.$date.'.odt';
 			$filename = str_replace(' ', '_', $filename);
 			$filename = dol_sanitizeFileName($filename);
 //
