@@ -275,6 +275,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 
 			$product = new Product($db);
 			$productlot = new Productlot($db);
+			$controldet = new ControlLine($db);
+			$question = new Question($db);
 			$product->fetch($object->fk_product);
 			$productlot->fetch($object->fk_lot);
 			$tmparray['product_ref']    = $product->ref;
@@ -307,47 +309,59 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			// Replace tags of lines
 			try
 			{
-				$foundtagforlines = 0;
+				$foundtagforlines = 1;
 				if ($foundtagforlines) {
 					if ( ! empty( $object ) ) {
-							$risksigns = $object->fetchFromParent($digiriskelement->id);
-							if ($risksigns !== -1) {
-								$listlines = $odfHandler->setSegment('questions');
-								foreach ($risksigns as $line) {
-									$path             = DOL_DOCUMENT_ROOT .'/custom/digiriskdolibarr/img/';
-
-									$tmparray['recommandationIcon']         = $path . '/' . $risksign->get_risksign_category($line);
-									$tmparray['identifiantRecommandation']  = $line->ref;
-									$tmparray['recommandationName']         = $line->get_risksign_category($line, 'name');
-									$tmparray['recommandationComment']      = $line->description;
-
-									unset($tmparray['object_fields']);
-
-									complete_substitutions_array($tmparray, $outputlangs, $object, $line, "completesubstitutionarray_lines");
-									// Call the ODTSubstitutionLine hook
-									$parameters = array('odfHandler' => &$odfHandler, 'file' => $file, 'object' => $object, 'outputlangs' => $outputlangs, 'substitutionarray' => &$tmparray, 'line' => $line);
-									$reshook = $hookmanager->executeHooks('ODTSubstitutionLine', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
-									foreach ($tmparray as $key => $val) {
-										try {
-											if (file_exists($val)) {
-												$listlines->setImage($key, $val);
-											} else {
-												if (empty($val)) {
-													$listlines->setVars($key, $langs->trans('NoData'), true, 'UTF-8');
-												} else {
-													$listlines->setVars($key, html_entity_decode($val,ENT_QUOTES | ENT_HTML5), true, 'UTF-8');
-												}
-											}
-										} catch (OdfException $e) {
-											dol_syslog($e->getMessage(), LOG_INFO);
-										} catch (SegmentException $e) {
-											dol_syslog($e->getMessage(), LOG_INFO);
-										}
-									}
-									$listlines->merge();
+						$listlines = $odfHandler->setSegment('questions');
+						$object->fetchQuestionsLinked($object->fk_sheet, 'sheet');
+						$questionIds = $object->linkedObjectsIds;
+						if ( ! empty($questionIds['question']) && $questionIds > 0) {
+							foreach ($questionIds['question'] as $questionId) {
+								$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
+								if ($result > 0 && is_array($result)) {
+									$itemControlDet = array_shift($result);
+									$answer = $itemControlDet->answer;
+									$comment = $itemControlDet->comment;
 								}
+								$item = $question;
+								$item->fetch($questionId);
+
+								//$path = DOL_DOCUMENT_ROOT . '/custom/digiriskdolibarr/img/';
+
+								$tmparray['ref'] = $item->ref;
+								$tmparray['description'] = $item->description;
+								$tmparray['photo_ok'] = $item->photo_ok;
+								$tmparray['photo_ko'] = $item->photo_ko;
+								$tmparray['answer'] = $answer;
+								$tmparray['comment'] = $comment;
+
+								unset($tmparray['object_fields']);
+
+								complete_substitutions_array($tmparray, $outputlangs, $object, $line, "completesubstitutionarray_lines");
+								// Call the ODTSubstitutionLine hook
+								$parameters = array('odfHandler' => &$odfHandler, 'file' => $file, 'object' => $object, 'outputlangs' => $outputlangs, 'substitutionarray' => &$tmparray, 'line' => $line);
+								$reshook = $hookmanager->executeHooks('ODTSubstitutionLine', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
+								foreach ($tmparray as $key => $val) {
+									try {
+										if (file_exists($val)) {
+											$listlines->setImage($key, $val);
+										} else {
+											if (empty($val)) {
+												$listlines->setVars($key, $langs->trans('NoData'), true, 'UTF-8');
+											} else {
+												$listlines->setVars($key, html_entity_decode($val, ENT_QUOTES | ENT_HTML5), true, 'UTF-8');
+											}
+										}
+									} catch (OdfException $e) {
+										dol_syslog($e->getMessage(), LOG_INFO);
+									} catch (SegmentException $e) {
+										dol_syslog($e->getMessage(), LOG_INFO);
+									}
+								}
+								$listlines->merge();
 							}
 							$odfHandler->mergeSegment($listlines);
+						}
 					}
 				}
 			}
