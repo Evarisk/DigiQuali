@@ -906,7 +906,7 @@ window.eoxiaJS.control.init = function() {
  * @return {void}
  */
 window.eoxiaJS.control.event = function() {
-	$( document ).on( 'click', '.answer', window.eoxiaJS.control.selectAnswer );
+	$( document ).on( 'click', '.answer:not(.disable)', window.eoxiaJS.control.selectAnswer );
 	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.writeComment );
 	//$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 };

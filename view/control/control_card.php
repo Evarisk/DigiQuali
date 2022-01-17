@@ -823,19 +823,19 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						<?php
 						print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 
-						print '<span class="' . ($object->status != 2 ? 'answer' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" value="1">';
+						print '<span class="answer ' . ($object->status == 2 ? 'disable' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" value="1">';
 						print '<i class="fas fa-check"></i>';
 						print '</span>';
 
-						print '<span class="' . ($object->status != 2 ? 'answer' : '') . ' ' . ($answer == 2 ? 'active' : '') . '" value="2">';
+						print '<span class="answer ' . ($object->status == 2 ? 'disable' : '') . ' ' . ($answer == 2 ? 'active' : '') . '" value="2">';
 						print '<i class="fas fa-times"></i>';
 						print '</span>';
 
-						print '<span class="' . ($object->status != 2 ? 'answer' : '') . ' ' . ($answer == 3 ? 'active' : '') . '" value="3">';
+						print '<span class="answer ' . ($object->status == 2 ? 'disable' : '') . ' ' . ($answer == 3 ? 'active' : '') . '" value="3">';
 						print '<i class="fas fa-tools"></i>';
 						print '</span>';
 
-						print '<span class="' . ($object->status != 2 ? 'answer' : '') . ' ' . ($answer == 4 ? 'active' : '') . '" value="4">';
+						print '<span class="answer ' . ($object->status == 2 ? 'disable' : '') . ' ' . ($answer == 4 ? 'active' : '') . '" value="4">';
 						print 'N/A';
 						print '</span>';
 						?>
