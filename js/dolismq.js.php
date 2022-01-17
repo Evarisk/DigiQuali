@@ -615,6 +615,9 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 			parent.removeClass('modal-active')
 			$('.tabBar .linked-medias.'+type+' .media-container').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .media-container')
 			$('.wpeo-modal.modal-photo').html($(resp).find('.wpeo-modal.modal-photo .modal-container'))
+
+			$('#'+type).val(favorite)
+
 		},
 		error: function ( ) {
 			modalFrom.find('.messageErrorSavePhoto').removeClass('hidden')
