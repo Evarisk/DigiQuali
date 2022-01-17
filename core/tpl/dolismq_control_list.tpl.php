@@ -61,7 +61,6 @@ $sql=preg_replace('/,\s*$/','', $sql);
 */
 
 $sql .= $db->order($sortfield, $sortorder);
-echo '<pre>'; print_r( $sql ); echo '</pre>';
 
 // Count total nb of records
 $nbtotalofrecords = '';
