@@ -886,7 +886,7 @@ class Control extends CommonObject
 		$modelpath = "core/modules/dolismq/controldocument/";
 
 		if ($includedocgeneration && ! empty($modele)) {
-			$result = $this->commonGenerateDocument($modelpath, $modele, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
+			$result = $this->commonGenerateDocument($modelpath, $modele, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams['object']);
 		}
 
 		return $result;

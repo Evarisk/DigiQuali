@@ -161,10 +161,10 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 	 *  @param		int			$hideref			Do not show ref
 	 *	@return		int         					1 if OK, <=0 if KO
 	 */
-	public function write_file($object, $outputlangs, $srctemplatepath, $hidedetails = 0, $hidedesc = 0, $hideref = 0)
+	public function write_file($objectDocument, $outputlangs, $srctemplatepath, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $object)
 	{
 		// phpcs:enable
-		global $user, $langs, $conf, $hookmanager, $action, $mysoc;
+		global $user, $langs, $conf, $hookmanager, $action, $mysoc, $db;
 
 		if (empty($srctemplatepath))
 		{
@@ -269,9 +269,18 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 				$tmparray['photoDefault'] = DOL_DOCUMENT_ROOT.$nophoto;
 			}
 
-			$tmparray['nom']         = $digiriskelement->label;
-			$tmparray['reference']   = $digiriskelement->ref;
-			$tmparray['description'] = $digiriskelement->description;
+			$tmparray['mycompany_name'] = $conf->global->MAIN_INFO_SOCIETE_NOM;
+			$tmparray['reference']      = $object->ref;
+			$tmparray['nom']            = $object->label;
+
+			$product = new Product($db);
+			$productlot = new Productlot($db);
+			$product->fetch($object->fk_product);
+			$productlot->fetch($object->fk_lot);
+			$tmparray['product_ref']    = $product->ref;
+			$tmparray['lot_ref']        = $productlot->batch;
+			$tmparray['control_date']   = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+			$tmparray['verdict']   = $object->verdict;
 
 			foreach ($tmparray as $key=>$value)
 			{
@@ -298,125 +307,47 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			// Replace tags of lines
 			try
 			{
-				$foundtagforlines = 1;
+				$foundtagforlines = 0;
 				if ($foundtagforlines) {
-//					$risk = new Risk($this->db);
-					if (!empty($digiriskelement)) {
-						$risks = $risk->fetchRisksOrderedByCotation($digiriskelement->id, false, $conf->global->DIGIRISKDOLIBARR_SHOW_PARENT_RISKS);
-						for ($i = 1; $i <= 4; $i++) {
-							$listlines = $odfHandler->setSegment('risq' . $i);
-							if ($risks > 0 && !empty($risks)) {
-								foreach ($risks as $line) {
-									$tmparray['actionPreventionUncompleted'] = "";
-									$tmparray['actionPreventionCompleted'] = "";
+					if ( ! empty( $object ) ) {
+							$risksigns = $object->fetchFromParent($digiriskelement->id);
+							if ($risksigns !== -1) {
+								$listlines = $odfHandler->setSegment('questions');
+								foreach ($risksigns as $line) {
+									$path             = DOL_DOCUMENT_ROOT .'/custom/digiriskdolibarr/img/';
 
-									$evaluation = new RiskAssessment($this->db);
-									$lastEvaluation = $evaluation->fetchFromParent($line->id, 1);
+									$tmparray['recommandationIcon']         = $path . '/' . $risksign->get_risksign_category($line);
+									$tmparray['identifiantRecommandation']  = $line->ref;
+									$tmparray['recommandationName']         = $line->get_risksign_category($line, 'name');
+									$tmparray['recommandationComment']      = $line->description;
 
-									if ($lastEvaluation > 0 && !empty($lastEvaluation)) {
-										$lastEvaluation = array_shift($lastEvaluation);
-										$scale = $lastEvaluation->get_evaluation_scale();
+									unset($tmparray['object_fields']);
 
-										if ($scale == $i) {
-											$element = new DigiriskElement($this->db);
-											$element->fetch($line->fk_element);
-											$tmparray['nomElement'] = $element->ref . ' - ' . $element->label;
-											$tmparray['nomDanger'] = DOL_DOCUMENT_ROOT . '/custom/dolismq/img/categorieDangers/' . $line->get_danger_category($line) . '.png';
-											$tmparray['identifiantRisque'] = $line->ref . ' - ' . $lastEvaluation->ref;
-											$tmparray['quotationRisque'] = $lastEvaluation->cotation ? $lastEvaluation->cotation : '0';
-											$tmparray['descriptionRisque'] = $line->description;
-											$tmparray['commentaireEvaluation'] = dol_print_date((($conf->global->DIGIRISKDOLIBARR_SHOW_RISKASSESSMENT_DATE && (!empty($lastEvaluation->date_riskassessment))) ? $lastEvaluation->date_riskassessment : $lastEvaluation->date_creation), 'dayreduceformat') . ': ' . $lastEvaluation->comment;
-
-											$related_tasks = $line->get_related_tasks($line);
-											$user = new User($this->db);
-
-											if (!empty($related_tasks) && is_array($related_tasks)) {
-												foreach ($related_tasks as $related_task) {
-													$related_task_contact_ids = $related_task->getListContactId();
-													if (!empty($related_task_contact_ids) && is_array($related_task_contact_ids)) {
-														foreach ($related_task_contact_ids as $related_task_contact_id) {
-															$user->fetch($related_task_contact_id);
-															$contact_array[$related_task_contact_id] = $user;
-														}
-													}
-													$AllInitiales = '';
-													if (!empty($contact_array) && is_array($contact_array)) {
-														foreach ($contact_array as $contact_array_single) {
-															$initiales = '';
-															if (dol_strlen($contact_array_single->firstname)) {
-																$initiales .= str_split($contact_array_single->firstname, 1)[0];
-															}
-															if (dol_strlen($contact_array_single->lastname)) {
-																$initiales .= str_split($contact_array_single->lastname, 1)[0];
-															}
-															$AllInitiales .= strtoupper($initiales) . ',';
-														}
-													}
-													if ($related_task->progress == 100) {
-														$tmparray['actionPreventionCompleted'] .= dol_print_date((($conf->global->DIGIRISKDOLIBARR_SHOW_TASK_START_DATE && (!empty($related_task->date_start))) ? $related_task->date_start : $related_task->date_c), 'dayreduceformat') . (($conf->global->DIGIRISKDOLIBARR_SHOW_TASK_END_DATE && (!empty($related_task->date_end))) ? ' - ' . dol_print_date($related_task->date_end, 'dayreduceformat') : '') . "\n" . ' ' . $langs->trans('Contacts') . ' : ' . ($AllInitiales ?: $langs->trans('NoData')) . "\n" . $related_task->label . "\n\n";
-													} else {
-														$tmparray['actionPreventionUncompleted'] .= dol_print_date((($conf->global->DIGIRISKDOLIBARR_SHOW_TASK_START_DATE && (!empty($related_task->date_start))) ? $related_task->date_start : $related_task->date_c), 'dayreduceformat') . (($conf->global->DIGIRISKDOLIBARR_SHOW_TASK_END_DATE && (!empty($related_task->date_end))) ? ' - ' . dol_print_date($related_task->date_end, 'dayreduceformat') : '') . ' - ' . $langs->trans('DigiriskProgress') . ' : ' . ($related_task->progress ?: 0) . '%' . ' ' . $langs->trans('Contacts') . ' : ' . ($AllInitiales ?: $langs->trans('NoData')) . "\n" . $related_task->label . "\n\n";
-													}
-												}
+									complete_substitutions_array($tmparray, $outputlangs, $object, $line, "completesubstitutionarray_lines");
+									// Call the ODTSubstitutionLine hook
+									$parameters = array('odfHandler' => &$odfHandler, 'file' => $file, 'object' => $object, 'outputlangs' => $outputlangs, 'substitutionarray' => &$tmparray, 'line' => $line);
+									$reshook = $hookmanager->executeHooks('ODTSubstitutionLine', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
+									foreach ($tmparray as $key => $val) {
+										try {
+											if (file_exists($val)) {
+												$listlines->setImage($key, $val);
 											} else {
-												$tmparray['actionPreventionUncompleted'] = "";
-												$tmparray['actionPreventionCompleted'] = "";
-											}
-
-											unset($tmparray['object_fields']);
-
-											complete_substitutions_array($tmparray, $outputlangs, $object, $line, "completesubstitutionarray_lines");
-											// Call the ODTSubstitutionLine hook
-											$parameters = array('odfHandler' => &$odfHandler, 'file' => $file, 'object' => $object, 'outputlangs' => $outputlangs, 'substitutionarray' => &$tmparray, 'line' => $line);
-											$reshook = $hookmanager->executeHooks('ODTSubstitutionLine', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
-
-											foreach ($tmparray as $key => $val) {
-												try {
-													if ($val == $tmparray['nomDanger']) {
-														$listlines->setImage($key, $val);
-													} else {
-														if (empty($val) && $val != '0') {
-															$listlines->setVars($key, $langs->trans('NoData'), true, 'UTF-8');
-														} else {
-															$listlines->setVars($key, html_entity_decode($val, ENT_QUOTES | ENT_HTML5), true, 'UTF-8');
-														}
-													}
-												} catch (OdfException $e) {
-													dol_syslog($e->getMessage(), LOG_INFO);
-												} catch (SegmentException $e) {
-													dol_syslog($e->getMessage(), LOG_INFO);
+												if (empty($val)) {
+													$listlines->setVars($key, $langs->trans('NoData'), true, 'UTF-8');
+												} else {
+													$listlines->setVars($key, html_entity_decode($val,ENT_QUOTES | ENT_HTML5), true, 'UTF-8');
 												}
 											}
-											$listlines->merge();
+										} catch (OdfException $e) {
+											dol_syslog($e->getMessage(), LOG_INFO);
+										} catch (SegmentException $e) {
+											dol_syslog($e->getMessage(), LOG_INFO);
 										}
 									}
+									$listlines->merge();
 								}
-							} else {
-								$tmparray['nomElement'] = $langs->trans('NoData');
-								$tmparray['nomDanger'] = $langs->trans('NoData');
-								$tmparray['identifiantRisque'] = $langs->trans('NoData');
-								$tmparray['quotationRisque'] = $langs->trans('NoData');
-								$tmparray['descriptionRisque'] = $langs->trans('NoDescriptionThere');
-								$tmparray['commentaireEvaluation'] = $langs->trans('NoRiskThere');
-								$tmparray['actionPreventionUncompleted'] = $langs->trans('NoTaskUnCompletedThere');
-								$tmparray['actionPreventionCompleted'] = $langs->trans('NoTaskCompletedThere');
-								foreach ($tmparray as $key => $val) {
-									try {
-										if (empty($val)) {
-											$listlines->setVars($key, $langs->trans('NoData'), true, 'UTF-8');
-										} else {
-											$listlines->setVars($key, html_entity_decode($val, ENT_QUOTES | ENT_HTML5), true, 'UTF-8');
-										}
-									} catch (OdfException $e) {
-										dol_syslog($e->getMessage(), LOG_INFO);
-									} catch (SegmentException $e) {
-										dol_syslog($e->getMessage(), LOG_INFO);
-									}
-								}
-								$listlines->merge();
 							}
 							$odfHandler->mergeSegment($listlines);
-						}
 					}
 				}
 			}

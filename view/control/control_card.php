@@ -299,6 +299,8 @@ if (empty($reshook))
 				$moreparams = null;
 			}
 
+			$moreparams['object'] = $object;
+
 			$result = $object->generateDocument(GETPOST('model'), $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
 			if ($result <= 0) {
 				setEventMessages($object->error, $object->errors, 'errors');
@@ -867,7 +869,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$defaultmodel = 'controldocument_odt';
 		$title        = $langs->trans('WorkUnitDocument');
 
-		print dolismqshowdocuments('dolismq:ControlDocument', $filename, $filedir, $urlsource, 1, 1, $object->model_pdf, 1, 0, 0, 0, 0, '', 0, '', empty($soc->default_lang) ? '' : $soc->default_lang);
+		print dolismqshowdocuments('dolismq:ControlDocument', $dir_files, $filedir, $urlsource, 1, 1, $object->model_pdf, 1, 0, 0, 0, 0, '', 0, '', empty($soc->default_lang) ? '' : $soc->default_lang);
 	}
 //
 //	/*
