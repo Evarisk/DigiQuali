@@ -430,7 +430,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			print '<tr>';
 			print '<td>';
-			print $item->ref;
+			print $item->getNomUrl(1);
 			print '</td>';
 
 			print '<td>';
