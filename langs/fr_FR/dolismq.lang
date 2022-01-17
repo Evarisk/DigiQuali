@@ -145,6 +145,8 @@ ConfirmLockControl = Êtes-vous sûr de vouloir verrouiller la fiche de contrôl
 
 # Data - Donnée
 AnswerSaved = Les réponses ont été sauvegardées
+Repair = À réparer
+NotApplicable = Non applicable
 
 
 #
@@ -159,5 +161,6 @@ ReOpened = Rouvrir
 Vallidated = Validé
 Locked = Verrouillé
 Lock = Verrouiller
-
+NoData = N/A
+ErrorFileNotFound = Aucun logo de la société renseigné
 

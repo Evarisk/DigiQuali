@@ -269,20 +269,29 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 				$tmparray['photoDefault'] = DOL_DOCUMENT_ROOT.$nophoto;
 			}
 
+			$product    = new Product($db);
+			$productlot = new Productlot($db);
+			$controldet = new ControlLine($db);
+			$question   = new Question($db);
+
+			$product->fetch($object->fk_product);
+			$productlot->fetch($object->fk_lot);
+
 			$tmparray['mycompany_name'] = $conf->global->MAIN_INFO_SOCIETE_NOM;
 			$tmparray['reference']      = $object->ref;
 			$tmparray['nom']            = $object->label;
-
-			$product = new Product($db);
-			$productlot = new Productlot($db);
-			$controldet = new ControlLine($db);
-			$question = new Question($db);
-			$product->fetch($object->fk_product);
-			$productlot->fetch($object->fk_lot);
 			$tmparray['product_ref']    = $product->ref;
 			$tmparray['lot_ref']        = $productlot->batch;
 			$tmparray['control_date']   = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
-			$tmparray['verdict']   = $object->verdict;
+
+			switch ($object->verdict) {
+				case 1:
+					$tmparray['verdict'] = 'OK';
+					break;
+				case 2:
+					$tmparray['verdict'] = 'KO';
+					break;
+			}
 
 			foreach ($tmparray as $key=>$value)
 			{
@@ -326,13 +335,48 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 								$item = $question;
 								$item->fetch($questionId);
 
-								//$path = DOL_DOCUMENT_ROOT . '/custom/digiriskdolibarr/img/';
-
 								$tmparray['ref'] = $item->ref;
 								$tmparray['description'] = $item->description;
-								$tmparray['photo_ok'] = $item->photo_ok;
-								$tmparray['photo_ko'] = $item->photo_ko;
-								$tmparray['answer'] = $answer;
+
+								$path = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ok/thumbs/';
+
+								$filearray = dol_dir_list($path, "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
+
+								if (count($filearray)) {
+									$image = array_shift($filearray);
+									$tmparray['photo_ok'] = $image['fullname'];
+								} else {
+									$nophoto = '/public/theme/common/nophoto.png';
+									$tmparray['photo_ok'] = DOL_DOCUMENT_ROOT.$nophoto;
+								}
+
+								$path = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ko/thumbs/';
+
+								$filearray = dol_dir_list($path, "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
+
+								if (count($filearray)) {
+									$image = array_shift($filearray);
+									$tmparray['photo_ko'] = $image['fullname'];
+								} else {
+									$nophoto = '/public/theme/common/nophoto.png';
+									$tmparray['photo_ok'] = DOL_DOCUMENT_ROOT.$nophoto;
+								}
+
+								switch ($answer) {
+									case 1:
+										$tmparray['answer'] = $langs->trans('OK');
+										break;
+									case 2:
+										$tmparray['answer'] = $langs->trans('KO');
+										break;
+									case 3:
+										$tmparray['answer'] = $langs->trans('Repair');
+										break;
+									case 4:
+										$tmparray['answer'] = $langs->trans('NotApplicabe');
+										break;
+								}
+
 								$tmparray['comment'] = $comment;
 
 								unset($tmparray['object_fields']);
