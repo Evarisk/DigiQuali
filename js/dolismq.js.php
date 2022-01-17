@@ -908,7 +908,7 @@ window.eoxiaJS.control.init = function() {
 window.eoxiaJS.control.event = function() {
 	$( document ).on( 'click', '.answer', window.eoxiaJS.control.selectAnswer );
 	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.writeComment );
-	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
+	//$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 };
 
 /**
@@ -942,8 +942,8 @@ window.eoxiaJS.control.selectAnswer = function ( event ) {
  */
 window.eoxiaJS.control.writeComment = function ( event ) {
 
-	let postName = $(this).closest('td').find('.question-comment').attr('name')
-	let postValue = $(this).closest('td').find('.question-comment').val()
+	let postName = $(this).closest('.table-cell').find('.question-comment').attr('name')
+	let postValue = $(this).closest('.table-cell').find('.question-comment').val()
 	let actualPost = $(this).closest('.tabBar').find('.saveButton').attr('href')
 
 	if (actualPost.match('&' + postName + '=')) {
