@@ -16,7 +16,7 @@
  */
 
 /**
- * \file    dolismq/lib/dolismq.lib.php
+ * \file    lib/dolismq.lib.php
  * \ingroup dolismq
  * \brief   Library files with common functions for DoliSMQ
  */
@@ -72,14 +72,6 @@ function dolismqAdminPrepareHead()
 	$head[$h][2] = 'controldocument';
 	$h++;
 
-	// Show more tabs from modules
-	// Entries must be declared in modules descriptor with line
-	//$this->tabs = array(
-	//	'entity:+tabname:Title:@dolismq:/dolismq/mypage.php?id=__ID__'
-	//); // to add new tab
-	//$this->tabs = array(
-	//	'entity:-tabname:Title:@dolismq:/dolismq/mypage.php?id=__ID__'
-	//); // to remove a tab
 	complete_head_from_modules($conf, $langs, null, $head, $h, 'dolismq');
 
 	return $head;
