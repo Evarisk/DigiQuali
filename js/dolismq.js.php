@@ -908,6 +908,7 @@ window.eoxiaJS.control.init = function() {
 window.eoxiaJS.control.event = function() {
 	$( document ).on( 'click', '.answer', window.eoxiaJS.control.selectAnswer );
 	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.writeComment );
+	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 };
 
 /**
@@ -950,4 +951,17 @@ window.eoxiaJS.control.writeComment = function ( event ) {
 	}
 
 	$(this).closest('.tabBar').find('.saveButton').attr('href', actualPost + '&' + postName + '=' + postValue)
+};
+
+/**
+ * Write a comment for a control question.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.control.reloadProductLot = function ( event ) {
+	//$(this).closest('.control-table').find('#fk_lot').load(document.URL+'fk_product=1'+'&fk_lot=1')
 };

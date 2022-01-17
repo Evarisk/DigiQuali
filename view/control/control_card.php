@@ -192,14 +192,12 @@ if (empty($reshook))
 					$controldettmp->answer = $answer;
 				}
 
-
 				//sauvegarder commentaire
 				$comment = GETPOST('comment'.$questionId);
 
 				if (dol_strlen($comment) > 0) {
 					$controldettmp->comment = $comment;
 				}
-
 
 				$controldettmp->update($user);
 			} else {
@@ -844,7 +842,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				<div class="table-row">
 					<div class="table-cell table-full wpeo-gridlayout grid-4">
 						<div class="question-comment-title"><?php print $langs->trans('Comment'); ?></div>
-						<div class="gridw-3"><?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?></div>
+						<?php if ($object->status == 2 ) : ?>
+							<?php print $comment; ?>
+						<?php else : ?>
+							<div class="gridw-3"><?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?></div>
+						<?php endif; ?>
 					</div>
 				</div>
 			</div>
