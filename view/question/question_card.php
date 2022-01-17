@@ -469,6 +469,11 @@ if ($action == 'create')
 	print $refQuestionMod->getNextValue($object);
 	print '</td></tr>';
 
+	//Label -- Libellé
+	print '<tr><td class="minwidth400">'.$langs->trans("Label").'</td><td>';
+	print '<input class="flat" type="text" size="36" name="label" id="label" value="'.GETPOST('label').'">';
+	print '</td></tr>';
+
 	print '<tr><td><label class="fieldrequired" for="description">' . $langs->trans("Description") . '</label></td><td>';
 	$doleditor = new DolEditor('description', '', '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
@@ -534,6 +539,11 @@ if (($id || $ref) && $action == 'edit')
 
 	print '<tr><td class="fieldrequired">' . $langs->trans("Ref") . '</td><td>';
 	print $object->ref;
+	print '</td></tr>';
+
+	//Label -- Libellé
+	print '<tr><td class="fieldrequired minwidth400">'.$langs->trans("Label").'</td><td>';
+	print '<input class="flat" type="text" size="36" name="label" id="label" value="'.$object->label.'">';
 	print '</td></tr>';
 
 	print '<tr><td><label class="fieldrequired" for="description">' . $langs->trans("Description") . '</label></td><td>';
@@ -628,9 +638,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// ------------------------------------------------------------
 	$linkback = '<a href="'.dol_buildpath('/dolismq/question_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
 
-	$morehtmlref = '<div class="refidno">';
-	$morehtmlref .= '</div>';
-
+	dol_strlen($object->label) ? $morehtmlref = '<span>'. ' - ' .$object->label . '</span>' : '';
 
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
