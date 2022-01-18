@@ -102,6 +102,7 @@ FKSheet = Fiche Modèle
 AllQuestionsMustHaveLocked = Tous les questions doivent être verrouillé pour verrouiller la fiche modèle
 LockSheet = Verrouiller la fiche modèle
 ConfirmLockSheet = Êtes-vous sûr de vouloir verrouiller la fiche modèle ? <br> Le verrouillage empêche toutes modifications de la fiche modèle.
+NoLotForThisProduct = Pas de lot défini pour ce produit
 
 #
 # Control

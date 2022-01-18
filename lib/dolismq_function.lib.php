@@ -1041,7 +1041,7 @@ function dolismq_select_product_lots($productid, $selected = '', $htmlname = 'fk
 				if (($i % 10) == 0) $out .= "\n";
 			}
 		} else {
-			$labeltoshow = ($productid != -1) ? ($langs->trans($productid ? "NoContactDefinedForThirdParty" : "NoContactDefined")) : $langs->trans('SelectAThirdPartyFirst');
+			$labeltoshow = ($productid != -1) ? ($langs->trans($productid ? "NoLotForThisProduct" : "NoLotDefined")) : $langs->trans('SelectAProductFirst');
 			$out        .= '<option class="disabled" value="-1"' . (($showempty == 2 || $multiple) ? '' : ' selected') . ' disabled="disabled">';
 			$out        .= $labeltoshow;
 			$out        .= '</option>';
@@ -1069,36 +1069,3 @@ function dolismq_select_product_lots($productid, $selected = '', $htmlname = 'fk
 	}
 }
 
-function get_product_by_ref($ref) {
-
-	global $db;
-
-	$sql = 'SELECT DISTINCT p.rowid, p.ref, p.label, p.fk_product_type, p.barcode, p.price, p.tva_tx, p.price_ttc, p.price_base_type, p.entity,';
-	$sql .= ' p.fk_product_type, p.duration, p.finished, p.tosell, p.tobuy, p.seuil_stock_alerte, p.desiredstock,';
-	$sql .= ' p.tobatch,';
-	if (empty($conf->global->MAIN_PRODUCT_PERENTITY_SHARED)) {
-		$sql .= " p.accountancy_code_sell, p.accountancy_code_sell_intra, p.accountancy_code_sell_export, p.accountancy_code_buy, p.accountancy_code_buy_intra, p.accountancy_code_buy_export,";
-	} else {
-		$sql .= " ppe.accountancy_code_sell, ppe.accountancy_code_sell_intra, ppe.accountancy_code_sell_export, ppe.accountancy_code_buy, ppe.accountancy_code_buy_intra, ppe.accountancy_code_buy_export,";
-	}
-	$sql .= ' p.datec as date_creation, p.tms as date_update, p.pmp, p.stock, p.cost_price,';
-	$sql .= ' p.weight, p.weight_units, p.length, p.length_units, p.width, p.width_units, p.height, p.height_units, p.surface, p.surface_units, p.volume, p.volume_units, fk_country, fk_state';
-
-
-	$sql .= ' FROM '.MAIN_DB_PREFIX.'product as p';
-	$sql .= ' WHERE p.entity IN ('.getEntity('product').')';
-	$sql .= ' AND ref="' . $ref . '"';
-
-
-	$resql = $db->query($sql);
-
-	$num = $db->num_rows($resql);
-
-	if ($num == 1) {
-		$obj = $db->fetch_object($resql);
-		$id = $obj->rowid;
-		return $id;
-	}
-
-
-}
