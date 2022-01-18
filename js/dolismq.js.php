@@ -614,28 +614,9 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 			$('.wpeo-loader').removeClass('wpeo-loader')
 			parent.removeClass('modal-active')
 			$('.tabBar .linked-medias.'+type+' .media-container').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .media-container', () => {
-				let previousFavorite = $('#'+type).closest('.linked-medias').find('.fas.fa-star')
-					$('#'+type).val(favorite)
-
-
-					let newFavorite = $('#'+type).closest('.linked-medias').find('.far.fa-star')
-					//console.log($('#'+type))
-					//console.log(previousFavorite)
-					//console.log(newFavorite)
-					previousFavorite.removeClass('fas')
-					previousFavorite.addClass('far')
-					newFavorite.addClass('fas')
-					newFavorite.removeClass('far')
-
-
-			}
-
-			)
+				$('#'+type).val(favorite)
+			})
 			$('.wpeo-modal.modal-photo').html($(resp).find('.wpeo-modal.modal-photo .modal-container'))
-
-
-
-
 		},
 		error: function ( ) {
 			modalFrom.find('.messageErrorSavePhoto').removeClass('hidden')

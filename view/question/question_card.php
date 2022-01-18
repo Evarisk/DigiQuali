@@ -378,6 +378,10 @@ if (empty($reshook))
 			if (is_file($file['fullname']) && $file['name'] == $filename) {
 
 				unlink($file['fullname']);
+				if ($object->$type == $filename) {
+					$object->$type = '';
+					$object->update($user);
+				}
 			}
 		}
 		$files = dol_dir_list($pathToQuestionPhoto . '/thumbs');
