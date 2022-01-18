@@ -83,8 +83,8 @@ class Control extends CommonObject
 		'fk_user_modif'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
 		'fk_sheet'           => array('type' => 'integer:Sheet:custom/dolismq/class/sheet.class.php', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 13, 'notnull' => 1, 'visible' => 2,),
 		'fk_user_controller' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'FKUserController', 'enabled' => '1', 'position' => 14, 'notnull' => 1, 'visible' => 2, 'foreignkey' => 'user.rowid'),
-		'fk_product'         => array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'FKProduct', 'enabled' => '1', 'position' => 11, 'notnull' => 1, 'visible' => 2, 'foreignkey' => 'product.rowid'),
-		'fk_lot'             => array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'FKLot', 'enabled' => '1', 'position' => 12, 'notnull' => 1, 'visible' => 2, 'foreignkey' => 'productlot.rowid'),
+		'fk_product'         => array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'Product', 'enabled' => '1', 'position' => 11, 'notnull' => 1, 'visible' => 2, 'foreignkey' => 'product.rowid'),
+		'fk_lot'             => array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'Batch', 'enabled' => '1', 'position' => 12, 'notnull' => 1, 'visible' => 2, 'foreignkey' => 'productlot.rowid'),
 	);
 
 	public $rowid;

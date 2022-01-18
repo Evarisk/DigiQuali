@@ -131,6 +131,7 @@ ControlMustBeDraft = La fiche de contrôle doit être brouillon pour accéder à
 ControlMustBeValidated = La fiche de contrôle doit être validée pour la rouvrir
 ControlMustBeValidatedToLock = La fiche de contrôle doit être validée pour la verrouiller
 SetOK/KO = Apte/Inapte
+Batch = Lot/Série
 VerdictControl = Choix du verdict
 ValidateControl = Valider la fiche de contrôle
 ReOpenControl = Rouvrir la fiche de contrôle
