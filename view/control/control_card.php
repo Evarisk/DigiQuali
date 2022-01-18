@@ -483,8 +483,12 @@ if ($action == 'create') {
 	//FK LOT
 	print '<tr><td class="fieldrequired minwidth400">';
 	print img_picto('', 'lot') . ' ' . $langs->trans("Lot");
-	print '</td><td>';
-	print dolismq_select_product_lots((empty(GETPOST('fk_product', 'int')) ? 1 : GETPOST('fk_product', 'int')), GETPOST('fk_lot'), 'fk_lot', 1, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_lot');
+	print '</td><td class="lot-container">';
+	print '<span class="lot-content">';
+	$data = json_decode(file_get_contents('php://input'), true);
+
+	print dolismq_select_product_lots((dol_strlen($data['productRef']) > 0 ? get_product_by_ref($data['productRef']) : 0), GETPOST('fk_lot'), 'fk_lot', 0, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_lot');
+	print '</span>';
 	print '</td></tr>';
 
 	//FK SHEET

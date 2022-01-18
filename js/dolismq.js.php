@@ -929,7 +929,7 @@ window.eoxiaJS.control.init = function() {
 window.eoxiaJS.control.event = function() {
 	$( document ).on( 'click', '.answer:not(.disable)', window.eoxiaJS.control.selectAnswer );
 	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.writeComment );
-	//$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
+	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 };
 
 /**
@@ -984,5 +984,22 @@ window.eoxiaJS.control.writeComment = function ( event ) {
  * @return {void}
  */
 window.eoxiaJS.control.reloadProductLot = function ( event ) {
-	//$(this).closest('.control-table').find('#fk_lot').load(document.URL+'fk_product=1'+'&fk_lot=1')
+	console.log($(this))
+	let selectTitle = $(this).closest('td').find('#select2-fk_product-container').attr('title')
+	let productRef = selectTitle.split(/ /)[0]
+	$.ajax({
+		url: document.URL,
+		type: "POST",
+		data: JSON.stringify({
+			productRef: productRef,
+		}),
+		processData: false,
+		contentType: false,
+		success: function ( resp ) {
+			$('.lot-container').html($(resp).find('.lot-content'))
+		},
+		error: function ( ) {
+		}
+	});
+	//$(this).closest('.control-table').find('.lot-container').load(document.URL+'&productRef='+productRef + ' .lot-content')
 };
