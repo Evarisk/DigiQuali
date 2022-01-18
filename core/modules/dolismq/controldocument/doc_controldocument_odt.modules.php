@@ -359,7 +359,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 									$tmparray['photo_ko'] = $image['fullname'];
 								} else {
 									$nophoto = '/public/theme/common/nophoto.png';
-									$tmparray['photo_ok'] = DOL_DOCUMENT_ROOT.$nophoto;
+									$tmparray['photo_ko'] = DOL_DOCUMENT_ROOT.$nophoto;
 								}
 
 								switch ($answer) {
