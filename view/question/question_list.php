@@ -195,6 +195,27 @@ if (empty($reshook))
 		$massaction = ''; // Protection to avoid mass action if we force a new search during a mass action confirmation
 	}
 
+	$error = 0;
+	// Action to set status STATUS_LOCKED
+	if (!$error && ($massaction == 'lock' || ($action == 'lock' && $confirm == 'yes')) && $permissiontoadd) {
+		if (!empty($toselect)) {
+			foreach ($toselect as $toselectedid) {
+				$object->fetch($toselectedid);
+				$object->setLocked($user, false);
+			}
+
+			// Set locked OK
+			$massaction = '';
+			foreach ($object->fields as $key => $val) {
+				$search[$key] = '';
+			}
+			$toselect = '';
+			$search_array_options = array();
+			$action = 'list';
+			setEventMessages($langs->trans("LockQuestions"), null, 'mesgs');
+		}
+	}
+
 	// Mass actions
 	$objectclass = 'Question';
 	$objectlabel = 'Question';
@@ -354,6 +375,7 @@ $param .= $hookmanager->resPrint;
 
 // List of mass actions available
 $arrayofmassactions = array(
+	'lock'=>$langs->trans("Lock"),
 	//'validate'=>$langs->trans("Validate"),
 	//'generate_doc'=>$langs->trans("ReGeneratePDF"),
 	//'builddoc'=>$langs->trans("PDFMerge"),

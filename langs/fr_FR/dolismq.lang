@@ -77,6 +77,7 @@ addQuestionLink = Question ajoutée à la fiche modèle :
 removeQuestionLink = Question retirée de la fiche modèle :
 LockQuestion = Verrouiller la question
 ConfirmLockQuestion = Êtes-vous sûr de vouloir verrouiller la question ? <br> Le verrouillage empêche toutes modifications de la question.
+LockQuestions = Toutes les questions sélectionnées sont passées au status verrouillé
 
 #
 # Sheet
