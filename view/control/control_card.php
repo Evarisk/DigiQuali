@@ -762,10 +762,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				if ($permissiontoadd) {
 					print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=setVerdict'.(empty($conf->global->MAIN_JUMP_TAG) ? '' : '#close').'"';
 					print '>'.$langs->trans('SetOK/KO').'</a>';
-				} else {
-					print '<a class="butActionRefused classfortooltip" href="#" title="'.$langs->trans("NotEnoughPermissions").'"';
-					print '>'.$langs->trans('SetOK/KO').'</a>';
 				}
+			} else {
+				print '<a class="butActionRefused classfortooltip" title="'.$langs->trans("ControlVerdictSelected").'"';
+				print '>'.$langs->trans('SetOK/KO').'</a>';
 			}
 			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 ) ? 'actionButtonReOpen' : '') . '" title="' . (($object->status == 1 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidated"))) . '">' . $langs->trans("ReOpened") . '</span>';
 			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1) ? 'actionButtonLock' : '') . '" title="' . (($object->status == 1 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidatedToLock"))) . '">' . $langs->trans("Lock") . '</span>';

@@ -130,6 +130,7 @@ Controls = Contrôles
 ControlMustBeDraft = La fiche de contrôle doit être brouillon pour accéder à cette fonctionnalité
 ControlMustBeValidated = La fiche de contrôle doit être validée pour la rouvrir
 ControlMustBeValidatedToLock = La fiche de contrôle doit être validée pour la verrouiller
+ControlVerdictSelected = La fiche de contrôle a déjà un verdict de choisi
 SetOK/KO = Apte/Inapte
 Batch = Lot/Série
 VerdictControl = Choix du verdict
