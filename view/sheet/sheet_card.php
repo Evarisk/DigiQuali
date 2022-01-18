@@ -416,6 +416,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<tr class="liste_titre">';
 	print '<td>' . $langs->trans('Ref') . '</td>';
+	print '<td>' . $langs->trans('Label') . '</td>';
 	print '<td>' . $langs->trans('Description') . '</td>';
 	print '<td>' . $langs->trans('PhotoOk') . '</td>';
 	print '<td>' . $langs->trans('PhotoKo') . '</td>';
@@ -436,6 +437,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
 			print '<td>';
+			print $item->label;
+			print '</td>';
+
+			print '<td>';
 			print $item->description;
 			print '</td>';
 
@@ -448,7 +453,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
 			print '<td>';
-			print $item->status;
+			print $item->getLibStatut(5);
 			print '</td>';
 
 			print '<td class="center">';

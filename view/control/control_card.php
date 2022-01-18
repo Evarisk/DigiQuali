@@ -816,6 +816,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			<div class="wpeo-table table-flex table-3">
 				<div class="table-row">
 					<div class="table-cell table-full">
+						<?php print $item->label; ?> <br><br>
 						<?php print $item->description; ?>
 					</div>
 					<div class="table-cell table-125">
