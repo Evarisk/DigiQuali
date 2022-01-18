@@ -488,7 +488,7 @@ if ($action == 'create') {
 	$data = json_decode(file_get_contents('php://input'), true);
 	dol_strlen($data['productRef']) > 0 ? $product->fetch(0, $data['productRef']) : 0;
 
-	print dolismq_select_product_lots($product->id, GETPOST('fk_lot'), 'fk_lot', 0, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_lot');
+	print dolismq_select_product_lots($product->id, GETPOST('fk_lot'), 'fk_lot', 1, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_lot');
 	print '</span>';
 	print '</td></tr>';
 
