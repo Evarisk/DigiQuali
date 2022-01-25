@@ -143,6 +143,7 @@ LockControl = Verrouiller la fiche de contrôle
 ConfirmValidateControl = Êtes-vous sûr de vouloir valider la fiche de contrôle ? <br> La validation permet d'accéder au choix du verdict de la fiche de contrôle.
 ConfirmReOpenControl = Êtes-vous sûr de vouloir rouvrir la fiche de contrôle ? <br> La réouverture supprime le verdict  de la fiche de contrôle.
 ConfirmLockControl = Êtes-vous sûr de vouloir verrouiller la fiche de contrôle ? <br> Le verrouillage empêche toutes modifications de la fiche de contrôle.
+ProjectLinked = Projet lié
 
 #
 # ControlDet
