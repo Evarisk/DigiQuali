@@ -64,6 +64,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
+require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 
 require_once __DIR__.'/../../class/control.class.php';
@@ -96,6 +97,7 @@ $sheet         = new Sheet($db);
 $question      = new Question($db);
 $usertmp       = new User($db);
 $product       = new Product($db);
+$project       = new Project($db);
 $productlot    = new Productlot($db);
 $extrafields   = new ExtraFields($db);
 $refControlMod = new $conf->global->DOLISMQ_CONTROL_ADDON($db);
@@ -225,8 +227,6 @@ if (empty($reshook))
 		exit;
 	}
 
-
-
 	// Actions when linking object each other
 	include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';
 
@@ -238,7 +238,6 @@ if (empty($reshook))
 
 	// Action to build doc
 
-// Build doc
 	if ($action == 'builddoc' && $permissiontoadd) {
 		if (is_numeric(GETPOST('model', 'alpha'))) {
 			$error = $langs->trans("ErrorFieldRequired", $langs->transnoentities("Model"));
@@ -319,10 +318,12 @@ if (empty($reshook))
 			}
 		}
 	}
+
 	if ($action == 'set_thirdparty' && $permissiontoadd)
 	{
 		$object->setValueFrom('fk_soc', GETPOST('fk_soc', 'int'), '', '', 'date', '', $user, $triggermodname);
 	}
+
 	if ($action == 'classin' && $permissiontoadd)
 	{
 		$object->setProject(GETPOST('projectid', 'int'));
@@ -497,6 +498,12 @@ if ($action == 'create') {
 	print $sheet->select_sheet_list();
 	print '</td></tr>';
 
+	//FK Project
+	print '<tr><td class="minwidth400">' . $langs->trans("ProjectLinked") . '</td><td>';
+	print $formproject->select_projects('', '', 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1);
+	print '</td></tr>';
+
+
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
 
@@ -567,6 +574,11 @@ if (($id || $ref) && $action == 'edit') {
 	//FK SHEET
 	print '<tr><td class="fieldrequired minwidth400">' . $langs->trans("SheetLinked") . '</td><td>';
 	print $sheet->select_sheet_list($object->fk_sheet);
+	print '</td></tr>';
+
+	//FK PROJECT
+	print '<tr><td class="fieldrequired minwidth400">' . $langs->trans("SheetLinked") . '</td><td>';
+	print $formproject->select_projects($object->socid, $object->fk_project, 'projectid', $maxlength, 0, 1, 0, 1, 0, 0, '', 1);
 	print '</td></tr>';
 
 	// Other attributes
@@ -660,7 +672,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$morehtmlref = '<div class="refidno">';
 	$morehtmlref .= '</div>';
 
-
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
 	print '<div class="fichecenter">';
@@ -713,7 +724,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 	print '<td>';
 
-
 	// -- Contrôleur
 	print '<tr><td class="titlefield">';
 	print $langs->trans("FKSheet");
@@ -735,6 +745,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$productlot->fetch($object->fk_lot);
 	if ($productlot > 0) {
 		print $productlot->getNomUrl(1);
+	}
+	print '</td></tr>';
+
+	//Fk_project - Projet lié
+	print '<tr><td class="titlefield">';
+	print $langs->trans("Project");
+	print '</td>';
+	print '<td>';
+	$project->fetch($object->fk_project);
+	if ($project > 0) {
+		print $project->getNomUrl(1);
 	}
 	print '</td></tr>';
 
