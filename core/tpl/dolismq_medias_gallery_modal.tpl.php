@@ -85,7 +85,7 @@ if ( ! $error && $action == "uploadPhoto" && ! empty($conf->global->MAIN_UPLOAD_
 				<div class="wpeo-gridlayout grid-4 grid-gap-3 grid-margin-2 ecm-photo-list ecm-photo-list">
 					<?php
 					$relativepath = 'dolismq/medias/thumbs';
-					print dolismq_show_medias('ecm', $conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/thumbs', 'small');
+					print dolismq_show_medias('ecm', $conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias', 'small');
 					?>
 				</div>
 			</div>

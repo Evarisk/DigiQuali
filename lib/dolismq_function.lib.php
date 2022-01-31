@@ -749,33 +749,35 @@ function dolismq_show_medias($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, 
 			$filearray = dol_sort_array($filearray, $sortfield, $sortorder);
 		}
 		foreach ($filearray as $key => $val) {
-			if (preg_match('/' . $size . '/', $val['name'])) {
-				$file = $val['name'];
+			$file = $val['name'];
 
-				if (image_format_supported($file) >= 0) {
-					$nbphoto++;
+			if (image_format_supported($file) >= 0) {
+				$nbphoto++;
 
-					if ($size == 1 || $size == 'small') {   // Format vignette
-						$relativepath = 'dolismq/medias/thumbs';
-						$modulepart   = 'ecm';
-						$path         = DOL_URL_ROOT . '/document.php?modulepart=' . $modulepart . '&attachment=0&file=' . str_replace('/', '%2F', $relativepath);
-						?>
+				if ($size == 1 || $size == 'small') {   // Format vignette
+					$relativepath = 'dolismq/medias/thumbs';
+					$modulepart   = 'ecm';
+					$path         = DOL_URL_ROOT . '/document.php?modulepart=' . $modulepart . '&attachment=0&file=' . str_replace('/', '%2F', $relativepath);
 
-						<div class="center clickable-photo clickable-photo<?php echo $j; ?>" value="<?php echo $j; ?>" element="risk-evaluation">
-							<figure class="photo-image">
-								<?php
-								$urladvanced = getAdvancedPreviewUrl($modulepart, 'dolismq/medias/' . preg_replace('/_' . $size . '/', '', $val['relativename']), 0, 'entity=' . $conf->entity); ?>
-								<a class="clicked-photo-preview" href="<?php echo $urladvanced; ?>"><i class="fas fa-2x fa-search-plus"></i></a>
-								<?php if (image_format_supported($val['name']) >= 0) : ?>
-									<?php $fullpath = $path . '/' . $val['relativename'] . '&entity=' . $conf->entity; ?>
-								<input class="filename" type="hidden" value="<?php echo preg_replace('/_' . $size . '/', '', $val['name']) ?>">
-								<img class="photo photo<?php echo $j ?>" height="<?php echo $maxHeight; ?>" width="<?php echo $maxWidth; ?>" src="<?php echo $fullpath; ?>">
-								<?php endif; ?>
-							</figure>
-							<div class="title"><?php echo preg_replace('/_' . $size . '/', '', $val['name']); ?></div>
-						</div><?php
-						$j++;
-					}
+					$filename = preg_split('/\./',  $val['name']);
+					$filename = $filename[0].'_'.$size.'.'.$filename[1];
+
+					?>
+
+					<div class="center clickable-photo clickable-photo<?php echo $j; ?>" value="<?php echo $j; ?>" element="risk-evaluation">
+						<figure class="photo-image">
+							<?php
+							$urladvanced = getAdvancedPreviewUrl($modulepart, 'dolismq/medias/' .$val['name'], 0, 'entity=' . $conf->entity); ?>
+							<a class="clicked-photo-preview" href="<?php echo $urladvanced; ?>"><i class="fas fa-2x fa-search-plus"></i></a>
+							<?php if (image_format_supported($val['name']) >= 0) : ?>
+								<?php $fullpath = $path . '/' . $filename . '&entity=' . $conf->entity; ?>
+							<input class="filename" type="hidden" value="<?php echo $val['name']; ?>">
+							<img class="photo photo<?php echo $j ?>" height="<?php echo $maxHeight; ?>" width="<?php echo $maxWidth; ?>" src="<?php echo $fullpath; ?>">
+							<?php endif; ?>
+						</figure>
+						<div class="title"><?php echo $val['name']; ?></div>
+					</div><?php
+					$j++;
 				}
 			}
 		}
