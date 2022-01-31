@@ -401,7 +401,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// PREVENTIONPLAN LINES
 	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
 	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '');
-	print '<table id="tablelines" class="noborder noshadow" width="100%">';
+	print '<table id="tablelines" class="noborder noshadow">';
 
 	global $forceall, $forcetoshowtitlelines;
 
@@ -415,14 +415,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$questionIds = $object->linkedObjectsIds;
 
 	print '<tr class="liste_titre">';
-	print '<td>' . $langs->trans('Ref') . '</td>';
+	print '<td style="width: 400px;">' . $langs->trans('Ref') . '</td>';
 	print '<td>' . $langs->trans('Label') . '</td>';
 	print '<td>' . $langs->trans('Description') . '</td>';
 	print '<td>' . $langs->trans('PhotoOk') . '</td>';
 	print '<td>' . $langs->trans('PhotoKo') . '</td>';
 	print '<td>' . $langs->trans('Status') . '</td>';
 	print '<td class="center">' . $langs->trans('Action') . '</td>';
-	print '<td>' . '</td>';
 	print '</tr>';
 
 	if ( ! empty($questionIds['question']) && $questionIds > 0) {
@@ -432,7 +431,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$item->fetch($questionId);
 
 			print '<tr>';
-			print '<td>';
+			print '<td style="width: 400px;">';
 			print $item->getNomUrl(1);
 			print '</td>';
 
