@@ -489,7 +489,7 @@ if ($action == 'create') {
 	$data = json_decode(file_get_contents('php://input'), true);
 	dol_strlen($data['productRef']) > 0 ? $product->fetch(0, $data['productRef']) : 0;
 
-	print dolismq_select_product_lots($product->id, GETPOST('fk_lot'), 'fk_lot', 1, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_lot');
+	print dolismq_select_product_lots(( ! empty(GETPOST('fk_product')) ? GETPOST('fk_product') : $product->id), GETPOST('fk_lot'), 'fk_lot', 1, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_lot');
 	print '</span>';
 	print '</td></tr>';
 
@@ -500,7 +500,7 @@ if ($action == 'create') {
 
 	//FK Project
 	print '<tr><td class="minwidth400">' . $langs->trans("ProjectLinked") . '</td><td>';
-	print $formproject->select_projects('', '', 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
+	print $formproject->select_projects('',  GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
 	print '</td></tr>';
 
 	// Other attributes
