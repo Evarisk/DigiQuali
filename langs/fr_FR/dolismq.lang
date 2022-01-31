@@ -52,6 +52,8 @@ MyWidgetDescription = Description de mon widget
 #
 
 DoliSMQHelpAuditDateStart = La date de début d'audit
+Or = ou
+SelectProductsOrServices = Sélectionner un produit / service
 
 #
 # Questions

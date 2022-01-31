@@ -474,10 +474,10 @@ if ($action == 'create') {
 	}
 
 	//FK Product
-	print '<tr><td class="fieldrequired minwidth400">' . img_picto('', 'product') . ' ' . $langs->trans("Product") . '</td><td>';
+	print '<tr><td class="fieldrequired minwidth400">' . img_picto('', 'product') . ' ' . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' '. $langs->trans('Service') . '</td><td>';
 	$events    = array();
 	$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/digiriskdolibarr/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_lot');
-	print $form->select_produits(GETPOST('fk_product'), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProducts', 0, 'minwidth300');
+	print $form->select_produits(GETPOST('fk_product'), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices' , 0, 'minwidth300');
 	print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
 	print '</td></tr>';
 
