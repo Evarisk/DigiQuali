@@ -25,6 +25,8 @@ ModuleDoliSMQDesc = Description de DoliSMQ
 #
 # Page d'administration
 #
+
+# Data - Donnée
 DoliSMQSetup = Configuration du module DoliSMQ
 Settings = Réglages
 DoliSMQSetupPage = Page de configuration du module DoliSMQ
@@ -54,6 +56,8 @@ MyWidgetDescription = Description de mon widget
 DoliSMQHelpAuditDateStart = La date de début d'audit
 Or = ou
 SelectProductsOrServices = Sélectionner un produit / service
+DoliSMQNumberOfModelFilesFound = Nombre de modèles par défaut
+DoliSMQConfig = Configuration du module
 
 #
 # Questions
@@ -70,6 +74,10 @@ QuestionModifyTrigger = Question modifiée
 QuestionDeleteTrigger = Question supprimée
 QuestionLockedTrigger = Question verrouillée
 
+# Mod Numbering - Modèle de numérotation
+DoliSMQQuestionNumberingModule = Modèle de numérotation des questions de DoliSMQ
+DoliSMQQuestionStandardModel = Renvoie le numéro sous la forme QUn où n est un compteur séquentiel sans rupture et sans remise à 0.
+
 # Data - Donnée
 AddQuestion = Ajouter une question
 NewQuestion = Nouvelle question
@@ -80,6 +88,7 @@ removeQuestionLink = Question retirée de la fiche modèle :
 LockQuestion = Verrouiller la question
 ConfirmLockQuestion = Êtes-vous sûr de vouloir verrouiller la question ? <br> Le verrouillage empêche toutes modifications de la question.
 LockQuestions = Toutes les questions sélectionnées sont passées au status verrouillé
+QuestionManagement = Gestion des questions
 
 #
 # Sheet
@@ -96,7 +105,12 @@ SheetModifyTrigger = Fiche modèle modifiée
 SheetDeleteTrigger = Fiche modèle supprimée
 SheetLockedTrigger = Fiche modèle verrouillée
 
+# Mod Numbering - Modèle de numérotation
+DoliSMQSheetNumberingModule = Modèle de numérotation des fiches modèles de DoliSMQ
+DoliSMQSheetStandardModel = Renvoie le numéro sous la forme MOn où n est un compteur séquentiel sans rupture et sans remise à 0.
+
 # Data - Donnée
+Sheet = Fiche modèle
 AddSheet = Ajouter une fiche modèle
 NewSheet = Nouvelle fiche modèle
 SheetList = Liste des fiches modèles
@@ -107,6 +121,7 @@ LockSheet = Verrouiller la fiche modèle
 ConfirmLockSheet = Êtes-vous sûr de vouloir verrouiller la fiche modèle ? <br> Le verrouillage empêche toutes modifications de la fiche modèle.
 NoLotForThisProduct = Pas de lot défini pour ce produit
 ModalAddPhoto = Bibliothèque de médias
+SheetManagement = Gestion des fiches modèles
 
 #
 # Control
@@ -125,7 +140,12 @@ ControlDraftedTrigger = Fiche contrôle brouillon
 ControlValidatedTrigger = Fiche contrôle validée
 ControlLockedTrigger = Fiche contrôle verrouillée
 
+# Mod Numbering - Modèle de numérotation
+DoliSMQControlNumberingModule = Modèle de numérotation des contrôles de DoliSMQ
+DoliSMQControlStandardModel = Renvoie le numéro sous la forme FCn où n est un compteur séquentiel sans rupture et sans remise à 0.
+
 # Data - Donnée
+Control = Contrôle
 AddControl = Ajouter un contrôle
 NewControl = Nouveau contrôle
 ControlList = Liste des contrôles
@@ -146,6 +166,7 @@ ConfirmValidateControl = Êtes-vous sûr de vouloir valider la fiche de contrôl
 ConfirmReOpenControl = Êtes-vous sûr de vouloir rouvrir la fiche de contrôle ? <br> La réouverture supprime le verdict  de la fiche de contrôle.
 ConfirmLockControl = Êtes-vous sûr de vouloir verrouiller la fiche de contrôle ? <br> Le verrouillage empêche toutes modifications de la fiche de contrôle.
 ProjectLinked = Projet lié
+ControlManagement = Gestion des contrôles
 
 #
 # ControlDet
@@ -155,6 +176,28 @@ ProjectLinked = Projet lié
 AnswerSaved = Les réponses ont été sauvegardées
 Repair = À réparer
 NotApplicable = Non applicable
+
+#
+# ControlDocument - Fiche de Contrôle
+#
+
+# Right - Droit
+
+# Trigger - Déclencheur
+ControlDocumentGeneratedWithDolibarr = Fiche de contrôle générée avec Dolibarr
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQControlDocumentDocumentNumberingModule = Modèle de numérotation des fiches de contrôle de DoliSMQ
+DoliSMQControlDocumentStandardModel = Renvoie le numéro sous la forme GPDn où n est un compteur séquentiel sans rupture et sans remise à 0.
+
+# ODT Template - Template ODT
+DoliSMQTemplateDocumentControlDocument = Modèle de documents des fiches de contrôle de DoliSMQ
+ControlDocumentCustomDoliSMQTemplate = ODT custom des fiches de contrôle
+ControlDocumentDoliSMQTemplate = ODT par défaut des fiches de contrôle
+
+# Data - Donnée
+ControlDocument = Fiche de Contrôle
+
 
 
 #

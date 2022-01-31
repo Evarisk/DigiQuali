@@ -41,7 +41,7 @@ class mod_control_standard
 	/**
 	 * @var string model name
 	 */
-	public $name = 'Aegir';
+	public $name = 'Ymir';
 
 	/**
 	 * @var string Error code (or message)
@@ -57,7 +57,17 @@ class mod_control_standard
 	{
 		global $langs;
 		$langs->load("dolismq@dolismq");
-		return $langs->trans('DigiriskControlStandardModel', $this->prefix);
+		return $langs->trans('DoliSMQControlStandardModel', $this->prefix);
+	}
+
+	/**
+	 *	Return if a module can be used or not
+	 *
+	 *	@return		boolean     true if module can be used
+	 */
+	public function isEnabled()
+	{
+		return true;
 	}
 
 	/**
@@ -104,6 +114,23 @@ class mod_control_standard
 
 		dol_syslog("mod_control_standard::getNextValue return " . $this->prefix . $num);
 		return $this->prefix . $num;
+	}
+
+	/**
+	 *	Returns version of numbering module
+	 *
+	 *	@return     string      Valeur
+	 */
+	public function getVersion()
+	{
+		global $langs;
+		$langs->load("admin");
+
+		if ($this->version == 'development') return $langs->trans("VersionDevelopment");
+		if ($this->version == 'experimental') return $langs->trans("VersionExperimental");
+		if ($this->version == 'dolibarr') return DOL_VERSION;
+		if ($this->version) return $this->version;
+		return $langs->trans("NotAvailable");
 	}
 }
 

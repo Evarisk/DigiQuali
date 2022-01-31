@@ -78,7 +78,7 @@ if ( ! empty($conf->projet->enabled)) { $formproject = new FormProjets($db); }
 $form = new Form($db);
 
 $help_url = 'FR:Module_DigiriskDolibarr#L.27onglet_.C3.89l.C3.A9ment_Digirisk';
-$title    = $langs->trans("Question");
+$title    = $langs->trans("Sheet");
 
 $morejs  = array("/dolismq/js/dolismq.js.php");
 $morecss = array("/dolismq/css/dolismq.css");
@@ -88,20 +88,20 @@ llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
 // Subheader
 $linkback = '<a href="' . ($backtopage ? $backtopage : DOL_URL_ROOT . '/admin/modules.php?restore_lastsearch_values=1') . '">' . $langs->trans("BackToModuleList") . '</a>';
 
-print load_fiche_titre($title, $linkback, 'dolismq32px@dolismq');
+print load_fiche_titre($title, $linkback, 'dolismq@dolismq');
 
 // Configuration header
 $head = dolismqAdminPrepareHead();
 print dol_get_fiche_head($head, 'sheet', '', -1, "dolismq@dolismq");
 
-print load_fiche_titre('<i class="fas fa-user-injured"></i> ' . $langs->trans("QuestionManagement"), '', '');
+print load_fiche_titre($langs->trans("SheetManagement"), '', '');
 print '<hr>';
 
 /*
  *  Numbering module
  */
 
-print load_fiche_titre($langs->trans("DigiriskQuestionNumberingModule"), '', '');
+print load_fiche_titre($langs->trans("DoliSMQSheetNumberingModule"), '', '');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
@@ -146,7 +146,7 @@ if (is_dir($dir)) {
 						print '</td>';
 
 						print '<td class="center">';
-						if ($conf->global->DOLISMQ_QUESTION_ADDON == $file || $conf->global->DOLISMQ_QUESTION_ADDON . '.php' == $file) {
+						if ($conf->global->DOLISMQ_SHEET_ADDON == $file || $conf->global->DOLISMQ_SHEET_ADDON . '.php' == $file) {
 							print img_picto($langs->trans("Activated"), 'switch_on');
 						} else {
 							print '<a class="reposition" href="' . $_SERVER["PHP_SELF"] . '?action=setmod&value=' . preg_replace('/\.php$/', '', $file) . '&scan_dir=' . $module->scandir . '&label=' . urlencode($module->name) . '" alt="' . $langs->trans("Default") . '">' . img_picto($langs->trans("Disabled"), 'switch_off') . '</a>';
@@ -170,7 +170,7 @@ if (is_dir($dir)) {
 
 						print '<td class="center">';
 						print $form->textwithpicto('', $htmltooltip, 1, 0);
-						if ($conf->global->DOLISMQ_QUESTION_ADDON . '.php' == $file) { // If module is the one used, we show existing errors
+						if ($conf->global->DOLISMQ_SHEET_ADDON . '.php' == $file) { // If module is the one used, we show existing errors
 							if ( ! empty($module->error)) dol_htmloutput_mesg($module->error, '', 'error', 1);
 						}
 						print '</td>';

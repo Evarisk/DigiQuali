@@ -71,7 +71,7 @@ if ($action == 'set') {
 
 // Set default model
 if ($action == 'setdoc') {
-	$constforval = "DIGIRISKDOLIBARR_".strtoupper($type)."_DEFAULT_MODEL";
+	$constforval = "DOLISMQ_".strtoupper($type)."_DEFAULT_MODEL";
 	$label       = '';
 
 	if (dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity))
@@ -87,7 +87,7 @@ if ($action == 'setdoc') {
 		$ret = addDocumentModel($value, $type, $label);
 	}
 } elseif ($action == 'setmod') {
-	$constforval = 'DIGIRISKDOLIBARR_'.strtoupper($type)."_ADDON";
+	$constforval = 'DOLISMQ_'.strtoupper($type)."_ADDON";
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
 
@@ -97,7 +97,7 @@ if ($action == 'setdoc') {
  */
 
 $help_url = 'FR:Module_DigiriskDolibarr#L.27onglet_Document_Digirisk';
-$title    = $langs->trans("YourDocuments");
+$title    = $langs->trans("ControlDocument");
 
 $morejs   = array("/dolismq/js/dolismq.js.php");
 $morecss  = array("/dolismq/css/dolismq.css");
@@ -127,7 +127,7 @@ foreach ($types as $type => $documentType) {
 	print load_fiche_titre($pictos[$type] . $langs->trans($type), '', '');
 	print '<hr>';
 
-	$trad = 'Digirisk' . $type . 'DocumentNumberingModule';
+	$trad = 'DoliSMQ' . $type . 'DocumentNumberingModule';
 	print load_fiche_titre($langs->trans($trad), '', '');
 
 	print '<table class="noborder centpercent">';
@@ -142,76 +142,76 @@ foreach ($types as $type => $documentType) {
 	clearstatcache();
 
 	$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/".$documentType."/");
-//	if (is_dir($dir)) {
-//		$handle = opendir($dir);
-//		if (is_resource($handle)) {
-//			while (($file = readdir($handle)) !== false ) {
-//				if (!is_dir($dir.$file) || (substr($file, 0, 1) <> '.' && substr($file, 0, 3) <> 'CVS')) {
-//					$filebis = $file;
-//
-//					$classname = preg_replace('/\.php$/', '', $file);
-//					$classname = preg_replace('/\-.*$/', '', $classname);
-//
-//					if (!class_exists($classname) && is_readable($dir.$filebis) && (preg_match('/mod_/', $filebis) || preg_match('/mod_/', $classname)) && substr($filebis, dol_strlen($filebis) - 3, 3) == 'php') {
-//						// Charging the numbering class
-//						require_once $dir.$filebis;
-//
-//						$module = new $classname($db);
-//
-//						if ($module->isEnabled()) {
-//							print '<tr class="oddeven"><td>';
-//							print $langs->trans($module->name);
-//							print "</td><td>";
-//							print $module->info();
-//							print '</td>';
-//
-//							// Show example of numbering module
-//							print '<td class="nowrap">';
-//							$tmp = $module->getExample();
-//							if (preg_match('/^Error/', $tmp)) print '<div class="error">'.$langs->trans($tmp).'</div>';
-//							elseif ($tmp == 'NotConfigured') print $langs->trans($tmp);
-//							else print $tmp;
-//							print '</td>';
-//
-//							print '<td class="center">';
-//							$confType = 'DOLISMQ_' . strtoupper($documentType) . '_ADDON';
-//							if ($conf->global->$confType == $file || $conf->global->$confType.'.php' == $file) {
-//								print img_picto($langs->trans("Activated"), 'switch_on');
-//							}
-//							else {
-//								print '<a class="reposition" href="'.$_SERVER["PHP_SELF"].'?action=setmod&value='.preg_replace('/\.php$/', '', $file).'&const='.$module->scandir.'&label='.urlencode($module->name).'" alt="'.$langs->trans("Default").'">'.img_picto($langs->trans("Disabled"), 'switch_off').'</a>';
-//							}
-//							print '</td>';
-//
-//							// Example for listing risks action
-//							$htmltooltip = '';
-//							$htmltooltip .= ''.$langs->trans("Version").': <b>'.$module->getVersion().'</b><br>';
-//							$nextval = $module->getNextValue($object_document);
-//							if ("$nextval" != $langs->trans("NotAvailable")) {  // Keep " on nextval
-//								$htmltooltip .= $langs->trans("NextValue").': ';
-//								if ($nextval) {
-//									if (preg_match('/^Error/', $nextval) || $nextval == 'NotConfigured')
-//										$nextval = $langs->trans($nextval);
-//									$htmltooltip .= $nextval.'<br>';
-//								} else {
-//									$htmltooltip .= $langs->trans($module->error).'<br>';
-//								}
-//							}
-//
-//							print '<td class="center">';
-//							print $form->textwithpicto('', $htmltooltip, 1, 0);
-//							if ($conf->global->$confType.'.php' == $file) { // If module is the one used, we show existing errors
-//								if (!empty($module->error)) dol_htmloutput_mesg($module->error, '', 'error', 1);
-//							}
-//							print '</td>';
-//							print "</tr>";
-//						}
-//					}
-//				}
-//			}
-//			closedir($handle);
-//		}
-//	}
+	if (is_dir($dir)) {
+		$handle = opendir($dir);
+		if (is_resource($handle)) {
+			while (($file = readdir($handle)) !== false ) {
+				if (!is_dir($dir.$file) || (substr($file, 0, 1) <> '.' && substr($file, 0, 3) <> 'CVS')) {
+					$filebis = $file;
+
+					$classname = preg_replace('/\.php$/', '', $file);
+					$classname = preg_replace('/\-.*$/', '', $classname);
+
+					if (!class_exists($classname) && is_readable($dir.$filebis) && (preg_match('/mod_/', $filebis) || preg_match('/mod_/', $classname)) && substr($filebis, dol_strlen($filebis) - 3, 3) == 'php') {
+						// Charging the numbering class
+						require_once $dir.$filebis;
+
+						$module = new $classname($db);
+
+						if ($module->isEnabled()) {
+							print '<tr class="oddeven"><td>';
+							print $langs->trans($module->name);
+							print "</td><td>";
+							print $module->info();
+							print '</td>';
+
+							// Show example of numbering module
+							print '<td class="nowrap">';
+							$tmp = $module->getExample();
+							if (preg_match('/^Error/', $tmp)) print '<div class="error">'.$langs->trans($tmp).'</div>';
+							elseif ($tmp == 'NotConfigured') print $langs->trans($tmp);
+							else print $tmp;
+							print '</td>';
+
+							print '<td class="center">';
+							$confType = 'DOLISMQ_' . strtoupper($documentType) . '_ADDON';
+							if ($conf->global->$confType == $file || $conf->global->$confType.'.php' == $file) {
+								print img_picto($langs->trans("Activated"), 'switch_on');
+							}
+							else {
+								print '<a class="reposition" href="'.$_SERVER["PHP_SELF"].'?action=setmod&value='.preg_replace('/\.php$/', '', $file).'&const='.$module->scandir.'&label='.urlencode($module->name).'" alt="'.$langs->trans("Default").'">'.img_picto($langs->trans("Disabled"), 'switch_off').'</a>';
+							}
+							print '</td>';
+
+							// Example for listing risks action
+							$htmltooltip = '';
+							$htmltooltip .= ''.$langs->trans("Version").': <b>'.$module->getVersion().'</b><br>';
+							$nextval = $module->getNextValue($object_document);
+							if ("$nextval" != $langs->trans("NotAvailable")) {  // Keep " on nextval
+								$htmltooltip .= $langs->trans("NextValue").': ';
+								if ($nextval) {
+									if (preg_match('/^Error/', $nextval) || $nextval == 'NotConfigured')
+										$nextval = $langs->trans($nextval);
+									$htmltooltip .= $nextval.'<br>';
+								} else {
+									$htmltooltip .= $langs->trans($module->error).'<br>';
+								}
+							}
+
+							print '<td class="center">';
+							print $form->textwithpicto('', $htmltooltip, 1, 0);
+							if ($conf->global->$confType.'.php' == $file) { // If module is the one used, we show existing errors
+								if (!empty($module->error)) dol_htmloutput_mesg($module->error, '', 'error', 1);
+							}
+							print '</td>';
+							print "</tr>";
+						}
+					}
+				}
+			}
+			closedir($handle);
+		}
+	}
 
 	/*
 	*  Documents models for Listing Risks Action

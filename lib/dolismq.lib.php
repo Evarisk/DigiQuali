@@ -35,22 +35,12 @@ function dolismqAdminPrepareHead()
 	$h = 0;
 	$head = array();
 
-	$head[$h][0] = dol_buildpath("/dolismq/admin/setup.php", 1);
-	$head[$h][1] = $langs->trans("Settings");
-	$head[$h][2] = 'settings';
-	$h++;
-
 	/*
 	$head[$h][0] = dol_buildpath("/dolismq/admin/myobject_extrafields.php", 1);
 	$head[$h][1] = $langs->trans("ExtraFields");
 	$head[$h][2] = 'myobject_extrafields';
 	$h++;
 	*/
-
-	$head[$h][0] = dol_buildpath("/dolismq/admin/about.php", 1);
-	$head[$h][1] = $langs->trans("About");
-	$head[$h][2] = 'about';
-	$h++;
 
 	$head[$h][0] = dol_buildpath("/dolismq/admin/question.php", 1);
 	$head[$h][1] = $langs->trans("Question");
@@ -70,6 +60,16 @@ function dolismqAdminPrepareHead()
 	$head[$h][0] = dol_buildpath("/dolismq/admin/controldocument.php", 1);
 	$head[$h][1] = $langs->trans("ControlDocument");
 	$head[$h][2] = 'controldocument';
+	$h++;
+
+	$head[$h][0] = dol_buildpath("/dolismq/admin/setup.php", 1);
+	$head[$h][1] = '<i class="fas fa-cog"></i>  ' . $langs->trans("Settings");
+	$head[$h][2] = 'settings';
+	$h++;
+
+	$head[$h][0] = dol_buildpath("/dolismq/admin/about.php", 1);
+	$head[$h][1] = '<i class="fab fa-readme"></i> ' . $langs->trans("About");
+	$head[$h][2] = 'about';
 	$h++;
 
 	complete_head_from_modules($conf, $langs, null, $head, $h, 'dolismq');

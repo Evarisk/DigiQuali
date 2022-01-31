@@ -88,20 +88,20 @@ llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
 // Subheader
 $linkback = '<a href="' . ($backtopage ? $backtopage : DOL_URL_ROOT . '/admin/modules.php?restore_lastsearch_values=1') . '">' . $langs->trans("BackToModuleList") . '</a>';
 
-print load_fiche_titre($title, $linkback, 'dolismq32px@dolismq');
+print load_fiche_titre($title, $linkback, 'dolismq@dolismq');
 
 // Configuration header
 $head = dolismqAdminPrepareHead();
 print dol_get_fiche_head($head, 'control', '', -1, "dolismq@dolismq");
 
-print load_fiche_titre('<i class="fas fa-user-injured"></i> ' . $langs->trans("ControlManagement"), '', '');
+print load_fiche_titre($langs->trans("ControlManagement"), '', '');
 print '<hr>';
 
 /*
  *  Numbering module
  */
 
-print load_fiche_titre($langs->trans("DigiriskControlNumberingModule"), '', '');
+print load_fiche_titre($langs->trans("DoliSMQControlNumberingModule"), '', '');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
@@ -146,7 +146,7 @@ if (is_dir($dir)) {
 						print '</td>';
 
 						print '<td class="center">';
-						if ($conf->global->DOLISMQ_QUESTION_ADDON == $file || $conf->global->DOLISMQ_QUESTION_ADDON . '.php' == $file) {
+						if ($conf->global->DOLISMQ_CONTROL_ADDON == $file || $conf->global->DOLISMQ_CONTROL_ADDON . '.php' == $file) {
 							print img_picto($langs->trans("Activated"), 'switch_on');
 						} else {
 							print '<a class="reposition" href="' . $_SERVER["PHP_SELF"] . '?action=setmod&value=' . preg_replace('/\.php$/', '', $file) . '&scan_dir=' . $module->scandir . '&label=' . urlencode($module->name) . '" alt="' . $langs->trans("Default") . '">' . img_picto($langs->trans("Disabled"), 'switch_off') . '</a>';
@@ -170,7 +170,7 @@ if (is_dir($dir)) {
 
 						print '<td class="center">';
 						print $form->textwithpicto('', $htmltooltip, 1, 0);
-						if ($conf->global->DOLISMQ_QUESTION_ADDON . '.php' == $file) { // If module is the one used, we show existing errors
+						if ($conf->global->DOLISMQ_CONTROL_ADDON . '.php' == $file) { // If module is the one used, we show existing errors
 							if ( ! empty($module->error)) dol_htmloutput_mesg($module->error, '', 'error', 1);
 						}
 						print '</td>';

@@ -175,7 +175,9 @@ class modDoliSMQ extends DolibarrModules
 			70 => array('DOLISMQ_CONTROL_ADDON','chaine', 'mod_control_standard' ,'', $conf->entity),
 
 			//CONST CONTROL DOCUMENT
-			260 => array('DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH','chaine', DOL_DOCUMENT_ROOT . '/custom/dolismq/documents/doctemplates/controldocument/' ,'', $conf->entity),
+			80 => array('DOLISMQ_CONTROLDOCUMENT_ADDON','chaine', 'mod_controldocument_standard' ,'', $conf->entity),
+			81 => array('DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH','chaine', DOL_DOCUMENT_ROOT . '/custom/dolismq/documents/doctemplates/controldocument/' ,'', $conf->entity),
+			82 => array('DOLISMQ_CONTROLDOCUMENT_DEFAULT_MODEL','chaine', 'controldocument_odt' ,'', $conf->entity),
 		);
 
 		// Some keys to add into the overwriting translation tables
@@ -345,6 +347,13 @@ class modDoliSMQ extends DolibarrModules
 		$this->rights[$r][1] = $langs->trans('DeleteSheet'); // Permission label
 		$this->rights[$r][4] = 'sheet'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$r++;
+
+		/* ADMINPAGE PANEL ACCESS PERMISSIONS */
+		$this->rights[$r][0] = $this->numero . sprintf("%02d", $r + 1);
+		$this->rights[$r][1] = $langs->trans('ReadAdminPage');
+		$this->rights[$r][4] = 'adminpage';
+		$this->rights[$r][5] = 'read';
 
 		// Main menu entries to add
 		$this->menu = array();
@@ -456,6 +465,21 @@ class modDoliSMQ extends DolibarrModules
 			'perms'=>'$user->rights->dolismq->control->write',
 			'target'=>'',
 			'user'=>2
+		);
+
+		$this->menu[$r++] = array(
+			'fk_menu' => 'fk_mainmenu=dolismq',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type' => 'left',			                // This is a Left menu entry
+			'titre' => '<i class="fas fa-cog"></i>  ' . $langs->trans('DoliSMQConfig'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq',
+			'url' => '/dolismq/admin/setup.php',
+			'langs' => 'dolismq@dolismq',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position' => 1100 + $r,
+			'enabled' => '$conf->dolismq->enabled',  // Define condition to show or hide menu entry. Use '$conf->digiriskdolibarr->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms' => '$user->rights->dolismq->adminpage->read',			                // Use 'perms'=>'$user->rights->digiriskdolibarr->level1->level2' if you want your menu with a permission rules
+			'target' => '',
+			'user' => 0,				                // 0=Menu for internal users, 1=external users, 2=both
 		);
 	}
 

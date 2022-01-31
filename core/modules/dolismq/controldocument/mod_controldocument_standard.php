@@ -22,12 +22,10 @@
  *	\brief      File containing class for numbering module Standard
  */
 
-require_once __DIR__ . '/../modules_digiriskdocuments.php';
-
 /**
  * 	Class to manage controldocument numbering rules Standard
  */
-class mod_controldocument_standard extends ModeleNumRefDigiriskDocuments
+class mod_controldocument_standard
 {
 	/**
 	 * Dolibarr version of the loaded document
@@ -59,7 +57,17 @@ class mod_controldocument_standard extends ModeleNumRefDigiriskDocuments
 	{
 		global $langs;
 		$langs->load("dolismq@dolismq");
-		return $langs->trans('ControlDocumentStandardModel', $this->prefix);
+		return $langs->trans('DoliSMQControlDocumentStandardModel', $this->prefix);
+	}
+
+	/**
+	 *	Return if a module can be used or not
+	 *
+	 *	@return		boolean     true if module can be used
+	 */
+	public function isEnabled()
+	{
+		return true;
 	}
 
 	/**
@@ -111,5 +119,22 @@ class mod_controldocument_standard extends ModeleNumRefDigiriskDocuments
 
 		dol_syslog("mod_controldocument_standard::getNextValue return ".$this->prefix.$num);
 		return $this->prefix.$num;
+	}
+
+	/**
+	 *	Returns version of numbering module
+	 *
+	 *	@return     string      Valeur
+	 */
+	public function getVersion()
+	{
+		global $langs;
+		$langs->load("admin");
+
+		if ($this->version == 'development') return $langs->trans("VersionDevelopment");
+		if ($this->version == 'experimental') return $langs->trans("VersionExperimental");
+		if ($this->version == 'dolibarr') return DOL_VERSION;
+		if ($this->version) return $this->version;
+		return $langs->trans("NotAvailable");
 	}
 }

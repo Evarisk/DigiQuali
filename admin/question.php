@@ -88,20 +88,20 @@ llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
 // Subheader
 $linkback = '<a href="' . ($backtopage ? $backtopage : DOL_URL_ROOT . '/admin/modules.php?restore_lastsearch_values=1') . '">' . $langs->trans("BackToModuleList") . '</a>';
 
-print load_fiche_titre($title, $linkback, 'dolismq32px@dolismq');
+print load_fiche_titre($title, $linkback, 'dolismq@dolismq');
 
 // Configuration header
 $head = dolismqAdminPrepareHead();
 print dol_get_fiche_head($head, 'question', '', -1, "dolismq@dolismq");
 
-print load_fiche_titre('<i class="fas fa-user-injured"></i> ' . $langs->trans("QuestionManagement"), '', '');
+print load_fiche_titre($langs->trans("QuestionManagement"), '', '');
 print '<hr>';
 
 /*
  *  Numbering module
  */
 
-print load_fiche_titre($langs->trans("DigiriskQuestionNumberingModule"), '', '');
+print load_fiche_titre($langs->trans("DoliSMQQuestionNumberingModule"), '', '');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
@@ -184,8 +184,6 @@ if (is_dir($dir)) {
 }
 
 print '</table>';
-
-
 
 // Page end
 print dol_get_fiche_end();

@@ -64,7 +64,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 		$langs->loadLangs(array("main", "companies"));
 
 		$this->db = $db;
-		$this->name = $langs->trans('ControlDocumentDigiriskTemplate');
+		$this->name = $langs->trans('ControlDocumentDoliSMQTemplate');
 		$this->description = $langs->trans("DocumentModelOdt");
 		$this->scandir = 'DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH'; // Name of constant that is used to save list of directories to scan
 
@@ -125,9 +125,9 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 
 		// Scan directories
 		$nbofiles = count($listoffiles);
-		if (!empty($conf->global->DIGIRISKDOLIBARR_GROUPMENTDOCUMENT_ADDON_ODT_PATH))
+		if (!empty($conf->global->DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH))
 		{
-			$texte .= $langs->trans("DigiriskNumberOfModelFilesFound").': <b>';
+			$texte .= $langs->trans("DoliSMQNumberOfModelFilesFound").': <b>';
 			$texte .= count($listoffiles);
 			$texte .= '</b>';
 		}
