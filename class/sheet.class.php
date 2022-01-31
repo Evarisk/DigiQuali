@@ -598,6 +598,8 @@ class Sheet extends CommonObject
 		}
 		$label .= '<br>';
 		$label .= '<b>' . $langs->trans('Ref') . ':</b> ' . $this->ref;
+		$label .= '<br>';
+		$label .= '<b>' . $langs->trans('Label') . ':</b> ' . $this->label;
 
 		$url = dol_buildpath('/dolismq/view/sheet/sheet_card.php', 1) . '?id=' . $this->id;
 
@@ -651,7 +653,7 @@ class Sheet extends CommonObject
 			}
 		}
 
-		if ($withpicto != 2) $result .= $this->ref;
+		if ($withpicto != 2) $result .= $this->ref . ' - ' . $this->label;
 
 		$result .= $linkend;
 		//if ($withpicto != 2) $result.=(($addlabel && $this->label) ? $sep . dol_trunc($this->label, ($addlabel > 1 ? $addlabel : 0)) : '');
