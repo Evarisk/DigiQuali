@@ -67,6 +67,8 @@ DoliSMQConfig = Configuration du module
 ReadQuestion = Consulter les questions
 CreateQuestion = Créer/Modifier les questions
 DeleteQuestion = Supprimer les questions
+ThereAre = Il y a
+YouAnswered = Vous avez répondu à
 
 # Trigger - Déclencheur
 QuestionCreateTrigger = Question créée

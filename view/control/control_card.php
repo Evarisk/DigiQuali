@@ -354,6 +354,51 @@ if (empty($reshook))
 		if ( ! $error) {
 			$result = $object->setValidated($user, false);
 			if ($result > 0) {
+				$controldet = new ControlLine($db);
+				$sheet->fetch($object->fk_sheet);
+				$object->fetchQuestionsLinked($sheet->id, 'sheet');
+				$questionIds = $object->linkedObjectsIds;
+				foreach ($questionIds['question'] as $questionId) {
+					$controldettmp = $controldet;
+					//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
+					$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
+
+					if ($result > 0 && is_array($result)) {
+						$controldettmp = array_shift($result);
+						//sauvegarder réponse
+						$answer = GETPOST('answer'.$questionId);
+						if ($answer > 0) {
+							$controldettmp->answer = $answer;
+						}
+
+						//sauvegarder commentaire
+						$comment = GETPOST('comment'.$questionId);
+
+						if (dol_strlen($comment) > 0) {
+							$controldettmp->comment = $comment;
+						}
+
+						$controldettmp->update($user);
+					} else {
+						$controldettmp->fk_control  = $object->id;
+						$controldettmp->fk_question = $questionId;
+
+						//sauvegarder réponse
+						$answer = GETPOST('answer'.$questionId);
+						if ($answer > 0) {
+							$controldettmp->answer = $answer;
+						}
+
+						//sauvegarder commentaire
+						$comment = GETPOST('comment'.$questionId);
+						if (dol_strlen($comment) > 0) {
+							$controldettmp->comment = $comment;
+						}
+						$controldettmp->entity = $conf->entity;
+
+						$controldettmp->insert($user);
+					}
+				}
 				// Set validated OK
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
@@ -554,9 +599,385 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 	// SetValidated confirmation
-	if (($action == 'setValidated' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile)))		// Output when action = clone if jmobile or no js
-		|| ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {							// Always output when not jmobile nor js
-		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('ValidateControl'), $langs->trans('ConfirmValidateControl', $object->ref), 'confirm_setValidated', '', 'yes', 'actionButtonValidate', 350, 600);
+	if (($action == 'setValidated')) {
+		// a mettre après le confirm
+		$controldet = new ControlLine($db);
+		$sheet->fetch($object->fk_sheet);
+		$object->fetchQuestionsLinked($sheet->id, 'sheet');
+		$questionIds = $object->linkedObjectsIds;
+		$questionCounter = count($questionIds['question']);
+		$answerCounter = 0;
+		foreach ($questionIds['question'] as $questionId) {
+			$controldettmp = $controldet;
+			//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
+			$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
+			$formPosts = '';
+			if ($result > 0 && is_array($result)) {
+				$controldettmp = array_shift($result);
+				//sauvegarder réponse
+				$answer = GETPOST('answer'.$questionId);
+				if ($answer > 0) {
+					$formPosts .= '&answer'.$questionId.'='.$answer;
+				}
+
+				//sauvegarder commentaire
+				$comment = GETPOST('comment'.$questionId);
+
+				if (dol_strlen($comment) > 0) {
+					$formPosts .= '&comment'.$questionId.'='.$answer;
+				}
+			}
+		}
+
+		// Always output when not jmobile nor js
+		$page = $_SERVER["PHP_SELF"] . '?id=' . $object->id;
+		$title =  $langs->trans('ValidateControl');
+		$questionForConfirm =  $langs->trans('ConfirmValidateControl');
+		$action = 'confirm_setValidated';
+		$formquestion = '';
+		$selectedchoice = 'yes';
+		$useajax = 1;
+		$height = 250;
+		$width = 500;
+		$disableformtag = 0;
+
+		global $langs, $conf;
+
+		$more = '<!-- formconfirm before calling page='.dol_escape_htmltag($page).' -->';
+		$formconfirm = '';
+		$inputok = array();
+		$inputko = array();
+
+		// Clean parameters
+		$newselectedchoice = empty($selectedchoice) ? "no" : $selectedchoice;
+		if ($conf->browser->layout == 'phone') {
+			$width = '95%';
+		}
+
+		// Set height automatically if not defined
+		if (empty($height)) {
+			$height = 220;
+			if (is_array($formquestion) && count($formquestion) > 2) {
+				$height += ((count($formquestion) - 2) * 24);
+			}
+		}
+
+		if (is_array($formquestion) && !empty($formquestion)) {
+			// First add hidden fields and value
+			foreach ($formquestion as $key => $input) {
+				if (is_array($input) && !empty($input)) {
+					if ($input['type'] == 'hidden') {
+						$more .= '<input type="hidden" id="'.$input['name'].'" name="'.$input['name'].'" value="'.dol_escape_htmltag($input['value']).'">'."\n";
+					}
+				}
+			}
+
+			// Now add questions
+			$moreonecolumn = '';
+			$more .= '<div class="tagtable paddingtopbottomonly centpercent noborderspacing">'."\n";
+			foreach ($formquestion as $key => $input) {
+				if (is_array($input) && !empty($input)) {
+					$size = (!empty($input['size']) ? ' size="'.$input['size'].'"' : '');	// deprecated. Use morecss instead.
+					$moreattr = (!empty($input['moreattr']) ? ' '.$input['moreattr'] : '');
+					$morecss = (!empty($input['morecss']) ? ' '.$input['morecss'] : '');
+
+					if ($input['type'] == 'text') {
+						$more .= '<div class="tagtr"><div class="tagtd'.(empty($input['tdclass']) ? '' : (' '.$input['tdclass'])).'">'.$input['label'].'</div><div class="tagtd"><input type="text" class="flat'.$morecss.'" id="'.$input['name'].'" name="'.$input['name'].'"'.$size.' value="'.$input['value'].'"'.$moreattr.' /></div></div>'."\n";
+					} elseif ($input['type'] == 'password')	{
+						$more .= '<div class="tagtr"><div class="tagtd'.(empty($input['tdclass']) ? '' : (' '.$input['tdclass'])).'">'.$input['label'].'</div><div class="tagtd"><input type="password" class="flat'.$morecss.'" id="'.$input['name'].'" name="'.$input['name'].'"'.$size.' value="'.$input['value'].'"'.$moreattr.' /></div></div>'."\n";
+					} elseif ($input['type'] == 'select') {
+						if (empty($morecss)) {
+							$morecss = 'minwidth100';
+						}
+
+						$show_empty = isset($input['select_show_empty']) ? $input['select_show_empty'] : 1;
+						$key_in_label = isset($input['select_key_in_label']) ? $input['select_key_in_label'] : 0;
+						$value_as_key = isset($input['select_value_as_key']) ? $input['select_value_as_key'] : 0;
+						$translate = isset($input['select_translate']) ? $input['select_translate'] : 0;
+						$maxlen = isset($input['select_maxlen']) ? $input['select_maxlen'] : 0;
+						$disabled = isset($input['select_disabled']) ? $input['select_disabled'] : 0;
+						$sort = isset($input['select_sort']) ? $input['select_sort'] : '';
+
+						$more .= '<div class="tagtr"><div class="tagtd'.(empty($input['tdclass']) ? '' : (' '.$input['tdclass'])).'">';
+						if (!empty($input['label'])) {
+							$more .= $input['label'].'</div><div class="tagtd left">';
+						}
+						$more .= $this->selectarray($input['name'], $input['values'], $input['default'], $show_empty, $key_in_label, $value_as_key, $moreattr, $translate, $maxlen, $disabled, $sort, $morecss);
+						$more .= '</div></div>'."\n";
+					} elseif ($input['type'] == 'checkbox') {
+						$more .= '<div class="tagtr">';
+						$more .= '<div class="tagtd'.(empty($input['tdclass']) ? '' : (' '.$input['tdclass'])).'">'.$input['label'].' </div><div class="tagtd">';
+						$more .= '<input type="checkbox" class="flat'.$morecss.'" id="'.$input['name'].'" name="'.$input['name'].'"'.$moreattr;
+						if (!is_bool($input['value']) && $input['value'] != 'false' && $input['value'] != '0') {
+							$more .= ' checked';
+						}
+						if (is_bool($input['value']) && $input['value']) {
+							$more .= ' checked';
+						}
+						if (isset($input['disabled'])) {
+							$more .= ' disabled';
+						}
+						$more .= ' /></div>';
+						$more .= '</div>'."\n";
+					} elseif ($input['type'] == 'radio') {
+						$i = 0;
+						foreach ($input['values'] as $selkey => $selval) {
+							$more .= '<div class="tagtr">';
+							if ($i == 0) {
+								$more .= '<div class="tagtd'.(empty($input['tdclass']) ? ' tdtop' : (' tdtop '.$input['tdclass'])).'">'.$input['label'].'</div>';
+							} else {
+								$more .= '<div clas="tagtd'.(empty($input['tdclass']) ? '' : (' "'.$input['tdclass'])).'">&nbsp;</div>';
+							}
+							$more .= '<div class="tagtd'.($i == 0 ? ' tdtop' : '').'"><input type="radio" class="flat'.$morecss.'" id="'.$input['name'].$selkey.'" name="'.$input['name'].'" value="'.$selkey.'"'.$moreattr;
+							if ($input['disabled']) {
+								$more .= ' disabled';
+							}
+							if (isset($input['default']) && $input['default'] === $selkey) {
+								$more .= ' checked="checked"';
+							}
+							$more .= ' /> ';
+							$more .= '<label for="'.$input['name'].$selkey.'">'.$selval.'</label>';
+							$more .= '</div></div>'."\n";
+							$i++;
+						}
+					} elseif ($input['type'] == 'date') {
+						$more .= '<div class="tagtr"><div class="tagtd'.(empty($input['tdclass']) ? '' : (' '.$input['tdclass'])).'">'.$input['label'].'</div>';
+						$more .= '<div class="tagtd">';
+						$more .= $this->selectDate($input['value'], $input['name'], 0, 0, 0, '', 1, 0);
+						$more .= '</div></div>'."\n";
+						$formquestion[] = array('name'=>$input['name'].'day');
+						$formquestion[] = array('name'=>$input['name'].'month');
+						$formquestion[] = array('name'=>$input['name'].'year');
+						$formquestion[] = array('name'=>$input['name'].'hour');
+						$formquestion[] = array('name'=>$input['name'].'min');
+					} elseif ($input['type'] == 'other') {
+						$more .= '<div class="tagtr"><div class="tagtd'.(empty($input['tdclass']) ? '' : (' '.$input['tdclass'])).'">';
+						if (!empty($input['label'])) {
+							$more .= $input['label'].'</div><div class="tagtd">';
+						}
+						$more .= $input['value'];
+						$more .= '</div></div>'."\n";
+					} elseif ($input['type'] == 'onecolumn') {
+						$moreonecolumn .= '<div class="margintoponly">';
+						$moreonecolumn .= $input['value'];
+						$moreonecolumn .= '</div>'."\n";
+					} elseif ($input['type'] == 'hidden') {
+						// Do nothing more, already added by a previous loop
+					} else {
+						$more .= 'Error type '.$input['type'].' for the confirm box is not a supported type';
+					}
+				}
+			}
+			$more .= '</div>'."\n";
+			$more .= $moreonecolumn;
+		}
+
+		// JQUI method dialog is broken with jmobile, we use standard HTML.
+		// Note: When using dol_use_jmobile or no js, you must also check code for button use a GET url with action=xxx and check that you also output the confirm code when action=xxx
+		// See page product/card.php for example
+		if (!empty($conf->dol_use_jmobile)) {
+			$useajax = 0;
+		}
+		if (empty($conf->use_javascript_ajax)) {
+			$useajax = 0;
+		}
+
+		if ($useajax) {
+			$autoOpen = true;
+			$dialogconfirm = 'dialog-confirm';
+			$button = '';
+			if (!is_numeric($useajax)) {
+				$button = $useajax;
+				$useajax = 1;
+				$autoOpen = false;
+				$dialogconfirm .= '-'.$button;
+			}
+			$pageyes = $page.(preg_match('/\?/', $page) ? '&' : '?').'action='.$action.'&confirm=yes';
+			$pageno = ($useajax == 2 ? $page.(preg_match('/\?/', $page) ? '&' : '?').'confirm=no' : '');
+
+			// Add input fields into list of fields to read during submit (inputok and inputko)
+			if (is_array($formquestion)) {
+				foreach ($formquestion as $key => $input) {
+					//print "xx ".$key." rr ".is_array($input)."<br>\n";
+					// Add name of fields to propagate with the GET when submitting the form with button OK.
+					if (is_array($input) && isset($input['name'])) {
+						if (strpos($input['name'], ',') > 0) {
+							$inputok = array_merge($inputok, explode(',', $input['name']));
+						} else {
+							array_push($inputok, $input['name']);
+						}
+					}
+					// Add name of fields to propagate with the GET when submitting the form with button KO.
+					if (isset($input['inputko']) && $input['inputko'] == 1) {
+						array_push($inputko, $input['name']);
+					}
+				}
+			}
+
+			// Show JQuery confirm box.
+			$formconfirm .= '<div id="'.$dialogconfirm.'" title="'.dol_escape_htmltag($title).'" style="display: none;">';
+			if (is_array($formquestion) && !empty($formquestion['text'])) {
+				$formconfirm .= '<div class="confirmtext">'.$formquestion['text'].'</div>'."\n";
+			}
+			if (!empty($more)) {
+				$formconfirm .= '<div class="confirmquestions">'.$more.'</div>'."\n";
+			}
+			$answerCounter = $_COOKIE['answerCounter'];
+
+			$formconfirm .= ($questionForConfirm ? '<div class="confirmmessage">'.img_help('', '').' '.$questionForConfirm.'</div>' : '');
+			$formconfirm .= '<div>'."\n";
+			$formconfirm .= '<b>' . $langs->trans('ThereAre') . ' ' . $questionCounter . ' ' . $langs->trans('question(s)') . '<b>' . "<br>";
+			$formconfirm .= '<b>' . $langs->trans('YouAnswered') . ' ' . $answerCounter . ' ' . $langs->trans('question(s)') .'<b>' . "\n";
+			$formconfirm .= '</div>'."\n";
+			$formconfirm .= '</div>'."\n";
+
+			$formconfirm .= "\n<!-- begin ajax formconfirm page=".$page." -->\n";
+			$formconfirm .= '<script type="text/javascript">'."\n";
+
+			$formconfirm .= 'jQuery(document).ready(function() {
+            $(function() {
+
+
+            	$( "#'.$dialogconfirm.'" ).dialog(
+            	{
+                    autoOpen: '.($autoOpen ? "true" : "false").',';
+			if ($newselectedchoice == 'no') {
+				$formconfirm .= '
+						open: function() {
+            				$(this).parent().find("button.ui-button:eq(2)").focus();
+						},';
+			}
+
+			$formconfirm .= '
+                    resizable: false,
+                    height: "'.$height.'",
+                    width: "'.$width.'",
+                    modal: true,
+                    closeOnEscape: false,
+                    buttons: {
+                        "'.dol_escape_js($langs->transnoentities("Yes")).'": function() {
+                        	var options = "&token='.urlencode(newToken()).'";
+                        	var inputok = '.json_encode($inputok).';	/* List of fields into form */
+                         	var pageyes = "'.dol_escape_js(!empty($pageyes) ? $pageyes : '').'";
+                         	if (inputok.length>0) {
+                         		$.each(inputok, function(i, inputname) {
+                         			var more = "";
+									var inputvalue;
+                         			if ($("input[name=\'" + inputname + "\']").attr("type") == "radio") {
+										inputvalue = $("input[name=\'" + inputname + "\']:checked").val();
+									} else {
+                         		    	if ($("#" + inputname).attr("type") == "checkbox") { more = ":checked"; }
+                         				inputvalue = $("#" + inputname + more).val();
+									}
+                         			if (typeof inputvalue == "undefined") { inputvalue=""; }
+									console.log("check inputname="+inputname+" inputvalue="+inputvalue);
+                         			options += "&" + inputname + "=" + encodeURIComponent(inputvalue);
+                         			options += "&kaka=oui"
+                         		});
+                         	}
+                         	var urljump = pageyes + (pageyes.indexOf("?") < 0 ? "?" : "") + options + "'.dol_escape_js($formPosts).'";
+            				if (pageyes.length > 0) { location.href = urljump; }
+            				console.log(urljump)
+            				return;
+                            $(this).dialog("close");
+                        },
+                        "'.dol_escape_js($langs->transnoentities("No")).'": function() {
+                        	var options = "&token='.urlencode(newToken()).'";
+                         	var inputko = '.json_encode($inputko).';	/* List of fields into form */
+                         	var pageno="'.dol_escape_js(!empty($pageno) ? $pageno : '').'";
+                         	if (inputko.length>0) {
+                         		$.each(inputko, function(i, inputname) {
+                         			var more = "";
+                         			if ($("#" + inputname).attr("type") == "checkbox") { more = ":checked"; }
+                         			var inputvalue = $("#" + inputname + more).val();
+                         			if (typeof inputvalue == "undefined") { inputvalue=""; }
+                         			options += "&" + inputname + "=" + encodeURIComponent(inputvalue);
+                         		});
+                         	}
+                         	var urljump=pageno + (pageno.indexOf("?") < 0 ? "?" : "") + options;
+                         	//alert(urljump);
+            				if (pageno.length > 0) { location.href = urljump; }
+                            $(this).dialog("close");
+                        }
+                    }
+                }
+                );
+
+            	var button = "'.$button.'";
+            	if (button.length > 0) {
+                	$( "#" + button ).click(function() {
+                		$("#'.$dialogconfirm.'").dialog("open");
+        			});
+                }
+            });
+            });
+            </script>';
+			$formconfirm .= "<!-- end ajax formconfirm -->\n";
+		} else {
+			$formconfirm .= "\n<!-- begin formconfirm page=".dol_escape_htmltag($page)." -->\n";
+
+			if (empty($disableformtag)) {
+				$formconfirm .= '<form method="POST" action="'.$page.'" class="notoptoleftroright">'."\n";
+			}
+
+			$formconfirm .= '<input type="hidden" name="action" value="'.$action.'">'."\n";
+			$formconfirm .= '<input type="hidden" name="token" value="'.newToken().'">'."\n";
+
+			$formconfirm .= '<table class="valid centpercent">'."\n";
+
+			// Line title
+			$formconfirm .= '<tr class="validtitre"><td class="validtitre" colspan="2">';
+			$formconfirm .= img_picto('', 'recent').' '.$title;
+			$formconfirm .= '</td></tr>'."\n";
+
+			// Line text
+			if (is_array($formquestion) && !empty($formquestion['text'])) {
+				$formconfirm .= '<tr class="valid"><td class="valid" colspan="2">'.$formquestion['text'].'</td></tr>'."\n";
+			}
+
+			// Line form fields
+			if ($more) {
+				$formconfirm .= '<tr class="valid"><td class="valid" colspan="2">'."\n";
+				$formconfirm .= $more;
+				$formconfirm .= '</td></tr>'."\n";
+			}
+
+			// Line with question
+			$formconfirm .= '<tr class="valid">';
+			$formconfirm .= '<td class="valid">'.$questionForConfirm.'</td>';
+			$formconfirm .= '<td class="valid center">';
+			$formconfirm .= $form->selectyesno("confirm", $newselectedchoice, 0, false, 0, 0, 'marginleftonly marginrightonly');
+			$formconfirm .= '<input class="button valignmiddle confirmvalidatebutton" type="submit" value="'.$langs->trans("Validate").'">';
+			$formconfirm .= '</td>';
+			$formconfirm .= '</tr>'."\n";
+
+			$formconfirm .= '</table>'."\n";
+
+			if (empty($disableformtag)) {
+				$formconfirm .= "</form>\n";
+			}
+			$formconfirm .= '<br>';
+
+			if (empty($conf->use_javascript_ajax)) {
+				$formconfirm .= '<!-- code to disable button to avoid double clic -->';
+				$formconfirm .= '<script type="text/javascript">'."\n";
+				$formconfirm .= '
+				$(document).ready(function () {
+					$(".confirmvalidatebutton").on("click", function() {
+						console.log("We click on button");
+						$(this).attr("disabled", "disabled");
+						setTimeout(\'$(".confirmvalidatebutton").removeAttr("disabled")\', 3000);
+						//console.log($(this).closest("form"));
+						$(this).closest("form").submit();
+					});
+				});
+				';
+				$formconfirm .= '</script>'."\n";
+			}
+
+			$formconfirm .= "<!-- end formconfirm -->\n";
+		}
+
 	}
 
 	// SetReopened confirmation
@@ -697,7 +1118,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		if (empty($reshook)) {
 			print '<a class="' . (($object->status == 0) ? 'saveButton butAction' : 'butActionRefused classfortooltip') . '" href="'.$_SERVER["PHP_SELF"].'?action=save&id='.$object->id.'" id="' . (($object->status == 0) ? 'actionButtonSave' : '') . '" title="' . (($object->status == 0) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeDraft"))) . '">' . $langs->trans("Save") . '</a>';
-			print '<span class="' . (($object->status == 0) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 0) ? 'actionButtonValidate' : '') . '" title="' . (($object->status == 0 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeDraft"))) . '">' . $langs->trans("Validate") . '</span>';
+			print '<a class="' . (($object->status == 0) ? 'validateButton butAction' : 'butActionRefused classfortooltip') . '" href="'.$_SERVER["PHP_SELF"].'?action=setValidated&id='.$object->id.'" id="' . (($object->status == 0) ? 'actionButtonValidate' : '') . '" title="' . (($object->status == 0) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeDraft"))) . '">' . $langs->trans("Validate") . '</a>';
 			// Set verdict control
 			if ($object->status == 1 && $object->verdict == null) {
 				if ($permissiontoadd) {
@@ -775,19 +1196,19 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						<?php
 						print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" value="1">';
+						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . (GETPOST('answer'.$questionId) == 1 ? 'active' : ($answer == 1 ? 'active' : '')) . '" value="1">';
 						print '<i class="fas fa-check"></i>';
 						print '</span>';
 
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 2 ? 'active' : '') . '" value="2">';
+						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . (GETPOST('answer'.$questionId) == 2 ? 'active' : ($answer == 2 ? 'active' : '')) . '" value="2">';
 						print '<i class="fas fa-times"></i>';
 						print '</span>';
 
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 3 ? 'active' : '') . '" value="3">';
+						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . (GETPOST('answer'.$questionId) == 3 ? 'active' : ($answer == 3 ? 'active' : '')) . '" value="3">';
 						print '<i class="fas fa-tools"></i>';
 						print '</span>';
 
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 4 ? 'active' : '') . '" value="4">';
+						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . (GETPOST('answer'.$questionId) == 4 ? 'active' : ($answer == 4 ? 'active' : '')) . '" value="4">';
 						print 'N/A';
 						print '</span>';
 						?>

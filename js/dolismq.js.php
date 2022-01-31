@@ -911,6 +911,7 @@ window.eoxiaJS.control.event = function() {
 	$( document ).on( 'click', '.answer:not(.disable)', window.eoxiaJS.control.selectAnswer );
 	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.writeComment );
 	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
+	$( document ).on('click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
 };
 
 /**
@@ -929,8 +930,10 @@ window.eoxiaJS.control.selectAnswer = function ( event ) {
 
 	let postName = $(this).closest('.table-cell').find('.question-answer').attr('name')
 	let postValue = $(this).closest('.table-cell').find('.question-answer').val()
-	let actualPost = $(this).closest('.tabBar').find('.saveButton').attr('href')
-	$(this).closest('.tabBar').find('.saveButton').attr('href', actualPost + '&' + postName + '=' + postValue)
+	let actualSavePost = $(this).closest('.tabBar').find('.saveButton').attr('href')
+	let actualValidatePost = $(this).closest('.tabBar').find('.validateButton').attr('href')
+	$(this).closest('.tabBar').find('.saveButton').attr('href', actualSavePost + '&' + postName + '=' + postValue)
+	$(this).closest('.tabBar').find('.validateButton').attr('href', actualValidatePost + '&' + postName + '=' + postValue)
 };
 
 /**
@@ -946,13 +949,18 @@ window.eoxiaJS.control.writeComment = function ( event ) {
 
 	let postName = $(this).closest('.table-cell').find('.question-comment').attr('name')
 	let postValue = $(this).closest('.table-cell').find('.question-comment').val()
-	let actualPost = $(this).closest('.tabBar').find('.saveButton').attr('href')
+	let actualSavePost = $(this).closest('.tabBar').find('.saveButton').attr('href')
+	let actualValidatePost = $(this).closest('.tabBar').find('.validateButton').attr('href')
 
-	if (actualPost.match('&' + postName + '=')) {
-		actualPost = actualPost.split('&' + postName + '=')[0]
+	if (actualSavePost.match('&' + postName + '=')) {
+		actualSavePost = actualSavePost.split('&' + postName + '=')[0]
+	}
+	if (actualValidatePost.match('&' + postName + '=')) {
+		actualValidatePost = actualValidatePost.split('&' + postName + '=')[0]
 	}
 
-	$(this).closest('.tabBar').find('.saveButton').attr('href', actualPost + '&' + postName + '=' + postValue)
+	$(this).closest('.tabBar').find('.saveButton').attr('href', actualSavePost + '&' + postName + '=' + postValue)
+	$(this).closest('.tabBar').find('.validateButton').attr('href', actualValidatePost + '&' + postName + '=' + postValue)
 };
 
 /**
@@ -984,3 +992,17 @@ window.eoxiaJS.control.reloadProductLot = function ( event ) {
 	});
 	//$(this).closest('.control-table').find('.lot-container').load(document.URL+'&productRef='+productRef + ' .lot-content')
 };
+
+window.eoxiaJS.control.getAnswerCounter = function ( event ) {
+	let answerCounter = 0
+	jQuery("#tablelines").children().each(function() {
+		console.log($(this).find(".active"))
+		if ($(this).find(".answer.active").length > 0) {
+			answerCounter += 1;
+		}
+	})
+	console.log($(document).find(".answer.active").length)
+	console.log(jQuery("#tablelines").children().length)
+	console.log(answerCounter)
+	document.cookie = "answerCounter=" + answerCounter
+}
