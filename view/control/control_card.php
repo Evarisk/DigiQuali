@@ -482,7 +482,7 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	//FK LOT
-	print '<tr><td class="fieldrequired minwidth400">';
+	print '<tr><td class="minwidth400">';
 	print img_picto('', 'lot') . ' ' . $langs->trans("Lot");
 	print '</td><td class="lot-container">';
 	print '<span class="lot-content">';
