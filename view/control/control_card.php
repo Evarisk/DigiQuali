@@ -789,7 +789,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				</div>
 				<div class="table-row">
 					<div class="table-cell table-full wpeo-gridlayout grid-4">
-						<div class="question-comment-title"><?php print $langs->trans('Comment'); ?></div>
+						<div class="question-comment-title"><?php print $langs->trans('Comment') . ' : '; ?></div>
 						<?php if ($object->status == 2 ) : ?>
 							<?php print $comment; ?>
 						<?php else : ?>
