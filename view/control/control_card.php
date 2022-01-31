@@ -520,81 +520,6 @@ if ($action == 'create') {
 	print '</form>';
 }
 
-// Part to edit record
-if (($id || $ref) && $action == 'edit') {
-	print load_fiche_titre($title_edit, '', "dolismq@dolismq");
-
-	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
-	print '<input type="hidden" name="token" value="'.newToken().'">';
-	print '<input type="hidden" name="action" value="update">';
-	print '<input type="hidden" name="id" value="'.$object->id.'">';
-	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
-	if ($backtopageforcancel) print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
-
-	print dol_get_fiche_head();
-
-	print '<table class="border centpercent tableforfieldedit control-table">'."\n";
-
-	// Common attributes
-	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_edit.tpl.php';
-
-	//FK User controller
-	if ($conf->global->DOLISQM_USER_CONTROLLER < 0 || empty($conf->global->DOLISQM_USER_CONTROLLER)) {
-		$userlist = $form->select_dolusers(( ! empty(GETPOST('fk_user_controller')) ? GETPOST('fk_user_controller') : $user->id), '', 0, null, 0, '', '', $conf->entity, 0, 0, 'AND u.statut = 1', 0, '', 'minwidth300', 0, 1);
-		print '<tr>';
-		print '<td class="fieldrequired minwidth400" style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
-		print '<td>';
-		print $form->selectarray('fk_user_controller', $userlist, ( ! empty(GETPOST('fk_user_controller')) ? GETPOST('fk_user_controller') : $user->id), $langs->trans('SelectUser'), null, null, null, "40%", 0, 0, '', 'minwidth300', 1);
-		print ' <a href="' . DOL_URL_ROOT . '/user/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddUser") . '"></span></a>';
-		print '</td></tr>';
-	} else {
-		$usertmp->fetch($conf->global->DOLISQM_USER_CONTROLLER);
-		print '<tr>';
-		print '<td class="fieldrequired minwidth400" style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
-		print '<td>' . $usertmp->getNomUrl(1) . '</td>';
-		print '<input type="hidden" name="fk_user_controller" value="' . $conf->global->DOLISQM_USER_CONTROLLER . '">';
-		print '</td></tr>';
-	}
-
-	//FK Product
-	print '<tr><td class="fieldrequired minwidth400">' . img_picto('', 'product') . ' ' . $langs->trans("Product") . '</td><td>';
-	$events    = array();
-	$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/digiriskdolibarr/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_lot');
-	print $form->select_produits($object->fk_product, 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProducts', 0, 'minwidth300');
-	print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
-	print '</td></tr>';
-
-	//FK LOT
-	print '<tr><td class="fieldrequired minwidth400">';
-	print img_picto('', 'lot') . ' ' . $langs->trans("Lot");
-	print '</td><td>';
-	print dolismq_select_product_lots((empty(GETPOST('fk_product', 'int')) ? $object->fk_product : GETPOST('fk_product', 'int')), $object->fk_lot, 'fk_lot', 1, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_lot');
-	print '</td></tr>';
-
-	//FK SHEET
-	print '<tr><td class="fieldrequired minwidth400">' . $langs->trans("SheetLinked") . '</td><td>';
-	print $sheet->select_sheet_list($object->fk_sheet);
-	print '</td></tr>';
-
-	//FK PROJECT
-	print '<tr><td class="fieldrequired minwidth400">' . $langs->trans("SheetLinked") . '</td><td>';
-	print $formproject->select_projects($object->socid, $object->fk_project, 'projectid', $maxlength, 0, 1, 0, 1, 0, 0, '', 1);
-	print '</td></tr>';
-
-	// Other attributes
-	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_edit.tpl.php';
-
-	print '</table>';
-
-	print dol_get_fiche_end();
-
-	print '<div class="center"><input type="submit" class="button button-save" name="save" value="'.$langs->trans("Save").'">';
-	print ' &nbsp; <input type="submit" class="button button-cancel" name="cancel" value="'.$langs->trans("Cancel").'">';
-	print '</div>';
-
-	print '</form>';
-}
-
 // Part to show record
 if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create')))
 {
@@ -772,7 +697,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		if (empty($reshook)) {
-			print '<a class="' . (($object->status != 2) ? 'saveButton butAction' : 'butActionRefused classfortooltip') . '" href="'.$_SERVER["PHP_SELF"].'?action=save&id='.$object->id.'" id="' . (($object->status != 2) ? 'actionButtonSave' : '') . '" title="' . (($object->status != 2) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeDraft"))) . '">' . $langs->trans("Save") . '</a>';
+			print '<a class="' . (($object->status == 0) ? 'saveButton butAction' : 'butActionRefused classfortooltip') . '" href="'.$_SERVER["PHP_SELF"].'?action=save&id='.$object->id.'" id="' . (($object->status == 0) ? 'actionButtonSave' : '') . '" title="' . (($object->status == 0) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeDraft"))) . '">' . $langs->trans("Save") . '</a>';
 			print '<span class="' . (($object->status == 0) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 0) ? 'actionButtonValidate' : '') . '" title="' . (($object->status == 0 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeDraft"))) . '">' . $langs->trans("Validate") . '</span>';
 			// Set verdict control
 			if ($object->status == 1 && $object->verdict == null) {
@@ -845,19 +770,19 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						<?php
 						print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 
-						print '<span class="answer ' . ($object->status == 2 ? 'disable' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" value="1">';
+						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" value="1">';
 						print '<i class="fas fa-check"></i>';
 						print '</span>';
 
-						print '<span class="answer ' . ($object->status == 2 ? 'disable' : '') . ' ' . ($answer == 2 ? 'active' : '') . '" value="2">';
+						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 2 ? 'active' : '') . '" value="2">';
 						print '<i class="fas fa-times"></i>';
 						print '</span>';
 
-						print '<span class="answer ' . ($object->status == 2 ? 'disable' : '') . ' ' . ($answer == 3 ? 'active' : '') . '" value="3">';
+						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 3 ? 'active' : '') . '" value="3">';
 						print '<i class="fas fa-tools"></i>';
 						print '</span>';
 
-						print '<span class="answer ' . ($object->status == 2 ? 'disable' : '') . ' ' . ($answer == 4 ? 'active' : '') . '" value="4">';
+						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 4 ? 'active' : '') . '" value="4">';
 						print 'N/A';
 						print '</span>';
 						?>
