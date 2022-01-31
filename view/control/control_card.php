@@ -357,7 +357,7 @@ if (empty($reshook))
 				// Set validated OK
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-				header("Location: " . $urltogo);
+				header("Location: " . $urltogo . '&action=save');
 				exit;
 			} else {
 				// Set validated KO
@@ -500,9 +500,8 @@ if ($action == 'create') {
 
 	//FK Project
 	print '<tr><td class="minwidth400">' . $langs->trans("ProjectLinked") . '</td><td>';
-	print $formproject->select_projects('', '', 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1);
+	print $formproject->select_projects('', '', 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
 	print '</td></tr>';
-
 
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
