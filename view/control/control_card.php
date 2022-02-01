@@ -402,7 +402,7 @@ if (empty($reshook))
 				// Set validated OK
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-				header("Location: " . $urltogo . '&action=save');
+				header("Location: " . $urltogo);
 				exit;
 			} else {
 				// Set validated KO
@@ -607,26 +607,22 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$questionIds = $object->linkedObjectsIds;
 		$questionCounter = count($questionIds['question']);
 		$answerCounter = 0;
+		$formPosts = '';
 		foreach ($questionIds['question'] as $questionId) {
 			$controldettmp = $controldet;
-			//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
-			$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
-			$formPosts = '';
-			if ($result > 0 && is_array($result)) {
-				$controldettmp = array_shift($result);
-				//sauvegarder réponse
-				$answer = GETPOST('answer'.$questionId);
-				if ($answer > 0) {
-					$formPosts .= '&answer'.$questionId.'='.$answer;
-				}
 
-				//sauvegarder commentaire
-				$comment = GETPOST('comment'.$questionId);
-
-				if (dol_strlen($comment) > 0) {
-					$formPosts .= '&comment'.$questionId.'='.$answer;
-				}
+			$answer = GETPOST('answer'.$questionId);
+			if ($answer > 0) {
+				$formPosts .= '&answer'.$questionId.'='.$answer;
 			}
+
+			//sauvegarder commentaire
+			$comment = GETPOST('comment'.$questionId);
+
+			if (dol_strlen($comment) > 0) {
+				$formPosts .= '&comment'.$questionId.'='.$answer;
+			}
+
 		}
 
 		// Always output when not jmobile nor js
@@ -877,7 +873,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                          	}
                          	var urljump = pageyes + (pageyes.indexOf("?") < 0 ? "?" : "") + options + "'.dol_escape_js($formPosts).'";
             				if (pageyes.length > 0) { location.href = urljump; }
-            				console.log(urljump)
             				return;
                             $(this).dialog("close");
                         },
@@ -1217,7 +1212,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				<div class="table-row">
 					<div class="table-cell table-full wpeo-gridlayout grid-4">
 						<div class="question-comment-title"><?php print $langs->trans('Comment') . ' : '; ?></div>
-						<?php if ($object->status == 2 ) : ?>
+						<?php if ($object->status > 0 ) : ?>
 							<?php print $comment; ?>
 						<?php else : ?>
 							<div class="gridw-3"><?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?></div>
