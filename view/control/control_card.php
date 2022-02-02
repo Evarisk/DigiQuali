@@ -1187,7 +1187,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						print '</a>';
 						?>
 					</div>
-					<div class="table-cell table-250">
+					<div class="table-cell table-250" <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>>
 						<?php
 						print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 
