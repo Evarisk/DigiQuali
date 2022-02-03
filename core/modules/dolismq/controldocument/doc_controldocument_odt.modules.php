@@ -338,28 +338,30 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 								$tmparray['ref'] = $item->ref;
 								$tmparray['description'] = $item->description;
 
-								$path = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ok/thumbs/';
+								if (!empty($conf->global->DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS)) {
+									$path = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ok/thumbs/';
 
-								$filearray = dol_dir_list($path, "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
+									$filearray = dol_dir_list($path, "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
 
-								if (count($filearray)) {
-									$image = array_shift($filearray);
-									$tmparray['photo_ok'] = $image['fullname'];
-								} else {
-									$nophoto = '/public/theme/common/nophoto.png';
-									$tmparray['photo_ok'] = DOL_DOCUMENT_ROOT.$nophoto;
-								}
+									if (count($filearray)) {
+										$image = array_shift($filearray);
+										$tmparray['photo_ok'] = $image['fullname'];
+									} else {
+										$nophoto = '/public/theme/common/nophoto.png';
+										$tmparray['photo_ok'] = DOL_DOCUMENT_ROOT . $nophoto;
+									}
 
-								$path = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ko/thumbs/';
+									$path = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ko/thumbs/';
 
-								$filearray = dol_dir_list($path, "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
+									$filearray = dol_dir_list($path, "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
 
-								if (count($filearray)) {
-									$image = array_shift($filearray);
-									$tmparray['photo_ko'] = $image['fullname'];
-								} else {
-									$nophoto = '/public/theme/common/nophoto.png';
-									$tmparray['photo_ko'] = DOL_DOCUMENT_ROOT.$nophoto;
+									if (count($filearray)) {
+										$image = array_shift($filearray);
+										$tmparray['photo_ko'] = $image['fullname'];
+									} else {
+										$nophoto = '/public/theme/common/nophoto.png';
+										$tmparray['photo_ko'] = DOL_DOCUMENT_ROOT . $nophoto;
+									}
 								}
 
 								switch ($answer) {

@@ -113,7 +113,6 @@ print load_fiche_titre($title, $linkback, 'dolismq@dolismq');
 $head = dolismqAdminPrepareHead();
 print dol_get_fiche_head($head, 'controldocument', '', -1, "dolismq@dolismq");
 
-
 $types = array(
 	'ControlDocument' 				=> 'controldocument'
 );
@@ -339,8 +338,28 @@ foreach ($types as $type => $documentType) {
 	}
 
 	print '</table>';
-	print '<hr>';
 
+	print load_fiche_titre($langs->trans("ControlDocumentData"), '', '');
+
+	print '<table class="noborder centpercent">';
+	print '<tr class="liste_titre">';
+	print '<td>' . $langs->trans("Name") . '</td>';
+	print '<td>' . $langs->trans("Description") . '</td>';
+	print '<td class="center">' . $langs->trans("Status") . '</td>';
+	print '</tr>';
+
+	print '<tr class="oddeven"><td>';
+	print $langs->trans('ControlDocumentName');
+	print "</td><td>";
+	print $langs->trans('ControlDocumentDescription');
+	print '</td>';
+
+	print '<td class="center">';
+	print ajax_constantonoff('DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS');
+	print '</td>';
+	print '</tr>';
+	print '</table>';
+	print '<hr>';
 }
 // Page end
 print dol_get_fiche_end();

@@ -185,7 +185,27 @@ if (is_dir($dir)) {
 
 print '</table>';
 
+print load_fiche_titre($langs->trans("ControlData"), '', '');
 
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans("Name") . '</td>';
+print '<td>' . $langs->trans("Description") . '</td>';
+print '<td class="center">' . $langs->trans("Status") . '</td>';
+print '</tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('ControlName');
+print "</td><td>";
+print $langs->trans('ControlDescription');
+print '</td>';
+
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_DISPLAY_MEDIAS');
+print '</td>';
+print '</tr>';
+print '</table>';
 
 // Page end
 print dol_get_fiche_end();

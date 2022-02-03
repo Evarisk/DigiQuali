@@ -173,11 +173,13 @@ class modDoliSMQ extends DolibarrModules
 
 			// CONST CONTROL
 			70 => array('DOLISMQ_CONTROL_ADDON','chaine', 'mod_control_standard' ,'', $conf->entity),
+			71 => array('DOLISMQ_CONTROL_DISPLAY_MEDIAS','integer', 1,'', $conf->entity),
 
 			//CONST CONTROL DOCUMENT
 			80 => array('DOLISMQ_CONTROLDOCUMENT_ADDON','chaine', 'mod_controldocument_standard' ,'', $conf->entity),
 			81 => array('DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH','chaine', DOL_DOCUMENT_ROOT . '/custom/dolismq/documents/doctemplates/controldocument/' ,'', $conf->entity),
 			82 => array('DOLISMQ_CONTROLDOCUMENT_DEFAULT_MODEL','chaine', 'controldocument_odt' ,'', $conf->entity),
+			83 => array('DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS','integer', 1,'', $conf->entity),
 		);
 
 		// Some keys to add into the overwriting translation tables

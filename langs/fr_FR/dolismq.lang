@@ -59,6 +59,8 @@ SelectProductsOrServices = Sélectionner un produit / service
 DoliSMQNumberOfModelFilesFound = Nombre de modèles par défaut
 DoliSMQConfig = Configuration du module
 
+
+
 #
 # Questions
 #
@@ -93,6 +95,8 @@ ConfirmLockQuestion = Êtes-vous sûr de vouloir verrouiller la question ? <br> 
 LockQuestions = Toutes les questions sélectionnées sont passées au status verrouillé
 QuestionManagement = Gestion des questions
 
+
+
 #
 # Sheet
 #
@@ -125,6 +129,8 @@ ConfirmLockSheet = Êtes-vous sûr de vouloir verrouiller la fiche modèle ? <br
 NoLotForThisProduct = Pas de lot défini pour ce produit
 ModalAddPhoto = Bibliothèque de médias
 SheetManagement = Gestion des fiches modèles
+
+
 
 #
 # Control
@@ -170,6 +176,11 @@ ConfirmReOpenControl = Êtes-vous sûr de vouloir rouvrir la fiche de contrôle 
 ConfirmLockControl = Êtes-vous sûr de vouloir verrouiller la fiche de contrôle ? <br> Le verrouillage empêche toutes modifications de la fiche de contrôle.
 ProjectLinked = Projet lié
 ControlManagement = Gestion des contrôles
+ControlData = Données configurables des contrôles
+ControlName = Afficher les médias dans la fiche de contrôle
+ControlDescription = Afficher les médias des questions dans la fiche de contrôle
+
+
 
 #
 # ControlDet
@@ -179,6 +190,8 @@ ControlManagement = Gestion des contrôles
 AnswerSaved = Les réponses ont été sauvegardées
 Repair = À réparer
 NotApplicable = Non applicable
+
+
 
 #
 # ControlDocument - Fiche de Contrôle
@@ -200,6 +213,9 @@ ControlDocumentDoliSMQTemplate = ODT par défaut des fiches de contrôle
 
 # Data - Donnée
 ControlDocument = Fiche de Contrôle
+ControlDocumentData = Données configurables des fiches de contrôle
+ControlDocumentName = Afficher les médias dans la fiche de contrôle
+ControlDocumentDescription = Afficher les médias des questions dans la fiche de contrôle du document ODT
 
 
 

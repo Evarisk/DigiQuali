@@ -1191,18 +1191,20 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						<strong><?php print $item->label; ?></strong><br>
 						<?php print $item->description; ?>
 					</div>
-					<div class="table-cell table-175">
-						<?php
-						$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
-						if ($urladvanced) print '<a href="' . $urladvanced . '">';
-						print '<img width="60" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ok)) . '" >';
-						print '</a>';
-						$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
-						if ($urladvanced) print '<a href="' . $urladvanced . '">';
-						print '<img width="60" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ko)) . '" >';
-						print '</a>';
-						?>
-					</div>
+					<?php if (!empty($conf->global->DOLISMQ_CONTROL_DISPLAY_MEDIAS)) : ?>
+						<div class="table-cell table-175">
+							<?php
+							$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
+							if ($urladvanced) print '<a href="' . $urladvanced . '">';
+							print '<img width="60" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ok)) . '" >';
+							print '</a>';
+							$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
+							if ($urladvanced) print '<a href="' . $urladvanced . '">';
+							print '<img width="60" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ko)) . '" >';
+							print '</a>';
+							?>
+						</div>
+					<?php endif; ?>
 					<div class="table-cell table-225" <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>>
 						<?php
 						print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
