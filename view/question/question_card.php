@@ -474,16 +474,16 @@ if ($action == 'create')
 	print '</td></tr>';
 
 	//Label -- Libellé
-	print '<tr><td class="titlefieldcreate">'.$langs->trans("Label").'</td><td>';
+	print '<tr><td class="">'.$langs->trans("Label").'</td><td>';
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="'.GETPOST('label').'">';
 	print '</td></tr>';
 
-	print '<tr><td class="titlefieldcreate"><label class="fieldrequired" for="description">' . $langs->trans("Description") . '</label></td><td>';
+	print '<tr><td class=""><label class="fieldrequired" for="description">' . $langs->trans("Description") . '</label></td><td>';
 	$doleditor = new DolEditor('description', '', '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
 	print '</td></tr>';
 
-	print '<tr class="linked-medias photo_ok"><td class="titlefieldcreate"><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
+	print '<tr class="linked-medias photo_ok"><td class=""><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
 	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo GETPOST('favorite_photo_ok') ?>"/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ok"/>
@@ -494,7 +494,7 @@ if ($action == 'create')
 	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ok', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/tmp/QU0/photo_ok', null, GETPOST('favorite_photo_ok'));
 	print '</td></tr>';
 
-	print '<tr class="linked-medias photo_ko"><td class="titlefieldcreate"><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
+	print '<tr class="linked-medias photo_ko"><td class=""><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
 	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo GETPOST('favorite_photo_ko') ?>"/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ko"/>

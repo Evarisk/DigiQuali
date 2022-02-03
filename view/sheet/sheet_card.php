@@ -260,13 +260,13 @@ if ($action == 'create') {
 	print '<table class="border centpercent tableforfieldcreate sheet-table">'."\n";
 
 	//Ref -- Ref
-	print '<tr><td class="fieldrequired minwidth400">' . $langs->trans("Ref") . '</td><td>';
+	print '<tr><td class="titlefieldcreate fieldrequired">' . $langs->trans("Ref") . '</td><td>';
 	print '<input hidden class="flat" type="text" size="36" name="ref" id="ref" value="' . $refSheetMod->getNextValue($object) . '">';
 	print $refSheetMod->getNextValue($object);
 	print '</td></tr>';
 
 	//Label -- Libellé
-	print '<tr><td class="minwidth400">' . $langs->trans("Label") . '</td><td>';
+	print '<tr><td class="">' . $langs->trans("Label") . '</td><td>';
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="' . GETPOST('label') . '">';
 	print '</td></tr>';
 
@@ -415,7 +415,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$questionIds = $object->linkedObjectsIds;
 
 	print '<tr class="liste_titre">';
-	print '<td style="width: 400px;">' . $langs->trans('Ref') . '</td>';
+	print '<td>' . $langs->trans('Ref') . '</td>';
 	print '<td>' . $langs->trans('Label') . '</td>';
 	print '<td>' . $langs->trans('Description') . '</td>';
 	print '<td>' . $langs->trans('PhotoOk') . '</td>';
@@ -431,7 +431,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$item->fetch($questionId);
 
 			print '<tr>';
-			print '<td style="width: 400px;">';
+			print '<td>';
 			print $item->getNomUrl(1);
 			print '</td>';
 
@@ -477,7 +477,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<input type="hidden" name="action" value="addQuestion">';
 		print '<input type="hidden" name="id" value="' . $id . '">';
 
-		print '<td class="minwidth200">';
+		print '<td class="">';
 		print $question->select_question_list(0, 'questionId', '', '1', 0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds['question']);
 		print '</td>';
 		print '<td>';
