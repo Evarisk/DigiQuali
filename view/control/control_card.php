@@ -1187,10 +1187,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			<div class="wpeo-table table-flex table-3">
 				<div class="table-row">
 					<div class="table-cell table-full">
-						<?php print $item->label; ?> <br><br>
+						<strong><?php print $item->label; ?></strong><br>
 						<?php print $item->description; ?>
 					</div>
-					<div class="table-cell table-200">
+					<div class="table-cell table-175">
 						<?php
 						$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
 						if ($urladvanced) print '<a href="' . $urladvanced . '">';
@@ -1202,7 +1202,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						print '</a>';
 						?>
 					</div>
-					<div class="table-cell table-250" <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>>
+					<div class="table-cell table-225" <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>>
 						<?php
 						print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 
