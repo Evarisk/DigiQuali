@@ -69,6 +69,7 @@ CreateQuestion = Créer/Modifier les questions
 DeleteQuestion = Supprimer les questions
 ThereAre = Il y a
 YouAnswered = Vous avez répondu à
+On = sur
 
 # Trigger - Déclencheur
 QuestionCreateTrigger = Question créée

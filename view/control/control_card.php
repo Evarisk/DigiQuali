@@ -1095,7 +1095,20 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '</td></tr>';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
-	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php';
+	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php'; ?>
+	<script type="text/javascript">
+		$(function () {
+		let answerCounter = 0
+			jQuery("#tablelines").children().each(function() {
+				if ($(this).find(".answer.active").length > 0) {
+					answerCounter += 1;
+				}
+			})
+
+			jQuery('.answerCounter').text(answerCounter)
+		})
+	</script>
+	<?php
 
 	print '</table>';
 	print '</div>';
@@ -1133,8 +1146,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</div>'."\n";
 	}
 
-	// PREVENTIONPLAN LINES
+	// QUESTION LINES
 	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
+	$object->fetchQuestionsLinked($sheet->id, 'sheet');
+	$questionIds = $object->linkedObjectsIds;
+	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter"></span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . count($questionIds);
+
 	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '');
 	print '<div id="tablelines" class="control-audit noborder noshadow" width="100%">';
 
@@ -1146,8 +1163,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$colspan = 3;
 
 // Lines
-	$object->fetchQuestionsLinked($sheet->id, 'sheet');
-	$questionIds = $object->linkedObjectsIds;
 
 //	print '<tr class="liste_titre">';
 //	print '<td>' . $langs->trans('Ref') . '</td>';

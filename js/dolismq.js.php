@@ -996,13 +996,9 @@ window.eoxiaJS.control.reloadProductLot = function ( event ) {
 window.eoxiaJS.control.getAnswerCounter = function ( event ) {
 	let answerCounter = 0
 	jQuery("#tablelines").children().each(function() {
-		console.log($(this).find(".active"))
 		if ($(this).find(".answer.active").length > 0) {
 			answerCounter += 1;
 		}
 	})
-	console.log($(document).find(".answer.active").length)
-	console.log(jQuery("#tablelines").children().length)
-	console.log(answerCounter)
 	document.cookie = "answerCounter=" + answerCounter
 }
