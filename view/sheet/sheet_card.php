@@ -477,7 +477,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<input type="hidden" name="action" value="addQuestion">';
 		print '<input type="hidden" name="id" value="' . $id . '">';
 
-		print '<td class="minwidth300">';
+		print '<td class="minwidth200">';
 		print $question->select_question_list(0, 'questionId', '', '1', 0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds['question']);
 		print '</td>';
 		print '<td>';

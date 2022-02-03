@@ -495,7 +495,7 @@ if ($action == 'create') {
 	print '<table class="border centpercent tableforfieldcreate control-table">'."\n";
 
 	//Ref -- Ref
-	print '<tr><td class="fieldrequired minwidth400">' . $langs->trans("Ref") . '</td><td>';
+	print '<tr><td class="fieldrequired titlefieldcreate">' . $langs->trans("Ref") . '</td><td>';
 	print '<input hidden class="flat" type="text" size="36" name="ref" id="ref" value="' . $refControlMod->getNextValue($object) . '">';
 	print $refControlMod->getNextValue($object);
 	print '</td></tr>';
@@ -504,7 +504,7 @@ if ($action == 'create') {
 	if ($conf->global->DOLISQM_USER_CONTROLLER < 0 || empty($conf->global->DOLISQM_USER_CONTROLLER)) {
 		$userlist = $form->select_dolusers(( ! empty(GETPOST('fk_user_controller')) ? GETPOST('fk_user_controller') : $user->id), '', 0, null, 0, '', '', $conf->entity, 0, 0, 'AND u.statut = 1', 0, '', 'minwidth300', 0, 1);
 		print '<tr>';
-		print '<td class="fieldrequired minwidth400" style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
+		print '<td class="fieldrequired titlefieldcreate" style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
 		print '<td>';
 		print $form->selectarray('fk_user_controller', $userlist, ( ! empty(GETPOST('fk_user_controller')) ? GETPOST('fk_user_controller') : $user->id), $langs->trans('SelectUser'), null, null, null, "40%", 0, 0, '', 'minwidth300', 1);
 		print ' <a href="' . DOL_URL_ROOT . '/user/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddUser") . '"></span></a>';
@@ -512,14 +512,14 @@ if ($action == 'create') {
 	} else {
 		$usertmp->fetch($conf->global->DOLISQM_USER_CONTROLLER);
 		print '<tr>';
-		print '<td class="fieldrequired minwidth400" style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
+		print '<td class="fieldrequired titlefieldcreate" style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
 		print '<td>' . $usertmp->getNomUrl(1) . '</td>';
 		print '<input type="hidden" name="fk_user_controller" value="' . $conf->global->DOLISQM_USER_CONTROLLER . '">';
 		print '</td></tr>';
 	}
 
 	//FK Product
-	print '<tr><td class="fieldrequired minwidth400">' . img_picto('', 'product') . ' ' . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' '. $langs->trans('Service') . '</td><td>';
+	print '<tr><td class="fieldrequired titlefieldcreate">' . img_picto('', 'product') . ' ' . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' '. $langs->trans('Service') . '</td><td>';
 	$events    = array();
 	$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/digiriskdolibarr/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_lot');
 	print $form->select_produits(GETPOST('fk_product'), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices' , 0, 'minwidth300');
@@ -527,7 +527,7 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	//FK LOT
-	print '<tr><td class="minwidth400">';
+	print '<tr><td class="titlefieldcreate">';
 	print img_picto('', 'lot') . ' ' . $langs->trans("Lot");
 	print '</td><td class="lot-container">';
 	print '<span class="lot-content">';
@@ -539,12 +539,12 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	//FK SHEET
-	print '<tr><td class="fieldrequired minwidth400">' . $langs->trans("SheetLinked") . '</td><td>';
+	print '<tr><td class="fieldrequired titlefieldcreate">' . $langs->trans("SheetLinked") . '</td><td>';
 	print $sheet->select_sheet_list();
 	print '</td></tr>';
 
 	//FK Project
-	print '<tr><td class="minwidth400">' . $langs->trans("ProjectLinked") . '</td><td>';
+	print '<tr><td class="titlefieldcreate">' . $langs->trans("ProjectLinked") . '</td><td>';
 	print $formproject->select_projects('',  GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
 	print '</td></tr>';
 
