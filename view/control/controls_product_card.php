@@ -101,6 +101,7 @@ $optioncss  = GETPOST('optioncss', 'aZ'); // Option for the css output (always '
 // Initialize technical objects
 $object = new Control($db);
 $product = new Product($db);
+$project = new Project($db);
 $productlot      = new ProductLot($db);
 $extrafields = new ExtraFields($db);
 $hookmanager->initHooks(array('productlotcard', 'globalcard')); // Note that conf->hooks_modules contains array

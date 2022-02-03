@@ -281,6 +281,12 @@ while ($i < ($limit ? min($num, $limit) : $num))
 		{
 			print '<td'.($cssforfield ? ' class="'.$cssforfield.'"' : '').'>';
 			if ($key == 'status') print $object->getLibStatut(5);
+			if ($key == 'fk_project') {
+				$project->fetch($object->fk_project);
+				if ($project > 0) {
+					print $project->getNomUrl(1, '', 1);
+				}
+			}
 			else print $object->showOutputField($val, $key, $object->$key, '');
 			print '</td>';
 			if (!$i) $totalarray['nbfield']++;

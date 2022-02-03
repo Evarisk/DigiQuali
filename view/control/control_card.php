@@ -1090,7 +1090,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>';
 	$project->fetch($object->fk_project);
 	if ($project > 0) {
-		print $project->getNomUrl(1);
+		print $project->getNomUrl(1, '', 1);
 	}
 	print '</td></tr>';
 

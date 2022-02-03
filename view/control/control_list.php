@@ -62,6 +62,7 @@ if (!$res) die("Include of main fails");
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 
 // load dolismq libraries
 require_once __DIR__.'/../../class/control.class.php';
@@ -96,6 +97,7 @@ $pagenext = $page + 1;
 
 // Initialize technical objects
 $object = new Control($db);
+$project = new Project($db);
 $extrafields = new ExtraFields($db);
 $diroutputmassaction = $conf->dolismq->dir_output.'/temp/massgeneration/'.$user->id;
 $hookmanager->initHooks(array('controllist')); // Note that conf->hooks_modules contains array
