@@ -545,7 +545,7 @@ if ($action == 'create') {
 
 	//FK Project
 	print '<tr><td class="">' . $langs->trans("ProjectLinked") . '</td><td>';
-	print $formproject->select_projects('',  GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
+	print $formproject->select_projects(0,  GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
 	print '</td></tr>';
 
 	// Other attributes
