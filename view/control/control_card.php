@@ -62,10 +62,13 @@ if (!$res) die("Include of main fails");
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
+require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
+require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
+require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
 
 require_once __DIR__.'/../../class/control.class.php';
 require_once __DIR__.'/../../class/sheet.class.php';
@@ -98,6 +101,8 @@ $question      = new Question($db);
 $usertmp       = new User($db);
 $product       = new Product($db);
 $project       = new Project($db);
+$task          = new Task($db);
+$thirdparty    = new Societe($db);
 $productlot    = new Productlot($db);
 $extrafields   = new ExtraFields($db);
 $refControlMod = new $conf->global->DOLISMQ_CONTROL_ADDON($db);
@@ -475,9 +480,10 @@ if (empty($reshook))
  * View
  */
 
-$form = new Form($db);
-$formfile = new FormFile($db);
+$form        = new Form($db);
+$formfile    = new FormFile($db);
 $formproject = new FormProjets($db);
+$formother   = new FormOther($db);
 
 $title         = $langs->trans("Control");
 $title_create  = $langs->trans("NewControl");
@@ -516,7 +522,7 @@ if ($action == 'create') {
 		print '<td class="fieldrequired " style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
 		print '<td>';
 		print $form->selectarray('fk_user_controller', $userlist, ( ! empty(GETPOST('fk_user_controller')) ? GETPOST('fk_user_controller') : $user->id), $langs->trans('SelectUser'), null, null, null, "40%", 0, 0, '', 'minwidth300', 1);
-		print ' <a href="' . DOL_URL_ROOT . '/user/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddUser") . '"></span></a>';
+		print '<a href="' . DOL_URL_ROOT . '/user/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddUser") . '"></span></a>';
 		print '</td></tr>';
 	} else {
 		$usertmp->fetch($conf->global->DOLISMQ_CONTROL_SET_USER_CONTROLLER);
@@ -528,16 +534,16 @@ if ($action == 'create') {
 	}
 
 	//FK Product
-	print '<tr><td class="fieldrequired ">' . img_picto('', 'product') . ' ' . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' '. $langs->trans('Service') . '</td><td>';
+	print '<tr><td class="fieldrequired">' . img_picto('', 'product', 'class="paddingrightonly"') . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' '. $langs->trans('Service') . '</td><td>';
 	$events    = array();
 	$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/digiriskdolibarr/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_lot');
 	print $form->select_produits(GETPOST('fk_product'), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices' , 0, 'minwidth300');
-	print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
+	print '<a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
 	print '</td></tr>';
 
 	//FK LOT
 	print '<tr><td class="">';
-	print img_picto('', 'lot') . ' ' . $langs->trans("Lot");
+	print img_picto('', 'lot', 'class="paddingrightonly"') . $langs->trans("Lot");
 	print '</td><td class="lot-container">';
 	print '<span class="lot-content">';
 	$data = json_decode(file_get_contents('php://input'), true);
@@ -553,8 +559,34 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	//FK Project
-	print '<tr><td class="">' . $langs->trans("ProjectLinked") . '</td><td>';
-	print $formproject->select_projects(0,  GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
+	print '<tr><td class="">' . img_picto('', 'project', 'class="paddingrightonly"') . $langs->trans("ProjectLinked") . '</td><td>';
+	print $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0),  GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
+	print '<a href="' . DOL_URL_ROOT . '/projet/card.php?socid='.GETPOST('fk_soc').'&action=create&backtopage='.urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddProject") . '"></span></a>';
+	print '</td></tr>';
+
+	// update task list
+	print "\n".'<script type="text/javascript">';
+	print '$(document).ready(function () {
+			   $("#fk_project").change(function () {
+					var url = "'.DOL_URL_ROOT.'/projet/ajax/projects.php?mode=gettasks&socid="+$("#fk_project").val()+"&fk_project="+$("#fk_project").val();
+					console.log("Call url to get new list of tasks: "+url);
+					$.get(url, function(data) {
+						console.log(data);
+						if (data) $("#fk_task").html(data).select2();
+					})
+			  });
+		   })';
+	print '</script>'."\n";
+
+	//FK Task
+	print '<tr><td class="">' . img_picto('', 'projecttask', 'class="paddingrightonly"') . $langs->trans("TaskLinked") . '</td><td>';
+	$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST("fk_task"), 'fk_task', 24, 0, '1', 1, 0, 0, 'maxwidth300', '', '');
+	print '</td></tr>';
+
+	//FK Soc
+	print '<tr><td class="">' . img_picto('', 'building', 'class="paddingrightonly"') . $langs->trans("ThirdpartyLinked") . '</td><td>';
+	print $form->select_company(GETPOST('fk_soc'), 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'minwidth300');
+	print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
 	print '</td></tr>';
 
 	// Other attributes
@@ -1100,6 +1132,28 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$project->fetch($object->fk_project);
 	if ($project > 0) {
 		print $project->getNomUrl(1, '', 1);
+	}
+	print '</td></tr>';
+
+	//Fk_task - Tâche liée
+	print '<tr><td class="titlefield">';
+	print $langs->trans("Task");
+	print '</td>';
+	print '<td>';
+	$task->fetch($object->fk_task);
+	if ($task > 0) {
+		print $task->getNomUrl(1);
+	}
+	print '</td></tr>';
+
+	//Fk_soc - Tiers lié
+	print '<tr><td class="titlefield">';
+	print $langs->trans("ThirdParty");
+	print '</td>';
+	print '<td>';
+	$thirdparty->fetch($object->fk_soc);
+	if ($thirdparty > 0) {
+		print $thirdparty->getNomUrl(1);
 	}
 	print '</td></tr>';
 

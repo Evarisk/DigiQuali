@@ -183,6 +183,8 @@ ControlDescription = Afficher les médias des questions dans la fiche de contrô
 UserController = Contrôleur
 UserControllerDescription = L'utilisateur utilisé par défaut comme Contrôleur
 ActionSaved = Évévenement sauvegardé sur l'ID : %s
+TaskLinked = Tâche liée
+ThirdPartyLinked = Tiers lié
 
 
 
