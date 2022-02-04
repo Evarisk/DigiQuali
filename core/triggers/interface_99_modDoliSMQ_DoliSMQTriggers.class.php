@@ -109,7 +109,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				$actioncomm->create($user);
 				break;
 
-			case 'QUESTION_MODFIDY' :
+			case 'QUESTION_MODIFY' :
 
 				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
 				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
@@ -185,7 +185,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				$actioncomm->create($user);
 				break;
 
-			case 'SHEET_MODFIDY' :
+			case 'SHEET_MODIFY' :
 
 				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
 				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
@@ -261,7 +261,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				$actioncomm->create($user);
 				break;
 
-			case 'CONTROL_MODFIDY' :
+			case 'CONTROL_MODIFY' :
 
 				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
 				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
@@ -350,6 +350,24 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				$actioncomm->label       = $langs->trans('ControlValidatedTrigger');
 				$actioncomm->datep       = $now;
 				$actioncomm->fk_element  = $object->id;
+				$actioncomm->userownerid = $user->id;
+				$actioncomm->percentage  = -1;
+
+				$actioncomm->create($user);
+				break;
+
+			case 'CONTROL_SET_USER_CONTROLLER' :
+
+				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
+				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
+				$now        = dol_now();
+				$actioncomm = new ActionComm($this->db);
+
+				$actioncomm->elementtype = 'control@dolismq';
+				$actioncomm->code        = 'AC_CONTROL_SET_USER_CONTROLLER';
+				$actioncomm->type_code   = 'AC_OTH_AUTO';
+				$actioncomm->label       = $langs->trans('ControlSetUserControllerTrigger', $user->login);
+				$actioncomm->datep       = $now;
 				$actioncomm->userownerid = $user->id;
 				$actioncomm->percentage  = -1;
 

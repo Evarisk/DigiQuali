@@ -148,6 +148,7 @@ ControlDeleteTrigger = Fiche contrôle supprimée
 ControlDraftedTrigger = Fiche contrôle brouillon
 ControlValidatedTrigger = Fiche contrôle validée
 ControlLockedTrigger = Fiche contrôle verrouillée
+ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
 
 # Mod Numbering - Modèle de numérotation
 DoliSMQControlNumberingModule = Modèle de numérotation des contrôles de DoliSMQ
@@ -179,6 +180,9 @@ ControlManagement = Gestion des contrôles
 ControlData = Données configurables des contrôles
 ControlName = Afficher les médias dans la fiche de contrôle
 ControlDescription = Afficher les médias des questions dans la fiche de contrôle
+UserController = Contrôleur
+UserControllerDescription = L'utilisateur utilisé par défaut comme Contrôleur
+ActionSaved = Évévenement sauvegardé sur l'ID : %s
 
 
 

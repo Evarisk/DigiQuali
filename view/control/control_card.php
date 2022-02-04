@@ -501,7 +501,7 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	//FK User controller
-	if ($conf->global->DOLISQM_USER_CONTROLLER < 0 || empty($conf->global->DOLISQM_USER_CONTROLLER)) {
+	if ($conf->global->DOLISMQ_CONTROL_SET_USER_CONTROLLER < 0 || empty($conf->global->DOLISMQ_CONTROL_SET_USER_CONTROLLER)) {
 		$userlist = $form->select_dolusers(( ! empty(GETPOST('fk_user_controller')) ? GETPOST('fk_user_controller') : $user->id), '', 0, null, 0, '', '', $conf->entity, 0, 0, 'AND u.statut = 1', 0, '', 'minwidth300', 0, 1);
 		print '<tr>';
 		print '<td class="fieldrequired " style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
@@ -510,11 +510,11 @@ if ($action == 'create') {
 		print ' <a href="' . DOL_URL_ROOT . '/user/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddUser") . '"></span></a>';
 		print '</td></tr>';
 	} else {
-		$usertmp->fetch($conf->global->DOLISQM_USER_CONTROLLER);
+		$usertmp->fetch($conf->global->DOLISMQ_CONTROL_SET_USER_CONTROLLER);
 		print '<tr>';
 		print '<td class="fieldrequired " style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
 		print '<td>' . $usertmp->getNomUrl(1) . '</td>';
-		print '<input type="hidden" name="fk_user_controller" value="' . $conf->global->DOLISQM_USER_CONTROLLER . '">';
+		print '<input type="hidden" name="fk_user_controller" value="' . $conf->global->DOLISMQ_CONTROL_SET_USER_CONTROLLER . '">';
 		print '</td></tr>';
 	}
 

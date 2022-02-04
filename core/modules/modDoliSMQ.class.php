@@ -174,6 +174,7 @@ class modDoliSMQ extends DolibarrModules
 			// CONST CONTROL
 			70 => array('DOLISMQ_CONTROL_ADDON','chaine', 'mod_control_standard' ,'', $conf->entity),
 			71 => array('DOLISMQ_CONTROL_DISPLAY_MEDIAS','integer', 1,'', $conf->entity),
+			72 => array('DOLISMQ_CONTROL_SET_USER_CONTROLLER','integer', 0,'', $conf->entity),
 
 			//CONST CONTROL DOCUMENT
 			80 => array('DOLISMQ_CONTROLDOCUMENT_ADDON','chaine', 'mod_controldocument_standard' ,'', $conf->entity),
