@@ -203,23 +203,32 @@ if (empty($reshook))
 
 				$controldettmp->update($user);
 			} else {
+				$controldettmp = $controldet;
+
 				$controldettmp->fk_control  = $object->id;
 				$controldettmp->fk_question = $questionId;
 
 				//sauvegarder réponse
 				$answer = GETPOST('answer'.$questionId);
+
 				if ($answer > 0) {
 					$controldettmp->answer = $answer;
+				} else {
+					$controldettmp->answer = '';
 				}
 
 				//sauvegarder commentaire
 				$comment = GETPOST('comment'.$questionId);
 				if (dol_strlen($comment) > 0) {
 					$controldettmp->comment = $comment;
+				} else {
+					$controldettmp->comment = '';
 				}
-				$controldettmp->entity = $conf->entity;
 
-				$controldettmp->insert($user);
+				$controldettmp->entity = $conf->entity;
+				if ($answer > 0 || dol_strlen($comment) > 0) {
+					$controldettmp->insert($user);
+				}
 			}
 		}
 		setEventMessages($langs->trans('AnswerSaved') . ' ' . $question->ref, array());
@@ -1150,7 +1159,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
 	$object->fetchQuestionsLinked($sheet->id, 'sheet');
 	$questionIds = $object->linkedObjectsIds;
-	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter"></span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . count($questionIds);
+	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter"></span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . count($questionIds['question']);
 
 	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '');
 	print '<div id="tablelines" class="control-audit noborder noshadow" width="100%">';
@@ -1176,11 +1185,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if ( ! empty($questionIds['question']) && $questionIds > 0) {
 		foreach ($questionIds['question'] as $questionId) {
 			$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
+			$answer = 0;
+			$comment = '';
 			if ($result > 0 && is_array($result)) {
 				$itemControlDet = array_shift($result);
 				$answer = $itemControlDet->answer;
 				$comment = $itemControlDet->comment;
 			}
+			$answer = GETPOST('answer'.$questionId) ?: $answer;
 			$item = $question;
 			$item->fetch($questionId);
 			?>
@@ -1207,21 +1219,22 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					<?php endif; ?>
 					<div class="table-cell table-225" <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>>
 						<?php
+
 						print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . (GETPOST('answer'.$questionId) == 1 ? 'active' : ($answer == 1 ? 'active' : '')) . '" value="1">';
+						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" value="1">';
 						print '<i class="fas fa-check"></i>';
 						print '</span>';
 
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . (GETPOST('answer'.$questionId) == 2 ? 'active' : ($answer == 2 ? 'active' : '')) . '" value="2">';
+						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 2 ? 'active' : '') . '" value="2">';
 						print '<i class="fas fa-times"></i>';
 						print '</span>';
 
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . (GETPOST('answer'.$questionId) == 3 ? 'active' : ($answer == 3 ? 'active' : '')) . '" value="3">';
+						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 3 ? 'active' : '') . '" value="3">';
 						print '<i class="fas fa-tools"></i>';
 						print '</span>';
 
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . (GETPOST('answer'.$questionId) == 4 ? 'active' : ($answer == 4 ? 'active' : '')) . '" value="4">';
+						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 4 ? 'active' : '') . '" value="4">';
 						print 'N/A';
 						print '</span>';
 						?>
