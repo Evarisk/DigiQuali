@@ -911,7 +911,8 @@ window.eoxiaJS.control.event = function() {
 	$( document ).on( 'click', '.answer:not(.disable)', window.eoxiaJS.control.selectAnswer );
 	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.writeComment );
 	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
-	$( document ).on('click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
+	$( document ).on( 'change', '#fk_project', window.eoxiaJS.control.reloadTask );
+	$( document ).on( 'click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
 };
 
 /**
@@ -986,6 +987,37 @@ window.eoxiaJS.control.reloadProductLot = function ( event ) {
 		contentType: false,
 		success: function ( resp ) {
 			$('.lot-container').html($(resp).find('.lot-content'))
+		},
+		error: function ( ) {
+		}
+	});
+	//$(this).closest('.control-table').find('.lot-container').load(document.URL+'&productRef='+productRef + ' .lot-content')
+};
+
+/**
+ * Write a comment for a control question.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.control.reloadTask = function ( event ) {
+	console.log($(this))
+	let selectTitle = $(this).closest('td').find('#select2-fk_project-container').attr('title')
+	let projectRef = selectTitle.split(/ /)[0]
+	let projectRef2 = projectRef.slice(0, -1)
+	$.ajax({
+		url: document.URL,
+		type: "POST",
+		data: JSON.stringify({
+			projectRef: projectRef2,
+		}),
+		processData: false,
+		contentType: false,
+		success: function ( resp ) {
+			$('.task-container').html($(resp).find('.task-content'))
 		},
 		error: function ( ) {
 		}

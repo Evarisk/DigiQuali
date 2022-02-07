@@ -547,7 +547,6 @@ if ($action == 'create') {
 	print '<span class="lot-content">';
 	$data = json_decode(file_get_contents('php://input'), true);
 	dol_strlen($data['productRef']) > 0 ? $product->fetch(0, $data['productRef']) : 0;
-
 	print dolismq_select_product_lots(( ! empty(GETPOST('fk_product')) ? GETPOST('fk_product') : $product->id), GETPOST('fk_lot'), 'fk_lot', 1, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_lot');
 	print '</span>';
 	print '</td></tr>';
@@ -563,23 +562,14 @@ if ($action == 'create') {
 	print '<a href="' . DOL_URL_ROOT . '/projet/card.php?socid='.GETPOST('fk_soc').'&action=create&backtopage='.urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddProject") . '"></span></a>';
 	print '</td></tr>';
 
-	// update task list
-	print "\n".'<script type="text/javascript">';
-	print '$(document).ready(function () {
-			   $("#fk_project").change(function () {
-					var url = "'.DOL_URL_ROOT.'/projet/ajax/projects.php?mode=gettasks&socid="+$("#fk_project").val()+"&fk_project="+$("#fk_project").val();
-					console.log("Call url to get new list of tasks: "+url);
-					$.get(url, function(data) {
-						console.log(data);
-						if (data) $("#fk_task").html(data).select2();
-					})
-			  });
-		   })';
-	print '</script>'."\n";
-
 	//FK Task
-	print '<tr><td class="">' . img_picto('', 'projecttask', 'class="paddingrightonly"') . $langs->trans("TaskLinked") . '</td><td>';
-	$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST("fk_task"), 'fk_task', 24, 0, '1', 1, 0, 0, 'maxwidth300', '', '');
+	print '<tr><td class="">' . img_picto('', 'projecttask', 'class="paddingrightonly"') . $langs->trans("TaskLinked");
+	print '</td><td class="task-container">';
+	print '<span class="task-content">';
+	$data = json_decode(file_get_contents('php://input'), true);
+	dol_strlen($data['projectRef']) > 0 ? $project->fetch(0, $data['projectRef']) : 0;
+	$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST("fk_task"), 'fk_task', 24, 0, '1', 1, 0, 0, 'maxwidth300', ( ! empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
+	print '</span>';
 	print '</td></tr>';
 
 	//FK Soc
