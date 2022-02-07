@@ -38,7 +38,7 @@ function questionPrepareHead($object)
 
 	$head[$h][0] = dol_buildpath("/dolismq/view/question/question_card.php", 1).'?id='.$object->id;
 	$head[$h][1] = $langs->trans("Card");
-	$head[$h][2] = 'card';
+	$head[$h][2] = 'questionCard';
 	$h++;
 
 //	if (isset($object->fields['note_public']) || isset($object->fields['note_private']))
@@ -66,7 +66,7 @@ function questionPrepareHead($object)
 
 	$head[$h][0] = dol_buildpath("/dolismq/view/question/question_agenda.php", 1).'?id='.$object->id;
 	$head[$h][1] = $langs->trans("Events");
-	$head[$h][2] = 'agenda';
+	$head[$h][2] = 'questionAgenda';
 	$h++;
 
 	complete_head_from_modules($conf, $langs, $object, $head, $h, 'question@dolismq');

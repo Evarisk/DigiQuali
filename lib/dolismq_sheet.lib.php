@@ -38,7 +38,7 @@ function sheetPrepareHead($object)
 
 	$head[$h][0] = dol_buildpath("/dolismq/view/sheet/sheet_card.php", 1).'?id='.$object->id;
 	$head[$h][1] = $langs->trans("Card");
-	$head[$h][2] = 'card';
+	$head[$h][2] = 'sheetCard';
 	$h++;
 
 //	require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
@@ -54,7 +54,7 @@ function sheetPrepareHead($object)
 
 	$head[$h][0] = dol_buildpath("/dolismq/view/sheet/sheet_agenda.php", 1).'?id='.$object->id;
 	$head[$h][1] = $langs->trans("Events");
-	$head[$h][2] = 'agenda';
+	$head[$h][2] = 'sheetAgenda';
 	$h++;
 
 	complete_head_from_modules($conf, $langs, $object, $head, $h, 'sheet@dolismq');

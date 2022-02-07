@@ -596,7 +596,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$res = $object->fetch_optionals();
 
 	$head = questionPrepareHead($object);
-	print dol_get_fiche_head($head, 'card', $langs->trans("Question"), -1, $object->picto);
+	print dol_get_fiche_head($head, 'questionCard', $langs->trans("Question"), -1, "dolismq@dolismq");
 
 	$formconfirm = '';
 
