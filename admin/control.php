@@ -74,16 +74,15 @@ if ($action == 'setmod') {
 }
 
 if ($action == 'setUserController') {
-	$fk_user_controller = GETPOST('fk_user_controller');
-
 	if ( ! $error) {
 		$constforval = 'DOLISMQ_' . strtoupper($type) . "_SET_USER_CONTROLLER";
-		dolibarr_set_const($db, $constforval, $fk_user_controller, 'integer', 0, '', $conf->entity);
+		dolibarr_set_const($db, $constforval, $value, 'integer', 0, '', $conf->entity);
 		setEventMessages($langs->trans("SetupSaved"), null, 'mesgs');
 		$control->call_trigger(strtoupper(get_class($control)).'_SET_USER_CONTROLLER', $user);
 		$allActions = $actioncomm->getActions($db);
 		$lastAction = array_shift($allActions);
 		setEventMessages($langs->trans("ActionSaved") . '<a target="_blank" href="' . dol_buildpath('/comm/action/card.php?id=' . $lastAction->id, 2) . '">' . $lastAction->id . '</a>',null, 'mesgs');
+		header("Location: " . $_SERVER["PHP_SELF"]);
 	}
 }
 
@@ -220,31 +219,20 @@ print '<td class="center">';
 print ajax_constantonoff('DOLISMQ_CONTROL_DISPLAY_MEDIAS');
 print '</td>';
 print '</tr>';
-print '</table>';
-print '<br>';
-
-print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '" name="control_data">';
-print '<input type="hidden" name="token" value="' . newToken() . '">';
-print '<input type="hidden" name="action" value="setUserController">';
-print '<table class="noborder centpercent editmode">';
-print '<tr class="liste_titre">';
-print '<td>' . $langs->trans("Name") . '</td>';
-print '<td>' . $langs->trans("Description") . '</td>';
-print '<td>' . $langs->trans("Value") . '</td>';
-print '<td>' . $langs->trans("Action") . '</td>';
-print '</tr>';
 
 print '<tr class="oddeven"><td><label for="UserController">' . $langs->trans("UserController") . '</label></td>';
 print '<td>' . $langs->trans("UserControllerDescription") . '</td>';
-$userlist = $form->select_dolusers(( ! empty($conf->global->DOLISMQ_CONTROL_SET_USER_CONTROLLER) ? $conf->global->DOLISMQ_CONTROL_SET_USER_CONTROLLER : $user->id), '', 0, null, 0, '', '', $conf->entity, 0, 0, 'AND u.statut = 1', 0, '', 'minwidth300', 0, 1);
-print '<td>';
-print $form->selectarray('fk_user_controller', $userlist, ( ! empty($conf->global->DOLISMQ_CONTROL_SET_USER_CONTROLLER) ? $conf->global->DOLISMQ_CONTROL_SET_USER_CONTROLLER : $user->id), $langs->trans('SelectUser'), null, null, null, "40%", 0, 0, '', 'minwidth300', 1);
-print ' <a href="' . DOL_URL_ROOT . '/user/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddUser") . '"></span></a>';
+print '<td class="center">';
+if ($conf->global->DOLISMQ_CONTROL_SET_USER_CONTROLLER) {
+	print '<a class="reposition" href="'.$_SERVER["PHP_SELF"].'?action=setUserController&value=0" alt="'.$langs->trans("Default").'">'.img_picto($langs->trans("Activated"), 'switch_on').'</a>';
+}
+else {
+	print '<a class="reposition" href="'.$_SERVER["PHP_SELF"].'?action=setUserController&value=1" alt="'.$langs->trans("Default").'">'.img_picto($langs->trans("Disabled"), 'switch_off').'</a>';
+}
 print '</td>';
-print '<td><input type="submit" class="button" name="save" value="' . $langs->trans("Save") . '">';
-print '</td></tr>';
+print '</tr>';
 print '</table>';
-print '</form>';
+print '<br>';
 
 // Page end
 print dol_get_fiche_end();
