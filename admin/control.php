@@ -42,7 +42,7 @@ global $conf, $db, $langs, $user;
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
 require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
 
-require_once '../class/control.class.php';
+//require_once '../class/control.class.php';
 require_once '../lib/dolismq.lib.php';
 
 // Translations
@@ -61,7 +61,7 @@ $error = 0;
 
 // Initialize technical objects
 $usertmp = new User($db);
-$control = new Control($db);
+//$control = new Control($db);
 $actioncomm = new ActionComm($db);
 
 /*
@@ -73,18 +73,18 @@ if ($action == 'setmod') {
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
 
-if ($action == 'setUserController') {
-	if ( ! $error) {
-		$constforval = 'DOLISMQ_' . strtoupper($type) . "_SET_USER_CONTROLLER";
-		dolibarr_set_const($db, $constforval, $value, 'integer', 0, '', $conf->entity);
-		setEventMessages($langs->trans("SetupSaved"), null, 'mesgs');
-		$control->call_trigger(strtoupper(get_class($control)).'_SET_USER_CONTROLLER', $user);
-		$allActions = $actioncomm->getActions($db);
-		$lastAction = array_shift($allActions);
-		setEventMessages($langs->trans("ActionSaved") . '<a target="_blank" href="' . dol_buildpath('/comm/action/card.php?id=' . $lastAction->id, 2) . '">' . $lastAction->id . '</a>',null, 'mesgs');
-		header("Location: " . $_SERVER["PHP_SELF"]);
-	}
-}
+//if ($action == 'setUserController') {
+//	if ( ! $error) {
+//		$constforval = 'DOLISMQ_' . strtoupper($type) . "_SET_USER_CONTROLLER";
+//		dolibarr_set_const($db, $constforval, $value, 'integer', 0, '', $conf->entity);
+//		setEventMessages($langs->trans("SetupSaved"), null, 'mesgs');
+//		$control->call_trigger(strtoupper(get_class($control)).'_SET_USER_CONTROLLER', $user);
+//		$allActions = $actioncomm->getActions($db);
+//		$lastAction = array_shift($allActions);
+//		setEventMessages($langs->trans("ActionSaved") . '<a target="_blank" href="' . dol_buildpath('/comm/action/card.php?id=' . $lastAction->id, 2) . '">' . $lastAction->id . '</a>',null, 'mesgs');
+//		header("Location: " . $_SERVER["PHP_SELF"]);
+//	}
+//}
 
 /*
  * View
@@ -220,17 +220,17 @@ print ajax_constantonoff('DOLISMQ_CONTROL_DISPLAY_MEDIAS');
 print '</td>';
 print '</tr>';
 
-print '<tr class="oddeven"><td><label for="UserController">' . $langs->trans("UserController") . '</label></td>';
-print '<td>' . $langs->trans("UserControllerDescription") . '</td>';
-print '<td class="center">';
-if ($conf->global->DOLISMQ_CONTROL_SET_USER_CONTROLLER) {
-	print '<a class="reposition" href="'.$_SERVER["PHP_SELF"].'?action=setUserController&value=0" alt="'.$langs->trans("Default").'">'.img_picto($langs->trans("Activated"), 'switch_on').'</a>';
-}
-else {
-	print '<a class="reposition" href="'.$_SERVER["PHP_SELF"].'?action=setUserController&value=1" alt="'.$langs->trans("Default").'">'.img_picto($langs->trans("Disabled"), 'switch_off').'</a>';
-}
-print '</td>';
-print '</tr>';
+//print '<tr class="oddeven"><td><label for="UserController">' . $langs->trans("UserController") . '</label></td>';
+//print '<td>' . $langs->trans("UserControllerDescription") . '</td>';
+//print '<td class="center">';
+//if ($conf->global->DOLISMQ_CONTROL_SET_USER_CONTROLLER) {
+//	print '<a class="reposition" href="'.$_SERVER["PHP_SELF"].'?action=setUserController&value=0" alt="'.$langs->trans("Default").'">'.img_picto($langs->trans("Activated"), 'switch_on').'</a>';
+//}
+//else {
+//	print '<a class="reposition" href="'.$_SERVER["PHP_SELF"].'?action=setUserController&value=1" alt="'.$langs->trans("Default").'">'.img_picto($langs->trans("Disabled"), 'switch_off').'</a>';
+//}
+//print '</td>';
+//print '</tr>';
 print '</table>';
 print '<br>';
 

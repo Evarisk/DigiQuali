@@ -180,9 +180,7 @@ ControlManagement = Gestion des contrôles
 ControlData = Données configurables des contrôles
 ControlName = Afficher les médias dans la fiche de contrôle
 ControlDescription = Afficher les médias des questions dans la fiche de contrôle
-UserController = Changement du contrôleur
-UserControllerDescription = L'administrateur peut changer l'utilisateur contrôleur
-ActionSaved = Évévenement sauvegardé sur l'ID : %s
+ChangeUserController = Droit permettant de changer l'utilisateur contrôleur
 TaskLinked = Tâche liée
 ThirdPartyLinked = Tiers lié
 
