@@ -25,6 +25,8 @@ ModuleDoliSMQDesc = Description de DoliSMQ
 #
 # Page d'administration
 #
+
+# Data - Donnée
 DoliSMQSetup = Configuration du module DoliSMQ
 Settings = Réglages
 DoliSMQSetupPage = Page de configuration du module DoliSMQ
@@ -52,3 +54,187 @@ MyWidgetDescription = Description de mon widget
 #
 
 DoliSMQHelpAuditDateStart = La date de début d'audit
+Or = ou
+SelectProductsOrServices = Sélectionner un produit / service
+DoliSMQNumberOfModelFilesFound = Nombre de modèles par défaut
+DoliSMQConfig = Configuration du module
+
+
+
+#
+# Questions
+#
+
+# Rights - Droits
+ReadQuestion = Consulter les questions
+CreateQuestion = Créer/Modifier les questions
+DeleteQuestion = Supprimer les questions
+ThereAre = Il y a
+YouAnswered = Vous avez répondu à
+On = sur
+
+# Trigger - Déclencheur
+QuestionCreateTrigger = Question créée
+QuestionModifyTrigger = Question modifiée
+QuestionDeleteTrigger = Question supprimée
+QuestionLockedTrigger = Question verrouillée
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQQuestionNumberingModule = Modèle de numérotation des questions de DoliSMQ
+DoliSMQQuestionStandardModel = Renvoie le numéro sous la forme QUn où n est un compteur séquentiel sans rupture et sans remise à 0.
+
+# Data - Donnée
+AddQuestion = Ajouter une question
+NewQuestion = Nouvelle question
+QuestionList = Liste des questions
+LinkedQuestionsList = Listes des questions liées
+addQuestionLink = Question ajoutée à la fiche modèle :
+removeQuestionLink = Question retirée de la fiche modèle :
+LockQuestion = Verrouiller la question
+ConfirmLockQuestion = Êtes-vous sûr de vouloir verrouiller la question ? <br> Le verrouillage empêche toutes modifications de la question.
+LockQuestions = Toutes les questions sélectionnées sont passées au status verrouillé
+QuestionManagement = Gestion des questions
+
+
+
+#
+# Sheet
+#
+
+# Rights - Droits
+ReadSheet = Consulter les fiches modèle
+CreateSheet = Créer/Modifier les fiches modèle
+DeleteSheet = Supprimer les fiches modèle
+
+# Trigger - Déclencheur
+SheetCreateTrigger = Fiche modèle créée
+SheetModifyTrigger = Fiche modèle modifiée
+SheetDeleteTrigger = Fiche modèle supprimée
+SheetLockedTrigger = Fiche modèle verrouillée
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQSheetNumberingModule = Modèle de numérotation des fiches modèles de DoliSMQ
+DoliSMQSheetStandardModel = Renvoie le numéro sous la forme MOn où n est un compteur séquentiel sans rupture et sans remise à 0.
+
+# Data - Donnée
+Sheet = Fiche modèle
+AddSheet = Ajouter une fiche modèle
+NewSheet = Nouvelle fiche modèle
+SheetList = Liste des fiches modèles
+SheetLinked = Modèle de contrôle
+FKSheet = Fiche Modèle
+AllQuestionsMustHaveLocked = Tous les questions doivent être verrouillé pour verrouiller la fiche modèle
+LockSheet = Verrouiller la fiche modèle
+ConfirmLockSheet = Êtes-vous sûr de vouloir verrouiller la fiche modèle ? <br> Le verrouillage empêche toutes modifications de la fiche modèle.
+NoLotForThisProduct = Pas de lot défini pour ce produit
+ModalAddPhoto = Bibliothèque de médias
+SheetManagement = Gestion des fiches modèles
+
+
+
+#
+# Control
+#
+
+# Rights - Droits
+ReadControl = Consulter les fiches de contrôle
+CreateControl = Créer/Modifier les fiches de contrôle
+DeleteControl = Supprimer les fiches de contrôle
+
+# Trigger - Déclencheur
+ControlCreateTrigger = Fiche contrôle créée
+ControlModifyTrigger = Fiche contrôle modifiée
+ControlDeleteTrigger = Fiche contrôle supprimée
+ControlDraftedTrigger = Fiche contrôle brouillon
+ControlValidatedTrigger = Fiche contrôle validée
+ControlLockedTrigger = Fiche contrôle verrouillée
+ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQControlNumberingModule = Modèle de numérotation des contrôles de DoliSMQ
+DoliSMQControlStandardModel = Renvoie le numéro sous la forme FCn où n est un compteur séquentiel sans rupture et sans remise à 0.
+
+# Data - Donnée
+Control = Contrôle
+AddControl = Ajouter un contrôle
+NewControl = Nouveau contrôle
+ControlList = Liste des contrôles
+FKUserController = Contrôleur
+ControlDate = Date de contrôle
+Controls = Contrôles
+ControlMustBeDraft = La fiche de contrôle doit être brouillon pour accéder à cette fonctionnalité
+ControlMustBeValidated = La fiche de contrôle doit être validée pour la rouvrir
+ControlMustBeValidatedToLock = La fiche de contrôle doit être validée pour la verrouiller
+ControlVerdictSelected = La fiche de contrôle a déjà un verdict de choisi
+SetOK/KO = Apte/Inapte
+Batch = Lot/Série
+VerdictControl = Choix du verdict
+ValidateControl = Valider la fiche de contrôle
+ReOpenControl = Rouvrir la fiche de contrôle
+LockControl = Verrouiller la fiche de contrôle
+ConfirmValidateControl = Êtes-vous sûr de vouloir valider la fiche de contrôle ? <br> La validation permet d'accéder au choix du verdict de la fiche de contrôle.
+ConfirmReOpenControl = Êtes-vous sûr de vouloir rouvrir la fiche de contrôle ? <br> La réouverture supprime le verdict  de la fiche de contrôle.
+ConfirmLockControl = Êtes-vous sûr de vouloir verrouiller la fiche de contrôle ? <br> Le verrouillage empêche toutes modifications de la fiche de contrôle.
+ProjectLinked = Projet lié
+ControlManagement = Gestion des contrôles
+ControlData = Données configurables des contrôles
+ControlName = Afficher les médias dans la fiche de contrôle
+ControlDescription = Afficher les médias des questions dans la fiche de contrôle
+ChangeUserController = Droit permettant de changer l'utilisateur contrôleur
+TaskLinked = Tâche liée
+ThirdPartyLinked = Tiers lié
+
+
+
+#
+# ControlDet
+#
+
+# Data - Donnée
+AnswerSaved = Les réponses ont été sauvegardées
+Repair = À réparer
+NotApplicable = Non applicable
+
+
+
+#
+# ControlDocument - Fiche de Contrôle
+#
+
+# Right - Droit
+
+# Trigger - Déclencheur
+ControlDocumentGeneratedWithDolibarr = Fiche de contrôle générée avec Dolibarr
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQControlDocumentDocumentNumberingModule = Modèle de numérotation des fiches de contrôle de DoliSMQ
+DoliSMQControlDocumentStandardModel = Renvoie le numéro sous la forme FCDn où n est un compteur séquentiel sans rupture et sans remise à 0.
+
+# ODT Template - Template ODT
+DoliSMQTemplateDocumentControlDocument = Modèle de documents des fiches de contrôle de DoliSMQ
+ControlDocumentCustomDoliSMQTemplate = ODT custom des fiches de contrôle
+ControlDocumentDoliSMQTemplate = ODT par défaut des fiches de contrôle
+
+# Data - Donnée
+ControlDocument = Fiche de Contrôle
+ControlDocumentData = Données configurables des fiches de contrôle
+ControlDocumentName = Afficher les médias dans la fiche de contrôle
+ControlDocumentDescription = Afficher les médias des questions dans la fiche de contrôle du document ODT
+
+
+
+#
+# Other
+#
+
+# Data - Donnée
+SelectProducts = Sélectionner un produit
+AddMedia = Ajouter un média
+NoMediaLinked = Pas de média lié
+ReOpened = Rouvrir
+ValidatedControl = Validée
+Locked = Verrouillé
+Lock = Verrouiller
+NoData = N/A
+ErrorFileNotFound = Aucun logo de la société renseigné
+

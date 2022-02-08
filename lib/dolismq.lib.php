@@ -16,7 +16,7 @@
  */
 
 /**
- * \file    dolismq/lib/dolismq.lib.php
+ * \file    lib/dolismq.lib.php
  * \ingroup dolismq
  * \brief   Library files with common functions for DoliSMQ
  */
@@ -35,11 +35,6 @@ function dolismqAdminPrepareHead()
 	$h = 0;
 	$head = array();
 
-	$head[$h][0] = dol_buildpath("/dolismq/admin/setup.php", 1);
-	$head[$h][1] = $langs->trans("Settings");
-	$head[$h][2] = 'settings';
-	$h++;
-
 	/*
 	$head[$h][0] = dol_buildpath("/dolismq/admin/myobject_extrafields.php", 1);
 	$head[$h][1] = $langs->trans("ExtraFields");
@@ -47,19 +42,36 @@ function dolismqAdminPrepareHead()
 	$h++;
 	*/
 
+	$head[$h][0] = dol_buildpath("/dolismq/admin/question.php", 1);
+	$head[$h][1] = $langs->trans("Question");
+	$head[$h][2] = 'question';
+	$h++;
+
+	$head[$h][0] = dol_buildpath("/dolismq/admin/sheet.php", 1);
+	$head[$h][1] = $langs->trans("Sheet");
+	$head[$h][2] = 'sheet';
+	$h++;
+
+	$head[$h][0] = dol_buildpath("/dolismq/admin/control.php", 1);
+	$head[$h][1] = $langs->trans("Control");
+	$head[$h][2] = 'control';
+	$h++;
+
+	$head[$h][0] = dol_buildpath("/dolismq/admin/controldocument.php", 1);
+	$head[$h][1] = $langs->trans("ControlDocument");
+	$head[$h][2] = 'controldocument';
+	$h++;
+
+	$head[$h][0] = dol_buildpath("/dolismq/admin/setup.php", 1);
+	$head[$h][1] = '<i class="fas fa-cog"></i>  ' . $langs->trans("Settings");
+	$head[$h][2] = 'settings';
+	$h++;
+
 	$head[$h][0] = dol_buildpath("/dolismq/admin/about.php", 1);
-	$head[$h][1] = $langs->trans("About");
+	$head[$h][1] = '<i class="fab fa-readme"></i> ' . $langs->trans("About");
 	$head[$h][2] = 'about';
 	$h++;
 
-	// Show more tabs from modules
-	// Entries must be declared in modules descriptor with line
-	//$this->tabs = array(
-	//	'entity:+tabname:Title:@dolismq:/dolismq/mypage.php?id=__ID__'
-	//); // to add new tab
-	//$this->tabs = array(
-	//	'entity:-tabname:Title:@dolismq:/dolismq/mypage.php?id=__ID__'
-	//); // to remove a tab
 	complete_head_from_modules($conf, $langs, null, $head, $h, 'dolismq');
 
 	return $head;
