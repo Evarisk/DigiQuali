@@ -878,6 +878,54 @@ if ( ! window.eoxiaJS.loader ) {
 	};
 }
 
+/**
+ * Initialise l'objet "question" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.
+ *
+ * @since   1.1.0
+ * @version 1.1.0
+ */
+window.eoxiaJS.question = {};
+
+/**
+ * La méthode appelée automatiquement par la bibliothèque EoxiaJS.
+ *
+ * @since   1.1.0
+ * @version 1.1.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.question.init = function() {
+	window.eoxiaJS.question.event();
+};
+
+/**
+ * La méthode contenant tous les événements pour le question.
+ *
+ * @since   1.1.0
+ * @version 1.1.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.question.event = function() {
+	$( document ).on( 'click', '.clicked-photo-preview', window.eoxiaJS.question.previewPhoto );
+};
+
+/**
+ * Add border on preview photo.
+ *
+ * @since   1.1.0
+ * @version 1.1.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.question.previewPhoto = function ( event ) {
+	if ($(this).hasClass('photo-ok')) {
+		$("#dialogforpopup").attr('style', 'border: 10px solid #47e58e')
+	} else {
+		$("#dialogforpopup").attr('style', 'border: 10px solid #e05353')
+	}
+};
 
 /**
  * Initialise l'objet "control" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.
