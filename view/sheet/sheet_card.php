@@ -467,6 +467,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</a>';
 			print '</td>';
 			print '</tr>';
+
+			// Other attributes
+			include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php';
 		}
 		print '</tr>';
 	}

@@ -1245,6 +1245,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						<?php print $item->ref; ?><br>
 						<strong><?php print $item->label; ?></strong><br>
 						<?php print $item->description; ?>
+						<?php // Other attributes
+						include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php'; ?>
 					</div>
 					<?php if (!empty($conf->global->DOLISMQ_CONTROL_DISPLAY_MEDIAS)) : ?>
 						<div class="table-cell table-175">
