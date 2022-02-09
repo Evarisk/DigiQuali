@@ -76,7 +76,7 @@ class Control extends CommonObject
 		'date_creation'      => array('type' => 'datetime', 'label' => 'ControlDate', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 5,),
 		'tms'                => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
 		'import_key'         => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
-		'status'             => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0'),
+		'status'             => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0', 'arrayofkeyval' => array('0' => 'Draft', '1' => 'ValidatedControl', '2' => 'Lock'),),
 		'type'               => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
 		'verdict'            => array('type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => array('0' => '', '1' => 'OK', '2' => 'KO'),),
 		'fk_user_creat'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',),

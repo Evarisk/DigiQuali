@@ -1,4 +1,24 @@
 <?php
+
+require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
+require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
+require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
+require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
+require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
+require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
+
+require_once __DIR__.'/../../class/sheet.class.php';
+require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
+
+$producttmp    = new Product($db);
+$productlottmp = new Productlot($db);
+$sheet         = new Sheet($db);
+$usertmp       = new User($db);
+$projecttmp    = new Project($db);
+$task          = new Task($db);
+$thirdparty    = new Societe($db);
+$formproject   = new FormProjets($db);
+
 // Build and execute select
 // --------------------------------------------------------------------
 $sql = 'SELECT ';
@@ -16,6 +36,13 @@ $reshook = $hookmanager->executeHooks('printFieldListSelect', $parameters, $obje
 $sql .= preg_replace('/^,/', '', $hookmanager->resPrint);
 $sql = preg_replace('/,\s*$/', '', $sql);
 $sql .= " FROM ".MAIN_DB_PREFIX.$object->table_element." as t";
+$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . $producttmp->table_element . " as p on (t.fk_product = p.rowid)";
+$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . $productlottmp->table_element . " as pl on (t.fk_lot = pl.rowid)";
+$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . $sheet->table_element . " as mo on (t.fk_sheet = mo.rowid)";
+$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . $usertmp->table_element . " as u on (t.fk_user_controller = u.rowid)";
+$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . $projecttmp->table_element . " as pj on (t.fk_project = pj.rowid)";
+$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . $task->table_element . " as tk on (t.fk_task = tk.rowid)";
+$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . $thirdparty->table_element . " as s on (t.fk_soc = s.rowid)";
 if (is_array($extrafields->attributes[$object->table_element]['label']) && count($extrafields->attributes[$object->table_element]['label'])) $sql .= " LEFT JOIN ".MAIN_DB_PREFIX.$object->table_element."_extrafields as ef on (t.rowid = ef.fk_object)";
 // Add table from hooks
 $parameters = array();
@@ -32,8 +59,31 @@ foreach ($search as $key => $val)
 		if ($search[$key] == '-1') $search[$key] = '';
 		$mode_search = 2;
 	}
-	if ($search[$key] != '') $sql .= natural_search($key, $search[$key], (($key == 'status') ? 2 : $mode_search));
+	if ($search[$key] != '') {
+		if ($key == 'ref') {
+			$sql .= " AND (t.ref = '$search[$key]')";
+		} elseif ($key == 'fk_product') {
+			$sql .= " AND (p.ref = '$search[$key]')";
+		} elseif ($key == 'fk_lot') {
+			$sql .= " AND (pl.batch = '$search[$key]')";
+		} elseif ($key == 'fk_sheet') {
+			$sql .= " AND (mo.ref = '$search[$key]')";
+		} elseif ($key == 'fk_user_controller') {
+			$sql .= " AND (u.lastname = '$search[$key]') OR (u.firstname = '$search[$key]')";
+		} elseif ($key == 'fk_project') {
+			$sql .= " AND (pj.ref = '$search[$key]')";
+		} elseif ($key == 'fk_task') {
+			$sql .= " AND (tk.ref = '$search[$key]')";
+		} elseif ($key == 'fk_soc') {
+			$sql .= " AND (s.nom LIKE '%$search[$key]%')";
+		} elseif ($key == 'status') {
+			$sql .= " AND (t.status LIKE '%$search[$key]%')";
+		} else {
+			$sql .= natural_search($key, $search[$key], (($key == 'status') ? 2 : $mode_search));
+		}
+	}
 }
+
 if ($search_all) $sql .= natural_search(array_keys($fieldstosearchall), $search_all);
 //$sql.= dolSqlDateFilter("t.field", $search_xxxday, $search_xxxmonth, $search_xxxyear);
 // Add where from extra fields
@@ -193,8 +243,37 @@ foreach ($object->fields as $key => $val)
 	{
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
 		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) print $form->selectarray('search_'.$key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
-		elseif (strpos($val['type'], 'integer:') === 0) {
-			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'maxwidth125', 1);
+		//elseif (strpos($val['type'], 'integer:') === 0) {
+			//print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'maxwidth125', 1);
+		elseif ($key == 'fk_product') {
+			$producttmp->fetch(0, $search['fk_product']);
+			print $form->select_produits($producttmp->id, 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices' , 0, 'maxwidth200');
+			print '<input class="input-hidden-fk_product" type="hidden" name="search_fk_product" value=""/>';
+		} elseif ($key == 'fk_lot') {
+			$productlottmp->fetch(0, 0, $search['fk_lot']);
+			print dolismq_select_product_lots('', $productlottmp->id, 'fk_lot', 1, '', '', 0, 'maxwidth200', false, 0, array(), false, '', 'fk_lot');
+			print '<input class="input-hidden-fk_lot" type="hidden" name="search_fk_lot" value=""/>';
+		} elseif ($key == 'fk_sheet') {
+			$sheet->fetch(0, $search['fk_sheet']);
+			print $sheet->select_sheet_list($sheet->id, 'fk_sheet', '', '1');
+			print '<input class="input-hidden-fk_sheet" type="hidden" name="search_fk_sheet" value=""/>';
+		} elseif ($key == 'fk_user_controller') {
+			$usertmp->fetch(0, $search['fk_user_controller']);
+			$userlist = $form->select_dolusers($usertmp->id, '', 0, null, 0, '', '', $conf->entity, 0, 0, 'AND u.statut = 1', 0, '', 'maxwidth200', 0, 1);
+			print $form->selectarray('fk_user_controller', $userlist, ( ! empty(GETPOST('fk_user_controller')) ? GETPOST('fk_user_controller') : $user->id), $langs->trans('SelectUser'), null, null, null, "40%", 0, 0, '', 'maxwidth200', 1);
+			print '<input class="input-hidden-fk_user_controller" type="hidden" name="search_fk_user_controller" value=""/>';
+		} elseif ($key == 'fk_project') {
+			$projecttmp->fetch(0, $search['fk_project']);
+			print $formproject->select_projects(0, $projecttmp->id, 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'maxwidth200');
+			print '<input class="input-hidden-fk_project" type="hidden" name="search_fk_project" value=""/>';
+		} elseif ($key == 'fk_task') {
+			$task->fetch(0, $search['fk_task']);
+			$formproject->selectTasks(0, $task->id, 'fk_task', 24, 0, '1', 1, 0, 0, 'maxwidth200', $projecttmp->id, '');
+			print '<input class="input-hidden-fk_task" type="hidden" name="search_fk_task" value=""/>';
+		} elseif ($key == 'fk_soc') {
+			$thirdparty->fetch(0, $search['fk_soc']);
+			print $form->select_company($thirdparty->id, 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'maxwidth200');
+			print '<input class="input-hidden-fk_soc" type="hidden" name="search_fk_soc" value=""/>';
 		} elseif (!preg_match('/^(date|timestamp)/', $val['type'])) print '<input type="text" class="flat maxwidth75" name="search_'.$key.'" value="'.dol_escape_htmltag($search[$key]).'">';
 		print '</td>';
 	}
@@ -280,8 +359,10 @@ while ($i < ($limit ? min($num, $limit) : $num))
 		if (!empty($arrayfields['t.'.$key]['checked']))
 		{
 			print '<td'.($cssforfield ? ' class="'.$cssforfield.'"' : '').'>';
-			if ($key == 'status') print $object->getLibStatut(5);
-			if ($key == 'fk_project') {
+			if ($key == 'status') {
+				print $object->getLibStatut(5);
+			}
+			elseif ($key == 'fk_project') {
 				$project->fetch($object->fk_project);
 				if ($project > 0) {
 					print $project->getNomUrl(1, '', 1);

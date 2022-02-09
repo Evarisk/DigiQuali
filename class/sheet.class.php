@@ -980,6 +980,10 @@ class Sheet extends CommonObject
 			// Construct $out and $outarray
 			$out .= '<select id="' . $htmlname . '" class="flat' . ($morecss ? ' ' . $morecss : '') . '"' . ($moreparam ? ' ' . $moreparam : '') . ' name="' . $htmlname . ($multiple ? '[]' : '') . '" ' . ($multiple ? 'multiple' : '') . '>' . "\n";
 
+			if ($showempty) {
+				$out .= '<option value="-1">&nbsp;</option>';
+			}
+
 			$num                  = $this->db->num_rows($resql);
 			$i                    = 0;
 

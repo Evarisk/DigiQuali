@@ -71,8 +71,6 @@ function dolismq_show_photos($modulepart, $sdir, $size = 0, $nbmax = 0, $nbbyrow
 	$nbphoto = 0;
 
 	$filearray = dol_dir_list($dir, "files", 0, '', '(\.meta|_preview.*\.png)$', $sortfield, (strtolower($sortorder) == 'desc' ? SORT_DESC : SORT_ASC), 1);
-
-	//echo '<pre>'; print_r( $pdirthumb ); echo '</pre>';
 	if (count($filearray)) {
 		if ($sortfield && $sortorder) {
 			$filearray = dol_sort_array($filearray, $sortfield, $sortorder);
@@ -814,7 +812,6 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 	$nbphoto = 0;
 
 	$filearray = dol_dir_list($dir, "files", 0, '', '(\.meta|_preview.*\.png)$', $sortfield, (strtolower($sortorder) == 'desc' ? SORT_DESC : SORT_ASC), 1);
-	//echo '<pre>'; print_r( $pdirthumb ); echo '</pre>';
 	if (count($filearray)) {
 		if ($sortfield && $sortorder) {
 			$filearray = dol_sort_array($filearray, $sortfield, $sortorder);
