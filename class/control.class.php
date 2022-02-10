@@ -1216,6 +1216,54 @@ class ControlLine extends CommonObjectLine
 		}
 	}
 
+	/**
+	 *    Load preventionplan line line from database
+	 *
+	 * @param int $parent_id
+	 * @param int $limit
+	 * @return int <0 if KO, >0 if OK
+	 */
+	public function fetchFromParent($control_id, $limit = 0)
+	{
+		global $db;
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.comment, t.fk_question, t.fk_control ';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
+		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
+		$sql .= ' AND fk_control = ' . $control_id;
+
+		$result = $db->query($sql);
+
+		if ($result) {
+			$num = $db->num_rows($result);
+
+			$i = 0;
+			while ($i < ($limit ? min($limit, $num) : $num)) {
+				$obj = $db->fetch_object($result);
+
+				$record = new self($db);
+
+				$record->id                = $obj->rowid;
+				$record->ref               = $obj->ref;
+				$record->date_creation     = $obj->date_creation;
+				$record->status       = $obj->status;
+				$record->answer          = $obj->answer;
+				$record->comment          = $obj->comment;
+				$record->fk_question = $obj->fk_question;
+				$record->fk_control = $obj->fk_control;
+
+				$records[$record->id] = $record;
+
+				$i++;
+			}
+
+			$db->free($result);
+
+			return $records;
+		} else {
+			$this->error = $db->lasterror();
+			return -1;
+		}
+	}
 
 	/**
 	 *    Load preventionplan line line from database
