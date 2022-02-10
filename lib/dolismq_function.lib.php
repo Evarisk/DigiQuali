@@ -236,7 +236,7 @@ function dolismqshowdocuments($modulepart, $modulesubdir, $filedir, $urlsource, 
 	// Get list of files
 	$file_list = null;
 	if ( ! empty($filedir)) {
-		$file_list = dol_dir_list($filedir, 'files', 0, '(\.odt|\.zip)', '', 'date', SORT_DESC, 1);
+		$file_list = dol_dir_list($filedir, 'files', 0, '(\.odt|\.zip|\.pdf)', '', 'date', SORT_DESC, 1);
 	}
 	if ($hideifempty && empty($file_list)) return '';
 
