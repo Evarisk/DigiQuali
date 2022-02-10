@@ -75,6 +75,7 @@ require_once __DIR__.'/../../class/sheet.class.php';
 require_once __DIR__.'/../../class/question.class.php';
 require_once __DIR__.'/../../lib/dolismq_control.lib.php';
 require_once __DIR__.'/../../core/modules/dolismq/control/mod_control_standard.php';
+require_once __DIR__.'/../../core/modules/dolismq/controldet/mod_controldet_standard.php';
 require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 
 global $langs, $conf, $user, $db;
@@ -94,18 +95,19 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 //$lineid   = GETPOST('lineid', 'int');
 
 // Initialize technical objects
-$object        = new Control($db);
-$controldet    = new ControlLine($db);
-$sheet         = new Sheet($db);
-$question      = new Question($db);
-$usertmp       = new User($db);
-$product       = new Product($db);
-$project       = new Project($db);
-$task          = new Task($db);
-$thirdparty    = new Societe($db);
-$productlot    = new Productlot($db);
-$extrafields   = new ExtraFields($db);
-$refControlMod = new $conf->global->DOLISMQ_CONTROL_ADDON($db);
+$object           = new Control($db);
+$controldet       = new ControlLine($db);
+$sheet            = new Sheet($db);
+$question         = new Question($db);
+$usertmp          = new User($db);
+$product          = new Product($db);
+$project          = new Project($db);
+$task             = new Task($db);
+$thirdparty       = new Societe($db);
+$productlot       = new Productlot($db);
+$extrafields      = new ExtraFields($db);
+$refControlMod    = new $conf->global->DOLISMQ_CONTROL_ADDON($db);
+$refControlDetMod = new $conf->global->DOLISMQ_CONTROLDET_ADDON($db);
 
 $diroutputmassaction = $conf->dolismq->dir_output.'/temp/massgeneration/'.$user->id;
 $hookmanager->initHooks(array('controlcard', 'globalcard')); // Note that conf->hooks_modules contains array
@@ -209,6 +211,8 @@ if (empty($reshook))
 				$controldettmp->update($user);
 			} else {
 				$controldettmp = $controldet;
+
+				$controldettmp->ref = $refControlDetMod->getNextValue($controldettmp);
 
 				$controldettmp->fk_control  = $object->id;
 				$controldettmp->fk_question = $questionId;
@@ -1287,6 +1291,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				</div>
 				<div class="table-row">
 					<div class="table-cell table-full wpeo-gridlayout grid-4">
+						<div class="question-ref-title"><?php print $langs->trans('Ref') . ' : '; ?></div>
+							<?php print $itemControlDet->ref; ?>
 						<div class="question-comment-title"><?php print $langs->trans('Comment') . ' : '; ?></div>
 						<?php if ($object->status > 0 ) : ?>
 							<?php print $comment; ?>

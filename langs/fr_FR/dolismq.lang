@@ -190,6 +190,10 @@ ThirdPartyLinked = Tiers lié
 # ControlDet
 #
 
+# Mod Numbering - Modèle de numérotation
+DoliSMQControlDetNumberingModule = Modèle de numérotation des lignes des fiches de contrôle de DoliSMQ
+DoliSMQControlDetStandardModel = Renvoie le numéro sous la forme FCRn où n est un compteur séquentiel sans rupture et sans remise à 0.
+
 # Data - Donnée
 AnswerSaved = Les réponses ont été sauvegardées
 Repair = À réparer
@@ -220,7 +224,7 @@ ControlDocument = Fiche de Contrôle
 ControlDocumentData = Données configurables des fiches de contrôle
 ControlDocumentName = Afficher les médias dans la fiche de contrôle
 ControlDocumentDescription = Afficher les médias des questions dans la fiche de contrôle du document ODT
-
+ControlDocumentPDFDoliSMQTemplate =	Modèle de fiche de contrôle au format PDF
 
 
 #
