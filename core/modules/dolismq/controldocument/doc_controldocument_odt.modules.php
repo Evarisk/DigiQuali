@@ -335,7 +335,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 								$item = $question;
 								$item->fetch($questionId);
 
-								$tmparray['ref'] = $item->ref;
+								$tmparray['ref']         = $item->ref;
+								$tmparray['label']       = $item->label;
 								$tmparray['description'] = $item->description;
 
 								if (!empty($conf->global->DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS)) {
