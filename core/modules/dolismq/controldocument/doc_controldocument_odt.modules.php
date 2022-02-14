@@ -273,16 +273,31 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$productlot = new Productlot($db);
 			$controldet = new ControlLine($db);
 			$question   = new Question($db);
+			$sheet      = new Sheet($db);
+			$usertmp    = new User($db);
+			$thirdparty = new Societe($db);
+			$project    = new Project($db);
+			$task		= new Task($db);
 
 			$product->fetch($object->fk_product);
 			$productlot->fetch($object->fk_lot);
+			$sheet->fetch($object->fk_sheet);
+			$usertmp->fetch($object->fk_user_controller);
+			$thirdparty->fetch($object->fk_soc);
+			$project->fetch($object->fk_project);
+			$task->fetch($object->fk_task);
 
-			$tmparray['mycompany_name'] = $conf->global->MAIN_INFO_SOCIETE_NOM;
-			$tmparray['reference']      = $object->ref;
-			$tmparray['nom']            = $object->label;
-			$tmparray['product_ref']    = $product->ref;
-			$tmparray['lot_ref']        = $productlot->batch;
-			$tmparray['control_date']   = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+			$tmparray['mycompany_name']     = $conf->global->MAIN_INFO_SOCIETE_NOM;
+			$tmparray['control_ref']        = $object->ref;
+			$tmparray['nom']                = $usertmp->lastname . ' '. $usertmp->firstname;
+			$tmparray['product_ref']        = $product->ref;
+			$tmparray['lot_ref']            = $productlot->batch;
+			$tmparray['sheet_ref']          = $sheet->ref;
+			$tmparray['sheet_label']        = $sheet->label;
+			$tmparray['control_date']       = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+			$tmparray['thirdparty_label']   = $thirdparty->name;
+			$tmparray['project_task_ref']   = $project->ref . '-' . $task->ref;
+			$tmparray['project_task_label'] = $project->label . '-' . $task->label;
 
 			switch ($object->verdict) {
 				case 1:
