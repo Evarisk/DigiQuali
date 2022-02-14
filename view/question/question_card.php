@@ -63,6 +63,7 @@ if (!$res) die("Include of main fails");
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
+require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmfiles.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
@@ -91,6 +92,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Initialize technical objects
 $object         = new Question($db);
 $extrafields    = new ExtraFields($db);
+$ecmfile 		= new EcmFiles($db);
 $refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($db);
 
 $diroutputmassaction = $conf->dolismq->dir_output.'/temp/massgeneration/'.$user->id;
@@ -337,17 +339,22 @@ if (empty($reshook))
 			foreach ($filenames as $filename) {
 				$entity = ($conf->entity > 1) ? '/' . $conf->entity : '';
 
-
 				if (is_file($conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/' . $filename)) {
 					$pathToECMPhoto = $conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/' . $filename;
 
 					if ( ! is_dir($pathToQuestionPhoto)) {
 						mkdir($pathToQuestionPhoto);
 					}
+
 					copy($pathToECMPhoto, $pathToQuestionPhoto . '/' . $filename);
+					$ecmfile->fetch(0,'','ecm/dolismq/medias/' . $filename);
+					$date = dol_print_date(dol_now(),'dayxcard');
+					$extension = preg_split('/\./', $filename);
+					$newFilename = $conf->entity . '_' . $ecmfile->id . '_' . (dol_strlen($object->ref) > 0 ? $object->ref : $refQuestionMod->getNextValue($object)). '_' . $date . '.' . $extension[1];
+					rename($pathToQuestionPhoto . '/' . $filename, $pathToQuestionPhoto . '/' . $newFilename);
 
 					global $maxwidthmini, $maxheightmini, $maxwidthsmall,$maxheightsmall ;
-					$destfull = $pathToQuestionPhoto . '/' . $filename;
+					$destfull = $pathToQuestionPhoto . '/' . $newFilename;
 
 					// Create thumbs
 					$imgThumbSmall = vignette($destfull, $maxwidthsmall, $maxheightsmall, '_small', 50, "thumbs");
