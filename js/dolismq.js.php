@@ -578,8 +578,13 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 
 	let type = $(this).find('.type-from').val()
 
-	var params = new window.URLSearchParams(window.location.search);
-	var currentElementID = params.get('id')
+	let idSelected = $('#media_gallery').find('.wpeo-button').attr('value');
+	if (idSelected == 0) {
+		var params = new window.URLSearchParams(window.location.search);
+		var currentElementID = params.get('id')
+	} else {
+		currentElementID = idSelected
+	}
 
 	let filenames = ''
 	if (filesLinked.length > 0) {

@@ -395,6 +395,29 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 										break;
 								}
 
+								//Add files linked
+								$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
+								$fileList            = dol_dir_list($pathToQuestionPhoto, 'files');
+								if ( ! empty($fileList)) {
+									foreach ($fileList as $fileToSave) {
+										if (is_file($fileToSave['fullname'])) {
+											//sauvegarder réponse photo
+											$tmparray['photo'] = $fileToSave['fullname'];
+										}
+									}
+								}
+
+								if (dol_strlen($itemControlDet->answer_photo)) {
+									$path = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
+									$file_small                = preg_split('/\./', $itemControlDet->answer_photo);
+									$new_file                  = $file_small[0] . '_small.' . $file_small[1];
+									$image                     = $path . '/thumbs/' . $new_file;
+									$tmparray['photo'] = $image;
+								} else {
+									$image = '';
+									$tmparray['photo'] = $langs->transnoentities('NoFileLinked');
+								}
+
 								$tmparray['comment'] = $comment;
 
 								unset($tmparray['object_fields']);

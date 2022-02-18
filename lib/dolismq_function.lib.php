@@ -222,7 +222,7 @@ function dolismqshowdocuments($modulepart, $modulesubdir, $filedir, $urlsource, 
 {
 	global $db, $langs, $conf, $user, $hookmanager, $form;
 
-	if ( ! is_object($form)) $form = new Form($this->db);
+	if ( ! is_object($form)) $form = new Form($db);
 
 	include_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
@@ -297,7 +297,7 @@ function dolismqshowdocuments($modulepart, $modulesubdir, $filedir, $urlsource, 
 
 		$out .= '<tr class="liste_titre">';
 
-		$addcolumforpicto = ($delallowed || $printer || $morepicto);
+		$addcolumforpicto = ($delallowed || $morepicto);
 		$colspan          = (3 + ($addcolumforpicto ? 1 : 0)); $colspanmore = 0;
 
 		$out .= '<th colspan="' . $colspan . '" class="formdoc liste_titre maxwidthonsmartphone center">';
@@ -812,6 +812,7 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 	$nbphoto = 0;
 
 	$filearray = dol_dir_list($dir, "files", 0, '', '(\.meta|_preview.*\.png)$', $sortfield, (strtolower($sortorder) == 'desc' ? SORT_DESC : SORT_ASC), 1);
+
 	if (count($filearray)) {
 		if ($sortfield && $sortorder) {
 			$filearray = dol_sort_array($filearray, $sortfield, $sortorder);
