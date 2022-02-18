@@ -448,6 +448,7 @@ if (empty($reshook))
 			$moreparams['object'] = $object;
 
 			$result = $object->generateDocument(GETPOST('model'), $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
+
 			if ($result <= 0) {
 				setEventMessages($object->error, $object->errors, 'errors');
 				$action = '';
@@ -482,6 +483,30 @@ if (empty($reshook))
 				if ( ! empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
 				else setEventMessages($object->error, null, 'errors');
 			}
+		}
+	}
+
+	// Delete file in doc form
+	if ($action == 'remove_file' && $permissiontodelete) {
+		if ( ! empty($upload_dir)) {
+			require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+
+			$langs->load("other");
+			$filetodelete = GETPOST('file', 'alpha');
+			$file         = $upload_dir . '/' . $filetodelete;
+			$ret          = dol_delete_file($file, 0, 0, 0, $object);
+			if ($ret) setEventMessages($langs->trans("FileWasRemoved", $filetodelete), null, 'mesgs');
+			else setEventMessages($langs->trans("ErrorFailToDeleteFile", $filetodelete), null, 'errors');
+
+			// Make a redirect to avoid to keep the remove_file into the url that create side effects
+			$urltoredirect = $_SERVER['REQUEST_URI'];
+			$urltoredirect = preg_replace('/#builddoc$/', '', $urltoredirect);
+			$urltoredirect = preg_replace('/action=remove_file&?/', '', $urltoredirect);
+
+			header('Location: ' . $urltoredirect);
+			exit;
+		} else {
+			setEventMessages('BugFoundVarUploaddirnotDefined', null, 'errors');
 		}
 	}
 
@@ -1460,7 +1485,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							</div>
 						</div>
 						<?php $relativepath = 'dolismq/medias/thumbs';
-						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo )); ?>
+						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0); ?>
 						<?php endif; ?>
 					</div>
 				</div>
