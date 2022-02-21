@@ -911,7 +911,7 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 				if ($nbmax && $nbphoto >= $nbmax) break;
 			}
 
-			$return .= '<div>';
+			//$return .= '<div>';
 
 			if ($show_favorite_button) {
 				$return .= '
@@ -930,7 +930,7 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 				</div>';
 			}
 		}
-		$return .= "</div></td>\n";
+		$return .= "</td>\n";
 
 		if ($size == 1 || $size == 'small') {
 			if ($nbbyrow > 0) {
