@@ -251,7 +251,7 @@ if (empty($reshook))
 
 		if ($id > 0) {
 			$object->fetch($id);
-			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $object->ref . '/' . $type;
+			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/' . $type;
 		} else {
 			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/' . $type;
 		}
@@ -355,8 +355,8 @@ if (empty($reshook))
 
 				//Add files linked
 				$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
-				$fileList            = dol_dir_list($pathToQuestionPhoto, 'files');
-				if ( ! empty($fileList)) {
+				$fileList = dol_dir_list($pathToQuestionPhoto, 'files');
+				if (!empty($fileList)) {
 					foreach ($fileList as $fileToSave) {
 						if (is_file($fileToSave['fullname'])) {
 							//sauvegarder réponse photo
@@ -368,6 +368,7 @@ if (empty($reshook))
 				$controldettmp->entity = $conf->entity;
 				//if ($answer > 0 || dol_strlen($comment) > 0) {
 					$controldettmp->insert($user);
+					$controldettmp->answer_photo = '';
 				//}
 			}
 		}
@@ -1473,7 +1474,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						<div class="question-answer-title"><?php print $langs->trans('Answer') . ' : '; ?></div>
 						<?php if ($object->status > 0 ) : ?>
 							<?php $relativepath = 'dolismq/medias/thumbs';
-							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ));
+							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 0);
 							print '</td></tr>'; ?>
 						<?php else : ?>
 						<?php  print '<div class="linked-medias answer_photo">'; ?>

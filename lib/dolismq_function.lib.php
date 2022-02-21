@@ -784,7 +784,7 @@ function dolismq_show_medias($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, 
 	return $return;
 }
 
-function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, $nbbyrow = 5, $showfilename = 0, $showaction = 0, $maxHeight = 120, $maxWidth = 160, $nolink = 0, $notitle = 0, $usesharelink = 0, $subdir = "", $object = null, $favorite = '', $show_favorite_button = 1)
+function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, $nbbyrow = 5, $showfilename = 0, $showaction = 0, $maxHeight = 120, $maxWidth = 160, $nolink = 0, $notitle = 0, $usesharelink = 0, $subdir = "", $object = null, $favorite = '', $show_favorite_button = 1, $show_unlink_button = 1)
 {
 		global $conf, $user, $langs;
 
@@ -921,14 +921,16 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 					<i class="' . ($favorite == $photo ? 'fas' : ($object->photo == $photo ? 'fas' : 'far')) . ' fa-star button-icon"></i>
 				</div>';
 			}
-			$return .= '
-			<div class="wpeo-button button-square-50 button-grey media-gallery-unlink" value="' . $object->id . '">
+			if ($show_unlink_button) {
+				$return .= '
+				<div class="wpeo-button button-square-50 button-grey media-gallery-unlink" value="' . $object->id . '">
 				<input class="element-linked-id" type="hidden" value="' . ($object->id > 0 ? $object->id : 0) . '">
 				<input class="filename" type="hidden" value="' . $photo . '">
 				<i class="fas fa-unlink button-icon"></i>
-			</div></div></div>';
+				</div>';
+			}
 		}
-		$return .= "</td>\n";
+		$return .= "</div></td>\n";
 
 		if ($size == 1 || $size == 'small') {
 			if ($nbbyrow > 0) {
