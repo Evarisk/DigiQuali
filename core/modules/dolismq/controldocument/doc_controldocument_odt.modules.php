@@ -380,6 +380,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 									}
 								}
 
+								$tmparray['ref_answer'] = $itemControlDet->ref;
+
 								switch ($answer) {
 									case 1:
 										$tmparray['answer'] = $langs->trans('OK');
@@ -435,7 +437,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 								$reshook = $hookmanager->executeHooks('ODTSubstitutionLine', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 								foreach ($tmparray as $key => $val) {
 									try {
-										if (file_exists($val)) {
+										if ($key == 'photo1' || $key == 'photo2' || $key == 'photo3') {
 											$listlines->setImage($key, $val);
 										} else {
 											if (empty($val)) {
