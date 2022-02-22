@@ -85,9 +85,9 @@ class Control extends CommonObject
 		'fk_user_controller' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'FKUserController', 'enabled' => '1', 'position' => 14, 'notnull' => 1, 'visible' => 2, 'foreignkey' => 'user.rowid'),
 		'fk_product'         => array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'Product', 'enabled' => '1', 'position' => 11, 'notnull' => 1, 'visible' => 2, 'foreignkey' => 'product.rowid'),
 		'fk_lot'             => array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'Batch', 'enabled' => '1', 'position' => 12, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'productlot.rowid'),
-		'fk_project'         => array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 15, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'project.rowid'),
-		'fk_task'            => array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 16, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'task.rowid'),
-		'fk_soc'             => array('type' => 'integer:Societe:societe/class/societe.class.php', 'label' => 'ThirdParty', 'enabled' => '1', 'position' => 17, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'societe.rowid'),
+		'fk_project'         => array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 16, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'project.rowid'),
+		'fk_task'            => array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 17, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'task.rowid'),
+		'fk_soc'             => array('type' => 'integer:Societe:societe/class/societe.class.php', 'label' => 'ThirdParty', 'enabled' => '1', 'position' => 15, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'societe.rowid'),
 	);
 
 	public $rowid;

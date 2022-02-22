@@ -717,6 +717,12 @@ if ($action == 'create') {
 	print $sheet->select_sheet_list();
 	print '</td></tr>';
 
+	//FK Soc
+	print '<tr><td class="">' . img_picto('', 'building', 'class="paddingrightonly"') . $langs->trans("ThirdPartyLinked") . '</td><td>';
+	print $form->select_company(GETPOST('fk_soc'), 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'minwidth300');
+	print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
+	print '</td></tr>';
+
 	//FK Project
 	print '<tr><td class="">' . img_picto('', 'project', 'class="paddingrightonly"') . $langs->trans("ProjectLinked") . '</td><td>';
 	print $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0),  GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
@@ -731,12 +737,6 @@ if ($action == 'create') {
 	dol_strlen($data['projectRef']) > 0 ? $project->fetch(0, $data['projectRef']) : 0;
 	$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST("fk_task"), 'fk_task', 24, 0, '1', 1, 0, 0, 'maxwidth300', ( ! empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
 	print '</span>';
-	print '</td></tr>';
-
-	//FK Soc
-	print '<tr><td class="">' . img_picto('', 'building', 'class="paddingrightonly"') . $langs->trans("ThirdPartyLinked") . '</td><td>';
-	print $form->select_company(GETPOST('fk_soc'), 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'minwidth300');
-	print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
 	print '</td></tr>';
 
 	// Other attributes
@@ -1291,6 +1291,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 	print '</td></tr>';
 
+	//Fk_soc - Tiers lié
+	print '<tr><td class="titlefield">';
+	print $langs->trans("ThirdParty");
+	print '</td>';
+	print '<td>';
+	$thirdparty->fetch($object->fk_soc);
+	if ($thirdparty > 0) {
+		print $thirdparty->getNomUrl(1);
+	}
+	print '</td></tr>';
+
 	//Fk_project - Projet lié
 	print '<tr><td class="titlefield">';
 	print $langs->trans("Project");
@@ -1310,17 +1321,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$task->fetch($object->fk_task);
 	if ($task > 0) {
 		print $task->getNomUrl(1);
-	}
-	print '</td></tr>';
-
-	//Fk_soc - Tiers lié
-	print '<tr><td class="titlefield">';
-	print $langs->trans("ThirdParty");
-	print '</td>';
-	print '<td>';
-	$thirdparty->fetch($object->fk_soc);
-	if ($thirdparty > 0) {
-		print $thirdparty->getNomUrl(1);
 	}
 	print '</td></tr>';
 
