@@ -1,0 +1,48 @@
+.confirmquestions .tagtr {
+  float: left;
+  width: 25%;
+
+  &:first-child {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+}
+
+.confirmquestions .answer {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  margin: 0 4px;
+  text-align: center;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.4);
+  transition: all 0.2s ease-out;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &[value="1"] {
+    color: $color__green;
+  }
+  &[value="2"] {
+    color: $color__red;
+  }
+  &[value="3"] {
+    color: $color__yellow;
+  }
+  &[value="4"] {
+    color: rgba(0,0,0,0.7);
+    font-weight: 700;
+  }
+}
+.confirmquestions input[readonly] {
+  border: 0;
+  width: 100%;
+
+  &:hover {
+    cursor: default;
+  }
+}

@@ -806,10 +806,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		$formquestion = array(
 			array('type' => 'select', 'name' => 'verdict', 'label' => '<span class="fieldrequired">' . $langs->trans("VerdictControl") . '</span>', 'values' => array('1' => 'OK', '2' => 'KO'), 'select_show_empty' => 0),
-			array('type' => 'text', 'name' => 'OK', 'label' => '<span class="answer"><i class="fas fa-check"></i></span>', 'value' => $answerOK, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'KO', 'label' => '<span class="answer"><i class="fas fa-times"></i></span>', 'value' => $answerKO, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'Repair', 'label' => '<span class="answer"><i class="fas fa-tools"></i></span>', 'value' => $answerRepair, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'NotApplicable', 'label' => '<span class="answer">N/A</span>', 'value' => $answerNotApplicable, 'moreattr' => 'readonly'),
+			array('type' => 'text', 'name' => 'OK', 'label' => '<span class="answer" value="1"><i class="fas fa-check"></i></span>', 'value' => $answerOK, 'moreattr' => 'readonly'),
+			array('type' => 'text', 'name' => 'KO', 'label' => '<span class="answer" value="2"><i class="fas fa-times"></i></span>', 'value' => $answerKO, 'moreattr' => 'readonly'),
+			array('type' => 'text', 'name' => 'Repair', 'label' => '<span class="answer" value="3"><i class="fas fa-tools"></i></span>', 'value' => $answerRepair, 'moreattr' => 'readonly'),
+			array('type' => 'text', 'name' => 'NotApplicable', 'label' => '<span class="answer" value="4">N/A</span>', 'value' => $answerNotApplicable, 'moreattr' => 'readonly'),
 		);
 
 		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $text, 'confirm_setVerdict', $formquestion, '', 1, 250);
@@ -1472,23 +1472,24 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							<div class="gridw-3"><?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?></div>
 						<?php endif; ?>
 						<div class="question-answer-title"><?php print $langs->trans('Answer') . ' : '; ?></div>
-						<?php if ($object->status > 0 ) : ?>
-							<?php $relativepath = 'dolismq/medias/thumbs';
-							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 0);
-							print '</td></tr>'; ?>
-						<?php else : ?>
+					</div>
+				</div>
+				<div class="table-row">
+					<?php if ($object->status > 0 ) : ?>
+						<?php $relativepath = 'dolismq/medias/thumbs';
+						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 0);
+						print '</td></tr>'; ?>
+					<?php else : ?>
 						<?php  print '<div class="linked-medias answer_photo">'; ?>
-<!--							<input type="hidden" class="favorite-photo" id="answer_photo" name="answer_photo" value="--><?php //echo (dol_strlen($itemControlDet->answer_photo) > 0 ? $itemControlDet->answer_photo : GETPOST('favorite_answer_photo')) ?><!--"/>-->
-							<input type="hidden" class="question-answer-photo" id="answer_photo<?php echo $item->id ?>" name="answer_photo<?php echo $item->id ?>" value="test"/>
-							<div class="wpeo-button open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
-								<input type="hidden" class="type-from" value="answer_photo"/>
-								<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
-							</div>
+						<!--							<input type="hidden" class="favorite-photo" id="answer_photo" name="answer_photo" value="--><?php //echo (dol_strlen($itemControlDet->answer_photo) > 0 ? $itemControlDet->answer_photo : GETPOST('favorite_answer_photo')) ?><!--"/>-->
+						<input type="hidden" class="question-answer-photo" id="answer_photo<?php echo $item->id ?>" name="answer_photo<?php echo $item->id ?>" value="test"/>
+						<div class="wpeo-button open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
+							<input type="hidden" class="type-from" value="answer_photo"/>
+							<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
 						</div>
 						<?php $relativepath = 'dolismq/medias/thumbs';
-						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0); ?>
-						<?php endif; ?>
-					</div>
+						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0); ?>
+					<?php endif; ?>
 				</div>
 			</div>
 			<?php
