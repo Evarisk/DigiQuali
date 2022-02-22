@@ -680,7 +680,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>';
 	$urladvanced               = getAdvancedPreviewUrl('dolismq', $object->element . '/' . $object->ref . '/photo_ok/' . $object->photo_ok, 0, 'entity=' . $conf->entity);
 	if ($urladvanced) print '<a href="' . $urladvanced . '">';
-	print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($object->element . '/' . $object->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_small.', $object->photo_ok)) . '" >';
+	print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($object->element . '/' . $object->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $object->photo_ok)) . '" >';
 	print '</a>';
 	print '</td></tr>';
 
@@ -691,7 +691,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>';
 	$urladvanced               = getAdvancedPreviewUrl('dolismq', $object->element . '/' . $object->ref . '/photo_ko/' . $object->photo_ko, 0, 'entity=' . $conf->entity);
 	if ($urladvanced) print '<a href="' . $urladvanced . '">';
-	print '<img width="40" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($object->element . '/' . $object->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_small.', $object->photo_ko)) . '" >';
+	print '<img width="40" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($object->element . '/' . $object->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $object->photo_ko)) . '" >';
 	print '</a>';
 	print '</td></tr>';
 
