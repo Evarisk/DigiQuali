@@ -864,10 +864,10 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 						if ($val['share']) {
 							if (empty($maxHeight) || $photo_vignette && $imgarray['height'] > $maxHeight) {
 								$return .= '<!-- Show original file (thumb not yet available with shared links) -->';
-								$return .= '<img width="65" height="65" class="photo photowithmargin clicked-photo-preview" height="' . $maxHeight . '" src="' . DOL_URL_ROOT . '/viewimage.php?hashp=' . urlencode($val['share']) . '" title="' . dol_escape_htmltag($alt) . '">';
+								$return .= '<img width="65" height="65" class="photo photowithmargin" height="' . $maxHeight . '" src="' . DOL_URL_ROOT . '/viewimage.php?hashp=' . urlencode($val['share']) . '" title="' . dol_escape_htmltag($alt) . '">';
 							} else {
 								$return .= '<!-- Show original file -->';
-								$return .= '<img  width="65" height="65" class="photo photowithmargin clicked-photo-preview" height="' . $maxHeight . '" src="' . DOL_URL_ROOT . '/viewimage.php?hashp=' . urlencode($val['share']) . '" title="' . dol_escape_htmltag($alt) . '">';
+								$return .= '<img  width="65" height="65" class="photo photowithmargin" height="' . $maxHeight . '" src="' . DOL_URL_ROOT . '/viewimage.php?hashp=' . urlencode($val['share']) . '" title="' . dol_escape_htmltag($alt) . '">';
 							}
 						} else {
 							$return .= '<!-- Show nophoto file (because file is not shared) -->';
@@ -876,10 +876,10 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 					} else {
 						if (empty($maxHeight) || $photo_vignette && $imgarray['height'] > $maxHeight) {
 							$return .= '<!-- Show thumb -->';
-							$return .= '<img width="' . $maxWidth . '" height="' . $maxHeight . '" class="photo clicked-photo-preview"  src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $modulepart . '&entity=' . $conf->entity . '&file=' . urlencode($pdirthumb . $photo_vignette) . '" title="' . dol_escape_htmltag($alt) . '">';
+							$return .= '<img width="' . $maxWidth . '" height="' . $maxHeight . '" class="photo"  src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $modulepart . '&entity=' . $conf->entity . '&file=' . urlencode($pdirthumb . $photo_vignette) . '" title="' . dol_escape_htmltag($alt) . '">';
 						} else {
 							$return .= '<!-- Show original file -->';
-							$return .= '<img width="' . $maxWidth . '" height="' . $maxHeight . '" class="photo photowithmargin  clicked-photo-preview" height="' . $maxHeight . '" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $modulepart . '&entity=' . $conf->entity . '&file=' . urlencode($pdir . $photo) . '" title="' . dol_escape_htmltag($alt) . '">';
+							$return .= '<img width="' . $maxWidth . '" height="' . $maxHeight . '" class="photo photowithmargin" height="' . $maxHeight . '" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $modulepart . '&entity=' . $conf->entity . '&file=' . urlencode($pdir . $photo) . '" title="' . dol_escape_htmltag($alt) . '">';
 						}
 					}
 

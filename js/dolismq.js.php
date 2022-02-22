@@ -734,7 +734,7 @@ window.eoxiaJS.mediaGallery.unlinkFile = function( event ) {
 	let previousName = ''
 	let newPhoto = ''
 
-	window.eoxiaJS.loader.display($(this).closest('.media-container'));
+	//window.eoxiaJS.loader.display($(this).closest('.media-container'));
 
 	document.URL.match('/?/') ? querySeparator = '&' : 1
 

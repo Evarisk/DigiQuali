@@ -1407,7 +1407,7 @@ class ControlLine extends CommonObjectLine
 
 		$sql .= " ref='" . $db->escape($this->ref) . "',";
 		$sql .= " status='" . $db->escape($this->status) . "',";
-		$sql .= " answer=" . $db->escape($this->answer) . ",";
+		$sql .= " answer='" . $db->escape($this->answer) . "',";
 		$sql .= " answer_photo=" . '"' . $db->escape($this->answer_photo) . '"' . ",";
 		$sql .= " comment=" . '"' . $db->escape($this->comment) . '"' .",";
 		$sql .= " fk_question=" . $db->escape($this->fk_question). ",";

@@ -245,39 +245,43 @@ if (empty($reshook))
 	if ( ! $error && $action == "unlinkFile" && $permissiontodelete) {
 		$data = json_decode(file_get_contents('php://input'), true);
 
-		$filename = $data['filename'];
-		$type     = $data['type'];
-		$id     = $data['id'];
+		$filename    = $data['filename'];
+		$splitFilename = preg_split('/_/', $filename);
 
-		if ($id > 0) {
-			$object->fetch($id);
-			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/' . $type;
-		} else {
-			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/' . $type;
-		}
+		$object->fetch($id);
+		$question->fetch(0,$splitFilename[3]);
+
+		$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
 
 		$files = dol_dir_list($pathToQuestionPhoto);
 
 		foreach ($files as $file) {
 			if (is_file($file['fullname']) && $file['name'] == $filename) {
-
 				unlink($file['fullname']);
-				if ($object->$type == $filename) {
-					$object->$type = '';
-					$object->update($user);
+				$result = $controldet->fetchFromParentWithQuestion($object->id, $question->id);
+				if ($result > 0 && is_array($result)) {
+					$controldet = array_shift($result);
+					$allAnswerPhoto = preg_split('/,/', $controldet->answer_photo);
+					array_pop($allAnswerPhoto);
+					$controldet->answer_photo = '';
+					foreach ($allAnswerPhoto as $key => $answer_photo) {
+						if ($answer_photo != $filename){
+							$controldet->answer_photo .= $answer_photo . ',';
+						}
+					}
+
+					$controldet->update($user);
 				}
 			}
 		}
+
 		$files = dol_dir_list($pathToQuestionPhoto . '/thumbs');
 		foreach ($files as $file) {
 			if (preg_match('/' . preg_split('/\./', $filename)[0] . '/', $file['name'])) {
 				unlink($file['fullname']);
 			}
 		}
-//		if ($riskassessment->photo == $filename) {
-//			$riskassessment->photo = '';
-//			$riskassessment->update($user, true);
-//		}
+
 		$urltogo = str_replace('__ID__', $id, $backtopage);
 		$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
 		header("Location: " . $urltogo);
@@ -316,11 +320,12 @@ if (empty($reshook))
 				//Add files linked
 				$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
 				$fileList            = dol_dir_list($pathToQuestionPhoto, 'files');
+				$controldettmp->answer_photo = '';
 				if ( ! empty($fileList)) {
 					foreach ($fileList as $fileToSave) {
 						if (is_file($fileToSave['fullname'])) {
 							//sauvegarder réponse photo
-							$controldettmp->answer_photo = $fileToSave['name'];
+							$controldettmp->answer_photo .= $fileToSave['name'] . ',';
 						}
 					}
 				}
@@ -1477,7 +1482,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				<div class="table-row">
 					<?php if ($object->status > 0 ) : ?>
 						<?php $relativepath = 'dolismq/medias/thumbs';
-						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 0);
+						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 0);
 						print '</td></tr>'; ?>
 					<?php else : ?>
 						<?php  print '<div class="linked-medias answer_photo">'; ?>
@@ -1488,9 +1493,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
 						</div>
 						<?php $relativepath = 'dolismq/medias/thumbs';
-						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0); ?>
+						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0); ?>
 					<?php endif; ?>
 				</div>
+			</div>
 			</div>
 			<?php
 		}
