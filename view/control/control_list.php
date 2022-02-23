@@ -189,6 +189,7 @@ if (empty($reshook))
 	{
 		foreach ($object->fields as $key => $val) {
 			$search[$key] = '';
+			$_POST[$key] = '';
 		}
 		$toselect = '';
 		$search_array_options = array();
