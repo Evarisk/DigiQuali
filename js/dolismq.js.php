@@ -927,7 +927,7 @@ window.eoxiaJS.question.event = function() {
 window.eoxiaJS.question.previewPhoto = function ( event ) {
 	if ($(this).hasClass('photo-ok')) {
 		$("#dialogforpopup").attr('style', 'border: 10px solid #47e58e')
-	} else {
+	} else if ($(this).hasClass('photo-ko'))  {
 		$("#dialogforpopup").attr('style', 'border: 10px solid #e05353')
 	}
 };
