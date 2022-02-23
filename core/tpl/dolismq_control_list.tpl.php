@@ -247,15 +247,15 @@ foreach ($object->fields as $key => $val)
 			//print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'maxwidth125', 1);
 		elseif ($key == 'fk_product') {
 			$producttmp->fetch(0, $search['fk_product']);
-			print $form->select_produits($producttmp->id, 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices' , 0, 'maxwidth200');
+			print $form->select_produits(( ! empty(GETPOST('fk_product')) ? GETPOST('fk_product') : $producttmp->id), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices' , 0, 'maxwidth200');
 			print '<input class="input-hidden-fk_product" type="hidden" name="search_fk_product" value=""/>';
 		} elseif ($key == 'fk_lot') {
 			$productlottmp->fetch(0, 0, $search['fk_lot']);
-			print dolismq_select_product_lots('', $productlottmp->id, 'fk_lot', 1, '', '', 0, 'maxwidth200', false, 0, array(), false, '', 'fk_lot');
+			print dolismq_select_product_lots('', ( ! empty(GETPOST('fk_lot')) ? GETPOST('fk_lot') : $productlottmp->id), 'fk_lot', 1, '', '', 0, 'maxwidth200', false, 0, array(), false, '', 'fk_lot');
 			print '<input class="input-hidden-fk_lot" type="hidden" name="search_fk_lot" value=""/>';
 		} elseif ($key == 'fk_sheet') {
 			$sheet->fetch(0, $search['fk_sheet']);
-			print $sheet->select_sheet_list($sheet->id, 'fk_sheet', '', '1');
+			print $sheet->select_sheet_list(( ! empty(GETPOST('fk_sheet')) ? GETPOST('fk_sheet') : $sheet->id), 'fk_sheet', '', '1');
 			print '<input class="input-hidden-fk_sheet" type="hidden" name="search_fk_sheet" value=""/>';
 		} elseif ($key == 'fk_user_controller') {
 			$usertmp->fetch(0, $search['fk_user_controller']);
@@ -264,15 +264,15 @@ foreach ($object->fields as $key => $val)
 			print '<input class="input-hidden-fk_user_controller" type="hidden" name="search_fk_user_controller" value=""/>';
 		} elseif ($key == 'fk_project') {
 			$projecttmp->fetch(0, $search['fk_project']);
-			print $formproject->select_projects(0, $projecttmp->id, 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'maxwidth200');
+			print $formproject->select_projects(0, ( ! empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $projecttmp->id), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'maxwidth200');
 			print '<input class="input-hidden-fk_project" type="hidden" name="search_fk_project" value=""/>';
 		} elseif ($key == 'fk_task') {
 			$task->fetch(0, $search['fk_task']);
-			$formproject->selectTasks(0, $task->id, 'fk_task', 24, 0, '1', 1, 0, 0, 'maxwidth200', $projecttmp->id, '');
+			$formproject->selectTasks(0, ( ! empty(GETPOST('fk_task')) ? GETPOST('fk_task') : $task->id), 'fk_task', 24, 0, '1', 1, 0, 0, 'maxwidth200', $projecttmp->id, '');
 			print '<input class="input-hidden-fk_task" type="hidden" name="search_fk_task" value=""/>';
 		} elseif ($key == 'fk_soc') {
 			$thirdparty->fetch(0, $search['fk_soc']);
-			print $form->select_company($thirdparty->id, 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'maxwidth200');
+			print $form->select_company(( ! empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : $thirdparty->id), 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'maxwidth200');
 			print '<input class="input-hidden-fk_soc" type="hidden" name="search_fk_soc" value=""/>';
 		} elseif (!preg_match('/^(date|timestamp)/', $val['type'])) print '<input type="text" class="flat maxwidth75" name="search_'.$key.'" value="'.dol_escape_htmltag($search[$key]).'">';
 		print '</td>';
