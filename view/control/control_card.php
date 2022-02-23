@@ -1497,9 +1497,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						</div>
 						<?php $relativepath = 'dolismq/medias/thumbs';
 						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0); ?>
+						</div>
 					<?php endif; ?>
 				</div>
-			</div>
 			</div>
 			<?php
 		}
