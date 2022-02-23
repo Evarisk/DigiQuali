@@ -749,7 +749,7 @@ class pdf_calypso extends ModeleODTControlDocument
 				$thirdparty = $object->thirdparty;
 			}
 
-			$this->recipient->name = pdfBuildThirdpartyName($thirdparty, $outputlangs);
+		//	$this->recipient->name = pdfBuildThirdpartyName($thirdparty, $outputlangs);
 
 			$contact = new Contact($this->db);
 			$contact->fetch($object->fk_contact);
