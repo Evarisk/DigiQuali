@@ -69,9 +69,6 @@ DoliSMQConfig = Configuration du module
 ReadQuestion = Consulter les questions
 CreateQuestion = Créer/Modifier les questions
 DeleteQuestion = Supprimer les questions
-ThereAre = Il y a
-YouAnswered = Vous avez répondu à
-On = sur
 
 # Trigger - Déclencheur
 QuestionCreateTrigger = Question créée
@@ -94,6 +91,10 @@ LockQuestion = Verrouiller la question
 ConfirmLockQuestion = Êtes-vous sûr de vouloir verrouiller la question ? <br> Le verrouillage empêche toutes modifications de la question.
 LockQuestions = Toutes les questions sélectionnées sont passées au status verrouillé
 QuestionManagement = Gestion des questions
+ThereAre = Il y a
+YouAnswered = Vous avez répondu à
+On = sur
+BewareQuestionsAnswered = Attention il y a encore des questions auxquelles vous n'avez pas répondu
 
 
 

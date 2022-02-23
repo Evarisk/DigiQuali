@@ -1045,7 +1045,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$formconfirm .= ($questionForConfirm ? '<div class="confirmmessage">'.img_help('', '').' '.$questionForConfirm.'</div>' : '');
 			$formconfirm .= '<div>'."\n";
 			$formconfirm .= '<b>' . $langs->trans('ThereAre') . ' ' . $questionCounter . ' ' . $langs->trans('question(s)') . '<b>' . "<br>";
-			$formconfirm .= '<b>' . $langs->trans('YouAnswered') . ' ' . $answerCounter . ' ' . $langs->trans('question(s)') .'<b>' . "\n";
+			$formconfirm .= '<b>' . $langs->trans('YouAnswered') . ' ' . $answerCounter . ' ' . $langs->trans('question(s)') .'<b>' . "<br>";
+			if ($questionCounter != $answerCounter) {
+				$formconfirm .= '<b>' . $langs->trans('BewareQuestionsAnswered') . '<b>' . "\n";
+			}
 			$formconfirm .= '</div>'."\n";
 			$formconfirm .= '</div>'."\n";
 
