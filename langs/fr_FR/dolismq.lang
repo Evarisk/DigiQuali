@@ -137,17 +137,17 @@ SheetManagement = Gestion des fiches modèles
 #
 
 # Rights - Droits
-ReadControl = Consulter les fiches de contrôle
-CreateControl = Créer/Modifier les fiches de contrôle
-DeleteControl = Supprimer les fiches de contrôle
+ReadControl = Consulter les contrôles
+CreateControl = Créer/Modifier les contrôles
+DeleteControl = Supprimer les contrôles
 
 # Trigger - Déclencheur
-ControlCreateTrigger = Fiche contrôle créée
-ControlModifyTrigger = Fiche contrôle modifiée
-ControlDeleteTrigger = Fiche contrôle supprimée
-ControlDraftedTrigger = Fiche contrôle brouillon
-ControlValidatedTrigger = Fiche contrôle validée
-ControlLockedTrigger = Fiche contrôle verrouillée
+ControlCreateTrigger = Contrôle créé
+ControlModifyTrigger = Contrôle modifié
+ControlDeleteTrigger = Contrôle supprimé
+ControlDraftedTrigger = Contrôle brouillon
+ControlValidatedTrigger = Contrôle validé
+ControlLockedTrigger = Contrôle verrouillé
 ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
 
 # Mod Numbering - Modèle de numérotation
@@ -162,24 +162,24 @@ ControlList = Liste des contrôles
 FKUserController = Contrôleur
 ControlDate = Date de contrôle
 Controls = Contrôles
-ControlMustBeDraft = La fiche de contrôle doit être brouillon pour accéder à cette fonctionnalité
-ControlMustBeValidated = La fiche de contrôle doit être validée pour la rouvrir
-ControlMustBeValidatedToLock = La fiche de contrôle doit être validée pour la verrouiller
-ControlVerdictSelected = La fiche de contrôle a déjà un verdict de choisi
+ControlMustBeDraft = Le contrôle doit être brouillon pour accéder à cette fonctionnalité
+ControlMustBeValidated = Le contrôle doit être validé pour la rouvrir
+ControlMustBeValidatedToLock = Le contrôle doit être validé et avoir un verdict pour la verrouiller
+ControlVerdictSelected = Le contrôle a déjà un verdict de choisi
 SetOK/KO = Apte/Inapte
 Batch = Lot/Série
 VerdictControl = Choix du verdict
-ValidateControl = Valider la fiche de contrôle
-ReOpenControl = Rouvrir la fiche de contrôle
-LockControl = Verrouiller la fiche de contrôle
-ConfirmValidateControl = Êtes-vous sûr de vouloir valider la fiche de contrôle ? <br> La validation permet d'accéder au choix du verdict de la fiche de contrôle.
-ConfirmReOpenControl = Êtes-vous sûr de vouloir rouvrir la fiche de contrôle ? <br> La réouverture supprime le verdict  de la fiche de contrôle.
-ConfirmLockControl = Êtes-vous sûr de vouloir verrouiller la fiche de contrôle ? <br> Le verrouillage empêche toutes modifications de la fiche de contrôle.
+ValidateControl = Valider le contrôle
+ReOpenControl = Rouvrir le contrôle
+LockControl = Verrouiller le contrôle
+ConfirmValidateControl = Êtes-vous sûr de vouloir valider le contrôle ? <br> La validation permet d'accéder au choix du verdict du contrôle.
+ConfirmReOpenControl = Êtes-vous sûr de vouloir rouvrir le contrôle ? <br> La réouverture supprime le verdict  du contrôle.
+ConfirmLockControl = Êtes-vous sûr de vouloir verrouiller le contrôle ? <br> Le verrouillage empêche toutes modifications du contrôle.
 ProjectLinked = Projet lié
 ControlManagement = Gestion des contrôles
 ControlData = Données configurables des contrôles
-ControlName = Afficher les médias dans la fiche de contrôle
-ControlDescription = Afficher les médias des questions dans la fiche de contrôle
+ControlName = Afficher les médias dans le contrôle
+ControlDescription = Afficher les médias des questions dans le contrôle
 ChangeUserController = Droit permettant de changer l'utilisateur contrôleur
 TaskLinked = Tâche liée
 ThirdPartyLinked = Tiers lié
@@ -198,6 +198,7 @@ DoliSMQControlDetStandardModel = Renvoie le numéro sous la forme FCRn où n est
 AnswerSaved = Les réponses ont été sauvegardées
 Repair = À réparer
 NotApplicable = Non applicable
+AnswerPhoto = Photo
 
 
 
@@ -236,7 +237,7 @@ SelectProducts = Sélectionner un produit
 AddMedia = Ajouter un média
 NoMediaLinked = Pas de média lié
 ReOpened = Rouvrir
-ValidatedControl = Validée
+ValidatedControl = Validé
 Locked = Verrouillé
 Lock = Verrouiller
 NoData = N/A

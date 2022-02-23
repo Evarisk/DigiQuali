@@ -1476,7 +1476,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						<?php else : ?>
 							<div class="gridw-3"><?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?></div>
 						<?php endif; ?>
-						<div class="question-answer-title"><?php print $langs->trans('Answer') . ' : '; ?></div>
+						<div class="question-answer-title"><?php print $langs->trans('AnswerPhoto') . ' : '; ?></div>
 					</div>
 				</div>
 				<div class="table-row">
