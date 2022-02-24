@@ -653,7 +653,7 @@ llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
 if ($action == 'create') {
 	print load_fiche_titre($title_create, '', "dolismq@dolismq");
 
-	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
+	print '<form method="POST" action="'.$_SERVER["PHP_SELF"] . '?action=create'.'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="add">';
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
