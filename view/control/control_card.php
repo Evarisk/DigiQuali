@@ -1489,14 +1489,16 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						print '</td></tr>'; ?>
 					<?php else : ?>
 						<?php  print '<div class="linked-medias answer_photo">'; ?>
-						<!--							<input type="hidden" class="favorite-photo" id="answer_photo" name="answer_photo" value="--><?php //echo (dol_strlen($itemControlDet->answer_photo) > 0 ? $itemControlDet->answer_photo : GETPOST('favorite_answer_photo')) ?><!--"/>-->
-						<input type="hidden" class="question-answer-photo" id="answer_photo<?php echo $item->id ?>" name="answer_photo<?php echo $item->id ?>" value="test"/>
-						<div class="wpeo-button open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
-							<input type="hidden" class="type-from" value="answer_photo"/>
-							<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
-						</div>
-						<?php $relativepath = 'dolismq/medias/thumbs';
-						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0); ?>
+							<!--							<input type="hidden" class="favorite-photo" id="answer_photo" name="answer_photo" value="--><?php //echo (dol_strlen($itemControlDet->answer_photo) > 0 ? $itemControlDet->answer_photo : GETPOST('favorite_answer_photo')) ?><!--"/>-->
+							<table>
+								<input type="hidden" class="question-answer-photo" id="answer_photo<?php echo $item->id ?>" name="answer_photo<?php echo $item->id ?>" value="test"/>
+								<div class="wpeo-button open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
+									<input type="hidden" class="type-from" value="answer_photo"/>
+									<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
+								</div>
+								<?php $relativepath = 'dolismq/medias/thumbs';
+								print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0); ?>
+							</table>
 						</div>
 					<?php endif; ?>
 				</div>
