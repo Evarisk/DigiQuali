@@ -620,13 +620,16 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 		success: function ( resp ) {
 			$('.wpeo-loader').removeClass('wpeo-loader')
 			parent.removeClass('modal-active')
-			$('.tabBar .linked-medias.'+type+' .media-container').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .media-container', () => {
-				$('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .fa-star').first().removeClass('far').addClass('fas')
-				let favoriteMedia = $('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .filename').attr('value')
-				$('#'+type).val(favoriteMedia)
-			})
-
-			linkedMedias.html($(resp).find('.table-id-'+rowId).children())
+			if (document.URL.match(/control_card/)) {
+				linkedMedias.html($(resp).find('.table-id-'+rowId))
+			} else if (document.URL.match(/question_card/)) {
+				$('.tabBar .linked-medias.'+type+' .media-container').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .media-container', () => {
+					$('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .fa-star').first().removeClass('far').addClass('fas')
+					let favoriteMedia = $('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .filename').attr('value')
+					$('#'+type).val(favoriteMedia)
+				})
+			}
+		
 			$('.wpeo-modal.modal-photo').html($(resp).find('.wpeo-modal.modal-photo .modal-container'))
 		},
 		error: function ( ) {
