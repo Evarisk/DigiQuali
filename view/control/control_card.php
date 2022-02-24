@@ -730,7 +730,7 @@ if ($action == 'create') {
 
 	//FK Project
 	print '<tr><td class="">' . img_picto('', 'project', 'class="paddingrightonly"') . $langs->trans("ProjectLinked") . '</td><td>';
-	print $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0),  GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
+	print $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1),  GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
 	print '<a href="' . DOL_URL_ROOT . '/projet/card.php?socid='.GETPOST('fk_soc').'&action=create&backtopage='.urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddProject") . '"></span></a>';
 	print '</td></tr>';
 
