@@ -575,6 +575,8 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 	let parent = $('#media_gallery')
 	let mediaGalleryModal = $(this).closest('.modal-container')
 	let filesLinked = mediaGalleryModal.find('.clicked-photo')
+	let rowId = parent.attr('value')
+	let linkedMedias = $('.table-id-'+rowId)
 
 	let type = $(this).find('.type-from').val()
 
@@ -621,6 +623,7 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 			$('.tabBar .linked-medias.'+type+' .media-container').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .media-container', () => {
 				$('#'+type).val(favorite)
 			})
+			linkedMedias.html($(resp).find('.table-id-'+rowId).children())
 			$('.wpeo-modal.modal-photo').html($(resp).find('.wpeo-modal.modal-photo .modal-container'))
 		},
 		error: function ( ) {

@@ -1425,7 +1425,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$item = $question;
 			$item->fetch($questionId);
 			?>
-			<div class="wpeo-table table-flex table-3">
+			<div class="wpeo-table table-flex table-3 table-id-<?php echo $item->id ?>">
 				<div class="table-row">
 					<div class="table-cell table-full">
 						<?php print $item->ref; ?><br>
