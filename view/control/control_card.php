@@ -850,7 +850,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		// Always output when not jmobile nor js
 		$page = $_SERVER["PHP_SELF"] . '?id=' . $object->id;
 		$title =  $langs->trans('ValidateControl');
-		$questionForConfirm =  $langs->trans('ConfirmValidateControl');
 		$action = 'confirm_setValidated';
 		$formquestion = '';
 		$selectedchoice = 'yes';
@@ -1042,13 +1041,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 			$answerCounter = $_COOKIE['answerCounter'];
 
+			$questionForConfirm =  $langs->trans('YouAnswered') . ' ' . $answerCounter . ' ' . $langs->trans('question(s)')  . ' ' . $langs->trans('On') . ' ' . $questionCounter . '.';
+			if ($questionCounter - $answerCounter != 0) {
+				$questionForConfirm .= '<br>' . $langs->trans('BewareQuestionsAnswered', $questionCounter - $answerCounter);
+			}
+
 			$formconfirm .= ($questionForConfirm ? '<div class="confirmmessage">'.img_help('', '').' '.$questionForConfirm.'</div>' : '');
 			$formconfirm .= '<div>'."\n";
-			$formconfirm .= '<b>' . $langs->trans('ThereAre') . ' ' . $questionCounter . ' ' . $langs->trans('question(s)') . '<b>' . "<br>";
-			$formconfirm .= '<b>' . $langs->trans('YouAnswered') . ' ' . $answerCounter . ' ' . $langs->trans('question(s)') .'<b>' . "<br>";
-			if ($questionCounter != $answerCounter) {
-				$formconfirm .= '<b>' . $langs->trans('BewareQuestionsAnswered') . '<b>' . "\n";
-			}
+			$formconfirm .= '<br><b>' . $langs->trans('ConfirmValidateControl') . '<b>' . "<br>";
 			$formconfirm .= '</div>'."\n";
 			$formconfirm .= '</div>'."\n";
 

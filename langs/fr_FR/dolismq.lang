@@ -94,7 +94,7 @@ QuestionManagement = Gestion des questions
 ThereAre = Il y a
 YouAnswered = Vous avez répondu à
 On = sur
-BewareQuestionsAnswered = Attention il y a encore des questions auxquelles vous n'avez pas répondu
+BewareQuestionsAnswered = Attention il manque %s réponse(s)
 
 
 
