@@ -258,20 +258,20 @@ if (empty($reshook))
 		foreach ($files as $file) {
 			if (is_file($file['fullname']) && $file['name'] == $filename) {
 				unlink($file['fullname']);
-				$result = $controldet->fetchFromParentWithQuestion($object->id, $question->id);
-				if ($result > 0 && is_array($result)) {
-					$controldet = array_shift($result);
-					$allAnswerPhoto = preg_split('/,/', $controldet->answer_photo);
-					array_pop($allAnswerPhoto);
-					$controldet->answer_photo = '';
-					foreach ($allAnswerPhoto as $key => $answer_photo) {
-						if ($answer_photo != $filename){
-							$controldet->answer_photo .= $answer_photo . ',';
-						}
-					}
-
-					$controldet->update($user);
-				}
+//				$result = $controldet->fetchFromParentWithQuestion($object->id, $question->id);
+//				if ($result > 0 && is_array($result)) {
+//					$controldet = array_shift($result);
+//					$allAnswerPhoto = preg_split('/,/', $controldet->answer_photo);
+//					array_pop($allAnswerPhoto);
+//					$controldet->answer_photo = '';
+//					foreach ($allAnswerPhoto as $key => $answer_photo) {
+//						if ($answer_photo != $filename){
+//							$controldet->answer_photo .= $answer_photo . ',';
+//						}
+//					}
+//
+//					$controldet->update($user);
+//				}
 			}
 		}
 
@@ -317,18 +317,18 @@ if (empty($reshook))
 
 				$question->fetch($questionId);
 
-				//Add files linked
-				$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
-				$fileList            = dol_dir_list($pathToQuestionPhoto, 'files');
-				$controldettmp->answer_photo = '';
-				if ( ! empty($fileList)) {
-					foreach ($fileList as $fileToSave) {
-						if (is_file($fileToSave['fullname'])) {
-							//sauvegarder réponse photo
-							$controldettmp->answer_photo .= $fileToSave['name'] . ',';
-						}
-					}
-				}
+//				//Add files linked
+//				$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
+//				$fileList            = dol_dir_list($pathToQuestionPhoto, 'files');
+//				$controldettmp->answer_photo = '';
+//				if ( ! empty($fileList)) {
+//					foreach ($fileList as $fileToSave) {
+//						if (is_file($fileToSave['fullname'])) {
+//							//sauvegarder réponse photo
+//							$controldettmp->answer_photo .= $fileToSave['name'] . ',';
+//						}
+//					}
+//				}
 
 				$controldettmp->update($user);
 			} else {
@@ -358,22 +358,22 @@ if (empty($reshook))
 
 				$question->fetch($questionId);
 
-				//Add files linked
-				$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
-				$fileList = dol_dir_list($pathToQuestionPhoto, 'files');
-				if (!empty($fileList)) {
-					foreach ($fileList as $fileToSave) {
-						if (is_file($fileToSave['fullname'])) {
-							//sauvegarder réponse photo
-							$controldettmp->answer_photo .= $fileToSave['name'] . ',';
-						}
-					}
-				}
+//				//Add files linked
+//				$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
+//				$fileList = dol_dir_list($pathToQuestionPhoto, 'files');
+//				if (!empty($fileList)) {
+//					foreach ($fileList as $fileToSave) {
+//						if (is_file($fileToSave['fullname'])) {
+//							//sauvegarder réponse photo
+//							$controldettmp->answer_photo .= $fileToSave['name'] . ',';
+//						}
+//					}
+//				}
 
 				$controldettmp->entity = $conf->entity;
 				//if ($answer > 0 || dol_strlen($comment) > 0) {
 					$controldettmp->insert($user);
-					$controldettmp->answer_photo = '';
+					//$controldettmp->answer_photo = '';
 				//}
 			}
 		}
@@ -539,12 +539,6 @@ if (empty($reshook))
 							$controldettmp->answer = $answer;
 						}
 
-						//sauvegarder réponse photo
-						$answer_photo = GETPOST('answer_photo'.$questionId);
-						if ($answer_photo > 0) {
-							$controldettmp->answer_photo = $answer_photo;
-						}
-
 						//sauvegarder commentaire
 						$comment = GETPOST('comment'.$questionId);
 
@@ -561,12 +555,6 @@ if (empty($reshook))
 						$answer = GETPOST('answer'.$questionId);
 						if ($answer > 0) {
 							$controldettmp->answer = $answer;
-						}
-
-						//sauvegarder réponse photo
-						$answer_photo = GETPOST('answer_photo'.$questionId);
-						if ($answer_photo > 0) {
-							$controldettmp->answer_photo = $answer_photo;
 						}
 
 						//sauvegarder commentaire
