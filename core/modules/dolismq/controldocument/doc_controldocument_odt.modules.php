@@ -397,39 +397,30 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 										break;
 								}
 
-								if (dol_strlen($itemControlDet->answer_photo)) {
-									$path = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
-									$files_small = preg_split('/,/', $itemControlDet->answer_photo);
-									$i = 1;
-									foreach ($files_small as $filepath) {
-										if (!empty($filepath)) {
-											$file_small = preg_split('/\./', $filepath);
+								$path = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $item->ref;
+								$fileList = dol_dir_list($path, 'files');
+								$tmparray['photo0'] = ' ';
+								$tmparray['photo1'] = ' ';
+								$tmparray['photo2'] = ' ';
+								if (!empty($fileList)) {
+									for ($i = 0; $i <= 2; $i++) {
+										if ( $fileList[$i]['level1name'] == $item->ref) {
+											$file_small = preg_split('/\./', $fileList[$i]['name']);
 											$new_file = $file_small[0] . '_small.' . $file_small[1];
 											$image = $path . '/thumbs/' . $new_file;
-											$tmparray['photo'.$i] = $image;
-											$i++;
+											$tmparray['photo' . $i] = $image;
 										}
 									}
-
-									switch (count($files_small)) {
-										case 1:
-											$tmparray['photo1'] = ' ';
-											$tmparray['photo2'] = ' ';
-											$tmparray['photo3'] = ' ';
-											break;
-										case 2:
-											$tmparray['photo2'] = ' ';
-											$tmparray['photo3'] = ' ';
-											break;
-										case 3:
-											$tmparray['photo3'] = ' ';
-											break;
-									}
+								} else {
+									$tmparray['photo0'] = ' ';
+									$tmparray['photo1'] = ' ';
+									$tmparray['photo2'] = ' ';
 								}
 
 								$tmparray['comment'] = $comment;
 
 								unset($tmparray['object_fields']);
+								unset($tmparray['object_array_options']);
 
 								complete_substitutions_array($tmparray, $outputlangs, $object, $line, "completesubstitutionarray_lines");
 								// Call the ODTSubstitutionLine hook
@@ -437,7 +428,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 								$reshook = $hookmanager->executeHooks('ODTSubstitutionLine', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 								foreach ($tmparray as $key => $val) {
 									try {
-										if ($key == 'photo1' || $key == 'photo2' || $key == 'photo3') {
+										if (file_exists($val)) {
 											$listlines->setImage($key, $val);
 										} else {
 											if (empty($val)) {
