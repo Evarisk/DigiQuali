@@ -1047,7 +1047,7 @@ window.eoxiaJS.control.reloadProductLot = function ( event ) {
 	let selectTitle = $(this).closest('td').find('#select2-fk_product-container').attr('title')
 	let productRef = selectTitle.split(/ /)[0]
 	$.ajax({
-		url: document.URL,
+		url: document.URL + '?action=create',
 		type: "POST",
 		data: JSON.stringify({
 			productRef: productRef,
@@ -1078,7 +1078,7 @@ window.eoxiaJS.control.reloadTask = function ( event ) {
 	let projectRef = selectTitle.split(/ /)[0]
 	let projectRef2 = projectRef.slice(0, -1)
 	$.ajax({
-		url: document.URL,
+		url: document.URL + '?action=create',
 		type: "POST",
 		data: JSON.stringify({
 			projectRef: projectRef2,
