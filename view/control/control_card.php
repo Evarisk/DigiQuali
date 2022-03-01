@@ -707,7 +707,7 @@ if ($action == 'create') {
 
 	//FK SHEET
 	print '<tr><td class="fieldrequired">' . $langs->trans("SheetLinked") . '</td><td>';
-	print $sheet->select_sheet_list();
+	print $sheet->select_sheet_list(GETPOST('fk_sheet'));
 	print '</td></tr>';
 
 	//FK Soc
@@ -728,7 +728,7 @@ if ($action == 'create') {
 	print '<span class="task-content">';
 	$data = json_decode(file_get_contents('php://input'), true);
 	dol_strlen($data['projectRef']) > 0 ? $project->fetch(0, $data['projectRef']) : 0;
-	$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST("fk_task"), 'fk_task', 24, 0, '1', 1, 0, 0, 'maxwidth300', ( ! empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
+	$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST("fk_task"), 'fk_task', 24, 0, '1', 1, 0, 0, 'minwidth300', ( ! empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
 	print '</span>';
 	print '</td></tr>';
 
