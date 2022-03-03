@@ -1478,7 +1478,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						<?php endif; ?>
 					</div>
 				</div>
-
 				<div class="table-row linked-medias answer_photo">
 					<?php if ($object->status > 0 ) : ?>
 						<?php $relativepath = 'dolismq/medias/thumbs';
@@ -1492,7 +1491,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
 							</div>
 						</div>
-						<div class="table-cell table-full">
+						<div class="table-cell table-full" style="display: flex">
 							<?php $relativepath = 'dolismq/medias/thumbs';
 							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 1, 1); ?>
 						</div>

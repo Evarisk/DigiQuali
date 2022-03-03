@@ -819,7 +819,7 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 		}
 
 		foreach ($filearray as $key => $val) {
-			$return .= '<td class="media-container">';
+			$return .= '<div class="media-container">';
 			$photo   = '';
 			$file    = $val['name'];
 
@@ -934,8 +934,9 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 				<i class="fas fa-unlink button-icon"></i>
 				</div>';
 			}
+			$return .= "</div>\n";
 		}
-		$return .= "</td>\n";
+		//$return .= "</div>\n";
 
 		if ($size == 1 || $size == 'small') {
 			if ($nbbyrow > 0) {
