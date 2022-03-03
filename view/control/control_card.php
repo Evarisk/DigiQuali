@@ -1031,12 +1031,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			$questionForConfirm =  $langs->trans('YouAnswered') . ' ' . $answerCounter . ' ' . $langs->trans('question(s)')  . ' ' . $langs->trans('On') . ' ' . $questionCounter . '.';
 			if ($questionCounter - $answerCounter != 0) {
-				$questionForConfirm .= '<br>' . $langs->trans('BewareQuestionsAnswered', $questionCounter - $answerCounter);
+				$questionForConfirm .= '<br><b>' . $langs->trans('BewareQuestionsAnswered', $questionCounter - $answerCounter) . '</b>';
 			}
 
 			$formconfirm .= ($questionForConfirm ? '<div class="confirmmessage">'.img_help('', '').' '.$questionForConfirm.'</div>' : '');
 			$formconfirm .= '<div>'."\n";
-			$formconfirm .= '<br><b>' . $langs->trans('ConfirmValidateControl') . '<b>' . "<br>";
+			$formconfirm .= '<br><b>' . $langs->trans('ConfirmValidateControl') . '<b>';
 			$formconfirm .= '</div>'."\n";
 			$formconfirm .= '</div>'."\n";
 
