@@ -784,7 +784,7 @@ function dolismq_show_medias($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, 
 	return $return;
 }
 
-function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, $nbbyrow = 5, $showfilename = 0, $showaction = 0, $maxHeight = 120, $maxWidth = 160, $nolink = 0, $notitle = 0, $usesharelink = 0, $subdir = "", $object = null, $favorite = '', $show_favorite_button = 1, $show_unlink_button = 1)
+function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, $nbbyrow = 5, $showfilename = 0, $showaction = 0, $maxHeight = 120, $maxWidth = 160, $nolink = 0, $notitle = 0, $usesharelink = 0, $subdir = "", $object = null, $favorite = '', $show_favorite_button = 1, $show_unlink_button = 1 , $use_mini_format = 0)
 {
 		global $conf, $user, $langs;
 
@@ -833,7 +833,12 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 
 				if ($size == 1 || $size == 'small') {   // Format vignette
 					// Find name of thumb file
-					$photo_vignette                                                  = basename(getImageFileNameForSize($dir . $file, '_small'));
+					if ($use_mini_format) {
+						$photo_vignette = basename(getImageFileNameForSize($dir . $file, '_mini'));
+					} else {
+						$photo_vignette = basename(getImageFileNameForSize($dir . $file, '_small'));
+					}
+
 					if ( ! dol_is_file($dirthumb . $photo_vignette)) $photo_vignette = '';
 
 					// Get filesize of original file
