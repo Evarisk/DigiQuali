@@ -1416,8 +1416,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			<div class="wpeo-table table-flex table-3 table-id-<?php echo $item->id ?>">
 				<div class="table-row">
 					<div class="table-cell table-full">
-						<?php print $item->ref; ?><br>
-						<strong><?php print $item->label; ?></strong><br>
+						<?php print $item->ref; ?> - <strong><?php print $item->label; ?></strong><br>
 						<?php print $item->description; ?>
 						<?php // Other attributes
 						include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php'; ?>
@@ -1458,35 +1457,39 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					</div>
 				</div>
 				<div class="table-row">
-					<div class="table-cell table-full wpeo-gridlayout grid-4">
-						<div class="question-ref-title"><?php print $langs->trans('Ref') . ' : '; ?></div>
-							<?php print $itemControlDet->ref; ?>
-						<div class="question-comment-title"><?php print $langs->trans('Comment') . ' : '; ?></div>
+					<div class="table-cell question-comment-title table-200">
+						<?php
+						if ( ! empty( $itemControlDet->ref ) ) {
+							print '<span class="question-ref-title">' . $itemControlDet->ref . '</span> - ';
+						}
+						?>
+						<?php print $langs->trans('Comment') . ' : '; ?>
+					</div>
+					<div class="table-cell table-full">
 						<?php if ($object->status > 0 ) : ?>
 							<?php print $comment; ?>
 						<?php else : ?>
-							<div class="gridw-3"><?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?></div>
+							<?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?>
 						<?php endif; ?>
-						<div class="question-answer-title"><?php print $langs->trans('AnswerPhoto') . ' : '; ?></div>
 					</div>
 				</div>
-				<div class="table-row">
+
+				<div class="table-row linked-medias answer_photo">
 					<?php if ($object->status > 0 ) : ?>
 						<?php $relativepath = 'dolismq/medias/thumbs';
 						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 0);
 						print '</td></tr>'; ?>
 					<?php else : ?>
-						<?php  print '<div class="linked-medias answer_photo">'; ?>
-							<!--							<input type="hidden" class="favorite-photo" id="answer_photo" name="answer_photo" value="--><?php //echo (dol_strlen($itemControlDet->answer_photo) > 0 ? $itemControlDet->answer_photo : GETPOST('favorite_answer_photo')) ?><!--"/>-->
-							<table>
-								<input type="hidden" class="question-answer-photo" id="answer_photo<?php echo $item->id ?>" name="answer_photo<?php echo $item->id ?>" value="test"/>
-								<div class="wpeo-button open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
-									<input type="hidden" class="type-from" value="answer_photo"/>
-									<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
-								</div>
-								<?php $relativepath = 'dolismq/medias/thumbs';
-								print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0); ?>
-							</table>
+						<div class="table-cell table-200">
+							<input type="hidden" class="question-answer-photo" id="answer_photo<?php echo $item->id ?>" name="answer_photo<?php echo $item->id ?>" value="test"/>
+							<div class="wpeo-button open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
+								<input type="hidden" class="type-from" value="answer_photo"/>
+								<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
+							</div>
+						</div>
+						<div class="table-cell table-full">
+							<?php $relativepath = 'dolismq/medias/thumbs';
+							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0); ?>
 						</div>
 					<?php endif; ?>
 				</div>
