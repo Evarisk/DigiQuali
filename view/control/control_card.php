@@ -686,8 +686,13 @@ if ($action == 'create') {
 		print '</td></tr>';
 	}
 
+	//FK SHEET
+	print '<tr><td class="fieldrequired">' . $langs->trans("SheetLinked") . '</td><td>';
+	print $sheet->select_sheet_list(GETPOST('fk_sheet'));
+	print '</td></tr>';
+
 	//FK Product
-	print '<tr><td class="fieldrequired">' . img_picto('', 'product', 'class="paddingrightonly"') . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' '. $langs->trans('Service') . '</td><td>';
+	print '<tr><td class="">' . img_picto('', 'product', 'class="paddingrightonly"') . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' '. $langs->trans('Service') . '</td><td>';
 	$events    = array();
 	$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/digiriskdolibarr/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_lot');
 	print $form->select_produits(GETPOST('fk_product'), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices' , 0, 'minwidth300');
@@ -703,11 +708,6 @@ if ($action == 'create') {
 	dol_strlen($data['productRef']) > 0 ? $product->fetch(0, $data['productRef']) : 0;
 	print dolismq_select_product_lots(( ! empty(GETPOST('fk_product')) ? GETPOST('fk_product') : $product->id), GETPOST('fk_lot'), 'fk_lot', 1, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_lot');
 	print '</span>';
-	print '</td></tr>';
-
-	//FK SHEET
-	print '<tr><td class="fieldrequired">' . $langs->trans("SheetLinked") . '</td><td>';
-	print $sheet->select_sheet_list(GETPOST('fk_sheet'));
 	print '</td></tr>';
 
 	//FK Soc
