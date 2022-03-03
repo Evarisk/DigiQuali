@@ -1487,9 +1487,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					<?php else : ?>
 						<div class="table-cell table-200">
 							<input type="hidden" class="question-answer-photo" id="answer_photo<?php echo $item->id ?>" name="answer_photo<?php echo $item->id ?>" value="test"/>
-							<div class="wpeo-button open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
+							<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
 								<input type="hidden" class="type-from" value="answer_photo"/>
-								<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
+								<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
 							</div>
 						</div>
 						<div class="table-cell table-full">
