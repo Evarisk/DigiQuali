@@ -629,7 +629,7 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 					$('#'+type).val(favoriteMedia)
 				})
 			}
-
+		
 			$('.wpeo-modal.modal-photo').html($(resp).find('.wpeo-modal.modal-photo .modal-container'))
 		},
 		error: function ( ) {
@@ -972,7 +972,6 @@ window.eoxiaJS.control.init = function() {
 window.eoxiaJS.control.event = function() {
 	$( document ).on( 'click', '.answer:not(.disable)', window.eoxiaJS.control.selectAnswer );
 	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.writeComment );
-	$( document ).on( 'focusout', '.question-comment', window.eoxiaJS.control.writeCommentFocusOut );
 	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 	$( document ).on( 'change', '#fk_project', window.eoxiaJS.control.reloadTask );
 	$( document ).on( 'click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
@@ -1017,6 +1016,7 @@ window.eoxiaJS.control.selectAnswer = function ( event ) {
  * @return {void}
  */
 window.eoxiaJS.control.writeComment = function ( event ) {
+
 	let postName = $(this).closest('.table-cell').find('.question-comment').attr('name')
 	let postValue = $(this).closest('.table-cell').find('.question-comment').val()
 	let actualSavePost = $(this).closest('.tabBar').find('.saveButton').attr('href')
@@ -1031,19 +1031,6 @@ window.eoxiaJS.control.writeComment = function ( event ) {
 
 	$(this).closest('.tabBar').find('.saveButton').attr('href', actualSavePost + '&' + postName + '=' + postValue)
 	$(this).closest('.tabBar').find('.validateButton').attr('href', actualValidatePost + '&' + postName + '=' + postValue)
-};
-
-/**
- * Save a comment for a control question if focus out.
- *
- * @since   1.1.0
- * @version 1.1.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.eoxiaJS.control.writeCommentFocusOut = function ( event ) {
-	$(this).closest('.tabBar').find('.saveButton')[0].click();
 };
 
 /**
