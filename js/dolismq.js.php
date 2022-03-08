@@ -922,6 +922,7 @@ window.eoxiaJS.question.init = function() {
  */
 window.eoxiaJS.question.event = function() {
 	$( document ).on( 'click', '.clicked-photo-preview', window.eoxiaJS.question.previewPhoto );
+	$( document ).on( 'click', '.ui-dialog-titlebar-close', window.eoxiaJS.question.closePreviewPhoto );
 };
 
 /**
@@ -939,6 +940,19 @@ window.eoxiaJS.question.previewPhoto = function ( event ) {
 	} else if ($(this).hasClass('photo-ko'))  {
 		$("#dialogforpopup").attr('style', 'border: 10px solid #e05353')
 	}
+};
+
+/**
+ * Close preview photo.
+ *
+ * @since   1.1.0
+ * @version 1.1.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.question.closePreviewPhoto = function ( event ) {
+	$("#dialogforpopup").attr('style', 'border:')
 };
 
 /**
