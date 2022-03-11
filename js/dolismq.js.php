@@ -986,7 +986,7 @@ window.eoxiaJS.control.init = function() {
 window.eoxiaJS.control.event = function() {
 	$( document ).on( 'click', '.answer:not(.disable)', window.eoxiaJS.control.selectAnswer );
 	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.writeComment );
-	$( document ).on( 'focusout', '.question-comment', window.eoxiaJS.control.showCommentUnsaved );
+	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.showCommentUnsaved );
 	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 	$( document ).on( 'change', '#fk_project', window.eoxiaJS.control.reloadTask );
 	$( document ).on( 'click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
