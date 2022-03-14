@@ -273,16 +273,31 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$productlot = new Productlot($db);
 			$controldet = new ControlLine($db);
 			$question   = new Question($db);
+			$sheet      = new Sheet($db);
+			$usertmp    = new User($db);
+			$thirdparty = new Societe($db);
+			$project    = new Project($db);
+			$task		= new Task($db);
 
 			$product->fetch($object->fk_product);
 			$productlot->fetch($object->fk_lot);
+			$sheet->fetch($object->fk_sheet);
+			$usertmp->fetch($object->fk_user_controller);
+			$thirdparty->fetch($object->fk_soc);
+			$project->fetch($object->fk_project);
+			$task->fetch($object->fk_task);
 
-			$tmparray['mycompany_name'] = $conf->global->MAIN_INFO_SOCIETE_NOM;
-			$tmparray['reference']      = $object->ref;
-			$tmparray['nom']            = $object->label;
-			$tmparray['product_ref']    = $product->ref;
-			$tmparray['lot_ref']        = $productlot->batch;
-			$tmparray['control_date']   = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+			$tmparray['mycompany_name']     = $conf->global->MAIN_INFO_SOCIETE_NOM;
+			$tmparray['control_ref']        = $object->ref;
+			$tmparray['nom']                = $usertmp->lastname . ' '. $usertmp->firstname;
+			$tmparray['product_ref']        = $product->ref;
+			$tmparray['lot_ref']            = $productlot->batch;
+			$tmparray['sheet_ref']          = $sheet->ref;
+			$tmparray['sheet_label']        = $sheet->label;
+			$tmparray['control_date']       = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+			$tmparray['thirdparty_label']   = $thirdparty->name;
+			$tmparray['project_task_ref']   = $project->ref . '-' . $task->ref;
+			$tmparray['project_task_label'] = $project->label . '-' . $task->label;
 
 			switch ($object->verdict) {
 				case 1:
@@ -335,7 +350,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 								$item = $question;
 								$item->fetch($questionId);
 
-								$tmparray['ref'] = $item->ref;
+								$tmparray['ref']         = $item->ref;
+								$tmparray['label']       = $item->label;
 								$tmparray['description'] = $item->description;
 
 								if (!empty($conf->global->DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS)) {
@@ -364,6 +380,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 									}
 								}
 
+								$tmparray['ref_answer'] = $itemControlDet->ref;
+
 								switch ($answer) {
 									case 1:
 										$tmparray['answer'] = $langs->trans('OK');
@@ -379,9 +397,30 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 										break;
 								}
 
+								$path = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $item->ref;
+								$fileList = dol_dir_list($path, 'files');
+								$tmparray['photo0'] = ' ';
+								$tmparray['photo1'] = ' ';
+								$tmparray['photo2'] = ' ';
+								if (!empty($fileList)) {
+									for ($i = 0; $i <= 2; $i++) {
+										if ( $fileList[$i]['level1name'] == $item->ref) {
+											$file_small = preg_split('/\./', $fileList[$i]['name']);
+											$new_file = $file_small[0] . '_small.' . $file_small[1];
+											$image = $path . '/thumbs/' . $new_file;
+											$tmparray['photo' . $i] = $image;
+										}
+									}
+								} else {
+									$tmparray['photo0'] = ' ';
+									$tmparray['photo1'] = ' ';
+									$tmparray['photo2'] = ' ';
+								}
+
 								$tmparray['comment'] = $comment;
 
 								unset($tmparray['object_fields']);
+								unset($tmparray['object_array_options']);
 
 								complete_substitutions_array($tmparray, $outputlangs, $object, $line, "completesubstitutionarray_lines");
 								// Call the ODTSubstitutionLine hook

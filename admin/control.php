@@ -41,6 +41,7 @@ global $conf, $db, $langs, $user;
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
 require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
+require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
 
 //require_once '../class/control.class.php';
 require_once '../lib/dolismq.lib.php';
@@ -55,7 +56,16 @@ if ( ! $user->admin) accessforbidden();
 $action     = GETPOST('action', 'alpha');
 $backtopage = GETPOST('backtopage', 'alpha');
 $value      = GETPOST('value', 'alpha');
+$attrname   = GETPOST('attrname', 'alpha');
 
+// List of supported format
+$tmptype2label = ExtraFields::$type2label;
+$type2label = array('');
+foreach ($tmptype2label as $key => $val) {
+	$type2label[$key] = $langs->transnoentitiesnoconv($val);
+}
+
+$elementtype = 'dolismq_control'; //Must be the $table_element of the class that manage extrafield
 $type  = 'control';
 $error = 0;
 
@@ -63,15 +73,24 @@ $error = 0;
 $usertmp = new User($db);
 //$control = new Control($db);
 $actioncomm = new ActionComm($db);
+$extrafields = new ExtraFields($db);
 
 /*
  * Actions
  */
 
+require DOL_DOCUMENT_ROOT.'/core/actions_extrafields.inc.php';
+
 if ($action == 'setmod') {
 	$constforval = 'DOLISMQ_' . strtoupper($type) . "_ADDON";
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
+
+if ($action == 'setmodControlDet') {
+	$constforval = 'DIGIRISKDOLIBARR_' . strtoupper('controldet') . "_ADDON";
+	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
+}
+
 
 //if ($action == 'setUserController') {
 //	if ( ! $error) {
@@ -92,8 +111,9 @@ if ($action == 'setmod') {
 
 $form = new Form($db);
 
-$help_url = 'FR:Module_DigiriskDolibarr#L.27onglet_.C3.89l.C3.A9ment_Digirisk';
-$title    = $langs->trans("Control");
+$help_url   = 'FR:Module_DigiriskDolibarr#L.27onglet_.C3.89l.C3.A9ment_Digirisk';
+$title      = $langs->trans("Control");
+$textobject = $langs->transnoentitiesnoconv("Control");
 
 $morejs  = array("/dolismq/js/dolismq.js.php");
 $morecss = array("/dolismq/css/dolismq.css");
@@ -128,7 +148,7 @@ print '<td class="center">' . $langs->trans("ShortInfo") . '</td>';
 print '</tr>';
 
 clearstatcache();
-$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/" . $type . "/");
+$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/control/");
 if (is_dir($dir)) {
 	$handle = opendir($dir);
 	if (is_resource($handle)) {
@@ -200,6 +220,94 @@ if (is_dir($dir)) {
 
 print '</table>';
 
+/*
+ *  Numbering module
+ */
+
+print load_fiche_titre($langs->trans("DoliSMQControlDetNumberingModule"), '', '');
+
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans("Name") . '</td>';
+print '<td>' . $langs->trans("Description") . '</td>';
+print '<td class="nowrap">' . $langs->trans("Example") . '</td>';
+print '<td class="center">' . $langs->trans("Status") . '</td>';
+print '<td class="center">' . $langs->trans("ShortInfo") . '</td>';
+print '</tr>';
+
+clearstatcache();
+$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/controldet/");
+if (is_dir($dir)) {
+	$handle = opendir($dir);
+	if (is_resource($handle)) {
+		while (($file = readdir($handle)) !== false ) {
+			if ( ! is_dir($dir . $file) || (substr($file, 0, 1) <> '.' && substr($file, 0, 3) <> 'CVS')) {
+				$filebis = $file;
+
+				$classname = preg_replace('/\.php$/', '', $file);
+				$classname = preg_replace('/\-.*$/', '', $classname);
+
+				if ( ! class_exists($classname) && is_readable($dir . $filebis) && (preg_match('/mod_/', $filebis) || preg_match('/mod_/', $classname)) && substr($filebis, dol_strlen($filebis) - 3, 3) == 'php') {
+					// Charging the numbering class
+					require_once $dir . $filebis;
+
+					$module = new $classname($db);
+
+					if ($module->isEnabled()) {
+						print '<tr class="oddeven"><td>';
+						print $langs->trans($module->name);
+						print "</td><td>";
+						print $module->info();
+						print '</td>';
+
+						// Show example of numbering module
+						print '<td class="nowrap">';
+						$tmp = $module->getExample();
+						if (preg_match('/^Error/', $tmp)) print '<div class="error">' . $langs->trans($tmp) . '</div>';
+						elseif ($tmp == 'NotConfigured') print $langs->trans($tmp);
+						else print $tmp;
+						print '</td>';
+
+						print '<td class="center">';
+						if ($conf->global->DOLISMQ_CONTROLDET_ADDON == $file || $conf->global->DOLISMQ_CONTROLDET_ADDON . '.php' == $file) {
+							print img_picto($langs->trans("Activated"), 'switch_on');
+						} else {
+							print '<a class="reposition" href="' . $_SERVER["PHP_SELF"] . '?action=setmodControlDet&value=' . preg_replace('/\.php$/', '', $file) . '&scan_dir=' . $module->scandir . '&label=' . urlencode($module->name) . '" alt="' . $langs->trans("Default") . '">' . img_picto($langs->trans("Disabled"), 'switch_off') . '</a>';
+						}
+						print '</td>';
+
+						// Example for listing risks action
+						$htmltooltip  = '';
+						$htmltooltip .= '' . $langs->trans("Version") . ': <b>' . $module->getVersion() . '</b><br>';
+						$nextval      = $module->getNextValue($object_document);
+						if ("$nextval" != $langs->trans("NotAvailable")) {  // Keep " on nextval
+							$htmltooltip .= $langs->trans("NextValue") . ': ';
+							if ($nextval) {
+								if (preg_match('/^Error/', $nextval) || $nextval == 'NotConfigured')
+									$nextval  = $langs->trans($nextval);
+								$htmltooltip .= $nextval . '<br>';
+							} else {
+								$htmltooltip .= $langs->trans($module->error) . '<br>';
+							}
+						}
+
+						print '<td class="center">';
+						print $form->textwithpicto('', $htmltooltip, 1, 0);
+						if ($conf->global->DOLISMQ_CONTROLDET_ADDON . '.php' == $file) { // If module is the one used, we show existing errors
+							if ( ! empty($module->error)) dol_htmloutput_mesg($module->error, '', 'error', 1);
+						}
+						print '</td>';
+						print "</tr>";
+					}
+				}
+			}
+		}
+		closedir($handle);
+	}
+}
+
+print '</table>';
+
 print load_fiche_titre($langs->trans("ControlData"), '', '');
 
 print '<table class="noborder centpercent">';
@@ -233,6 +341,31 @@ print '</tr>';
 //print '</tr>';
 print '</table>';
 print '<br>';
+
+require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_view.tpl.php';
+
+// Buttons
+if ($action != 'create' && $action != 'edit') {
+	print '<div class="tabsAction">';
+	print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?action=create">'.$langs->trans("NewAttribute").'</a></div>';
+	print "</div>";
+}
+
+// Creation of an optional field
+if ($action == 'create') {
+	print "<br>";
+	print load_fiche_titre($langs->trans('NewAttribute'));
+
+	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_add.tpl.php';
+}
+
+// Edition of an optional field
+if ($action == 'edit' && !empty($attrname)) {
+	print "<br>";
+	print load_fiche_titre($langs->trans("FieldEdition", $attrname));
+
+	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_edit.tpl.php';
+}
 
 // Page end
 print dol_get_fiche_end();

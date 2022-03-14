@@ -72,7 +72,7 @@ class modDoliSMQ extends DolibarrModules
 		$this->editor_url = 'https://evarisk.com/';
 
 		// Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-		$this->version = '1.0.0';
+		$this->version = '1.1.0';
 		// Url to the file with your last numberversion of this module
 		//$this->url_last_version = 'http://www.example.com/versionmodule.txt';
 
@@ -172,15 +172,19 @@ class modDoliSMQ extends DolibarrModules
 			60 => array('DOLISMQ_QUESTION_ADDON','chaine', 'mod_question_standard' ,'', $conf->entity),
 
 			// CONST CONTROL
-			70 => array('DOLISMQ_CONTROL_ADDON','chaine', 'mod_control_standard' ,'', $conf->entity),
+			70 => array('DOLISMQ_CONTROL_ADDON','chaine', 'mod_control_standard','', $conf->entity),
 			71 => array('DOLISMQ_CONTROL_DISPLAY_MEDIAS','integer', 1,'', $conf->entity),
 			//72 => array('DOLISMQ_CONTROL_SET_USER_CONTROLLER','integer', 0,'', $conf->entity),
 
 			//CONST CONTROL DOCUMENT
 			80 => array('DOLISMQ_CONTROLDOCUMENT_ADDON','chaine', 'mod_controldocument_standard' ,'', $conf->entity),
 			81 => array('DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH','chaine', DOL_DOCUMENT_ROOT . '/custom/dolismq/documents/doctemplates/controldocument/' ,'', $conf->entity),
-			82 => array('DOLISMQ_CONTROLDOCUMENT_DEFAULT_MODEL','chaine', 'controldocument_odt' ,'', $conf->entity),
+			82 => array('DOLISMQ_CONTROLDOCUMENT_DEFAULT_MODEL','chaine', 'calypso' ,'', $conf->entity),
 			83 => array('DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS','integer', 1,'', $conf->entity),
+			84 => array('DOLISMQ_CONTROLDOCUMENT_ADDON_PDF','chaine', 'calypso' ,'', $conf->entity),
+
+			// CONST CONTROL
+			90 => array('DOLISMQ_CONTROLDET_ADDON','chaine', 'mod_controldet_standard','', $conf->entity),
 		);
 
 		// Some keys to add into the overwriting translation tables

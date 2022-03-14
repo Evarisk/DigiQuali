@@ -71,8 +71,6 @@ function dolismq_show_photos($modulepart, $sdir, $size = 0, $nbmax = 0, $nbbyrow
 	$nbphoto = 0;
 
 	$filearray = dol_dir_list($dir, "files", 0, '', '(\.meta|_preview.*\.png)$', $sortfield, (strtolower($sortorder) == 'desc' ? SORT_DESC : SORT_ASC), 1);
-
-	//echo '<pre>'; print_r( $pdirthumb ); echo '</pre>';
 	if (count($filearray)) {
 		if ($sortfield && $sortorder) {
 			$filearray = dol_sort_array($filearray, $sortfield, $sortorder);
@@ -224,7 +222,7 @@ function dolismqshowdocuments($modulepart, $modulesubdir, $filedir, $urlsource, 
 {
 	global $db, $langs, $conf, $user, $hookmanager, $form;
 
-	if ( ! is_object($form)) $form = new Form($this->db);
+	if ( ! is_object($form)) $form = new Form($db);
 
 	include_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
@@ -238,7 +236,7 @@ function dolismqshowdocuments($modulepart, $modulesubdir, $filedir, $urlsource, 
 	// Get list of files
 	$file_list = null;
 	if ( ! empty($filedir)) {
-		$file_list = dol_dir_list($filedir, 'files', 0, '(\.odt|\.zip)', '', 'date', SORT_DESC, 1);
+		$file_list = dol_dir_list($filedir, 'files', 0, '(\.odt|\.zip|\.pdf)', '', 'date', SORT_DESC, 1);
 	}
 	if ($hideifempty && empty($file_list)) return '';
 
@@ -299,7 +297,7 @@ function dolismqshowdocuments($modulepart, $modulesubdir, $filedir, $urlsource, 
 
 		$out .= '<tr class="liste_titre">';
 
-		$addcolumforpicto = ($delallowed || $printer || $morepicto);
+		$addcolumforpicto = ($delallowed || $morepicto);
 		$colspan          = (3 + ($addcolumforpicto ? 1 : 0)); $colspanmore = 0;
 
 		$out .= '<th colspan="' . $colspan . '" class="formdoc liste_titre maxwidthonsmartphone center">';
@@ -786,7 +784,7 @@ function dolismq_show_medias($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, 
 	return $return;
 }
 
-function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, $nbbyrow = 5, $showfilename = 0, $showaction = 0, $maxHeight = 120, $maxWidth = 160, $nolink = 0, $notitle = 0, $usesharelink = 0, $subdir = "", $object = null, $favorite = '')
+function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, $nbbyrow = 5, $showfilename = 0, $showaction = 0, $maxHeight = 120, $maxWidth = 160, $nolink = 0, $notitle = 0, $usesharelink = 0, $subdir = "", $object = null, $favorite = '', $show_favorite_button = 1, $show_unlink_button = 1 , $use_mini_format = 0)
 {
 		global $conf, $user, $langs;
 
@@ -814,14 +812,14 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 	$nbphoto = 0;
 
 	$filearray = dol_dir_list($dir, "files", 0, '', '(\.meta|_preview.*\.png)$', $sortfield, (strtolower($sortorder) == 'desc' ? SORT_DESC : SORT_ASC), 1);
-	//echo '<pre>'; print_r( $pdirthumb ); echo '</pre>';
+
 	if (count($filearray)) {
 		if ($sortfield && $sortorder) {
 			$filearray = dol_sort_array($filearray, $sortfield, $sortorder);
 		}
 
 		foreach ($filearray as $key => $val) {
-			$return .= '<td class="media-container">';
+			$return .= '<div class="media-container">';
 			$photo   = '';
 			$file    = $val['name'];
 
@@ -835,7 +833,12 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 
 				if ($size == 1 || $size == 'small') {   // Format vignette
 					// Find name of thumb file
-					$photo_vignette                                                  = basename(getImageFileNameForSize($dir . $file, '_small'));
+					if ($use_mini_format) {
+						$photo_vignette = basename(getImageFileNameForSize($dir . $file, '_mini'));
+					} else {
+						$photo_vignette = basename(getImageFileNameForSize($dir . $file, '_small'));
+					}
+
 					if ( ! dol_is_file($dirthumb . $photo_vignette)) $photo_vignette = '';
 
 					// Get filesize of original file
@@ -866,10 +869,10 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 						if ($val['share']) {
 							if (empty($maxHeight) || $photo_vignette && $imgarray['height'] > $maxHeight) {
 								$return .= '<!-- Show original file (thumb not yet available with shared links) -->';
-								$return .= '<img width="65" height="65" class="photo photowithmargin clicked-photo-preview" height="' . $maxHeight . '" src="' . DOL_URL_ROOT . '/viewimage.php?hashp=' . urlencode($val['share']) . '" title="' . dol_escape_htmltag($alt) . '">';
+								$return .= '<img width="65" height="65" class="photo photowithmargin" height="' . $maxHeight . '" src="' . DOL_URL_ROOT . '/viewimage.php?hashp=' . urlencode($val['share']) . '" title="' . dol_escape_htmltag($alt) . '">';
 							} else {
 								$return .= '<!-- Show original file -->';
-								$return .= '<img  width="65" height="65" class="photo photowithmargin clicked-photo-preview" height="' . $maxHeight . '" src="' . DOL_URL_ROOT . '/viewimage.php?hashp=' . urlencode($val['share']) . '" title="' . dol_escape_htmltag($alt) . '">';
+								$return .= '<img  width="65" height="65" class="photo photowithmargin" height="' . $maxHeight . '" src="' . DOL_URL_ROOT . '/viewimage.php?hashp=' . urlencode($val['share']) . '" title="' . dol_escape_htmltag($alt) . '">';
 							}
 						} else {
 							$return .= '<!-- Show nophoto file (because file is not shared) -->';
@@ -878,10 +881,10 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 					} else {
 						if (empty($maxHeight) || $photo_vignette && $imgarray['height'] > $maxHeight) {
 							$return .= '<!-- Show thumb -->';
-							$return .= '<img width="' . $maxWidth . '" height="' . $maxHeight . '" class="photo clicked-photo-preview"  src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $modulepart . '&entity=' . $conf->entity . '&file=' . urlencode($pdirthumb . $photo_vignette) . '" title="' . dol_escape_htmltag($alt) . '">';
+							$return .= '<img width="' . $maxWidth . '" height="' . $maxHeight . '" class="photo"  src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $modulepart . '&entity=' . $conf->entity . '&file=' . urlencode($pdirthumb . $photo_vignette) . '" title="' . dol_escape_htmltag($alt) . '">';
 						} else {
 							$return .= '<!-- Show original file -->';
-							$return .= '<img width="' . $maxWidth . '" height="' . $maxHeight . '" class="photo photowithmargin  clicked-photo-preview" height="' . $maxHeight . '" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $modulepart . '&entity=' . $conf->entity . '&file=' . urlencode($pdir . $photo) . '" title="' . dol_escape_htmltag($alt) . '">';
+							$return .= '<img width="' . $maxWidth . '" height="' . $maxHeight . '" class="photo photowithmargin" height="' . $maxHeight . '" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $modulepart . '&entity=' . $conf->entity . '&file=' . urlencode($pdir . $photo) . '" title="' . dol_escape_htmltag($alt) . '">';
 						}
 					}
 
@@ -913,20 +916,27 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 				if ($nbmax && $nbphoto >= $nbmax) break;
 			}
 
-			$return .= '<div>
+			//$return .= '<div>';
+
+			if ($show_favorite_button) {
+				$return .= '
 				<div class="wpeo-button button-square-50 button-blue media-gallery-favorite" value="' . $object->id . '">
-				<input class="element-linked-id" type="hidden" value="' . ($object->id > 0 ? $object->id : 0) . '">
-				<input class="filename" type="hidden" value="' . $photo . '">
-				<i class="' . (  $favorite == $photo ? 'fas' : ($object->photo == $photo ? 'fas' : 'far')) . ' fa-star button-icon"></i>
-			</div>';
-			$return .= '
-			<div class="wpeo-button button-square-50 button-grey media-gallery-unlink" value="' . $object->id . '">
+					<input class="element-linked-id" type="hidden" value="' . ($object->id > 0 ? $object->id : 0) . '">
+					<input class="filename" type="hidden" value="' . $photo . '">
+					<i class="' . ($favorite == $photo ? 'fas' : ($object->photo == $photo ? 'fas' : 'far')) . ' fa-star button-icon"></i>
+				</div>';
+			}
+			if ($show_unlink_button) {
+				$return .= '
+				<div class="wpeo-button button-square-50 button-grey media-gallery-unlink" value="' . $object->id . '">
 				<input class="element-linked-id" type="hidden" value="' . ($object->id > 0 ? $object->id : 0) . '">
 				<input class="filename" type="hidden" value="' . $photo . '">
 				<i class="fas fa-unlink button-icon"></i>
-			</div></div></div>';
+				</div>';
+			}
+			$return .= "</div>\n";
 		}
-		$return .= "</td>\n";
+		//$return .= "</div>\n";
 
 		if ($size == 1 || $size == 'small') {
 			if ($nbbyrow > 0) {

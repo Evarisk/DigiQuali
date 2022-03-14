@@ -189,6 +189,7 @@ if (empty($reshook))
 	{
 		foreach ($object->fields as $key => $val) {
 			$search[$key] = '';
+			$_POST[$key] = '';
 		}
 		$toselect = '';
 		$search_array_options = array();
@@ -219,8 +220,10 @@ $now = dol_now();
 //$help_url="EN:Module_Control|FR:Module_Control_FR|ES:Módulo_Control";
 $help_url = '';
 $title = $langs->trans("ControlList");
+$morejs   = array("/dolismq/js/dolismq.js.php");
+$morecss  = array("/dolismq/css/dolismq.css");
 
-llxHeader('', $title, $help_url);
+llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
 
 $newcardbutton = dolGetButtonTitle($langs->trans('NewControl'), '', 'fa fa-plus-circle', dol_buildpath('/dolismq/view/control/control_card.php', 1).'?action=create', '', $permissiontoadd);
 

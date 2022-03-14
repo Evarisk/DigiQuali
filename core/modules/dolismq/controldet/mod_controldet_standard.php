@@ -1,0 +1,136 @@
+<?php
+/* Copyright (C) 2021 EOXIA <dev@eoxia.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * or see https://www.gnu.org/
+ */
+
+/**
+ *	\file       htdocs/custom/dolismq/core/modules/dolismq/mod_controldet_standard.php
+ * \ingroup     dolismq
+ *	\brief      File containing class for numbering module Standard
+ */
+
+/**
+ * 	Class to manage controldet numbering rules Standard
+ */
+class mod_controldet_standard
+{
+	/**
+	 * Dolibarr version of the loaded document
+	 * @var string
+	 */
+	public $version = 'dolibarr'; // 'development', 'experimental', 'dolibarr'
+
+	/**
+	 * @var string document prefix
+	 */
+	public $prefix = 'FCR';
+
+	/**
+	 * @var string model name
+	 */
+	public $name = 'Anthée';
+
+	/**
+	 * @var string Error code (or message)
+	 */
+	public $error = '';
+
+	/**
+	 *  Returns the description of the numbering model
+	 *
+	 *  @return     string      Texte descripif
+	 */
+	public function info()
+	{
+		global $langs;
+		$langs->load("dolismq@dolismq");
+		return $langs->trans('DoliSMQControlDetStandardModel', $this->prefix);
+	}
+
+	/**
+	 *	Return if a module can be used or not
+	 *
+	 *	@return		boolean     true if module can be used
+	 */
+	public function isEnabled()
+	{
+		return true;
+	}
+
+	/**
+	 *  Return an example of numbering
+	 *
+	 *  @return     string      Example
+	 */
+	public function getExample()
+	{
+		return $this->prefix . "1";
+	}
+
+	/**
+	 * 	Return next free value
+	 *
+	 *  @param  Object		$object		Object we need next value for
+	 *  @return string      			Value if KO, <0 if KO
+	 */
+	public function getNextValue($object, $version = 0)
+	{
+		global $db, $conf;
+
+		// first we get the max value
+		$posindice = strlen($this->prefix) + 1;
+		$sql       = "SELECT MAX(CAST(SUBSTRING(ref FROM " . $posindice . ") AS SIGNED)) as max";
+		$sql      .= " FROM " . MAIN_DB_PREFIX . "dolismq_controldet";
+		$sql      .= " WHERE ref LIKE '" . $db->escape($this->prefix) . "%'";
+		if ($object->ismultientitymanaged == 1) {
+			$sql .= " AND entity = " . $conf->entity;
+		}
+
+		$resql = $db->query($sql);
+		if ($resql) {
+			$obj           = $db->fetch_object($resql);
+			if ($obj) $max = intval($obj->max);
+			else $max      = 0;
+		} else {
+			dol_syslog("mod_controldet_standard::getNextValue", LOG_DEBUG);
+			return -1;
+		}
+
+		if ($max >= (pow(10, 4) - 1)) $num = $max + 1; // If counter > 9999, we do not format on 4 chars, we take number as it is
+		else $num                          = sprintf("%s", $max + 1);
+
+		dol_syslog("mod_controldet_standard::getNextValue return " . $this->prefix . $num);
+		return $this->prefix . $num;
+	}
+
+	/**
+	 *	Returns version of numbering module
+	 *
+	 *	@return     string      Valeur
+	 */
+	public function getVersion()
+	{
+		global $langs;
+		$langs->load("admin");
+
+		if ($this->version == 'development') return $langs->trans("VersionDevelopment");
+		if ($this->version == 'experimental') return $langs->trans("VersionExperimental");
+		if ($this->version == 'dolibarr') return DOL_VERSION;
+		if ($this->version) return $this->version;
+		return $langs->trans("NotAvailable");
+	}
+}
+

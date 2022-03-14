@@ -69,12 +69,16 @@ require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
+require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmfiles.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
 require_once __DIR__.'/../../class/control.class.php';
 require_once __DIR__.'/../../class/sheet.class.php';
 require_once __DIR__.'/../../class/question.class.php';
 require_once __DIR__.'/../../lib/dolismq_control.lib.php';
 require_once __DIR__.'/../../core/modules/dolismq/control/mod_control_standard.php';
+require_once __DIR__.'/../../core/modules/dolismq/controldet/mod_controldet_standard.php';
 require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 
 global $langs, $conf, $user, $db;
@@ -91,21 +95,22 @@ $cancel     = GETPOST('cancel', 'aZ09');
 $contextpage = GETPOST('contextpage', 'aZ') ?GETPOST('contextpage', 'aZ') : 'controlcard'; // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
-//$lineid   = GETPOST('lineid', 'int');
 
 // Initialize technical objects
-$object        = new Control($db);
-$controldet    = new ControlLine($db);
-$sheet         = new Sheet($db);
-$question      = new Question($db);
-$usertmp       = new User($db);
-$product       = new Product($db);
-$project       = new Project($db);
-$task          = new Task($db);
-$thirdparty    = new Societe($db);
-$productlot    = new Productlot($db);
-$extrafields   = new ExtraFields($db);
-$refControlMod = new $conf->global->DOLISMQ_CONTROL_ADDON($db);
+$object           = new Control($db);
+$controldet       = new ControlLine($db);
+$sheet            = new Sheet($db);
+$question         = new Question($db);
+$usertmp          = new User($db);
+$product          = new Product($db);
+$project          = new Project($db);
+$task             = new Task($db);
+$thirdparty       = new Societe($db);
+$productlot       = new Productlot($db);
+$extrafields      = new ExtraFields($db);
+$ecmfile 		  = new EcmFiles($db);
+$refControlMod    = new $conf->global->DOLISMQ_CONTROL_ADDON($db);
+$refControlDetMod = new $conf->global->DOLISMQ_CONTROLDET_ADDON($db);
 
 $diroutputmassaction = $conf->dolismq->dir_output.'/temp/massgeneration/'.$user->id;
 $hookmanager->initHooks(array('controlcard', 'globalcard')); // Note that conf->hooks_modules contains array
@@ -180,6 +185,109 @@ if (empty($reshook))
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
+	if ( ! $error && $action == "addFiles") {
+		$data = json_decode(file_get_contents('php://input'), true);
+
+		$filenames  = $data['filenames'];
+		$questionId = $data['questionId'];
+		$type 	    = $data['type'];
+		$object->fetch($id);
+		$question->fetch($questionId);
+		if (dol_strlen($object->ref) > 0) {
+			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/' .  $type;
+			dol_mkdir($pathToQuestionPhoto);
+			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/' .  $type . '/' . $question->ref;
+			dol_mkdir($pathToQuestionPhoto);
+		} else {
+			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . 'tmp/' . 'QU0/' . $type ;
+		}
+		$filenames = preg_split('/vVv/', $filenames);
+		array_pop($filenames);
+
+		if ( ! (empty($filenames))) {
+			if ( ! is_dir($conf->dolismq->multidir_output[$conf->entity] . '/control/tmp/')) {
+				dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/control/tmp/');
+			}
+
+			if ( ! is_dir($conf->dolismq->multidir_output[$conf->entity] . '/control/' . (dol_strlen($object->ref) > 0 ? $object->ref : 'tmp/QU0') )) {
+				dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/control/' . (dol_strlen($object->ref) > 0 ? $object->ref : 'tmp/QU0'));
+			}
+
+			foreach ($filenames as $filename) {
+				$entity = ($conf->entity > 1) ? '/' . $conf->entity : '';
+
+				if (is_file($conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/' . $filename)) {
+					$pathToECMPhoto = $conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/' . $filename;
+
+//					if ( ! is_dir($pathToQuestionPhoto)) {
+//						mkdir($pathToQuestionPhoto);
+//					}
+
+					copy($pathToECMPhoto, $pathToQuestionPhoto . '/' . $filename);
+					$ecmfile->fetch(0,'','ecm/dolismq/medias/' . $filename);
+					$date = dol_print_date(dol_now(),'dayxcard');
+					$extension = preg_split('/\./', $filename);
+					$newFilename = $conf->entity . '_' . $ecmfile->id . '_' . $object->ref . '_' . $question->ref . '_' . $date . '.' . $extension[1];
+					rename($pathToQuestionPhoto . '/' . $filename, $pathToQuestionPhoto . '/' . $newFilename);
+
+					global $maxwidthmini, $maxheightmini, $maxwidthsmall,$maxheightsmall ;
+					$destfull = $pathToQuestionPhoto . '/' . $newFilename;
+
+					// Create thumbs
+					$imgThumbSmall = vignette($destfull, $maxwidthsmall, $maxheightsmall, '_small', 50, "thumbs");
+					// Create mini thumbs for image (Ratio is near 16/9)
+					$imgThumbMini = vignette($destfull, $maxwidthmini, $maxheightmini, '_mini', 50, "thumbs");
+				}
+			}
+		}
+	}
+
+	if ( ! $error && $action == "unlinkFile" && $permissiontodelete) {
+		$data = json_decode(file_get_contents('php://input'), true);
+
+		$filename    = $data['filename'];
+		$splitFilename = preg_split('/_/', $filename);
+
+		$object->fetch($id);
+		$question->fetch(0,$splitFilename[3]);
+
+		$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
+
+		$files = dol_dir_list($pathToQuestionPhoto);
+
+		foreach ($files as $file) {
+			if (is_file($file['fullname']) && $file['name'] == $filename) {
+				unlink($file['fullname']);
+//				$result = $controldet->fetchFromParentWithQuestion($object->id, $question->id);
+//				if ($result > 0 && is_array($result)) {
+//					$controldet = array_shift($result);
+//					$allAnswerPhoto = preg_split('/,/', $controldet->answer_photo);
+//					array_pop($allAnswerPhoto);
+//					$controldet->answer_photo = '';
+//					foreach ($allAnswerPhoto as $key => $answer_photo) {
+//						if ($answer_photo != $filename){
+//							$controldet->answer_photo .= $answer_photo . ',';
+//						}
+//					}
+//
+//					$controldet->update($user);
+//				}
+			}
+		}
+
+		$files = dol_dir_list($pathToQuestionPhoto . '/thumbs');
+		foreach ($files as $file) {
+			if (preg_match('/' . preg_split('/\./', $filename)[0] . '/', $file['name'])) {
+				unlink($file['fullname']);
+			}
+		}
+
+		$urltogo = str_replace('__ID__', $id, $backtopage);
+		$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
+		header("Location: " . $urltogo);
+		exit;
+	}
+
 	if ($action == 'save') {
 
 		$controldet = new ControlLine($db);
@@ -195,6 +303,7 @@ if (empty($reshook))
 				$controldettmp = array_shift($result);
 				//sauvegarder réponse
 				$answer = GETPOST('answer'.$questionId);
+
 				if ($answer > 0) {
 					$controldettmp->answer = $answer;
 				}
@@ -206,9 +315,26 @@ if (empty($reshook))
 					$controldettmp->comment = $comment;
 				}
 
+				$question->fetch($questionId);
+
+//				//Add files linked
+//				$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
+//				$fileList            = dol_dir_list($pathToQuestionPhoto, 'files');
+//				$controldettmp->answer_photo = '';
+//				if ( ! empty($fileList)) {
+//					foreach ($fileList as $fileToSave) {
+//						if (is_file($fileToSave['fullname'])) {
+//							//sauvegarder réponse photo
+//							$controldettmp->answer_photo .= $fileToSave['name'] . ',';
+//						}
+//					}
+//				}
+
 				$controldettmp->update($user);
 			} else {
 				$controldettmp = $controldet;
+
+				$controldettmp->ref = $refControlDetMod->getNextValue($controldettmp);
 
 				$controldettmp->fk_control  = $object->id;
 				$controldettmp->fk_question = $questionId;
@@ -230,13 +356,28 @@ if (empty($reshook))
 					$controldettmp->comment = '';
 				}
 
+				$question->fetch($questionId);
+
+//				//Add files linked
+//				$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
+//				$fileList = dol_dir_list($pathToQuestionPhoto, 'files');
+//				if (!empty($fileList)) {
+//					foreach ($fileList as $fileToSave) {
+//						if (is_file($fileToSave['fullname'])) {
+//							//sauvegarder réponse photo
+//							$controldettmp->answer_photo .= $fileToSave['name'] . ',';
+//						}
+//					}
+//				}
+
 				$controldettmp->entity = $conf->entity;
-				if ($answer > 0 || dol_strlen($comment) > 0) {
+				//if ($answer > 0 || dol_strlen($comment) > 0) {
 					$controldettmp->insert($user);
-				}
+					//$controldettmp->answer_photo = '';
+				//}
 			}
 		}
-		setEventMessages($langs->trans('AnswerSaved') . ' ' . $question->ref, array());
+		setEventMessages($langs->trans('AnswerSaved'), array());
 		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 		exit;
 	}
@@ -247,8 +388,6 @@ if (empty($reshook))
 	// Actions when printing a doc from card
 	include DOL_DOCUMENT_ROOT.'/core/actions_printing.inc.php';
 
-	// Action to move up and down lines of object
-	//include DOL_DOCUMENT_ROOT.'/core/actions_lineupdown.inc.php';
 
 	// Action to build doc
 
@@ -315,6 +454,7 @@ if (empty($reshook))
 			$moreparams['object'] = $object;
 
 			$result = $object->generateDocument(GETPOST('model'), $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
+
 			if ($result <= 0) {
 				setEventMessages($object->error, $object->errors, 'errors');
 				$action = '';
@@ -333,16 +473,6 @@ if (empty($reshook))
 		}
 	}
 
-	if ($action == 'set_thirdparty' && $permissiontoadd)
-	{
-		$object->setValueFrom('fk_soc', GETPOST('fk_soc', 'int'), '', '', 'date', '', $user, $triggermodname);
-	}
-
-	if ($action == 'classin' && $permissiontoadd)
-	{
-		$object->setProject(GETPOST('projectid', 'int'));
-	}
-
 	if ($action == 'confirm_setVerdict' && $permissiontoadd && !GETPOST('cancel', 'alpha')) {
 		$object->fetch($id);
 		if ( ! $error) {
@@ -359,6 +489,30 @@ if (empty($reshook))
 				if ( ! empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
 				else setEventMessages($object->error, null, 'errors');
 			}
+		}
+	}
+
+	// Delete file in doc form
+	if ($action == 'remove_file' && $permissiontodelete) {
+		if ( ! empty($upload_dir)) {
+			require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+
+			$langs->load("other");
+			$filetodelete = GETPOST('file', 'alpha');
+			$file         = $upload_dir . '/' . $filetodelete;
+			$ret          = dol_delete_file($file, 0, 0, 0, $object);
+			if ($ret) setEventMessages($langs->trans("FileWasRemoved", $filetodelete), null, 'mesgs');
+			else setEventMessages($langs->trans("ErrorFailToDeleteFile", $filetodelete), null, 'errors');
+
+			// Make a redirect to avoid to keep the remove_file into the url that create side effects
+			$urltoredirect = $_SERVER['REQUEST_URI'];
+			$urltoredirect = preg_replace('/#builddoc$/', '', $urltoredirect);
+			$urltoredirect = preg_replace('/action=remove_file&?/', '', $urltoredirect);
+
+			header('Location: ' . $urltoredirect);
+			exit;
+		} else {
+			setEventMessages('BugFoundVarUploaddirnotDefined', null, 'errors');
 		}
 	}
 
@@ -532,8 +686,13 @@ if ($action == 'create') {
 		print '</td></tr>';
 	}
 
+	//FK SHEET
+	print '<tr><td class="fieldrequired">' . $langs->trans("SheetLinked") . '</td><td>';
+	print $sheet->select_sheet_list(GETPOST('fk_sheet'));
+	print '</td></tr>';
+
 	//FK Product
-	print '<tr><td class="fieldrequired">' . img_picto('', 'product', 'class="paddingrightonly"') . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' '. $langs->trans('Service') . '</td><td>';
+	print '<tr><td class="">' . img_picto('', 'product', 'class="paddingrightonly"') . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' '. $langs->trans('Service') . '</td><td>';
 	$events    = array();
 	$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/digiriskdolibarr/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_lot');
 	print $form->select_produits(GETPOST('fk_product'), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices' , 0, 'minwidth300');
@@ -551,14 +710,15 @@ if ($action == 'create') {
 	print '</span>';
 	print '</td></tr>';
 
-	//FK SHEET
-	print '<tr><td class="fieldrequired">' . $langs->trans("SheetLinked") . '</td><td>';
-	print $sheet->select_sheet_list();
+	//FK Soc
+	print '<tr><td class="">' . img_picto('', 'building', 'class="paddingrightonly"') . $langs->trans("ThirdPartyLinked") . '</td><td>';
+	print $form->select_company(GETPOST('fk_soc'), 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'minwidth300');
+	print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
 	print '</td></tr>';
 
 	//FK Project
 	print '<tr><td class="">' . img_picto('', 'project', 'class="paddingrightonly"') . $langs->trans("ProjectLinked") . '</td><td>';
-	print $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0),  GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
+	print $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1),  GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
 	print '<a href="' . DOL_URL_ROOT . '/projet/card.php?socid='.GETPOST('fk_soc').'&action=create&backtopage='.urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddProject") . '"></span></a>';
 	print '</td></tr>';
 
@@ -568,14 +728,8 @@ if ($action == 'create') {
 	print '<span class="task-content">';
 	$data = json_decode(file_get_contents('php://input'), true);
 	dol_strlen($data['projectRef']) > 0 ? $project->fetch(0, $data['projectRef']) : 0;
-	$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST("fk_task"), 'fk_task', 24, 0, '1', 1, 0, 0, 'maxwidth300', ( ! empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
+	$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST("fk_task"), 'fk_task', 24, 0, '1', 1, 0, 0, 'minwidth300', ( ! empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
 	print '</span>';
-	print '</td></tr>';
-
-	//FK Soc
-	print '<tr><td class="">' . img_picto('', 'building', 'class="paddingrightonly"') . $langs->trans("ThirdPartyLinked") . '</td><td>';
-	print $form->select_company(GETPOST('fk_soc'), 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'minwidth300');
-	print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
 	print '</td></tr>';
 
 	// Other attributes
@@ -621,8 +775,34 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	if ($action == 'setVerdict') {
 		//Form to close proposal (signed or not)
+
+		$AllAnswer = $controldet->fetchFromParent($object->id);
+		$answerOK = 0; $answerKO = 0; $answerRepair = 0; $answerNotApplicable = 0;
+		if (!empty($AllAnswer)) {
+			foreach ($AllAnswer as $answer){
+				switch ($answer->answer){
+					case 1:
+						$answerOK++;
+						break;
+					case 2:
+						$answerKO++;
+						break;
+					case 3:
+						$answerRepair++;
+						break;
+					case 4:
+						$answerNotApplicable++;
+						break;
+				}
+			}
+		}
+
 		$formquestion = array(
 			array('type' => 'select', 'name' => 'verdict', 'label' => '<span class="fieldrequired">' . $langs->trans("VerdictControl") . '</span>', 'values' => array('1' => 'OK', '2' => 'KO'), 'select_show_empty' => 0),
+			array('type' => 'text', 'name' => 'OK', 'label' => '<span class="answer" value="1"><i class="fas fa-check"></i></span>', 'value' => $answerOK, 'moreattr' => 'readonly'),
+			array('type' => 'text', 'name' => 'KO', 'label' => '<span class="answer" value="2"><i class="fas fa-times"></i></span>', 'value' => $answerKO, 'moreattr' => 'readonly'),
+			array('type' => 'text', 'name' => 'Repair', 'label' => '<span class="answer" value="3"><i class="fas fa-tools"></i></span>', 'value' => $answerRepair, 'moreattr' => 'readonly'),
+			array('type' => 'text', 'name' => 'NotApplicable', 'label' => '<span class="answer" value="4">N/A</span>', 'value' => $answerNotApplicable, 'moreattr' => 'readonly'),
 		);
 
 		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $text, 'confirm_setVerdict', $formquestion, '', 1, 250);
@@ -658,7 +838,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		// Always output when not jmobile nor js
 		$page = $_SERVER["PHP_SELF"] . '?id=' . $object->id;
 		$title =  $langs->trans('ValidateControl');
-		$questionForConfirm =  $langs->trans('ConfirmValidateControl');
 		$action = 'confirm_setValidated';
 		$formquestion = '';
 		$selectedchoice = 'yes';
@@ -850,10 +1029,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 			$answerCounter = $_COOKIE['answerCounter'];
 
+			$questionForConfirm =  $langs->trans('YouAnswered') . ' ' . $answerCounter . ' ' . $langs->trans('question(s)')  . ' ' . $langs->trans('On') . ' ' . $questionCounter . '.';
+			if ($questionCounter - $answerCounter != 0) {
+				$questionForConfirm .= '<br><b>' . $langs->trans('BewareQuestionsAnswered', $questionCounter - $answerCounter) . '</b>';
+			}
+
 			$formconfirm .= ($questionForConfirm ? '<div class="confirmmessage">'.img_help('', '').' '.$questionForConfirm.'</div>' : '');
 			$formconfirm .= '<div>'."\n";
-			$formconfirm .= '<b>' . $langs->trans('ThereAre') . ' ' . $questionCounter . ' ' . $langs->trans('question(s)') . '<b>' . "<br>";
-			$formconfirm .= '<b>' . $langs->trans('YouAnswered') . ' ' . $answerCounter . ' ' . $langs->trans('question(s)') .'<b>' . "\n";
+			$formconfirm .= '<br><b>' . $langs->trans('ConfirmValidateControl') . '<b>';
 			$formconfirm .= '</div>'."\n";
 			$formconfirm .= '</div>'."\n";
 
@@ -1017,14 +1200,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockControl'), $langs->trans('ConfirmLockControl', $object->ref), 'confirm_setLocked', '', 'yes', 'actionButtonLock', 350, 600);
 	}
 
-
-	// Confirmation of action xxxx
-	if ($action == 'xxx')
-	{
-		$formcontrol = array();
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('XXX'), $text, 'confirm_xxx', $formcontrol, 0, 1, 220);
-	}
-
 	// Call Hook formConfirm
 	$parameters = array('formConfirm' => $formconfirm, 'lineid' => $lineid);
 	$reshook = $hookmanager->executeHooks('formConfirm', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
@@ -1033,7 +1208,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Print form confirm
 	print $formconfirm;
-
 
 	// Object card
 	// ------------------------------------------------------------
@@ -1113,6 +1287,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 	print '</td></tr>';
 
+	//Fk_soc - Tiers lié
+	print '<tr><td class="titlefield">';
+	print $langs->trans("ThirdParty");
+	print '</td>';
+	print '<td>';
+	$thirdparty->fetch($object->fk_soc);
+	if ($thirdparty > 0) {
+		print $thirdparty->getNomUrl(1);
+	}
+	print '</td></tr>';
+
 	//Fk_project - Projet lié
 	print '<tr><td class="titlefield">';
 	print $langs->trans("Project");
@@ -1132,17 +1317,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$task->fetch($object->fk_task);
 	if ($task > 0) {
 		print $task->getNomUrl(1);
-	}
-	print '</td></tr>';
-
-	//Fk_soc - Tiers lié
-	print '<tr><td class="titlefield">';
-	print $langs->trans("ThirdParty");
-	print '</td>';
-	print '<td>';
-	$thirdparty->fetch($object->fk_soc);
-	if ($thirdparty > 0) {
-		print $thirdparty->getNomUrl(1);
 	}
 	print '</td></tr>';
 
@@ -1177,8 +1351,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		if (empty($reshook)) {
-			print '<a class="' . (($object->status == 0) ? 'saveButton butAction' : 'butActionRefused classfortooltip') . '" href="'.$_SERVER["PHP_SELF"].'?action=save&id='.$object->id.'" id="' . (($object->status == 0) ? 'actionButtonSave' : '') . '" title="' . (($object->status == 0) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeDraft"))) . '">' . $langs->trans("Save") . '</a>';
-			print '<a class="' . (($object->status == 0) ? 'validateButton butAction' : 'butActionRefused classfortooltip') . '" href="'.$_SERVER["PHP_SELF"].'?action=setValidated&id='.$object->id.'" id="' . (($object->status == 0) ? 'actionButtonValidate' : '') . '" title="' . (($object->status == 0) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeDraft"))) . '">' . $langs->trans("Validate") . '</a>';
+			if ($object->status == 0) {
+				print '<a class="saveButton butAction" href="'.$_SERVER["PHP_SELF"].'?action=save&id='.$object->id.'" id="actionButtonSave" title="">' . $langs->trans("Save") . '</a>';
+				print '<a class="validateButton butAction" href="'.$_SERVER["PHP_SELF"].'?action=setValidated&id='.$object->id.'" id="actionButtonValidate" title="">' . $langs->trans("Validate") . '</a>';
+			} else {
+				print '<a class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans("ControlMustBeDraft")) . '">' . $langs->trans("Save") . '</a>';
+				print '<a class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans("ControlMustBeDraft")) . '">' . $langs->trans("Validate") . '</a>';
+			}
 			// Set verdict control
 			if ($object->status == 1 && $object->verdict == null) {
 				if ($permissiontoadd) {
@@ -1190,7 +1369,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				print '>'.$langs->trans('SetOK/KO').'</a>';
 			}
 			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 ) ? 'actionButtonReOpen' : '') . '" title="' . (($object->status == 1 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidated"))) . '">' . $langs->trans("ReOpened") . '</span>';
-			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1) ? 'actionButtonLock' : '') . '" title="' . (($object->status == 1 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidatedToLock"))) . '">' . $langs->trans("Lock") . '</span>';
+			print '<span class="' . (($object->status == 1 && $object->verdict != null) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 && $object->verdict != null) ? 'actionButtonLock' : '') . '" title="' . (($object->status == 1 && $object->verdict != null) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidatedToLock"))) . '">' . $langs->trans("Lock") . '</span>';
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
 			print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
@@ -1239,32 +1418,31 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$item = $question;
 			$item->fetch($questionId);
 			?>
-			<div class="wpeo-table table-flex table-3">
+			<div class="wpeo-table table-flex table-3 table-id-<?php echo $item->id ?>">
 				<div class="table-row">
 					<div class="table-cell table-full">
-						<?php print $item->ref; ?><br>
-						<strong><?php print $item->label; ?></strong><br>
+						<?php print $item->ref; ?> - <strong><?php print $item->label; ?></strong><br>
 						<?php print $item->description; ?>
+						<?php // Other attributes
+						include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php'; ?>
 					</div>
 					<?php if (!empty($conf->global->DOLISMQ_CONTROL_DISPLAY_MEDIAS)) : ?>
 						<div class="table-cell table-175">
 							<?php
 							$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
 							if ($urladvanced) print '<a href="' . $urladvanced . '">';
-							print '<img width="60" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ok)) . '" >';
+							print '<img width="60" class="photo photo-ok' . ($urladvanced ? ' clicked-photo-preview' : '').'" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ok)) . '" >';
 							print '</a>';
 							$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
 							if ($urladvanced) print '<a href="' . $urladvanced . '">';
-							print '<img width="60" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_small.', $item->photo_ko)) . '" >';
+							print '<img width="60" class="photo photo-ko'. ($urladvanced ? ' clicked-photo-preview' : '').'" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ko)) . '" >';
 							print '</a>';
 							?>
 						</div>
 					<?php endif; ?>
 					<div class="table-cell table-225" <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>>
 						<?php
-
 						print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
-
 						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" value="1">';
 						print '<i class="fas fa-check"></i>';
 						print '</span>';
@@ -1284,19 +1462,47 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					</div>
 				</div>
 				<div class="table-row">
-					<div class="table-cell table-full wpeo-gridlayout grid-4">
-						<div class="question-comment-title"><?php print $langs->trans('Comment') . ' : '; ?></div>
+					<div class="table-cell question-comment-title table-200">
+						<?php
+						if ( ! empty( $itemControlDet->ref ) ) {
+							print '<span class="question-ref-title">' . $itemControlDet->ref . '</span> - ';
+						}
+						?>
+						<?php print $langs->trans('Comment') . ' : '; ?>
+					</div>
+					<div class="table-cell table-full">
 						<?php if ($object->status > 0 ) : ?>
 							<?php print $comment; ?>
 						<?php else : ?>
-							<div class="gridw-3"><?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?></div>
+							<?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?>
 						<?php endif; ?>
 					</div>
+				</div>
+				<div class="table-row linked-medias answer_photo">
+					<?php if ($object->status > 0 ) : ?>
+						<?php $relativepath = 'dolismq/medias/thumbs';
+						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 0, 1);
+						print '</td></tr>'; ?>
+					<?php else : ?>
+						<div class="table-cell table-200">
+							<input type="hidden" class="question-answer-photo" id="answer_photo<?php echo $item->id ?>" name="answer_photo<?php echo $item->id ?>" value="test"/>
+							<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
+								<input type="hidden" class="type-from" value="answer_photo"/>
+								<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
+							</div>
+						</div>
+						<div class="table-cell table-full" style="display: flex">
+							<?php $relativepath = 'dolismq/medias/thumbs';
+							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 1, 1); ?>
+						</div>
+					<?php endif; ?>
 				</div>
 			</div>
 			<?php
 		}
 	}
+
+	include DOL_DOCUMENT_ROOT . '/custom/dolismq/core/tpl/dolismq_medias_gallery_modal.tpl.php';
 
 	print dol_get_fiche_end();
 	$includedocgeneration = 1;

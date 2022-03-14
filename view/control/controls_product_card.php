@@ -698,7 +698,9 @@ if (empty($reshook)) {
 // Print form confirm
 print $formconfirm;
 
-$sqlfilter = ' AND fk_product ='.$id;
+$_POST['fk_product'] = $id;
+
+//$sqlfilter = ' AND t.fk_product ='.$id;
 
 $newcardbutton = dolGetButtonTitle($langs->trans('NewControl'), '', 'fa fa-plus-circle', dol_buildpath('/dolismq/view/control/control_card.php', 1).'?action=create&fk_product='.$id,'', $permissiontoadd);
 

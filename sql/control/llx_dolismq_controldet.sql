@@ -24,6 +24,7 @@ CREATE TABLE llx_dolismq_controldet(
 	status        smallint DEFAULT 1,
 	type          varchar(128),
     answer        text,
+    answer_photo  text,
     comment       text,
 	fk_user_creat integer NOT NULL,
 	fk_user_modif integer,

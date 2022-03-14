@@ -41,6 +41,8 @@ global $conf, $db, $langs, $user;
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/class/html.formprojet.class.php";
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
+require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
+
 require_once '../lib/dolismq.lib.php';
 
 // Translations
@@ -53,22 +55,33 @@ if ( ! $user->admin) accessforbidden();
 $action     = GETPOST('action', 'alpha');
 $backtopage = GETPOST('backtopage', 'alpha');
 $value      = GETPOST('value', 'alpha');
+$attrname   = GETPOST('attrname', 'alpha');
 
+// List of supported format
+$tmptype2label = ExtraFields::$type2label;
+$type2label = array('');
+foreach ($tmptype2label as $key => $val) {
+	$type2label[$key] = $langs->transnoentitiesnoconv($val);
+}
+
+$elementtype = 'dolismq_question'; //Must be the $table_element of the class that manage extrafield
 $type  = 'question';
 $error = 0;
 
 // Initialize technical objects
 $usertmp = new User($db);
+$extrafields = new ExtraFields($db);
 
 /*
  * Actions
  */
 
+require DOL_DOCUMENT_ROOT.'/core/actions_extrafields.inc.php';
+
 if ($action == 'setmod') {
 	$constforval = 'DOLISMQ_' . strtoupper($type) . "_ADDON";
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
-
 
 /*
  * View
@@ -77,8 +90,9 @@ if ($action == 'setmod') {
 if ( ! empty($conf->projet->enabled)) { $formproject = new FormProjets($db); }
 $form = new Form($db);
 
-$help_url = 'FR:Module_DigiriskDolibarr#L.27onglet_.C3.89l.C3.A9ment_Digirisk';
-$title    = $langs->trans("Question");
+$help_url   = 'FR:Module_DigiriskDolibarr#L.27onglet_.C3.89l.C3.A9ment_Digirisk';
+$title      = $langs->trans("Question");
+$textobject = $langs->transnoentitiesnoconv("Question");
 
 $morejs  = array("/dolismq/js/dolismq.js.php");
 $morecss = array("/dolismq/css/dolismq.css");
@@ -113,7 +127,7 @@ print '<td class="center">' . $langs->trans("ShortInfo") . '</td>';
 print '</tr>';
 
 clearstatcache();
-$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/" . $type . "/");
+$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/question/");
 if (is_dir($dir)) {
 	$handle = opendir($dir);
 	if (is_resource($handle)) {
@@ -184,6 +198,32 @@ if (is_dir($dir)) {
 }
 
 print '</table>';
+print '<br>';
+
+require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_view.tpl.php';
+
+// Buttons
+if ($action != 'create' && $action != 'edit') {
+	print '<div class="tabsAction">';
+	print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?action=create">'.$langs->trans("NewAttribute").'</a></div>';
+	print "</div>";
+}
+
+// Creation of an optional field
+if ($action == 'create') {
+	print "<br>";
+	print load_fiche_titre($langs->trans('NewAttribute'));
+
+	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_add.tpl.php';
+}
+
+// Edition of an optional field
+if ($action == 'edit' && !empty($attrname)) {
+	print "<br>";
+	print load_fiche_titre($langs->trans("FieldEdition", $attrname));
+
+	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_edit.tpl.php';
+}
 
 // Page end
 print dol_get_fiche_end();

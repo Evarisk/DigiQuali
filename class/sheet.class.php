@@ -931,7 +931,7 @@ class Sheet extends CommonObject
 	 * @return       string      HTML string with
 	 * @throws Exception
 	 */
-	public function select_sheet_list($selected = '', $htmlname = 'fk_sheet', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth200', $moreparam = '', $multiple = false)
+	public function select_sheet_list($selected = '', $htmlname = 'fk_sheet', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth300', $moreparam = '', $multiple = false)
 	{
 		// phpcs:enable
 		global $conf, $user, $langs;
@@ -979,6 +979,10 @@ class Sheet extends CommonObject
 
 			// Construct $out and $outarray
 			$out .= '<select id="' . $htmlname . '" class="flat' . ($morecss ? ' ' . $morecss : '') . '"' . ($moreparam ? ' ' . $moreparam : '') . ' name="' . $htmlname . ($multiple ? '[]' : '') . '" ' . ($multiple ? 'multiple' : '') . '>' . "\n";
+
+			if ($showempty) {
+				$out .= '<option value="-1">&nbsp;</option>';
+			}
 
 			$num                  = $this->db->num_rows($resql);
 			$i                    = 0;

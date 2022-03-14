@@ -69,6 +69,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/product.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
 require_once DOL_DOCUMENT_ROOT.'/product/stock/class/productlot.class.php';
+require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 
 // load dolismq libraries
 require_once __DIR__.'/../../class/control.class.php';
@@ -153,6 +154,7 @@ $pagenext = $page + 1;
 
 // Initialize technical objects
 $object = new Control($db);
+$project = new Project($db);
 $extrafields = new ExtraFields($db);
 $diroutputmassaction = $conf->dolismq->dir_output.'/temp/massgeneration/'.$user->id;
 $hookmanager->initHooks(array('controllist')); // Note that conf->hooks_modules contains array
@@ -329,7 +331,9 @@ print '<div class="clearboth"></div>';
 print dol_get_fiche_end();
 print '<br>';
 
-$sqlfilter = ' AND fk_lot ='.$id;
+$_POST['fk_lot'] = $id;
+
+//$sqlfilter = ' AND t.fk_lot ='.$id;
 
 $newcardbutton = dolGetButtonTitle($langs->trans('NewControl'), '', 'fa fa-plus-circle', dol_buildpath('/dolismq/view/control/control_card.php', 1).'?action=create&fk_product='.$productlot->fk_product.'&fk_lot='.$productlot->id,'', $permissiontoadd);
 

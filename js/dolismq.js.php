@@ -575,11 +575,18 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 	let parent = $('#media_gallery')
 	let mediaGalleryModal = $(this).closest('.modal-container')
 	let filesLinked = mediaGalleryModal.find('.clicked-photo')
+	let rowId = parent.attr('value')
+	let linkedMedias = $('.table-id-'+rowId)
 
 	let type = $(this).find('.type-from').val()
 
-	var params = new window.URLSearchParams(window.location.search);
-	var currentElementID = params.get('id')
+	let idSelected = $('#media_gallery').find('.wpeo-button').attr('value');
+	if (idSelected == 0) {
+		var params = new window.URLSearchParams(window.location.search);
+		var currentElementID = params.get('id')
+	} else {
+		currentElementID = idSelected
+	}
 
 	let filenames = ''
 	if (filesLinked.length > 0) {
@@ -613,9 +620,16 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 		success: function ( resp ) {
 			$('.wpeo-loader').removeClass('wpeo-loader')
 			parent.removeClass('modal-active')
-			$('.tabBar .linked-medias.'+type+' .media-container').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .media-container', () => {
-				$('#'+type).val(favorite)
-			})
+			if (document.URL.match(/control_card/)) {
+				linkedMedias.html($(resp).find('.table-id-'+rowId))
+			} else if (document.URL.match(/question_card/)) {
+				$('.tabBar .linked-medias.'+type+' .media-container').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .media-container', () => {
+					$('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .fa-star').first().removeClass('far').addClass('fas')
+					let favoriteMedia = $('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .filename').attr('value')
+					$('#'+type).val(favoriteMedia)
+				})
+			}
+
 			$('.wpeo-modal.modal-photo').html($(resp).find('.wpeo-modal.modal-photo .modal-container'))
 		},
 		error: function ( ) {
@@ -729,7 +743,7 @@ window.eoxiaJS.mediaGallery.unlinkFile = function( event ) {
 	let previousName = ''
 	let newPhoto = ''
 
-	window.eoxiaJS.loader.display($(this).closest('.media-container'));
+	//window.eoxiaJS.loader.display($(this).closest('.media-container'));
 
 	document.URL.match('/?/') ? querySeparator = '&' : 1
 
@@ -878,6 +892,68 @@ if ( ! window.eoxiaJS.loader ) {
 	};
 }
 
+/**
+ * Initialise l'objet "question" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.
+ *
+ * @since   1.1.0
+ * @version 1.1.0
+ */
+window.eoxiaJS.question = {};
+
+/**
+ * La méthode appelée automatiquement par la bibliothèque EoxiaJS.
+ *
+ * @since   1.1.0
+ * @version 1.1.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.question.init = function() {
+	window.eoxiaJS.question.event();
+};
+
+/**
+ * La méthode contenant tous les événements pour le question.
+ *
+ * @since   1.1.0
+ * @version 1.1.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.question.event = function() {
+	$( document ).on( 'click', '.clicked-photo-preview', window.eoxiaJS.question.previewPhoto );
+	$( document ).on( 'click', '.ui-dialog-titlebar-close', window.eoxiaJS.question.closePreviewPhoto );
+};
+
+/**
+ * Add border on preview photo.
+ *
+ * @since   1.1.0
+ * @version 1.1.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.question.previewPhoto = function ( event ) {
+	if ($(this).hasClass('photo-ok')) {
+		$("#dialogforpopup").attr('style', 'border: 10px solid #47e58e')
+	} else if ($(this).hasClass('photo-ko'))  {
+		$("#dialogforpopup").attr('style', 'border: 10px solid #e05353')
+	}
+};
+
+/**
+ * Close preview photo.
+ *
+ * @since   1.1.0
+ * @version 1.1.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.question.closePreviewPhoto = function ( event ) {
+	$("#dialogforpopup").attr('style', 'border:')
+};
 
 /**
  * Initialise l'objet "control" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.
@@ -910,9 +986,17 @@ window.eoxiaJS.control.init = function() {
 window.eoxiaJS.control.event = function() {
 	$( document ).on( 'click', '.answer:not(.disable)', window.eoxiaJS.control.selectAnswer );
 	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.writeComment );
+	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.showCommentUnsaved );
 	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 	$( document ).on( 'change', '#fk_project', window.eoxiaJS.control.reloadTask );
 	$( document ).on( 'click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
+	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.selectProduct);
+	$( document ).on( 'change', '#fk_lot', window.eoxiaJS.control.selectProductLot);
+	$( document ).on( 'change', '#fk_sheet', window.eoxiaJS.control.selectSheet);
+	$( document ).on( 'change', '#fk_user_controller', window.eoxiaJS.control.selectUserController);
+	$( document ).on( 'change', '#fk_project', window.eoxiaJS.control.selectProject);
+	$( document ).on( 'change', '#fk_task', window.eoxiaJS.control.selectTask);
+	$( document ).on( 'change', '#fk_soc', window.eoxiaJS.control.selectThirdParty);
 };
 
 /**
@@ -965,6 +1049,22 @@ window.eoxiaJS.control.writeComment = function ( event ) {
 };
 
 /**
+ * Show a comment for a control question if focus out.
+ *
+ * @since   1.1.0
+ * @version 1.1.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.control.showCommentUnsaved = function ( event ) {
+	if (!$(this).hasClass('show-comment-unsaved-message')) {
+		$(this).after('<p style="color:red">Commentaire non enregistré</p>');
+		$(this).addClass('show-comment-unsaved-message');
+	}
+};
+
+/**
  * Write a comment for a control question.
  *
  * @since   1.0.0
@@ -978,7 +1078,7 @@ window.eoxiaJS.control.reloadProductLot = function ( event ) {
 	let selectTitle = $(this).closest('td').find('#select2-fk_product-container').attr('title')
 	let productRef = selectTitle.split(/ /)[0]
 	$.ajax({
-		url: document.URL,
+		url: document.URL + '?action=create',
 		type: "POST",
 		data: JSON.stringify({
 			productRef: productRef,
@@ -1009,7 +1109,7 @@ window.eoxiaJS.control.reloadTask = function ( event ) {
 	let projectRef = selectTitle.split(/ /)[0]
 	let projectRef2 = projectRef.slice(0, -1)
 	$.ajax({
-		url: document.URL,
+		url: document.URL + '?action=create',
 		type: "POST",
 		data: JSON.stringify({
 			projectRef: projectRef2,
@@ -1034,3 +1134,109 @@ window.eoxiaJS.control.getAnswerCounter = function ( event ) {
 	})
 	document.cookie = "answerCounter=" + answerCounter
 }
+
+/**
+ * Lors du clic sur un produit, met a jour la ref du champ de recherche
+ *
+ * @since   9.0.1
+ * @version 9.0.1
+ *
+ * @param  {MouseEvent} event [description]
+ * @return {void}
+ */
+window.eoxiaJS.control.selectProduct = function( event ) {
+	let selectTitle = $(this).closest('td').find('#select2-fk_product-container').attr('title')
+	let productRef = selectTitle.split(/ /)[0]
+	$('.input-hidden-fk_product').attr('value', productRef);
+};
+
+/**
+ * Lors du clic sur un numéro de série, met a jour la ref du champ de recherche
+ *
+ * @since   9.0.1
+ * @version 9.0.1
+ *
+ * @param  {MouseEvent} event [description]
+ * @return {void}
+ */
+window.eoxiaJS.control.selectProductLot = function( event ) {
+	let selectTitle = $(this).closest('td').find('#select2-fk_lot-container').attr('title')
+	let productLotRef = selectTitle.split(/ /)[0]
+	$('.input-hidden-fk_lot').attr('value', productLotRef);
+};
+
+/**
+ * Lors du clic sur une fiche modèle, met a jour la ref du champ de recherche
+ *
+ * @since   9.0.1
+ * @version 9.0.1
+ *
+ * @param  {MouseEvent} event [description]
+ * @return {void}
+ */
+window.eoxiaJS.control.selectSheet = function( event ) {
+	let selectTitle = $(this).closest('td').find('#select2-fk_sheet-container').attr('title')
+	let sheetRef = selectTitle.split(/ /)[0]
+	$('.input-hidden-fk_sheet').attr('value', sheetRef);
+};
+
+/**
+ * Lors du clic sur une utilisateur, met a jour la ref du champ de recherche
+ *
+ * @since   9.0.1
+ * @version 9.0.1
+ *
+ * @param  {MouseEvent} event [description]
+ * @return {void}
+ */
+window.eoxiaJS.control.selectUserController = function( event ) {
+	let selectTitle = $(this).closest('td').find('#select2-fk_user_controller-container').attr('title')
+	let userControllerRef = selectTitle.split(/ /)[0]
+	$('.input-hidden-fk_user_controller').attr('value', userControllerRef);
+};
+
+/**
+ * Lors du clic sur un projet, met a jour la ref du champ de recherche
+ *
+ * @since   9.0.1
+ * @version 9.0.1
+ *
+ * @param  {MouseEvent} event [description]
+ * @return {void}
+ */
+window.eoxiaJS.control.selectProject = function( event ) {
+	let selectTitle = $(this).closest('td').find('#select2-fk_project-container').attr('title')
+	let projectRef = selectTitle.split(/ /)[0]
+	let projectRef2 = projectRef.slice(0, -1)
+	$('.input-hidden-fk_project').attr('value', projectRef2);
+};
+
+/**
+ * Lors du clic sur une tâche, met a jour la ref du champ de recherche
+ *
+ * @since   9.0.1
+ * @version 9.0.1
+ *
+ * @param  {MouseEvent} event [description]
+ * @return {void}
+ */
+window.eoxiaJS.control.selectTask = function( event ) {
+	let selectTitle = $(this).closest('td').find('#select2-fk_task-container').attr('title')
+	let taskRef = selectTitle.split(/ /)[0]
+	$('.input-hidden-fk_task').attr('value', taskRef);
+};
+
+/**
+ * Lors du clic sur un tier, met a jour la ref du champ de recherche
+ *
+ * @since   9.0.1
+ * @version 9.0.1
+ *
+ * @param  {MouseEvent} event [description]
+ * @return {void}
+ */
+window.eoxiaJS.control.selectThirdParty = function( event ) {
+	let selectTitle = $(this).closest('td').find('#select2-fk_soc-container').attr('title')
+	let thirdPartyRef = selectTitle.split(/ /)[0]
+	$('.input-hidden-fk_soc').attr('value', thirdPartyRef);
+};

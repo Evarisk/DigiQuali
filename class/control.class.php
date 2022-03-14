@@ -76,18 +76,18 @@ class Control extends CommonObject
 		'date_creation'      => array('type' => 'datetime', 'label' => 'ControlDate', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 5,),
 		'tms'                => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
 		'import_key'         => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
-		'status'             => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0'),
+		'status'             => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0', 'arrayofkeyval' => array('0' => 'Draft', '1' => 'ValidatedControl', '2' => 'Locked'),),
 		'type'               => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
 		'verdict'            => array('type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => array('0' => '', '1' => 'OK', '2' => 'KO'),),
 		'fk_user_creat'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',),
 		'fk_user_modif'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
 		'fk_sheet'           => array('type' => 'integer:Sheet:custom/dolismq/class/sheet.class.php', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 13, 'notnull' => 1, 'visible' => 2,),
 		'fk_user_controller' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'FKUserController', 'enabled' => '1', 'position' => 14, 'notnull' => 1, 'visible' => 2, 'foreignkey' => 'user.rowid'),
-		'fk_product'         => array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'Product', 'enabled' => '1', 'position' => 11, 'notnull' => 1, 'visible' => 2, 'foreignkey' => 'product.rowid'),
+		'fk_product'         => array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'Product', 'enabled' => '1', 'position' => 11, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'product.rowid'),
 		'fk_lot'             => array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'Batch', 'enabled' => '1', 'position' => 12, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'productlot.rowid'),
-		'fk_project'         => array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 15, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'project.rowid'),
-		'fk_task'            => array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 16, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'task.rowid'),
-		'fk_soc'             => array('type' => 'integer:Societe:societe/class/societe.class.php', 'label' => 'ThirdParty', 'enabled' => '1', 'position' => 17, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'societe.rowid'),
+		'fk_project'         => array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 16, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'project.rowid'),
+		'fk_task'            => array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 17, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'task.rowid'),
+		'fk_soc'             => array('type' => 'integer:Societe:societe/class/societe.class.php', 'label' => 'ThirdParty', 'enabled' => '1', 'position' => 15, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'societe.rowid'),
 	);
 
 	public $rowid;
@@ -1095,6 +1095,8 @@ class ControlLine extends CommonObjectLine
 
 	public $answer = '';
 
+	public $answer_photo = '';
+
 	public $fk_control = '';
 
 	public $fk_question = '';
@@ -1110,7 +1112,9 @@ class ControlLine extends CommonObjectLine
 		'date_creation'     => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 0,),
 		'tms'               => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
 		'status'            => array('type' => 'status', 'label' => 'Status', 'enabled' => '1', 'position' => 55, 'notnull' => 0, 'visible' => 0,),
-		'comment'           => array('type' => 'text', 'label' => 'Description', 'enabled' => '1', 'position' => 70, 'notnull' => -1, 'visible' => -1,),
+		'answer'            => array('type' => 'text', 'label' => 'Answer', 'enabled' => '1', 'position' => 60, 'notnull' => -1, 'visible' => 0,),
+		'answer_photo'      => array('type' => 'text', 'label' => 'AnswerPhoto', 'enabled' => '1', 'position' => 70, 'notnull' => -1, 'visible' => 0,),
+		'comment'           => array('type' => 'text', 'label' => 'Comment', 'enabled' => '1', 'position' => 80, 'notnull' => -1, 'visible' => 0,),
 		'fk_question'       => array('type' => 'integer', 'label' => 'FkQuestion', 'enabled' => '1', 'position' => 90, 'notnull' => 1, 'visible' => 0,),
 		'fk_control'        => array('type' => 'integer', 'label' => 'FkControl', 'enabled' => '1', 'position' => 100, 'notnull' => 1, 'visible' => 0,),
 	);
@@ -1141,7 +1145,7 @@ class ControlLine extends CommonObjectLine
 		global $db;
 
 
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.comment, t.fk_question, t.fk_control ';
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
 		$sql .= ' WHERE t.rowid = ' . $rowid;
 		$sql .= ' AND entity IN (' . getEntity($this->table_element) . ')';
@@ -1150,14 +1154,15 @@ class ControlLine extends CommonObjectLine
 		if ($result) {
 			$objp = $db->fetch_object($result);
 
-			$this->id                = $objp->rowid;
-			$this->ref               = $objp->ref;
-			$this->date_creation     = $objp->date_creation;
-			$this->status       = $objp->status;
-			$this->answer          = $objp->answer;
-			$this->comment          = $objp->comment;
-			$this->fk_question = $objp->fk_question;
-			$this->fk_control = $objp->fk_control;
+			$this->id            = $objp->rowid;
+			$this->ref           = $objp->ref;
+			$this->date_creation = $objp->date_creation;
+			$this->status        = $objp->status;
+			$this->answer        = $objp->answer;
+			$this->answer_photo  = $objp->answer_photo;
+			$this->comment       = $objp->comment;
+			$this->fk_question   = $objp->fk_question;
+			$this->fk_control    = $objp->fk_control;
 
 			$db->free($result);
 
@@ -1178,7 +1183,7 @@ class ControlLine extends CommonObjectLine
 	public function fetchAll($limit = 0)
 	{
 		global $db;
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.comment, t.fk_question, t.fk_control ';
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answser_photo, t.comment, t.fk_question, t.fk_control ';
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 
@@ -1194,13 +1199,15 @@ class ControlLine extends CommonObjectLine
 
 				$record = new self($db);
 
-				$record->id                = $obj->rowid;
-				$record->ref               = $obj->ref;
-				$record->date_creation     = $obj->date_creation;
-				$record->status       = $obj->status;
-				$record->comment          = $obj->comment;
-				$record->fk_question = $obj->fk_question;
-				$record->fk_control = $obj->fk_control;
+				$record->id            = $obj->rowid;
+				$record->ref           = $obj->ref;
+				$record->date_creation = $obj->date_creation;
+				$record->status        = $obj->status;
+				$record->answer        = $obj->answer;
+				$record->answer_photo  = $obj->answer_photo;
+				$record->comment       = $obj->comment;
+				$record->fk_question   = $obj->fk_question;
+				$record->fk_control    = $obj->fk_control;
 
 				$records[$record->id] = $record;
 
@@ -1216,6 +1223,55 @@ class ControlLine extends CommonObjectLine
 		}
 	}
 
+	/**
+	 *    Load preventionplan line line from database
+	 *
+	 * @param int $parent_id
+	 * @param int $limit
+	 * @return int <0 if KO, >0 if OK
+	 */
+	public function fetchFromParent($control_id, $limit = 0)
+	{
+		global $db;
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
+		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
+		$sql .= ' AND fk_control = ' . $control_id;
+
+		$result = $db->query($sql);
+
+		if ($result) {
+			$num = $db->num_rows($result);
+
+			$i = 0;
+			while ($i < ($limit ? min($limit, $num) : $num)) {
+				$obj = $db->fetch_object($result);
+
+				$record = new self($db);
+
+				$record->id            = $obj->rowid;
+				$record->ref           = $obj->ref;
+				$record->date_creation = $obj->date_creation;
+				$record->status        = $obj->status;
+				$record->answer        = $obj->answer;
+				$record->answer_photo  = $obj->answer_photo;
+				$record->comment       = $obj->comment;
+				$record->fk_question   = $obj->fk_question;
+				$record->fk_control    = $obj->fk_control;
+
+				$records[$record->id] = $record;
+
+				$i++;
+			}
+
+			$db->free($result);
+
+			return $records;
+		} else {
+			$this->error = $db->lasterror();
+			return -1;
+		}
+	}
 
 	/**
 	 *    Load preventionplan line line from database
@@ -1227,7 +1283,7 @@ class ControlLine extends CommonObjectLine
 	public function fetchFromParentWithQuestion($control_id, $question_id, $limit = 0)
 	{
 		global $db;
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.comment, t.fk_question, t.fk_control ';
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 		$sql .= ' AND fk_control = ' . $control_id .' AND fk_question ='. $question_id;
@@ -1244,14 +1300,15 @@ class ControlLine extends CommonObjectLine
 
 				$record = new self($db);
 
-				$record->id                = $obj->rowid;
-				$record->ref               = $obj->ref;
-				$record->date_creation     = $obj->date_creation;
-				$record->status       = $obj->status;
-				$record->answer          = $obj->answer;
-				$record->comment          = $obj->comment;
-				$record->fk_question = $obj->fk_question;
-				$record->fk_control = $obj->fk_control;
+				$record->id            = $obj->rowid;
+				$record->ref           = $obj->ref;
+				$record->date_creation = $obj->date_creation;
+				$record->status        = $obj->status;
+				$record->answer        = $obj->answer;
+				$record->answer_photo  = $obj->answer_photo;
+				$record->comment       = $obj->comment;
+				$record->fk_question   = $obj->fk_question;
+				$record->fk_control    = $obj->fk_control;
 
 				$records[$record->id] = $record;
 
@@ -1288,7 +1345,7 @@ class ControlLine extends CommonObjectLine
 
 		// Insertion dans base de la ligne
 		$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . 'dolismq_controldet';
-		$sql .= ' ( ref, entity, status, date_creation, answer, comment, fk_question, fk_control, fk_user_creat';
+		$sql .= ' ( ref, entity, status, date_creation, answer, answer_photo, comment, fk_question, fk_control, fk_user_creat';
 		$sql .= ')';
 		$sql .= " VALUES (";
 		$sql .= "'" . $db->escape($this->ref) . "'" . ", ";
@@ -1296,6 +1353,7 @@ class ControlLine extends CommonObjectLine
 		$sql .= 1 . ", ";
 		$sql .= "'" . $db->escape($db->idate($now)) . "'" . ", ";
 		$sql .= "'" . $db->escape($this->answer) . "'" . ", ";
+		$sql .= "'" . $db->escape($this->answer_photo) . "'" . ", ";
 		$sql .= "'" . $db->escape($this->comment) . "'" . ", ";
 		$sql .= $this->fk_question . ", ";
 		$sql .= $this->fk_control . ", ";
@@ -1349,7 +1407,8 @@ class ControlLine extends CommonObjectLine
 
 		$sql .= " ref='" . $db->escape($this->ref) . "',";
 		$sql .= " status='" . $db->escape($this->status) . "',";
-		$sql .= " answer=" . $db->escape($this->answer) . ",";
+		$sql .= " answer='" . $db->escape($this->answer) . "',";
+		$sql .= " answer_photo=" . '"' . $db->escape($this->answer_photo) . '"' . ",";
 		$sql .= " comment=" . '"' . $db->escape($this->comment) . '"' .",";
 		$sql .= " fk_question=" . $db->escape($this->fk_question). ",";
 		$sql .= " fk_control=" . $db->escape($this->fk_control);

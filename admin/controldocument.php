@@ -40,7 +40,9 @@ global $langs, $user;
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
+
 require_once '../lib/dolismq.lib.php';
+require_once '../class/control.class.php';
 
 // Translations
 $langs->loadLangs(array("admin", "dolismq@dolismq"));
@@ -69,9 +71,45 @@ if ($action == 'set') {
 	header("Location: " . $_SERVER["PHP_SELF"]);
 }
 
+if ($action == 'specimen') {
+	$modele = GETPOST('module', 'alpha');
+
+	$control = new Control($db);
+	$control->initAsSpecimen();
+
+	// Search template files
+	$file = ''; $classname = ''; $filefound = 0;
+	$dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
+	foreach ($dirmodels as $reldir) {
+		$file = dol_buildpath('/custom'.$reldir."core/modules/dolismq/controldocument/pdf_".$modele.".modules.php", 0);
+		if (file_exists($file)) {
+			$filefound = 1;
+			$classname = "pdf_".$modele;
+			break;
+		}
+	}
+
+	if ($filefound) {
+		require_once $file;
+
+		$module = new $classname($db);
+
+		if ($module->write_file($control, $langs) > 0) {
+			header("Location: ".DOL_URL_ROOT."/document.php?modulepart=dolisqm&file=SPECIMEN.pdf");
+			return;
+		} else {
+			setEventMessages($obj->error, $obj->errors, 'errors');
+			dol_syslog($obj->error, LOG_ERR);
+		}
+	} else {
+		setEventMessages($langs->trans("ErrorModuleNotFound"), null, 'errors');
+		dol_syslog($langs->trans("ErrorModuleNotFound"), LOG_ERR);
+	}
+}
+
 // Set default model
 if ($action == 'setdoc') {
-	$constforval = "DOLISMQ_".strtoupper($type)."_DEFAULT_MODEL";
+	$constforval = "DOLISMQ_CONTROLDOCUMENT_DEFAULT_MODEL";
 	$label       = '';
 
 	if (dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity))
@@ -263,7 +301,7 @@ foreach ($types as $type => $documentType) {
 			arsort($filelist);
 
 			foreach ($filelist as $file) {
-				if (preg_match('/\.modules\.php$/i', $file) && preg_match('/^(pdf_|doc_)/', $file) && preg_match('/' . $documentType . '/i', $file) && preg_match('/odt/i', $file)) {
+				if (preg_match('/\.modules\.php$/i', $file) && preg_match('/^(pdf_|doc_)/', $file)) {
 					if (file_exists($dir.'/'.$file)) {
 						$name = substr($file, 4, dol_strlen($file) - 16);
 						$classname = substr($file, 0, dol_strlen($file) - 12);
@@ -287,7 +325,7 @@ foreach ($types as $type => $documentType) {
 							// Active
 							if (in_array($name, $def)) {
 								print '<td class="center">';
-								print '<a href="'.$_SERVER["PHP_SELF"].'?action=del&amp;value='.$name.'&amp;const='.$module->scandir.'&amp;label='.urlencode($module->name).'&type='.preg_split('/_/',$name)[0].'">';
+								print '<a href="'.$_SERVER["PHP_SELF"].'?action=del&amp;value='.$name.'&amp;const='.$module->scandir.'&amp;label='.urlencode($module->name).'&type='.preg_split('/_/',$documentType)[0].'">';
 								print img_picto($langs->trans("Enabled"), 'switch_on');
 								print '</a>';
 								print "</td>";
@@ -295,7 +333,7 @@ foreach ($types as $type => $documentType) {
 							else
 							{
 								print '<td class="center">';
-								print '<a href="'.$_SERVER["PHP_SELF"].'?action=set&amp;value='.$name.'&amp;const='.$module->scandir.'&amp;label='.urlencode($module->name).'&type='.preg_split('/_/',$name)[0].'">'.img_picto($langs->trans("Disabled"), 'switch_off').'</a>';
+								print '<a href="'.$_SERVER["PHP_SELF"].'?action=set&amp;value='.$name.'&amp;const='.$module->scandir.'&amp;label='.urlencode($module->name).'&type='.preg_split('/_/',$documentType)[0].'">'.img_picto($langs->trans("Disabled"), 'switch_off').'</a>';
 								print "</td>";
 							}
 
@@ -323,7 +361,7 @@ foreach ($types as $type => $documentType) {
 							// Preview
 							print '<td class="center">';
 							if ($module->type == 'pdf') {
-								print '<a href="'.$_SERVER["PHP_SELF"].'?action=specimen&module='.$name.'">'.img_object($langs->trans("Preview"), 'intervention').'</a>';
+								print '<a href="'.$_SERVER["PHP_SELF"].'?action=specimen&module='.$name.'">'.img_object($langs->trans("Preview"), 'pdf').'</a>';
 							}
 							else {
 								print img_object($langs->trans("PreviewNotAvailable"), 'generic');

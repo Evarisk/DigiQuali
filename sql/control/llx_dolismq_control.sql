@@ -28,7 +28,7 @@ CREATE TABLE llx_dolismq_control(
 	fk_user_modif      integer,
 	fk_sheet           integer NOT NULL,
 	fk_user_controller integer NOT NULL,
-	fk_product         integer NOT NULL,
+	fk_product         integer,
     fk_lot             integer,
     fk_project         integer,
     fk_task            integer,

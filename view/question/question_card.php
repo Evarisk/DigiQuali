@@ -63,6 +63,7 @@ if (!$res) die("Include of main fails");
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
+require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmfiles.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
@@ -91,6 +92,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Initialize technical objects
 $object         = new Question($db);
 $extrafields    = new ExtraFields($db);
+$ecmfile 		= new EcmFiles($db);
 $refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($db);
 
 $diroutputmassaction = $conf->dolismq->dir_output.'/temp/massgeneration/'.$user->id;
@@ -337,17 +339,22 @@ if (empty($reshook))
 			foreach ($filenames as $filename) {
 				$entity = ($conf->entity > 1) ? '/' . $conf->entity : '';
 
-
 				if (is_file($conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/' . $filename)) {
 					$pathToECMPhoto = $conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/' . $filename;
 
 					if ( ! is_dir($pathToQuestionPhoto)) {
 						mkdir($pathToQuestionPhoto);
 					}
+
 					copy($pathToECMPhoto, $pathToQuestionPhoto . '/' . $filename);
+					$ecmfile->fetch(0,'','ecm/dolismq/medias/' . $filename);
+					$date = dol_print_date(dol_now(),'dayxcard');
+					$extension = preg_split('/\./', $filename);
+					$newFilename = $conf->entity . '_' . $ecmfile->id . '_' . (dol_strlen($object->ref) > 0 ? $object->ref : $refQuestionMod->getNextValue($object)). '_' . $date . '.' . $extension[1];
+					rename($pathToQuestionPhoto . '/' . $filename, $pathToQuestionPhoto . '/' . $newFilename);
 
 					global $maxwidthmini, $maxheightmini, $maxwidthsmall,$maxheightsmall ;
-					$destfull = $pathToQuestionPhoto . '/' . $filename;
+					$destfull = $pathToQuestionPhoto . '/' . $newFilename;
 
 					// Create thumbs
 					$imgThumbSmall = vignette($destfull, $maxwidthsmall, $maxheightsmall, '_small', 50, "thumbs");
@@ -483,7 +490,7 @@ if ($action == 'create')
 	$doleditor->Create();
 	print '</td></tr>';
 
-	print '<tr class="linked-medias photo_ok"><td class=""><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
+	print '<tr class="linked-medias photo_ok"><td class=""><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
 	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo GETPOST('favorite_photo_ok') ?>"/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ok"/>
@@ -494,7 +501,7 @@ if ($action == 'create')
 	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ok', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/tmp/QU0/photo_ok', null, GETPOST('favorite_photo_ok'));
 	print '</td></tr>';
 
-	print '<tr class="linked-medias photo_ko"><td class=""><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
+	print '<tr class="linked-medias photo_ko"><td class=""><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
 	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo GETPOST('favorite_photo_ko') ?>"/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ko"/>
@@ -555,7 +562,7 @@ if (($id || $ref) && $action == 'edit')
 	$doleditor->Create();
 	print '</td></tr>';
 
-	print '<tr class="linked-medias photo_ok"><td><label class="fieldrequired" for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
+	print '<tr class="linked-medias photo_ok"><td><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
 	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo (dol_strlen($object->photo_ok) > 0 ? $object->photo_ok : GETPOST('favorite_photo_ok')) ?>"/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ok"/>
@@ -566,7 +573,7 @@ if (($id || $ref) && $action == 'edit')
 	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/'. $object->ref . '/photo_ok', null, (GETPOST('favorite_photo_ok') ? GETPOST('favorite_photo_ok') : $object->photo_ok ));
 	print '</td></tr>';
 
-	print '<tr class="linked-medias photo_ko"><td><label class="fieldrequired" for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
+	print '<tr class="linked-medias photo_ko"><td><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
 	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo (dol_strlen($object->photo_ko) > 0 ? $object->photo_ko : GETPOST('favorite_photo_ko')) ?>"/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ko"/>
@@ -673,7 +680,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>';
 	$urladvanced               = getAdvancedPreviewUrl('dolismq', $object->element . '/' . $object->ref . '/photo_ok/' . $object->photo_ok, 0, 'entity=' . $conf->entity);
 	if ($urladvanced) print '<a href="' . $urladvanced . '">';
-	print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($object->element . '/' . $object->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_small.', $object->photo_ok)) . '" >';
+	print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($object->element . '/' . $object->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $object->photo_ok)) . '" >';
 	print '</a>';
 	print '</td></tr>';
 
@@ -684,7 +691,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>';
 	$urladvanced               = getAdvancedPreviewUrl('dolismq', $object->element . '/' . $object->ref . '/photo_ko/' . $object->photo_ko, 0, 'entity=' . $conf->entity);
 	if ($urladvanced) print '<a href="' . $urladvanced . '">';
-	print '<img width="40" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($object->element . '/' . $object->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_small.', $object->photo_ko)) . '" >';
+	print '<img width="40" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($object->element . '/' . $object->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $object->photo_ko)) . '" >';
 	print '</a>';
 	print '</td></tr>';
 
