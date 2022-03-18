@@ -223,7 +223,11 @@ if ($user->socid > 0)	// Protection if external user
 //$result = restrictedArea($user, 'dolismq', $id, '');
 //if (!$permissiontoread) accessforbidden();
 
-
+$search = array();
+foreach ($object->fields as $key => $val)
+{
+	if (GETPOST('search_'.$key, 'alpha') !== '') $search[$key] = GETPOST('search_'.$key, 'alpha');
+}
 
 /*
  * Actions
