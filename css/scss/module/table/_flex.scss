@@ -92,7 +92,8 @@
       flex-direction: column;
     }
     .table-cell {
-      width: 100%;
+      width: 100% !important;
+      min-width: unset !important;
     }
   }
 }

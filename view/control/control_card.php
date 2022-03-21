@@ -1420,27 +1420,66 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			?>
 			<div class="wpeo-table table-flex table-3 table-id-<?php echo $item->id ?>">
 				<div class="table-row">
+					<!-- Contenu et commentaire -->
 					<div class="table-cell table-full">
-						<?php print $item->ref; ?> - <strong><?php print $item->label; ?></strong><br>
-						<?php print $item->description; ?>
+						<div class="label"><strong><?php print $item->ref . ' - ' . $item->label; ?></strong></div>
+						<div class="description"><?php print $item->description; ?></div>
 						<?php // Other attributes
 						include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php'; ?>
-					</div>
-					<?php if (!empty($conf->global->DOLISMQ_CONTROL_DISPLAY_MEDIAS)) : ?>
-						<div class="table-cell table-175">
-							<?php
-							$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
-							if ($urladvanced) print '<a href="' . $urladvanced . '">';
-							print '<img width="60" class="photo photo-ok' . ($urladvanced ? ' clicked-photo-preview' : '').'" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ok)) . '" >';
-							print '</a>';
-							$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
-							if ($urladvanced) print '<a href="' . $urladvanced . '">';
-							print '<img width="60" class="photo photo-ko'. ($urladvanced ? ' clicked-photo-preview' : '').'" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ko)) . '" >';
-							print '</a>';
-							?>
+
+						<div class="question-comment-container">
+							<div class="question-ref">
+								<?php
+								if ( ! empty( $itemControlDet->ref ) ) {
+									print '<span class="question-ref-title">' . $itemControlDet->ref . '</span> - ';
+								}
+								?>
+								<?php print $langs->trans('Comment') . ' : '; ?>
+							</div>
+							<?php if ($object->status > 0 ) : ?>
+								<?php print $comment; ?>
+							<?php else : ?>
+								<?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?>
+							<?php endif; ?>
 						</div>
-					<?php endif; ?>
-					<div class="table-cell table-225" <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>>
+					</div>
+					<!-- Photo OK KO -->
+					<div class="table-cell table-450 cell-photo-check">
+						<?php
+						if (!empty($conf->global->DOLISMQ_CONTROL_DISPLAY_MEDIAS)) :
+							$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
+							print ($urladvanced) ? '<a href="' . $urladvanced . '" class="question-photo-check ko">' : '<div class="question-photo-check ko">';
+							print '<img class="photo photo-ko'. ($urladvanced ? ' clicked-photo-preview' : '').'" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ko)) . '" >';
+							print '<i class="fas fa-times-circle"></i>';
+							print ($urladvanced) ? '</a>' : '</div>';
+							$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
+							print ($urladvanced) ? '<a href="' . $urladvanced . '" class="question-photo-check ok">' : '<div class="question-photo-check ok">';
+							print '<img class="photo photo-ok' . ($urladvanced ? ' clicked-photo-preview' : '').'" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ok)) . '" >';
+							print '<i class="fas fa-check-circle"></i>';
+							print ($urladvanced) ? '</a>' : '</div>';
+						endif;
+						?>
+					</div>
+				</div>
+				<div class="table-row">
+					<!-- Galerie -->
+					<div class="table-cell table-full linked-medias answer_photo">
+						<?php if ($object->status > 0 ) : ?>
+							<?php $relativepath = 'dolismq/medias/thumbs';
+							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 0, 1);
+							print '</td></tr>'; ?>
+						<?php else : ?>
+							<input type="hidden" class="question-answer-photo" id="answer_photo<?php echo $item->id ?>" name="answer_photo<?php echo $item->id ?>" value="test"/>
+							<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
+								<input type="hidden" class="type-from" value="answer_photo"/>
+								<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
+							</div>
+							<?php $relativepath = 'dolismq/medias/thumbs';
+							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 1, 1); ?>
+						<?php endif; ?>
+					</div>
+					<!-- Réponses -->
+					<div class="table-cell table-250 <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 						<?php
 						print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" value="1">';
@@ -1460,42 +1499,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						print '</span>';
 						?>
 					</div>
-				</div>
-				<div class="table-row">
-					<div class="table-cell question-comment-title table-200">
-						<?php
-						if ( ! empty( $itemControlDet->ref ) ) {
-							print '<span class="question-ref-title">' . $itemControlDet->ref . '</span> - ';
-						}
-						?>
-						<?php print $langs->trans('Comment') . ' : '; ?>
-					</div>
-					<div class="table-cell table-full">
-						<?php if ($object->status > 0 ) : ?>
-							<?php print $comment; ?>
-						<?php else : ?>
-							<?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?>
-						<?php endif; ?>
-					</div>
-				</div>
-				<div class="table-row linked-medias answer_photo">
-					<?php if ($object->status > 0 ) : ?>
-						<?php $relativepath = 'dolismq/medias/thumbs';
-						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 0, 1);
-						print '</td></tr>'; ?>
-					<?php else : ?>
-						<div class="table-cell table-200">
-							<input type="hidden" class="question-answer-photo" id="answer_photo<?php echo $item->id ?>" name="answer_photo<?php echo $item->id ?>" value="test"/>
-							<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
-								<input type="hidden" class="type-from" value="answer_photo"/>
-								<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
-							</div>
-						</div>
-						<div class="table-cell table-full" style="display: flex">
-							<?php $relativepath = 'dolismq/medias/thumbs';
-							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 1, 1); ?>
-						</div>
-					<?php endif; ?>
 				</div>
 			</div>
 			<?php
