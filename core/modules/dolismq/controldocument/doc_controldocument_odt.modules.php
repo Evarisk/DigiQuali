@@ -393,7 +393,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 										$tmparray['answer'] = $langs->trans('Repair');
 										break;
 									case 4:
-										$tmparray['answer'] = $langs->trans('NotApplicabe');
+										$tmparray['answer'] = $langs->trans('NotApplicable');
 										break;
 								}
 
