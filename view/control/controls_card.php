@@ -335,8 +335,8 @@ print '<div class="clearboth"></div>';
 print dol_get_fiche_end();
 print '<br>';
 
-$search['fk_lot']=$id;
-$search['fk_product']=$productlot->fk_product;
+$search['fk_lot']     = $id;
+$search['fk_product'] = $productlot->fk_product;
 
 //$sqlfilter = ' AND t.fk_lot ='.$id;
 

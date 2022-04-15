@@ -698,7 +698,7 @@ if (empty($reshook)) {
 // Print form confirm
 print $formconfirm;
 
-$_POST['fk_product'] = $id;
+$search['fk_product'] = $id;
 
 //$sqlfilter = ' AND t.fk_product ='.$id;
 

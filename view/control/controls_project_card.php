@@ -455,7 +455,7 @@ if (empty($reshook)) {
 // Print form confirm
 print $formconfirm;
 
-$_POST['fk_project'] = $project->id;
+$search['fk_project'] = $project->id;
 
 //$sqlfilter = ' AND t.fk_project ='.$project->id;
 
