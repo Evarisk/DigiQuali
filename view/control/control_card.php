@@ -1224,7 +1224,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<table class="border centpercent tableforfield">'."\n";
 
 	//FKUserController -- Contrôleur
-	print '<tr><td class="titlefield">';
+	/*print '<tr><td class="titlefield">';
 	print $langs->trans("FKUserController");
 	print '</td>';
 	print '<td>';
@@ -1232,28 +1232,34 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if ($usertmp > 0) {
 		print $usertmp->getNomUrl(1);
 	}
-	print '</td></tr>';
+	print '</td></tr>';*/
 
 	//Address -- Adresse
-	print '<tr><td class="titlefield">';
+	/*print '<tr><td class="titlefield">';
 	print $langs->trans("Address");
 	print '</td>';
 	print '<td>';
 	print $usertmp->address;
 	print '</td></tr>';
 
-	//Address -- Adresse
+	//Login -- Login
 	print '<tr><td class="titlefield">';
 	print $langs->trans("Login");
 	print '</td>';
 	print '<td>';
 	print $usertmp->login;
-	print '</td></tr>';
+	print '</td></tr>';*/
 
+	foreach($object->fields as $key=>$fields) {
+		if (array_key_exists('positioncard', $object->fields[$key])) {
+			$object->fields[$key]['position'] = $object->fields[$key]['positioncard'];
+		}
+	}
+	$keyforbreak = 'fk_product';
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
 	//FKProduct -- Produit
-	print '<tr><td class="titlefield">';
+	/*print '<tr><td class="titlefield">';
 	print $langs->trans("Product");
 	print '</td>';
 	print '<td>';
@@ -1318,7 +1324,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if ($task > 0) {
 		print $task->getNomUrl(1);
 	}
-	print '</td></tr>';
+	print '</td></tr>';*/
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php'; ?>

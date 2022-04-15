@@ -223,7 +223,11 @@ if ($user->socid > 0)	// Protection if external user
 //$result = restrictedArea($user, 'dolismq', $id, '');
 //if (!$permissiontoread) accessforbidden();
 
-
+$search = array();
+foreach ($object->fields as $key => $val)
+{
+	if (GETPOST('search_'.$key, 'alpha') !== '') $search[$key] = GETPOST('search_'.$key, 'alpha');
+}
 
 /*
  * Actions
@@ -331,7 +335,8 @@ print '<div class="clearboth"></div>';
 print dol_get_fiche_end();
 print '<br>';
 
-$_POST['fk_lot'] = $id;
+$search['fk_lot']=$id;
+$search['fk_product']=$productlot->fk_product;
 
 //$sqlfilter = ' AND t.fk_lot ='.$id;
 
