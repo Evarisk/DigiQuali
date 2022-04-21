@@ -183,7 +183,113 @@ if (empty($reshook))
 	$triggermodname = 'DOLISMQ_AUDIT_MODIFY'; // Name of trigger action code to execute when we modify record
 
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
-	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
+	//include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
+
+	// Action to add record
+	if ($action == 'add' && !empty($permissiontoadd)) {
+		foreach ($object->fields as $key => $val) {
+			if ($object->fields[$key]['type'] == 'duration') {
+				if (GETPOST($key.'hour') == '' && GETPOST($key.'min') == '') {
+					continue; // The field was not submited to be edited
+				}
+			} else {
+				if (!GETPOSTISSET($key)) {
+					continue; // The field was not submited to be edited
+				}
+			}
+			// Ignore special fields
+			if (in_array($key, array('rowid', 'entity', 'import_key'))) {
+				continue;
+			}
+			if (in_array($key, array('date_creation', 'tms', 'fk_user_creat', 'fk_user_modif'))) {
+				if (!in_array(abs($val['visible']), array(1, 3))) {
+					continue; // Only 1 and 3 that are case to create
+				}
+			}
+
+			// Set value to insert
+			if (in_array($object->fields[$key]['type'], array('text', 'html'))) {
+				$value = GETPOST($key, 'restricthtml');
+			} elseif ($object->fields[$key]['type'] == 'date') {
+				$value = dol_mktime(12, 0, 0, GETPOST($key.'month', 'int'), GETPOST($key.'day', 'int'), GETPOST($key.'year', 'int'));	// for date without hour, we use gmt
+			} elseif ($object->fields[$key]['type'] == 'datetime') {
+				$value = dol_mktime(GETPOST($key.'hour', 'int'), GETPOST($key.'min', 'int'), GETPOST($key.'sec', 'int'), GETPOST($key.'month', 'int'), GETPOST($key.'day', 'int'), GETPOST($key.'year', 'int'), 'tzuserrel');
+			} elseif ($object->fields[$key]['type'] == 'duration') {
+				$value = 60 * 60 * GETPOST($key.'hour', 'int') + 60 * GETPOST($key.'min', 'int');
+			} elseif (preg_match('/^(integer|price|real|double)/', $object->fields[$key]['type'])) {
+				$value = price2num(GETPOST($key, 'alphanohtml')); // To fix decimal separator according to lang setup
+			} elseif ($object->fields[$key]['type'] == 'boolean') {
+				$value = ((GETPOST($key) == '1' || GETPOST($key) == 'on') ? 1 : 0);
+			} elseif ($object->fields[$key]['type'] == 'reference') {
+				$tmparraykey = array_keys($object->param_list);
+				$value = $tmparraykey[GETPOST($key)].','.GETPOST($key.'2');
+			} else {
+				$value = GETPOST($key, 'alphanohtml');
+			}
+			if (preg_match('/^integer:/i', $object->fields[$key]['type']) && $value == '-1') {
+				$value = ''; // This is an implicit foreign key field
+
+			}
+			if (!empty($object->fields[$key]['foreignkey']) && $value == '-1') {
+				$value = ''; // This is an explicit foreign key field
+			}
+
+			//var_dump($key.' '.$value.' '.$object->fields[$key]['type']);
+
+			$object->$key = $value;
+			if ($val['notnull'] > 0 && $object->$key == '' && !is_null($val['default']) && $val['default'] == '(PROV)') {
+				$object->$key = '(PROV)';
+			}
+			if ($val['notnull'] > 0 && $object->$key == '' && is_null($val['default'])) {
+				$error++;
+				setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv($val['label'])), null, 'errors');
+			}
+		}
+
+		// Fill array 'array_options' with data from add form
+		if (!$error) {
+			$ret = $extrafields->setOptionalsFromPost(null, $object);
+			if ($ret < 0) {
+				$error++;
+			}
+		}
+
+		if (!$error) {
+			$result = $object->create($user);
+			if ($result > 0) {
+				if (!empty(GETPOST('fk_product'))) {
+					$object->add_object_linked('product', GETPOST('fk_product'));
+				}
+				if (!empty(GETPOST('fk_productlot'))) {
+					$object->add_object_linked('productbatch', GETPOST('fk_productlot'));
+				}
+				if (!empty(GETPOST('fk_soc'))) {
+					$object->add_object_linked('societe', GETPOST('fk_soc'));
+				}
+				if (!empty(GETPOST('fk_project'))) {
+					$object->add_object_linked('project', GETPOST('fk_project'));
+				}
+				if (!empty(GETPOST('fk_task'))) {
+					$object->add_object_linked('project_task', GETPOST('fk_task'));
+				}
+				// Creation OK
+				$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
+				header("Location: ".$urltogo);
+				exit;
+			} else {
+				// Creation KO
+				if (!empty($object->errors)) {
+					setEventMessages(null, $object->errors, 'errors');
+				} else {
+					setEventMessages($object->error, null, 'errors');
+				}
+				$action = 'create';
+			}
+		} else {
+			$action = 'create';
+		}
+	}
 
 	if ( ! $error && $action == "addFiles") {
 		$data = json_decode(file_get_contents('php://input'), true);
@@ -692,45 +798,55 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	//FK Product
-	print '<tr><td class="">' . img_picto('', 'product', 'class="paddingrightonly"') . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' '. $langs->trans('Service') . '</td><td>';
-	$events    = array();
-	$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/digiriskdolibarr/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_lot');
-	print $form->select_produits(GETPOST('fk_product'), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices' , 0, 'minwidth300');
-	print '<a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
-	print '</td></tr>';
+	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT)) {
+		print '<tr><td class="">' . img_picto('', 'product', 'class="paddingrightonly"') . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' ' . $langs->trans('Service') . '</td><td>';
+		$events = array();
+		$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/digiriskdolibarr/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_productlot');
+		print $form->select_produits(GETPOST('fk_product'), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices', 0, 'minwidth300');
+		print '<a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
+		print '</td></tr>';
+	}
 
-	//FK LOT
-	print '<tr><td class="">';
-	print img_picto('', 'lot', 'class="paddingrightonly"') . $langs->trans("Lot");
-	print '</td><td class="lot-container">';
-	print '<span class="lot-content">';
-	$data = json_decode(file_get_contents('php://input'), true);
-	dol_strlen($data['productRef']) > 0 ? $product->fetch(0, $data['productRef']) : 0;
-	print dolismq_select_product_lots(( ! empty(GETPOST('fk_product')) ? GETPOST('fk_product') : $product->id), GETPOST('fk_lot'), 'fk_lot', 1, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_lot');
-	print '</span>';
-	print '</td></tr>';
+	//FK PRODUCTLOT
+	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT)) {
+		print '<tr><td class="">';
+		print img_picto('', 'lot', 'class="paddingrightonly"') . $langs->trans("Lot");
+		print '</td><td class="lot-container">';
+		print '<span class="lot-content">';
+		$data = json_decode(file_get_contents('php://input'), true);
+		dol_strlen($data['productRef']) > 0 ? $product->fetch(0, $data['productRef']) : 0;
+		print dolismq_select_product_lots((!empty(GETPOST('fk_product')) ? GETPOST('fk_product') : $product->id), GETPOST('fk_productlot'), 'fk_productlot', 1, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_productlot');
+		print '</span>';
+		print '</td></tr>';
+	}
 
 	//FK Soc
-	print '<tr><td class="">' . img_picto('', 'building', 'class="paddingrightonly"') . $langs->trans("ThirdPartyLinked") . '</td><td>';
-	print $form->select_company(GETPOST('fk_soc'), 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'minwidth300');
-	print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
-	print '</td></tr>';
+	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY)) {
+		print '<tr><td class="">' . img_picto('', 'building', 'class="paddingrightonly"') . $langs->trans("ThirdPartyLinked") . '</td><td>';
+		print $form->select_company(GETPOST('fk_soc'), 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'minwidth300');
+		print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
+		print '</td></tr>';
+	}
 
 	//FK Project
-	print '<tr><td class="">' . img_picto('', 'project', 'class="paddingrightonly"') . $langs->trans("ProjectLinked") . '</td><td>';
-	print $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1),  GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
-	print '<a href="' . DOL_URL_ROOT . '/projet/card.php?socid='.GETPOST('fk_soc').'&action=create&backtopage='.urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddProject") . '"></span></a>';
-	print '</td></tr>';
+	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT)) {
+		print '<tr><td class="">' . img_picto('', 'project', 'class="paddingrightonly"') . $langs->trans("ProjectLinked") . '</td><td>';
+		print $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1), GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
+		print '<a href="' . DOL_URL_ROOT . '/projet/card.php?socid=' . GETPOST('fk_soc') . '&action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddProject") . '"></span></a>';
+		print '</td></tr>';
+	}
 
 	//FK Task
-	print '<tr><td class="">' . img_picto('', 'projecttask', 'class="paddingrightonly"') . $langs->trans("TaskLinked");
-	print '</td><td class="task-container">';
-	print '<span class="task-content">';
-	$data = json_decode(file_get_contents('php://input'), true);
-	dol_strlen($data['projectRef']) > 0 ? $project->fetch(0, $data['projectRef']) : 0;
-	$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST("fk_task"), 'fk_task', 24, 0, '1', 1, 0, 0, 'minwidth300', ( ! empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
-	print '</span>';
-	print '</td></tr>';
+	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK)) {
+		print '<tr><td class="">' . img_picto('', 'projecttask', 'class="paddingrightonly"') . $langs->trans("TaskLinked");
+		print '</td><td class="task-container">';
+		print '<span class="task-content">';
+		$data = json_decode(file_get_contents('php://input'), true);
+		dol_strlen($data['projectRef']) > 0 ? $project->fetch(0, $data['projectRef']) : 0;
+		$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST("fk_task"), 'fk_task', 24, 0, '1', 1, 0, 0, 'minwidth300', (!empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
+		print '</span>';
+		print '</td></tr>';
+	}
 
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
@@ -1223,6 +1339,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<div class="underbanner clearboth"></div>';
 	print '<table class="border centpercent tableforfield">'."\n";
 
+	unset($object->fields['fk_sheet']);
+
 	//FKUserController -- Contrôleur
 	/*print '<tr><td class="titlefield">';
 	print $langs->trans("FKUserController");
@@ -1250,26 +1368,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print $usertmp->login;
 	print '</td></tr>';*/
 
-	foreach($object->fields as $key=>$fields) {
-		if (array_key_exists('positioncard', $object->fields[$key])) {
-			$object->fields[$key]['position'] = $object->fields[$key]['positioncard'];
-		}
-	}
-	$keyforbreak = 'fk_product';
+//	foreach($object->fields as $key=>$fields) {
+//		if (array_key_exists('positioncard', $object->fields[$key])) {
+//			$object->fields[$key]['position'] = $object->fields[$key]['positioncard'];
+//		}
+//	}
+//	$keyforbreak = 'fk_product';
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
-	//FKProduct -- Produit
-	/*print '<tr><td class="titlefield">';
-	print $langs->trans("Product");
-	print '</td>';
-	print '<td>';
-	$product->fetch($object->fk_product);
-	if ($product > 0) {
-		print $product->getNomUrl(1);
-	}
-	print '<td>';
-
-	// -- Contrôleur
+	//FKSheet -- Modèle
 	print '<tr><td class="titlefield">';
 	print $langs->trans("FKSheet");
 	print '</td>';
@@ -1278,53 +1385,77 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if ($sheet > 0) {
 		print $sheet->getNomUrl(1);
 	}
-	print '<td>';
+	print '<td></tr>';
 
-	print '</td></tr>';
-
-	//FKLot -- Numéro de série
-	print '<tr><td class="titlefield">';
-	print $langs->trans("Batch");
-	print '</td>';
-	print '<td>';
-	$productlot->fetch($object->fk_lot);
-	if ($productlot > 0) {
-		print $productlot->getNomUrl(1);
+	$object->fetchObjectLinked('', 'product');
+	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
+		//FKProduct -- Produit
+		print '<tr><td class="titlefield">';
+		print $langs->trans("Product");
+		print '</td>';
+		print '<td>';
+		$product->fetch(array_shift($object->linkedObjectsIds['product']));
+		if ($product > 0) {
+			print $product->getNomUrl(1);
+		}
+		print '<td></tr>';
 	}
-	print '</td></tr>';
 
-	//Fk_soc - Tiers lié
-	print '<tr><td class="titlefield">';
-	print $langs->trans("ThirdParty");
-	print '</td>';
-	print '<td>';
-	$thirdparty->fetch($object->fk_soc);
-	if ($thirdparty > 0) {
-		print $thirdparty->getNomUrl(1);
+	$object->fetchObjectLinked('', 'productbatch');
+	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
+		//FKLot -- Numéro de série
+		print '<tr><td class="titlefield">';
+		print $langs->trans("Batch");
+		print '</td>';
+		print '<td>';
+		$productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
+		if ($productlot > 0) {
+			print $productlot->getNomUrl(1);
+		}
+		print '</td></tr>';
 	}
-	print '</td></tr>';
 
-	//Fk_project - Projet lié
-	print '<tr><td class="titlefield">';
-	print $langs->trans("Project");
-	print '</td>';
-	print '<td>';
-	$project->fetch($object->fk_project);
-	if ($project > 0) {
-		print $project->getNomUrl(1, '', 1);
+	$object->fetchObjectLinked('', 'societe');
+	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
+		//Fk_soc - Tiers lié
+		print '<tr><td class="titlefield">';
+		print $langs->trans("ThirdParty");
+		print '</td>';
+		print '<td>';
+		$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
+		if ($thirdparty > 0) {
+			print $thirdparty->getNomUrl(1);
+		}
+		print '</td></tr>';
 	}
-	print '</td></tr>';
 
-	//Fk_task - Tâche liée
-	print '<tr><td class="titlefield">';
-	print $langs->trans("Task");
-	print '</td>';
-	print '<td>';
-	$task->fetch($object->fk_task);
-	if ($task > 0) {
-		print $task->getNomUrl(1);
+	$object->fetchObjectLinked('', 'project');
+	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT) && (!empty($object->linkedObjectsIds['project']))) {
+		//Fk_project - Projet lié
+		print '<tr><td class="titlefield">';
+		print $langs->trans("Project");
+		print '</td>';
+		print '<td>';
+		$project->fetch(array_shift($object->linkedObjectsIds['project']));
+		if ($project > 0) {
+			print $project->getNomUrl(1, '', 1);
+		}
+		print '</td></tr>';
 	}
-	print '</td></tr>';*/
+
+	$object->fetchObjectLinked('', 'project_task');
+	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK) && (!empty($object->linkedObjectsIds['project_task']))) {
+		//Fk_task - Tâche liée
+		print '<tr><td class="titlefield">';
+		print $langs->trans("Task");
+		print '</td>';
+		print '<td>';
+		$task->fetch(array_shift($object->linkedObjectsIds['project_task']));
+		if ($task > 0) {
+			print $task->getNomUrl(1);
+		}
+		print '</td></tr>';
+	}
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php'; ?>
