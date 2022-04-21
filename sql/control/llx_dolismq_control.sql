@@ -22,6 +22,8 @@ CREATE TABLE llx_dolismq_control(
 	tms                timestamp,
 	import_key         integer DEFAULT NULL,
 	status             smallint DEFAULT 1,
+	note_public        text,
+	note_private       text,
 	type               varchar(128),
 	verdict            smallint,
 	fk_user_creat      integer NOT NULL,
