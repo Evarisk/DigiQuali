@@ -318,13 +318,68 @@ print '<td class="center">' . $langs->trans("Status") . '</td>';
 print '</tr>';
 
 print '<tr class="oddeven"><td>';
-print $langs->trans('ControlName');
+print $langs->trans('DisplayMedias');
 print "</td><td>";
-print $langs->trans('ControlDescription');
+print $langs->trans('DisplayMediasDescription');
 print '</td>';
 
 print '<td class="center">';
 print ajax_constantonoff('DOLISMQ_CONTROL_DISPLAY_MEDIAS');
+print '</td>';
+print '</tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('ShowProduct');
+print "</td><td>";
+print $langs->trans('ShowProductDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_PRODUCT');
+print '</td>';
+print '</tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('ShowProductLot');
+print "</td><td>";
+print $langs->trans('ShowProductLotDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_PRODUCTLOT');
+print '</td>';
+print '</tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('ShowThirdParty');
+print "</td><td>";
+print $langs->trans('ShowThirdPartyDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_THIRDPARTY');
+print '</td>';
+print '</tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('ShowProject');
+print "</td><td>";
+print $langs->trans('ShowProjectDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_PROJECT');
+print '</td>';
+print '</tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('ShowTask');
+print "</td><td>";
+print $langs->trans('ShowTaskDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_TASK');
 print '</td>';
 print '</tr>';
 

@@ -166,25 +166,31 @@ class modDoliSMQ extends DolibarrModules
 		// );
 		$this->const = array(
 			// CONST SHEET
-			50 => array('DOLISMQ_SHEET_ADDON','chaine', 'mod_sheet_standard' ,'', $conf->entity),
+			1 => array('DOLISMQ_SHEET_ADDON', 'chaine', 'mod_sheet_standard', '', 0, 'current'),
 
 			// CONST QUESTION
-			60 => array('DOLISMQ_QUESTION_ADDON','chaine', 'mod_question_standard' ,'', $conf->entity),
+			10 => array('DOLISMQ_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'),
 
 			// CONST CONTROL
-			70 => array('DOLISMQ_CONTROL_ADDON','chaine', 'mod_control_standard','', $conf->entity),
-			71 => array('DOLISMQ_CONTROL_DISPLAY_MEDIAS','integer', 1,'', $conf->entity),
-			//72 => array('DOLISMQ_CONTROL_SET_USER_CONTROLLER','integer', 0,'', $conf->entity),
+			20 => array('DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'),
+			21 => array('DOLISMQ_CONTROL_DISPLAY_MEDIAS', 'integer', 1, '', 0, 'current'),
+			//22 => array('DOLISMQ_CONTROL_SET_USER_CONTROLLER', 'integer', 0, '', 0, 'current'),
+			23 => array('DOLISMQ_CONTROL_SHOW_PRODUCT', 'integer', 0, '', 0, 'current'),
+			24 => array('DOLISMQ_CONTROL_SHOW_PRODUCTLOT', 'integer', 0, '', 0, 'current'),
+			25 => array('DOLISMQ_CONTROL_SHOW_THIRDPARTY', 'integer', 0, '', 0, 'current'),
+			26 => array('DOLISMQ_CONTROL_SHOW_PROJECT', 'integer', 0, '', 0, 'current'),
+			27 => array('DOLISMQ_CONTROL_SHOW_TASK', 'integer', 0, '', 0, 'current'),
 
 			//CONST CONTROL DOCUMENT
-			80 => array('DOLISMQ_CONTROLDOCUMENT_ADDON','chaine', 'mod_controldocument_standard' ,'', $conf->entity),
-			81 => array('DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH','chaine', DOL_DOCUMENT_ROOT . '/custom/dolismq/documents/doctemplates/controldocument/' ,'', $conf->entity),
-			82 => array('DOLISMQ_CONTROLDOCUMENT_DEFAULT_MODEL','chaine', 'calypso' ,'', $conf->entity),
-			83 => array('DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS','integer', 1,'', $conf->entity),
-			84 => array('DOLISMQ_CONTROLDOCUMENT_ADDON_PDF','chaine', 'calypso' ,'', $conf->entity),
+			30 => array('DOLISMQ_CONTROLDOCUMENT_ADDON', 'chaine', 'mod_controldocument_standard', '', 0, 'current'),
+			31 => array('DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH', 'chaine', DOL_DOCUMENT_ROOT . '/custom/dolismq/documents/doctemplates/controldocument/', '', 0, 'current'),
+			32 => array('DOLISMQ_CONTROLDOCUMENT_DEFAULT_MODEL', 'chaine', 'template_controldocument_photo' ,'', 0, 'current'),
+			33 => array('DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS', 'integer', 1,'', 0, 'current'),
+			34 => array('DOLISMQ_CONTROLDOCUMENT_ADDON_PDF', 'chaine', 'calypso', '', 0, 'current'),
 
-			// CONST CONTROL
-			90 => array('DOLISMQ_CONTROLDET_ADDON','chaine', 'mod_controldet_standard','', $conf->entity),
+			// CONST CONTROL LINE
+			40 => array('DOLISMQ_CONTROLDET_ADDON', 'chaine', 'mod_controldet_standard', '', 0, 'current'),
+
 		);
 
 		// Some keys to add into the overwriting translation tables
