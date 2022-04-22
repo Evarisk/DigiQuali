@@ -339,8 +339,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 						$listlines = $odfHandler->setSegment('questions');
 						$object->fetchQuestionsLinked($object->fk_sheet, 'sheet');
 						$questionIds = $object->linkedObjectsIds;
-						if ( ! empty($questionIds['question']) && $questionIds > 0) {
-							foreach ($questionIds['question'] as $questionId) {
+						if ( ! empty($questionIds['dolismq_question']) && $questionIds > 0) {
+							foreach ($questionIds['dolismq_question'] as $questionId) {
 								$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
 								if ($result > 0 && is_array($result)) {
 									$itemControlDet = array_shift($result);
