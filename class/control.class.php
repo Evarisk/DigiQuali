@@ -1182,7 +1182,7 @@ class ControlLine extends CommonObjectLine
 	 * @param int $limit
 	 * @return int <0 if KO, >0 if OK
 	 */
-	public function fetchAll($limit = 0)
+	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
 	{
 		global $db;
 		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answser_photo, t.comment, t.fk_question, t.fk_control ';
