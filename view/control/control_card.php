@@ -400,7 +400,8 @@ if (empty($reshook))
 		$sheet->fetch($object->fk_sheet);
 		$object->fetchQuestionsLinked($sheet->id, 'sheet');
 		$questionIds = $object->linkedObjectsIds;
-		foreach ($questionIds['question'] as $questionId) {
+
+		foreach ($questionIds['dolismq_question'] as $questionId) {
 			$controldettmp = $controldet;
 			//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
 			$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
@@ -632,7 +633,7 @@ if (empty($reshook))
 				$sheet->fetch($object->fk_sheet);
 				$object->fetchQuestionsLinked($sheet->id, 'sheet');
 				$questionIds = $object->linkedObjectsIds;
-				foreach ($questionIds['question'] as $questionId) {
+				foreach ($questionIds['dolismq_question'] as $questionId) {
 					$controldettmp = $controldet;
 					//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
 					$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
@@ -931,10 +932,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$sheet->fetch($object->fk_sheet);
 		$object->fetchQuestionsLinked($sheet->id, 'sheet');
 		$questionIds = $object->linkedObjectsIds;
-		$questionCounter = count($questionIds['question']);
+
+		$questionCounter = count($questionIds['dolismq_question']);
 		$answerCounter = 0;
 		$formPosts = '';
-		foreach ($questionIds['question'] as $questionId) {
+		foreach ($questionIds['dolismq_question'] as $questionId) {
 			$controldettmp = $controldet;
 
 			$answer = GETPOST('answer'.$questionId);
@@ -1526,7 +1528,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
 	$object->fetchQuestionsLinked($sheet->id, 'sheet');
 	$questionIds = $object->linkedObjectsIds;
-	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter"></span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . count($questionIds['question']);
+
+	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter"></span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . count($questionIds['dolismq_question']);
 
 	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '');
 	print '<div id="tablelines" class="control-audit noborder noshadow" width="100%">';
@@ -1549,8 +1552,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 //	print '<td>' . '</td>';
 //	print '</tr>';
 
-	if ( ! empty($questionIds['question']) && $questionIds > 0) {
-		foreach ($questionIds['question'] as $questionId) {
+	if ( ! empty($questionIds['dolismq_question']) && $questionIds > 0) {
+		foreach ($questionIds['dolismq_question'] as $questionId) {
 			$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
 			$answer = 0;
 			$comment = '';
