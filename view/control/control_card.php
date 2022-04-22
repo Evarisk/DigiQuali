@@ -1388,7 +1388,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 	print '<td></tr>';
 
-	$object->fetchObjectLinked('', 'product');
+	$object->fetchObjectLinked('', 'product', '', 'dolismq_control');
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
 		//FKProduct -- Produit
 		print '<tr><td class="titlefield">';
@@ -1402,7 +1402,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<td></tr>';
 	}
 
-	$object->fetchObjectLinked('', 'productbatch');
+	$object->fetchObjectLinked('', 'productbatch','', 'dolismq_control');
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
 		//FKLot -- Numéro de série
 		print '<tr><td class="titlefield">';
@@ -1416,7 +1416,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	$object->fetchObjectLinked('', 'societe');
+	$object->fetchObjectLinked('', 'societe','', 'dolismq_control');
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
 		//Fk_soc - Tiers lié
 		print '<tr><td class="titlefield">';
@@ -1430,7 +1430,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	$object->fetchObjectLinked('', 'project');
+	$object->fetchObjectLinked('', 'project','', 'dolismq_control');
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT) && (!empty($object->linkedObjectsIds['project']))) {
 		//Fk_project - Projet lié
 		print '<tr><td class="titlefield">';
@@ -1444,7 +1444,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	$object->fetchObjectLinked('', 'project_task');
+	$object->fetchObjectLinked('', 'project_task','', 'dolismq_control');
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK) && (!empty($object->linkedObjectsIds['project_task']))) {
 		//Fk_task - Tâche liée
 		print '<tr><td class="titlefield">';
