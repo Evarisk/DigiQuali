@@ -787,7 +787,7 @@ if ($action == 'create') {
 	} else {
 		print '<tr>';
 		print '<td class="fieldrequired " style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
-		print '<td>' . $user->getNomUrl(1) . '</td>';
+		print '<td>' . $user->getNomUrl() . '</td>';
 		print '<input type="hidden" name="fk_user_controller" value="' . $user->id . '">';
 		print '</td></tr>';
 	}
@@ -915,10 +915,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		$formquestion = array(
 			array('type' => 'select', 'name' => 'verdict', 'label' => '<span class="fieldrequired">' . $langs->trans("VerdictControl") . '</span>', 'values' => array('1' => 'OK', '2' => 'KO'), 'select_show_empty' => 0),
-			array('type' => 'text', 'name' => 'OK', 'label' => '<span class="answer" value="1"><i class="fas fa-check"></i></span>', 'value' => $answerOK, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'KO', 'label' => '<span class="answer" value="2"><i class="fas fa-times"></i></span>', 'value' => $answerKO, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'Repair', 'label' => '<span class="answer" value="3"><i class="fas fa-tools"></i></span>', 'value' => $answerRepair, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'NotApplicable', 'label' => '<span class="answer" value="4">N/A</span>', 'value' => $answerNotApplicable, 'moreattr' => 'readonly'),
+			array('type' => 'text', 'name' => 'OK', 'label' => '<span class="answer" value="1" style="pointer-events: none"><i class="fas fa-check"></i></span>', 'value' => $answerOK, 'moreattr' => 'readonly'),
+			array('type' => 'text', 'name' => 'KO', 'label' => '<span class="answer" value="2" style="pointer-events: none"><i class="fas fa-times"></i></span>', 'value' => $answerKO, 'moreattr' => 'readonly'),
+			array('type' => 'text', 'name' => 'Repair', 'label' => '<span class="answer" value="3" style="pointer-events: none"><i class="fas fa-tools"></i></span>', 'value' => $answerRepair, 'moreattr' => 'readonly'),
+			array('type' => 'text', 'name' => 'NotApplicable', 'label' => '<span class="answer" value="4" style="pointer-events: none">N/A</span>', 'value' => $answerNotApplicable, 'moreattr' => 'readonly'),
 		);
 
 		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $text, 'confirm_setVerdict', $formquestion, '', 1, 250);
@@ -1367,6 +1367,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>';
 	print $usertmp->login;
 	print '</td></tr>';*/
+	unset($object->fields['fk_sheet']);
 
 //	foreach($object->fields as $key=>$fields) {
 //		if (array_key_exists('positioncard', $object->fields[$key])) {
@@ -1383,7 +1384,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>';
 	$sheet->fetch($object->fk_sheet);
 	if ($sheet > 0) {
-		print $sheet->getNomUrl(1);
+		print $sheet->getNomUrl();
 	}
 	print '<td></tr>';
 
@@ -1459,6 +1460,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php'; ?>
+
 	<script type="text/javascript">
 		$(function () {
 		let answerCounter = 0
@@ -1502,8 +1504,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print '>'.$langs->trans('SetOK/KO').'</a>';
 				}
 			} else {
-				print '<a class="butActionRefused classfortooltip" title="'.$langs->trans("ControlVerdictSelected").'"';
-				print '>'.$langs->trans('SetOK/KO').'</a>';
+				if($object->status == 0) {
+					print '<a class="butActionRefused classfortooltip" title="'.$langs->trans("ControlMustBeValidatedToSetVerdict").'"';
+					print '>'.$langs->trans('SetOK/KO').'</a>';
+				} else {
+					print '<a class="butActionRefused classfortooltip" title="'.$langs->trans("ControlVerdictSelected").'"';
+					print '>'.$langs->trans('SetOK/KO').'</a>';
+				}
+
 			}
 			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 ) ? 'actionButtonReOpen' : '') . '" title="' . (($object->status == 1 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidated"))) . '">' . $langs->trans("ReOpened") . '</span>';
 			print '<span class="' . (($object->status == 1 && $object->verdict != null) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 && $object->verdict != null) ? 'actionButtonLock' : '') . '" title="' . (($object->status == 1 && $object->verdict != null) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidatedToLock"))) . '">' . $langs->trans("Lock") . '</span>';
@@ -1584,16 +1592,24 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					<div class="table-cell table-450 cell-photo-check">
 						<?php
 						if (!empty($conf->global->DOLISMQ_CONTROL_DISPLAY_MEDIAS)) :
-							$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
-							print ($urladvanced) ? '<a href="' . $urladvanced . '" class="question-photo-check ko">' : '<div class="question-photo-check ko">';
-							print '<img class="photo photo-ko'. ($urladvanced ? ' clicked-photo-preview' : '').'" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ko)) . '" >';
-							print '<i class="fas fa-times-circle"></i>';
-							print ($urladvanced) ? '</a>' : '</div>';
-							$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
-							print ($urladvanced) ? '<a href="' . $urladvanced . '" class="question-photo-check ok">' : '<div class="question-photo-check ok">';
-							print '<img class="photo photo-ok' . ($urladvanced ? ' clicked-photo-preview' : '').'" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ok)) . '" >';
-							print '<i class="fas fa-check-circle"></i>';
-							print ($urladvanced) ? '</a>' : '</div>';
+							if (dol_strlen($item->photo_ko)) {
+								$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
+								print ($urladvanced) ? '<a href="' . $urladvanced . '" class="question-photo-check ko">' : '<div class="question-photo-check ko">';
+								print '<img class="photo photo-ko'. ($urladvanced ? ' clicked-photo-preview' : '').'" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ko)) . '" >';
+								print '<i class="fas fa-times-circle"></i>';
+								print ($urladvanced) ? '</a>' : '</div>';
+							} else {
+								print '<img height="80" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+							}
+							if (dol_strlen($item->photo_ok)) {
+								$urladvanced = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
+								print ($urladvanced) ? '<a href="' . $urladvanced . '" class="question-photo-check ok">' : '<div class="question-photo-check ok">';
+								print '<img class="photo photo-ok' . ($urladvanced ? ' clicked-photo-preview' : '') . '" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ok)) . '" >';
+								print '<i class="fas fa-check-circle"></i>';
+								print ($urladvanced) ? '</a>' : '</div>';
+							} else {
+								print '<img height="80" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+							}
 						endif;
 						?>
 					</div>
