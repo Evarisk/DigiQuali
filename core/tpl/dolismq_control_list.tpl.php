@@ -329,11 +329,16 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			if ($key == 'status') {
 				print $object->getLibStatut(5);
 			}
+			elseif ($key == 'ref') print $object->getNomUrl();
 			elseif ($key == 'fk_project') {
 				$project->fetch($object->fk_project);
 				if ($project > 0) {
 					print $project->getNomUrl(1, '', 1);
 				}
+			}
+			elseif ($key == 'fk_sheet') {
+				$sheet->fetch($object->fk_sheet);
+				print $sheet->getNomUrl();
 			}
 			else print $object->showOutputField($val, $key, $object->$key, '');
 			print '</td>';
