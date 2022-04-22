@@ -218,11 +218,27 @@ if (!empty($moreforfilter))
 }
 
 $varpage = empty($contextpage) ? $_SERVER["PHP_SELF"] : $contextpage;
+
+$arrayfields['t.fk_product']    = array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'Product', 'enabled' => '1', 'position' => 21, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'product.rowid', 'checked' => 1);
+$arrayfields['t.fk_lot']        = array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'Batch', 'enabled' => '1', 'position' => 22, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'productlot.rowid', 'checked' => 1);
+$arrayfields['t.fk_thirdparty'] = array('type' => 'integer:Societe:societe/class/societe.class.php', 'label' => 'ThirdParty', 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'societe.rowid', 'checked' => 1);
+$arrayfields['t.fk_project']    = array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 26, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'project.rowid', 'checked' => 1);
+$arrayfields['t.fk_task']       = array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 27, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'task.rowid', 'checked' => 1);
+
 $selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage); // This also change content of $arrayfields
 $selectedfields .= (count($arrayofmassactions) ? $form->showCheckAddButtons('checkforselect', 1) : '');
 
 print '<div class="div-table-responsive">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
 print '<table class="tagtable nobottomiftotal liste'.($moreforfilter ? " listwithfilterbefore" : "").'">'."\n";
+
+$object->fields['fk_product']    = $arrayfields['t.fk_product'];
+$object->fields['fk_lot']        = $arrayfields['t.fk_lot'];
+$object->fields['fk_thirdparty'] = $arrayfields['t.fk_thirdparty'];
+$object->fields['fk_project']    = $arrayfields['t.fk_project'];
+$object->fields['fk_task']       = $arrayfields['t.fk_task'];
+
+$object->fields = dol_sort_array($object->fields, 'position');
+$arrayfields = dol_sort_array($arrayfields, 'position');
 
 // Fields title search
 // --------------------------------------------------------------------
@@ -329,10 +345,49 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			if ($key == 'status') {
 				print $object->getLibStatut(5);
 			}
+			elseif ($key == 'fk_product') {
+				$object->fetchObjectLinked('', 'product');
+				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
+					$producttmp->fetch(array_shift($object->linkedObjectsIds['product']));
+					if ($producttmp > 0) {
+						print $producttmp->getNomUrl(1);
+					}
+				}
+			}
+			elseif ($key == 'fk_lot') {
+				$object->fetchObjectLinked('', 'productbatch');
+				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
+					$productlottmp->fetch(array_shift($object->linkedObjectsIds['productbatch']));
+					if ($productlottmp > 0) {
+						print $productlottmp->getNomUrl(1);
+					}
+				}
+			}
+			elseif ($key == 'fk_thirdparty') {
+				$object->fetchObjectLinked('', 'societe');
+				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
+					$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
+					if ($thirdparty > 0) {
+						print $thirdparty->getNomUrl(1);
+					}
+				}
+			}
 			elseif ($key == 'fk_project') {
-				$project->fetch($object->fk_project);
-				if ($project > 0) {
-					print $project->getNomUrl(1, '', 1);
+				$object->fetchObjectLinked('', 'project');
+				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT) && (!empty($object->linkedObjectsIds['project']))) {
+					$projecttmp->fetch(array_shift($object->linkedObjectsIds['project']));
+					if ($projecttmp > 0) {
+						print $projecttmp->getNomUrl(1, '', 1);
+					}
+				}
+			}
+			elseif ($key == 'fk_task') {
+				$object->fetchObjectLinked('', 'project_task');
+				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK) && (!empty($object->linkedObjectsIds['project_task']))) {
+					$task->fetch(array_shift($object->linkedObjectsIds['project_task']));
+					if ($task > 0) {
+						print $task->getNomUrl(1);
+					}
 				}
 			}
 			else print $object->showOutputField($val, $key, $object->$key, '');
