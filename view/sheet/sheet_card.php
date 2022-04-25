@@ -301,8 +301,15 @@ if (($id || $ref) && $action == 'edit') {
 
 	print '<table class="border centpercent tableforfieldedit sheet-table">'."\n";
 
-	// Common attributes
-	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_edit.tpl.php';
+	//Ref -- Ref
+	print '<tr><td class="titlefieldcreate fieldrequired">' . $langs->trans("Ref") . '</td><td>';
+	print $object->ref;
+	print '</td></tr>';
+
+	//Label -- Libellé
+	print '<tr><td class="">' . $langs->trans("Label") . '</td><td>';
+	print '<input class="flat" type="text" size="36" name="label" id="label" value="' . $object->label . '">';
+	print '</td></tr>';
 
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_edit.tpl.php';
