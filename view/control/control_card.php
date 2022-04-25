@@ -257,19 +257,19 @@ if (empty($reshook))
 		if (!$error) {
 			$result = $object->create($user);
 			if ($result > 0) {
-				if (!empty(GETPOST('fk_product'))) {
+				if (!empty(GETPOST('fk_product')) && GETPOST('fk_product') > 0) {
 					$object->add_object_linked('product', GETPOST('fk_product'));
 				}
-				if (!empty(GETPOST('fk_productlot'))) {
+				if (!empty(GETPOST('fk_productlot')) && GETPOST('fk_productlot') > 0) {
 					$object->add_object_linked('productbatch', GETPOST('fk_productlot'));
 				}
-				if (!empty(GETPOST('fk_soc'))) {
+				if (!empty(GETPOST('fk_soc')) && GETPOST('fk_soc') > 0) {
 					$object->add_object_linked('societe', GETPOST('fk_soc'));
 				}
-				if (!empty(GETPOST('fk_project'))) {
+				if (!empty(GETPOST('fk_project')) && GETPOST('fk_project') > 0) {
 					$object->add_object_linked('project', GETPOST('fk_project'));
 				}
-				if (!empty(GETPOST('fk_task'))) {
+				if (!empty(GETPOST('fk_task')) && GETPOST('fk_task') > 0) {
 					$object->add_object_linked('project_task', GETPOST('fk_task'));
 				}
 				// Creation OK
