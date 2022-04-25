@@ -2042,6 +2042,7 @@
 .confirmquestions input[readonly] {
   border: 0;
   width: 100%;
+  pointer-events: none;
 }
 .confirmquestions input[readonly]:hover {
   cursor: default;
