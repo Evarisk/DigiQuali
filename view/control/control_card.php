@@ -1602,7 +1602,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								print '<i class="fas fa-times-circle"></i>';
 								print ($urladvanced) ? '</a>' : '</div>';
 							} else {
-								print '<img height="80" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+								print '<div class="question-photo-check ko">';
+								print '<img class="photo photo-ko question-photo-check ko" height="80" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+								print '<i class="fas fa-times-circle"></i>';
+								print '</div>';
 							}
 							if (dol_strlen($item->photo_ok)) {
 								$urladvanced = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
@@ -1611,7 +1614,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								print '<i class="fas fa-check-circle"></i>';
 								print ($urladvanced) ? '</a>' : '</div>';
 							} else {
-								print '<img height="80" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+								print '<div class="question-photo-check ok">';
+								print '<img class="photo photo-ok" height="80" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+								print '<i class="fas fa-check-circle"></i>';
+								print '</div>';
 							}
 						endif;
 						?>

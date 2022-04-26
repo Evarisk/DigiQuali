@@ -595,6 +595,8 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 		});
 	}
 
+	let token = $('.fiche').find('input[name="token"]').val();
+
 	let favorite = filenames
 	favorite = favorite.split('vVv')[0]
 	favorite = favorite.replace(/\ /, '')
@@ -608,7 +610,7 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 		separator = '?'
 	}
 	$.ajax({
-		url: url + separator + "action=addFiles",
+		url: url + separator + "action=addFiles&token=" + token,
 		type: "POST",
 		data: JSON.stringify({
 			filenames: filenames,
@@ -685,8 +687,10 @@ window.eoxiaJS.mediaGallery.sendPhoto = function( event ) {
 		separator = '?'
 	}
 
+	let token = $('.fiche').find('input[name="token"]').val();
+
 	$.ajax({
-		url:  url + separator + "action=uploadPhoto",
+		url:  url + separator + "action=uploadPhoto&token=" + token,
 		type: "POST",
 		data: formdata,
 		processData: false,
@@ -743,6 +747,8 @@ window.eoxiaJS.mediaGallery.unlinkFile = function( event ) {
 	let previousName = ''
 	let newPhoto = ''
 
+	let token = $('.fiche').find('input[name="token"]').val();
+
 	//window.eoxiaJS.loader.display($(this).closest('.media-container'));
 
 	document.URL.match('/?/') ? querySeparator = '&' : 1
@@ -763,7 +769,7 @@ window.eoxiaJS.mediaGallery.unlinkFile = function( event ) {
 		separator = '?'
 	}
 	$.ajax({
-		url: url + separator + "action=unlinkFile",
+		url: url + separator + "action=unlinkFile&token=" + token,
 		type: "POST",
 		data: JSON.stringify({
 			filename: filename,
