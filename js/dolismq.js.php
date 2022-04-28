@@ -624,6 +624,8 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 			parent.removeClass('modal-active')
 			if (document.URL.match(/control_card/)) {
 				linkedMedias.html($(resp).find('.table-id-'+rowId))
+				window.eoxiaJS.control.updateButtonsStatus()
+
 			} else if (document.URL.match(/question_card/)) {
 				$('.tabBar .linked-medias.'+type+' .media-container').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .media-container', () => {
 					$('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .fa-star').first().removeClass('far').addClass('fas')
