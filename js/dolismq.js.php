@@ -1018,6 +1018,7 @@ window.eoxiaJS.control.selectAnswer = function ( event ) {
 	let actualValidatePost = $(this).closest('.tabBar').find('.validateButton').attr('href')
 	$(this).closest('.tabBar').find('.saveButton').attr('href', actualSavePost + '&' + postName + '=' + postValue)
 	$(this).closest('.tabBar').find('.validateButton').attr('href', actualValidatePost + '&' + postName + '=' + postValue)
+	window.eoxiaJS.control.updateButtonsStatus()
 };
 
 /**
@@ -1061,6 +1062,24 @@ window.eoxiaJS.control.showCommentUnsaved = function ( event ) {
 		$(this).after('<p style="color:red">Commentaire non enregistré</p>');
 		$(this).addClass('show-comment-unsaved-message');
 	}
+	window.eoxiaJS.control.updateButtonsStatus()
+};
+
+/**
+ * Change buttons status
+ *
+ * @since   1.1.0
+ * @version 1.1.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.control.updateButtonsStatus = function (  ) {
+	$('#saveButton').removeClass('butActionRefused')
+	$('#saveButton').addClass('butAction')
+
+	$('#validateButton').removeClass('butAction')
+	$('#validateButton').addClass('butActionRefused')
 };
 
 /**
