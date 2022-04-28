@@ -164,7 +164,8 @@ if (empty($reshook))
 	if ($action == 'unlinkQuestion') {
 		$questionId = GETPOST('questionId');
 		$question->fetch($questionId);
-		$question->deleteObjectLinked($id,$object->element);
+		$question->element = 'dolismq_'.$question->element;
+		$question->deleteObjectLinked($id, $object->element);
 		setEventMessages($langs->trans('removeQuestionLink') . ' ' . $question->ref, array());
 
 		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
