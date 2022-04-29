@@ -54,10 +54,10 @@
       margin: 0 4px;
 
       &.photo-ok {
-        border: 4px solid $color__green;
+        border: 2px solid $color__green;
       }
       &.photo-ko {
-        border: 4px solid $color__red;
+        border: 2px solid $color__red;
       }
     }
 
@@ -86,20 +86,37 @@
 
       &[value="1"] {
         color: $color__green;
+
+        &.active {
+          background: $color__green;
+        }
       }
       &[value="2"] {
         color: $color__red;
+
+        &.active {
+          background: $color__red;
+        }
       }
       &[value="3"] {
         color: $color__yellow;
+
+        &.active {
+          background: $color__yellow;
+        }
       }
       &[value="4"] {
         color: rgba(0,0,0,0.7);
         font-weight: 700;
+
+        &.active {
+          background: rgba(0,0,0,0.7);
+        }
       }
       &.active {
-        border-color: $color__secondary;
-        box-shadow: 0 0 0 2px $color__secondary;
+        color: #fff;
+        //border-color: $color__secondary;
+        //box-shadow: 0 0 0 2px $color__secondary;
       }
     }
 
