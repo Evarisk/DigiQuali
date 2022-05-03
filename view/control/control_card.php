@@ -133,7 +133,6 @@ if (empty($action) && empty($id) && empty($ref)) $action = 'view';
 // Load object
 include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
 
-
 $permissiontoread = $user->rights->dolismq->control->read;
 $permissiontoadd = $user->rights->dolismq->control->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 $permissiontodelete = $user->rights->dolismq->control->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
@@ -330,7 +329,7 @@ if (empty($reshook))
 //					}
 
 					copy($pathToECMPhoto, $pathToQuestionPhoto . '/' . $filename);
-					$ecmfile->fetch(0,'','ecm/dolismq/medias/' . $filename);
+					$ecmfile->fetch(0,'',(($conf->entity > 1) ? $conf->entity.'/ecm/dolismq/medias/' : 'ecm/dolismq/medias/') . $filename);
 					$date = dol_print_date(dol_now(),'dayxcard');
 					$extension = preg_split('/\./', $filename);
 					$newFilename = $conf->entity . '_' . $ecmfile->id . '_' . $object->ref . '_' . $question->ref . '_' . $date . '.' . $extension[1];
