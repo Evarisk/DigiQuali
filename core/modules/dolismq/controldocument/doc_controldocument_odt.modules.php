@@ -207,7 +207,12 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$filename = preg_replace('/template_/','', $filename[1]);
 
 			$date = dol_print_date(dol_now(),'dayxcard');
-			$filename = $object->ref.'_'.$date.'.odt';
+			if (preg_match('/_photo/', $filename)) {
+				$photo = '_photo';
+			} else {
+				$photo = '';
+			}
+			$filename = $object->ref.'_'.$date.$photo.'.odt';
 			$filename = str_replace(' ', '_', $filename);
 			$filename = dol_sanitizeFileName($filename);
 //
