@@ -195,7 +195,7 @@ ShowProject = Afficher les projets
 ShowProjectDescription = Afficher le lien entre les projets et les contrôles
 ShowTask = Afficher les tâches
 ShowTaskDescription = Afficher le lien entre les tâches et les contrôles
-NoLotDefined = pas de numéros de lots/série trouvé
+NoLotDefined = Pas de numéros de lots/série trouvé
 SelectAProductFirst = Sélectionnez d'abord un produit
 
 
