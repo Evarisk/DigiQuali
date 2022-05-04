@@ -40,13 +40,10 @@ $sql = preg_replace('/,\s*$/', '', $sql);
 $sql .= " FROM ".MAIN_DB_PREFIX.$object->table_element." as t";
 if (is_array($extrafields->attributes[$object->table_element]['label']) && count($extrafields->attributes[$object->table_element]['label'])) $sql .= " LEFT JOIN ".MAIN_DB_PREFIX.$object->table_element."_extrafields as ef on (t.rowid = ef.fk_object)";
 
-if (dol_strlen($fromtype) > 0 && !in_array($fromtype, $linkedObjectsArray)) {
-	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as e on (e.fk_source = ' .$fromid. ' AND e.sourcetype="' . $fromtype . '" AND e.targettype = "dolismq_control")';
-}
-
 foreach($element_element_fields as $generic_name => $element_element_name) {
-	if (GETPOST('search_'.$generic_name) > 0) {
-		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $element_element_name .' on ('. $element_element_name .'.fk_source = ' .GETPOST('search_'. $generic_name). ' AND '. $element_element_name .'.sourcetype="'. $element_element_name .'" AND '. $element_element_name .'.targettype = "dolismq_control")';
+	if (GETPOST('search_'.$generic_name) > 0 || $fromtype == $element_element_name) {
+		$id_to_search = GETPOST('search_'.$generic_name) ?: $fromid;
+		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $element_element_name .' on ('. $element_element_name .'.fk_source = ' . $id_to_search . ' AND '. $element_element_name .'.sourcetype="'. $element_element_name .'" AND '. $element_element_name .'.targettype = "dolismq_control")';
 	}
 }
 
@@ -56,12 +53,9 @@ $reshook = $hookmanager->executeHooks('printFieldListFrom', $parameters, $object
 $sql .= $hookmanager->resPrint;
 if ($object->ismultientitymanaged == 1) $sql .= " WHERE t.entity IN (".getEntity($object->element).")";
 else $sql .= " WHERE 1 = 1".$sqlfilter;
-if (dol_strlen($fromtype) > 0 && !in_array($fromtype, $linkedObjectsArray)) {
-	$sql .= " AND t.rowid = e.fk_target ";
-}
 
 foreach($element_element_fields as $generic_name => $element_element_name) {
-	if (GETPOST('search_'.$generic_name) > 0) {
+	if (GETPOST('search_'.$generic_name) > 0 || $fromtype == $element_element_name) {
 		$sql .= ' AND t.rowid = '. $element_element_name .'.fk_target ';
 	}
 }
@@ -289,7 +283,6 @@ print $hookmanager->resPrint;
 print getTitleFieldOfList($selectedfields, 0, $_SERVER["PHP_SELF"], '', '', '', '', $sortfield, $sortorder, 'center maxwidthsearch ')."\n";
 print '</tr>'."\n";
 
-
 // Detect if we need a fetch on each output line
 $needToFetchEachLine = 0;
 if (is_array($extrafields->attributes[$object->table_element]['computed']) && count($extrafields->attributes[$object->table_element]['computed']) > 0)
@@ -299,7 +292,6 @@ if (is_array($extrafields->attributes[$object->table_element]['computed']) && co
 		if (preg_match('/\$object/', $val)) $needToFetchEachLine++; // There is at least one compute field that use $object
 	}
 }
-
 
 // Loop on record
 // --------------------------------------------------------------------

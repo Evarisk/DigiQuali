@@ -157,6 +157,8 @@ foreach ($object->fields as $key => $val)
 }
 
 if(!empty($fromtype)) {
+	$search_key = array_search($fromtype, $element_element_fields);
+	$search[$search_key] = $fromid;
 	switch ($fromtype) {
 		case 'sheet':
 			$search['sheet'] = $fromid;
