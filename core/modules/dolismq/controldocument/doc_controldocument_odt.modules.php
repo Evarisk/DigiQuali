@@ -284,13 +284,14 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$project    = new Project($db);
 			$task		= new Task($db);
 
-			$product->fetch($object->fk_product);
-			$productlot->fetch($object->fk_lot);
+			$object->fetchObjectLinked('', '', '', 'dolismq_control');
+			$product->fetch(array_shift($object->linkedObjectsIds['product']));
+			$productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
 			$sheet->fetch($object->fk_sheet);
 			$usertmp->fetch($object->fk_user_controller);
-			$thirdparty->fetch($object->fk_soc);
-			$project->fetch($object->fk_project);
-			$task->fetch($object->fk_task);
+			$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
+			$project->fetch(array_shift($object->linkedObjectsIds['project']));
+			$task->fetch(array_shift($object->linkedObjectsIds['project_task']));
 
 			$tmparray['mycompany_name']     = $conf->global->MAIN_INFO_SOCIETE_NOM;
 			$tmparray['control_ref']        = $object->ref;
