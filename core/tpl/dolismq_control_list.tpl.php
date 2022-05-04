@@ -24,7 +24,9 @@ $formproject   = new FormProjets($db);
 $sql = 'SELECT ';
 foreach ($object->fields as $key => $val)
 {
-	$sql .= 't.'.$key.', ';
+	if (!array_key_exists($key, $element_element_fields)) {
+		$sql .= 't.' . $key . ', ';
+	}
 }
 // Add fields from extrafields
 if (!empty($extrafields->attributes[$object->table_element]['label'])) {
@@ -41,6 +43,13 @@ if (is_array($extrafields->attributes[$object->table_element]['label']) && count
 if (dol_strlen($fromtype) > 0 && !in_array($fromtype, $linkedObjectsArray)) {
 	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as e on (e.fk_source = ' .$fromid. ' AND e.sourcetype="' . $fromtype . '" AND e.targettype = "dolismq_control")';
 }
+
+foreach($element_element_fields as $generic_name => $element_element_name) {
+	if (GETPOST('search_'.$generic_name) > 0) {
+		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $element_element_name .' on ('. $element_element_name .'.fk_source = ' .GETPOST('search_'. $generic_name). ' AND '. $element_element_name .'.sourcetype="'. $element_element_name .'" AND '. $element_element_name .'.targettype = "dolismq_control")';
+	}
+}
+
 // Add table from hooks
 $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldListFrom', $parameters, $object); // Note that $action and $object may have been modified by hook
@@ -51,33 +60,41 @@ if (dol_strlen($fromtype) > 0 && !in_array($fromtype, $linkedObjectsArray)) {
 	$sql .= " AND t.rowid = e.fk_target ";
 }
 
+foreach($element_element_fields as $generic_name => $element_element_name) {
+	if (GETPOST('search_'.$generic_name) > 0) {
+		$sql .= ' AND t.rowid = '. $element_element_name .'.fk_target ';
+	}
+}
+
 foreach ($search as $key => $val) {
-	if (array_key_exists($key, $object->fields)) {
-		if ($key == 'status' && $search[$key] == -1) {
-			continue;
-		}
-		if ($key == 'verdict' && $search[$key] == 0) {
-			continue;
-		}
-		$mode_search = (($object->isInt($object->fields[$key]) || $object->isFloat($object->fields[$key])) ? 1 : 0);
-		if ((strpos($object->fields[$key]['type'], 'integer:') === 0) || (strpos($object->fields[$key]['type'], 'sellist:') === 0) || !empty($object->fields[$key]['arrayofkeyval'])) {
-			if ($search[$key] == '-1' || ($search[$key] === '0' && (empty($object->fields[$key]['arrayofkeyval']) || !array_key_exists('0', $object->fields[$key]['arrayofkeyval'])))) {
-				$search[$key] = '';
+	if (!array_key_exists($key, $element_element_fields)) {
+		if (array_key_exists($key, $object->fields)) {
+			if ($key == 'status' && $search[$key] == -1) {
+				continue;
 			}
-			$mode_search = 2;
-		}
-		if ($search[$key] != '') {
-			$sql .= natural_search($key, $search[$key], (($key == 'status') ? 2 : $mode_search));
-		}
-	} else {
-		if (preg_match('/(_dtstart|_dtend)$/', $key) && $search[$key] != '') {
-			$columnName = preg_replace('/(_dtstart|_dtend)$/', '', $key);
-			if (preg_match('/^(date|timestamp|datetime)/', $object->fields[$columnName]['type'])) {
-				if (preg_match('/_dtstart$/', $key)) {
-					$sql .= " AND t.".$columnName." >= '".$db->idate($search[$key])."'";
+			if ($key == 'verdict' && $search[$key] == 0) {
+				continue;
+			}
+			$mode_search = (($object->isInt($object->fields[$key]) || $object->isFloat($object->fields[$key])) ? 1 : 0);
+			if ((strpos($object->fields[$key]['type'], 'integer:') === 0) || (strpos($object->fields[$key]['type'], 'sellist:') === 0) || !empty($object->fields[$key]['arrayofkeyval'])) {
+				if ($search[$key] == '-1' || ($search[$key] === '0' && (empty($object->fields[$key]['arrayofkeyval']) || !array_key_exists('0', $object->fields[$key]['arrayofkeyval'])))) {
+					$search[$key] = '';
 				}
-				if (preg_match('/_dtend$/', $key)) {
-					$sql .= " AND t." . $columnName . " <= '" . $db->idate($search[$key]) . "'";
+				$mode_search = 2;
+			}
+			if ($search[$key] != '') {
+				$sql .= natural_search($key, $search[$key], (($key == 'status') ? 2 : $mode_search));
+			}
+		} else {
+			if (preg_match('/(_dtstart|_dtend)$/', $key) && $search[$key] != '') {
+				$columnName = preg_replace('/(_dtstart|_dtend)$/', '', $key);
+				if (preg_match('/^(date|timestamp|datetime)/', $object->fields[$columnName]['type'])) {
+					if (preg_match('/_dtstart$/', $key)) {
+						$sql .= " AND t.".$columnName." >= '".$db->idate($search[$key])."'";
+					}
+					if (preg_match('/_dtend$/', $key)) {
+						$sql .= " AND t." . $columnName . " <= '" . $db->idate($search[$key]) . "'";
+					}
 				}
 			}
 		}
@@ -92,23 +109,6 @@ include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_search_sql.tpl.php';
 $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters, $object); // Note that $action and $object may have been modified by hook
 $sql .= $hookmanager->resPrint;
-
-/* If a group by is required
-$sql.= " GROUP BY ";
-foreach($object->fields as $key => $val)
-{
-	$sql.='t.'.$key.', ';
-}
-// Add fields from extrafields
-if (! empty($extrafields->attributes[$object->table_element]['label'])) {
-	foreach ($extrafields->attributes[$object->table_element]['label'] as $key => $val) $sql.=($extrafields->attributes[$object->table_element]['type'][$key] != 'separate' ? "ef.".$key.', ' : '');
-}
-// Add where from hooks
-$parameters=array();
-$reshook=$hookmanager->executeHooks('printFieldListGroupBy',$parameters, $object);    // Note that $action and $object may have been modified by hook
-$sql.=$hookmanager->resPrint;
-$sql=preg_replace('/,\s*$/','', $sql);
-*/
 
 $sql .= $db->order($sortfield, $sortorder);
 
@@ -146,10 +146,8 @@ if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $
 	exit;
 }
 
-
 // Output page
 // --------------------------------------------------------------------
-
 
 $arrayofselected = is_array($toselect) ? $toselect : array();
 
@@ -171,10 +169,6 @@ $param .= $hookmanager->resPrint;
 
 // List of mass actions availableF
 $arrayofmassactions = array(
-	//'validate'=>$langs->trans("Validate"),
-	//'generate_doc'=>$langs->trans("ReGeneratePDF"),
-	//'builddoc'=>$langs->trans("PDFMerge"),
-	//'presend'=>$langs->trans("SendByMail"),
 );
 if ($permissiontodelete) $arrayofmassactions['predelete'] = '<span class="fa fa-trash paddingrightonly"></span>'.$langs->trans("Delete");
 if (GETPOST('nomassaction', 'int') || in_array($massaction, array('presend', 'predelete'))) $arrayofmassactions = array();
@@ -209,10 +203,6 @@ if ($search_all)
 }
 
 $moreforfilter = '';
-/*$moreforfilter.='<div class="divsearchfield">';
-$moreforfilter.= $langs->trans('MyFilter') . ': <input type="text" name="search_myfield" value="'.dol_escape_htmltag($search_myfield).'">';
-$moreforfilter.= '</div>';*/
-
 $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldPreListTitle', $parameters, $object); // Note that $action and $object may have been modified by hook
 if (empty($reshook)) $moreforfilter .= $hookmanager->resPrint;
@@ -227,23 +217,11 @@ if (!empty($moreforfilter))
 
 $varpage = empty($contextpage) ? $_SERVER["PHP_SELF"] : $contextpage;
 
-$arrayfields['t.fk_product']    = array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'Product', 'enabled' => '1', 'position' => 21, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'product.rowid', 'checked' => 1);
-$arrayfields['t.fk_lot']        = array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'Batch', 'enabled' => '1', 'position' => 22, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'productlot.rowid', 'checked' => 1);
-$arrayfields['t.fk_thirdparty'] = array('type' => 'integer:Societe:societe/class/societe.class.php', 'label' => 'ThirdParty', 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'societe.rowid', 'checked' => 1);
-$arrayfields['t.fk_project']    = array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 26, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'project.rowid', 'checked' => 1);
-$arrayfields['t.fk_task']       = array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 27, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'task.rowid', 'checked' => 1);
-
 $selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage); // This also change content of $arrayfields
 $selectedfields .= (count($arrayofmassactions) ? $form->showCheckAddButtons('checkforselect', 1) : '');
 
 print '<div class="div-table-responsive">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
 print '<table class="tagtable nobottomiftotal liste'.($moreforfilter ? " listwithfilterbefore" : "").'">'."\n";
-
-$object->fields['fk_product']    = $arrayfields['t.fk_product'];
-$object->fields['fk_lot']        = $arrayfields['t.fk_lot'];
-$object->fields['fk_thirdparty'] = $arrayfields['t.fk_thirdparty'];
-$object->fields['fk_project']    = $arrayfields['t.fk_project'];
-$object->fields['fk_task']       = $arrayfields['t.fk_task'];
 
 $object->fields = dol_sort_array($object->fields, 'position');
 $arrayfields = dol_sort_array($arrayfields, 'position');
@@ -260,15 +238,15 @@ foreach ($object->fields as $key => $val)
 	elseif (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && $val['label'] != 'TechnicalID') $cssforfield .= ($cssforfield ? ' ' : '').'right';
 	if (!empty($arrayfields['t.'.$key]['checked']))
 	{
-		print '<td class="liste_titre' . ($cssforfield ? ' ' . $cssforfield : '') . '">';
-		if ($key != 'fk_product' && $key != 'fk_lot' && $key != 'fk_thirdparty' && $key != 'fk_project' && $key != 'fk_task') {
-			if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) print $form->selectarray('search_' . $key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
-			elseif ($key == 'fk_sheet') {
-				print $sheet->select_sheet_list($search['fk_sheet'], 'search_fk_sheet');
-			} elseif (strpos($val['type'], 'integer:') === 0) {
-				print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'maxwidth125', 1);
-			} elseif (!preg_match('/^(date|timestamp)/', $val['type'])) print '<input type="text" class="flat maxwidth75" name="search_' . $key . '" value="' . dol_escape_htmltag($search[$key]) . '">';
+		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
+		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) print $form->selectarray('search_'.$key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
+		elseif ($key == 'fk_sheet') {
+			print $sheet->select_sheet_list(GETPOST('fk_sheet'));
 		}
+		elseif (strpos($val['type'], 'integer:') === 0) {
+			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'maxwidth125', 1);
+		} elseif (!preg_match('/^(date|timestamp)/', $val['type'])) print '<input type="text" class="flat maxwidth75" name="search_'.$key.'" value="'.dol_escape_htmltag($search[$key]).'">';
+
 		print '</td>';
 	}
 }
@@ -285,7 +263,6 @@ $searchpicto = $form->showFilterButtons();
 print $searchpicto;
 print '</td>';
 print '</tr>'."\n";
-
 
 // Fields title label
 // --------------------------------------------------------------------

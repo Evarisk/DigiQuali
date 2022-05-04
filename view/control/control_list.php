@@ -129,6 +129,25 @@ if (!empty($fromtype)) {
 	$linkedObjectsArray = array('sheet', 'user');
 }
 
+$arrayfields['t.fk_product']    = array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'Product', 'enabled' => '1', 'position' => 21, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'product.rowid', 'checked' => 1);
+$arrayfields['t.fk_lot']        = array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'Batch', 'enabled' => '1', 'position' => 22, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'productlot.rowid', 'checked' => 1);
+$arrayfields['t.fk_thirdparty'] = array('type' => 'integer:Societe:societe/class/societe.class.php', 'label' => 'ThirdParty', 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'societe.rowid', 'checked' => 1);
+$arrayfields['t.fk_project']    = array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 26, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'project.rowid', 'checked' => 1);
+$arrayfields['t.fk_task']       = array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 27, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'task.rowid', 'checked' => 1);
+
+$object->fields['fk_product']    = $arrayfields['t.fk_product'];
+$object->fields['fk_lot']        = $arrayfields['t.fk_lot'];
+$object->fields['fk_thirdparty'] = $arrayfields['t.fk_thirdparty'];
+$object->fields['fk_project']    = $arrayfields['t.fk_project'];
+$object->fields['fk_task']       = $arrayfields['t.fk_task'];
+
+$element_element_fields = array(
+	'fk_thirdparty' => 'societe',
+	'fk_product' => 'product',
+	'fk_lot' => 'productbatch',
+	'fk_project' => 'project',
+	'fk_task' => 'project_task'
+);
 // Initialize array of search criterias
 $search_all = GETPOST('search_all', 'alphanohtml') ? GETPOST('search_all', 'alphanohtml') : GETPOST('sall', 'alphanohtml');
 $search = array();
