@@ -285,13 +285,24 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$task		= new Task($db);
 
 			$object->fetchObjectLinked('', '', '', 'dolismq_control');
-			$product->fetch(array_shift($object->linkedObjectsIds['product']));
-			$productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
+			if (!empty($object->linkedObjectsIds['product'])) {
+				$product->fetch(array_shift($object->linkedObjectsIds['product']));
+			}
+			if (!empty($object->linkedObjectsIds['productbatch'])) {
+				$productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
+			}
 			$sheet->fetch($object->fk_sheet);
 			$usertmp->fetch($object->fk_user_controller);
-			$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
-			$project->fetch(array_shift($object->linkedObjectsIds['project']));
-			$task->fetch(array_shift($object->linkedObjectsIds['project_task']));
+			if (!empty($object->linkedObjectsIds['societe'])) {
+				$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
+			}
+			if (!empty($object->linkedObjectsIds['project'])) {
+				$project->fetch(array_shift($object->linkedObjectsIds['project']));
+			}
+			if (!empty($object->linkedObjectsIds['project_task'])) {
+				$task->fetch(array_shift($object->linkedObjectsIds['project_task']));
+			}
+
 
 			$tmparray['mycompany_name']     = $conf->global->MAIN_INFO_SOCIETE_NOM;
 			$tmparray['control_ref']        = $object->ref;
