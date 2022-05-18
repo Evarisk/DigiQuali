@@ -95,6 +95,7 @@ ThereAre = Il y a
 YouAnswered = Vous avez répondu à
 On = sur
 BewareQuestionsAnswered = Attention il manque %s réponse(s)
+ActionsOnQuestion = Événements liés au question
 
 
 
@@ -130,6 +131,7 @@ ConfirmLockSheet = Êtes-vous sûr de vouloir verrouiller la fiche modèle ? <br
 NoLotForThisProduct = Pas de lot défini pour ce produit
 ModalAddPhoto = Bibliothèque de médias
 SheetManagement = Gestion des fiches modèles
+ActionsOnSheet = Événements liés au fiche modèle
 
 
 
@@ -197,7 +199,7 @@ ShowTask = Afficher les tâches
 ShowTaskDescription = Afficher le lien entre les tâches et les contrôles
 NoLotDefined = Pas de numéros de lots/série trouvé
 SelectAProductFirst = Sélectionnez d'abord un produit
-
+ActionsOnControl = Événements liés au contrôle
 
 
 
