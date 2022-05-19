@@ -1,5 +1,29 @@
 # DOLISMQ FOR [DOLIBARR ERP CRM](https://www.dolibarr.org)
 
+## Informations
+
+Version du module: 1.2.0
+
+Dernière mise à jour: 04/05/2022
+
+Prérequis:
+* Dolibarr min version 14.0.0
+* Dolibarr min version 15.0.2
+
+Thème: Eldy Menu
+
+Editeur/Licence: [Evarisk](https://www.evarisk.com) / GPL-v3
+
+Assitance: [Forum www.dolibarr.fr](https://www.dolibarr.fr) / Par mail à contact@evarisk.com
+
+Demo: [Demo Dolismq](https://www.demodoli.digirisk.com) - ID: demo - Password: demo
+
+<!--
+Documentation: [Wiki Dolismq](https://wiki.dolibarr.org/index.php/Module_DigiriskDolibarr)
+
+Forum: [Forum Digirisk](https://www.dolibarr.fr/forum/t/module-digirisk-document-unique/37119)
+-->
+
 ## Features
 
 numero de module : 436301

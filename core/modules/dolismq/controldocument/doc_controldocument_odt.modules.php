@@ -207,7 +207,12 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$filename = preg_replace('/template_/','', $filename[1]);
 
 			$date = dol_print_date(dol_now(),'dayxcard');
-			$filename = $object->ref.'_'.$date.'.odt';
+			if (preg_match('/_photo/', $filename)) {
+				$photo = '_photo';
+			} else {
+				$photo = '';
+			}
+			$filename = $object->ref.'_'.$date.$photo.'.odt';
 			$filename = str_replace(' ', '_', $filename);
 			$filename = dol_sanitizeFileName($filename);
 //
@@ -279,13 +284,25 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$project    = new Project($db);
 			$task		= new Task($db);
 
-			$product->fetch($object->fk_product);
-			$productlot->fetch($object->fk_lot);
+			$object->fetchObjectLinked('', '', '', 'dolismq_control');
+			if (!empty($object->linkedObjectsIds['product'])) {
+				$product->fetch(array_shift($object->linkedObjectsIds['product']));
+			}
+			if (!empty($object->linkedObjectsIds['productbatch'])) {
+				$productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
+			}
 			$sheet->fetch($object->fk_sheet);
 			$usertmp->fetch($object->fk_user_controller);
-			$thirdparty->fetch($object->fk_soc);
-			$project->fetch($object->fk_project);
-			$task->fetch($object->fk_task);
+			if (!empty($object->linkedObjectsIds['societe'])) {
+				$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
+			}
+			if (!empty($object->linkedObjectsIds['project'])) {
+				$project->fetch(array_shift($object->linkedObjectsIds['project']));
+			}
+			if (!empty($object->linkedObjectsIds['project_task'])) {
+				$task->fetch(array_shift($object->linkedObjectsIds['project_task']));
+			}
+
 
 			$tmparray['mycompany_name']     = $conf->global->MAIN_INFO_SOCIETE_NOM;
 			$tmparray['control_ref']        = $object->ref;
@@ -339,8 +356,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 						$listlines = $odfHandler->setSegment('questions');
 						$object->fetchQuestionsLinked($object->fk_sheet, 'sheet');
 						$questionIds = $object->linkedObjectsIds;
-						if ( ! empty($questionIds['question']) && $questionIds > 0) {
-							foreach ($questionIds['question'] as $questionId) {
+						if ( ! empty($questionIds['dolismq_question']) && $questionIds > 0) {
+							foreach ($questionIds['dolismq_question'] as $questionId) {
 								$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
 								if ($result > 0 && is_array($result)) {
 									$itemControlDet = array_shift($result);
@@ -393,7 +410,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 										$tmparray['answer'] = $langs->trans('Repair');
 										break;
 									case 4:
-										$tmparray['answer'] = $langs->trans('NotApplicabe');
+										$tmparray['answer'] = $langs->trans('NotApplicable');
 										break;
 								}
 

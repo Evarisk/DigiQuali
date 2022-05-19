@@ -595,6 +595,8 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 		});
 	}
 
+	let token = $('.fiche').find('input[name="token"]').val();
+
 	let favorite = filenames
 	favorite = favorite.split('vVv')[0]
 	favorite = favorite.replace(/\ /, '')
@@ -608,7 +610,7 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 		separator = '?'
 	}
 	$.ajax({
-		url: url + separator + "action=addFiles",
+		url: url + separator + "action=addFiles&token=" + token,
 		type: "POST",
 		data: JSON.stringify({
 			filenames: filenames,
@@ -622,6 +624,8 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 			parent.removeClass('modal-active')
 			if (document.URL.match(/control_card/)) {
 				linkedMedias.html($(resp).find('.table-id-'+rowId))
+				window.eoxiaJS.control.updateButtonsStatus()
+
 			} else if (document.URL.match(/question_card/)) {
 				$('.tabBar .linked-medias.'+type+' .media-container').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .media-container', () => {
 					$('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .fa-star').first().removeClass('far').addClass('fas')
@@ -685,8 +689,10 @@ window.eoxiaJS.mediaGallery.sendPhoto = function( event ) {
 		separator = '?'
 	}
 
+	let token = $('.fiche').find('input[name="token"]').val();
+
 	$.ajax({
-		url:  url + separator + "action=uploadPhoto",
+		url:  url + separator + "action=uploadPhoto&token=" + token,
 		type: "POST",
 		data: formdata,
 		processData: false,
@@ -743,6 +749,8 @@ window.eoxiaJS.mediaGallery.unlinkFile = function( event ) {
 	let previousName = ''
 	let newPhoto = ''
 
+	let token = $('.fiche').find('input[name="token"]').val();
+
 	//window.eoxiaJS.loader.display($(this).closest('.media-container'));
 
 	document.URL.match('/?/') ? querySeparator = '&' : 1
@@ -763,7 +771,7 @@ window.eoxiaJS.mediaGallery.unlinkFile = function( event ) {
 		separator = '?'
 	}
 	$.ajax({
-		url: url + separator + "action=unlinkFile",
+		url: url + separator + "action=unlinkFile&token=" + token,
 		type: "POST",
 		data: JSON.stringify({
 			filename: filename,
@@ -990,13 +998,6 @@ window.eoxiaJS.control.event = function() {
 	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 	$( document ).on( 'change', '#fk_project', window.eoxiaJS.control.reloadTask );
 	$( document ).on( 'click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
-	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.selectProduct);
-	$( document ).on( 'change', '#fk_lot', window.eoxiaJS.control.selectProductLot);
-	$( document ).on( 'change', '#fk_sheet', window.eoxiaJS.control.selectSheet);
-	$( document ).on( 'change', '#fk_user_controller', window.eoxiaJS.control.selectUserController);
-	$( document ).on( 'change', '#fk_project', window.eoxiaJS.control.selectProject);
-	$( document ).on( 'change', '#fk_task', window.eoxiaJS.control.selectTask);
-	$( document ).on( 'change', '#fk_soc', window.eoxiaJS.control.selectThirdParty);
 };
 
 /**
@@ -1019,6 +1020,7 @@ window.eoxiaJS.control.selectAnswer = function ( event ) {
 	let actualValidatePost = $(this).closest('.tabBar').find('.validateButton').attr('href')
 	$(this).closest('.tabBar').find('.saveButton').attr('href', actualSavePost + '&' + postName + '=' + postValue)
 	$(this).closest('.tabBar').find('.validateButton').attr('href', actualValidatePost + '&' + postName + '=' + postValue)
+	window.eoxiaJS.control.updateButtonsStatus()
 };
 
 /**
@@ -1062,6 +1064,24 @@ window.eoxiaJS.control.showCommentUnsaved = function ( event ) {
 		$(this).after('<p style="color:red">Commentaire non enregistré</p>');
 		$(this).addClass('show-comment-unsaved-message');
 	}
+	window.eoxiaJS.control.updateButtonsStatus()
+};
+
+/**
+ * Change buttons status
+ *
+ * @since   1.1.0
+ * @version 1.1.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.control.updateButtonsStatus = function (  ) {
+	$('#saveButton').removeClass('butActionRefused')
+	$('#saveButton').addClass('butAction')
+
+	$('#validateButton').removeClass('butAction')
+	$('#validateButton').addClass('butActionRefused')
 };
 
 /**
@@ -1135,108 +1155,3 @@ window.eoxiaJS.control.getAnswerCounter = function ( event ) {
 	document.cookie = "answerCounter=" + answerCounter
 }
 
-/**
- * Lors du clic sur un produit, met a jour la ref du champ de recherche
- *
- * @since   9.0.1
- * @version 9.0.1
- *
- * @param  {MouseEvent} event [description]
- * @return {void}
- */
-window.eoxiaJS.control.selectProduct = function( event ) {
-	let selectTitle = $(this).closest('td').find('#select2-fk_product-container').attr('title')
-	let productRef = selectTitle.split(/ /)[0]
-	$('.input-hidden-fk_product').attr('value', productRef);
-};
-
-/**
- * Lors du clic sur un numéro de série, met a jour la ref du champ de recherche
- *
- * @since   9.0.1
- * @version 9.0.1
- *
- * @param  {MouseEvent} event [description]
- * @return {void}
- */
-window.eoxiaJS.control.selectProductLot = function( event ) {
-	let selectTitle = $(this).closest('td').find('#select2-fk_lot-container').attr('title')
-	let productLotRef = selectTitle.split(/ /)[0]
-	$('.input-hidden-fk_lot').attr('value', productLotRef);
-};
-
-/**
- * Lors du clic sur une fiche modèle, met a jour la ref du champ de recherche
- *
- * @since   9.0.1
- * @version 9.0.1
- *
- * @param  {MouseEvent} event [description]
- * @return {void}
- */
-window.eoxiaJS.control.selectSheet = function( event ) {
-	let selectTitle = $(this).closest('td').find('#select2-fk_sheet-container').attr('title')
-	let sheetRef = selectTitle.split(/ /)[0]
-	$('.input-hidden-fk_sheet').attr('value', sheetRef);
-};
-
-/**
- * Lors du clic sur une utilisateur, met a jour la ref du champ de recherche
- *
- * @since   9.0.1
- * @version 9.0.1
- *
- * @param  {MouseEvent} event [description]
- * @return {void}
- */
-window.eoxiaJS.control.selectUserController = function( event ) {
-	let selectTitle = $(this).closest('td').find('#select2-fk_user_controller-container').attr('title')
-	let userControllerRef = selectTitle.split(/ /)[0]
-	$('.input-hidden-fk_user_controller').attr('value', userControllerRef);
-};
-
-/**
- * Lors du clic sur un projet, met a jour la ref du champ de recherche
- *
- * @since   9.0.1
- * @version 9.0.1
- *
- * @param  {MouseEvent} event [description]
- * @return {void}
- */
-window.eoxiaJS.control.selectProject = function( event ) {
-	let selectTitle = $(this).closest('td').find('#select2-fk_project-container').attr('title')
-	let projectRef = selectTitle.split(/ /)[0]
-	let projectRef2 = projectRef.slice(0, -1)
-	$('.input-hidden-fk_project').attr('value', projectRef2);
-};
-
-/**
- * Lors du clic sur une tâche, met a jour la ref du champ de recherche
- *
- * @since   9.0.1
- * @version 9.0.1
- *
- * @param  {MouseEvent} event [description]
- * @return {void}
- */
-window.eoxiaJS.control.selectTask = function( event ) {
-	let selectTitle = $(this).closest('td').find('#select2-fk_task-container').attr('title')
-	let taskRef = selectTitle.split(/ /)[0]
-	$('.input-hidden-fk_task').attr('value', taskRef);
-};
-
-/**
- * Lors du clic sur un tier, met a jour la ref du champ de recherche
- *
- * @since   9.0.1
- * @version 9.0.1
- *
- * @param  {MouseEvent} event [description]
- * @return {void}
- */
-window.eoxiaJS.control.selectThirdParty = function( event ) {
-	let selectTitle = $(this).closest('td').find('#select2-fk_soc-container').attr('title')
-	let thirdPartyRef = selectTitle.split(/ /)[0]
-	$('.input-hidden-fk_soc').attr('value', thirdPartyRef);
-};

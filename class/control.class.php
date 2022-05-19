@@ -49,7 +49,7 @@ class Control extends CommonObject
 	 * @var int  Does this object support multicompany module ?
 	 * 0=No test on entity, 1=Test with field entity, 'field@table'=Test with link by field@table
 	 */
-	public $ismultientitymanaged = 0;
+	public $ismultientitymanaged = 1;
 
 	/**
 	 * @var int  Does object support extrafields ? 0=No, 1=Yes
@@ -73,21 +73,23 @@ class Control extends CommonObject
 		'ref'                => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
 		'ref_ext'            => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "External reference of object"),
 		'entity'             => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
-		'date_creation'      => array('type' => 'datetime', 'label' => 'ControlDate', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 5,),
+		'date_creation'      => array('type' => 'datetime', 'label' => 'ControlDate', 'enabled' => '1', 'position' => 40, 'positioncard' => 10, 'notnull' => 1, 'visible' => 5,),
 		'tms'                => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
 		'import_key'         => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
 		'status'             => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0', 'arrayofkeyval' => array('0' => 'Draft', '1' => 'ValidatedControl', '2' => 'Locked'),),
-		'type'               => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
-		'verdict'            => array('type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => array('0' => '', '1' => 'OK', '2' => 'KO'),),
+		'note_public'        => array('type'=>'textarea', 'label'=>'PublicNote', 'enabled'=>'1', 'position'=>80, 'notnull'=>0, 'visible'=>0,),
+		'note_private'       => array('type'=>'textarea', 'label'=>'PrivateNote', 'enabled'=>'1', 'position'=>90, 'notnull'=>0, 'visible'=>0,),
+		'type'               => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 100, 'notnull' => 0, 'visible' => 0,),
+		'verdict'            => array('type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 110,'positioncard' => 20, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => array('0' => '', '1' => 'OK', '2' => 'KO'),),
 		'fk_user_creat'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',),
 		'fk_user_modif'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
-		'fk_sheet'           => array('type' => 'integer:Sheet:custom/dolismq/class/sheet.class.php', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 13, 'notnull' => 1, 'visible' => 2,),
-		'fk_user_controller' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'FKUserController', 'enabled' => '1', 'position' => 14, 'notnull' => 1, 'visible' => 2, 'foreignkey' => 'user.rowid'),
-		'fk_product'         => array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'Product', 'enabled' => '1', 'position' => 11, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'product.rowid'),
-		'fk_lot'             => array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'Batch', 'enabled' => '1', 'position' => 12, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'productlot.rowid'),
-		'fk_project'         => array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 16, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'project.rowid'),
-		'fk_task'            => array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 17, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'task.rowid'),
-		'fk_soc'             => array('type' => 'integer:Societe:societe/class/societe.class.php', 'label' => 'ThirdParty', 'enabled' => '1', 'position' => 15, 'notnull' => 0, 'visible' => 2, 'foreignkey' => 'societe.rowid'),
+		'fk_sheet'           => array('type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5,),
+		'fk_user_controller' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'FKUserController','positioncard' => 1, 'enabled' => '1', 'position' => 24, 'notnull' => 1, 'visible' => 5, 'foreignkey' => 'user.rowid'),
+//		'fk_product'         => array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'Product', 'enabled' => '1', 'position' => 21, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'product.rowid'),
+//		'fk_lot'             => array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'Batch', 'enabled' => '1', 'position' => 22, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'productlot.rowid'),
+//		'fk_project'         => array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 26, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'project.rowid'),
+//		'fk_task'            => array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 27, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'task.rowid'),
+//		'fk_soc'             => array('type' => 'integer:Societe:societe/class/societe.class.php', 'label' => 'ThirdParty', 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'societe.rowid'),
 	);
 
 	public $rowid;
@@ -105,11 +107,11 @@ class Control extends CommonObject
 	public $fk_user_modif;
 	public $fk_sheet;
 	public $fk_user_controller;
-	public $fk_product;
-	public $fk_lot;
-	public $fk_project;
-	public $fk_task;
-	public $fk_soc;
+//	public $fk_product;
+//	public $fk_lot;
+//	public $fk_project;
+//	public $fk_task;
+//	public $fk_soc;
 
 	/**
 	 * Constructor
@@ -1180,7 +1182,7 @@ class ControlLine extends CommonObjectLine
 	 * @param int $limit
 	 * @return int <0 if KO, >0 if OK
 	 */
-	public function fetchAll($limit = 0)
+	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
 	{
 		global $db;
 		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answser_photo, t.comment, t.fk_question, t.fk_control ';

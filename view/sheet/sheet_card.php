@@ -164,7 +164,8 @@ if (empty($reshook))
 	if ($action == 'unlinkQuestion') {
 		$questionId = GETPOST('questionId');
 		$question->fetch($questionId);
-		$question->deleteObjectLinked($id,$object->element);
+		$question->element = 'dolismq_'.$question->element;
+		$question->deleteObjectLinked($id, $object->element);
 		setEventMessages($langs->trans('removeQuestionLink') . ' ' . $question->ref, array());
 
 		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
@@ -301,8 +302,15 @@ if (($id || $ref) && $action == 'edit') {
 
 	print '<table class="border centpercent tableforfieldedit sheet-table">'."\n";
 
-	// Common attributes
-	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_edit.tpl.php';
+	//Ref -- Ref
+	print '<tr><td class="titlefieldcreate fieldrequired">' . $langs->trans("Ref") . '</td><td>';
+	print $object->ref;
+	print '</td></tr>';
+
+	//Label -- Libellé
+	print '<tr><td class="">' . $langs->trans("Label") . '</td><td>';
+	print '<input class="flat" type="text" size="36" name="label" id="label" value="' . $object->label . '">';
+	print '</td></tr>';
 
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_edit.tpl.php';
@@ -368,7 +376,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.dol_buildpath('/dolismq/sheet_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="'.dol_buildpath('/dolismq/view/sheet/sheet_list.php', 1).'?restore_lastsearch_values=1'.'">'.$langs->trans("BackToList").'</a>';
 
 	$morehtmlref = '<div class="refidno">';
 	$morehtmlref .= '</div>';
@@ -412,6 +420,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Lines
 	$object->fetchQuestionsLinked($id, 'sheet');
+
 	$questionIds = $object->linkedObjectsIds;
 
 	print '<tr class="liste_titre">';
@@ -424,15 +433,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td class="center">' . $langs->trans('Action') . '</td>';
 	print '</tr>';
 
-	if ( ! empty($questionIds['question']) && $questionIds > 0) {
+	if ( ! empty($questionIds['dolismq_question']) && $questionIds > 0) {
 		print '<tr>';
-		foreach ($questionIds['question'] as $questionId) {
+		foreach ($questionIds['dolismq_question'] as $questionId) {
 			$item = $question;
 			$item->fetch($questionId);
 
 			print '<tr>';
 			print '<td>';
-			print $item->getNomUrl(1);
+			print $item->getNomUrl();
 			print '</td>';
 
 			print '<td>';
@@ -444,17 +453,24 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
 			print '<td>';
-			$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
-			if ($urladvanced) print '<a href="' . $urladvanced . '">';
-			print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ok)) . '" >';
-			print '</a>';
+			if (dol_strlen($item->photo_ok)) {
+				$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
+				if ($urladvanced) print '<a href="' . $urladvanced . '">';
+				print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ok)) . '" >';
+				print '</a>';
+			} else {
+				print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+			}
 			print '</td>';
-
 			print '<td>';
-			$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
-			if ($urladvanced) print '<a href="' . $urladvanced . '">';
-			print '<img width="40" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ko)) . '" >';
-			print '</a>';
+			if (dol_strlen($item->photo_ko)) {
+				$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
+				if ($urladvanced) print '<a href="' . $urladvanced . '">';
+				print '<img width="40" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ko)) . '" >';
+				print '</a>';
+			} else {
+				print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+			}
 			print '</td>';
 
 			print '<td>';
@@ -481,7 +497,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<input type="hidden" name="id" value="' . $id . '">';
 
 		print '<td class="">';
-		print $question->select_question_list(0, 'questionId', '', '1', 0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds['question']);
+		print $question->select_question_list(0, 'questionId', '', '1', 0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds['dolismq_question']);
 		print '</td>';
 		print '<td>';
 		print ' &nbsp; <input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';

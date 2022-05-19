@@ -72,7 +72,7 @@ class modDoliSMQ extends DolibarrModules
 		$this->editor_url = 'https://evarisk.com/';
 
 		// Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-		$this->version = '1.1.0';
+		$this->version = '1.2.0';
 		// Url to the file with your last numberversion of this module
 		//$this->url_last_version = 'http://www.example.com/versionmodule.txt';
 
@@ -166,25 +166,31 @@ class modDoliSMQ extends DolibarrModules
 		// );
 		$this->const = array(
 			// CONST SHEET
-			50 => array('DOLISMQ_SHEET_ADDON','chaine', 'mod_sheet_standard' ,'', $conf->entity),
+			1 => array('DOLISMQ_SHEET_ADDON', 'chaine', 'mod_sheet_standard', '', 0, 'current'),
 
 			// CONST QUESTION
-			60 => array('DOLISMQ_QUESTION_ADDON','chaine', 'mod_question_standard' ,'', $conf->entity),
+			10 => array('DOLISMQ_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'),
 
 			// CONST CONTROL
-			70 => array('DOLISMQ_CONTROL_ADDON','chaine', 'mod_control_standard','', $conf->entity),
-			71 => array('DOLISMQ_CONTROL_DISPLAY_MEDIAS','integer', 1,'', $conf->entity),
-			//72 => array('DOLISMQ_CONTROL_SET_USER_CONTROLLER','integer', 0,'', $conf->entity),
+			20 => array('DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'),
+			21 => array('DOLISMQ_CONTROL_DISPLAY_MEDIAS', 'integer', 1, '', 0, 'current'),
+			//22 => array('DOLISMQ_CONTROL_SET_USER_CONTROLLER', 'integer', 0, '', 0, 'current'),
+			23 => array('DOLISMQ_CONTROL_SHOW_PRODUCT', 'integer', 0, '', 0, 'current'),
+			24 => array('DOLISMQ_CONTROL_SHOW_PRODUCTLOT', 'integer', 0, '', 0, 'current'),
+			25 => array('DOLISMQ_CONTROL_SHOW_THIRDPARTY', 'integer', 0, '', 0, 'current'),
+			26 => array('DOLISMQ_CONTROL_SHOW_PROJECT', 'integer', 0, '', 0, 'current'),
+			27 => array('DOLISMQ_CONTROL_SHOW_TASK', 'integer', 0, '', 0, 'current'),
 
 			//CONST CONTROL DOCUMENT
-			80 => array('DOLISMQ_CONTROLDOCUMENT_ADDON','chaine', 'mod_controldocument_standard' ,'', $conf->entity),
-			81 => array('DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH','chaine', DOL_DOCUMENT_ROOT . '/custom/dolismq/documents/doctemplates/controldocument/' ,'', $conf->entity),
-			82 => array('DOLISMQ_CONTROLDOCUMENT_DEFAULT_MODEL','chaine', 'calypso' ,'', $conf->entity),
-			83 => array('DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS','integer', 1,'', $conf->entity),
-			84 => array('DOLISMQ_CONTROLDOCUMENT_ADDON_PDF','chaine', 'calypso' ,'', $conf->entity),
+			30 => array('DOLISMQ_CONTROLDOCUMENT_ADDON', 'chaine', 'mod_controldocument_standard', '', 0, 'current'),
+			31 => array('DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH', 'chaine', DOL_DOCUMENT_ROOT . '/custom/dolismq/documents/doctemplates/controldocument/', '', 0, 'current'),
+			32 => array('DOLISMQ_CONTROLDOCUMENT_DEFAULT_MODEL', 'chaine', 'template_controldocument_photo' ,'', 0, 'current'),
+			33 => array('DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS', 'integer', 1,'', 0, 'current'),
+			34 => array('DOLISMQ_CONTROLDOCUMENT_ADDON_PDF', 'chaine', 'calypso', '', 0, 'current'),
 
-			// CONST CONTROL
-			90 => array('DOLISMQ_CONTROLDET_ADDON','chaine', 'mod_controldet_standard','', $conf->entity),
+			// CONST CONTROL LINE
+			40 => array('DOLISMQ_CONTROLDET_ADDON', 'chaine', 'mod_controldet_standard', '', 0, 'current'),
+
 		);
 
 		// Some keys to add into the overwriting translation tables
@@ -201,33 +207,11 @@ class modDoliSMQ extends DolibarrModules
 		// Array to add new pages in new tabs
 		$this->tabs = array();
 		// Example:
-		$this->tabs[]    = array('data' => 'productlot:+controls:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/controls_card.php?id=__ID__');
-		$this->tabs[]    = array('data' => 'product:+controls:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/controls_product_card.php?id=__ID__'); // To add a new tab identified by code tabname1
-		$this->tabs[]    = array('data' => 'project:+controls:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/controls_project_card.php?id=__ID__');  					// To add a new tab identified by code tabname1
-		// $this->tabs[] = array('data'=>'objecttype:+tabname1:Title1:mylangfile@dolismq:$user->rights->dolismq->read:/dolismq/mynewtab1.php?id=__ID__');  					// To add a new tab identified by code tabname1
-		// $this->tabs[] = array('data'=>'objecttype:+tabname2:SUBSTITUTION_Title2:mylangfile@dolismq:$user->rights->othermodule->read:/dolismq/mynewtab2.php?id=__ID__',  	// To add another new tab identified by code tabname2. Label will be result of calling all substitution functions on 'Title2' key.
-		// $this->tabs[] = array('data'=>'objecttype:-tabname:NU:conditiontoremove');                                                     										// To remove an existing tab identified by code tabname
-		//
-		// Where objecttype can be
-		// 'categories_x'	  to add a tab in category view (replace 'x' by type of category (0=product, 1=supplier, 2=customer, 3=member)
-		// 'contact'          to add a tab in contact view
-		// 'contract'         to add a tab in contract view
-		// 'group'            to add a tab in group view
-		// 'intervention'     to add a tab in intervention view
-		// 'invoice'          to add a tab in customer invoice view
-		// 'invoice_supplier' to add a tab in supplier invoice view
-		// 'member'           to add a tab in fundation member view
-		// 'opensurveypoll'	  to add a tab in opensurvey poll view
-		// 'order'            to add a tab in customer order view
-		// 'order_supplier'   to add a tab in supplier order view
-		// 'payment'		  to add a tab in payment view
-		// 'payment_supplier' to add a tab in supplier payment view
-		// 'product'          to add a tab in product view
-		// 'propal'           to add a tab in propal view
-		// 'project'          to add a tab in project view
-		// 'stock'            to add a tab in stock view
-		// 'thirdparty'       to add a tab in third party view
-		// 'user'             to add a tab in user view
+		$this->tabs[]    = array('data' => 'productlot:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=productbatch');
+		$this->tabs[]    = array('data' => 'product:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=product'); // To add a new tab identified by code tabname1
+		$this->tabs[]    = array('data' => 'project:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project');  					// To add a new tab identified by code tabname1
+		$this->tabs[]    = array('data' => 'thirdparty:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=societe');  					// To add a new tab identified by code tabname1
+		$this->tabs[]    = array('data' => 'task:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project_task');  					// To add a new tab identified by code tabname1
 
 		// Dictionaries
 		$this->dictionaries = array();

@@ -95,6 +95,7 @@ ThereAre = Il y a
 YouAnswered = Vous avez répondu à
 On = sur
 BewareQuestionsAnswered = Attention il manque %s réponse(s)
+ActionsOnQuestion = Événements liés au question
 
 
 
@@ -130,6 +131,7 @@ ConfirmLockSheet = Êtes-vous sûr de vouloir verrouiller la fiche modèle ? <br
 NoLotForThisProduct = Pas de lot défini pour ce produit
 ModalAddPhoto = Bibliothèque de médias
 SheetManagement = Gestion des fiches modèles
+ActionsOnSheet = Événements liés au fiche modèle
 
 
 
@@ -166,7 +168,8 @@ Controls = Contrôles
 ControlMustBeDraft = Le contrôle doit être brouillon pour accéder à cette fonctionnalité
 ControlMustBeValidated = Le contrôle doit être validé pour le rouvrir
 ControlMustBeValidatedToLock = Le contrôle doit être validé et avoir un verdict pour le verrouiller
-ControlVerdictSelected = Le contrôle a déjà un verdict de choisi
+ControlVerdictSelected = Le verdict a déjà été défini
+ControlMustBeValidatedToSetVerdict = Le contrôle doit être validé pour définir le verdict
 SetOK/KO = Apte/Inapte
 Batch = Lot/Série
 VerdictControl = Choix du verdict
@@ -179,11 +182,24 @@ ConfirmLockControl = Êtes-vous sûr de vouloir verrouiller le contrôle ? <br> 
 ProjectLinked = Projet lié
 ControlManagement = Gestion des contrôles
 ControlData = Données configurables des contrôles
-ControlName = Afficher les médias dans le contrôle
-ControlDescription = Afficher les médias des questions dans le contrôle
+DisplayMedias = Afficher les médias dans le contrôle
+DisplayMediasDescription = Afficher les médias des questions dans le contrôle
 ChangeUserController = Droit permettant de changer l'utilisateur contrôleur
 TaskLinked = Tâche liée
 ThirdPartyLinked = Tiers lié
+ShowProduct = Afficher les produits
+ShowProductDescription = Afficher le lien entre les produits et les contrôles
+ShowProductLot = Afficher les numéros de lots/série
+ShowProductLotDescription = Afficher le lien entre les numéros de lots/série et les contrôles
+ShowThirdParty = Afficher les tiers
+ShowThirdPartyDescription = Afficher le lien entre les tiers et les contrôles
+ShowProject = Afficher les projets
+ShowProjectDescription = Afficher le lien entre les projets et les contrôles
+ShowTask = Afficher les tâches
+ShowTaskDescription = Afficher le lien entre les tâches et les contrôles
+NoLotDefined = Pas de numéros de lots/série trouvé
+SelectAProductFirst = Sélectionnez d'abord un produit
+ActionsOnControl = Événements liés au contrôle
 
 
 
