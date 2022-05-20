@@ -53,6 +53,7 @@ require_once DOL_DOCUMENT_ROOT.'/projet/class/task.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/project.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/product.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/usergroups.lib.php';
 
 // load dolismq libraries
 require_once __DIR__.'/../../class/control.class.php';
@@ -122,6 +123,10 @@ if (!empty($fromtype)) {
 		case 'societe' :
 			$objectLinked = new Societe($db);
 			$prehead = 'societe_prepare_head';
+			break;
+		case 'user' :
+			$objectLinked = new User($db);
+			$prehead = 'user_prepare_head';
 			break;
 	}
 	$objectLinked->fetch($fromid);
