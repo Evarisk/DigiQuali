@@ -55,7 +55,9 @@ $backtopage = GETPOST('backtopage', 'alpha');
  */
 
 $page_name = "DoliSMQSetup";
-llxHeader('', $langs->trans($page_name));
+$morejs   = array("/digiriskdolibarr/js/digiriskdolibarr.js.php");
+
+llxHeader('', $langs->trans($page_name), '', '', 0, 0, $morejs);
 
 // Subheader
 $linkback = '<a href="'.($backtopage ? $backtopage : DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';

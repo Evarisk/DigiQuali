@@ -232,6 +232,7 @@ if (empty($reshook))
 $form = new Form($db);
 
 $now = dol_now();
+$morejs   = array("/digiriskdolibarr/js/digiriskdolibarr.js.php");
 
 //$help_url="EN:Module_Question|FR:Module_Question_FR|ES:Módulo_Question";
 $help_url = '';
@@ -338,7 +339,7 @@ if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $
 // Output page
 // --------------------------------------------------------------------
 
-llxHeader('', $title, $help_url);
+llxHeader('', $title, $help_url, '', 0, 0, $morejs);
 
 // Example : Adding jquery code
 print '<script type="text/javascript" language="javascript">

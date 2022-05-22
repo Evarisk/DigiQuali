@@ -211,6 +211,8 @@ $form = new Form($db);
 
 $now = dol_now();
 
+$morejs   = array("/digiriskdolibarr/js/digiriskdolibarr.js.php");
+
 //$help_url="EN:Module_Sheet|FR:Module_Sheet_FR|ES:Módulo_Sheet";
 $help_url = '';
 $title = $langs->trans("SheetList");
@@ -316,7 +318,7 @@ if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $
 // Output page
 // --------------------------------------------------------------------
 
-llxHeader('', $title, $help_url);
+llxHeader('', $title, $help_url, '', 0, 0, $morejs);
 
 $arrayofselected = is_array($toselect) ? $toselect : array();
 

@@ -43,22 +43,22 @@ function dolismqAdminPrepareHead()
 	*/
 
 	$head[$h][0] = dol_buildpath("/dolismq/admin/question.php", 1);
-	$head[$h][1] = $langs->trans("Question");
+	$head[$h][1] = '<i class="fas fa-question"></i>  ' . $langs->trans("Question");
 	$head[$h][2] = 'question';
 	$h++;
 
 	$head[$h][0] = dol_buildpath("/dolismq/admin/sheet.php", 1);
-	$head[$h][1] = $langs->trans("Sheet");
+	$head[$h][1] = '<i class="fas fa-list"></i>  ' . $langs->trans("Sheet");
 	$head[$h][2] = 'sheet';
 	$h++;
 
 	$head[$h][0] = dol_buildpath("/dolismq/admin/control.php", 1);
-	$head[$h][1] = $langs->trans("Control");
+	$head[$h][1] = '<i class="fas fa-tasks"></i>  ' . $langs->trans("Control");
 	$head[$h][2] = 'control';
 	$h++;
 
 	$head[$h][0] = dol_buildpath("/dolismq/admin/controldocument.php", 1);
-	$head[$h][1] = $langs->trans("ControlDocument");
+	$head[$h][1] = '<i class="fas fa-file"></i>  ' . $langs->trans("ControlDocument");
 	$head[$h][2] = 'controldocument';
 	$h++;
 

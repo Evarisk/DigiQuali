@@ -1155,3 +1155,122 @@ window.eoxiaJS.control.getAnswerCounter = function ( event ) {
 	document.cookie = "answerCounter=" + answerCounter
 }
 
+/**
+ * Initialise l'objet "menu" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ */
+window.eoxiaJS.menu = {};
+
+/**
+ * La méthode appelée automatiquement par la bibliothèque EoxiaJS.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.menu.init = function() {
+	window.eoxiaJS.menu.event();
+};
+
+/**
+ * La méthode contenant tous les événements pour le migration.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.menu.event = function() {
+	$(document).on( 'click', ' .blockvmenu', window.eoxiaJS.menu.toggleMenu);
+	$(document).ready(function() { window.eoxiaJS.menu.setMenu()});
+}
+
+/**
+ * Action Toggle main menu.
+ *
+ * @since   8.5.0
+ * @version 9.0.1
+ *
+ * @return {void}
+ */
+window.eoxiaJS.menu.toggleMenu = function() {
+
+	var menu = $(this).closest('#id-left').find('a.vmenu, font.vmenudisabled, span.vmenu');
+	var elementParent = $(this).closest('#id-left').find('div.vmenu')
+	var text = '';
+
+	if ($(this).find('.minimizeMenu').length > 0) {
+
+		menu.each(function () {
+			text = $(this).html().split('</i>');
+			if (text[1].match(/&gt;/)) {
+				text[1] = text[1].replace(/&gt;/, '')
+			}
+			$(this).attr('title', text[1])
+			$(this).html(text[0]);
+		});
+
+		elementParent.css('width', '30px');
+		elementParent.find('.blockvmenusearch').hide();
+
+		$('.minimizeMenu').html($('.minimizeMenu').html() + ' >')
+
+		$(this).find('.minimizeMenu').removeClass('minimizeMenu').addClass('maximizeMenu');
+		localStorage.setItem('maximized', 'false')
+
+	} else if ($(this).find('.maximizeMenu').length > 0) {
+
+		menu.each(function () {
+			$(this).html($(this).html().replace('&gt;','') + ' ' + $(this).attr('title'));
+		});
+
+		elementParent.css('width', '188px');
+		elementParent.find('.blockvmenusearch').show();
+		$('div.menu_titre').attr('style', 'width: 188px !important')
+
+		localStorage.setItem('maximized', 'true')
+
+		$(this).find('.maximizeMenu').removeClass('maximizeMenu').addClass('minimizeMenu');
+	}
+};
+
+/**
+ * Action set  menu.
+ *
+ * @since   8.5.0
+ * @version 9.0.1
+ *
+ * @return {void}
+ */
+window.eoxiaJS.menu.setMenu = function() {
+	$('.minimizeMenu').parent().parent().parent().attr('style', 'cursor:pointer ! important')
+
+	if (localStorage.maximized == 'false') {
+		$('#id-left').attr('style', 'display:none !important')
+	}
+
+	if (localStorage.maximized == 'false') {
+		var text = '';
+		var menu = $('#id-left').find('a.vmenu, font.vmenudisabled, span.vmenu');
+		var elementParent = $(document).find('div.vmenu')
+
+		menu.each(function () {
+			text = $(this).html().split('</i>');
+			$(this).attr('title', text[1])
+			$(this).html(text[0]);
+		});
+
+		$('#id-left').attr('style', 'display:block !important')
+		$('div.menu_titre').attr('style', 'width: 50px !important')
+
+		$('.minimizeMenu').html($('.minimizeMenu').html() + ' >')
+		$('.minimizeMenu').removeClass('minimizeMenu').addClass('maximizeMenu');
+
+		elementParent.css('width', '30px');
+		elementParent.find('.blockvmenusearch').hide();
+	}
+};
+

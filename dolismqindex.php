@@ -73,8 +73,9 @@ $now = dol_now();
 
 $form = new Form($db);
 $formfile = new FormFile($db);
+$morejs   = array("/digiriskdolibarr/js/digiriskdolibarr.js.php");
 
-llxHeader("", $langs->trans("DoliSMQArea"));
+llxHeader("", $langs->trans("DoliSMQArea"), "", "", "", "", $morejs);
 
 print load_fiche_titre($langs->trans("DoliSMQArea"), '', 'dolismq.png@dolismq');
 

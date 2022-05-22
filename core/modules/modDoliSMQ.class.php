@@ -377,108 +377,123 @@ class modDoliSMQ extends DolibarrModules
 		);
 
 		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq',
-			'type'=>'left',
-			'titre'=>$langs->trans('QuestionList'),
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_question',
-			'url'=>'/dolismq/view/question/question_list.php',
-			'langs'=>'dolismq@dolismq',
-			'position'=>1100+$r,
-			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'$user->rights->dolismq->question->read',
-			'target'=>'',
-			'user'=>2,
+			'fk_menu'  => 'fk_mainmenu=dolismq',
+			'type'     => 'left',
+			'titre'    => '<i class="fas fa-question"></i>  ' . $langs->trans('Question'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq_question',
+			'url'      => '/dolismq/view/question/question_list.php',
+			'langs'    => 'dolismq@dolismq',
+			'position' => 1100 + $r,
+			'enabled'  => '$conf->dolismq->enabled',
+			'perms'    => '$user->rights->dolismq->question->read',
+			'target'   => '',
+			'user'     => 2,
 		);
 
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_question',
-			'type'=>'left',
-			'titre'=>$langs->trans('AddQuestion'),
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_question',
-			'url'=>'/dolismq/view/question/question_card.php?action=create',
-			'langs'=>'dolismq@dolismq',
-			'position'=>1100+$r,
-			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'$user->rights->dolismq->question->write',
-			'target'=>'',
-			'user'=>2
-		);
+//		$this->menu[$r++]=array(
+//			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_question',
+//			'type'=>'left',
+//			'titre'=>$langs->trans('AddQuestion'),
+//			'mainmenu'=>'dolismq',
+//			'leftmenu'=>'dolismq_question',
+//			'url'=>'/dolismq/view/question/question_card.php?action=create',
+//			'langs'=>'dolismq@dolismq',
+//			'position'=>1100+$r,
+//			'enabled'=>'$conf->dolismq->enabled',
+//			'perms'=>'$user->rights->dolismq->question->write',
+//			'target'=>'',
+//			'user'=>2
+//		);
 
 		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq',
-			'type'=>'left',
-			'titre'=>$langs->trans('SheetList'),
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_sheet',
-			'url'=>'/dolismq/view/sheet/sheet_list.php',
-			'langs'=>'dolismq@dolismq',
-			'position'=>1100+$r,
-			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'$user->rights->dolismq->sheet->read',
-			'target'=>'',
-			'user'=>2,
+			'fk_menu'  => 'fk_mainmenu=dolismq',
+			'type'     => 'left',
+			'titre'    => '<i class="fas fa-list"></i>  ' . $langs->trans('Sheet'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq_sheet',
+			'url'      => '/dolismq/view/sheet/sheet_list.php',
+			'langs'    => 'dolismq@dolismq',
+			'position' => 1100 + $r,
+			'enabled'  => '$conf->dolismq->enabled',
+			'perms'    => '$user->rights->dolismq->sheet->read',
+			'target'   => '',
+			'user'     => 2,
 		);
 
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_sheet',
-			'type'=>'left',
-			'titre'=>$langs->trans('AddSheet'),
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_sheet',
-			'url'=>'/dolismq/view/sheet/sheet_card.php?action=create',
-			'langs'=>'dolismq@dolismq',
-			'position'=>1100+$r,
-			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'$user->rights->dolismq->sheet->write',
-			'target'=>'',
-			'user'=>2
-		);
+//		$this->menu[$r++]=array(
+//			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_sheet',
+//			'type'=>'left',
+//			'titre'=>$langs->trans('AddSheet'),
+//			'mainmenu'=>'dolismq',
+//			'leftmenu'=>'dolismq_sheet',
+//			'url'=>'/dolismq/view/sheet/sheet_card.php?action=create',
+//			'langs'=>'dolismq@dolismq',
+//			'position'=>1100+$r,
+//			'enabled'=>'$conf->dolismq->enabled',
+//			'perms'=>'$user->rights->dolismq->sheet->write',
+//			'target'=>'',
+//			'user'=>2
+//		);
 
 		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq',
-			'type'=>'left',
-			'titre'=>$langs->trans('ControlList'),
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_control',
-			'url'=>'/dolismq/view/control/control_list.php',
-			'langs'=>'dolismq@dolismq',
-			'position'=>1100+$r,
-			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'$user->rights->dolismq->control->read',
-			'target'=>'',
-			'user'=>2,
+			'fk_menu'  => 'fk_mainmenu=dolismq',
+			'type'     => 'left',
+			'titre'    => '<i class="fas fa-tasks"></i>  ' . $langs->trans('Control'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq_control',
+			'url'      => '/dolismq/view/control/control_list.php',
+			'langs'    => 'dolismq@dolismq',
+			'position' => 1100 + $r,
+			'enabled'  => '$conf->dolismq->enabled',
+			'perms'    => '$user->rights->dolismq->control->read',
+			'target'   => '',
+			'user'     => 2,
 		);
 
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_control',
-			'type'=>'left',
-			'titre'=>$langs->trans('AddControl'),
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_control',
-			'url'=>'/dolismq/view/control/control_card.php?action=create',
-			'langs'=>'dolismq@dolismq',
-			'position'=>1100+$r,
-			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'$user->rights->dolismq->control->write',
-			'target'=>'',
-			'user'=>2
+//		$this->menu[$r++]=array(
+//			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_control',
+//			'type'=>'left',
+//			'titre'=>$langs->trans('AddControl'),
+//			'mainmenu'=>'dolismq',
+//			'leftmenu'=>'dolismq_control',
+//			'url'=>'/dolismq/view/control/control_card.php?action=create',
+//			'langs'=>'dolismq@dolismq',
+//			'position'=>1100+$r,
+//			'enabled'=>'$conf->dolismq->enabled',
+//			'perms'=>'$user->rights->dolismq->control->write',
+//			'target'=>'',
+//			'user'=>2
+//		);
+
+		$this->menu[$r++] = array(
+			'fk_menu'  => 'fk_mainmenu=dolismq',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'     => 'left',			                // This is a Left menu entry
+			'titre'    => '<i class="fas fa-cog"></i>  ' . $langs->trans('DoliSMQConfig'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq',
+			'url'      => '/dolismq/admin/setup.php',
+			'langs'    => 'dolismq@dolismq',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'position' => 1100 + $r,
+			'enabled'  => '$conf->dolismq->enabled',  // Define condition to show or hide menu entry. Use '$conf->digiriskdolibarr->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'    => '$user->rights->dolismq->adminpage->read',			                // Use 'perms'=>'$user->rights->digiriskdolibarr->level1->level2' if you want your menu with a permission rules
+			'target'   => '',
+			'user'     => 0,				                // 0=Menu for internal users, 1=external users, 2=both
 		);
 
 		$this->menu[$r++] = array(
-			'fk_menu' => 'fk_mainmenu=dolismq',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type' => 'left',			                // This is a Left menu entry
-			'titre' => '<i class="fas fa-cog"></i>  ' . $langs->trans('DoliSMQConfig'),
+			'fk_menu'  => 'fk_mainmenu=dolismq',
+			'type'     => 'left',
+			'titre'    => '<span class="minimizeMenu" title="'. $langs->transnoentities('MinimizeMenu') .'"><i class="fas fa-bars"></i>  ' . $langs->transnoentities('MinimizeMenu') . '</span>',
 			'mainmenu' => 'dolismq',
-			'leftmenu' => 'dolismq',
-			'url' => '/dolismq/admin/setup.php',
-			'langs' => 'dolismq@dolismq',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'leftmenu' => '',
+			'url'      => '',
+			'langs'    => 'dolismq@dolismq',
 			'position' => 1100 + $r,
-			'enabled' => '$conf->dolismq->enabled',  // Define condition to show or hide menu entry. Use '$conf->digiriskdolibarr->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-			'perms' => '$user->rights->dolismq->adminpage->read',			                // Use 'perms'=>'$user->rights->digiriskdolibarr->level1->level2' if you want your menu with a permission rules
-			'target' => '',
-			'user' => 0,				                // 0=Menu for internal users, 1=external users, 2=both
+			'enabled'  => '$conf->digiriskdolibarr->enabled',
+			'perms'    => 1,
+			'target'   => '',
+			'user'     => 0,
 		);
 	}
 
