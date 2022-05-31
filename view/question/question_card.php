@@ -224,6 +224,50 @@ if (empty($reshook))
 			}
 		}
 
+		if ( ! $error && ! empty($conf->global->MAIN_UPLOAD_DOC)) {
+			// Define relativepath and upload_dir
+			$relativepath                                             = '/question/tmp/QU0/photo_ok';
+			$upload_dir                                               = $conf->dolismq->multidir_output[$conf->entity] . '/' . $relativepath;
+			if (is_array($_FILES['userfile']['tmp_name'])) $userfiles = $_FILES['userfile']['tmp_name'];
+			else $userfiles                                           = array($_FILES['userfile']['tmp_name']);
+
+			foreach ($userfiles as $key => $userfile) {
+				if (empty($_FILES['userfile']['tmp_name'][$key])) {
+					$error++;
+					if ($_FILES['userfile']['error'][$key] == 1 || $_FILES['userfile']['error'][$key] == 2) {
+						setEventMessages($langs->trans('ErrorFileSizeTooLarge'), null, 'errors');
+					}
+				}
+			}
+
+			if ( ! $error) {
+				$generatethumbs = 1;
+				dol_add_file_process($upload_dir, 0, 1, 'userfile', '', null, '', $generatethumbs);
+			}
+		}
+
+		if ( ! $error && ! empty($conf->global->MAIN_UPLOAD_DOC)) {
+			// Define relativepath and upload_dir
+			$relativepath                                             = '/question/tmp/QU0/photo_ko';
+			$upload_dir                                               = $conf->dolismq->multidir_output[$conf->entity] . '/' . $relativepath;
+			if (is_array($_FILES['userfile2']['tmp_name'])) $userfiles = $_FILES['userfile2']['tmp_name'];
+			else $userfiles                                           = array($_FILES['userfile2']['tmp_name']);
+
+			foreach ($userfiles as $key => $userfile) {
+				if (empty($_FILES['userfile2']['tmp_name'][$key])) {
+					$error++;
+					if ($_FILES['userfile2']['error'][$key] == 1 || $_FILES['userfile2']['error'][$key] == 2) {
+						setEventMessages($langs->trans('ErrorFileSizeTooLarge'), null, 'errors');
+					}
+				}
+			}
+
+			if ( ! $error) {
+				$generatethumbs = 1;
+				dol_add_file_process($upload_dir, 0, 1, 'userfile2', '', null, '', $generatethumbs);
+			}
+		}
+
 		if (!$error) {
 			$types = array('photo_ok', 'photo_ko');
 
@@ -246,6 +290,10 @@ if (empty($reshook))
 
 							global $maxwidthmini, $maxheightmini, $maxwidthsmall,$maxheightsmall ;
 							$destfull = $pathToQuestionPhotoType . '/' . $file['name'];
+
+							if (empty($object->$type)) {
+								$object->$type = $file['name'];
+							}
 
 							// Create thumbs
 							// We can't use $object->addThumbs here because there is no $object known
@@ -459,7 +507,7 @@ if ($action == 'create')
 {
 	print load_fiche_titre($langs->trans('NewQuestion'), '', 'dolismq@dolismq');
 
-	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'" id="createQuestionForm">';
+	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'" id="createQuestionForm" enctype="multipart/form-data">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="add">';
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
@@ -491,6 +539,12 @@ if ($action == 'create')
 	print '</td></tr>';
 
 	print '<tr class="linked-medias photo_ok"><td class=""><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
+	<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-photo-ok" name="userfile[]" multiple capture="environment" accept="image/*">'; ?>
+	<label for="fast-upload-photo-ok">
+		<div class="wpeo-button button-square-50">
+			<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
+		</div>
+	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo GETPOST('favorite_photo_ok') ?>"/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ok"/>
@@ -502,6 +556,12 @@ if ($action == 'create')
 	print '</td></tr>';
 
 	print '<tr class="linked-medias photo_ko"><td class=""><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
+	<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-photo-ko" name="userfile2[]" multiple capture="environment" accept="image/*">'; ?>
+	<label for="fast-upload-photo-ko">
+		<div class="wpeo-button button-square-50">
+			<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
+		</div>
+	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo GETPOST('favorite_photo_ko') ?>"/>
 	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ko"/>
