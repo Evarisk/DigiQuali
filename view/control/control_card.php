@@ -482,7 +482,30 @@ if (empty($reshook))
 					//$controldettmp->answer_photo = '';
 				//}
 			}
+
+			if (1) {
+				// Define relativepath and upload_dir
+				$relativepath                                             = '/control/' . $object->ref . '/answer_photo/' . $question->ref;
+				$upload_dir                                               = $conf->dolismq->multidir_output[$conf->entity] . '/' . $relativepath;
+				if (is_array($_FILES['userfile'.$question->id]['tmp_name'])) $userfiles = $_FILES['userfile'.$question->id]['tmp_name'];
+				else $userfiles                                           = array($_FILES['userfile'.$question->id]['tmp_name']);
+
+				foreach ($userfiles as $key => $userfile) {
+					if (empty($_FILES['userfile'.$question->id]['tmp_name'][$key])) {
+						//$error++;
+						if ($_FILES['userfile'.$question->id]['error'][$key] == 1 || $_FILES['userfile'.$question->id]['error'][$key] == 2) {
+							setEventMessages($langs->trans('ErrorFileSizeTooLarge'), null, 'errors');
+						}
+					}
+				}
+
+				if (1) {
+					$generatethumbs = 1;
+					dol_add_file_process($upload_dir, 0, 1, 'userfile'.$question->id, '', null, '', $generatethumbs);
+				}
+			}
 		}
+
 		setEventMessages($langs->trans('AnswerSaved'), array());
 		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 		exit;
@@ -871,6 +894,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	$head = controlPrepareHead($object);
 	print dol_get_fiche_head($head, 'controlCard', $langs->trans("Control"), -1, "dolismq@dolismq");
+
+	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'?action=save&id='.$object->id.'" id="saveControl" enctype="multipart/form-data">';
+	print '<input type="hidden" name="token" value="'.newToken().'">';
+	print '<input type="hidden" name="action" value="save">';
 
 	$formconfirm = '';
 
@@ -1492,7 +1519,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		if (empty($reshook)) {
 			if ($object->status == 0) {
-				print '<a id="saveButton" class="saveButton butActionRefused" href="'.$_SERVER["PHP_SELF"].'?action=save&id='.$object->id.'" id="actionButtonSave" title="">' . $langs->trans("Save") . '</a>';
+				print '<input type="submit" id="saveButton" class="saveButton butActionRefused" value="'.$langs->trans("Save").'">';
 				print '<a id ="validateButton" class="validateButton butAction" href="'.$_SERVER["PHP_SELF"].'?action=setValidated&id='.$object->id.'" id="actionButtonValidate" title="">' . $langs->trans("Validate") . '</a>';
 			} else {
 				print '<a class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans("ControlMustBeDraft")) . '">' . $langs->trans("Save") . '</a>';
@@ -1516,6 +1543,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 ) ? 'actionButtonReOpen' : '') . '" title="' . (($object->status == 1 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidated"))) . '">' . $langs->trans("ReOpened") . '</span>';
 			print '<span class="' . (($object->status == 1 && $object->verdict != null) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 && $object->verdict != null) ? 'actionButtonLock' : '') . '" title="' . (($object->status == 1 && $object->verdict != null) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidatedToLock"))) . '">' . $langs->trans("Lock") . '</span>';
+			print dolGetButtonAction($langs->trans('SendMail'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=presend&mode=init&token='.newToken().'#formmailbeforetitle');
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
 			print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
@@ -1630,6 +1658,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 0, 1);
 							print '</td></tr>'; ?>
 						<?php else : ?>
+							<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-photo-ok" name="userfile'.$item->id.'[]" multiple capture="environment" accept="image/*">'; ?>
+							<label for="fast-upload-photo-ok">
+								<div class="wpeo-button button-square-50">
+									<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
+								</div>
+							</label>
 							<input type="hidden" class="question-answer-photo" id="answer_photo<?php echo $item->id ?>" name="answer_photo<?php echo $item->id ?>" value="test"/>
 							<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
 								<input type="hidden" class="type-from" value="answer_photo"/>
@@ -1673,15 +1707,189 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if ($includedocgeneration) {
 		print '<div class="fichecenter"><div class="fichehalfleft elementDocument">';
 
-		$objref    = dol_sanitizeFileName($object->ref);
+		$objref = dol_sanitizeFileName($object->ref);
 		$dir_files = $object->element . 'document/' . $objref;
-		$filedir   = $upload_dir . '/' . $dir_files;
+		$filedir = $upload_dir . '/' . $dir_files;
 		$urlsource = $_SERVER["PHP_SELF"] . '?id=' . $id;
 
 		$defaultmodel = 'controldocument_odt';
-		$title        = $langs->trans('WorkUnitDocument');
+		$title = $langs->trans('WorkUnitDocument');
 
 		print dolismqshowdocuments('dolismq:ControlDocument', $dir_files, $filedir, $urlsource, 1, 1, $object->model_pdf, 1, 0, 0, 0, 0, '', 0, '', empty($soc->default_lang) ? '' : $soc->default_lang, $object, 0, 'remove_file', (($object->status >= 1) ? 1 : 0));
+	}
+
+	//Select mail models is same action as presend
+	if (GETPOST('modelselected')) {
+		$action = 'presend';
+	}
+
+	// Presend form
+	$modelmail = 'dolismq';
+	$defaulttopic = 'InformationMessage';
+	$objref = dol_sanitizeFileName($object->ref);
+	$dir_files = $object->element . 'document/' . $objref;
+	$diroutput = $upload_dir . '/' . $dir_files;
+	$trackid = 'dolismq'.$object->id;
+
+//	$filter                 = array('t.src_object_id' => $object->id );
+//	$ecmfile->fetch(0, '', '', '', '', 'dolismq_control', $object->id);
+//	//echo '<pre>'; print_r($ecmfile); echo '</pre>'; exit;
+////	if ( ! empty($controldocument) && is_array($controldocument)) {
+////		$controldocument = array_shift($controldocument);
+////		$ref                    = dol_sanitizeFileName($controldocument->ref);
+////	}
+//
+//	$ref = dol_sanitizeFileName($ecmfile->filename);
+
+	if ($action == 'presend') {
+		$langs->load("mails");
+
+		$titreform = 'SendMail';
+
+		$object->fetch_projet();
+
+		if ( ! in_array($object->element, array('societe', 'user', 'member'))) {
+			include_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+			$fileparams = dol_dir_list($diroutput, 'files', 0, '');
+			foreach ($fileparams as $fileparam) {
+				preg_match('/' . $object->ref . '/', $fileparam['name']) ? $filevalue[] = $fileparam['fullname'] : 0;
+			}
+		}
+
+		// Define output language
+		$outputlangs = $langs;
+		$newlang     = '';
+		if ($conf->global->MAIN_MULTILANGS && empty($newlang) && ! empty($_REQUEST['lang_id'])) {
+			$newlang = $_REQUEST['lang_id'];
+		}
+		if ($conf->global->MAIN_MULTILANGS && empty($newlang)) {
+			$newlang = $object->thirdparty->default_lang;
+		}
+
+		if ( ! empty($newlang)) {
+			$outputlangs = new Translate('', $conf);
+			$outputlangs->setDefaultLang($newlang);
+			// Load traductions files required by page
+			$outputlangs->loadLangs(array('digiriskdolibarr'));
+		}
+
+		$topicmail = '';
+		if (empty($object->ref_client)) {
+			$topicmail = $outputlangs->trans($defaulttopic, '__REF__');
+		} elseif ( ! empty($object->ref_client)) {
+			$topicmail = $outputlangs->trans($defaulttopic, '__REF__ (__REFCLIENT__)');
+		}
+
+		print '<div id="formmailbeforetitle" name="formmailbeforetitle"></div>';
+		print '<div class="clearboth"></div>';
+		print '<br>';
+		print load_fiche_titre($langs->trans($titreform));
+
+		print dol_get_fiche_head('');
+
+		// Create form for email
+		include_once DOL_DOCUMENT_ROOT . '/core/class/html.formmail.class.php';
+		$formmail                       = new FormMail($db);
+		$formmail->param['langsmodels'] = (empty($newlang) ? $langs->defaultlang : $newlang);
+		$formmail->fromtype             = (GETPOST('fromtype') ? GETPOST('fromtype') : ( ! empty($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE) ? $conf->global->MAIN_MAIL_DEFAULT_FROMTYPE : 'user'));
+		$formmail->fromid               = $user->id;
+		$formmail->trackid              = $trackid;
+		$formmail->fromname             = $user->firstname . ' ' . $user->lastname;
+		$formmail->frommail             = $user->email;
+		$formmail->fromalsorobot        = 1;
+		$formmail->withfrom             = 1;
+
+		// Fill list of recipient with email inside <>.
+		$liste = array();
+
+		$labour_inspector_contact = $allLinks['LabourInspectorContact'];
+
+		if ( ! empty($object->socid) && $object->socid > 0 && ! is_object($object->thirdparty) && method_exists($object, 'fetch_thirdparty')) {
+			$object->fetch_thirdparty();
+		}
+		if (is_object($object->thirdparty)) {
+			foreach ($object->thirdparty->thirdparty_and_contact_email_array(1) as $key => $value) {
+				$liste[$key] = $value;
+			}
+		}
+
+		if ( ! empty($conf->global->MAIN_MAIL_ENABLED_USER_DEST_SELECT)) {
+			$listeuser = array();
+			$fuserdest = new User($db);
+
+			$result = $fuserdest->fetchAll('ASC', 't.lastname', 0, 0, array('customsql' => 't.statut=1 AND t.employee=1 AND t.email IS NOT NULL AND t.email<>\'\''), 'AND', true);
+			if ($result > 0 && is_array($fuserdest->users) && count($fuserdest->users) > 0) {
+				foreach ($fuserdest->users as $uuserdest) {
+					$listeuser[$uuserdest->id] = $uuserdest->user_get_property($uuserdest->id, 'email');
+				}
+			} elseif ($result < 0) {
+				setEventMessages(null, $fuserdest->errors, 'errors');
+			}
+			if (count($listeuser) > 0) {
+				$formmail->withtouser   = $listeuser;
+				$formmail->withtoccuser = $listeuser;
+			}
+		}
+
+
+//		//$Labour_inspector_contact_id = $allLinks['LabourInspectorContact']->id[0];
+//		$contact->fetch($Labour_inspector_contact_id);
+//		$withto = array( $allLinks['LabourInspectorContact']->id[0] => $contact->firstname . ' ' . $contact->lastname . " <" . $contact->email . ">");
+
+		$formmail->withto              = $withto;
+		$formmail->withtofree          = (GETPOSTISSET('sendto') ? (GETPOST('sendto', 'alphawithlgt') ? GETPOST('sendto', 'alphawithlgt') : '1') : '1');
+		$formmail->withtocc            = $liste;
+		$formmail->withtoccc           = $conf->global->MAIN_EMAIL_USECCC;
+		$formmail->withtopic           = $topicmail;
+		$formmail->withfile            = 2;
+		$formmail->withbody            = 1;
+		$formmail->withdeliveryreceipt = 1;
+		$formmail->withcancel          = 1;
+
+		//$arrayoffamiliestoexclude=array('system', 'mycompany', 'object', 'objectamount', 'date', 'user', ...);
+		if ( ! isset($arrayoffamiliestoexclude)) $arrayoffamiliestoexclude = null;
+
+		// Make substitution in email content
+		$substitutionarray                       = getCommonSubstitutionArray($outputlangs, 0, $arrayoffamiliestoexclude, $object);
+		$substitutionarray['__CHECK_READ__']     = (is_object($object) && is_object($object->thirdparty)) ? '<img src="' . DOL_MAIN_URL_ROOT . '/public/emailing/mailing-read.php?tag=' . $object->thirdparty->tag . '&securitykey=' . urlencode($conf->global->MAILING_EMAIL_UNSUBSCRIBE_KEY) . '" width="1" height="1" style="width:1px;height:1px" border="0"/>' : '';
+		$substitutionarray['__CONTACTCIVNAME__'] = '';
+		$substitutionarray['__REF__']            = $ref;
+		$parameters                              = array(
+			'mode' => 'formemail'
+		);
+		complete_substitutions_array($substitutionarray, $outputlangs, $object, $parameters);
+
+		// Find the good contact address
+		$tmpobject = $object;
+
+		$contactarr = array();
+		$contactarr = $tmpobject->liste_contact(-1, 'external');
+
+		if (is_array($contactarr) && count($contactarr) > 0) {
+			require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
+			$contactstatic = new Contact($db);
+
+			foreach ($contactarr as $contact) {
+				$contactstatic->fetch($contact['id']);
+				$substitutionarray['__CONTACT_NAME_' . $contact['code'] . '__'] = $contactstatic->getFullName($outputlangs, 1);
+			}
+		}
+
+		// Array of substitutions
+		$formmail->substit = $substitutionarray;
+
+		// Array of other parameters
+		$formmail->param['action']    = 'send';
+		$formmail->param['models']    = $modelmail;
+		$formmail->param['models_id'] = GETPOST('modelmailselected', 'int');
+		$formmail->param['id']        = $object->id;
+		$formmail->param['returnurl'] = $_SERVER["PHP_SELF"] . '?id=' . $object->id;
+		$formmail->param['fileinit']  = $filevalue;
+
+		// Show form
+		print $formmail->get_form();
+
+		print dol_get_fiche_end();
 	}
 //
 //	/*
@@ -1736,6 +1944,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 //
 //		print "</form>\n";
 //	}
+
+	print "</form>";
 }
 
 // End of page

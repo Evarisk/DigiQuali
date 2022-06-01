@@ -1016,9 +1016,9 @@ window.eoxiaJS.control.selectAnswer = function ( event ) {
 
 	let postName = $(this).closest('.table-cell').find('.question-answer').attr('name')
 	let postValue = $(this).closest('.table-cell').find('.question-answer').val()
-	let actualSavePost = $(this).closest('.tabBar').find('.saveButton').attr('href')
+	//let actualSavePost = $(this).closest('.tabBar').find('.saveButton').attr('href')
 	let actualValidatePost = $(this).closest('.tabBar').find('.validateButton').attr('href')
-	$(this).closest('.tabBar').find('.saveButton').attr('href', actualSavePost + '&' + postName + '=' + postValue)
+	//$(this).closest('.tabBar').find('.saveButton').attr('href', actualSavePost + '&' + postName + '=' + postValue)
 	$(this).closest('.tabBar').find('.validateButton').attr('href', actualValidatePost + '&' + postName + '=' + postValue)
 	window.eoxiaJS.control.updateButtonsStatus()
 };
@@ -1036,17 +1036,17 @@ window.eoxiaJS.control.writeComment = function ( event ) {
 
 	let postName = $(this).closest('.table-cell').find('.question-comment').attr('name')
 	let postValue = $(this).closest('.table-cell').find('.question-comment').val()
-	let actualSavePost = $(this).closest('.tabBar').find('.saveButton').attr('href')
+	//let actualSavePost = $(this).closest('.tabBar').find('.saveButton').attr('href')
 	let actualValidatePost = $(this).closest('.tabBar').find('.validateButton').attr('href')
 
-	if (actualSavePost.match('&' + postName + '=')) {
-		actualSavePost = actualSavePost.split('&' + postName + '=')[0]
-	}
+	//if (actualSavePost.match('&' + postName + '=')) {
+	//	actualSavePost = actualSavePost.split('&' + postName + '=')[0]
+	//}
 	if (actualValidatePost.match('&' + postName + '=')) {
 		actualValidatePost = actualValidatePost.split('&' + postName + '=')[0]
 	}
 
-	$(this).closest('.tabBar').find('.saveButton').attr('href', actualSavePost + '&' + postName + '=' + postValue)
+	//$(this).closest('.tabBar').find('.saveButton').attr('href', actualSavePost + '&' + postName + '=' + postValue)
 	$(this).closest('.tabBar').find('.validateButton').attr('href', actualValidatePost + '&' + postName + '=' + postValue)
 };
 
