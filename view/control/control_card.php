@@ -1658,8 +1658,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 0, 1);
 							print '</td></tr>'; ?>
 						<?php else : ?>
-							<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-photo-ok" name="userfile'.$item->id.'[]" multiple capture="environment" accept="image/*">'; ?>
-							<label for="fast-upload-photo-ok">
+							<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-answer-photo'.$item->id.'" name="userfile'.$item->id.'[]" multiple capture="environment" accept="image/*">'; ?>
+							<label for="fast-upload-answer-photo<?php echo $item->id ?>">
 								<div class="wpeo-button button-square-50">
 									<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
 								</div>
