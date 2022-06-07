@@ -65,6 +65,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmfiles.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
+require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 
@@ -233,9 +234,11 @@ if (empty($reshook))
 
 			foreach ($userfiles as $key => $userfile) {
 				if (empty($_FILES['userfile']['tmp_name'][$key])) {
-					$error++;
 					if ($_FILES['userfile']['error'][$key] == 1 || $_FILES['userfile']['error'][$key] == 2) {
 						setEventMessages($langs->trans('ErrorFileSizeTooLarge'), null, 'errors');
+					}
+					if ($_FILES['userfile']['error'][$key] == 4) {
+						$error++;
 					}
 				}
 			}
@@ -244,7 +247,10 @@ if (empty($reshook))
 				$generatethumbs = 1;
 				dol_add_file_process($upload_dir, 0, 1, 'userfile', '', null, '', $generatethumbs);
 			}
+			$error = 0;
 		}
+
+
 
 		if ( ! $error && ! empty($conf->global->MAIN_UPLOAD_DOC)) {
 			// Define relativepath and upload_dir
@@ -255,9 +261,11 @@ if (empty($reshook))
 
 			foreach ($userfiles as $key => $userfile) {
 				if (empty($_FILES['userfile2']['tmp_name'][$key])) {
-					$error++;
 					if ($_FILES['userfile2']['error'][$key] == 1 || $_FILES['userfile2']['error'][$key] == 2) {
 						setEventMessages($langs->trans('ErrorFileSizeTooLarge'), null, 'errors');
+					}
+					if ($_FILES['userfile']['error'][$key] == 4) {
+						$error++;
 					}
 				}
 			}
@@ -266,6 +274,7 @@ if (empty($reshook))
 				$generatethumbs = 1;
 				dol_add_file_process($upload_dir, 0, 1, 'userfile2', '', null, '', $generatethumbs);
 			}
+			$error = 0;
 		}
 
 		if (!$error) {
@@ -317,6 +326,9 @@ if (empty($reshook))
 			$result = $object->create($user);
 			if ($result > 0) {
 				// Creation OK
+				// Category association
+				$categories = GETPOST('categories', 'array');
+				$object->setCategories($categories);
 				$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header("Location: ".$urltogo);
@@ -324,15 +336,20 @@ if (empty($reshook))
 			} else {
 				// Creation KO
 				if (!empty($object->errors)) {
-					setEventMessages(null, $object->errors, 'errors');
+					setEventMessages($object->error, $object->errors, 'errors');
 				} else {
-					setEventMessages($object->error, null, 'errors');
+					setEventMessages($langs->trans($object->error), null, 'errors');
 				}
 				$action = 'create';
 			}
 		} else {
 			$action = 'create';
 		}
+	}
+
+	if ($action == 'update' && !empty($permissiontoadd)) {
+		$categories = GETPOST('categories', 'array');
+		$object->setCategories($categories);
 	}
 
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
@@ -570,6 +587,15 @@ if ($action == 'create')
 	<?php
 	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ko', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/tmp/QU0/photo_ko', null, GETPOST('favorite_photo_ko'));
 	print '</td></tr>';
+
+	if (!empty($conf->categorie->enabled)) {
+		// Categories
+		print '<tr><td>'.$langs->trans("Categories").'</td><td>';
+		$cate_arbo = $form->select_all_categories('question', '', 'parent', 64, 0, 1);
+		print img_picto('', 'category').$form->multiselectarray('categories', $cate_arbo, GETPOST('categories', 'array'), '', 0, 'quatrevingtpercent widthcentpercentminusx', 0, 0);
+		print "</td></tr>";
+	}
+
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
 
@@ -642,6 +668,22 @@ if (($id || $ref) && $action == 'edit')
 	<?php
 	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/'. $object->ref . '/photo_ko', null,(GETPOST('favorite_photo_ko') ? GETPOST('favorite_photo_ko') : $object->photo_ko ));
 	print '</td></tr>';
+
+	// Tags-Categories
+	if ($conf->categorie->enabled) {
+		print '<tr><td>'.$langs->trans("Categories").'</td><td>';
+		$cate_arbo = $form->select_all_categories('question', '', 'parent', 64, 0, 1);
+		$c = new Categorie($db);
+		$cats = $c->containing($object->id, 'question');
+		$arrayselected = array();
+		if (is_array($cats)) {
+			foreach ($cats as $cat) {
+				$arrayselected[] = $cat->id;
+			}
+		}
+		print img_picto('', 'category').$form->multiselectarray('categories', $cate_arbo, $arrayselected, '', 0, 'quatrevingtpercent widthcentpercentminusx', 0, 0);
+		print "</td></tr>";
+	}
 
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_edit.tpl.php';
@@ -762,6 +804,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
 	}
 	print '</td></tr>';
+
+	// Categories
+	if ($conf->categorie->enabled) {
+		print '<tr><td class="valignmiddle">'.$langs->trans("Categories").'</td><td>';
+		print $form->showCategories($object->id, 'question', 1);
+		print "</td></tr>";
+	}
+
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php';

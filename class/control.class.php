@@ -930,6 +930,20 @@ class Control extends CommonObject
 		return $error;
 	}
 
+	/**
+	 * Sets object to supplied categories.
+	 *
+	 * Deletes object from existing categories not supplied.
+	 * Adds it to non existing supplied categories.
+	 * Existing categories are left untouch.
+	 *
+	 * @param  int[]|int $categories Category or categories IDs
+	 * @return void
+	 */
+	public function setCategories($categories)
+	{
+		return parent::setCategoriesCommon($categories, 'control');
+	}
 
 	/**
 	 *	Fetch array of objects linked to current object (object of enabled modules only). Links are loaded into
@@ -1075,7 +1089,6 @@ class Control extends CommonObject
 			return -1;
 		}
 	}
-
 }
 class ControlLine extends CommonObjectLine
 {

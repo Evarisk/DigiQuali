@@ -115,11 +115,7 @@ class modDoliSMQ extends DolibarrModules
 			),
 			// Set here all hooks context managed by module. To find available hook context, make a "grep -r '>initHooks(' *" on source code. You can also set hook context to 'all'
 			'hooks' => array(
-				//   'data' => array(
-				//       'hookcontext1',
-				//       'hookcontext2',
-				//   ),
-				//   'entity' => '0',
+				'category',
 			),
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -243,12 +239,11 @@ class modDoliSMQ extends DolibarrModules
 		// Boxes/Widgets
 		// Add here list of php file(s) stored in dolismq/core/boxes that contains a class to show a widget.
 		$this->boxes = array(
-			//  0 => array(
-			//      'file' => 'dolismqwidget1.php@dolismq',
-			//      'note' => 'Widget provided by DoliSMQ',
-			//      'enabledbydefaulton' => 'Home',
-			//  ),
-			//  ...
+			  0 => array(
+			      'file' => 'dolismqwidget1.php@dolismq',
+			      'note' => 'Widget provided by DoliSMQ',
+			      'enabledbydefaulton' => 'Home',
+			  ),
 		);
 
 		// Cronjobs (List of cron jobs entries to add when module is enabled)
@@ -391,6 +386,21 @@ class modDoliSMQ extends DolibarrModules
 			'user'     => 2,
 		);
 
+		$this->menu[$r++] = array(
+			'fk_menu'  => 'fk_mainmenu=dolismq,fk_leftmenu=dolismq_question',
+			'type'     => 'left',
+			'titre'    => $langs->trans('Categories'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq_question',
+			'url'      => '/categories/index.php?type=question',
+			'langs'    => 'ticket',
+			'position' => 1100 + $r,
+			'enabled'  => '$conf->dolismq->enabled && $conf->categorie->enabled',
+			'perms'    => '$user->rights->dolismq->question->read && $user->rights->ticket->read',
+			'target'   => '',
+			'user'     => 0,
+		);
+
 //		$this->menu[$r++]=array(
 //			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_question',
 //			'type'=>'left',
@@ -421,6 +431,21 @@ class modDoliSMQ extends DolibarrModules
 			'user'     => 2,
 		);
 
+		$this->menu[$r++] = array(
+			'fk_menu'  => 'fk_mainmenu=dolismq,fk_leftmenu=dolismq_sheet',
+			'type'     => 'left',
+			'titre'    => $langs->trans('Categories'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq_sheet',
+			'url'      => '/categories/index.php?type=sheet',
+			'langs'    => 'ticket',
+			'position' => 1100 + $r,
+			'enabled'  => '$conf->dolismq->enabled && $conf->categorie->enabled',
+			'perms'    => '$user->rights->dolismq->sheet->read && $user->rights->ticket->read',
+			'target'   => '',
+			'user'     => 0,
+		);
+
 //		$this->menu[$r++]=array(
 //			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_sheet',
 //			'type'=>'left',
@@ -449,6 +474,21 @@ class modDoliSMQ extends DolibarrModules
 			'perms'    => '$user->rights->dolismq->control->read',
 			'target'   => '',
 			'user'     => 2,
+		);
+
+		$this->menu[$r++] = array(
+			'fk_menu'  => 'fk_mainmenu=dolismq,fk_leftmenu=dolismq_control',
+			'type'     => 'left',
+			'titre'    => $langs->trans('Categories'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq_control',
+			'url'      => '/categories/index.php?type=control',
+			'langs'    => 'ticket',
+			'position' => 1100 + $r,
+			'enabled'  => '$conf->dolismq->enabled && $conf->categorie->enabled',
+			'perms'    => '$user->rights->dolismq->control->read && $user->rights->ticket->read',
+			'target'   => '',
+			'user'     => 0,
 		);
 
 //		$this->menu[$r++]=array(

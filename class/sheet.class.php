@@ -755,6 +755,21 @@ class Sheet extends CommonObject
 	}
 
 	/**
+	 * Sets object to supplied categories.
+	 *
+	 * Deletes object from existing categories not supplied.
+	 * Adds it to non existing supplied categories.
+	 * Existing categories are left untouch.
+	 *
+	 * @param  int[]|int $categories Category or categories IDs
+	 * @return void
+	 */
+	public function setCategories($categories)
+	{
+		return parent::setCategoriesCommon($categories, 'sheet');
+	}
+
+	/**
 	 * Initialise object with example values
 	 * Id must be 0 if object instance is a specimen
 	 *

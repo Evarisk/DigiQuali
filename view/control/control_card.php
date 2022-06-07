@@ -272,6 +272,8 @@ if (empty($reshook))
 					$object->add_object_linked('project_task', GETPOST('fk_task'));
 				}
 				// Creation OK
+				$categories = GETPOST('categories', 'array');
+				$object->setCategories($categories);
 				$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header("Location: ".$urltogo);
@@ -869,6 +871,14 @@ if ($action == 'create') {
 		$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST("fk_task"), 'fk_task', 24, 0, '1', 1, 0, 0, 'minwidth300', (!empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
 		print '</span>';
 		print '</td></tr>';
+	}
+
+	if (!empty($conf->categorie->enabled)) {
+		// Categories
+		print '<tr><td>'.$langs->trans("Categories").'</td><td>';
+		$cate_arbo = $form->select_all_categories('control', '', 'parent', 64, 0, 1);
+		print img_picto('', 'category').$form->multiselectarray('categories', $cate_arbo, GETPOST('categories', 'array'), '', 0, 'quatrevingtpercent widthcentpercentminusx', 0, 0);
+		print "</td></tr>";
 	}
 
 	// Other attributes
