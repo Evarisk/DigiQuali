@@ -260,3 +260,12 @@ Lock = Verrouiller
 NoData = N/A
 ErrorFileNotFound = Aucun logo de la société renseigné
 
+#
+#
+#
+
+# Data - Donnée
+Regulatory = Réglementaire
+RegulatoryScore = Score réglementaire
+RegulatoryThreshold = Seuil réglementaire
+
