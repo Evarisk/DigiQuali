@@ -258,7 +258,7 @@ class dolismqwidget1 extends ModeleBoxes
 		$category->fetch_optionals();
 		$category->fetch(0, $langs->transnoentities('Regulatory'), 'control');
 		$controls = $category->getObjectsInCateg('control', 0);
-		
+
 		if (!empty($controls)) {
 			foreach ($controls as $key => $control) {
 
@@ -294,7 +294,7 @@ class dolismqwidget1 extends ModeleBoxes
 			),
 			1 => array(
 				'td' => 'class="right"' . $regulatoryTotalScoreCSS,
-				'text' => $regulatoryTotalScore . ' %',
+				'text' => price2num($regulatoryTotalScore, '', 2) . ' %',
 			)
 		);
 
