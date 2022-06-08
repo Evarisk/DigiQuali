@@ -96,6 +96,7 @@ YouAnswered = Vous avez répondu à
 On = sur
 BewareQuestionsAnswered = Attention il manque %s réponse(s)
 ActionsOnQuestion = Événements liés au question
+QuestionsCategoriesArea = Espace des tags/catégories des questions
 
 
 
@@ -132,7 +133,7 @@ NoLotForThisProduct = Pas de lot défini pour ce produit
 ModalAddPhoto = Bibliothèque de médias
 SheetManagement = Gestion des fiches modèles
 ActionsOnSheet = Événements liés au fiche modèle
-
+SheetsCategoriesArea = Espace des tags/catégories des fiches modèles
 
 
 #
@@ -200,6 +201,7 @@ ShowTaskDescription = Afficher le lien entre les tâches et les contrôles
 NoLotDefined = Pas de numéros de lots/série trouvé
 SelectAProductFirst = Sélectionnez d'abord un produit
 ActionsOnControl = Événements liés au contrôle
+ControlsCategoriesArea = Espace des tags/catégories des contrôles
 
 
 
@@ -259,6 +261,7 @@ Locked = Verrouillé
 Lock = Verrouiller
 NoData = N/A
 ErrorFileNotFound = Aucun logo de la société renseigné
+MinimizeMenu = Réduire le menu
 
 #
 #
