@@ -59,26 +59,27 @@ if ( ! $res && file_exists("../../../main.inc.php")) $res    = @include "../../.
 if ( ! $res && file_exists("../../../../main.inc.php")) $res = @include "../../../../main.inc.php";
 if (!$res) die("Include of main fails");
 
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
-require_once DOL_DOCUMENT_ROOT.'/core/class/html.formother.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formprojet.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formother.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
-require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmfiles.class.php';
+require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
+require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
-require_once __DIR__.'/../../class/control.class.php';
-require_once __DIR__.'/../../class/sheet.class.php';
-require_once __DIR__.'/../../class/question.class.php';
-require_once __DIR__.'/../../lib/dolismq_control.lib.php';
-require_once __DIR__.'/../../core/modules/dolismq/control/mod_control_standard.php';
-require_once __DIR__.'/../../core/modules/dolismq/controldet/mod_controldet_standard.php';
+require_once __DIR__ . '/../../class/control.class.php';
+require_once __DIR__ . '/../../class/sheet.class.php';
+require_once __DIR__ . '/../../class/question.class.php';
+require_once __DIR__ . '/../../lib/dolismq_control.lib.php';
+require_once __DIR__ . '/../../core/modules/dolismq/control/mod_control_standard.php';
+require_once __DIR__ . '/../../core/modules/dolismq/controldet/mod_controldet_standard.php';
 require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 
 global $langs, $conf, $user, $db;
@@ -395,6 +396,14 @@ if (empty($reshook))
 		exit;
 	}
 
+	if ($action == 'set_categories' && $permissiontoadd) {
+		if ($object->fetch(GETPOST('id', 'int')) >= 0) {
+			$object->setCategories(GETPOST('categories', 'array'));
+			header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
+			exit();
+		}
+	}
+
 	if ($action == 'save') {
 
 		$controldet = new ControlLine($db);
@@ -485,7 +494,7 @@ if (empty($reshook))
 				//}
 			}
 
-			if (1) {
+			if (! $error && ! empty($conf->global->MAIN_UPLOAD_DOC)) {
 				// Define relativepath and upload_dir
 				$relativepath                                             = '/control/' . $object->ref . '/answer_photo/' . $question->ref;
 				$upload_dir                                               = $conf->dolismq->multidir_output[$conf->entity] . '/' . $relativepath;
@@ -501,12 +510,14 @@ if (empty($reshook))
 					}
 				}
 
-				if (1) {
+				if (! $error) {
 					$generatethumbs = 1;
 					dol_add_file_process($upload_dir, 0, 1, 'userfile'.$question->id, '', null, '', $generatethumbs);
 				}
 			}
 		}
+
+		$object->setCategories(GETPOST('categories', 'array'));
 
 		setEventMessages($langs->trans('AnswerSaved'), array());
 		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
@@ -1494,6 +1505,54 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print $task->getNomUrl(1);
 		}
 		print '</td></tr>';
+	}
+
+
+	// Categories
+	if ($conf->categorie->enabled) {
+		print '<div class="div-table-responsive-no-min">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
+
+		print '<table class="border tableforfield centpercent noborderbottom">';
+
+		print '<tr>';
+		print '<td class="valignmiddle titlefield">';
+		print '<table class="nobordernopadding centpercent"><tr><td class="nowrap">';
+		print $langs->trans("Categories");
+		if ($action != 'categories' && !$user->socid) {
+			print '<td class="right"><a class="editfielda" href="'.$_SERVER["PHP_SELF"].'?action=categories&id='.$object->id.'">'.img_edit($langs->trans('Modify')).'</a></td>';
+		}
+		print '</table>';
+		print '</td>';
+
+		if ($permissiontoadd && $action == 'categories') {
+			$cate_arbo = $form->select_all_categories('control', '', 'parent', 64, 0, 1);
+			if (is_array($cate_arbo)) {
+				// Categories
+				print '<td colspan="3">';
+				print '<form action="'.$_SERVER["PHP_SELF"].'" method="post">';
+				print '<input type="hidden" name="token" value="'.newToken().'">';
+				print '<input type="hidden" name="action" value="set_categories">';
+
+				$category = new Categorie($db);
+				$cats = $category->containing($object->id, 'control');
+				$arrayselected = array();
+				foreach ($cats as $cat) {
+					$arrayselected[] = $cat->id;
+				}
+
+				print img_picto('', 'category').$form->multiselectarray('categories', $cate_arbo, $arrayselected, '', 0, 'quatrevingtpercent widthcentpercentminusx', 0, 0);
+				print '<input type="submit" class="button button-edit small" value="'.$langs->trans('Save').'">';
+				print '</form>';
+				print "</td>";
+			}
+		} else {
+			print '<td colspan="3">';
+			print $form->showCategories($object->id, 'control', 1);
+			print "</td></tr>";
+		}
+
+		print '</table>';
+		print '</div>';
 	}
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
