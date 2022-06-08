@@ -563,9 +563,9 @@ if ($action == 'create')
 		</div>
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo GETPOST('favorite_photo_ok') ?>"/>
-	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
+	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ok"/>
-		<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
+		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
 	$relativepath = 'dolismq/medias/thumbs';
@@ -580,9 +580,9 @@ if ($action == 'create')
 		</div>
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo GETPOST('favorite_photo_ko') ?>"/>
-	<div class="wpeo-button open-media-gallery add-media modal-open" value="0">
+	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ko"/>
-		<span><i class="fas fa-camera"></i>  <?php echo $langs->trans('AddMedia') ?></span>
+		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
 	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ko', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/tmp/QU0/photo_ko', null, GETPOST('favorite_photo_ko'));
