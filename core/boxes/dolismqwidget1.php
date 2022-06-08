@@ -255,11 +255,10 @@ class dolismqwidget1 extends ModeleBoxes
 			)
 		);
 
-		$category->fetch(93);
 		$category->fetch_optionals();
-		//$category->fetch(0, $langs->trans('Regulatory'), 'control');
-
+		$category->fetch(0, $langs->transnoentities('Regulatory'), 'control');
 		$controls = $category->getObjectsInCateg('control', 0);
+		
 		if (!empty($controls)) {
 			foreach ($controls as $key => $control) {
 
