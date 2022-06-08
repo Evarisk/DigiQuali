@@ -260,33 +260,33 @@ class dolismqwidget1 extends ModeleBoxes
 		//$category->fetch(0, $langs->trans('Regulatory'), 'control');
 
 		$controls = $category->getObjectsInCateg('control', 0);
+		if (!empty($controls)) {
+			foreach ($controls as $key => $control) {
 
-		foreach ($controls as $key => $control) {
+				$sheet->fetch($control->fk_sheet);
 
-			$sheet->fetch($control->fk_sheet);
+				$this->info_box_contents[$key + 1] = array(
+					0 => array(
+						'td' => '',
+						'text' => $control->getNomUrl(0) . ' - ' . $sheet->getNomUrl(0)
+					),
+					1 => array(
+						'td' => 'class="right"',
+						'text' => $control->getLibVerdict(3)
+					)
+				);
 
-			$this->info_box_contents[$key+1] = array(
-				0 => array(
-					'td' => '',
-					'text' => $control->getNomUrl(0) . ' - ' .$sheet->getNomUrl(0)
-				),
-				1 => array(
-					'td' => 'class="right"',
-					'text' => $control->getLibVerdict(3)
-				)
-			);
+				if ($control->verdict == 1) {
+					$regulatoryScore++;
+				}
+			}
 
-			if ($control->verdict == 1) {
-				$regulatoryScore++;
+			$regulatoryTotalScore = ($regulatoryScore / count($controls)) * 100;
+
+			if ($regulatoryTotalScore <= $category->array_options['options_seuil']) {
+				$regulatoryTotalScoreCSS = 'style="color:red"';
 			}
 		}
-
-		$regulatoryTotalScore = ($regulatoryScore/count($controls)) * 100;
-
-		if ($regulatoryTotalScore <= $category->array_options['options_seuil']) {
-			$regulatoryTotalScoreCSS = 'style="color:red"';
-		}
-
 
 		$this->info_box_contents[$key+2] = array(
 			0 => array(
