@@ -53,16 +53,16 @@ function questionPrepareHead($object)
 //		$h++;
 //	}
 
-//	require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
-//	require_once DOL_DOCUMENT_ROOT.'/core/class/link.class.php';
-//	$upload_dir = $conf->dolismq->dir_output."/question/".dol_sanitizeFileName($object->ref);
-//	$nbFiles = count(dol_dir_list($upload_dir, 'files', 0, '', '(\.meta|_preview.*\.png)$'));
-//	$nbLinks = Link::count($db, $object->element, $object->id);
-//	$head[$h][0] = dol_buildpath("/dolismq/view/question/question_document.php", 1).'?id='.$object->id;
-//	$head[$h][1] = $langs->trans('Documents');
-//	if (($nbFiles + $nbLinks) > 0) $head[$h][1] .= '<span class="badge marginleftonlyshort">'.($nbFiles + $nbLinks).'</span>';
-//	$head[$h][2] = 'document';
-//	$h++;
+	require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
+	require_once DOL_DOCUMENT_ROOT.'/core/class/link.class.php';
+	$upload_dir = $conf->dolismq->dir_output."/question/".dol_sanitizeFileName($object->ref);
+	$nbFiles = count(dol_dir_list($upload_dir, 'files', 0, '', '(\.meta|_preview.*\.png)$'));
+	$nbLinks = Link::count($db, $object->element, $object->id);
+	$head[$h][0] = dol_buildpath("/dolismq/view/question/question_document.php", 1).'?id='.$object->id;
+	$head[$h][1] = $langs->trans('Documents');
+	if (($nbFiles + $nbLinks) > 0) $head[$h][1] .= '<span class="badge marginleftonlyshort">'.($nbFiles + $nbLinks).'</span>';
+	$head[$h][2] = 'document';
+	$h++;
 
 	$head[$h][0] = dol_buildpath("/dolismq/view/question/question_agenda.php", 1).'?id='.$object->id;
 	$head[$h][1] = $langs->trans("Events");
