@@ -698,6 +698,18 @@ class Control extends CommonObject
 		return $this->LibStatut($this->status, $mode);
 	}
 
+	/**
+	 *  Return the label of the status
+	 *
+	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
+	 *  @return	string 			       Label of status
+	 */
+	public function getLibVerdict($mode = 0)
+	{
+		return $this->LibVerdict($this->verdict, $mode);
+	}
+
+
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
 	 *  Return the status
@@ -725,6 +737,28 @@ class Control extends CommonObject
 		if ($status == self::STATUS_LOCKED) $statusType = 'status4';
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
+	}
+
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
+	/**
+	 *  Return the status
+	 *
+	 *  @param	int		$verdict        Id status
+	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
+	 *  @return string 			       Label of status
+	 */
+	public function LibVerdict($verdict, $mode = 0)
+	{
+		global $langs;
+
+		$this->labelStatus[1] = $langs->trans('OK');
+		$this->labelStatus[2] = $langs->trans('KO');
+
+		$verdictType = 'status' . $verdict;
+		if ($verdict == 1) $verdictType = 'status4';
+		if ($verdict == 2) $verdictType = 'status8';
+
+		return dolGetStatus($this->labelStatus[$verdict], $this->labelStatusShort[$verdict], '', $verdictType, $mode);
 	}
 
 	/**

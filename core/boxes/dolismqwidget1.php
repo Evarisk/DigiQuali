@@ -121,6 +121,7 @@ class dolismqwidget1 extends ModeleBoxes
 		require_once DOL_DOCUMENT_ROOT . "/categories/class/categorie.class.php";
 
 		require_once __DIR__ . '/../../class/control.class.php';
+		require_once __DIR__ . '/../../class/sheet.class.php';
 
 //		// Populate the contents at runtime
 //		$this->info_box_contents = array(
@@ -182,6 +183,7 @@ class dolismqwidget1 extends ModeleBoxes
 
 		$form = new Form($this->db);
 		$category = new Categorie($this->db);
+		$sheet = new Sheet($this->db);
 		$cookie_name = 'DOLUSERCOOKIE_boxfilter_control';
 		$boxcontent = '';
 		$filterValue = 'all';
@@ -253,21 +255,24 @@ class dolismqwidget1 extends ModeleBoxes
 			)
 		);
 
-		$category->fetch(94);
+		$category->fetch(93);
 		$category->fetch_optionals();
 		//$category->fetch(0, $langs->trans('Regulatory'), 'control');
 
-		$controls = $category->getObjectsInCateg('control', 0, $max);
+		$controls = $category->getObjectsInCateg('control', 0);
 
 		foreach ($controls as $key => $control) {
+
+			$sheet->fetch($control->fk_sheet);
+
 			$this->info_box_contents[$key+1] = array(
 				0 => array(
 					'td' => '',
-					'text' => $control->getNomUrl(0)
+					'text' => $control->getNomUrl(0) . ' - ' .$sheet->getNomUrl(0)
 				),
 				1 => array(
 					'td' => 'class="right"',
-					'text' => $control->verdict
+					'text' => $control->getLibVerdict(3)
 				)
 			);
 
@@ -276,7 +281,7 @@ class dolismqwidget1 extends ModeleBoxes
 			}
 		}
 
-		$regulatoryTotalScore = ($regulatoryScore/$max) * 100;
+		$regulatoryTotalScore = ($regulatoryScore/count($controls)) * 100;
 
 		if ($regulatoryTotalScore <= $category->array_options['options_seuil']) {
 			$regulatoryTotalScoreCSS = 'style="color:red"';
@@ -294,16 +299,16 @@ class dolismqwidget1 extends ModeleBoxes
 			)
 		);
 
-		$this->info_box_contents[$key+3] = array(
-			0 => array(
-				'td' => '',
-				'text' => $langs->trans('RegulatoryThreshold')
-			),
-			1 => array(
-				'td' => 'class="right"',
-				'text' => price2num($category->array_options['options_seuil'], '', 2) . ' %'
-			)
-		);
+//		$this->info_box_contents[$key+3] = array(
+//			0 => array(
+//				'td' => '',
+//				'text' => $langs->trans('RegulatoryThreshold')
+//			),
+//			1 => array(
+//				'td' => 'class="right"',
+//				'text' => price2num($category->array_options['options_seuil'], '', 2) . ' %'
+//			)
+//		);
 	}
 
 	/**
