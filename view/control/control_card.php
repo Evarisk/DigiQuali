@@ -1736,7 +1736,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							<input type="hidden" class="question-answer-photo" id="answer_photo<?php echo $item->id ?>" name="answer_photo<?php echo $item->id ?>" value="test"/>
 							<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
 								<input type="hidden" class="type-from" value="answer_photo"/>
-								<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
+								<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 							</div>
 							<?php $relativepath = 'dolismq/medias/thumbs';
 							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 1, 1); ?>
