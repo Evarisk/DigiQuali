@@ -10,3 +10,6 @@ ALTER TABLE `llx_dolismq_control` DROP `fk_soc`;
 ALTER TABLE `llx_dolismq_control` DROP `fk_project`;
 ALTER TABLE `llx_dolismq_control` DROP `fk_task`;
 
+-- 1.3.0
+ALTER TABLE `llx_dolismq_sheet` ADD `element_linked` TEXT NULL AFTER `label`;
+

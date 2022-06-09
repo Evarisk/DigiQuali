@@ -73,7 +73,7 @@ require_once '../../lib/dolismq_function.lib.php';
 global $langs, $conf, $user, $db;
 
 // Load translation files required by the page
-$langs->loadLangs(array("dolismq@dolismq", "other"));
+$langs->loadLangs(array("dolismq@dolismq", "other", "product"));
 
 // Get parameters
 $id = GETPOST('id', 'int');
@@ -174,9 +174,27 @@ if (empty($reshook))
 
 	$triggermodname = 'DOLISMQ_AUDIT_MODIFY'; // Name of trigger action code to execute when we modify record
 
+	if ($action == 'add') {
+		$showArray = array();
+		$elementArray = array(
+			'product',
+			'productlot',
+			'thirdparty',
+			'project',
+			'task',
+		);
+
+		foreach ($elementArray as $element) {
+			if ((GETPOST('show_'.$element) == 'on')) {
+				$showArray[$element] = 1;
+			}
+		}
+
+		$object->element_linked = json_encode($showArray);
+	}
+
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
-
 
 	// Actions when linking object each other
 	include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';
@@ -270,6 +288,43 @@ if ($action == 'create') {
 	print '<tr><td class="">' . $langs->trans("Label") . '</td><td>';
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="' . GETPOST('label') . '">';
 	print '</td></tr>';
+
+	//FK Element
+	$elementArray = array(
+		'product' => array(
+			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT,
+			'langs' => 'ProductOrService',
+			'picto' => 'product'
+		),
+		'productlot' => array(
+			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT,
+			'langs' => 'Lot',
+			'picto' => 'lot'
+		),
+		'thirdparty' => array(
+			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY,
+			'langs' => 'ThirdParty',
+			'picto' => 'building'
+		),
+		'project' => array(
+			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PROJECT,
+			'langs' => 'Project',
+			'picto' => 'project'
+		),
+		'task' => array(
+			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_TASK,
+			'langs' => 'Task',
+			'picto' => 'projecttask'
+		),
+	);
+
+	foreach ($elementArray as $key => $element) {
+		if (!empty($element['conf'])) {
+			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
+			print '<input type="checkbox" id="show_'.$key.'" name="show_'.$key.'">';
+			print '</td></tr>';
+		}
+	}
 
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
