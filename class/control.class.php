@@ -751,10 +751,12 @@ class Control extends CommonObject
 	{
 		global $langs;
 
+		$this->labelStatus[0] = $langs->trans('NA');
 		$this->labelStatus[1] = $langs->trans('OK');
 		$this->labelStatus[2] = $langs->trans('KO');
 
 		$verdictType = 'status' . $verdict;
+		if ($verdict == 0) $verdictType = 'status6';
 		if ($verdict == 1) $verdictType = 'status4';
 		if ($verdict == 2) $verdictType = 'status8';
 

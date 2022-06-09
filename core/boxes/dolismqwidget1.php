@@ -281,10 +281,6 @@ class dolismqwidget1 extends ModeleBoxes
 			}
 
 			$regulatoryTotalScore = ($regulatoryScore / count($controls)) * 100;
-
-			if ($regulatoryTotalScore <= $category->array_options['options_seuil']) {
-				$regulatoryTotalScoreCSS = 'style="color:red"';
-			}
 		}
 
 		$this->info_box_contents[$key+2] = array(
@@ -293,7 +289,7 @@ class dolismqwidget1 extends ModeleBoxes
 				'text' => $langs->trans('RegulatoryScore')
 			),
 			1 => array(
-				'td' => 'class="right"' . $regulatoryTotalScoreCSS,
+				'td' => 'class="right"',
 				'text' => price2num($regulatoryTotalScore, '', 2) . ' %',
 			)
 		);
