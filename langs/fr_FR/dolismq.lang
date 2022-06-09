@@ -202,7 +202,24 @@ NoLotDefined = Pas de numéros de lots/série trouvé
 SelectAProductFirst = Sélectionnez d'abord un produit
 ActionsOnControl = Événements liés au contrôle
 ControlsCategoriesArea = Espace des tags/catégories des contrôles
+RegulatoryScore = Score réglementaire
+ControlCategories = Catégories des côntroles
+GenerateCategories = Génération des catégories de contrôle par défaut
+AlreadyGenerated = Déjà généré(e)s
+NotCreated = Pas encore créé(e)s
+CategoriesGeneration = Cette option permet la génération des catégories par défaut des contrôles. Les catégories créées seront : <br> - Qualité <br> - Hygiène <br> - Sécurité <br> - Environnement <br> - Réglementaire <br> - Bureau d'Etude <br> - Fournisseurs <br> - Commercial <br> - Production <br> - Méthodes <br>
 
+# Tags - catégories
+Quality = Qualité
+Health = Hygiène
+Security = Sécurité
+Environment = Environnement
+Regulatory = Réglementaire
+DesignOffice = Bureau d'Etude
+Suppliers = Fournisseurs
+Commercial = Commercial
+Production = Production
+Methods = Méthodes
 
 
 #
@@ -262,13 +279,3 @@ Lock = Verrouiller
 NoData = N/A
 ErrorFileNotFound = Aucun logo de la société renseigné
 MinimizeMenu = Réduire le menu
-
-#
-#
-#
-
-# Data - Donnée
-Regulatory = Réglementaire
-RegulatoryScore = Score réglementaire
-RegulatoryThreshold = Seuil réglementaire
-

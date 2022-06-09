@@ -176,6 +176,7 @@ class modDoliSMQ extends DolibarrModules
 			25 => array('DOLISMQ_CONTROL_SHOW_THIRDPARTY', 'integer', 0, '', 0, 'current'),
 			26 => array('DOLISMQ_CONTROL_SHOW_PROJECT', 'integer', 0, '', 0, 'current'),
 			27 => array('DOLISMQ_CONTROL_SHOW_TASK', 'integer', 0, '', 0, 'current'),
+			28 => array('DOLISMQ_CONTROL_TAGS_SET', 'integer', 0, '', 0, 'current'),
 
 			//CONST CONTROL DOCUMENT
 			30 => array('DOLISMQ_CONTROLDOCUMENT_ADDON', 'chaine', 'mod_controldocument_standard', '', 0, 'current'),

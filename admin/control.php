@@ -42,6 +42,7 @@ global $conf, $db, $langs, $user;
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
 require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
+require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 
 //require_once '../class/control.class.php';
 require_once '../lib/dolismq.lib.php';
@@ -74,6 +75,7 @@ $usertmp = new User($db);
 //$control = new Control($db);
 $actioncomm = new ActionComm($db);
 $extrafields = new ExtraFields($db);
+$tags = new Categorie($db);
 
 /*
  * Actions
@@ -90,6 +92,51 @@ if ($action == 'setmodControlDet') {
 	$constforval = 'DIGIRISKDOLIBARR_' . strtoupper('controldet') . "_ADDON";
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
+
+if ($action == 'generateCategories') {
+	$tags->label = $langs->transnoentities('Quality');
+	$tags->type  = 'control';
+	$tags->create($user);
+
+	$tags->label = $langs->transnoentities('Health');
+	$tags->type  = 'control';
+	$tags->create($user);
+
+	$tags->label = $langs->transnoentities('Security');
+	$tags->type  = 'control';
+	$tags->create($user);
+
+	$tags->label = $langs->trans('Environment');
+	$tags->type  = 'control';
+	$tags->create($user);
+
+	$tags->label = $langs->transnoentities('Regulatory');
+	$tags->type  = 'control';
+	$tags->create($user);
+
+	$tags->label = $langs->transnoentities('DesignOffice');
+	$tags->type  = 'control';
+	$tags->create($user);
+
+	$tags->label = $langs->trans('Suppliers');
+	$tags->type  = 'control';
+	$tags->create($user);
+
+	$tags->label = $langs->trans('Commercial');
+	$tags->type  = 'control';
+	$tags->create($user);
+
+	$tags->label = $langs->trans('Production');
+	$tags->type  = 'control';
+	$tags->create($user);
+
+	$tags->label = $langs->transnoentities('Methods');
+	$tags->type  = 'control';
+	$tags->create($user);
+
+	dolibarr_set_const($db, 'DOLISMQ_CONTROL_TAGS_SET', 1, 'integer', 0, '', $conf->entity);
+}
+
 
 
 //if ($action == 'setUserController') {
@@ -382,6 +429,38 @@ print '<td class="center">';
 print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_TASK');
 print '</td>';
 print '</tr>';
+
+print load_fiche_titre($langs->trans("ControlCategories"), '', '');
+
+print '<div class="div-table-responsive-no-min">';
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans("Name") . '</td>';
+print '<td class="center">' . $langs->trans("Status") . '</td>';
+print '<td class="center">' . $langs->trans("Action") . '</td>';
+print '<td class="center">' . $langs->trans("ShortInfo") . '</td>';
+print '</tr>';
+
+//Categories generation
+
+print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+print '<input type="hidden" name="token" value="' . newToken() . '">';
+print '<input type="hidden" name="action" value="generateCategories">';
+print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
+
+print '<tr class="oddeven"><td>' . $langs->trans("GenerateCategories") . '</td>';
+print '<td class="center">';
+print $conf->global->DOLISMQ_CONTROL_TAGS_SET ? $langs->trans('AlreadyGenerated') : $langs->trans('NotCreated');
+print '</td>';
+print '<td class="center">';
+print $conf->global->DOLISMQ_CONTROL_TAGS_SET ? '<a type="" class=" butActionRefused" value="">'.$langs->trans('Create') .'</a>' : '<input type="submit" class="button" value="'.$langs->trans('Create') .'">' ;
+print '</td>';
+
+print '<td class="center">';
+print $form->textwithpicto('', $langs->trans("CategoriesGeneration"), 1, 'help');
+print '</td>';
+print '</tr>';
+print '</form>';
 
 //print '<tr class="oddeven"><td><label for="UserController">' . $langs->trans("UserController") . '</label></td>';
 //print '<td>' . $langs->trans("UserControllerDescription") . '</td>';
