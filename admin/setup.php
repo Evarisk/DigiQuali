@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2021 EOXIA <dev@eoxia.com>
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 /**
  * \file    admin/setup.php
  * \ingroup dolismq
- * \brief   DoliSMQ setup page.
+ * \brief   DoliSMQ setup config page.
  */
 
 // Load Dolibarr environment
@@ -35,32 +35,34 @@ if (!$res && file_exists("../../main.inc.php")) $res = @include "../../main.inc.
 if (!$res && file_exists("../../../main.inc.php")) $res = @include "../../../main.inc.php";
 if (!$res) die("Include of main fails");
 
-global $langs, $user;
-
 // Libraries
 require_once DOL_DOCUMENT_ROOT."/core/lib/admin.lib.php";
+
 require_once '../lib/dolismq.lib.php';
 
-// Translations
+// Global variables definitions
+global $db, $langs, $user;
+
+// Load translation files required by the page
 $langs->loadLangs(array("admin", "dolismq@dolismq"));
+
+// Get parameters
+$backtopage = GETPOST('backtopage', 'alpha');
 
 // Access control
 if (!$user->admin) accessforbidden();
-
-// Parameters
-$backtopage = GETPOST('backtopage', 'alpha');
 
 /*
  * View
  */
 
 $page_name = "DoliSMQSetup";
-$morejs   = array("/digiriskdolibarr/js/digiriskdolibarr.js.php");
+$morejs    = array("/dolismq/js/dolismq.js.php");
 
 llxHeader('', $langs->trans($page_name), '', '', 0, 0, $morejs);
 
 // Subheader
-$linkback = '<a href="'.($backtopage ? $backtopage : DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';
+$linkback = '<a href="'.($backtopage ?: DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';
 
 print load_fiche_titre($langs->trans($page_name), $linkback, 'dolismq@dolismq');
 
@@ -73,6 +75,5 @@ echo '<span class="opacitymedium">'.$langs->trans("DoliSMQSetupPage").'</span><b
 
 // Page end
 print dol_get_fiche_end();
-
 llxFooter();
 $db->close();

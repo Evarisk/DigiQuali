@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2021 EOXIA <dev@eoxia.com>
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 /**
  * \file    admin/sheet.php
  * \ingroup dolismq
- * \brief   Digiriskdolibarr sheet page.
+ * \brief   DoliSMQ sheet config page.
  */
 
 // Load Dolibarr environment
@@ -36,26 +36,26 @@ if ( ! $res && file_exists("../../../main.inc.php")) $res    = @include "../../.
 if ( ! $res && file_exists("../../../../main.inc.php")) $res = @include "../../../../main.inc.php";
 if ( ! $res) die("Include of main fails");
 
-global $conf, $db, $langs, $user;
-
 // Libraries
-require_once DOL_DOCUMENT_ROOT . "/core/class/html.formprojet.class.php";
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
-require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
 
 require_once '../lib/dolismq.lib.php';
 
-// Translations
+// Global variables definitions
+global $conf, $db, $langs, $user;
+
+// Load translation files required by the page
 $langs->loadLangs(array("admin", "dolismq@dolismq"));
 
-// Access sheet
-if ( ! $user->admin) accessforbidden();
-
-// Parameters
+// Get parameters
 $action     = GETPOST('action', 'alpha');
 $backtopage = GETPOST('backtopage', 'alpha');
 $value      = GETPOST('value', 'alpha');
 $attrname   = GETPOST('attrname', 'alpha');
+
+// Initialize technical objects
+// View objects
+$form = new Form($db);
 
 // List of supported format
 $tmptype2label = ExtraFields::$type2label;
@@ -65,21 +65,21 @@ foreach ($tmptype2label as $key => $val) {
 }
 
 $elementtype = 'dolismq_sheet'; //Must be the $table_element of the class that manage extrafield
-$type  = 'sheet';
-$error = 0;
+$error = 0; //Error counter
 
-// Initialize technical objects
-$usertmp = new User($db);
-$extrafields = new ExtraFields($db);
+// Access control
+if (!$user->admin) accessforbidden();
 
 /*
  * Actions
  */
 
+//Extrafields actions
 require DOL_DOCUMENT_ROOT.'/core/actions_extrafields.inc.php';
 
+//Set numering modele for control object
 if ($action == 'setmod') {
-	$constforval = 'DOLISMQ_' . strtoupper($type) . "_ADDON";
+	$constforval = 'DOLISMQ_' . strtoupper('sheet') . "_ADDON";
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
 
@@ -87,20 +87,15 @@ if ($action == 'setmod') {
  * View
  */
 
-if ( ! empty($conf->projet->enabled)) { $formproject = new FormProjets($db); }
-$form = new Form($db);
+$help_url = 'FR:Module_DoliSMQ';
+$title    = $langs->trans("Sheet");
+$morejs   = array("/dolismq/js/dolismq.js.php");
+$morecss  = array("/dolismq/css/dolismq.css");
 
-$help_url   = 'FR:Module_DigiriskDolibarr#L.27onglet_.C3.89l.C3.A9ment_Digirisk';
-$title      = $langs->trans("Sheet");
-$textobject = $langs->transnoentitiesnoconv("Sheet");
-
-$morejs  = array("/dolismq/js/dolismq.js.php");
-$morecss = array("/dolismq/css/dolismq.css");
-
-llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
+llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);
 
 // Subheader
-$linkback = '<a href="' . ($backtopage ? $backtopage : DOL_URL_ROOT . '/admin/modules.php?restore_lastsearch_values=1') . '">' . $langs->trans("BackToModuleList") . '</a>';
+$linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?restore_lastsearch_values=1') . '">' . $langs->trans("BackToModuleList") . '</a>';
 
 print load_fiche_titre($title, $linkback, 'dolismq@dolismq');
 
@@ -121,7 +116,7 @@ print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
 print '<td>' . $langs->trans("Name") . '</td>';
 print '<td>' . $langs->trans("Description") . '</td>';
-print '<td class="nowrap">' . $langs->trans("Example") . '</td>';
+print '<td>' . $langs->trans("Example") . '</td>';
 print '<td class="center">' . $langs->trans("Status") . '</td>';
 print '<td class="center">' . $langs->trans("ShortInfo") . '</td>';
 print '</tr>';
@@ -170,7 +165,7 @@ if (is_dir($dir)) {
 						// Example for listing risks action
 						$htmltooltip  = '';
 						$htmltooltip .= '' . $langs->trans("Version") . ': <b>' . $module->getVersion() . '</b><br>';
-						$nextval      = $module->getNextValue($object_document);
+						$nextval      = $module->getNextValue($module);
 						if ("$nextval" != $langs->trans("NotAvailable")) {  // Keep " on nextval
 							$htmltooltip .= $langs->trans("NextValue") . ': ';
 							if ($nextval) {
@@ -198,7 +193,9 @@ if (is_dir($dir)) {
 }
 
 print '</table>';
-print '<br>';
+
+//Extrafields sheet management
+print load_fiche_titre($langs->trans("ExtrafieldsSheetManagement"), '', '');
 
 require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_view.tpl.php';
 
@@ -211,17 +208,13 @@ if ($action != 'create' && $action != 'edit') {
 
 // Creation of an optional field
 if ($action == 'create') {
-	print "<br>";
 	print load_fiche_titre($langs->trans('NewAttribute'));
-
 	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_add.tpl.php';
 }
 
 // Edition of an optional field
 if ($action == 'edit' && !empty($attrname)) {
-	print "<br>";
 	print load_fiche_titre($langs->trans("FieldEdition", $attrname));
-
 	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_edit.tpl.php';
 }
 

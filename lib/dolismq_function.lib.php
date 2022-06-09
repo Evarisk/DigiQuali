@@ -989,7 +989,7 @@ function dolismq_select_product_lots($productid, $selected = '', $htmlname = 'fk
 {
 	global $conf, $langs, $hookmanager, $action, $db;
 
-	$langs->loadLangs(array("dolisqm@dolisqm", "companies"));
+	$langs->loadLangs(array("dolismQ@dolismq", "companies"));
 
 	if (empty($htmlid)) $htmlid = $htmlname;
 	$num                        = 0;

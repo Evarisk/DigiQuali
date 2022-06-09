@@ -97,7 +97,7 @@ On = sur
 BewareQuestionsAnswered = Attention il manque %s réponse(s)
 ActionsOnQuestion = Événements liés au question
 QuestionsCategoriesArea = Espace des tags/catégories des questions
-
+ExtrafieldsQuestionManagement = Gestion des attributs supplémentaires des questions
 
 
 #
@@ -134,6 +134,7 @@ ModalAddPhoto = Bibliothèque de médias
 SheetManagement = Gestion des fiches modèles
 ActionsOnSheet = Événements liés au fiche modèle
 SheetsCategoriesArea = Espace des tags/catégories des fiches modèles
+ExtrafieldsSheetManagement = Gestion des attributs supplémentaires des fiches modèles
 
 
 #
@@ -208,6 +209,7 @@ GenerateCategories = Génération des catégories de contrôle par défaut
 AlreadyGenerated = Déjà généré(e)s
 NotCreated = Pas encore créé(e)s
 CategoriesGeneration = Cette option permet la génération des catégories par défaut des contrôles. Les catégories créées seront : <br> - Qualité <br> - Hygiène <br> - Sécurité <br> - Environnement <br> - Réglementaire <br> - Bureau d'Etude <br> - Fournisseurs <br> - Commercial <br> - Production <br> - Méthodes <br>
+ExtrafieldsControlManagement = Gestion des attributs supplémentaires des contrôles
 
 # Tags - catégories
 Quality = Qualité
