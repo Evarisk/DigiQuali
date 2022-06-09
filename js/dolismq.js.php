@@ -998,6 +998,7 @@ window.eoxiaJS.control.event = function() {
 	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 	$( document ).on( 'change', '#fk_project', window.eoxiaJS.control.reloadTask );
 	$( document ).on( 'click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
+	$( document ).on( 'click', '#select_all_answer', window.eoxiaJS.control.selectAllAnswer);
 };
 
 /**
@@ -1154,6 +1155,20 @@ window.eoxiaJS.control.getAnswerCounter = function ( event ) {
 	})
 	document.cookie = "answerCounter=" + answerCounter
 }
+
+///**
+// * Action select All Answer.
+// *
+// * @since   1.3.0
+// * @version 1.3.0
+// *
+// * @return {void}
+// */
+//window.eoxiaJS.control.selectAllAnswer = function ( event ) {
+////	$(this).closest('.fiche').find('#tablelines').find('.answer').each(function() {
+////		window.eoxiaJS.control.selectAnswer();
+////	});
+////};
 
 /**
  * Initialise l'objet "menu" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.
