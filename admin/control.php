@@ -38,7 +38,6 @@ if ( ! $res) die("Include of main fails");
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
-require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 
 require_once '../lib/dolismq.lib.php';
 
@@ -55,9 +54,6 @@ $value      = GETPOST('value', 'alpha');
 $attrname   = GETPOST('attrname', 'alpha');
 
 // Initialize objects
-// Technical objets
-$tags = new Categorie($db);
-
 // View objects
 $form = new Form($db);
 
@@ -91,51 +87,6 @@ if ($action == 'setmod') {
 if ($action == 'setmodControlDet') {
 	$constforval = 'DIGIRISKDOLIBARR_' . strtoupper('controldet') . "_ADDON";
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
-}
-
-//Generate default categories
-if ($action == 'generateCategories') {
-	$tags->label = $langs->transnoentities('Quality');
-	$tags->type  = 'control';
-	$tags->create($user);
-
-	$tags->label = $langs->transnoentities('Health');
-	$tags->type  = 'control';
-	$tags->create($user);
-
-	$tags->label = $langs->transnoentities('Security');
-	$tags->type  = 'control';
-	$tags->create($user);
-
-	$tags->label = $langs->trans('Environment');
-	$tags->type  = 'control';
-	$tags->create($user);
-
-	$tags->label = $langs->transnoentities('Regulatory');
-	$tags->type  = 'control';
-	$tags->create($user);
-
-	$tags->label = $langs->transnoentities('DesignOffice');
-	$tags->type  = 'control';
-	$tags->create($user);
-
-	$tags->label = $langs->trans('Suppliers');
-	$tags->type  = 'control';
-	$tags->create($user);
-
-	$tags->label = $langs->trans('Commercial');
-	$tags->type  = 'control';
-	$tags->create($user);
-
-	$tags->label = $langs->trans('Production');
-	$tags->type  = 'control';
-	$tags->create($user);
-
-	$tags->label = $langs->transnoentities('Methods');
-	$tags->type  = 'control';
-	$tags->create($user);
-
-	dolibarr_set_const($db, 'DOLISMQ_CONTROL_TAGS_SET', 1, 'integer', 0, '', $conf->entity);
 }
 
 /*
@@ -418,37 +369,6 @@ print '<td class="center">';
 print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_TASK');
 print '</td>';
 print '</tr>';
-print '</table>';
-
-//Generate categories
-print load_fiche_titre($langs->trans("ControlCategories"), '', '');
-
-print '<table class="noborder centpercent">';
-print '<tr class="liste_titre">';
-print '<td>' . $langs->trans("Name") . '</td>';
-print '<td class="center">' . $langs->trans("Status") . '</td>';
-print '<td class="center">' . $langs->trans("Action") . '</td>';
-print '<td class="center">' . $langs->trans("ShortInfo") . '</td>';
-print '</tr>';
-
-print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
-print '<input type="hidden" name="token" value="' . newToken() . '">';
-print '<input type="hidden" name="action" value="generateCategories">';
-print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
-
-print '<tr><td>' . $langs->trans("GenerateCategories") . '</td>';
-print '<td class="center">';
-print $conf->global->DOLISMQ_CONTROL_TAGS_SET ? $langs->trans('AlreadyGenerated') : $langs->trans('NotCreated');
-print '</td>';
-print '<td class="center">';
-print $conf->global->DOLISMQ_CONTROL_TAGS_SET ? '<a type="" class=" butActionRefused" value="">'.$langs->trans('Create') .'</a>' : '<input type="submit" class="button" value="'.$langs->trans('Create') .'">' ;
-print '</td>';
-
-print '<td class="center">';
-print $form->textwithpicto('', $langs->trans("CategoriesGeneration"));
-print '</td>';
-print '</tr>';
-print '</form>';
 print '</table>';
 
 //Extrafields control management

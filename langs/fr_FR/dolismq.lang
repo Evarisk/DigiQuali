@@ -135,6 +135,24 @@ SheetManagement = Gestion des fiches modèles
 ActionsOnSheet = Événements liés au fiche modèle
 SheetsCategoriesArea = Espace des tags/catégories des fiches modèles
 ExtrafieldsSheetManagement = Gestion des attributs supplémentaires des fiches modèles
+SheetCategories = Catégories des des fiches modèles
+GenerateCategories = Génération des catégories de fiche modèle par défaut
+AlreadyGenerated = Déjà généré(e)s
+NotCreated = Pas encore créé(e)s
+CategoriesGeneration = Cette option permet la génération des catégories par défaut des des fiches modèles. Les catégories créées seront : <br> - Qualité <br> - Hygiène <br> - Sécurité <br> - Environnement <br> - Sureté <br> - Réglementaire <br> - Bureau d'Etude <br> - Fournisseurs <br> - Commercial <br> - Production <br> - Méthodes <br>
+
+# Tags - catégories
+Quality = Qualité
+HealthSecurity = Hygiène et sécurité
+Environment = Environnement
+Safety = Sureté
+Regulatory = Réglementaire
+DesignOffice = Bureau d'Etude
+Suppliers = Fournisseurs
+Commercial = Commercial
+Production = Production
+Methods = Méthodes
+
 
 
 #
@@ -204,24 +222,8 @@ SelectAProductFirst = Sélectionnez d'abord un produit
 ActionsOnControl = Événements liés au contrôle
 ControlsCategoriesArea = Espace des tags/catégories des contrôles
 RegulatoryScore = Score réglementaire
-ControlCategories = Catégories des côntroles
-GenerateCategories = Génération des catégories de contrôle par défaut
-AlreadyGenerated = Déjà généré(e)s
-NotCreated = Pas encore créé(e)s
-CategoriesGeneration = Cette option permet la génération des catégories par défaut des contrôles. Les catégories créées seront : <br> - Qualité <br> - Hygiène <br> - Sécurité <br> - Environnement <br> - Réglementaire <br> - Bureau d'Etude <br> - Fournisseurs <br> - Commercial <br> - Production <br> - Méthodes <br>
 ExtrafieldsControlManagement = Gestion des attributs supplémentaires des contrôles
 
-# Tags - catégories
-Quality = Qualité
-Health = Hygiène
-Security = Sécurité
-Environment = Environnement
-Regulatory = Réglementaire
-DesignOffice = Bureau d'Etude
-Suppliers = Fournisseurs
-Commercial = Commercial
-Production = Production
-Methods = Méthodes
 
 
 #
