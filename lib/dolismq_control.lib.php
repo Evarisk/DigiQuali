@@ -29,10 +29,13 @@
  */
 function controlPrepareHead($object)
 {
-	global $db, $langs, $conf;
+	// Global variables definitions
+	global $conf, $langs;
 
+	// Load translation files required by the page
 	$langs->load("dolismq@dolismq");
 
+	// Initialize variables
 	$h = 0;
 	$head = array();
 
@@ -58,25 +61,12 @@ function controlPrepareHead($object)
 		$h++;
 	}
 
-//	require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
-//	require_once DOL_DOCUMENT_ROOT.'/core/class/link.class.php';
-//	$upload_dir = $conf->dolismq->dir_output."/control/".dol_sanitizeFileName($object->ref);
-//	$nbFiles = count(dol_dir_list($upload_dir, 'files', 0, '', '(\.meta|_preview.*\.png)$'));
-//	$nbLinks = Link::count($db, $object->element, $object->id);
-//	$head[$h][0] = dol_buildpath("/dolismq/view/control/control_document.php", 1).'?id='.$object->id;
-//	$head[$h][1] = $langs->trans('Documents');
-//	if (($nbFiles + $nbLinks) > 0) $head[$h][1] .= '<span class="badge marginleftonlyshort">'.($nbFiles + $nbLinks).'</span>';
-//	$head[$h][2] = 'document';
-//	$h++;
-
 	$head[$h][0] = dol_buildpath("/dolismq/view/control/control_agenda.php", 1).'?id='.$object->id;
 	$head[$h][1] = $langs->trans("Events");
 	$head[$h][2] = 'controlAgenda';
 	$h++;
 
 	complete_head_from_modules($conf, $langs, $object, $head, $h, 'control@dolismq');
-
-	complete_head_from_modules($conf, $langs, $object, $head, $h, 'control@dolismq', 'remove');
 
 	return $head;
 }
