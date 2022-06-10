@@ -290,7 +290,7 @@ class dolismqwidget1 extends ModeleBoxes
 			),
 			1 => array(
 				'td' => 'class="right"',
-				'text' => price2num($regulatoryTotalScore, '', 2) . ' %',
+				'text' => price2num($regulatoryTotalScore, 'MT', 1) . ' %',
 			)
 		);
 
