@@ -63,12 +63,12 @@ if (empty($dolibarr_nocache)) {
 }
 ?>
 /**
- * \file    digiriskdolibarr/js/digiriskdolibarr.js.php
- * \ingroup digiriskdolibarr
- * \brief   JavaScript file for module DigiriskDolibarr.
+ * \file    dolismq/js/dolismq.js.php
+ * \ingroup dolismq
+ * \brief   JavaScript file for module DoliSMQ.
  */
 
-/* Javascript library of module DigiriskDolibarr */
+/* Javascript library of module DoliSMQ */
 
 'use strict';
 /**
@@ -931,6 +931,7 @@ window.eoxiaJS.question.init = function() {
 window.eoxiaJS.question.event = function() {
 	$( document ).on( 'click', '.clicked-photo-preview', window.eoxiaJS.question.previewPhoto );
 	$( document ).on( 'click', '.ui-dialog-titlebar-close', window.eoxiaJS.question.closePreviewPhoto );
+	$( document ).on( 'click', '#show_photo', window.eoxiaJS.question.showPhoto );
 };
 
 /**
@@ -961,6 +962,26 @@ window.eoxiaJS.question.previewPhoto = function ( event ) {
  */
 window.eoxiaJS.question.closePreviewPhoto = function ( event ) {
 	$("#dialogforpopup").attr('style', 'border:')
+};
+
+/**
+ * Show photo for question.
+ *
+ * @since   1.3.0
+ * @version 1.3.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.question.showPhoto = function() {
+	let photo = $(this).closest('.question-table').find('.linked-medias')
+
+	if (photo.hasClass('hidden')) {
+		photo.attr('style', '')
+		photo.removeClass('hidden')
+	} else {
+		photo.attr('style', 'display:none')
+		photo.addClass('hidden')
+	}
 };
 
 /**
@@ -998,7 +1019,7 @@ window.eoxiaJS.control.event = function() {
 	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 	$( document ).on( 'change', '#fk_project', window.eoxiaJS.control.reloadTask );
 	$( document ).on( 'click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
-	$( document ).on( 'click', '#select_all_answer', window.eoxiaJS.control.selectAllAnswer);
+	//$( document ).on( 'click', '#select_all_answer', window.eoxiaJS.control.selectAllAnswer);
 };
 
 /**

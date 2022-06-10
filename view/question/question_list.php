@@ -232,7 +232,7 @@ if (empty($reshook))
 $form = new Form($db);
 
 $now = dol_now();
-$morejs   = array("/digiriskdolibarr/js/digiriskdolibarr.js.php");
+$morejs   = array("/dolismq/js/dolismq.js.php");
 
 //$help_url="EN:Module_Question|FR:Module_Question_FR|ES:Módulo_Question";
 $help_url = '';

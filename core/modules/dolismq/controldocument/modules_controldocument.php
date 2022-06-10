@@ -17,8 +17,8 @@
  */
 
 /**
- *  \file			htdocs/core/modules/digiriskdolibarr/modules_controldocument.php
- *  \ingroup		digiriskdolibarr
+ *  \file			htdocs/core/modules/dolismq/modules_controldocument.php
+ *  \ingroup		dolismq
  *  \brief			File that contains parent class for controldocuments document models
  */
 

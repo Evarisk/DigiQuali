@@ -85,7 +85,7 @@ if ($action == 'setmod') {
 
 //Set numering modele for controldet object
 if ($action == 'setmodControlDet') {
-	$constforval = 'DIGIRISKDOLIBARR_' . strtoupper('controldet') . "_ADDON";
+	$constforval = 'DOLISMQ_' . strtoupper('controldet') . "_ADDON";
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
 

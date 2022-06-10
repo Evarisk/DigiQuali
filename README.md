@@ -19,7 +19,7 @@ Assitance: [Forum www.dolibarr.fr](https://www.dolibarr.fr) / Par mail à contac
 Demo: [Demo Dolismq](https://www.demodoli.digirisk.com) - ID: demo - Password: demo
 
 <!--
-Documentation: [Wiki Dolismq](https://wiki.dolibarr.org/index.php/Module_DigiriskDolibarr)
+Documentation: [Wiki Dolismq](https://wiki.dolibarr.org/index.php/Module_DoliSMQ)
 
 Forum: [Forum Digirisk](https://www.dolibarr.fr/forum/t/module-digirisk-document-unique/37119)
 -->

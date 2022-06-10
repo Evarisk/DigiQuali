@@ -185,7 +185,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 
 		$outputlangs->loadLangs(array("main", "dict", "companies", "dolismq@dolismq"));
 //
-//		$mod = new $conf->global->DIGIRISKDOLIBARR_GROUPMENTDOCUMENT_ADDON($this->db);
+//		$mod = new $conf->global->DOLISMQ_GROUPMENTDOCUMENT_ADDON($this->db);
 //		$ref = $mod->getNextValue($object);
 
 

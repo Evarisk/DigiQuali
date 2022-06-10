@@ -73,7 +73,7 @@ $now = dol_now();
 
 $form = new Form($db);
 $formfile = new FormFile($db);
-$morejs   = array("/digiriskdolibarr/js/digiriskdolibarr.js.php");
+$morejs   = array("/dolismq/js/dolismq.js.php");
 
 llxHeader("", $langs->trans("DoliSMQArea"), "", "", "", "", $morejs);
 

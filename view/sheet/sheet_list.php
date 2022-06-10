@@ -211,7 +211,7 @@ $form = new Form($db);
 
 $now = dol_now();
 
-$morejs   = array("/digiriskdolibarr/js/digiriskdolibarr.js.php");
+$morejs   = array("/dolismq/js/dolismq.js.php");
 
 //$help_url="EN:Module_Sheet|FR:Module_Sheet_FR|ES:Módulo_Sheet";
 $help_url = '';

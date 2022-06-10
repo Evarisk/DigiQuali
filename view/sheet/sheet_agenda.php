@@ -119,7 +119,7 @@ if (empty($reshook)) {
 
 if ($object->id > 0) {
 	$title    = $langs->trans("Sheet") . ' - ' . $langs->trans("Agenda");
-	$help_url = 'FR:Module_DigiriskDolibarr';
+	$help_url = 'FR:Module_DoliSMQ';
 	$morejs   = array("/dolismq/js/dolismq.js.php");
 	$morecss  = array("/dolismq/css/dolismq.css");
 
