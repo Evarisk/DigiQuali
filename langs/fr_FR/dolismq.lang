@@ -220,7 +220,6 @@ ShowTaskDescription = Afficher le lien entre les tâches et les contrôles
 NoLotDefined = Pas de numéros de lots/série trouvé
 SelectAProductFirst = Sélectionnez d'abord un produit
 ActionsOnControl = Événements liés au contrôle
-ControlsCategoriesArea = Espace des tags/catégories des contrôles
 RegulatoryScore = Score réglementaire
 ExtrafieldsControlManagement = Gestion des attributs supplémentaires des contrôles
 

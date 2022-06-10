@@ -69,7 +69,6 @@ require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
-require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
@@ -273,8 +272,6 @@ if (empty($reshook))
 					$object->add_object_linked('project_task', GETPOST('fk_task'));
 				}
 				// Creation OK
-				$categories = GETPOST('categories', 'array');
-				$object->setCategories($categories);
 				$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header("Location: ".$urltogo);
@@ -396,14 +393,6 @@ if (empty($reshook))
 		exit;
 	}
 
-	if ($action == 'set_categories' && $permissiontoadd) {
-		if ($object->fetch(GETPOST('id', 'int')) >= 0) {
-			$object->setCategories(GETPOST('categories', 'array'));
-			header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
-			exit();
-		}
-	}
-
 	if ($action == 'save') {
 
 		$controldet = new ControlLine($db);
@@ -516,8 +505,6 @@ if (empty($reshook))
 				}
 			}
 		}
-
-		$object->setCategories(GETPOST('categories', 'array'));
 
 		setEventMessages($langs->trans('AnswerSaved'), array());
 		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
@@ -837,7 +824,7 @@ if ($action == 'create') {
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT)) {
 		print '<tr><td class="">' . img_picto('', 'product', 'class="paddingrightonly"') . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' ' . $langs->trans('Service') . '</td><td>';
 		$events = array();
-		$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/digiriskdolibarr/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_productlot');
+		$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/dolismq/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_productlot');
 		print $form->select_produits(GETPOST('fk_product'), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices', 0, 'minwidth300');
 		print '<a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
 		print '</td></tr>';
@@ -882,14 +869,6 @@ if ($action == 'create') {
 		$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST("fk_task"), 'fk_task', 24, 0, '1', 1, 0, 0, 'minwidth300', (!empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
 		print '</span>';
 		print '</td></tr>';
-	}
-
-	if (!empty($conf->categorie->enabled)) {
-		// Categories
-		print '<tr><td>'.$langs->trans("Categories").'</td><td>';
-		$cate_arbo = $form->select_all_categories('control', '', 'parent', 64, 0, 1);
-		print img_picto('', 'category').$form->multiselectarray('categories', $cate_arbo, GETPOST('categories', 'array'), '', 0, 'quatrevingtpercent widthcentpercentminusx', 0, 0);
-		print "</td></tr>";
 	}
 
 	// Other attributes
@@ -1507,54 +1486,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-
-	// Categories
-	if ($conf->categorie->enabled) {
-		print '<div class="div-table-responsive-no-min">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
-
-		print '<table class="border tableforfield centpercent noborderbottom">';
-
-		print '<tr>';
-		print '<td class="valignmiddle titlefield">';
-		print '<table class="nobordernopadding centpercent"><tr><td class="nowrap">';
-		print $langs->trans("Categories");
-		if ($action != 'categories' && !$user->socid) {
-			print '<td class="right"><a class="editfielda" href="'.$_SERVER["PHP_SELF"].'?action=categories&id='.$object->id.'">'.img_edit($langs->trans('Modify')).'</a></td>';
-		}
-		print '</table>';
-		print '</td>';
-
-		if ($permissiontoadd && $action == 'categories') {
-			$cate_arbo = $form->select_all_categories('control', '', 'parent', 64, 0, 1);
-			if (is_array($cate_arbo)) {
-				// Categories
-				print '<td colspan="3">';
-				print '<form action="'.$_SERVER["PHP_SELF"].'" method="post">';
-				print '<input type="hidden" name="token" value="'.newToken().'">';
-				print '<input type="hidden" name="action" value="set_categories">';
-
-				$category = new Categorie($db);
-				$cats = $category->containing($object->id, 'control');
-				$arrayselected = array();
-				foreach ($cats as $cat) {
-					$arrayselected[] = $cat->id;
-				}
-
-				print img_picto('', 'category').$form->multiselectarray('categories', $cate_arbo, $arrayselected, '', 0, 'quatrevingtpercent widthcentpercentminusx', 0, 0);
-				print '<input type="submit" class="button button-edit small" value="'.$langs->trans('Save').'">';
-				print '</form>';
-				print "</td>";
-			}
-		} else {
-			print '<td colspan="3">';
-			print $form->showCategories($object->id, 'control', 1);
-			print "</td></tr>";
-		}
-
-		print '</table>';
-		print '</div>';
-	}
-
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php'; ?>
 
@@ -1867,7 +1798,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$outputlangs = new Translate('', $conf);
 			$outputlangs->setDefaultLang($newlang);
 			// Load traductions files required by page
-			$outputlangs->loadLangs(array('digiriskdolibarr'));
+			$outputlangs->loadLangs(array('dolismq'));
 		}
 
 		$topicmail = '';
