@@ -1650,18 +1650,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					<div class="table-cell table-450 cell-photo-check">
 						<?php
 						if (!empty($conf->global->DOLISMQ_CONTROL_DISPLAY_MEDIAS)) :
-							if (dol_strlen($item->photo_ko)) {
-								$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
-								print ($urladvanced) ? '<a href="' . $urladvanced . '" class="question-photo-check ko">' : '<div class="question-photo-check ko">';
-								print '<img class="photo photo-ko'. ($urladvanced ? ' clicked-photo-preview' : '').'" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ko)) . '" >';
-								print '<i class="fas fa-times-circle"></i>';
-								print ($urladvanced) ? '</a>' : '</div>';
-							} else {
-								print '<div class="question-photo-check ko">';
-								print '<img class="photo photo-ko question-photo-check ko" height="80" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
-								print '<i class="fas fa-times-circle"></i>';
-								print '</div>';
-							}
 							if (dol_strlen($item->photo_ok)) {
 								$urladvanced = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
 								print ($urladvanced) ? '<a href="' . $urladvanced . '" class="question-photo-check ok">' : '<div class="question-photo-check ok">';
@@ -1672,6 +1660,18 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								print '<div class="question-photo-check ok">';
 								print '<img class="photo photo-ok" height="80" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
 								print '<i class="fas fa-check-circle"></i>';
+								print '</div>';
+							}
+							if (dol_strlen($item->photo_ko)) {
+								$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
+								print ($urladvanced) ? '<a href="' . $urladvanced . '" class="question-photo-check ko">' : '<div class="question-photo-check ko">';
+								print '<img class="photo photo-ko'. ($urladvanced ? ' clicked-photo-preview' : '').'" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ko)) . '" >';
+								print '<i class="fas fa-times-circle"></i>';
+								print ($urladvanced) ? '</a>' : '</div>';
+							} else {
+								print '<div class="question-photo-check ko">';
+								print '<img class="photo photo-ko question-photo-check ko" height="80" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+								print '<i class="fas fa-times-circle"></i>';
 								print '</div>';
 							}
 						endif;
