@@ -286,12 +286,6 @@ class ActionsDolismq
 					'obj_class' => 'Sheet',
 					'obj_table' => 'dolismq_sheet',
 				),
-				'control' => array(
-					'id' => 52,
-					'code' => 'control',
-					'obj_class' => 'Control',
-					'obj_table' => 'dolismq_control',
-				),
 			);
 
 //			if ($reshook >= 0 && !empty($hookmanager->resArray)) {
