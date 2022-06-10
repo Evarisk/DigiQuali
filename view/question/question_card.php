@@ -347,11 +347,6 @@ if (empty($reshook))
 		}
 	}
 
-	if ($action == 'update' && !empty($permissiontoadd)) {
-		$categories = GETPOST('categories', 'array');
-		$object->setCategories($categories);
-	}
-
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
@@ -359,7 +354,7 @@ if (empty($reshook))
 	include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';
 
 	// Actions when printing a doc from card
-	include DOL_DOCUMENT_ROOT.'/core/actions_printing.inc.php';
+	//include DOL_DOCUMENT_ROOT.'/core/actions_printing.inc.php';
 
 	// Action to move up and down lines of object
 	//include DOL_DOCUMENT_ROOT.'/core/actions_lineupdown.inc.php';
@@ -535,7 +530,7 @@ if ($action == 'create')
 	// Set some default values
 	//if (! GETPOSTISSET('fieldname')) $_POST['fieldname'] = 'myvalue';
 
-	print '<table class="border centpercent tableforfieldcreate">'."\n";
+	print '<table class="border centpercent tableforfieldcreate question-table">'."\n";
 
 	// Common attributes
 //	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_add.tpl.php';
@@ -545,17 +540,30 @@ if ($action == 'create')
 	print $refQuestionMod->getNextValue($object);
 	print '</td></tr>';
 
-	//Label -- Libellé
+	// Label -- Libellé
 	print '<tr><td class="">'.$langs->trans("Label").'</td><td>';
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="'.GETPOST('label').'">';
 	print '</td></tr>';
 
+	// Description -- Description
 	print '<tr><td class=""><label class="fieldrequired" for="description">' . $langs->trans("Description") . '</label></td><td>';
 	$doleditor = new DolEditor('description', '', '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
 	print '</td></tr>';
 
-	print '<tr class="linked-medias photo_ok"><td class=""><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
+	// ShowPhoto -- Utiliser des photos
+	print '<tr><td class="minwidth400">' . $langs->trans("ShowPhoto") . '</td><td>';
+	print '<input type="checkbox" id="show_photo" name="show_photo"' . (GETPOST('show_photo') ? ' checked=""' : '') . '>';
+	print $form->textwithpicto('', $langs->trans('ShowPhotoTooltip'));
+	print '</td></tr>';
+
+	// AuthorizeAnswerPhoto -- Utiliser des réponses de photos
+	print '<tr><td class="minwidth400">' . $langs->trans("AuthorizeAnswerPhoto") . '</td><td>';
+	print '<input type="checkbox" id="authorize_answer_photo" name="authorize_answer_photo"' . (GETPOST('authorize_answer_photo') ? ' checked=""' : '') . '>';
+	print $form->textwithpicto('', $langs->trans('AuthorizeAnswerPhotoTooltip'));
+	print '</td></tr>';
+
+	print '<tr class="linked-medias photo_ok hidden" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
 	<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-photo-ok" name="userfile[]" multiple capture="environment" accept="image/*">'; ?>
 	<label for="fast-upload-photo-ok">
 		<div class="wpeo-button button-square-50">
@@ -572,7 +580,7 @@ if ($action == 'create')
 	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ok', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/tmp/QU0/photo_ok', null, GETPOST('favorite_photo_ok'));
 	print '</td></tr>';
 
-	print '<tr class="linked-medias photo_ko"><td class=""><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
+	print '<tr class="linked-medias photo_ko hidden" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
 	<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-photo-ko" name="userfile2[]" multiple capture="environment" accept="image/*">'; ?>
 	<label for="fast-upload-photo-ko">
 		<div class="wpeo-button button-square-50">
@@ -629,7 +637,7 @@ if (($id || $ref) && $action == 'edit')
 
 	print dol_get_fiche_head();
 
-	print '<table class="border centpercent tableforfieldedit">'."\n";
+	print '<table class="border centpercent tableforfieldedit question-table">'."\n";
 
 	// Common attributes
 //	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_edit.tpl.php';
@@ -648,7 +656,25 @@ if (($id || $ref) && $action == 'edit')
 	$doleditor->Create();
 	print '</td></tr>';
 
-	print '<tr class="linked-medias photo_ok"><td><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
+	// ShowPhoto -- Utiliser les photos
+	print '<tr class="oddeven"><td class="minwidth400">';
+	print $langs->trans("ShowPhoto");
+	print '</td>';
+	print '<td>';
+	print '<input type="checkbox" id="show_photo" name="show_photo"' . ($object->show_photo ? ' checked=""' : '') . '"> ';
+	print $form->textwithpicto('', $langs->trans('ShowPhotoTooltip'));
+	print '</td></tr>';
+
+	// AuthorizeAnswerPhoto -- Utiliser les réponses de photos
+	print '<tr class="oddeven"><td class="minwidth400">';
+	print $langs->trans("AuthorizeAnswerPhoto");
+	print '</td>';
+	print '<td>';
+	print '<input type="checkbox" id="authorize_answer_photo" name="authorize_answer_photo"' . ($object->authorize_answer_photo ? ' checked=""' : '') . '"> ';
+	print $form->textwithpicto('', $langs->trans('AuthorizeAnswerPhotoTooltip'));
+	print '</td></tr>';
+
+	print '<tr class="' . ($object->show_photo ? ' linked-medias photo_ok' : ' linked-medias photo_ok hidden' ) . '" style="' . ($object->show_photo ? ' ' : ' display:none') . '"><td><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
 	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo (dol_strlen($object->photo_ok) > 0 ? $object->photo_ok : GETPOST('favorite_photo_ok')) ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ok"/>
@@ -659,7 +685,7 @@ if (($id || $ref) && $action == 'edit')
 	print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 150, 150, 1, 0, 0, 'question/'. $object->ref . '/photo_ok', null, (GETPOST('favorite_photo_ok') ? GETPOST('favorite_photo_ok') : $object->photo_ok ));
 	print '</td></tr>';
 
-	print '<tr class="linked-medias photo_ko"><td><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
+	print '<tr class="' . ($object->show_photo ? ' linked-medias photo_ko' : ' linked-medias photo_ko hidden' ) . '" style="' . ($object->show_photo ? ' ' : ' display:none') . '"><td><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td>'; ?>
 	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo (dol_strlen($object->photo_ko) > 0 ? $object->photo_ko : GETPOST('favorite_photo_ko')) ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="type-from" value="photo_ko"/>
@@ -775,35 +801,53 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print $object->description;
 	print '</td></tr>';
 
-	//Photo OK -- Photo OK
+	// ShowPhoto -- Utiliser les photos
 	print '<tr><td class="titlefield">';
-	print $langs->trans("PhotoOk");
+	print $langs->trans("ShowPhoto");
 	print '</td>';
 	print '<td>';
-	if (dol_strlen($object->photo_ok)) {
-		$urladvanced               = getAdvancedPreviewUrl('dolismq', $object->element . '/' . $object->ref . '/photo_ok/' . $object->photo_ok, 0, 'entity=' . $conf->entity);
-		if ($urladvanced) print '<a href="' . $urladvanced . '">';
-		print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($object->element . '/' . $object->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $object->photo_ok)) . '" >';
-		print '</a>';
-	} else {
-		print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
-	}
+	print '<input type="checkbox" id="show_photo" name="show_photo"' . ($object->show_photo ? ' checked=""' : '') . '" disabled> ';
 	print '</td></tr>';
 
-	//Photo KO -- Photo KO
+	// AuthorizeAnswerPhoto -- Utiliser les réponses de photos
 	print '<tr><td class="titlefield">';
-	print $langs->trans("PhotoKo");
+	print $langs->trans("AuthorizeAnswerPhoto");
 	print '</td>';
 	print '<td>';
-	if (dol_strlen($object->photo_ko)) {
-		$urladvanced               = getAdvancedPreviewUrl('dolismq', $object->element . '/' . $object->ref . '/photo_ko/' . $object->photo_ko, 0, 'entity=' . $conf->entity);
-		if ($urladvanced) print '<a href="' . $urladvanced . '">';
-		print '<img width="40" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($object->element . '/' . $object->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $object->photo_ko)) . '" >';
-		print '</a>';
-	}  else {
-		print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
-	}
+	print '<input type="checkbox" id="authorize_answer_photo" name="authorize_answer_photo"' . ($object->authorize_answer_photo ? ' checked=""' : '') . '" disabled> ';
 	print '</td></tr>';
+
+	if ($object->show_photo > 0) {
+		//Photo OK -- Photo OK
+		print '<tr><td class="titlefield">';
+		print $langs->trans("PhotoOk");
+		print '</td>';
+		print '<td>';
+		if (dol_strlen($object->photo_ok)) {
+			$urladvanced               = getAdvancedPreviewUrl('dolismq', $object->element . '/' . $object->ref . '/photo_ok/' . $object->photo_ok, 0, 'entity=' . $conf->entity);
+			if ($urladvanced) print '<a href="' . $urladvanced . '">';
+			print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($object->element . '/' . $object->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $object->photo_ok)) . '" >';
+			print '</a>';
+		} else {
+			print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+		}
+		print '</td></tr>';
+
+		//Photo KO -- Photo KO
+		print '<tr><td class="titlefield">';
+		print $langs->trans("PhotoKo");
+		print '</td>';
+		print '<td>';
+		if (dol_strlen($object->photo_ko)) {
+			$urladvanced = getAdvancedPreviewUrl('dolismq', $object->element . '/' . $object->ref . '/photo_ko/' . $object->photo_ko, 0, 'entity=' . $conf->entity);
+			if ($urladvanced) print '<a href="' . $urladvanced . '">';
+			print '<img width="40" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($object->element . '/' . $object->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $object->photo_ko)) . '" >';
+			print '</a>';
+		} else {
+			print '<img height="40" src="' . DOL_URL_ROOT . '/public/theme/common/nophoto.png">';
+		}
+		print '</td></tr>';
+	}
 
 	// Categories
 	if ($conf->categorie->enabled) {
@@ -811,7 +855,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print $form->showCategories($object->id, 'question', 1);
 		print "</td></tr>";
 	}
-
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php';

@@ -1647,7 +1647,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						</div>
 					</div>
 					<!-- Photo OK KO -->
-					<div class="table-cell table-450 cell-photo-check">
+					<?php if ($item->show_photo > 0) : ?>
+						<div class="table-cell table-450 cell-photo-check">
 						<?php
 						if (!empty($conf->global->DOLISMQ_CONTROL_DISPLAY_MEDIAS)) :
 							if (dol_strlen($item->photo_ok)) {
@@ -1677,10 +1678,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						endif;
 						?>
 					</div>
+					<?php endif; ?>
 				</div>
 				<div class="table-row">
 					<!-- Galerie -->
-					<div class="table-cell table-full linked-medias answer_photo">
+					<?php if ($item->authorize_answer_photo > 0) : ?>
+						<div class="table-cell table-full linked-medias answer_photo">
 						<?php if ($object->status > 0 ) : ?>
 							<?php $relativepath = 'dolismq/medias/thumbs';
 							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 0, 1);
@@ -1701,8 +1704,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 1, 1); ?>
 						<?php endif; ?>
 					</div>
+					<?php endif; ?>
 					<!-- Réponses -->
-					<div class="table-cell table-250 <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+					<div class="table-cell table-250 <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 						<?php
 						print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" value="1">';

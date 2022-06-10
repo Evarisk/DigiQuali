@@ -592,6 +592,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
+	$object->fetchQuestionsLinked($id, 'sheet');
+	$questionIds = $object->linkedObjectsIds;
+
 	// Buttons for actions
 	if ($action != 'presend' && $action != 'editline') {
 		print '<div class="tabsAction">'."\n";
@@ -651,10 +654,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$colspan = 3;
 
 	// Lines
-	$object->fetchQuestionsLinked($id, 'sheet');
-
-	$questionIds = $object->linkedObjectsIds;
-
 	print '<tr class="liste_titre">';
 	print '<td>' . $langs->trans('Ref') . '</td>';
 	print '<td>' . $langs->trans('Label') . '</td>';

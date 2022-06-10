@@ -14,19 +14,21 @@
 -- along with this program.  If not, see https://www.gnu.org/licenses/.
 
 CREATE TABLE llx_dolismq_question(
-	rowid         integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	ref           varchar(128) DEFAULT '(PROV)' NOT NULL,
-	ref_ext       varchar(128),
-	entity        integer DEFAULT 1 NOT NULL,
-	date_creation datetime NOT NULL,
-	tms           timestamp,
-	import_key    integer DEFAULT NULL,
-	status        smallint DEFAULT 1,
-	type          varchar(128),
-	label         varchar(255),
-	description   text,
-	photo_ok      text,
-	photo_ko      text,
-	fk_user_creat integer NOT NULL,
-	fk_user_modif integer
+	rowid                  integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	ref                    varchar(128) DEFAULT '(PROV)' NOT NULL,
+	ref_ext                varchar(128),
+	entity                 integer DEFAULT 1 NOT NULL,
+	date_creation          datetime NOT NULL,
+	tms                    timestamp,
+	import_key             integer DEFAULT NULL,
+	status                 smallint DEFAULT 1,
+	type                   varchar(128),
+	label                  varchar(255),
+	description            text,
+    show_photo             boolean,
+    authorize_answer_photo boolean,
+	photo_ok               text,
+	photo_ko               text,
+	fk_user_creat          integer NOT NULL,
+	fk_user_modif          integer
 ) ENGINE=innodb;
