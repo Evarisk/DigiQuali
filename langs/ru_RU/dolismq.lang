@@ -1,0 +1,262 @@
+# Copyright (C) 2021 SuperAdmin
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+# Générique
+#
+
+# Module label 'ModuleDoliSMQName'
+ModuleDoliSMQName =ДолиSMQ
+# Module description 'ModuleDoliSMQDesc'
+ModuleDoliSMQDesc =Описание DoliSMQ
+
+#
+# Page d'administration
+#
+
+# Data - Donnée
+DoliSMQSetup =Настройка модуля DoliSMQ
+Settings =Настройки
+DoliSMQSetupPage =Страница конфигурации модуля DoliSMQ
+
+#
+# Page À propos
+#
+About =О
+DoliSMQAbout =О DoliSMQ
+DoliSMQAboutPage =Страница о DoliSMQ
+
+#
+# Page d'exemple
+#
+MyPageName =имя моей страницы
+
+#
+# Box d'exemple
+#
+MyWidget =Мой виджет
+MyWidgetDescription =Описание моего виджета
+
+#
+# Traduction pour DoliSMQ
+#
+
+DoliSMQHelpAuditDateStart =Дата начала аудита
+Or =Где
+SelectProductsOrServices =Выберите товар/услугу
+DoliSMQNumberOfModelFilesFound =Количество шаблонов по умолчанию
+DoliSMQConfig =Конфигурация модуля
+
+
+
+#
+# Questions
+#
+
+# Rights - Droits
+ReadQuestion =Проконсультируйте вопросы
+CreateQuestion =Создание/редактирование вопросов
+DeleteQuestion =Удалить вопросы
+
+# Trigger - Déclencheur
+QuestionCreateTrigger =Вопрос создан
+QuestionModifyTrigger =Отредактированный вопрос
+QuestionDeleteTrigger =Вопрос удален
+QuestionLockedTrigger =вопрос закрыт
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQQuestionNumberingModule =Шаблон нумерации вопросов DoliSMQ
+DoliSMQQuestionStandardModel =Возвращает число в форме QUn, где n — последовательный счетчик без прерывания и сброса в 0.
+
+# Data - Donnée
+AddQuestion =Добавить вопрос
+NewQuestion =новый вопрос
+QuestionList =Список вопросов
+LinkedQuestionsList =Списки связанных вопросов
+addQuestionLink =Вопрос добавлен в лист модели:
+removeQuestionLink =Вопрос удален из шаблона:
+LockQuestion =Заблокировать вопрос
+ConfirmLockQuestion =Вы уверены, что хотите заблокировать вопрос?<br> Блокировка предотвращает любые изменения вопроса.
+LockQuestions =Все выбранные вопросы переходят в заблокированный статус
+QuestionManagement =Управление вопросами
+ThereAre =Есть
+YouAnswered =Вы ответили на
+On =на
+BewareQuestionsAnswered =Внимание отсутствует %s ответов
+ActionsOnQuestion =События, связанные с вопросом
+
+
+
+#
+# Sheet
+#
+
+# Rights - Droits
+ReadSheet =Обратитесь к таблицам моделей
+CreateSheet =Создание/изменение листов модели
+DeleteSheet =Удалить листы модели
+
+# Trigger - Déclencheur
+SheetCreateTrigger =Лист модели создан
+SheetModifyTrigger =Лист измененной модели
+SheetDeleteTrigger =Файл модели удален
+SheetLockedTrigger =Лист модели заблокирован
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQSheetNumberingModule =Образец нумерации типовых листов DoliSMQ
+DoliSMQSheetStandardModel =Возвращает число в форме MOn, где n — последовательный счетчик без прерывания и без сброса в 0.
+
+# Data - Donnée
+Sheet =Лист модели
+AddSheet =Добавьте файл шаблона
+NewSheet =Лист новой модели
+SheetList =Список листов моделей
+SheetLinked =Модель управления
+FKSheet =Лист модели
+AllQuestionsMustHaveLocked =Все вопросы должны быть заблокированы, чтобы заблокировать лист модели
+LockSheet =Заблокировать карточку модели
+ConfirmLockSheet =Вы уверены, что хотите заблокировать карточку модели?<br> Блокировка предотвращает любые модификации файла модели.
+NoLotForThisProduct =Лот для этого продукта не определен
+ModalAddPhoto =Медиа библиотека
+SheetManagement =Управление файлами модели
+ActionsOnSheet =События, связанные с формой модели
+
+
+
+#
+# Control
+#
+
+# Rights - Droits
+ReadControl =Просмотр элементов управления
+CreateControl =Создание/редактирование элементов управления
+DeleteControl =Удалить элементы управления
+
+# Trigger - Déclencheur
+ControlCreateTrigger =Элемент управления создан
+ControlModifyTrigger =Модифицированный контроль
+ControlDeleteTrigger =Контроль удален
+ControlDraftedTrigger =Контроль тяги
+ControlValidatedTrigger =Проверка подтверждена
+ControlLockedTrigger =Заблокированное управление
+ControlSetUserControllerTrigger =Контроллер по умолчанию изменен на %s
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQControlNumberingModule =Шаблон нумерации элементов управления DoliSMQ
+DoliSMQControlStandardModel =Возвращает число в форме FCn, где n — последовательный счетчик без прерывания и сброса в 0.
+
+# Data - Donnée
+Control =Контроль
+AddControl =Добавить элемент управления
+NewControl =Новый элемент управления
+ControlList =Список элементов управления
+FKUserController =Контроллер
+ControlDate =Дата контроля
+Controls =Элементы управления
+ControlMustBeDraft =Для доступа к этой функции элемент управления должен быть черновиком.
+ControlMustBeValidated =Элемент управления должен быть подтвержден, чтобы открыть его снова.
+ControlMustBeValidatedToLock =Элемент управления должен быть проверен и иметь вердикт для его блокировки.
+ControlVerdictSelected =Вердикт уже вынесен
+ControlMustBeValidatedToSetVerdict =Контроль должен быть проверен, чтобы определить вердикт
+SetOK/KO =Подходит/не подходит
+Batch =Партия/серия
+VerdictControl =Выбор вердикта
+ValidateControl =Подтвердить контроль
+ReOpenControl =Снова открыть контроль
+LockControl =Блокировка управления
+ConfirmValidateControl =Вы уверены, что хотите проверить элемент управления?
+ConfirmReOpenControl =Вы уверены, что хотите заново открыть чек?<br> При повторном открытии вердикт удаляется из обзора.
+ConfirmLockControl =Вы уверены, что хотите заблокировать элемент управления?<br> Блокировка предотвращает любые изменения в управлении.
+ProjectLinked =Связанный проект
+ControlManagement =Управление
+ControlData =Конфигурируемые данные управления
+DisplayMedias =Показать медиа под контролем
+DisplayMediasDescription =Показать медиа вопроса под контролем
+ChangeUserController =Право смены контролирующего пользователя
+TaskLinked =Связанная задача
+ThirdPartyLinked =Связанная третья сторона
+ShowProduct =Показать продукты
+ShowProductDescription =Показать связь между продуктами и элементами управления
+ShowProductLot =Просмотр номеров партий/серийных номеров
+ShowProductLotDescription =Показать связь между партиями/серийными номерами и элементами управления
+ShowThirdParty =Показать третьи стороны
+ShowThirdPartyDescription =Показать связь между сторонами и элементами управления
+ShowProject =Показать проекты
+ShowProjectDescription =Показать связь между проектами и элементами управления
+ShowTask =Просмотр задач
+ShowTaskDescription =Показать связь между задачами и элементами управления
+NoLotDefined =Номер партии/серийный номер не найден
+SelectAProductFirst =Сначала выберите продукт
+ActionsOnControl =События управления
+
+
+
+#
+# ControlDet
+#
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQControlDetNumberingModule =Модель нумерации строк контрольного листа DoliSMQ
+DoliSMQControlDetStandardModel =Возвращает число в форме FCRn, где n — последовательный счетчик без прерывания и сброса в 0.
+
+# Data - Donnée
+AnswerSaved =Ответы сохранены
+Repair =Исправить
+NotApplicable =Непригодный
+AnswerPhoto =Фото
+
+
+
+#
+# ControlDocument - Fiche de Contrôle
+#
+
+# Right - Droit
+
+# Trigger - Déclencheur
+ControlDocumentGeneratedWithDolibarr =Контрольный лист, созданный с помощью Dolibarr
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQControlDocumentDocumentNumberingModule =Модель нумерации контрольных листов DoliSMQ
+DoliSMQControlDocumentStandardModel =Возвращает число в форме FCDn, где n — последовательный счетчик без прерывания и сброса в 0.
+
+# ODT Template - Template ODT
+DoliSMQTemplateDocumentControlDocument =Шаблон документа контрольных листов DoliSMQ
+ControlDocumentCustomDoliSMQTemplate =Пользовательский ODT контрольных листов
+ControlDocumentDoliSMQTemplate =ODT по умолчанию для контрольных листов
+
+# Data - Donnée
+ControlDocument =Контрольный список
+ControlDocumentData =Настраиваемые данные контрольных листов
+ControlDocumentName =Показать медиа в контрольном листе
+ControlDocumentDescription =Отображение носителя вопроса в контрольном листе документа ODT
+ControlDocumentPDFDoliSMQTemplate =Шаблон чек-листа в формате PDF
+
+
+#
+# Other
+#
+
+# Data - Donnée
+SelectProducts =Выберите продукт
+AddMedia =Добавить медиа
+NoMediaLinked =Нет связанных медиа
+ReOpened =Открыть заново
+ValidatedControl =Действительный
+Locked =Заблокировано
+Lock =Замок
+NoData =Н/Д
+ErrorFileNotFound =Не указан логотип компании
+
