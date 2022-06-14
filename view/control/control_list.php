@@ -49,6 +49,7 @@ require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
 require_once DOL_DOCUMENT_ROOT.'/projet/class/task.class.php';
+require_once DOL_DOCUMENT_ROOT . "/categories/class/categorie.class.php";
 
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/project.lib.php';
@@ -57,6 +58,8 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/usergroups.lib.php';
 
 // load dolismq libraries
 require_once __DIR__.'/../../class/control.class.php';
+require_once __DIR__.'/../../core/boxes/dolismqwidget1.php';
+require_once __DIR__ . '/../../class/sheet.class.php';
 
 // Load translation files required by the page
 $langs->loadLangs(array("dolismq@dolismq", "other", "bills", "projects", "orders", "companies", "product", "productbatch", "task"));
@@ -86,6 +89,9 @@ $pagenext = $page + 1;
 
 // Initialize technical objects
 $object = new Control($db);
+$box = new dolismqwidget1($db);
+$categorystatic = new Categorie($db);
+$sheet    = new Sheet($db);
 
 $extrafields = new ExtraFields($db);
 $diroutputmassaction = $conf->dolismq->dir_output.'/temp/massgeneration/'.$user->id;
@@ -287,6 +293,26 @@ if (!empty($fromtype)) {
 
 if ($fromid) {
 	print '<div class="underbanner clearboth"></div>';
+	print '<div class="fichehalfleft">';
+	print '<br>';
+	$box->loadBox();
+	$allCategories = $categorystatic->get_all_categories('sheet');
+	if (!empty($allCategories)) {
+		foreach ($allCategories as $key => $category) {
+			$categorystatic->fetch(0, $langs->transnoentities($category->label), 'sheet');
+			$sheets = $categorystatic->getObjectsInCateg('sheet', 0);
+			if (!empty($sheets)) {
+				foreach ($sheets as $sheet) {
+					$elementLinked = json_decode($sheet->element_linked);
+					if ($elementLinked->$fromtype == 1) {
+						$box->showBox($category->id, $category->id);
+						break;
+					}
+				}
+			}
+		}
+	}
+	print '</div>';
 }
 
 $newcardbutton = dolGetButtonTitle($langs->trans('NewControl'), '', 'fa fa-plus-circle', dol_buildpath('/dolismq/view/control/control_card.php', 1).'?action=create', '', $permissiontoadd);
