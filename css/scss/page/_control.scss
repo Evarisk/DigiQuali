@@ -3,6 +3,17 @@
     box-sizing: border-box;
   }
 
+  &.multiselect {
+    margin-top: -60px;
+
+    > .wpeo-table {
+      background: none !important;
+    }
+    .table-cell {
+      padding-top: 0;
+    }
+  }
+
   .wpeo-table.table-flex .table-row:not(.table-header):nth-of-type(odd) {
     background: none;
   }

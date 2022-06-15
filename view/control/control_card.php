@@ -1488,10 +1488,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', ''); ?>
 
 	<!-- Réponses -->
-	<div class="control-audit">
-		<div class=" wpeo-table">
+	<div class="control-audit multiselect">
+		<div class="wpeo-table table-flex">
 			<div class="table-row">
-				<div class="table-cell table-250 <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+				<div class="table-cell table-250 table-end <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 					<?php
 					print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" id="select_all_answer" value="1">';
 					print '<i class="fas fa-check"></i>';
