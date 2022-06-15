@@ -533,6 +533,7 @@ window.eoxiaJS.mediaGallery.event = function() {
 	$( document ).on( 'input', '.form-element #search_in_gallery', window.eoxiaJS.mediaGallery.handleSearch );
 	$( document ).on( 'click', '.media-gallery-unlink', window.eoxiaJS.mediaGallery.unlinkFile );
 	$( document ).on( 'click', '.media-gallery-favorite', window.eoxiaJS.mediaGallery.addToFavorite );
+	$( document ).on( 'submit', '#fast-upload-photo-ok', window.eoxiaJS.mediaGallery.fastUpload );
 }
 
 /**
@@ -571,14 +572,27 @@ window.eoxiaJS.mediaGallery.selectPhoto = function( event ) {
  *
  * @return {void}
  */
-window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
+window.eoxiaJS.mediaGallery.savePhoto = function( event, photo, typeFrom) {
 	let parent = $('#media_gallery')
 	let mediaGalleryModal = $(this).closest('.modal-container')
-	let filesLinked = mediaGalleryModal.find('.clicked-photo')
+	let filesLinked = ''
+
+	if (photo) {
+		photo = photo[0].name
+		filesLinked = photo
+	} else {
+		filesLinked = mediaGalleryModal.find('.clicked-photo')
+	}
+
 	let rowId = parent.attr('value')
 	let linkedMedias = $('.table-id-'+rowId)
 
-	let type = $(this).find('.type-from').val()
+	let type = ''
+	if (typeFrom) {
+		type = typeFrom
+	} else {
+		type = $(this).find('.type-from').val()
+	}
 
 	let idSelected = $('#media_gallery').find('.wpeo-button').attr('value');
 	if (idSelected == 0) {
@@ -589,20 +603,25 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 	}
 
 	let filenames = ''
-	if (filesLinked.length > 0) {
-		filesLinked.each(function(  ) {
-			filenames += $( this ).find('.filename').val() + 'vVv'
-		});
+	if (photo) {
+		filenames = photo
+	} else {
+		if (filesLinked.length > 0) {
+			filesLinked.each(function(  ) {
+				filenames += $( this ).find('.filename').val() + 'vVv'
+			});
+		}
+		window.eoxiaJS.loader.display($(this));
 	}
 
 	let token = $('.fiche').find('input[name="token"]').val();
 
 	let favorite = filenames
-	favorite = favorite.split('vVv')[0]
-	favorite = favorite.replace(/\ /, '')
-	window.eoxiaJS.loader.display($(this));
-	//mediaLinked = modalFrom.find('.element-linked-medias')
-	//window.eoxiaJS.loader.display(mediaLinked);
+	if (favorite.match('vVv')) {
+		favorite = favorite.split('vVv')[0]
+		favorite = favorite.replace(/\ /, '')
+	}
+
 	let url = document.URL + '&'
 	let separator = '&'
 	if (url.match(/action=/)) {
@@ -627,7 +646,6 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 				window.eoxiaJS.control.updateButtonsStatus()
 
 			} else if (document.URL.match(/question_card/)) {
-				console.log($(resp).find('.tabBar .linked-medias.'+type+' .media-container'))
 				$('.tabBar .linked-medias.'+type+' .linked-medias-list').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .linked-medias-list', () => {
 					$('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .fa-star').first().removeClass('far').addClass('fas')
 					let favoriteMedia = $('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .filename').attr('value')
@@ -668,20 +686,26 @@ window.eoxiaJS.mediaGallery.handleSearch = function( event ) {
  *
  * @return {void}
  */
-window.eoxiaJS.mediaGallery.sendPhoto = function( event ) {
+window.eoxiaJS.mediaGallery.sendPhoto = function( event, file, typeFrom ) {
+	if (event) {
+		event.preventDefault()
+	}
 
-	event.preventDefault()
-	let files    = $(this).prop("files");
+	let files    = '';
+	if (file) {
+		files = file;
+	} else {
+		files = $(this).prop("files");
+	}
+
 	let formdata = new FormData();
-	let elementParent = $(this).closest('.modal-container').find('.ecm-photo-list-content');
+	let elementParent = $('.modal-container').find('.ecm-photo-list-content');
 	let actionContainerSuccess = $('.messageSuccessSendPhoto');
 	let actionContainerError = $('.messageErrorSendPhoto');
+
 	window.eoxiaJS.loader.display($('#media_gallery').find('.modal-content'));
 	$.each(files, function(index, file) {
-		console.log(file)
 		formdata.append("userfile[]", file);
-		console.log(formdata)
-
 	})
 	let url = document.URL + '&'
 	let separator = '&'
@@ -706,6 +730,10 @@ window.eoxiaJS.mediaGallery.sendPhoto = function( event ) {
 			elementParent.load( document.URL + ' .ecm-photo-list');
 			elementParent.removeClass('wpeo-loader');
 			actionContainerSuccess.removeClass('hidden');
+			if (file) {
+				window.eoxiaJS.mediaGallery.savePhoto('', files, typeFrom)
+			}
+
 		},
 		error: function ( ) {
 			actionContainerError.removeClass('hidden');
@@ -722,9 +750,30 @@ window.eoxiaJS.mediaGallery.sendPhoto = function( event ) {
  * @return {void}
  */
 window.eoxiaJS.mediaGallery.previewPhoto = function( event ) {
-	setTimeout(function(){
-		$( document ).find('.ui-dialog').addClass('preview-photo');
-	}, 200);
+	var checkExist = setInterval(function() {
+		if ($('.ui-dialog').length) {
+			clearInterval(checkExist);
+			$( document ).find('.ui-dialog').addClass('preview-photo');
+		}
+	}, 100);
+};
+
+/**
+ * Action fast upload.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.mediaGallery.fastUpload = function( typeFrom ) {
+	if (typeFrom == 'photo_ok') {
+		console.log(typeof $('#fast-upload-photo-ok').prop('files'))
+		var files = $('#fast-upload-photo-ok').prop('files');
+	} else if (typeFrom == 'photo_ko') {
+		var files = $('#fast-upload-photo-ko').prop('files');
+	}
+	window.eoxiaJS.mediaGallery.sendPhoto('', files, typeFrom)
 };
 
 /**
