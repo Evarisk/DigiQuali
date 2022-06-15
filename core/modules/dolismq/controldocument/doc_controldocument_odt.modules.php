@@ -414,6 +414,9 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 									case 4:
 										$tmparray['answer'] = $langs->trans('NotApplicable');
 										break;
+									default:
+										$tmparray['answer'] = ' ';
+										break;
 								}
 
 								$path = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $item->ref;
