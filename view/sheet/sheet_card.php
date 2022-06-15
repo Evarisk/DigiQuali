@@ -156,6 +156,14 @@ if (empty($reshook)) {
 			}
 		}
 
+		if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
+			$totalArray = count($showArray);
+			if ($totalArray > 1){
+				$error++;
+				setEventMessages($langs->trans('ErrorMultipleLinkedElement'), null, 'errors');
+			}
+		}
+
 		$object->element_linked = json_encode($showArray);
 	}
 
@@ -172,6 +180,14 @@ if (empty($reshook)) {
 		foreach ($elementArray as $element) {
 			if ((GETPOST('show_'.$element) == 'on')) {
 				$showArray[$element] = 1;
+			}
+		}
+
+		if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
+			$totalArray = count($showArray);
+			if ($totalArray > 1){
+				$error++;
+				setEventMessages($langs->trans('ErrorMultipleLinkedElement'), null, 'errors');
 			}
 		}
 

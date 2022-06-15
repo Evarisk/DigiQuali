@@ -115,6 +115,7 @@ DoliSMQSheetStandardModel = Renvoie le numéro sous la forme MOn où n est un co
 Sheet = Fiche modèle
 AddSheet = Ajouter une fiche modèle
 NewSheet = Nouvelle fiche modèle
+ModifySheet = Modifier une fiche modèle
 SheetList = Liste des fiches modèles
 SheetLinked = Modèle de contrôle
 FKSheet = Fiche Modèle
@@ -132,6 +133,10 @@ GenerateCategories = Génération des catégories de fiche modèle par défaut
 AlreadyGenerated = Déjà généré(e)s
 NotCreated = Pas encore créé(e)s
 CategoriesGeneration = Cette option permet la génération des catégories par défaut des des fiches modèles. Les catégories créées seront : <br> - Qualité <br> - Hygiène <br> - Sécurité <br> - Environnement <br> - Sureté <br> - Réglementaire <br> - Bureau d'Etude <br> - Fournisseurs <br> - Commercial <br> - Production <br> - Méthodes <br>
+SheetData = Donnés configurables des fiches modèles
+UniqueLinkedElement = Liaison unique sur les éléments de Dolibarr
+UniqueLinkedElementDescription = Lié un seul élément de Dolibarr à une fiche modèle
+ErrorMultipleLinkedElement = Erreur la fiche modèle est liée à plusieurs éléments <br> Veuillez désactiver l'option de configuration : "Liaison unique sur les éléments de Dolibarr" pour pouvoir faire cela
 
 # Tags - catégories
 Quality = Qualité

@@ -164,6 +164,7 @@ class modDoliSMQ extends DolibarrModules
 			// CONST SHEET
 			1 => array('DOLISMQ_SHEET_ADDON', 'chaine', 'mod_sheet_standard', '', 0, 'current'),
 			2 => array('DOLISMQ_SHEET_TAGS_SET', 'integer', 0, '', 0, 'current'),
+			3 => array('DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT', 'integer', 1, '', 0, 'current'),
 
 			// CONST QUESTION
 			10 => array('DOLISMQ_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'),

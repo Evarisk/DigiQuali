@@ -244,6 +244,29 @@ if (is_dir($dir)) {
 
 print '</table>';
 
+//Sheet data
+print load_fiche_titre($langs->trans("SheetData"), '', '');
+
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans("Name") . '</td>';
+print '<td>' . $langs->trans("Description") . '</td>';
+print '<td class="center">' . $langs->trans("Status") . '</td>';
+print '</tr>';
+
+// Unique linked element conf
+print '<tr><td>';
+print $langs->trans('UniqueLinkedElement');
+print "</td><td>";
+print $langs->trans('UniqueLinkedElementDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT');
+print '</td>';
+print '</tr>';
+print '</table>';
+
 // Generate categories
 print load_fiche_titre($langs->trans("SheetCategories"), '', '');
 
