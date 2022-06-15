@@ -325,6 +325,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 					break;
 			}
 
+			$tmparray['public_note'] = $object->note_public;
+
 			foreach ($tmparray as $key=>$value)
 			{
 				try {

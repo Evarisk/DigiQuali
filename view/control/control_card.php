@@ -511,15 +511,7 @@ if (empty($reshook))
 		exit;
 	}
 
-	// Actions when linking object each other
-	include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';
-
-	// Actions when printing a doc from card
-	include DOL_DOCUMENT_ROOT.'/core/actions_printing.inc.php';
-
-
 	// Action to build doc
-
 	if ($action == 'builddoc' && $permissiontoadd) {
 		if (is_numeric(GETPOST('model', 'alpha'))) {
 			$error = $langs->trans("ErrorFieldRequired", $langs->transnoentities("Model"));
@@ -606,6 +598,7 @@ if (empty($reshook))
 		$object->fetch($id);
 		if ( ! $error) {
 			$object->verdict = GETPOST('verdict', 'int');
+			$object->note_public = GETPOST('noteControl');
 			$result = $object->update($user);
 			if ($result > 0) {
 				// Set verdict Control
@@ -756,9 +749,6 @@ if (empty($reshook))
 	include DOL_DOCUMENT_ROOT.'/core/actions_sendmails.inc.php';
 }
 
-
-
-
 /*
  * View
  */
@@ -905,10 +895,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if ($action == 'delete') {
 		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('DeleteControl'), $langs->trans('ConfirmDeleteObject'), 'confirm_delete', '', 0, 1);
 	}
-	// Confirmation to delete line
-	if ($action == 'deleteline') {
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id.'&lineid='.$lineid, $langs->trans('DeleteLine'), $langs->trans('ConfirmDeleteLine'), 'confirm_deleteline', '', 0, 1);
-	}
+
 	// Clone confirmation
 	if ($action == 'clone') {
 		// Create an array for form
@@ -946,6 +933,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			array('type' => 'text', 'name' => 'KO', 'label' => '<span class="answer" value="2" style="pointer-events: none"><i class="fas fa-times"></i></span>', 'value' => $answerKO, 'moreattr' => 'readonly'),
 			array('type' => 'text', 'name' => 'Repair', 'label' => '<span class="answer" value="3" style="pointer-events: none"><i class="fas fa-tools"></i></span>', 'value' => $answerRepair, 'moreattr' => 'readonly'),
 			array('type' => 'text', 'name' => 'NotApplicable', 'label' => '<span class="answer" value="4" style="pointer-events: none">N/A</span>', 'value' => $answerNotApplicable, 'moreattr' => 'readonly'),
+			array('type' => 'text', 'name' => 'noteControl', 'label' => '<span class="">' . $langs->trans("NoteControl") . '</span>'),
 		);
 
 		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $text, 'confirm_setVerdict', $formquestion, '', 1, 250);
@@ -1369,40 +1357,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	unset($object->fields['fk_sheet']);
 
-	//FKUserController -- Contrôleur
-	/*print '<tr><td class="titlefield">';
-	print $langs->trans("FKUserController");
-	print '</td>';
-	print '<td>';
-	$usertmp->fetch($object->fk_user_controller);
-	if ($usertmp > 0) {
-		print $usertmp->getNomUrl(1);
-	}
-	print '</td></tr>';*/
-
-	//Address -- Adresse
-	/*print '<tr><td class="titlefield">';
-	print $langs->trans("Address");
-	print '</td>';
-	print '<td>';
-	print $usertmp->address;
-	print '</td></tr>';
-
-	//Login -- Login
-	print '<tr><td class="titlefield">';
-	print $langs->trans("Login");
-	print '</td>';
-	print '<td>';
-	print $usertmp->login;
-	print '</td></tr>';*/
-	unset($object->fields['fk_sheet']);
-
-//	foreach($object->fields as $key=>$fields) {
-//		if (array_key_exists('positioncard', $object->fields[$key])) {
-//			$object->fields[$key]['position'] = $object->fields[$key]['positioncard'];
-//		}
-//	}
-//	$keyforbreak = 'fk_product';
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
 	//FKSheet -- Modèle
@@ -1735,6 +1689,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	include DOL_DOCUMENT_ROOT . '/custom/dolismq/core/tpl/dolismq_medias_gallery_modal.tpl.php';
 
 	print dol_get_fiche_end();
+
+	print "</form>";
+
 	$includedocgeneration = 1;
 	if ($includedocgeneration) {
 		print '<div class="fichecenter"><div class="fichehalfleft elementDocument">';
@@ -1977,8 +1934,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 //
 //		print "</form>\n";
 //	}
-
-	print "</form>";
 }
 
 // End of page

@@ -104,6 +104,7 @@ ShowPhoto = Afficher les photos
 AuthorizeAnswerPhoto = Autoriser l'envoi de photos sur les réponses
 ShowPhotoTooltip = Affiche les photos et la bibliothèque de média sur la question
 AuthorizeAnswerPhotoTooltip = Autorise l'envoi de photos sur les réponses de question
+NoteControl = Remarque
 
 
 
