@@ -1,4 +1,4 @@
-# Copyright (C) 2021 SuperAdmin
+# Copyright (C) 2022 EVARISK <dev@evarisk.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,34 +30,16 @@ ModuleDoliSMQDesc = Description de DoliSMQ
 DoliSMQSetup = Configuration du module DoliSMQ
 Settings = Réglages
 DoliSMQSetupPage = Page de configuration du module DoliSMQ
+DoliSMQConfig = Configuration du module
 
 #
 # Page À propos
 #
+
+# Data - Donnée
 About = À propos
 DoliSMQAbout = À propos de DoliSMQ
 DoliSMQAboutPage = Page à propos de DoliSMQ
-
-#
-# Page d'exemple
-#
-MyPageName = Nom de ma page
-
-#
-# Box d'exemple
-#
-MyWidget = Mon widget
-MyWidgetDescription = Description de mon widget
-
-#
-# Traduction pour DoliSMQ
-#
-
-DoliSMQHelpAuditDateStart = La date de début d'audit
-Or = ou
-SelectProductsOrServices = Sélectionner un produit / service
-DoliSMQNumberOfModelFilesFound = Nombre de modèles par défaut
-DoliSMQConfig = Configuration du module
 
 
 
@@ -275,6 +257,7 @@ ControlDocumentDescription = Afficher les médias des questions dans la fiche de
 ControlDocumentPDFDoliSMQTemplate =	Modèle de fiche de contrôle au format PDF
 
 
+
 #
 # Other
 #
@@ -290,3 +273,7 @@ Lock = Verrouiller
 NoData = N/A
 ErrorFileNotFound = Aucun logo de la société renseigné
 MinimizeMenu = Réduire le menu
+Or = ou
+SelectProductsOrServices = Sélectionner un produit / service
+DoliSMQNumberOfModelFilesFound = Nombre de modèles par défaut
+
