@@ -59,6 +59,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/usergroups.lib.php';
 require_once __DIR__.'/../../class/control.class.php';
 require_once __DIR__.'/../../core/boxes/dolismqwidget1.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
+require_once __DIR__ . '/../../class/control.class.php';
 
 // Global variables definitions
 global $db, $hookmanager, $langs, $user;
@@ -95,6 +96,7 @@ $box            = new dolismqwidget1($db);
 $categorystatic = new Categorie($db);
 $sheet          = new Sheet($db);
 $extrafields    = new ExtraFields($db);
+$control        = new Control($db);
 
 // View objects
 $form = new Form($db);
@@ -292,8 +294,20 @@ if ($fromid) {
 			$sheets = $categorystatic->getObjectsInCateg('sheet', 0);
 			if (!empty($sheets)) {
 				foreach ($sheets as $sheet) {
+					$controls = $control->fetchAll('', '', 0, 0, array('customsql' => 'fk_sheet = ' . $sheet->id));
 					$elementLinked = json_decode($sheet->element_linked);
-					if ($elementLinked->$fromtype == 1) {
+					switch ($fromtype) {
+						case 'productbatch' :
+							$fromtype = 'productlot';
+							break;
+						case 'societe' :
+							$fromtype = 'thirdparty';
+							break;
+						case 'project_task' :
+							$fromtype = 'task';
+							break;
+					}
+					if (!empty($controls) && $elementLinked->$fromtype == 1) {
 						$box->showBox($category->id, $category->id);
 						break;
 					}

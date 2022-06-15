@@ -1,7 +1,5 @@
 <?php
-/* Copyright (C) 2004-2017  Laurent Destailleur <eldy@users.sourceforge.net>
- * Copyright (C) 2018-2021  Frédéric France     <frederic.france@netlogic.fr>
- * Copyright (C) 2022 SuperAdmin <test@test.fr>
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,15 +16,12 @@
  */
 
 /**
- * \file    dolismq/core/boxes/dolismqwidget1.php
+ * \file    core/boxes/dolismqwidget1.php
  * \ingroup dolismq
  * \brief   Widget provided by DoliSMQ
- *
- * Put detailed description here.
  */
 
 include_once DOL_DOCUMENT_ROOT."/core/boxes/modules_boxes.php";
-
 
 /**
  * Class to manage the box
@@ -81,7 +76,6 @@ class dolismqwidget1 extends ModeleBoxes
 	 * @var string 	Widget type ('graph' means the widget is a graph widget)
 	 */
 	public $widgettype = '';
-
 
 	/**
 	 * Constructor
@@ -208,6 +202,18 @@ class dolismqwidget1 extends ModeleBoxes
 					}
 
 					$elementLinked = json_decode($sheet->element_linked);
+
+					switch ($fromtype) {
+						case 'productbatch' :
+							$fromtype = 'productlot';
+							break;
+						case 'societe' :
+							$fromtype = 'thirdparty';
+							break;
+						case 'project_task' :
+							$fromtype = 'task';
+							break;
+					}
 
 					if (!empty($controls) && $elementLinked->$fromtype == 1) {
 
