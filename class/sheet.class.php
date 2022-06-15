@@ -1,6 +1,5 @@
 <?php
-/* Copyright (C) 2017  Laurent Destailleur <eldy@users.sourceforge.net>
- * Copyright (C) ---Put here your own copyright and developer email---
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -144,88 +143,6 @@ class Sheet extends CommonObject
 	}
 
 	/**
-	 * Clone an object into another one
-	 *
-	 * @param  	User 	$user      	User that creates
-	 * @param  	int 	$fromid     Id of object to clone
-	 * @return 	mixed 				New object created, <0 if KO
-	 */
-	public function createFromClone(User $user, $fromid)
-	{
-		global $langs, $extrafields;
-		$error = 0;
-
-		dol_syslog(__METHOD__, LOG_DEBUG);
-
-		$object = new self($this->db);
-
-		$this->db->begin();
-
-		// Load source object
-		$result = $object->fetchCommon($fromid);
-		if ($result > 0 && ! empty($object->table_element_line)) $object->fetchLines();
-
-		// Reset some properties
-		unset($object->id);
-		unset($object->fk_user_creat);
-		unset($object->import_key);
-
-		// Clear fields
-		if (property_exists($object, 'ref')) $object->ref     = empty($this->fields['ref']['default']) ? "Copy_Of_" . $object->ref : $this->fields['ref']['default'];
-		if (property_exists($object, 'label')) $object->label = empty($this->fields['label']['default']) ? $langs->trans("CopyOf") . " " . $object->label : $this->fields['label']['default'];
-		if (property_exists($object, 'status')) { $object->status = self::STATUS_DRAFT; }
-		if (property_exists($object, 'date_creation')) { $object->date_creation = dol_now(); }
-		if (property_exists($object, 'date_modification')) { $object->date_modification = null; }
-		// ...
-		// Clear extrafields that are unique
-		if (is_array($object->array_options) && count($object->array_options) > 0) {
-			$extrafields->fetch_name_optionals_label($this->table_element);
-			foreach ($object->array_options as $key => $option) {
-				$shortkey = preg_replace('/options_/', '', $key);
-				if ( ! empty($extrafields->attributes[$this->table_element]['unique'][$shortkey])) {
-					//var_dump($key); var_dump($clonedObj->array_options[$key]); exit;
-					unset($object->array_options[$key]);
-				}
-			}
-		}
-
-		// Create clone
-		$object->context['createfromclone'] = 'createfromclone';
-		$result                             = $object->createCommon($user);
-		if ($result < 0) {
-			$error++;
-			$this->error  = $object->error;
-			$this->errors = $object->errors;
-		}
-
-		if ( ! $error) {
-			// copy internal contacts
-			if ($this->copy_linked_contact($object, 'internal') < 0) {
-				$error++;
-			}
-		}
-
-		if ( ! $error) {
-			// copy external contacts if same company
-			if (property_exists($this, 'socid') && $this->socid == $object->socid) {
-				if ($this->copy_linked_contact($object, 'external') < 0)
-					$error++;
-			}
-		}
-
-		unset($object->context['createfromclone']);
-
-		// End
-		if ( ! $error) {
-			$this->db->commit();
-			return $object;
-		} else {
-			$this->db->rollback();
-			return -1;
-		}
-	}
-
-	/**
 	 * Load object in memory from the database
 	 *
 	 * @param int    $id   Id object
@@ -247,11 +164,9 @@ class Sheet extends CommonObject
 	public function fetchLines()
 	{
 		$this->lines = array();
-
 		$result = $this->fetchLinesCommon();
 		return $result;
 	}
-
 
 	/**
 	 * Load list of objects in memory from the database.
@@ -266,8 +181,6 @@ class Sheet extends CommonObject
 	 */
 	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
 	{
-		global $conf;
-
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
 		$records = array();
@@ -352,167 +265,6 @@ class Sheet extends CommonObject
 	public function delete(User $user, $notrigger = false)
 	{
 		return $this->deleteCommon($user, $notrigger);
-		//return $this->deleteCommon($user, $notrigger, 1);
-	}
-
-	/**
-	 *  Delete a line of object in database
-	 *
-	 *	@param  User	$user       User that delete
-	 *  @param	int		$idline		Id of line to delete
-	 *  @param 	bool 	$notrigger  false=launch triggers after, true=disable triggers
-	 *  @return int         		>0 if OK, <0 if KO
-	 */
-	public function deleteLine(User $user, $idline, $notrigger = false)
-	{
-		if ($this->status < 0) {
-			$this->error = 'ErrorDeleteLineNotAllowedByObjectStatus';
-			return -2;
-		}
-
-		return $this->deleteLineCommon($user, $idline, $notrigger);
-	}
-
-
-	/**
-	 *	Validate object
-	 *
-	 *	@param		User	$user     		User making status change
-	 *  @param		int		$notrigger		1=Does not execute triggers, 0= execute triggers
-	 *	@return  	int						<=0 if OK, 0=Nothing done, >0 if KO
-	 */
-	public function validate($user, $notrigger = 0)
-	{
-		global $conf, $langs;
-
-		require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
-
-		$error = 0;
-
-		// Protection
-		if ($this->status == self::STATUS_VALIDATED) {
-			dol_syslog(get_class($this) . "::validate action abandonned: already validated", LOG_WARNING);
-			return 0;
-		}
-
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->sheet->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->sheet->sheet_advance->validate))))
-		 {
-		 $this->error='NotEnoughPermissions';
-		 dol_syslog(get_class($this)."::valid ".$this->error, LOG_ERR);
-		 return -1;
-		 }*/
-
-		$now = dol_now();
-
-		$this->db->begin();
-
-		// Define new ref
-		if ( ! $error && (preg_match('/^[\(]?PROV/i', $this->ref) || empty($this->ref))) { // empty should not happened, but when it occurs, the test save life
-			$num = $this->getNextNumRef();
-		} else {
-			$num = $this->ref;
-		}
-		$this->newref = $num;
-
-		if ( ! empty($num)) {
-			// Validate
-			$sql                                                  = "UPDATE " . MAIN_DB_PREFIX . $this->table_element;
-			$sql                                                 .= " SET ref = '" . $this->db->escape($num) . "',";
-			$sql                                                 .= " status = " . self::STATUS_VALIDATED;
-			if ( ! empty($this->fields['date_validation'])) $sql .= ", date_validation = '" . $this->db->idate($now) . "'";
-			if ( ! empty($this->fields['fk_user_valid'])) $sql   .= ", fk_user_valid = " . $user->id;
-			$sql                                                 .= " WHERE rowid = " . $this->id;
-
-			dol_syslog(get_class($this) . "::validate()", LOG_DEBUG);
-			$resql = $this->db->query($sql);
-			if ( ! $resql) {
-				dol_print_error($this->db);
-				$this->error = $this->db->lasterror();
-				$error++;
-			}
-
-			if ( ! $error && ! $notrigger) {
-				// Call trigger
-				$result = $this->call_trigger('AUDIT_VALIDATE', $user);
-				if ($result < 0) $error++;
-				// End call triggers
-			}
-		}
-
-		if ( ! $error) {
-			$this->oldref = $this->ref;
-
-			// Rename directory if dir was a temporary ref
-			if (preg_match('/^[\(]?PROV/i', $this->ref)) {
-				// Now we rename also files into index
-				$sql   = 'UPDATE ' . MAIN_DB_PREFIX . "ecm_files set filename = CONCAT('" . $this->db->escape($this->newref) . "', SUBSTR(filename, " . (strlen($this->ref) + 1) . ")), filepath = 'sheet/" . $this->db->escape($this->newref) . "'";
-				$sql  .= " WHERE filename LIKE '" . $this->db->escape($this->ref) . "%' AND filepath = 'sheet/" . $this->db->escape($this->ref) . "' and entity = " . $conf->entity;
-				$resql = $this->db->query($sql);
-				if ( ! $resql) { $error++; $this->error = $this->db->lasterror(); }
-
-				// We rename directory ($this->ref = old ref, $num = new ref) in order not to lose the attachments
-				$oldref    = dol_sanitizeFileName($this->ref);
-				$newref    = dol_sanitizeFileName($num);
-				$dirsource = $conf->dolismq->dir_output . '/sheet/' . $oldref;
-				$dirdest   = $conf->dolismq->dir_output . '/sheet/' . $newref;
-				if ( ! $error && file_exists($dirsource)) {
-					dol_syslog(get_class($this) . "::validate() rename dir " . $dirsource . " into " . $dirdest);
-
-					if (@rename($dirsource, $dirdest)) {
-						dol_syslog("Rename ok");
-						// Rename docs starting with $oldref with $newref
-						$listoffiles = dol_dir_list($conf->dolismq->dir_output . '/sheet/' . $newref, 'files', 1, '^' . preg_quote($oldref, '/'));
-						foreach ($listoffiles as $fileentry) {
-							$dirsource = $fileentry['name'];
-							$dirdest   = preg_replace('/^' . preg_quote($oldref, '/') . '/', $newref, $dirsource);
-							$dirsource = $fileentry['path'] . '/' . $dirsource;
-							$dirdest   = $fileentry['path'] . '/' . $dirdest;
-							@rename($dirsource, $dirdest);
-						}
-					}
-				}
-			}
-		}
-
-		// Set new ref and current status
-		if ( ! $error) {
-			$this->ref    = $num;
-			$this->status = self::STATUS_VALIDATED;
-		}
-
-		if ( ! $error) {
-			$this->db->commit();
-			return 1;
-		} else {
-			$this->db->rollback();
-			return -1;
-		}
-	}
-
-
-	/**
-	 *	Set draft status
-	 *
-	 *	@param	User	$user			Object user that modify
-	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
-	 *	@return	int						<0 if KO, >0 if OK
-	 */
-	public function setDraft($user, $notrigger = 0)
-	{
-		// Protection
-		if ($this->status <= self::STATUS_DRAFT) {
-			return 0;
-		}
-
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->dolismq_advance->validate))))
-		 {
-		 $this->error='Permission denied';
-		 return -1;
-		 }*/
-
-		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'AUDIT_UNVALIDATE');
 	}
 
 	/**
@@ -525,54 +277,6 @@ class Sheet extends CommonObject
 	public function setLocked($user, $notrigger = 0)
 	{
 		return $this->setStatusCommon($user, self::STATUS_LOCKED, $notrigger, 'SHEET_LOCKED');
-	}
-
-	/**
-	 *	Set cancel status
-	 *
-	 *	@param	User	$user			Object user that modify
-	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
-	 *	@return	int						<0 if KO, 0=Nothing done, >0 if OK
-	 */
-	public function cancel($user, $notrigger = 0)
-	{
-		// Protection
-		if ($this->status != self::STATUS_VALIDATED) {
-			return 0;
-		}
-
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->dolismq_advance->validate))))
-		 {
-		 $this->error='Permission denied';
-		 return -1;
-		 }*/
-
-		return $this->setStatusCommon($user, self::STATUS_CANCELED, $notrigger, 'AUDIT_CANCEL');
-	}
-
-	/**
-	 *	Set back to validated status
-	 *
-	 *	@param	User	$user			Object user that modify
-	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
-	 *	@return	int						<0 if KO, 0=Nothing done, >0 if OK
-	 */
-	public function reopen($user, $notrigger = 0)
-	{
-		// Protection
-		if ($this->status != self::STATUS_CANCELED) {
-			return 0;
-		}
-
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->dolismq_advance->validate))))
-		 {
-		 $this->error='Permission denied';
-		 return -1;
-		 }*/
-
-		return $this->setStatusCommon($user, self::STATUS_VALIDATED, $notrigger, 'AUDIT_REOPEN');
 	}
 
 	/**
@@ -779,152 +483,6 @@ class Sheet extends CommonObject
 	public function initAsSpecimen()
 	{
 		$this->initAsSpecimenCommon();
-	}
-
-	/**
-	 * 	Create an array of lines
-	 *
-	 * 	@return array|int		array of lines if OK, <0 if KO
-	 */
-	public function getLinesArray()
-	{
-		$this->lines = array();
-
-		$objectline = new SheetLine($this->db);
-		$result     = $objectline->fetchAll('ASC', 'position', 0, 0, array('customsql' => 'fk_sheet = ' . $this->id));
-
-		if (is_numeric($result)) {
-			$this->error  = $this->error;
-			$this->errors = $this->errors;
-			return $result;
-		} else {
-			$this->lines = $result;
-			return $this->lines;
-		}
-	}
-
-	/**
-	 *  Returns the reference to the following non used object depending on the active numbering module.
-	 *
-	 *  @return string      		Object free reference
-	 */
-	public function getNextNumRef()
-	{
-		global $langs, $conf;
-		$langs->load("dolismq@dolismq");
-
-		if (empty($conf->global->DOLISMQ_AUDIT_ADDON)) {
-			$conf->global->DOLISMQ_AUDIT_ADDON = 'mod_sheet_standard';
-		}
-
-		if ( ! empty($conf->global->DOLISMQ_AUDIT_ADDON)) {
-			$mybool = false;
-
-			$file      = $conf->global->DOLISMQ_AUDIT_ADDON . ".php";
-			$classname = $conf->global->DOLISMQ_AUDIT_ADDON;
-
-			// Include file with class
-			$dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
-			foreach ($dirmodels as $reldir) {
-				$dir = dol_buildpath($reldir . "core/modules/dolismq/");
-
-				// Load file with numbering class (if found)
-				$mybool |= @include_once $dir . $file;
-			}
-
-			if ($mybool === false) {
-				dol_print_error('', "Failed to include file " . $file);
-				return '';
-			}
-
-			if (class_exists($classname)) {
-				$obj    = new $classname();
-				$numref = $obj->getNextValue($this);
-
-				if ($numref != '' && $numref != '-1') {
-					return $numref;
-				} else {
-					$this->error = $obj->error;
-					//dol_print_error($this->db,get_class($this)."::getNextNumRef ".$obj->error);
-					return "";
-				}
-			} else {
-				print $langs->trans("Error") . " " . $langs->trans("ClassNotFound") . ' ' . $classname;
-				return "";
-			}
-		} else {
-			print $langs->trans("ErrorNumberingModuleNotSetup", $this->element);
-			return "";
-		}
-	}
-
-	/**
-	 *  Create a document onto disk according to template module.
-	 *
-	 *  @param	    string		$modele			Force template to use ('' to not force)
-	 *  @param		Translate	$outputlangs	objet lang a utiliser pour traduction
-	 *  @param      int			$hidedetails    Hide details of lines
-	 *  @param      int			$hidedesc       Hide description
-	 *  @param      int			$hideref        Hide ref
-	 *  @param      null|array  $moreparams     Array to provide more information
-	 *  @return     int         				0 if KO, 1 if OK
-	 */
-	public function generateDocument($modele, $outputlangs, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $moreparams = null)
-	{
-		global $conf, $langs;
-
-		$result               = 0;
-		$includedocgeneration = 1;
-
-		$langs->load("dolismq@dolismq");
-
-		if ( ! dol_strlen($modele)) {
-			$modele = 'standard_sheet';
-
-			if ( ! empty($this->model_pdf)) {
-				$modele = $this->model_pdf;
-			} elseif ( ! empty($conf->global->AUDIT_ADDON_PDF)) {
-				$modele = $conf->global->AUDIT_ADDON_PDF;
-			}
-		}
-
-		$modelpath = "core/modules/dolismq/doc/";
-
-		if ($includedocgeneration && ! empty($modele)) {
-			$result = $this->commonGenerateDocument($modelpath, $modele, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Action executed by scheduler
-	 * CAN BE A CRON TASK. In such a case, parameters come from the schedule job setup field 'Parameters'
-	 * Use public function doScheduledJob($param1, $param2, ...) to get parameters
-	 *
-	 * @return	int			0 if OK, <>0 if KO (this function is used also by cron so only 0 is OK)
-	 */
-	public function doScheduledJob()
-	{
-		global $conf, $langs;
-
-		//$conf->global->SYSLOG_FILE = 'DOL_DATA_ROOT/dolibarr_mydedicatedlofile.log';
-
-		$error        = 0;
-		$this->output = '';
-		$this->error  = '';
-
-		dol_syslog(__METHOD__, LOG_DEBUG);
-
-		$now = dol_now();
-
-		$this->db->begin();
-
-		// ...
-
-		$this->db->commit();
-
-		return $error;
 	}
 
 	/**
@@ -1178,6 +736,5 @@ class Sheet extends CommonObject
 			return -1;
 		}
 	}
-
 }
 
