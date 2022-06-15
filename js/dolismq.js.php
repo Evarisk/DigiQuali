@@ -1019,6 +1019,7 @@ window.eoxiaJS.control.event = function() {
 	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 	$( document ).on( 'change', '#fk_project', window.eoxiaJS.control.reloadTask );
 	$( document ).on( 'click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
+	$( document ).on( 'change', '#fk_sheet', window.eoxiaJS.control.showSelectObjectLinked);
 	//$( document ).on( 'click', '#select_all_answer', window.eoxiaJS.control.selectAllAnswer);
 };
 
@@ -1116,13 +1117,13 @@ window.eoxiaJS.control.updateButtonsStatus = function (  ) {
  * @return {void}
  */
 window.eoxiaJS.control.reloadProductLot = function ( event ) {
-	console.log($(this))
 	let selectTitle = $(this).closest('td').find('#select2-fk_product-container').attr('title')
 	let productRef = selectTitle.split(/ /)[0]
 	let token = $('.id-container').find('input[name="token"]').val();
+	let sheetID = $('#sheetID').val();
 
 	$.ajax({
-		url: document.URL + '&token=' + token,
+		url: document.URL + '&token=' + token + '&fk_sheet=' + sheetID,
 		type: "POST",
 		data: JSON.stringify({
 			productRef: productRef,
@@ -1169,6 +1170,15 @@ window.eoxiaJS.control.reloadTask = function ( event ) {
 	//$(this).closest('.control-table').find('.lot-container').load(document.URL+'&productRef='+productRef + ' .lot-content')
 };
 
+/**
+ * Get answered questions counter
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
 window.eoxiaJS.control.getAnswerCounter = function ( event ) {
 	let answerCounter = 0
 	jQuery("#tablelines").children().each(function() {
@@ -1178,6 +1188,37 @@ window.eoxiaJS.control.getAnswerCounter = function ( event ) {
 	})
 	document.cookie = "answerCounter=" + answerCounter
 }
+
+/**
+ * Show select objects depending on sheet controllable objects
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.control.showSelectObjectLinked = function ( event ) {
+	let sheetRefAndLabel = $('#select2-fk_sheet-container').html()
+	let token = $('.id-container').find('input[name="token"]').val();
+
+	if (sheetRefAndLabel.match(/ - /)) {
+		let sheetRef = sheetRefAndLabel.split(/-/)[0]
+
+		$.ajax({
+			url: document.URL + '&sheetRef=' + sheetRef + '&token=' + token,
+			type: "POST",
+			processData: false,
+			contentType: false,
+			success: function ( resp ) {
+				$('.tabBar.tabBarWithBottom').html($(resp).find('.tabBar.tabBarWithBottom').children())
+			},
+			error: function ( ) {
+			}
+		});
+	}
+}
+
 
 ///**
 // * Action select All Answer.

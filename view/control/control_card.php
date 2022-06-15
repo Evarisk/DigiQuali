@@ -742,6 +742,12 @@ if (empty($reshook))
 		}
 	}
 
+	// Action to get controllable objects with specific sheet
+//	if ($action == 'create' && dol_strlen(GETPOST('sheetRef'))) {
+//		$sheet->fetch(0,GETPOST('sheetRef'));
+//		header("Location: " . $_SERVER['PHP_SELF'] . '&fk_sheet=' . $sheet->id);
+//	}
+
 	// Actions to send emails
 	$triggersendname = 'DOLISMQ_AUDIT_SENTBYMAIL';
 	$autocopy = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
@@ -782,6 +788,16 @@ if ($action == 'create') {
 
 	print '<table class="border centpercent tableforfieldcreate control-table">'."\n";
 
+	if (!empty(GETPOST('sheetRef'))) {
+		$sheet->fetch(0,GETPOST('sheetRef'));
+	}
+	if (!empty(GETPOST('fk_sheet'))) {
+		$sheet->fetch(GETPOST('fk_sheet'));
+	}
+	if ($sheet->element_linked) {
+		print '<input hidden id="sheetID" value="'. $sheet->id .'">';
+	}
+
 	//Ref -- Ref
 	print '<tr><td class="fieldrequired titlefieldcreate">' . $langs->trans("Ref") . '</td><td>';
 	print '<input hidden class="flat" type="text" size="36" name="ref" id="ref" value="' . $refControlMod->getNextValue($object) . '">';
@@ -807,11 +823,11 @@ if ($action == 'create') {
 
 	//FK SHEET
 	print '<tr><td class="fieldrequired">' . $langs->trans("SheetLinked") . '</td><td>';
-	print $sheet->select_sheet_list(GETPOST('fk_sheet'));
+	print $sheet->select_sheet_list(GETPOST('fk_sheet')?: $sheet->id);
 	print '</td></tr>';
 
 	//FK Product
-	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT)) {
+	if ($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT && preg_match('/"product":1/',$sheet->element_linked)) {
 		print '<tr><td class="">' . img_picto('', 'product', 'class="paddingrightonly"') . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' ' . $langs->trans('Service') . '</td><td>';
 		$events = array();
 		$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/dolismq/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_productlot');
@@ -821,7 +837,7 @@ if ($action == 'create') {
 	}
 
 	//FK PRODUCTLOT
-	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT)) {
+	if ($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT && preg_match('/"productlot":1/',$sheet->element_linked)) {
 		print '<tr><td class="">';
 		print img_picto('', 'lot', 'class="paddingrightonly"') . $langs->trans("Lot");
 		print '</td><td class="lot-container">';
@@ -832,9 +848,8 @@ if ($action == 'create') {
 		print '</span>';
 		print '</td></tr>';
 	}
-
 	//FK Soc
-	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY)) {
+	if ($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY && preg_match('/"thirdparty":1/',$sheet->element_linked)) {
 		print '<tr><td class="">' . img_picto('', 'building', 'class="paddingrightonly"') . $langs->trans("ThirdPartyLinked") . '</td><td>';
 		print $form->select_company(GETPOST('fk_soc'), 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'minwidth300');
 		print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
@@ -842,7 +857,7 @@ if ($action == 'create') {
 	}
 
 	//FK Project
-	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT)) {
+	if ($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT && preg_match('/"project":1/',$sheet->element_linked)) {
 		print '<tr><td class="">' . img_picto('', 'project', 'class="paddingrightonly"') . $langs->trans("ProjectLinked") . '</td><td>';
 		print $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1), GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
 		print '<a href="' . DOL_URL_ROOT . '/projet/card.php?socid=' . GETPOST('fk_soc') . '&action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddProject") . '"></span></a>';
@@ -850,7 +865,7 @@ if ($action == 'create') {
 	}
 
 	//FK Task
-	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK)) {
+	if ($conf->global->DOLISMQ_CONTROL_SHOW_TASK && preg_match('/"task":1/',$sheet->element_linked)) {
 		print '<tr><td class="">' . img_picto('', 'projecttask', 'class="paddingrightonly"') . $langs->trans("TaskLinked");
 		print '</td><td class="task-container">';
 		print '<span class="task-content">';
