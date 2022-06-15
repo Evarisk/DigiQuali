@@ -1121,9 +1121,11 @@ window.eoxiaJS.control.reloadProductLot = function ( event ) {
 	let productRef = selectTitle.split(/ /)[0]
 	let token = $('.id-container').find('input[name="token"]').val();
 	let sheetID = $('#sheetID').val();
+	let action = '?action=create'
+	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetID
 
 	$.ajax({
-		url: document.URL + '&token=' + token + '&fk_sheet=' + sheetID,
+		url: urlToGo,
 		type: "POST",
 		data: JSON.stringify({
 			productRef: productRef,
@@ -1153,8 +1155,13 @@ window.eoxiaJS.control.reloadTask = function ( event ) {
 	let selectTitle = $(this).closest('td').find('#select2-fk_project-container').attr('title')
 	let projectRef = selectTitle.split(/ /)[0]
 	let projectRef2 = projectRef.slice(0, -1)
+	let token = $('.id-container').find('input[name="token"]').val();
+	let sheetID = $('#sheetID').val();
+	let action = '?action=create'
+	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetID
+
 	$.ajax({
-		url: document.URL + '?action=create',
+		url: urlToGo,
 		type: "POST",
 		data: JSON.stringify({
 			projectRef: projectRef2,
@@ -1201,12 +1208,14 @@ window.eoxiaJS.control.getAnswerCounter = function ( event ) {
 window.eoxiaJS.control.showSelectObjectLinked = function ( event ) {
 	let sheetRefAndLabel = $('#select2-fk_sheet-container').html()
 	let token = $('.id-container').find('input[name="token"]').val();
+	let action = '?action=create'
 
 	if (sheetRefAndLabel.match(/ - /)) {
 		let sheetRef = sheetRefAndLabel.split(/-/)[0]
+		let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&sheetRef=' + sheetRef + '&token=' + token
 
 		$.ajax({
-			url: document.URL + '&sheetRef=' + sheetRef + '&token=' + token,
+			url: urlToGo,
 			type: "POST",
 			processData: false,
 			contentType: false,
