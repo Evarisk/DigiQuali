@@ -1119,8 +1119,10 @@ window.eoxiaJS.control.reloadProductLot = function ( event ) {
 	console.log($(this))
 	let selectTitle = $(this).closest('td').find('#select2-fk_product-container').attr('title')
 	let productRef = selectTitle.split(/ /)[0]
+	let token = $('.id-container').find('input[name="token"]').val();
+
 	$.ajax({
-		url: document.URL + '?action=create',
+		url: document.URL + '&token=' + token,
 		type: "POST",
 		data: JSON.stringify({
 			productRef: productRef,
