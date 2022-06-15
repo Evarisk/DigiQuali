@@ -551,10 +551,10 @@ if ($action == 'create')
 	$doleditor->Create();
 	print '</td></tr>';
 
-	// ShowPhoto -- Utiliser des photos
-	print '<tr><td class="minwidth400">' . $langs->trans("ShowPhoto") . '</td><td>';
-	print '<input type="checkbox" id="show_photo" name="show_photo"' . (GETPOST('show_photo') ? ' checked=""' : '') . '>';
-	print $form->textwithpicto('', $langs->trans('ShowPhotoTooltip'));
+	// EnterComment -- Saisir les commentaires
+	print '<tr><td class="minwidth400">' . $langs->trans("EnterComment") . '</td><td>';
+	print '<input type="checkbox" id="enter_comment" name="enter_comment"' . (GETPOST('enter_comment') ? ' checked=""' : '') . '>';
+	print $form->textwithpicto('', $langs->trans('EnterCommentTooltip'));
 	print '</td></tr>';
 
 	// AuthorizeAnswerPhoto -- Utiliser des réponses de photos
@@ -563,10 +563,10 @@ if ($action == 'create')
 	print $form->textwithpicto('', $langs->trans('AuthorizeAnswerPhotoTooltip'));
 	print '</td></tr>';
 
-	// EnterComment -- Saisir les commentaires
-	print '<tr><td class="minwidth400">' . $langs->trans("EnterComment") . '</td><td>';
-	print '<input type="checkbox" id="enter_comment" name="enter_comment"' . (GETPOST('enter_comment') ? ' checked=""' : '') . '>';
-	print $form->textwithpicto('', $langs->trans('EnterCommentTooltip'));
+	// ShowPhoto -- Utiliser des photos
+	print '<tr><td class="minwidth400">' . $langs->trans("ShowPhoto") . '</td><td>';
+	print '<input type="checkbox" id="show_photo" name="show_photo"' . (GETPOST('show_photo') ? ' checked=""' : '') . '>';
+	print $form->textwithpicto('', $langs->trans('ShowPhotoTooltip'));
 	print '</td></tr>';
 
 	print '<tr class="linked-medias photo_ok hidden" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
@@ -662,13 +662,13 @@ if (($id || $ref) && $action == 'edit')
 	$doleditor->Create();
 	print '</td></tr>';
 
-	// ShowPhoto -- Utiliser les photos
+	// EnterComment -- Saisir les commentaires
 	print '<tr class="oddeven"><td class="minwidth400">';
-	print $langs->trans("ShowPhoto");
+	print $langs->trans("EnterComment");
 	print '</td>';
 	print '<td>';
-	print '<input type="checkbox" id="show_photo" name="show_photo"' . ($object->show_photo ? ' checked=""' : '') . '"> ';
-	print $form->textwithpicto('', $langs->trans('ShowPhotoTooltip'));
+	print '<input type="checkbox" id="enter_comment" name="enter_comment"' . ($object->enter_comment ? ' checked=""' : '') . '"> ';
+	print $form->textwithpicto('', $langs->trans('EnterCommentTooltip'));
 	print '</td></tr>';
 
 	// AuthorizeAnswerPhoto -- Utiliser les réponses de photos
@@ -680,13 +680,13 @@ if (($id || $ref) && $action == 'edit')
 	print $form->textwithpicto('', $langs->trans('AuthorizeAnswerPhotoTooltip'));
 	print '</td></tr>';
 
-	// EnterComment -- Saisir les commentaires
+	// ShowPhoto -- Utiliser les photos
 	print '<tr class="oddeven"><td class="minwidth400">';
-	print $langs->trans("EnterComment");
+	print $langs->trans("ShowPhoto");
 	print '</td>';
 	print '<td>';
-	print '<input type="checkbox" id="$this->enter_comment" name="$this->enter_comment"' . ($object->enter_comment ? ' checked=""' : '') . '"> ';
-	print $form->textwithpicto('', $langs->trans('EnterCommentTooltip'));
+	print '<input type="checkbox" id="show_photo" name="show_photo"' . ($object->show_photo ? ' checked=""' : '') . '"> ';
+	print $form->textwithpicto('', $langs->trans('ShowPhotoTooltip'));
 	print '</td></tr>';
 
 	print '<tr class="' . ($object->show_photo ? ' linked-medias photo_ok' : ' linked-medias photo_ok hidden' ) . '" style="' . ($object->show_photo ? ' ' : ' display:none') . '"><td><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
@@ -816,12 +816,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print $object->description;
 	print '</td></tr>';
 
-	// ShowPhoto -- Utiliser les photos
+	// EnterComment -- Saisir les commentaires
 	print '<tr><td class="titlefield">';
-	print $langs->trans("ShowPhoto");
+	print $langs->trans("EnterComment");
 	print '</td>';
 	print '<td>';
-	print '<input type="checkbox" id="show_photo" name="show_photo"' . ($object->show_photo ? ' checked=""' : '') . '" disabled> ';
+	print '<input type="checkbox" id="enter_comment" name="enter_comment"' . ($object->enter_comment ? ' checked=""' : '') . '" disabled> ';
 	print '</td></tr>';
 
 	// AuthorizeAnswerPhoto -- Utiliser les réponses de photos
@@ -832,12 +832,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<input type="checkbox" id="authorize_answer_photo" name="authorize_answer_photo"' . ($object->authorize_answer_photo ? ' checked=""' : '') . '" disabled> ';
 	print '</td></tr>';
 
-	// EnterComment -- Saisir les commentaires
+	// ShowPhoto -- Utiliser les photos
 	print '<tr><td class="titlefield">';
-	print $langs->trans("EnterComment");
+	print $langs->trans("ShowPhoto");
 	print '</td>';
 	print '<td>';
-	print '<input type="checkbox" id="$this->enter_comment" name="$this->enter_comment"' . ($object->enter_comment ? ' checked=""' : '') . '" disabled> ';
+	print '<input type="checkbox" id="show_photo" name="show_photo"' . ($object->show_photo ? ' checked=""' : '') . '" disabled> ';
 	print '</td></tr>';
 
 	if ($object->show_photo > 0) {
