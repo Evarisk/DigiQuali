@@ -86,7 +86,7 @@ ShowPhoto = Afficher les photos
 AuthorizeAnswerPhoto = Autoriser l'envoi de photos sur les réponses
 ShowPhotoTooltip = Affiche les photos et la bibliothèque de média sur la question
 AuthorizeAnswerPhotoTooltip = Autorise l'envoi de photos sur les réponses de question
-NoteControl = Remarque
+NoteControl = Note publique
 EnterComment = Saisir les commentaires
 EnterCommentTooltip = Saisi le commentaire sur les réponses de question
 
@@ -135,7 +135,7 @@ NotCreated = Pas encore créé(e)s
 CategoriesGeneration = Cette option permet la génération des catégories par défaut des des fiches modèles. Les catégories créées seront : <br> - Qualité <br> - Hygiène <br> - Sécurité <br> - Environnement <br> - Sureté <br> - Réglementaire <br> - Bureau d'Etude <br> - Fournisseurs <br> - Commercial <br> - Production <br> - Méthodes <br>
 SheetData = Donnés configurables des fiches modèles
 UniqueLinkedElement = Liaison unique sur les éléments de Dolibarr
-UniqueLinkedElementDescription = Lié un seul élément de Dolibarr à une fiche modèle
+UniqueLinkedElementDescription = Lier un seul élément de Dolibarr à une fiche modèle
 ErrorMultipleLinkedElement = Erreur la fiche modèle est liée à plusieurs éléments <br> Veuillez désactiver l'option de configuration : "Liaison unique sur les éléments de Dolibarr" pour pouvoir faire cela
 
 # Tags - catégories
