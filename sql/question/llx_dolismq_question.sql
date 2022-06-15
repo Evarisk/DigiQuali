@@ -27,6 +27,7 @@ CREATE TABLE llx_dolismq_question(
 	description            text,
     show_photo             boolean,
     authorize_answer_photo boolean,
+    enter_comment          boolean,
 	photo_ok               text,
 	photo_ko               text,
 	fk_user_creat          integer NOT NULL,

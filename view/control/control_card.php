@@ -1606,12 +1606,16 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 									print '<span class="question-ref-title">' . $itemControlDet->ref . '</span> - ';
 								}
 								?>
-								<?php print $langs->trans('Comment') . ' : '; ?>
+								<?php if ($item->enter_comment > 0) : ?>
+									<?php print $langs->trans('Comment') . ' : '; ?>
+								<?php endif; ?>
 							</div>
-							<?php if ($object->status > 0 ) : ?>
-								<?php print $comment; ?>
-							<?php else : ?>
-								<?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?>
+							<?php if ($item->enter_comment > 0) : ?>
+								<?php if ($object->status > 0 ) : ?>
+									<?php print $comment; ?>
+								<?php else : ?>
+									<?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?>
+								<?php endif; ?>
 							<?php endif; ?>
 						</div>
 					</div>

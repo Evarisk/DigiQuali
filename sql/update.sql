@@ -15,4 +15,5 @@ ALTER TABLE `llx_dolismq_sheet` ADD `element_linked` TEXT NULL AFTER `label`;
 
 ALTER TABLE `llx_dolismq_question` ADD `show_photo` BOOLEAN NULL AFTER `description`;
 ALTER TABLE `llx_dolismq_question` ADD `authorize_answer_photo` BOOLEAN NULL AFTER `show_photo`;
+ALTER TABLE `llx_dolismq_question` ADD `enter_comment` BOOLEAN NULL AFTER `authorize_answer_photo`;
 
