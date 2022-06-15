@@ -627,7 +627,8 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event ) {
 				window.eoxiaJS.control.updateButtonsStatus()
 
 			} else if (document.URL.match(/question_card/)) {
-				$('.tabBar .linked-medias.'+type+' .media-container').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .media-container', () => {
+				console.log($(resp).find('.tabBar .linked-medias.'+type+' .media-container'))
+				$('.tabBar .linked-medias.'+type+' .linked-medias-list').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .linked-medias-list', () => {
 					$('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .fa-star').first().removeClass('far').addClass('fas')
 					let favoriteMedia = $('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .filename').attr('value')
 					$('#'+type).val(favoriteMedia)

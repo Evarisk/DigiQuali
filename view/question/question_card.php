@@ -492,7 +492,7 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	// Photo OK -- Photo OK
-	print '<tr class="linked-medias photo_ok hidden" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td>'; ?>
+	print '<tr class="linked-medias photo_ok hidden" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td class="linked-medias-list">'; ?>
 	<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-photo-ok" name="userfile[]" multiple capture="environment" accept="image/*">'; ?>
 	<label for="fast-upload-photo-ok">
 		<div class="wpeo-button button-square-50">
