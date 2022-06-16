@@ -196,7 +196,7 @@ class dolismqwidget1 extends ModeleBoxes
 
 				if (!empty($sheets)) {
 					foreach ($sheets as $sheet) {
-						$controls = $control->fetchAll('', '', 0, 0, array('customsql' => 'fk_sheet = ' . $sheet->id));
+						$controls = $control->fetchAll('desc', 'rowid', 1, 0, array('customsql' => 'fk_sheet = ' . $sheet->id));
 //						echo '<pre>'; print_r( $category->label ); echo '</pre>';
 //						echo '<pre>'; print_r( $controls ); echo '</pre>';
 					}
