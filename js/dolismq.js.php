@@ -1412,3 +1412,58 @@ window.eoxiaJS.menu.setMenu = function() {
 	}
 };
 
+/**
+ * Initialise l'objet "keyEvent" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ */
+window.eoxiaJS.keyEvent = {};
+
+/**
+ * La méthode appelée automatiquement par la bibliothèque EoxiaJS.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.keyEvent.init = function() {
+	window.eoxiaJS.keyEvent.event();
+};
+
+/**
+ * La méthode contenant tous les événements pour le migration.
+ *
+ * @since   1.0.0
+ * @version 9.0.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.keyEvent.event = function() {
+	$( document ).on( 'keydown', window.eoxiaJS.keyEvent.keyup );
+}
+
+/**
+ * Action modal close & validation with key events
+ *
+ * @since   1.0.0
+ * @version 8.5.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.keyEvent.keyup = function( event ) {
+	if ( 'Escape' === event.key  ) {
+		$(this).find('.modal-active .modal-close .fas.fa-times').first().click();
+	}
+
+	if ( 'Enter' === event.key )  {
+		event.preventDefault()
+		if (!$('input, textarea').is(':focus')) {
+			$(this).find('.modal-active .modal-footer .wpeo-button').not('.button-disable').first().click();
+		} else {
+			$('textarea:focus').val($('textarea:focus').val() + '\n')
+		}
+	}
+};
+
