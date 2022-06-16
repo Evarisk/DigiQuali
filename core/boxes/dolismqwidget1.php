@@ -229,7 +229,7 @@ class dolismqwidget1 extends ModeleBoxes
 						}
 
 						if ($filterValue == 'last_control') {
-							$textHead .= ' : ' . $langs->trans("WhichLastControl");
+							$textHead .= ' : ' . $langs->trans("WithLastControl");
 						}
 
 						// Populate the head at runtime
@@ -257,7 +257,7 @@ class dolismqwidget1 extends ModeleBoxes
 						$boxcontent .= '<div id="idfilter' . $this->boxcode . '" class="center" >' . "\n";
 						$boxcontent .= '<form class="flat " method="POST" action="' . $_SERVER["PHP_SELF"] . '#ancor-idfilter' . $this->boxcode . '">' . "\n";
 						$boxcontent .= '<input type="hidden" name="token" value="' . newToken() . '">' . "\n";
-						$selectArray = array('all' => $langs->trans("NoFilter"), 'last_control' => $langs->trans("WhichLastControl"));
+						$selectArray = array('all' => $langs->trans("NoFilter"), 'last_control' => $langs->trans("WithLastControl"));
 						$boxcontent .= $form->selectArray($cookie_name, $selectArray, $filterValue);
 						$boxcontent .= '<button type="submit" class="button buttongen button-save">' . $langs->trans("Refresh") . '</button>';
 						$boxcontent .= '</form>' . "\n";
