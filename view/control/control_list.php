@@ -96,7 +96,7 @@ $box            = new dolismqwidget1($db);
 $categorystatic = new Categorie($db);
 $sheet          = new Sheet($db);
 $extrafields    = new ExtraFields($db);
-$control        = new Control($db);
+$controlstatic  = new Control($db);
 
 // View objects
 $form = new Form($db);
@@ -286,32 +286,27 @@ if ($fromid) {
 	print '<div class="underbanner clearboth"></div>';
 	print '<div class="fichehalfleft">';
 	print '<br>';
-	$box->loadBox();
-	$allCategories = $categorystatic->get_all_categories('sheet');
-	if (!empty($allCategories)) {
-		foreach ($allCategories as $key => $category) {
-			$categorystatic->fetch(0, $langs->transnoentities($category->label), 'sheet');
-			$sheets = $categorystatic->getObjectsInCateg('sheet', 0);
-			if (!empty($sheets)) {
-				foreach ($sheets as $sheet) {
-					$controls = $control->fetchAll('', '', 0, 0, array('customsql' => 'fk_sheet = ' . $sheet->id));
-					$elementLinked = json_decode($sheet->element_linked);
-					switch ($fromtype) {
-						case 'productbatch' :
-							$fromtype = 'productlot';
-							break;
-						case 'societe' :
-							$fromtype = 'thirdparty';
-							break;
-						case 'project_task' :
-							$fromtype = 'task';
-							break;
-					}
-					if (!empty($controls) && $elementLinked->$fromtype == 1) {
-						$box->showBox($category->id, $category->id);
-						break;
+
+	$controls = $controlstatic->fetchAll();
+	if (!empty($controls)) {
+		foreach ($controls as $control) {
+			if (!empty($control->linkedObjectsIds)) {
+				if (array_key_exists($fromtype, $control->linkedObjectsIds)) {
+					$test = array_values($control->linkedObjectsIds[$fromtype]);
+					if ($test[0] == $fromid) {
+						$sheet->fetch($control->fk_sheet);
+						$categories = $categorystatic->getListForItem($sheet->id, 'sheet');
+						foreach ($categories as $category) {
+							$nbBox[$category['label']] = 1;
+						}
 					}
 				}
+			}
+		}
+		if (!empty($categories)) {
+			$box->loadBox();
+			for ($i = 0; $i < count($nbBox); $i++) {
+				$box->showBox($i,$i);
 			}
 		}
 	}

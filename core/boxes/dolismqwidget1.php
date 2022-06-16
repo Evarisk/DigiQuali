@@ -107,7 +107,7 @@ class dolismqwidget1 extends ModeleBoxes
 	 */
 	public function loadBox($max = 5)
 	{
-		global $conf, $langs, $user;
+		global $langs;
 
 		// Use configuration value for max lines count
 		$this->max = $max;
@@ -117,224 +117,127 @@ class dolismqwidget1 extends ModeleBoxes
 		require_once __DIR__ . '/../../class/control.class.php';
 		require_once __DIR__ . '/../../class/sheet.class.php';
 
-//		// Populate the contents at runtime
-//		$this->info_box_contents = array(
-//			0 => array( // First line
-//				0 => array( // First Column
-//					//  HTML properties of the TR element. Only available on the first column.
-//					'tr' => 'class="left"',
-//					// HTML properties of the TD element
-//					'td' => '',
-//
-//					// Main text for content of cell
-//					'text' => 'First cell of first line',
-//					// Link on 'text' and 'logo' elements
-//					'url' => 'http://example.com',
-//					// Link's target HTML property
-//					'target' => '_blank',
-//					// Fist line logo (deprecated. Include instead logo html code into text or text2, and set asis property to true to avoid HTML cleaning)
-//					//'logo' => 'monmodule@monmodule',
-//					// Unformatted text, added after text. Usefull to add/load javascript code
-//					'textnoformat' => '',
-//
-//					// Main text for content of cell (other method)
-//					//'text2' => '<p><strong>Another text</strong></p>',
-//
-//					// Truncates 'text' element to the specified character length, 0 = disabled
-//					'maxlength' => 0,
-//					// Prevents HTML cleaning (and truncation)
-//					'asis' => false,
-//					// Same for 'text2'
-//					'asis2' => true
-//				),
-//				1 => array( // Another column
-//					// No TR for n≠0
-//					'td' => '',
-//					'text' => 'Second cell',
-//				)
-//			),
-//			1 => array( // Another line
-//				0 => array( // TR
-//					'tr' => 'class="left"',
-//					'text' => 'Another line'
-//				),
-//				1 => array( // TR
-//					'tr' => 'class="left"',
-//					'text' => 'sdsdsdsdsds'
-//				)
-//			),
-//			2 => array( // Another line
-//				0 => array( // TR
-//					'tr' => 'class="left"',
-//					'text' => 'sdss'
-//				),
-//				1 => array( // TR
-//					'tr' => 'class="left"',
-//					'text' => 'dsdsdsdsd'
-//				)
-//			),
-//		);
-
 		$categorystatic = new Categorie($this->db);
-		$sheet    = new Sheet($this->db);
-		$control  = new Control($this->db);
-
-		$form     = new Form($this->db);
+		$sheet          = new Sheet($this->db);
+		$controlstatic  = new Control($this->db);
+		$form           = new Form($this->db);
 
 		$cookie_name     = 'DOLUSERCOOKIE_boxfilter_control';
 		$boxcontent      = '';
 		$filterValue     = 'all';
-		$regulatoryScore = 0;
+		$fromid          = GETPOST('fromid', 'int'); // element type
 		$fromtype        = GETPOST('fromtype', 'alpha'); // element type
 
-		$allCategories = $categorystatic->get_all_categories('sheet');
-		if (!empty($allCategories)) {
-			foreach ($allCategories as $category) {
-				$categorystatic->fetch_optionals();
-				$categorystatic->fetch(0, $langs->transnoentities($category->label), 'sheet');
-				$sheets = $categorystatic->getObjectsInCateg('sheet', 0);
+		//$textHead = $langs->trans($category->label, $max);
 
-				if (!empty($sheets)) {
-					foreach ($sheets as $sheet) {
-						$controls = $control->fetchAll('desc', 'rowid', 1, 0, array('customsql' => 'fk_sheet = ' . $sheet->id));
-//						echo '<pre>'; print_r( $category->label ); echo '</pre>';
-//						echo '<pre>'; print_r( $controls ); echo '</pre>';
-					}
+		$boxHeads = array();
+		$boxContents = array();
+		$controls = $controlstatic->fetchAll();
 
-					$elementLinked = json_decode($sheet->element_linked);
+		if (in_array(GETPOST($cookie_name), array('all', 'last_control'))) {
+			$filterValue = GETPOST($cookie_name);
+		} elseif (!empty($_COOKIE[$cookie_name])) {
+			$filterValue = preg_replace('/[^a-z_]/', '', $_COOKIE[$cookie_name]); // Clean cookie from evil data
+		}
 
-					switch ($fromtype) {
-						case 'productbatch' :
-							$fromtype = 'productlot';
-							break;
-						case 'societe' :
-							$fromtype = 'thirdparty';
-							break;
-						case 'project_task' :
-							$fromtype = 'task';
-							break;
-					}
+		if ($filterValue == 'last_control') {
+			$textHead .= ' : ' . $langs->trans("WithLastControl");
+		}
 
-					if (!empty($controls) && $elementLinked->$fromtype == 1) {
+		// Populate the contents at runtime
+		$boxcontent .= '<div id="ancor-idfilter' . $this->boxcode . '" style="display: block; position: absolute; margin-top: -100px"></div>' . "\n";
+		$boxcontent .= '<div id="idfilter' . $this->boxcode . '" class="center" >' . "\n";
+		$boxcontent .= '<form class="flat " method="POST" action="' . $_SERVER["PHP_SELF"] . '#ancor-idfilter' . $this->boxcode . '">' . "\n";
+		$boxcontent .= '<input type="hidden" name="token" value="' . newToken() . '">' . "\n";
+		$selectArray = array('all' => $langs->trans("NoFilter"), 'last_control' => $langs->trans("WithLastControl"));
+		$boxcontent .= $form->selectArray($cookie_name, $selectArray, $filterValue);
+		$boxcontent .= '<button type="submit" class="button buttongen button-save">' . $langs->trans("Refresh") . '</button>';
+		$boxcontent .= '</form>' . "\n";
+		$boxcontent .= '</div>' . "\n";
 
-						$score = 0;
-						$totalScore = 0;
+		if (!empty($conf->use_javascript_ajax)) {
+			$boxcontent .= '<script type="text/javascript">
+					jQuery(document).ready(function() {
+						jQuery("#idsubimg' . $this->boxcode . '").click(function() {
+							jQuery(".showiffilter' . $this->boxcode . '").toggle();
+						});
+					});
+					</script>';
+			// set cookie by js
+			$boxcontent .= '<script>date = new Date(); date.setTime(date.getTime()+(30*86400000)); document.cookie = "' . $cookie_name . '=' . $filterValue . '; expires= " + date.toGMTString() + "; path=/ "; </script>';
+		}
 
-						$textHead = $langs->trans($category->label, $max);
+		if (!empty($controls)) {
+			foreach ($controls as $control) {
+				if (!empty($control->linkedObjectsIds)) {
+					if (array_key_exists($fromtype, $control->linkedObjectsIds)) {
+						$test = array_values($control->linkedObjectsIds[$fromtype]);
+						if ($test[0] == $fromid) {
+							$sheet->fetch($control->fk_sheet);
+							$categories = $categorystatic->getListForItem($sheet->id, 'sheet');
+							foreach ($categories as $category) {
+								$boxHeads[$category['label']][] = array(
+									// Title text
+									'text' => $langs->trans($category['label']),
+									// Add a link
+									'sublink' => '',
+									// Sublink icon placed after the text
+									'subpicto' => 'filter.png',
+									// Sublink icon HTML alt text
+									'subtext' => '',
+									// Sublink HTML target
+									'target' => 'none', // Set '' to get target="_blank"
+									// HTML class attached to the picto and link
+									'subclass' => 'linkobject boxfilter',
+									// Limit and truncate with "…" the displayed text lenght, 0 = disabled
+									'limit' => dol_strlen($langs->trans($category['label'])),
+									// Adds translated " (Graph)" to a hidden form value's input (?)
+									'graph' => false
+								);
 
-						if (in_array(GETPOST($cookie_name), array('all', 'last_control'))) {
-							$filterValue = GETPOST($cookie_name);
-						} elseif (!empty($_COOKIE[$cookie_name])) {
-							$filterValue = preg_replace('/[^a-z_]/', '', $_COOKIE[$cookie_name]); // Clean cookie from evil data
-						}
+								$boxContents[$category['label']][$sheet->id][$control->id][0] = array(
+									0 => array(
+										'tr' => 'class="nohover showiffilter' . $this->boxcode . ' hideobject"',
+										'td' => 'class="nohover"',
+										'textnoformat' => $boxcontent,
+									),
+									1 => array(
+										'td' => 'class="right"',
+										'text' => '',
+									)
+								);
 
-						if ($filterValue == 'last_control') {
-							$textHead .= ' : ' . $langs->trans("WithLastControl");
-						}
-
-						// Populate the head at runtime
-						$this->info_box_head[$category->id] = array(
-							// Title text
-							'text' => $textHead,
-							// Add a link
-							'sublink' => '',
-							// Sublink icon placed after the text
-							'subpicto' => 'filter.png',
-							// Sublink icon HTML alt text
-							'subtext' => '',
-							// Sublink HTML target
-							'target' => 'none', // Set '' to get target="_blank"
-							// HTML class attached to the picto and link
-							'subclass' => 'linkobject boxfilter',
-							// Limit and truncate with "…" the displayed text lenght, 0 = disabled
-							'limit' => dol_strlen($textHead),
-							// Adds translated " (Graph)" to a hidden form value's input (?)
-							'graph' => false
-						);
-
-						// Populate the contents at runtime
-						$boxcontent .= '<div id="ancor-idfilter' . $this->boxcode . '" style="display: block; position: absolute; margin-top: -100px"></div>' . "\n";
-						$boxcontent .= '<div id="idfilter' . $this->boxcode . '" class="center" >' . "\n";
-						$boxcontent .= '<form class="flat " method="POST" action="' . $_SERVER["PHP_SELF"] . '#ancor-idfilter' . $this->boxcode . '">' . "\n";
-						$boxcontent .= '<input type="hidden" name="token" value="' . newToken() . '">' . "\n";
-						$selectArray = array('all' => $langs->trans("NoFilter"), 'last_control' => $langs->trans("WithLastControl"));
-						$boxcontent .= $form->selectArray($cookie_name, $selectArray, $filterValue);
-						$boxcontent .= '<button type="submit" class="button buttongen button-save">' . $langs->trans("Refresh") . '</button>';
-						$boxcontent .= '</form>' . "\n";
-						$boxcontent .= '</div>' . "\n";
-
-						if (!empty($conf->use_javascript_ajax)) {
-							$boxcontent .= '<script type="text/javascript">
-										jQuery(document).ready(function() {
-											jQuery("#idsubimg' . $this->boxcode . '").click(function() {
-												jQuery(".showiffilter' . $this->boxcode . '").toggle();
-											});
-										});
-										</script>';
-							// set cookie by js
-							$boxcontent .= '<script>date = new Date(); date.setTime(date.getTime()+(30*86400000)); document.cookie = "' . $cookie_name . '=' . $filterValue . '; expires= " + date.toGMTString() + "; path=/ "; </script>';
-						}
-
-						$this->info_box_contents[$category->id][0] = array(
-							0 => array(
-								'tr' => 'class="nohover showiffilter' . $this->boxcode . ' hideobject"',
-								'td' => 'class="nohover"',
-								'textnoformat' => $boxcontent,
-							),
-							1 => array(
-								'td' => 'class="right"',
-								'text' => '',
-							)
-						);
-
-						$i = 1;
-						while ($i <= count($controls)) {
-							foreach ($controls as $control) {
-								$this->info_box_contents[$category->id][$i] = array(
+								$boxContents[$category['label']][$sheet->id][$control->id][1] = array(
 									0 => array(
 										'td' => '',
 										'text' => $control->getNomUrl(0) . ' - ' . $sheet->getNomUrl(0)
 									),
 									1 => array(
 										'td' => 'class="right"',
-										'text' => $control->getLibVerdict(3)
+										'text' => $control->getLibVerdict(3),
+										'verdict' => $control->verdict
 									)
 								);
-
-								if ($control->verdict == 1) {
-									$score++;
-								}
-
-								$totalScore = ($score / count($controls)) * 100;
-
-								$this->info_box_contents[$category->id][$i+1] = array(
-									0 => array(
-										'td' => '',
-										'text' => $langs->trans('Score')
-									),
-									1 => array(
-										'td' => 'class="right"',
-										'text' => price2num($totalScore, 'MT', 1) . ' %',
-									)
-								);
-								$i++;
 							}
 						}
 					}
 				}
 			}
-			//		$this->info_box_contents[$key+3] = array(
-			//			0 => array(
-			//				'td' => '',
-			//				'text' => $langs->trans('RegulatoryThreshold')
-			//			),
-			//			1 => array(
-			//				'td' => 'class="right"',
-			//				'text' => price2num($category->array_options['options_seuil'], '', 2) . ' %'
-			//			)
-			//		);
+		}
+
+		$i = 0;
+		foreach ($boxHeads as $boxHead) {
+			$this->info_box_head[$i] = array_values($boxHead);
+			$i++;
+		}
+
+		$i = 0;
+		foreach ($boxContents as $boxContent) {
+			$this->info_box_contents[$i] = array_values($boxContent);
+			$i++;
 		}
 	}
+
 
 	/**
 	 * Method to show box. Called by Dolibarr eatch time it wants to display the box.
@@ -346,6 +249,34 @@ class dolismqwidget1 extends ModeleBoxes
 	 */
 	public function showBox($head = null, $contents = null, $nooutput = 0)
 	{
-		return parent::showBox($this->info_box_head[$head], $this->info_box_contents[$contents], $nooutput);
+		global $langs;
+
+		foreach ($this->info_box_contents[$contents] as $sheet){
+			foreach ($sheet as $control) {
+				$contentArray[] = $control;
+			}
+		}
+
+		foreach ($contentArray as $content) {
+			$boxContent[] = $content[1];
+			if ($content[1][1]['verdict'] == 1) {
+				$score++;
+			}
+		}
+
+		$totalScore = ($score / count($boxContent)) * 100;
+
+		$boxContent[] = array(
+			0 => array(
+				'td' => '',
+				'text' => $langs->trans('Score')
+			),
+			1 => array(
+				'td' => 'class="right"',
+				'text' => price2num($totalScore, 'MT', 1) . ' %',
+			)
+		);
+
+		return parent::showBox($this->info_box_head[$head][0], $boxContent, $nooutput);
 	}
 }

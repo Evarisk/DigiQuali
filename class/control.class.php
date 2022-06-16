@@ -232,6 +232,7 @@ class Control extends CommonObject
 
 				$record = new self($this->db);
 				$record->setVarsFromFetchObj($obj);
+				$record->fetchObjectLinked('', 'product', '', 'dolismq_control');
 
 				$records[$record->id] = $record;
 
