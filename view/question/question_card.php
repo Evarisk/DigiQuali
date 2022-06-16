@@ -497,7 +497,7 @@ if ($action == 'create') {
 
 	// Photo OK -- Photo OK
 	print '<tr class="linked-medias photo_ok hidden" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td class="linked-medias-list">'; ?>
-	<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-photo-ok" name="userfile[]" nonce="photo_ok" multiple capture="environment" accept="image/*" onchange="window.eoxiaJS.mediaGallery.fastUpload(this.nonce)">'; ?>
+	<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-photo-ok" name="userfile[]" nonce="photo_ok" capture="environment" accept="image/*" onchange="window.eoxiaJS.mediaGallery.fastUpload(this.nonce)">'; ?>
 	<label for="fast-upload-photo-ok">
 		<div class="wpeo-button button-square-50">
 			<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
@@ -514,7 +514,7 @@ if ($action == 'create') {
 	print '</td></tr>';
 	// Photo KO -- Photo KO
 	print '<tr class="linked-medias photo_ko hidden" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td class="linked-medias-list">'; ?>
-	<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-photo-ko" name="userfile2[]" nonce="photo_ko" multiple capture="environment" accept="image/*" onchange="window.eoxiaJS.mediaGallery.fastUpload(this.nonce)">'; ?>
+	<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-photo-ko" name="userfile2[]" nonce="photo_ko" capture="environment" accept="image/*" onchange="window.eoxiaJS.mediaGallery.fastUpload(this.nonce)">'; ?>
 	<label for="fast-upload-photo-ko">
 		<div class="wpeo-button button-square-50">
 			<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
