@@ -268,7 +268,7 @@ if ($action == 'create') {
 		),
 		'productlot' => array(
 			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT,
-			'langs' => 'Lot',
+			'langs' => 'Batch',
 			'picto' => 'lot'
 		),
 		'thirdparty' => array(
@@ -356,7 +356,7 @@ if (($id || $ref) && $action == 'edit') {
 		),
 		'productlot' => array(
 			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT,
-			'langs' => 'Lot',
+			'langs' => 'Batch',
 			'picto' => 'lot'
 		),
 		'thirdparty' => array(
@@ -478,7 +478,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		),
 		'productlot' => array(
 			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT,
-			'langs' => 'Lot',
+			'langs' => 'Batch',
 			'picto' => 'lot'
 		),
 		'thirdparty' => array(
