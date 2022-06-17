@@ -15,6 +15,7 @@
  *
  * Library javascript to enable Browser notifications
  */
+
 <?php
 if ( ! defined('NOREQUIRESOC')) {
 	define('NOREQUIRESOC', '1');
@@ -62,6 +63,7 @@ if (empty($dolibarr_nocache)) {
 	header('Cache-Control: no-cache');
 }
 ?>
+
 /**
  * \file    dolismq/js/dolismq.js.php
  * \ingroup dolismq
@@ -218,59 +220,12 @@ window.eoxiaJS.modal.openModal = function ( event ) {
 	}
 	history.pushState({ path:  document.URL}, '', urlWithoutTag);
 
-	// Open modal evaluation.
-	if ($(this).hasClass('risk-evaluation-add')) {
-		$('#risk_evaluation_add'+idSelected).addClass('modal-active');
-		$('.risk-evaluation-create'+idSelected).attr('value', idSelected);
-	} else if ($(this).hasClass('risk-evaluation-list')) {
-		$('#risk_evaluation_list' + idSelected).addClass('modal-active');
-	} else if ($(this).hasClass('open-media-gallery')) {
+	// Open modal media gallery.
+	 if ($(this).hasClass('open-media-gallery')) {
 		$('#media_gallery').addClass('modal-active');
 		$('#media_gallery').attr('value', idSelected);
 		$('#media_gallery').find('.type-from').attr('value', $(this).find('.type-from').val());
 		$('#media_gallery').find('.wpeo-button').attr('value', idSelected);
-	} else if ($(this).hasClass('risk-evaluation-edit')) {
-		$('#risk_evaluation_edit' + idSelected).addClass('modal-active');
-	} else if ($(this).hasClass('evaluator-add')) {
-		$('#evaluator_add' + idSelected).addClass('modal-active');
-	} else if ($(this).hasClass('open-medias-linked') && $(this).hasClass('digirisk-element')) {
-		$('#digirisk_element_medias_modal_' + idSelected).addClass('modal-active');
-	}
-
-	// Open modal risk.
-	if ($(this).hasClass('risk-add')) {
-		$('#risk_add' + idSelected).addClass('modal-active');
-	}
-	if ($(this).hasClass('risk-edit')) {
-		$('#risk_edit' + idSelected).addClass('modal-active');
-	}
-
-	// Open modal riskassessment task.
-	if ($(this).hasClass('riskassessment-task-add')) {
-		$('#risk_assessment_task_add' + idSelected).addClass('modal-active');
-	}
-	if ($(this).hasClass('riskassessment-task-edit')) {
-		$('#risk_assessment_task_edit' + idSelected).addClass('modal-active');
-	}
-	if ($(this).hasClass('riskassessment-task-list')) {
-		$('#risk_assessment_task_list' + idSelected).addClass('modal-active');
-	}
-
-	// Open modal risksign.
-	if ($(this).hasClass('risksign-add')) {
-		$('#risksign_add' + idSelected).addClass('modal-active');
-	}
-	if ($(this).hasClass('risksign-edit')) {
-		$('#risksign_edit' + idSelected).addClass('modal-active');
-	}
-	if ($(this).hasClass('risksign-photo')) {
-		$(this).closest('.risksign-photo-container').find('#risksign_photo' + idSelected).addClass('modal-active');
-	}
-
-	// Open modal signature.
-	if ($(this).hasClass('modal-signature-open')) {
-		$('#modal-signature' + idSelected).addClass('modal-active');
-		window.eoxiaJS.signature.modalSignatureOpened( $(this) );
 	}
 
 	$('.notice').addClass('hidden');
