@@ -17,7 +17,7 @@
  */
 
 /**
- *	\file       htdocs/custom/dolismq/core/modules/dolismq/mod_control_standard.php
+ *	\file       core/modules/dolismq/control/mod_control_standard.php
  * \ingroup     dolismq
  *	\brief      File containing class for numbering module Standard
  */

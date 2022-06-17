@@ -1,8 +1,5 @@
 <?php
-/* Copyright (C) 2004-2018  Laurent Destailleur     <eldy@users.sourceforge.net>
- * Copyright (C) 2018-2019  Nicolas ZABOURI         <info@inovea-conseil.com>
- * Copyright (C) 2019-2020  Frédéric France         <frederic.france@netlogic.fr>
- * Copyright (C) 2019-2022 Eoxia <dev@eoxia.com>
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +19,7 @@
  * 	\defgroup   dolismq     Module DoliSMQ
  *  \brief      DoliSMQ module descriptor.
  *
- *  \file       htdocs/dolismq/core/modules/modDoliSMQ.class.php
+ *  \file       core/modules/modDoliSMQ.class.php
  *  \ingroup    dolismq
  *  \brief      Description and activation file for module DoliSMQ
  */
@@ -172,12 +169,11 @@ class modDoliSMQ extends DolibarrModules
 			// CONST CONTROL
 			20 => array('DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'),
 			21 => array('DOLISMQ_CONTROL_DISPLAY_MEDIAS', 'integer', 1, '', 0, 'current'),
-			//22 => array('DOLISMQ_CONTROL_SET_USER_CONTROLLER', 'integer', 0, '', 0, 'current'),
-			23 => array('DOLISMQ_CONTROL_SHOW_PRODUCT', 'integer', 0, '', 0, 'current'),
-			24 => array('DOLISMQ_CONTROL_SHOW_PRODUCTLOT', 'integer', 0, '', 0, 'current'),
-			25 => array('DOLISMQ_CONTROL_SHOW_THIRDPARTY', 'integer', 0, '', 0, 'current'),
-			26 => array('DOLISMQ_CONTROL_SHOW_PROJECT', 'integer', 0, '', 0, 'current'),
-			27 => array('DOLISMQ_CONTROL_SHOW_TASK', 'integer', 0, '', 0, 'current'),
+			22 => array('DOLISMQ_CONTROL_SHOW_PRODUCT', 'integer', 0, '', 0, 'current'),
+			23 => array('DOLISMQ_CONTROL_SHOW_PRODUCTLOT', 'integer', 0, '', 0, 'current'),
+			24 => array('DOLISMQ_CONTROL_SHOW_THIRDPARTY', 'integer', 0, '', 0, 'current'),
+			25 => array('DOLISMQ_CONTROL_SHOW_PROJECT', 'integer', 0, '', 0, 'current'),
+			26 => array('DOLISMQ_CONTROL_SHOW_TASK', 'integer', 0, '', 0, 'current'),
 
 			//CONST CONTROL DOCUMENT
 			30 => array('DOLISMQ_CONTROLDOCUMENT_ADDON', 'chaine', 'mod_controldocument_standard', '', 0, 'current'),

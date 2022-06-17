@@ -17,7 +17,7 @@
  */
 
 /**
- *  \file			htdocs/core/modules/dolismq/modules_controldocument.php
+ *  \file			core/modules/dolismq/controldocument/modules_controldocument.php
  *  \ingroup		dolismq
  *  \brief			File that contains parent class for controldocuments document models
  */
