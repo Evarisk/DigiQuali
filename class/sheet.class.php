@@ -432,6 +432,27 @@ class Sheet extends CommonObject
 		}
 	}
 
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
+	/**
+	 *  Return if a sheet can be deleted
+	 *
+	 *  @return    int         <=0 if no, >0 if yes
+	 */
+	public function is_erasable() {
+		require_once __DIR__ .'/control.class.php';
+
+		$control = new Control($this->db);
+
+		$controls = $control->fetchAll( '', '', 0, 0, array('customsql' => $this->id));
+		if (!empty($controls)) {
+			$result = -1;
+		} else {
+			$result = 1;
+		}
+
+		return $result;
+	}
+
 	/**
 	 * Sets object to supplied categories.
 	 *
