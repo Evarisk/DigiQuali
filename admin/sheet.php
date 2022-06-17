@@ -46,7 +46,7 @@ require_once '../lib/dolismq.lib.php';
 global $conf, $db, $langs, $user;
 
 // Load translation files required by the page
-$langs->loadLangs(array("admin", "dolismq@dolismq"));
+$langs->loadLangs(array("admin", "dolismq@dolismq", "accountancy"));
 
 // Get parameters
 $action     = GETPOST('action', 'alpha');
@@ -126,6 +126,10 @@ if ($action == 'generateCategories') {
 	$tags->create($user);
 
 	$tags->label = $langs->transnoentities('Methods');
+	$tags->type  = 'sheet';
+	$tags->create($user);
+
+	$tags->label = $langs->transnoentities('Accounting');
 	$tags->type  = 'sheet';
 	$tags->create($user);
 
