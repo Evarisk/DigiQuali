@@ -572,11 +572,11 @@ window.eoxiaJS.mediaGallery.selectPhoto = function( event ) {
  *
  * @return {void}
  */
-window.eoxiaJS.mediaGallery.savePhoto = function( event, photo, typeFrom) {
+window.eoxiaJS.mediaGallery.savePhoto = function( event, photo, typeFrom, id) {
 	let parent = $('#media_gallery')
 	let mediaGalleryModal = $(this).closest('.modal-container')
-	let filesLinked = ''
 
+	let filesLinked = ''
 	if (photo) {
 		photo = photo[0].name
 		filesLinked = photo
@@ -584,7 +584,13 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event, photo, typeFrom) {
 		filesLinked = mediaGalleryModal.find('.clicked-photo')
 	}
 
-	let rowId = parent.attr('value')
+	let rowId = 0
+	if (id > 0) {
+		rowId = id
+	}  else {
+		rowId = parent.attr('value')
+	}
+
 	let linkedMedias = $('.table-id-'+rowId)
 
 	let type = ''
@@ -594,17 +600,10 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event, photo, typeFrom) {
 		type = $(this).find('.type-from').val()
 	}
 
-	let idSelected = $('#media_gallery').find('.wpeo-button').attr('value');
-	if (idSelected == 0) {
-		var params = new window.URLSearchParams(window.location.search);
-		var currentElementID = params.get('id')
-	} else {
-		currentElementID = idSelected
-	}
-
 	let filenames = ''
 	if (photo) {
 		filenames = photo
+		window.eoxiaJS.loader.display(linkedMedias);
 	} else {
 		if (filesLinked.length > 0) {
 			filesLinked.each(function(  ) {
@@ -628,12 +627,13 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event, photo, typeFrom) {
 		url = document.URL.split(/\?/)[0]
 		separator = '?'
 	}
+
 	$.ajax({
 		url: url + separator + "action=addFiles&token=" + token,
 		type: "POST",
 		data: JSON.stringify({
 			filenames: filenames,
-			questionId: currentElementID,
+			questionId: rowId,
 			type: type
 		}),
 		processData: false,
@@ -686,7 +686,7 @@ window.eoxiaJS.mediaGallery.handleSearch = function( event ) {
  *
  * @return {void}
  */
-window.eoxiaJS.mediaGallery.sendPhoto = function( event, file, typeFrom ) {
+window.eoxiaJS.mediaGallery.sendPhoto = function( event, file, typeFrom, id ) {
 	if (event) {
 		event.preventDefault()
 	}
@@ -723,15 +723,13 @@ window.eoxiaJS.mediaGallery.sendPhoto = function( event, file, typeFrom ) {
 		processData: false,
 		contentType: false,
 		success: function ( resp ) {
-			console.log(document.URL)
-
 			$('.wpeo-loader').removeClass('wpeo-loader')
 			window.eoxiaJS.loader.display(elementParent);
 			elementParent.load( document.URL + ' .ecm-photo-list');
 			elementParent.removeClass('wpeo-loader');
 			actionContainerSuccess.removeClass('hidden');
 			if (file) {
-				window.eoxiaJS.mediaGallery.savePhoto('', files, typeFrom)
+				window.eoxiaJS.mediaGallery.savePhoto('', files, typeFrom, id)
 			}
 
 		},
@@ -767,13 +765,18 @@ window.eoxiaJS.mediaGallery.previewPhoto = function( event ) {
  * @return {void}
  */
 window.eoxiaJS.mediaGallery.fastUpload = function( typeFrom ) {
+	let id = 0
+
 	if (typeFrom == 'photo_ok') {
-		console.log(typeof $('#fast-upload-photo-ok').prop('files'))
 		var files = $('#fast-upload-photo-ok').prop('files');
 	} else if (typeFrom == 'photo_ko') {
 		var files = $('#fast-upload-photo-ko').prop('files');
+	} else if (typeFrom.match(/answer_photo/)) {
+		id = typeFrom.split(/_photo/)[1]
+		typeFrom = 'answer_photo'
+		var files = $('#fast-upload-answer-photo'+id).prop('files');
 	}
-	window.eoxiaJS.mediaGallery.sendPhoto('', files, typeFrom)
+	window.eoxiaJS.mediaGallery.sendPhoto('', files, typeFrom, id)
 };
 
 /**
@@ -1201,7 +1204,6 @@ window.eoxiaJS.control.reloadProductLot = function ( event ) {
  * @return {void}
  */
 window.eoxiaJS.control.reloadTask = function ( event ) {
-	console.log($(this))
 	let selectTitle = $(this).closest('td').find('#select2-fk_project-container').attr('title')
 	let projectRef = selectTitle.split(/ /)[0]
 	let projectRef2 = projectRef.slice(0, -1)

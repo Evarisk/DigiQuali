@@ -267,6 +267,7 @@ if (empty($reshook)) {
 		$filenames  = $data['filenames'];
 		$questionId = $data['questionId'];
 		$type 	    = $data['type'];
+
 		$object->fetch($id);
 		$question->fetch($questionId);
 		if (dol_strlen($object->ref) > 0) {
@@ -277,8 +278,14 @@ if (empty($reshook)) {
 		} else {
 			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . 'tmp/' . 'QU0/' . $type ;
 		}
-		$filenames = preg_split('/vVv/', $filenames);
-		array_pop($filenames);
+
+		if (preg_match('/vVv/', $filenames)) {
+			$filenames = preg_split('/vVv/', $filenames);
+			array_pop($filenames);
+		} else {
+			$filenames = array($filenames);
+		}
+
 
 		if ( ! (empty($filenames))) {
 			if ( ! is_dir($conf->dolismq->multidir_output[$conf->entity] . '/control/tmp/')) {
@@ -1617,7 +1624,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 0, 1);
 							print '</td></tr>'; ?>
 						<?php else : ?>
-							<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-answer-photo'.$item->id.'" name="userfile'.$item->id.'[]" multiple capture="environment" accept="image/*">'; ?>
+							<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-answer-photo'.$item->id.'" name="userfile'.$item->id.'[]" nonce="answer_photo'.$item->id.'" multiple capture="environment" accept="image/*" onchange="window.eoxiaJS.mediaGallery.fastUpload(this.nonce)">'; ?>
 							<label for="fast-upload-answer-photo<?php echo $item->id ?>">
 								<div class="wpeo-button button-square-50">
 									<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
