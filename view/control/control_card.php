@@ -216,6 +216,8 @@ if (empty($reshook)) {
 			}
 		}
 
+		$object->fk_project = GETPOST('projectid');
+
 		// Fill array 'array_options' with data from add form
 		if (!$error) {
 			$ret = $extrafields->setOptionalsFromPost(null, $object);
