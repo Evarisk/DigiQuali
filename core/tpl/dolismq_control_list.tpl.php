@@ -46,6 +46,18 @@ foreach($element_element_fields as $generic_name => $element_element_name) {
 		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $element_element_name .' on ('. $element_element_name .'.fk_source = ' . $id_to_search . ' AND '. $element_element_name .'.sourcetype="'. $element_element_name .'" AND '. $element_element_name .'.targettype = "dolismq_control")';
 	}
 }
+$specific_sortfields = array(
+	't.fk_product' => 'product',
+	't.fk_thirdparty' => 'societe',
+	't.fk_project' => 'project',
+	't.fk_lot' => 'productbatch',
+	't.fk_task' => 'project_task'
+);
+
+if (array_key_exists($sortfield,$specific_sortfields)) {
+	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $specific_sortfields[$sortfield] .' on ( '. $specific_sortfields[$sortfield] .'.sourcetype="'. $specific_sortfields[$sortfield] .'" AND '. $specific_sortfields[$sortfield] .'.targettype = "dolismq_control" AND '. $specific_sortfields[$sortfield] .'.fk_target = t.rowid)';
+}
+
 
 // Add table from hooks
 $parameters = array();
@@ -104,8 +116,11 @@ $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters, $object); // Note that $action and $object may have been modified by hook
 $sql .= $hookmanager->resPrint;
 
-$sql .= $db->order($sortfield, $sortorder);
-
+if (array_key_exists($sortfield, $specific_sortfields)) {
+	$sql .= ' ORDER BY '. $specific_sortfields[$sortfield] .'.fk_source ' . $sortorder;
+} else {
+	$sql .= $db->order($sortfield, $sortorder);
+}
 // Count total nb of records
 $nbtotalofrecords = '';
 if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST)) {
