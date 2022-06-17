@@ -44,6 +44,11 @@ function sheetPrepareHead($object)
 	$head[$h][2] = 'sheetCard';
 	$h++;
 
+	$head[$h][0] = dol_buildpath("/dolismq/view/control/control_list.php", 1).'?fromid='.$object->id . '&fromtype=fk_sheet';
+	$head[$h][1] = $langs->trans("Control");
+	$head[$h][2] = 'control';
+	$h++;
+
 	$head[$h][0] = dol_buildpath("/dolismq/view/sheet/sheet_agenda.php", 1).'?id='.$object->id;
 	$head[$h][1] = $langs->trans("Events");
 	$head[$h][2] = 'sheetAgenda';

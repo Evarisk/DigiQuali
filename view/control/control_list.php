@@ -56,13 +56,15 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/product.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/usergroups.lib.php';
 
 // load dolismq libraries
+require_once __DIR__ . '/../../lib/dolismq_sheet.lib.php';
+
 require_once __DIR__.'/../../class/control.class.php';
 require_once __DIR__.'/../../core/boxes/dolismqwidget1.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/control.class.php';
 
 // Global variables definitions
-global $db, $hookmanager, $langs, $user;
+global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
 $langs->loadLangs(array("dolismq@dolismq", "other", "bills", "projects", "orders", "companies", "product", "productbatch", "task"));
@@ -138,6 +140,10 @@ if (!empty($fromtype)) {
 		case 'user' :
 			$objectLinked = new User($db);
 			$prehead = 'user_prepare_head';
+			break;
+		case 'fk_sheet' :
+			$objectLinked = new Sheet($db);
+			$prehead = 'sheetPrepareHead';
 			break;
 	}
 	$objectLinked->fetch($fromid);
@@ -279,7 +285,10 @@ $morecss  = array("/dolismq/css/dolismq.css");
 llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
 if (!empty($fromtype)) {
 	print dol_get_fiche_head($head, 'control', $langs->trans("Control"), -1, $objectLinked->picto);
-	dol_banner_tab($objectLinked, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
+
+	$linkback = '<a href="'.DOL_URL_ROOT.'/'.$fromtype.'/list.php?restore_lastsearch_values=1">'.$langs->trans("BackToList").'</a>';
+
+	dol_banner_tab($objectLinked, 'ref', $linkback, 0);
 }
 
 if ($fromid) {
