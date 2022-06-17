@@ -98,4 +98,27 @@ class ActionsDolismq
 			return -1;
 		}
 	}
+
+	/**
+	 * Overloading the printCommonFooter function : replacing the parent's function with the one below
+	 *
+	 * @param   array           $parameters     Hook metadatas (context, etc...)
+	 * @return  int                             < 0 on error, 0 on success, 1 to replace standard code
+	 */
+	public function printCommonFooter($parameters)
+	{
+		$error = 0; // Error counter
+
+		if (preg_match('/categoryindex/', $parameters['context'])) {	    // do something only for the context 'somecontext1' or 'somecontext2'
+			print '<script src="../custom/dolismq/js/dolismq.js.php"></script>';
+		}
+
+		if (!$error) {
+			$this->results   = array('myreturn' => 999);
+			return 0; // or return 1 to replace standard code
+		} else {
+			$this->errors[] = 'Error message';
+			return -1;
+		}
+	}
 }
