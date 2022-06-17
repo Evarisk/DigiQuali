@@ -749,6 +749,7 @@ window.eoxiaJS.question.event = function() {
 	$( document ).on( 'click', '.clicked-photo-preview', window.eoxiaJS.question.previewPhoto );
 	$( document ).on( 'click', '.ui-dialog-titlebar-close', window.eoxiaJS.question.closePreviewPhoto );
 	$( document ).on( 'click', '#show_photo', window.eoxiaJS.question.showPhoto );
+	$( document ).on( 'click', 'input[type=checkbox]', window.eoxiaJS.question.toggleCheckbox );
 };
 
 /**
@@ -800,6 +801,28 @@ window.eoxiaJS.question.showPhoto = function() {
 		photo.addClass('hidden')
 	}
 };
+
+
+/**
+ * Toggle checkbox.
+ *
+ * @since   1.3.0
+ * @version 1.3.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.question.toggleCheckbox = function ( event ) {
+	let confUniqueLinkedElement = $(this).closest('.fiche').find('input[name="conf_unique_linked_element"]').val();
+
+	if (confUniqueLinkedElement) {
+		$(':checkbox').each(function () {
+			this.checked = false;
+		});
+		this.checked = true;
+	}
+};
+
 
 /**
  * Initialise l'objet "control" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.

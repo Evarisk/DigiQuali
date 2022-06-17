@@ -240,6 +240,7 @@ if ($action == 'create') {
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
+	print '<input type="hidden" name="conf_unique_linked_element" value="'.$conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT.'">';
 	print '<input type="hidden" name="action" value="add">';
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 	if ($backtopageforcancel) print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
@@ -326,6 +327,7 @@ if (($id || $ref) && $action == 'edit') {
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
+	print '<input type="hidden" name="conf_unique_linked_element" value="'.$conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT.'">';
 	print '<input type="hidden" name="action" value="update">';
 	print '<input type="hidden" name="id" value="'.$object->id.'">';
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
