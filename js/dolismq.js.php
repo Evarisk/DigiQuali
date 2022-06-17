@@ -1102,7 +1102,7 @@ window.eoxiaJS.menu.event = function() {
  */
 window.eoxiaJS.menu.toggleMenu = function() {
 
-	var menu = $(this).closest('#id-left').find('a.vmenu, font.vmenudisabled, span.vmenu');
+	var menu = $(this).closest('#id-left').find('a.vmenu, font.vmenudisabled, span.vmenu, a.vsmenu');
 	var elementParent = $(this).closest('#id-left').find('div.vmenu')
 	var text = '';
 
@@ -1134,6 +1134,7 @@ window.eoxiaJS.menu.toggleMenu = function() {
 		elementParent.css('width', '188px');
 		elementParent.find('.blockvmenusearch').show();
 		$('div.menu_titre').attr('style', 'width: 188px !important')
+		$('div.menu_contenu').attr('style', 'width: 188px !important')
 
 		localStorage.setItem('maximized', 'true')
 
@@ -1158,7 +1159,7 @@ window.eoxiaJS.menu.setMenu = function() {
 
 	if (localStorage.maximized == 'false') {
 		var text = '';
-		var menu = $('#id-left').find('a.vmenu, font.vmenudisabled, span.vmenu');
+		var menu = $('#id-left').find('a.vmenu, font.vmenudisabled, span.vmenu, a.vsmenu');
 		var elementParent = $(document).find('div.vmenu')
 
 		menu.each(function () {
@@ -1169,6 +1170,7 @@ window.eoxiaJS.menu.setMenu = function() {
 
 		$('#id-left').attr('style', 'display:block !important')
 		$('div.menu_titre').attr('style', 'width: 50px !important')
+		$('div.menu_contenu').attr('style', 'width: 50px !important')
 
 		$('.minimizeMenu').html($('.minimizeMenu').html() + ' >')
 		$('.minimizeMenu').removeClass('minimizeMenu').addClass('maximizeMenu');
