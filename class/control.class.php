@@ -84,6 +84,7 @@ class Control extends CommonObject
 		'fk_user_modif'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
 		'fk_sheet'           => array('type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5,),
 		'fk_user_controller' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'FKUserController','positioncard' => 1, 'enabled' => '1', 'position' => 24, 'notnull' => 1, 'visible' => 5, 'foreignkey' => 'user.rowid'),
+		'fk_project'         => array('type' => 'integer:Projet:projet/class/project.class.php', 'label' => 'FKProject','positioncard' => 2, 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'projet.rowid'),
 	);
 
 	public $rowid;
@@ -101,6 +102,7 @@ class Control extends CommonObject
 	public $fk_user_modif;
 	public $fk_sheet;
 	public $fk_user_controller;
+	public $fk_project;
 
 	/**
 	 * Constructor

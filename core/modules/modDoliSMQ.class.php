@@ -240,13 +240,7 @@ class modDoliSMQ extends DolibarrModules
 
 		// Boxes/Widgets
 		// Add here list of php file(s) stored in dolismq/core/boxes that contains a class to show a widget.
-		$this->boxes = array(
-			  0 => array(
-			      'file' => 'dolismqwidget1.php@dolismq',
-			      'note' => 'Widget provided by DoliSMQ',
-			      'enabledbydefaulton' => 'Home',
-			  ),
-		);
+		$this->boxes = array();
 
 		// Cronjobs (List of cron jobs entries to add when module is enabled)
 		// unit_frequency must be 60 for minute, 3600 for hour, 86400 for day, 604800 for week

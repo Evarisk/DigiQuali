@@ -29,5 +29,6 @@ CREATE TABLE llx_dolismq_control(
 	fk_user_creat      integer NOT NULL,
 	fk_user_modif      integer,
 	fk_sheet           integer NOT NULL,
-	fk_user_controller integer NOT NULL
+	fk_user_controller integer NOT NULL,
+	fk_project         integer
 ) ENGINE=innodb;
