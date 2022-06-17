@@ -321,12 +321,14 @@ if (empty($reshook)) {
 		$filenames  = $data['filenames'];
 		$questionId = $data['questionId'];
 		$type 	    = $data['type'];
+
 		$object->fetch($questionId);
 		if (dol_strlen($object->ref) > 0) {
 			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $object->ref . '/' . $type;
 		} else {
 			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type ;
 		}
+
 		if (preg_match('/vVv/', $filenames)) {
 			$filenames = preg_split('/vVv/', $filenames);
 			array_pop($filenames);

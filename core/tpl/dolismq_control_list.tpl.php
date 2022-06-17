@@ -144,9 +144,11 @@ if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $
 // --------------------------------------------------------------------
 
 $arrayofselected = is_array($toselect) ? $toselect : array();
+$extraparams = $fromtype && $fromid ? '?fromtype=' . $fromtype . '&fromid=' . $fromid : '';
 
 $param = '';
 if (!empty($contextpage) && $contextpage != $_SERVER["PHP_SELF"]) $param .= '&contextpage='.urlencode($contextpage);
+$param .= $fromtype && $fromid ? '&fromtype=' . $fromtype . '&fromid=' . $fromid : '';
 if ($limit > 0 && $limit != $conf->liste_limit) $param .= '&limit='.urlencode($limit);
 foreach ($search as $key => $val)
 {
@@ -167,8 +169,6 @@ $arrayofmassactions = array(
 if ($permissiontodelete) $arrayofmassactions['predelete'] = '<span class="fa fa-trash paddingrightonly"></span>'.$langs->trans("Delete");
 if (GETPOST('nomassaction', 'int') || in_array($massaction, array('presend', 'predelete'))) $arrayofmassactions = array();
 $massactionbutton = $form->selectMassAction('', $arrayofmassactions);
-
-$extraparams = $fromtype && $fromid ? '?fromtype=' . $fromtype . '&fromid=' . $fromid : '';
 
 print '<form method="POST" id="searchFormList" action="'.$_SERVER["PHP_SELF"].$extraparams.'">'."\n";
 if ($optioncss != '') print '<input type="hidden" name="optioncss" value="'.$optioncss.'">';
