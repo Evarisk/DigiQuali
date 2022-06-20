@@ -17,3 +17,4 @@ ALTER TABLE llx_categorie_sheet ADD PRIMARY KEY pk_categorie_sheet (fk_categorie
 ALTER TABLE llx_categorie_sheet ADD INDEX idx_categorie_sheet_fk_categorie (fk_categorie);
 ALTER TABLE llx_categorie_sheet ADD INDEX idx_categorie_sheet_fk_sheet (fk_sheet);
 ALTER TABLE llx_categorie_sheet ADD CONSTRAINT fk_categorie_sheet_categorie_rowid FOREIGN KEY (fk_categorie) REFERENCES llx_categorie (rowid);
+ALTER TABLE llx_categorie_sheet ADD CONSTRAINT fk_categorie_sheet_dolismq_sheet_rowid FOREIGN KEY (fk_sheet) REFERENCES llx_dolismq_sheet (rowid);
