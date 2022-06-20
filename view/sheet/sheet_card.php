@@ -292,7 +292,7 @@ if ($action == 'create') {
 	foreach ($elementArray as $key => $element) {
 		if (!empty($element['conf'])) {
 			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
-			print '<input type="checkbox" id="show_'.$key.'" name="show_'.$key.'">';
+			print '<input type="radio" id="show_'.$key.'" name="show_'.$key.'">';
 			print '</td></tr>';
 		}
 	}
@@ -381,7 +381,7 @@ if (($id || $ref) && $action == 'edit') {
 	foreach ($elementArray as $key => $element) {
 		if (!empty($element['conf'])) {
 			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
-			print '<input type="checkbox" id="show_'.$key.'" name="show_'.$key.'"'.(($elementLinked->$key > 0) ? 'checked=checked' : '').'>';
+			print '<input type="radio" id="show_'.$key.'" name="show_'.$key.'"'.(($elementLinked->$key > 0) ? 'checked=checked' : '').'>';
 			print '</td></tr>';
 		}
 	}
@@ -504,7 +504,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		if ($elementLinked->$key > 0) {
 			if (!empty($element['conf'])) {
 				print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
-				print '<input type="checkbox" id="show_' . $key . '" name="show_' . $key . '" checked disabled>';
+				print '<input type="radio" id="show_' . $key . '" name="show_' . $key . '" checked disabled>';
 				print '</td></tr>';
 			}
 		}

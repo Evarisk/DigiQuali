@@ -749,7 +749,6 @@ window.eoxiaJS.question.event = function() {
 	$( document ).on( 'click', '.clicked-photo-preview', window.eoxiaJS.question.previewPhoto );
 	$( document ).on( 'click', '.ui-dialog-titlebar-close', window.eoxiaJS.question.closePreviewPhoto );
 	$( document ).on( 'click', '#show_photo', window.eoxiaJS.question.showPhoto );
-	$( document ).on( 'click', 'input[type=checkbox]', window.eoxiaJS.question.toggleCheckbox );
 };
 
 /**
@@ -802,6 +801,37 @@ window.eoxiaJS.question.showPhoto = function() {
 	}
 };
 
+/**
+ * Initialise l'objet "sheet" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.
+ *
+ * @since   1.3.0
+ * @version 1.3.0
+ */
+window.eoxiaJS.sheet = {};
+
+/**
+ * La méthode appelée automatiquement par la bibliothèque EoxiaJS.
+ *
+ * @since   1.3.0
+ * @version 1.3.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.sheet.init = function() {
+	window.eoxiaJS.sheet.event();
+};
+
+/**
+ * La méthode contenant tous les événements pour la fiche modèle.
+ *
+ * @since   1.3.0
+ * @version 1.3.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.sheet.event = function() {
+	$( document ).on( 'click', 'input[type=radio]', window.eoxiaJS.sheet.toggleRadioButton );
+};
 
 /**
  * Toggle checkbox.
@@ -812,17 +842,16 @@ window.eoxiaJS.question.showPhoto = function() {
  * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.eoxiaJS.question.toggleCheckbox = function ( event ) {
+window.eoxiaJS.sheet.toggleRadioButton = function ( event ) {
 	let confUniqueLinkedElement = $(this).closest('.fiche').find('input[name="conf_unique_linked_element"]').val();
 
 	if (confUniqueLinkedElement) {
-		$(':checkbox').each(function () {
+		$(':radio').each(function () {
 			this.checked = false;
 		});
 		this.checked = true;
 	}
 };
-
 
 /**
  * Initialise l'objet "control" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.
@@ -1071,21 +1100,6 @@ window.eoxiaJS.control.showSelectObjectLinked = function ( event ) {
 		}
 	});
 }
-
-
-///**
-// * Action select All Answer.
-// *
-// * @since   1.3.0
-// * @version 1.3.0
-// *
-// * @return {void}
-// */
-//window.eoxiaJS.control.selectAllAnswer = function ( event ) {
-////	$(this).closest('.fiche').find('#tablelines').find('.answer').each(function() {
-////		window.eoxiaJS.control.selectAnswer();
-////	});
-////};
 
 /**
  * Initialise l'objet "menu" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.
