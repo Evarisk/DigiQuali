@@ -252,8 +252,12 @@ class dolismqwidget1 extends ModeleBoxes
 		global $langs;
 
 		foreach ($this->info_box_contents[$contents] as $sheet){
-			foreach ($sheet as $control) {
-				$contentArray[] = $control;
+			if (count($sheet) > 0) {
+				$contentArray[] = end($sheet);
+			} else {
+				foreach ($sheet as $control) {
+					$contentArray[] = $control;
+				}
 			}
 		}
 
