@@ -202,12 +202,12 @@ class modDoliSMQ extends DolibarrModules
 		// Array to add new pages in new tabs
 		$this->tabs = array();
 		// Example:
-		$this->tabs[]    = array('data' => 'productlot:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=productbatch');
-		$this->tabs[]    = array('data' => 'product:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=product'); // To add a new tab identified by code tabname1
-		$this->tabs[]    = array('data' => 'project:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project');  					// To add a new tab identified by code tabname1
-		$this->tabs[]    = array('data' => 'thirdparty:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=societe');  					// To add a new tab identified by code tabname1
-		$this->tabs[]    = array('data' => 'task:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project_task');  					// To add a new tab identified by code tabname1
-		$this->tabs[]    = array('data' => 'user:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=user');  					// To add a new tab identified by code tabname1
+		$this->tabs[]    = array('data' => 'productlot:+control:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=productbatch');
+		$this->tabs[]    = array('data' => 'product:+control:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=product'); // To add a new tab identified by code tabname1
+		$this->tabs[]    = array('data' => 'project:+control:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project');  					// To add a new tab identified by code tabname1
+		$this->tabs[]    = array('data' => 'thirdparty:+control:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=societe');  					// To add a new tab identified by code tabname1
+		$this->tabs[]    = array('data' => 'task:+control:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project_task');  					// To add a new tab identified by code tabname1
+		$this->tabs[]    = array('data' => 'user:+control:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=user');  					// To add a new tab identified by code tabname1
 
 		// Dictionaries
 		$this->dictionaries = array();
