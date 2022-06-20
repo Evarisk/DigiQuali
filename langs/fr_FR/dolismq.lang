@@ -137,6 +137,8 @@ SheetData = Donnés configurables des fiches modèles
 UniqueLinkedElement = Liaison unique sur les éléments de Dolibarr
 UniqueLinkedElementDescription = Lier un seul élément de Dolibarr à une fiche modèle
 ErrorMultipleLinkedElement = Erreur la fiche modèle est liée à plusieurs éléments <br> Veuillez désactiver l'option de configuration : "Liaison unique sur les éléments de Dolibarr" pour pouvoir faire cela
+ErrorSheetUsedInControl = Le fiche modèle %s ne peut pas être supprimée, elle est utilisée dans un ou plusieurs contrôles.
+
 
 # Tags - catégories
 Quality = Qualité
@@ -220,7 +222,6 @@ ActionsOnControl = Événements liés au contrôle
 RegulatoryScore = Score réglementaire
 ExtrafieldsControlManagement = Gestion des attributs supplémentaires des contrôles
 WithLastControl = Avec le dernier contrôle
-
 
 
 #
