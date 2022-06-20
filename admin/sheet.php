@@ -117,7 +117,7 @@ if ($action == 'generateCategories') {
 	$tags->type  = 'sheet';
 	$tags->create($user);
 
-	$tags->label = $langs->trans('Commercial');
+	$tags->label = $langs->trans('CommercialDoliSMQ');
 	$tags->type  = 'sheet';
 	$tags->create($user);
 
