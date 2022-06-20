@@ -194,7 +194,64 @@ if (empty($reshook)) {
 	$objectclass = 'Question';
 	$objectlabel = 'Question';
 	$uploaddir = $conf->dolismq->dir_output;
-	include DOL_DOCUMENT_ROOT.'/core/actions_massactions.inc.php';
+
+	if (!$error && ($massaction == 'delete' || ($action == 'delete' && $confirm == 'yes')) && $permissiontodelete) {
+		$db->begin();
+
+		$objecttmp = new $objectclass($db);
+		$nbok = 0;
+		$TMsg = array();
+		foreach ($toselect as $toselectid) {
+			$result = $objecttmp->fetch($toselectid);
+			if ($result > 0) {
+
+				if (method_exists($objecttmp, 'is_erasable') && $objecttmp->is_erasable() <= 0) {
+					$langs->load("errors");
+					$nbignored++;
+					$TMsg[] = '<div class="error">'.$langs->trans('ErrorQuestionUsedInSheet',$objecttmp->ref).'</div><br>';
+					continue;
+				}
+
+				$result = $objecttmp->delete($user);
+
+				if (empty($result)) { // if delete returns 0, there is at least one object linked
+					$TMsg = array_merge($objecttmp->errors, $TMsg);
+				} elseif ($result < 0) { // if delete returns is < 0, there is an error, we break and rollback later
+					setEventMessages($objecttmp->error, $objecttmp->errors, 'errors');
+					$error++;
+					break;
+				} else {
+					$nbok++;
+				}
+			} else {
+				setEventMessages($objecttmp->error, $objecttmp->errors, 'errors');
+				$error++;
+				break;
+			}
+		}
+
+		if (empty($error)) {
+			// Message for elements well deleted
+			if ($nbok > 1) {
+				setEventMessages($langs->trans("RecordsDeleted", $nbok), null, 'mesgs');
+			} elseif ($nbok > 0) {
+				setEventMessages($langs->trans("RecordDeleted", $nbok), null, 'mesgs');
+			}
+
+			// Message for elements which can't be deleted
+			if (!empty($TMsg)) {
+				sort($TMsg);
+				setEventMessages('', array_unique($TMsg), 'warnings');
+			}
+
+			$db->commit();
+		} else {
+			$db->rollback();
+		}
+
+		//var_dump($listofobjectthirdparties);exit;
+	}
+//	include DOL_DOCUMENT_ROOT.'/core/actions_massactions.inc.php';
 }
 
 /*
@@ -329,6 +386,8 @@ print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
 $newcardbutton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/dolismq/view/question/question_card.php', 1).'?action=create', '', $permissiontoadd);
 
 print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, "dolismq@dolismq", 0, $newcardbutton, '', $limit, 0, 0, 1);
+
+include DOL_DOCUMENT_ROOT.'/core/tpl/massactions_pre.tpl.php';
 
 if ($search_all) {
 	foreach ($fieldstosearchall as $key => $val) $fieldstosearchall[$key] = $langs->trans($val);

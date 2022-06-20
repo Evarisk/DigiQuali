@@ -444,7 +444,7 @@ class Sheet extends CommonObject
 		$control = new Control($this->db);
 
 		$controls = $control->fetchAll( '', '', 0, 0, array('customsql' => 't.fk_sheet= ' . $this->id));
-		if (!empty($controls)) {
+		if (is_array($controls) && !empty($controls)) {
 			$result = -1;
 		} else {
 			$result = 1;
