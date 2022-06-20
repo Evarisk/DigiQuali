@@ -1521,10 +1521,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				}
 
 			}
+
 			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 ) ? 'actionButtonReOpen' : '') . '" title="' . (($object->status == 1 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidated"))) . '">' . $langs->trans("ReOpened") . '</span>';
 			print '<span class="' . (($object->status == 1 && $object->verdict != null) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 && $object->verdict != null) ? 'actionButtonLock' : '') . '" title="' . (($object->status == 1 && $object->verdict != null) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidatedToLock"))) . '">' . $langs->trans("Lock") . '</span>';
-			print dolGetButtonAction($langs->trans('SendMail'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=presend&mode=init&token='.newToken().'#formmailbeforetitle');
 
+			if ($object->status == $object::STATUS_LOCKED) {
+				print dolGetButtonAction($langs->trans('SendMail'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=presend&mode=init&token='.newToken().'#formmailbeforetitle', '', $object->status == $object::STATUS_LOCKED);
+			} else {
+				print '<a class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans("ControlMustBeLockedToSendEmail")) . '">' . $langs->trans("SendMail") . '</a>';
+			}
 			// Delete (need delete permission, or if draft, just need create/modify permission)
 			print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 		}
