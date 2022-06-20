@@ -183,8 +183,8 @@ if(!empty($fromtype)) {
 	$search_key = array_search($fromtype, $element_element_fields);
 	$search[$search_key] = $fromid;
 	switch ($fromtype) {
-		case 'sheet':
-			$search['sheet'] = $fromid;
+		case 'fk_sheet':
+			$search['fk_sheet'] = $fromid;
 			break;
 		case 'user':
 			$search['fk_user_controller'] = $fromid;
