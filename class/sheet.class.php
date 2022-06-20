@@ -443,7 +443,7 @@ class Sheet extends CommonObject
 
 		$control = new Control($this->db);
 
-		$controls = $control->fetchAll( '', '', 0, 0, array('customsql' => $this->id));
+		$controls = $control->fetchAll( '', '', 0, 0, array('customsql' => 't.fk_sheet= ' . $this->id));
 		if (!empty($controls)) {
 			$result = -1;
 		} else {
