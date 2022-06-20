@@ -65,6 +65,7 @@ DoliSMQQuestionStandardModel = Renvoie le numéro sous la forme QUn où n est un
 # Data - Donnée
 AddQuestion = Ajouter une question
 NewQuestion = Nouvelle question
+ModifyQuestion = Modifier une question
 QuestionList = Liste des questions
 LinkedQuestionsList = Listes des questions liées
 addQuestionLink = Question ajoutée à la fiche modèle :
