@@ -193,6 +193,8 @@ if (empty($reshook)) {
 					continue;
 				}
 
+				$result = $objecttmp->delete($user);
+
 				if (empty($result)) { // if delete returns 0, there is at least one object linked
 					$TMsg = array_merge($objecttmp->errors, $TMsg);
 				} elseif ($result < 0) { // if delete returns is < 0, there is an error, we break and rollback later
