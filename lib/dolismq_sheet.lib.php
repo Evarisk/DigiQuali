@@ -45,7 +45,7 @@ function sheetPrepareHead($object)
 	$h++;
 
 	$head[$h][0] = dol_buildpath("/dolismq/view/control/control_list.php", 1).'?fromid='.$object->id . '&fromtype=fk_sheet';
-	$head[$h][1] = $langs->trans("Control");
+	$head[$h][1] = $langs->trans("Controls");
 	$head[$h][2] = 'control';
 	$h++;
 
