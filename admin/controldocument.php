@@ -397,7 +397,6 @@ foreach ($types as $type => $documentType) {
 	print '</td>';
 	print '</tr>';
 	print '</table>';
-	print '<hr>';
 }
 
 // Page end

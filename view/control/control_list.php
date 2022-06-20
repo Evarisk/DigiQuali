@@ -295,7 +295,7 @@ if ($fromid) {
 	print '<div class="underbanner clearboth"></div>';
 	print '<div class="fichehalfleft">';
 	print '<br>';
-
+	//@todo a rework avec des left join
 	$controls = $controlstatic->fetchAll();
 
 	if (is_array($controls) && !empty($controls)) {
@@ -313,6 +313,7 @@ if ($fromid) {
 				}
 			}
 		}
+
 		if (!empty($categories)) {
 			$box->loadBox();
 			for ($i = 0; $i < count($nbBox); $i++) {
