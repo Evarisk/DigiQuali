@@ -727,12 +727,6 @@ if (empty($reshook)) {
 		}
 	}
 
-	// Action to get controllable objects with specific sheet
-//	if ($action == 'create' && dol_strlen(GETPOST('sheetRef'))) {
-//		$sheet->fetch(0,GETPOST('sheetRef'));
-//		header("Location: " . $_SERVER['PHP_SELF'] . '&fk_sheet=' . $sheet->id);
-//	}
-
 	// Actions to send emails
 	$triggersendname = 'DOLISMQ_AUDIT_SENTBYMAIL';
 	$autocopy = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
@@ -757,7 +751,7 @@ llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);
 if ($action == 'create') {
 	print load_fiche_titre($title_create, '', "dolismq@dolismq");
 
-	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
+	print '<form method="POST" id="createControlForm" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="add">';
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
@@ -767,14 +761,8 @@ if ($action == 'create') {
 
 	print '<table class="border centpercent tableforfieldcreate control-table">'."\n";
 
-	if (!empty(GETPOST('sheetRef'))) {
-		$sheet->fetch(0,GETPOST('sheetRef'));
-	}
 	if (!empty(GETPOST('fk_sheet'))) {
 		$sheet->fetch(GETPOST('fk_sheet'));
-	}
-	if ($sheet->element_linked) {
-		print '<input hidden id="sheetID" value="'. $sheet->id .'">';
 	}
 
 	//Ref -- Ref
@@ -805,6 +793,17 @@ if ($action == 'create') {
 	print $sheet->select_sheet_list(GETPOST('fk_sheet')?: $sheet->id);
 	print '</td></tr>';
 
+	// Project
+	if (!empty($conf->projet->enabled)) {
+		print '<tr>';
+		print '<td>'.img_picto('', 'project', 'class="paddingrightonly"') . $langs->trans("Project").'</td><td>';
+		print img_picto('', 'project', 'class="pictofixedwidth"').$formproject->select_projects(-1, GETPOST("projectid"), 'projectid', 0, 0, 1, 0, 0, 0, 0, '', 1, 0, 'maxwidth500 widthcentpercentminusxx');
+		print ' <a href="'.DOL_URL_ROOT.'/projet/card.php?action=create&status=1&backtopage='.urlencode($_SERVER["PHP_SELF"].'?action=create').'"><span class="fa fa-plus-circle valignmiddle" title="'.$langs->trans("AddProject").'"></span></a>';
+		print '</td>';
+		print '</tr>';
+	}
+
+	print '<div class="fields-content">';
 	//FK Product
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT && preg_match('/"product":1/',$sheet->element_linked)) {
 		print '<tr><td class="">' . img_picto('', 'product', 'class="paddingrightonly"') . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' ' . $langs->trans('Service') . '</td><td>';
@@ -855,16 +854,8 @@ if ($action == 'create') {
 		print '</span>';
 		print '</td></tr>';
 	}
+	print '</div>';
 
-	// Project
-	if (!empty($conf->projet->enabled)) {
-		print '<tr>';
-		print '<td>'.img_picto('', 'project', 'class="paddingrightonly"') . $langs->trans("Project").'</td><td>';
-		print img_picto('', 'project', 'class="pictofixedwidth"').$formproject->select_projects(-1, GETPOST("projectid"), 'projectid', 0, 0, 1, 0, 0, 0, 0, '', 1, 0, 'maxwidth500 widthcentpercentminusxx');
-		print ' <a href="'.DOL_URL_ROOT.'/projet/card.php?action=create&status=1&backtopage='.urlencode($_SERVER["PHP_SELF"].'?action=create').'"><span class="fa fa-plus-circle valignmiddle" title="'.$langs->trans("AddProject").'"></span></a>';
-		print '</td>';
-		print '</tr>';
-	}
 
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';

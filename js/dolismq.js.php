@@ -1045,26 +1045,31 @@ window.eoxiaJS.control.getAnswerCounter = function ( event ) {
  * @return {void}
  */
 window.eoxiaJS.control.showSelectObjectLinked = function ( event ) {
-	let sheetRefAndLabel = $('#select2-fk_sheet-container').html()
+	var controlForm = document.getElementById('createControlForm');
+	var formData = new FormData(controlForm);
+
 	let token = $('.id-container').find('input[name="token"]').val();
 	let action = '?action=create'
 
-	if (sheetRefAndLabel.match(/ - /)) {
-		let sheetRef = sheetRefAndLabel.split(/-/)[0]
-		let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&sheetRef=' + sheetRef + '&token=' + token
+	let sheetId = formData.get('fk_sheet')
+	let userController = formData.get('fk_user_controller')
+	let projectId = formData.get('projectid')
 
-		$.ajax({
-			url: urlToGo,
-			type: "POST",
-			processData: false,
-			contentType: false,
-			success: function ( resp ) {
-				$('.tabBar.tabBarWithBottom').html($(resp).find('.tabBar.tabBarWithBottom').children())
-			},
-			error: function ( ) {
-			}
-		});
-	}
+	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&fk_sheet=' + sheetId + '&token=' + token
+	urlToGo += '&projectid=' + projectId
+	urlToGo += '&fk_user_controller=' + userController
+
+	$.ajax({
+		url: urlToGo,
+		type: "POST",
+		processData: false,
+		contentType: false,
+		success: function ( resp ) {
+			$('.tabBar.tabBarWithBottom').html($(resp).find('.tabBar.tabBarWithBottom').children())
+		},
+		error: function ( ) {
+		}
+	});
 }
 
 
