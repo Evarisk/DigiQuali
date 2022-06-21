@@ -367,7 +367,9 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event, photo, typeFrom, id) {
 	let filenames = ''
 	if (photo) {
 		filenames = photo
-		window.eoxiaJS.loader.display(linkedMedias);
+		if (document.URL.match(/control_card/)) {
+			window.eoxiaJS.loader.display(linkedMedias);
+		}
 	} else {
 		if (filesLinked.length > 0) {
 			filesLinked.each(function(  ) {
@@ -410,6 +412,11 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event, photo, typeFrom, id) {
 				window.eoxiaJS.control.updateButtonsStatus()
 
 			} else if (document.URL.match(/question_card/)) {
+				favorite = favorite.replace(/\ /g, '%20')
+				favorite = favorite.replace(/\(/g, '%28')
+				favorite = favorite.replace(/\)/g, '%29')
+				favorite = favorite.replace(/\+/g, '%2B')
+
 				$('.tabBar .linked-medias.'+type+' .linked-medias-list').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .linked-medias-list', () => {
 					$('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .fa-star').first().removeClass('far').addClass('fas')
 					let favoriteMedia = $('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .filename').attr('value')
