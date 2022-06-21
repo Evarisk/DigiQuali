@@ -312,6 +312,42 @@ if (empty($reshook)) {
 		}
 	}
 
+	// Action to delete
+	if ($action == 'confirm_delete' && !empty($permissiontodelete)) {
+		if (!($object->id > 0)) {
+			dol_print_error('', 'Error, object must be fetched before being deleted');
+			exit;
+		}
+		$categories = $object->getCategoriesCommon('question');
+
+		if (is_array($categories) && !empty($categories)) {
+			foreach ($categories as $cat_id) {
+
+				$category = new Categorie($db);
+				$category->fetch($cat_id);
+				$category->del_type($object, 'question');
+			}
+		}
+
+		$result = $object->delete($user);
+
+		if ($result > 0) {
+			// Delete OK
+			setEventMessages("RecordDeleted", null, 'mesgs');
+
+			header("Location: ".$backurlforlist);
+			exit;
+		} else {
+			$error++;
+			if (!empty($object->errors)) {
+				setEventMessages(null, $object->errors, 'errors');
+			} else {
+				setEventMessages($object->error, null, 'errors');
+			}
+		}
+		$action = '';
+	}
+
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
