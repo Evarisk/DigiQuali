@@ -193,6 +193,17 @@ if (empty($reshook)) {
 					continue;
 				}
 
+				$categories = $objecttmp->getCategoriesCommon('sheet');
+
+				if (is_array($categories) && !empty($categories)) {
+					foreach ($categories as $cat_id) {
+
+						$category = new Categorie($db);
+						$category->fetch($cat_id);
+						$category->del_type($objecttmp, 'sheet');
+					}
+				}
+
 				$result = $objecttmp->delete($user);
 
 				if (empty($result)) { // if delete returns 0, there is at least one object linked
