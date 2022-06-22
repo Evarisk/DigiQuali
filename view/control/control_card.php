@@ -1736,6 +1736,19 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		print dolismqshowdocuments('dolismq:ControlDocument', $dir_files, $filedir, $urlsource, 1, 1, $object->model_pdf, 1, 0, 0, 0, 0, '', 0, '', empty($soc->default_lang) ? '' : $soc->default_lang, $object, 0, 'remove_file', (($object->status >= 0) ? 1 : 0));
 		print '</div>';
+
+		print '</div><div class="fichehalfright">';
+
+		$MAXEVENT = 10;
+
+		$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-list-alt imgforviewmode', dol_buildpath('/dolismq/view/control/control_agenda.php', 1).'?id='.$object->id);
+
+		// List of actions on element
+		include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
+		$formactions = new FormActions($db);
+		$somethingshown = $formactions->showactions($object, $object->element.'@'.$object->module, (is_object($object->thirdparty) ? $object->thirdparty->id : 0), 1, '', $MAXEVENT, '', $morehtmlcenter);
+
+		print '</div></div>';
 	}
 
 	//Select mail models is same action as presend

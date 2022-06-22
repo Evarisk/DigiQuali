@@ -839,9 +839,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	print dol_get_fiche_end();
-
-
 	// Buttons for actions
 	if ($action != 'presend' && $action != 'editline') {
 		print '<div class="tabsAction">'."\n";
@@ -863,6 +860,20 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 		print '</div>'."\n";
 	}
+
+	print '<div class="fichehalfright">';
+
+	$MAXEVENT = 10;
+
+	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-list-alt imgforviewmode', dol_buildpath('/dolismq/view/question/question_agenda.php', 1).'?id='.$object->id);
+
+	// List of actions on element
+	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
+	$formactions = new FormActions($db);
+	$somethingshown = $formactions->showactions($object, $object->element.'@'.$object->module, (is_object($object->thirdparty) ? $object->thirdparty->id : 0), 1, '', $MAXEVENT, '', $morehtmlcenter);
+
+	print '</div>';
+	print dol_get_fiche_end();
 }
 
 // End of page
