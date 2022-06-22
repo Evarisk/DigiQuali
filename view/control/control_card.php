@@ -1546,32 +1546,32 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', ''); ?>
 
-	<!-- Réponses -->
-	<div class="control-audit multiselect">
-		<div class="wpeo-table table-flex">
-			<div class="table-row">
-				<div class="table-cell table-250 table-end <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-					<?php
-					print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" id="select_all_answer" value="1">';
-					print '<i class="fas fa-check"></i>';
-					print '</span>';
-
-					print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 2 ? 'active' : '') . '" id="select_all_answer" value="2">';
-					print '<i class="fas fa-times"></i>';
-					print '</span>';
-
-					print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 3 ? 'active' : '') . '" id="select_all_answer" value="3">';
-					print '<i class="fas fa-tools"></i>';
-					print '</span>';
-
-					print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 4 ? 'active' : '') . '" id="select_all_answer" value="4">';
-					print 'N/A';
-					print '</span>';
-					?>
-				</div>
-			</div>
-		</div>
-	</div>
+		<!-- Réponses -->
+<!--	<div class="control-audit multiselect">-->
+<!--		<div class="wpeo-table table-flex">-->
+<!--			<div class="table-row">-->
+<!--				<div class="table-cell table-250 table-end --><?php //echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?><!--">-->
+<!--					--><?php
+//					print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" id="select_all_answer" value="1">';
+//					print '<i class="fas fa-check"></i>';
+//					print '</span>';
+//
+//					print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 2 ? 'active' : '') . '" id="select_all_answer" value="2">';
+//					print '<i class="fas fa-times"></i>';
+//					print '</span>';
+//
+//					print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 3 ? 'active' : '') . '" id="select_all_answer" value="3">';
+//					print '<i class="fas fa-tools"></i>';
+//					print '</span>';
+//
+//					print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 4 ? 'active' : '') . '" id="select_all_answer" value="4">';
+//					print 'N/A';
+//					print '</span>';
+//					?>
+<!--				</div>-->
+<!--			</div>-->
+<!--		</div>-->
+<!--	</div>-->
 
 	<?php print '<div id="tablelines" class="control-audit noborder noshadow" width="100%">';
 
