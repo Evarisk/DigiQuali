@@ -728,7 +728,7 @@ if (empty($reshook)) {
 	}
 
 	// Actions to send emails
-	$triggersendname = 'DOLISMQ_AUDIT_SENTBYMAIL';
+	$triggersendname = 'CONTROLDOCUMENT_SENTBYMAIL';
 	$autocopy = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
 	$trackid = 'control'.$object->id;
 	include DOL_DOCUMENT_ROOT.'/core/actions_sendmails.inc.php';

@@ -356,6 +356,24 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				$actioncomm->create($user);
 				break;
 
+			case 'CONTROLDOCUMENT_SENTBYMAIL' :
+				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
+				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
+				$now        = dol_now();
+				$actioncomm = new ActionComm($this->db);
+
+				$actioncomm->elementtype = 'control@dolismq';
+				$actioncomm->code        = 'AC_CONTROLDOCUMENT_SENTBYMAIL';
+				$actioncomm->type_code   = 'AC_OTH_AUTO';
+				$actioncomm->label       = $langs->transnoentities('ControlDocumentSentByMailTrigger');
+				$actioncomm->datep       = $now;
+				$actioncomm->fk_element  = $object->id;
+				$actioncomm->userownerid = $user->id;
+				$actioncomm->percentage  = -1;
+
+				$actioncomm->create($user);
+				break;
+
 			default:
 				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
 				break;
