@@ -1818,9 +1818,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		// Fill list of recipient with email inside <>.
 		$liste = array();
-
-		$labour_inspector_contact = $allLinks['LabourInspectorContact'];
-
 		if ( ! empty($object->socid) && $object->socid > 0 && ! is_object($object->thirdparty) && method_exists($object, 'fetch_thirdparty')) {
 			$object->fetch_thirdparty();
 		}
@@ -1848,12 +1845,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 		}
 
-
-//		//$Labour_inspector_contact_id = $allLinks['LabourInspectorContact']->id[0];
-//		$contact->fetch($Labour_inspector_contact_id);
-//		$withto = array( $allLinks['LabourInspectorContact']->id[0] => $contact->firstname . ' ' . $contact->lastname . " <" . $contact->email . ">");
-
-		$formmail->withto              = $withto;
+		$formmail->withto              = 1;
 		$formmail->withtofree          = (GETPOSTISSET('sendto') ? (GETPOST('sendto', 'alphawithlgt') ? GETPOST('sendto', 'alphawithlgt') : '1') : '1');
 		$formmail->withtocc            = $liste;
 		$formmail->withtoccc           = $conf->global->MAIN_EMAIL_USECCC;
