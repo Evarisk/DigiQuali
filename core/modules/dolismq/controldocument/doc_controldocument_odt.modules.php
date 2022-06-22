@@ -319,6 +319,9 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 				case 2:
 					$tmparray['verdict'] = 'KO';
 					break;
+				default:
+					$tmparray['verdict'] = '';
+					break;
 			}
 
 			$tmparray['public_note'] = $object->note_public;
