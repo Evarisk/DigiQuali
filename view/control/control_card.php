@@ -788,20 +788,24 @@ if ($action == 'create') {
 		print '</td></tr>';
 	}
 
+	// Project
+	if (!empty($conf->projet->enabled)) {
+		print '<tr>';
+		print '<td>'.img_picto('', 'project', 'class="paddingrightonly"') . $langs->trans("Project").'</td><td>';
+		print  $formproject->select_projects(-1, GETPOST("projectid"), 'projectid', 0, 0, 1, 0, 0, 0, 0, '', 1, 0, 'minwidth300');
+		print ' <a href="'.DOL_URL_ROOT.'/projet/card.php?action=create&status=1&backtopage='.urlencode($_SERVER["PHP_SELF"].'?action=create').'"><span class="fa fa-plus-circle valignmiddle" title="'.$langs->trans("AddProject").'"></span></a>';
+		print '</td>';
+		print '</tr>';
+	}
+
 	//FK SHEET
 	print '<tr><td class="fieldrequired">' . $langs->trans("SheetLinked") . '</td><td>';
 	print $sheet->select_sheet_list(GETPOST('fk_sheet')?: $sheet->id);
 	print '</td></tr>';
 
-	// Project
-	if (!empty($conf->projet->enabled)) {
-		print '<tr>';
-		print '<td>'.img_picto('', 'project', 'class="paddingrightonly"') . $langs->trans("Project").'</td><td>';
-		print img_picto('', 'project', 'class="pictofixedwidth"').$formproject->select_projects(-1, GETPOST("projectid"), 'projectid', 0, 0, 1, 0, 0, 0, 0, '', 1, 0, 'maxwidth500 widthcentpercentminusxx');
-		print ' <a href="'.DOL_URL_ROOT.'/projet/card.php?action=create&status=1&backtopage='.urlencode($_SERVER["PHP_SELF"].'?action=create').'"><span class="fa fa-plus-circle valignmiddle" title="'.$langs->trans("AddProject").'"></span></a>';
-		print '</td>';
-		print '</tr>';
-	}
+	print '<tr><td><hr></td><td>';
+	print '<hr>';
+	print '</td></tr>';
 
 	print '<div class="fields-content">';
 	//FK Product
@@ -855,7 +859,6 @@ if ($action == 'create') {
 		print '</td></tr>';
 	}
 	print '</div>';
-
 
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
