@@ -1587,7 +1587,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$object->fetchQuestionsLinked($sheet->id, 'sheet');
 	$questionIds = $object->linkedObjectsIds;
 
-	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter"></span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . count($questionIds['dolismq_question']);
+	if (!empty($questionIds)) {
+		$questionCounter = count($questionIds['dolismq_question']);
+	} else {
+		$questionCounter = 0;
+	}
+
+	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter"></span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . $questionCounter;
 
 	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', ''); ?>
 
