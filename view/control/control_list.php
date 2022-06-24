@@ -362,8 +362,10 @@ if ($fromid) {
 					if ($test[0] == $fromid) {
 						$sheet->fetch($control->fk_sheet);
 						$categories = $categorystatic->getListForItem($sheet->id, 'sheet');
-						foreach ($categories as $category) {
-							$nbBox[$category['label']] = 1;
+						if (is_array($categories) && !empty($categories)) {
+							foreach ($categories as $category) {
+								$nbBox[$category['label']] = 1;
+							}
 						}
 					}
 				}
