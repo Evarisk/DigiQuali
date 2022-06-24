@@ -203,7 +203,7 @@ if (empty($reshook)) {
 						$category->del_type($objecttmp, 'sheet');
 					}
 				}
-
+				$objecttmp->delete_object_links();
 				$result = $objecttmp->delete($user);
 
 				if (empty($result)) { // if delete returns 0, there is at least one object linked

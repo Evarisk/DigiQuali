@@ -453,6 +453,31 @@ class Sheet extends CommonObject
 		return $result;
 	}
 
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
+	/**
+	 *  Delete control links to objects linked
+	 *
+	 *  @return    int         <=0 if no, >0 if yes
+	 */
+	public function delete_object_links() {
+
+		// Links between objects are stored in table element_element
+		$sql = 'DELETE';
+		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
+		$sql .= " WHERE fk_source = " . $this->id;
+		$sql .= " AND sourcetype = '" . $this->element . "'";
+
+		$resql = $this->db->query($sql);
+
+		if ($resql) {
+			$this->db->commit();
+			return 1;
+		} else {
+			dol_print_error($this->db);
+			return -1;
+		}
+	}
+
 	/**
 	 * Sets object to supplied categories.
 	 *

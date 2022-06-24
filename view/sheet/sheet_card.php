@@ -214,6 +214,7 @@ if (empty($reshook)) {
 			}
 		}
 
+		$object->delete_object_links();
 		$result = $object->delete($user);
 
 		if ($result > 0) {
