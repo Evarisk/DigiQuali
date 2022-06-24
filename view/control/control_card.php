@@ -145,16 +145,6 @@ if (empty($reshook)) {
 			else $backtopage = dol_buildpath('/dolismq/view/control/control_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
 		}
 	}
-
-	if ($action == 'addQuestion') {
-		$questionId = GETPOST('questionId');
-		$question->fetch($questionId);
-		$question->add_object_linked($object->element,$id);
-
-		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
-		exit;
-	}
-
 	// Action to add record
 	if ($action == 'add' && !empty($permissiontoadd)) {
 		foreach ($object->fields as $key => $val) {
@@ -382,6 +372,7 @@ if (empty($reshook)) {
 
 		$controldet = new ControlLine($db);
 		$sheet->fetch($object->fk_sheet);
+		//@todo a changer par fetchObjectLinked après refacto
 		$object->fetchQuestionsLinked($sheet->id, 'sheet');
 		$questionIds = $object->linkedObjectsIds;
 
@@ -494,6 +485,57 @@ if (empty($reshook)) {
 		setEventMessages($langs->trans('AnswerSaved'), array());
 		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 		exit;
+	}
+
+	if (!$error && $action == 'confirm_delete' && $permissiontodelete) {
+		$db->begin();
+
+		$objecttmp = $object;
+		$nbok = 0;
+		$TMsg = array();
+		$result = $objecttmp->fetch($id);
+		if ($result > 0) {
+
+			if (method_exists($objecttmp, 'is_erasable') && $objecttmp->is_erasable() <= 0) {
+				//@todo a changer par deleteObjectLinked après refacto
+				$objecttmp->delete_object_links();
+			}
+
+			$result = $objecttmp->delete($user);
+
+			if (empty($result)) { // if delete returns 0, there is at least one object linked
+				$TMsg = array_merge($objecttmp->errors, $TMsg);
+			} elseif ($result < 0) { // if delete returns is < 0, there is an error, we break and rollback later
+				setEventMessages($objecttmp->error, $objecttmp->errors, 'errors');
+				$error++;
+			} else {
+				$nbok++;
+			}
+		} else {
+			setEventMessages($objecttmp->error, $objecttmp->errors, 'errors');
+			$error++;
+		}
+
+		if (empty($error)) {
+			// Message for elements well deleted
+			if ($nbok > 1) {
+				setEventMessages($langs->trans("RecordsDeleted", $nbok), null, 'mesgs');
+			} elseif ($nbok > 0) {
+				setEventMessages($langs->trans("RecordDeleted", $nbok), null, 'mesgs');
+			}
+
+			// Message for elements which can't be deleted
+			if (!empty($TMsg)) {
+				sort($TMsg);
+				setEventMessages('', array_unique($TMsg), 'warnings');
+			}
+
+			$db->commit();
+		} else {
+			$db->rollback();
+		}
+
+		//var_dump($listofobjectthirdparties);exit;
 	}
 
 	// Action to build doc

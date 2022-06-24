@@ -316,6 +316,76 @@ class Control extends CommonObject
 		return $this->setStatusCommon($user, self::STATUS_LOCKED, $notrigger, 'CONTROL_LOCKED');
 	}
 
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
+	/**
+	 *  Return if a control can be deleted
+	 *
+	 *  @return    int         <=0 if no, >0 if yes
+	 */
+	public function is_erasable() {
+		return $this->is_linked_to_other_objects();
+	}
+
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
+	/**
+	 *  Return if a control is linked to another object
+	 *
+	 *  @return    int         <=0 if no, >0 if yes
+	 */
+	public function is_linked_to_other_objects() {
+
+		// Links between objects are stored in table element_element
+		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype';
+		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
+		$sql .= " WHERE fk_target = " . $this->id;
+		$sql .= " AND targettype = '" . $this->table_element . "'";
+
+		$resql = $this->db->query($sql);
+
+		if ($resql) {
+			$nbObjectsLinked = 0;
+			$num = $this->db->num_rows($resql);
+			$i = 0;
+			while ($i < $num) {
+				$nbObjectsLinked++;
+				$i++;
+			}
+			if ($nbObjectsLinked > 0) {
+				return -1;
+			} else {
+				return 1;
+			}
+		} else {
+			dol_print_error($this->db);
+			return -1;
+		}
+	}
+
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
+	/**
+	 *  Delete control links to objects linked
+	 *
+	 *  @return    int         <=0 if no, >0 if yes
+	 */
+	public function delete_object_links() {
+
+		// Links between objects are stored in table element_element
+		$sql = 'DELETE';
+		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
+		$sql .= " WHERE fk_target = " . $this->id;
+		$sql .= " AND targettype = '" . $this->table_element . "'";
+
+		$resql = $this->db->query($sql);
+
+		if ($resql) {
+			$this->db->commit();
+			return 1;
+		} else {
+			dol_print_error($this->db);
+			return -1;
+		}
+	}
+
 	/**
 	 *  Return a link to the object card (with optionaly the picto)
 	 *
