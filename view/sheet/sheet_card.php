@@ -121,12 +121,17 @@ if (empty($reshook)) {
 
 	if ($action == 'addQuestion' && $permissiontoadd) {
 		$questionId = GETPOST('questionId');
-		$question->fetch($questionId);
-		$question->add_object_linked($object->element,$id);
-		setEventMessages($langs->trans('addQuestionLink') . ' ' . $question->ref, array());
+		if ($questionId > 0) {
+			$question->fetch($questionId);
+			$question->add_object_linked($object->element,$id);
+			setEventMessages($langs->trans('addQuestionLink') . ' ' . $question->ref, array());
 
-		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
-		exit;
+			header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
+			exit;
+		} else {
+			setEventMessages($langs->trans('ErrorNoQuestionSelected'), null, 'errors');
+		}
+
 	}
 
 	if ($action == 'unlinkQuestion' && $permissiontoadd) {
