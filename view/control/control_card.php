@@ -503,37 +503,29 @@ if (empty($reshook)) {
 
 			$result = $objecttmp->delete($user);
 
-			if (empty($result)) { // if delete returns 0, there is at least one object linked
-				$TMsg = array_merge($objecttmp->errors, $TMsg);
-			} elseif ($result < 0) { // if delete returns is < 0, there is an error, we break and rollback later
-				setEventMessages($objecttmp->error, $objecttmp->errors, 'errors');
-				$error++;
+			if ($result > 0) {
+				$db->commit();
+
+				// Delete OK
+				setEventMessages("RecordDeleted", null, 'mesgs');
+
+				header("Location: ".$backurlforlist);
+				exit;
 			} else {
-				$nbok++;
+				$error++;
+				if (!empty($object->errors)) {
+					setEventMessages(null, $object->errors, 'errors');
+				} else {
+					setEventMessages($object->error, null, 'errors');
+				}
 			}
+			$action = '';
 		} else {
 			setEventMessages($objecttmp->error, $objecttmp->errors, 'errors');
 			$error++;
 		}
 
-		if (empty($error)) {
-			// Message for elements well deleted
-			if ($nbok > 1) {
-				setEventMessages($langs->trans("RecordsDeleted", $nbok), null, 'mesgs');
-			} elseif ($nbok > 0) {
-				setEventMessages($langs->trans("RecordDeleted", $nbok), null, 'mesgs');
-			}
 
-			// Message for elements which can't be deleted
-			if (!empty($TMsg)) {
-				sort($TMsg);
-				setEventMessages('', array_unique($TMsg), 'warnings');
-			}
-
-			$db->commit();
-		} else {
-			$db->rollback();
-		}
 
 		//var_dump($listofobjectthirdparties);exit;
 	}
