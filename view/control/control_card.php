@@ -976,24 +976,31 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$object->fetchQuestionsLinked($sheet->id, 'sheet');
 		$questionIds = $object->linkedObjectsIds;
 
-		$questionCounter = count($questionIds['dolismq_question']);
+		if (!empty($questionIds)) {
+			$questionCounter = count($questionIds['dolismq_question']);
+		} else {
+			$questionCounter = 0;
+		}
+
 		$answerCounter = 0;
 		$formPosts = '';
-		foreach ($questionIds['dolismq_question'] as $questionId) {
-			$controldettmp = $controldet;
+		if (!empty($questionIds)) {
+			foreach ($questionIds['dolismq_question'] as $questionId) {
+				$controldettmp = $controldet;
 
-			$answer = GETPOST('answer'.$questionId);
-			if ($answer > 0) {
-				$formPosts .= '&answer'.$questionId.'='.$answer;
+				$answer = GETPOST('answer'.$questionId);
+				if ($answer > 0) {
+					$formPosts .= '&answer'.$questionId.'='.$answer;
+				}
+
+				//sauvegarder commentaire
+				$comment = GETPOST('comment'.$questionId);
+
+				if (dol_strlen($comment) > 0) {
+					$formPosts .= '&comment'.$questionId.'='.$answer;
+				}
+
 			}
-
-			//sauvegarder commentaire
-			$comment = GETPOST('comment'.$questionId);
-
-			if (dol_strlen($comment) > 0) {
-				$formPosts .= '&comment'.$questionId.'='.$answer;
-			}
-
 		}
 
 		// Always output when not jmobile nor js
