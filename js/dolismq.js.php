@@ -355,7 +355,7 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event, photo, typeFrom, id) {
 		rowId = parent.attr('value')
 	}
 
-	let linkedMedias = $('.table-id-'+rowId)
+	let linkedMedias = $('.table-id-'+rowId+' .linked-medias')
 
 	let type = ''
 	if (typeFrom) {
@@ -408,7 +408,7 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event, photo, typeFrom, id) {
 			$('.wpeo-loader').removeClass('wpeo-loader')
 			parent.removeClass('modal-active')
 			if (document.URL.match(/control_card/)) {
-				linkedMedias.html($(resp).find('.table-id-'+rowId))
+				linkedMedias.html($(resp).find('.table-id-'+rowId+' .linked-medias'))
 				window.eoxiaJS.control.updateButtonsStatus()
 
 			} else if (document.URL.match(/question_card/)) {
