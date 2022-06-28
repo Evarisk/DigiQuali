@@ -133,6 +133,14 @@ if ($action == 'generateCategories') {
 	$tags->type  = 'sheet';
 	$tags->create($user);
 
+	$tags->label = $langs->trans('Logistics');
+	$tags->type  = 'sheet';
+	$tags->create($user);
+
+	$tags->label = $langs->trans('ComputerScience');
+	$tags->type  = 'sheet';
+	$tags->create($user);
+
 	dolibarr_set_const($db, 'DOLISMQ_SHEET_TAGS_SET', 1, 'integer', 0, '', $conf->entity);
 }
 
