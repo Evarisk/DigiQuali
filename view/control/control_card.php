@@ -458,28 +458,6 @@ if (empty($reshook)) {
 					//$controldettmp->answer_photo = '';
 				//}
 			}
-
-			if (! $error && ! empty($conf->global->MAIN_UPLOAD_DOC)) {
-				// Define relativepath and upload_dir
-				$relativepath                                             = '/control/' . $object->ref . '/answer_photo/' . $question->ref;
-				$upload_dir                                               = $conf->dolismq->multidir_output[$conf->entity] . '/' . $relativepath;
-				if (is_array($_FILES['userfile'.$question->id]['tmp_name'])) $userfiles = $_FILES['userfile'.$question->id]['tmp_name'];
-				else $userfiles                                           = array($_FILES['userfile'.$question->id]['tmp_name']);
-
-				foreach ($userfiles as $key => $userfile) {
-					if (empty($_FILES['userfile'.$question->id]['tmp_name'][$key])) {
-						//$error++;
-						if ($_FILES['userfile'.$question->id]['error'][$key] == 1 || $_FILES['userfile'.$question->id]['error'][$key] == 2) {
-							setEventMessages($langs->trans('ErrorFileSizeTooLarge'), null, 'errors');
-						}
-					}
-				}
-
-				if (! $error) {
-					$generatethumbs = 1;
-					dol_add_file_process($upload_dir, 0, 1, 'userfile'.$question->id, '', null, '', $generatethumbs);
-				}
-			}
 		}
 
 		setEventMessages($langs->trans('AnswerSaved'), array());
