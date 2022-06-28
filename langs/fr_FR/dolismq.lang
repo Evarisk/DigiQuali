@@ -139,6 +139,8 @@ UniqueLinkedElement = Liaison unique sur les éléments de Dolibarr
 UniqueLinkedElementDescription = Lier un seul élément de Dolibarr à une fiche modèle
 ErrorMultipleLinkedElement = Erreur la fiche modèle est liée à plusieurs éléments <br> Veuillez désactiver l'option de configuration : "Liaison unique sur les éléments de Dolibarr" pour pouvoir faire cela
 ErrorSheetUsedInControl = La fiche modèle %s ne peut pas être supprimée, elle est utilisée dans un ou plusieurs contrôles.
+ConfigElementLinked = Vous n'avez pas configuré d'éléments liés, veuillez cliquer ici pour vous rendre sur la page de configuration
+ConfigControl = Page de configuration des contrôles
 
 
 # Tags - catégories

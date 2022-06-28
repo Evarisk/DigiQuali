@@ -331,6 +331,15 @@ if ($action == 'create') {
 		),
 	);
 
+	if (empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK)) {
+		print '<div class="wpeo-notice notice-info">';
+		print '<div class="notice-content">';
+		print '<div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . '<a href="' .dol_buildpath('/custom/dolismq/admin/control.php', 2).'">' . ' : ' . $langs->trans('ConfigControl') . '</a>';
+		print '</div>';
+		print '</div>';
+		print '</div>';
+	}
+
 	foreach ($elementArray as $key => $element) {
 		if (!empty($element['conf'])) {
 			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
