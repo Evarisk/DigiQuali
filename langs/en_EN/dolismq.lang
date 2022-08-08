@@ -67,7 +67,7 @@ DoliSMQConfig =Module configuration
 
 # Rights - Droits
 ReadQuestion =Consult questions
-CreateQuestion =Create/Edit questions
+CreateQuestion =Create/Edit Questions
 DeleteQuestion =Delete Questions
 
 # Trigger - Déclencheur
@@ -95,7 +95,7 @@ ThereAre =There are
 YouAnswered =You replied to
 On =on
 BewareQuestionsAnswered =Attention missing %s answer(s)
-ActionsOnQuestion =Events related to the question
+ActionsOnQuestion =Events related to the issue
 
 
 
@@ -124,7 +124,7 @@ AddSheet =Add a template file
 NewSheet =New model sheet
 SheetList =List of model sheets
 SheetLinked =Control model
-FKSheet =Model sheet
+FKSheet =Model Sheet
 AllQuestionsMustHaveLocked =All questions must be locked to lock the model sheet
 LockSheet =Lock model card
 ConfirmLockSheet =Are you sure you want to lock the model card?<br> Locking prevents any modifications to the model file.

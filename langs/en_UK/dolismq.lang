@@ -106,7 +106,7 @@ ActionsOnQuestion =Events related to the question
 # Rights - Droits
 ReadSheet =Consult the model sheets
 CreateSheet =Create/Modify model sheets
-DeleteSheet =Delete model files
+DeleteSheet =Delete model sheets
 
 # Trigger - Déclencheur
 SheetCreateTrigger =Model sheet created
