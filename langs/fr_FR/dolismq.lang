@@ -20,7 +20,7 @@
 # Module label 'ModuleDoliSMQName'
 ModuleDoliSMQName = DoliSMQ
 # Module description 'ModuleDoliSMQDesc'
-ModuleDoliSMQDesc = Système de gestion de la qualtié et du management pour Dolibarr
+ModuleDoliSMQDesc = Système de management de la qualité pour Dolibarr
 
 #
 # Page d'administration
