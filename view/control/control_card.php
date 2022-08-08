@@ -739,6 +739,31 @@ if (empty($reshook)) {
 		}
 	}
 
+	// Action to update one extrafield
+	if ($action == "update_extras" && !empty($permissiontoadd)) {
+		$object->fetch(GETPOST('id', 'int'));
+
+		$ret = $extrafields->setOptionalsFromPost(null, $object, GETPOST('attribute', 'restricthtml'));
+		if ($ret < 0) {
+			$error++;
+		}
+
+		if (!$error) {
+			$result = $object->insertExtraFields(empty($triggermodname) ? '' : $triggermodname, $user);
+			if ($result < 0) {
+				$error++;
+			}
+		}
+
+		if ($error) {
+			setEventMessages($object->error, $object->errors, 'errors');
+			$action = 'edit_extras';
+		} else {
+			setEventMessages($langs->trans('RecordSaved'), null, 'mesgs');
+			$action = 'view';
+		}
+	}
+
 	// Actions to send emails
 	$triggersendname = 'CONTROLDOCUMENT_SENTBYMAIL';
 	$autocopy = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
@@ -1484,6 +1509,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
+	if ($permissiontoadd > 0 && $object->status < 1) {
+		$user->rights->control = new stdClass();
+		$user->rights->control->write = 1;
+	}
+
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php'; ?>
 
 	<script type="text/javascript">
@@ -1631,9 +1661,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					<div class="table-cell table-full">
 						<div class="label"><strong><?php print $item->ref . ' - ' . $item->label; ?></strong></div>
 						<div class="description"><?php print $item->description; ?></div>
-						<?php // Other attributes
-						include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php'; ?>
-
 						<div class="question-comment-container">
 							<div class="question-ref">
 								<?php

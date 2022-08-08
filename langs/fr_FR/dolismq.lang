@@ -228,6 +228,7 @@ RegulatoryScore = Score réglementaire
 ExtrafieldsControlManagement = Gestion des attributs supplémentaires des contrôles
 WithLastControl = Avec le dernier contrôle
 ControlMustBeLockedToSendEmail = Le contrôle doit être verrouillé pour pouvoir l'envoyer par e-mail
+SelectUser = Sélectionner un utilisateur
 
 
 
