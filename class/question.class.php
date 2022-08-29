@@ -1,6 +1,5 @@
 <?php
-/* Copyright (C) 2017  Laurent Destailleur <eldy@users.sourceforge.net>
- * Copyright (C) ---Put here your own copyright and developer email---
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +48,7 @@ class Question extends CommonObject
 	 * @var int  Does this object support multicompany module ?
 	 * 0=No test on entity, 1=Test with field entity, 'field@table'=Test with link by field@table
 	 */
-	public $ismultientitymanaged = 0;
+	public $ismultientitymanaged = 1;
 
 	/**
 	 * @var int  Does object support extrafields ? 0=No, 1=Yes
@@ -61,7 +60,6 @@ class Question extends CommonObject
 	 */
 	public $picto = 'question@dolismq';
 
-
 	const STATUS_DRAFT     = 0;
 	const STATUS_VALIDATED = 1;
 	const STATUS_LOCKED    = 2;
@@ -70,22 +68,24 @@ class Question extends CommonObject
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
 	 */
 	public $fields = array(
-		'rowid'         => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
-		'ref'           => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
-		'ref_ext'       => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "External reference of object"),
-		'entity'        => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
-		'date_creation' => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 0,),
-		'tms'           => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
-		'import_key'    => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
-		'status'        => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>'1',),
-		'type'          => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
-		'label'         => array('type' => 'varchar(255)', 'label' => 'Label', 'enabled' => '1', 'position' => 11, 'notnull' => 0, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200', 'help' => "Help text", 'showoncombobox' => '1',),
-		'description'   => array('type' => 'text', 'label' => 'Description', 'enabled' => '1', 'position' => 100, 'notnull' => 1, 'visible' => 3,),
-		'description'   => array('type' => 'text', 'label' => 'Description', 'enabled' => '1', 'position' => 100, 'notnull' => 1, 'visible' => 3,),
-		'photo_ok'      => array('type' => 'text', 'label' => 'PhotoOK', 'enabled' => '1', 'position' => 110, 'notnull' => 0, 'visible' => 3,),
-		'photo_ko'      => array('type' => 'text', 'label' => 'PhotoKO', 'enabled' => '1', 'position' => 120, 'notnull' => 0, 'visible' => 3,),
-		'fk_user_creat' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',),
-		'fk_user_modif' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
+		'rowid'                  => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
+		'ref'                    => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
+		'ref_ext'                => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "External reference of object"),
+		'entity'                 => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
+		'date_creation'          => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 0,),
+		'tms'                    => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
+		'import_key'             => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
+		'status'                 => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>'1',),
+		'type'                   => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
+		'label'                  => array('type' => 'varchar(255)', 'label' => 'Label', 'enabled' => '1', 'position' => 11, 'notnull' => 0, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200', 'help' => "Help text", 'showoncombobox' => '1',),
+		'description'            => array('type' => 'text', 'label' => 'Description', 'enabled' => '1', 'position' => 100, 'notnull' => 1, 'visible' => 3,),
+		'show_photo'             => array('type' => 'boolean', 'label' => 'ShowPhoto', 'enabled' => '1', 'position' => 105, 'notnull' => 0, 'visible' => 0,),
+		'authorize_answer_photo' => array('type' => 'boolean', 'label' => 'AuthorizeAnswerPhoto', 'enabled' => '1', 'position' => 106, 'notnull' => 0, 'visible' => 0,),
+		'enter_comment'          => array('type' => 'boolean', 'label' => 'EnterComment', 'enabled' => '1', 'position' => 107, 'notnull' => 0, 'visible' => 0,),
+		'photo_ok'               => array('type' => 'text', 'label' => 'PhotoOK', 'enabled' => '1', 'position' => 110, 'notnull' => 0, 'visible' => 3,),
+		'photo_ko'               => array('type' => 'text', 'label' => 'PhotoKO', 'enabled' => '1', 'position' => 120, 'notnull' => 0, 'visible' => 3,),
+		'fk_user_creat'          => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',),
+		'fk_user_modif'          => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
 	);
 
 	public $rowid;
@@ -99,11 +99,13 @@ class Question extends CommonObject
 	public $type;
 	public $label;
 	public $description;
+	public $show_photo;
+	public $authorize_answer_photo;
+	public $enter_comment;
 	public $photo_ok;
 	public $photo_ko;
 	public $fk_user_creat;
 	public $fk_user_modif;
-
 
 	/**
 	 * Constructor
@@ -151,88 +153,6 @@ class Question extends CommonObject
 	}
 
 	/**
-	 * Clone an object into another one
-	 *
-	 * @param  	User 	$user      	User that creates
-	 * @param  	int 	$fromid     Id of object to clone
-	 * @return 	mixed 				New object created, <0 if KO
-	 */
-	public function createFromClone(User $user, $fromid)
-	{
-		global $langs, $extrafields;
-		$error = 0;
-
-		dol_syslog(__METHOD__, LOG_DEBUG);
-
-		$object = new self($this->db);
-
-		$this->db->begin();
-
-		// Load source object
-		$result = $object->fetchCommon($fromid);
-		if ($result > 0 && ! empty($object->table_element_line)) $object->fetchLines();
-
-		// Reset some properties
-		unset($object->id);
-		unset($object->fk_user_creat);
-		unset($object->import_key);
-
-		// Clear fields
-		if (property_exists($object, 'ref')) $object->ref     = empty($this->fields['ref']['default']) ? "Copy_Of_" . $object->ref : $this->fields['ref']['default'];
-		if (property_exists($object, 'label')) $object->label = empty($this->fields['label']['default']) ? $langs->trans("CopyOf") . " " . $object->label : $this->fields['label']['default'];
-		if (property_exists($object, 'status')) { $object->status = self::STATUS_DRAFT; }
-		if (property_exists($object, 'date_creation')) { $object->date_creation = dol_now(); }
-		if (property_exists($object, 'date_modification')) { $object->date_modification = null; }
-		// ...
-		// Clear extrafields that are unique
-		if (is_array($object->array_options) && count($object->array_options) > 0) {
-			$extrafields->fetch_name_optionals_label($this->table_element);
-			foreach ($object->array_options as $key => $option) {
-				$shortkey = preg_replace('/options_/', '', $key);
-				if ( ! empty($extrafields->attributes[$this->table_element]['unique'][$shortkey])) {
-					//var_dump($key); var_dump($clonedObj->array_options[$key]); exit;
-					unset($object->array_options[$key]);
-				}
-			}
-		}
-
-		// Create clone
-		$object->context['createfromclone'] = 'createfromclone';
-		$result                             = $object->createCommon($user);
-		if ($result < 0) {
-			$error++;
-			$this->error  = $object->error;
-			$this->errors = $object->errors;
-		}
-
-		if ( ! $error) {
-			// copy internal contacts
-			if ($this->copy_linked_contact($object, 'internal') < 0) {
-				$error++;
-			}
-		}
-
-		if ( ! $error) {
-			// copy external contacts if same company
-			if (property_exists($this, 'socid') && $this->socid == $object->socid) {
-				if ($this->copy_linked_contact($object, 'external') < 0)
-					$error++;
-			}
-		}
-
-		unset($object->context['createfromclone']);
-
-		// End
-		if ( ! $error) {
-			$this->db->commit();
-			return $object;
-		} else {
-			$this->db->rollback();
-			return -1;
-		}
-	}
-
-	/**
 	 * Load object in memory from the database
 	 *
 	 * @param int    $id   Id object
@@ -254,11 +174,9 @@ class Question extends CommonObject
 	public function fetchLines()
 	{
 		$this->lines = array();
-
 		$result = $this->fetchLinesCommon();
 		return $result;
 	}
-
 
 	/**
 	 * Load list of objects in memory from the database.
@@ -273,8 +191,6 @@ class Question extends CommonObject
 	 */
 	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
 	{
-		global $conf;
-
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
 		$records = array();
@@ -327,12 +243,10 @@ class Question extends CommonObject
 				$i++;
 			}
 			$this->db->free($resql);
-
 			return $records;
 		} else {
 			$this->errors[] = 'Error ' . $this->db->lasterror();
 			dol_syslog(__METHOD__ . ' ' . join(',', $this->errors), LOG_ERR);
-
 			return -1;
 		}
 	}
@@ -359,167 +273,6 @@ class Question extends CommonObject
 	public function delete(User $user, $notrigger = false)
 	{
 		return $this->deleteCommon($user, $notrigger);
-		//return $this->deleteCommon($user, $notrigger, 1);
-	}
-
-	/**
-	 *  Delete a line of object in database
-	 *
-	 *	@param  User	$user       User that delete
-	 *  @param	int		$idline		Id of line to delete
-	 *  @param 	bool 	$notrigger  false=launch triggers after, true=disable triggers
-	 *  @return int         		>0 if OK, <0 if KO
-	 */
-	public function deleteLine(User $user, $idline, $notrigger = false)
-	{
-		if ($this->status < 0) {
-			$this->error = 'ErrorDeleteLineNotAllowedByObjectStatus';
-			return -2;
-		}
-
-		return $this->deleteLineCommon($user, $idline, $notrigger);
-	}
-
-
-	/**
-	 *	Validate object
-	 *
-	 *	@param		User	$user     		User making status change
-	 *  @param		int		$notrigger		1=Does not execute triggers, 0= execute triggers
-	 *	@return  	int						<=0 if OK, 0=Nothing done, >0 if KO
-	 */
-	public function validate($user, $notrigger = 0)
-	{
-		global $conf, $langs;
-
-		require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
-
-		$error = 0;
-
-		// Protection
-		if ($this->status == self::STATUS_VALIDATED) {
-			dol_syslog(get_class($this) . "::validate action abandonned: already validated", LOG_WARNING);
-			return 0;
-		}
-
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->question->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->question->question_advance->validate))))
-		 {
-		 $this->error='NotEnoughPermissions';
-		 dol_syslog(get_class($this)."::valid ".$this->error, LOG_ERR);
-		 return -1;
-		 }*/
-
-		$now = dol_now();
-
-		$this->db->begin();
-
-		// Define new ref
-		if ( ! $error && (preg_match('/^[\(]?PROV/i', $this->ref) || empty($this->ref))) { // empty should not happened, but when it occurs, the test save life
-			$num = $this->getNextNumRef();
-		} else {
-			$num = $this->ref;
-		}
-		$this->newref = $num;
-
-		if ( ! empty($num)) {
-			// Validate
-			$sql                                                  = "UPDATE " . MAIN_DB_PREFIX . $this->table_element;
-			$sql                                                 .= " SET ref = '" . $this->db->escape($num) . "',";
-			$sql                                                 .= " status = " . self::STATUS_VALIDATED;
-			if ( ! empty($this->fields['date_validation'])) $sql .= ", date_validation = '" . $this->db->idate($now) . "'";
-			if ( ! empty($this->fields['fk_user_valid'])) $sql   .= ", fk_user_valid = " . $user->id;
-			$sql                                                 .= " WHERE rowid = " . $this->id;
-
-			dol_syslog(get_class($this) . "::validate()", LOG_DEBUG);
-			$resql = $this->db->query($sql);
-			if ( ! $resql) {
-				dol_print_error($this->db);
-				$this->error = $this->db->lasterror();
-				$error++;
-			}
-
-			if ( ! $error && ! $notrigger) {
-				// Call trigger
-				$result = $this->call_trigger('AUDIT_VALIDATE', $user);
-				if ($result < 0) $error++;
-				// End call triggers
-			}
-		}
-
-		if ( ! $error) {
-			$this->oldref = $this->ref;
-
-			// Rename directory if dir was a temporary ref
-			if (preg_match('/^[\(]?PROV/i', $this->ref)) {
-				// Now we rename also files into index
-				$sql   = 'UPDATE ' . MAIN_DB_PREFIX . "ecm_files set filename = CONCAT('" . $this->db->escape($this->newref) . "', SUBSTR(filename, " . (strlen($this->ref) + 1) . ")), filepath = 'question/" . $this->db->escape($this->newref) . "'";
-				$sql  .= " WHERE filename LIKE '" . $this->db->escape($this->ref) . "%' AND filepath = 'question/" . $this->db->escape($this->ref) . "' and entity = " . $conf->entity;
-				$resql = $this->db->query($sql);
-				if ( ! $resql) { $error++; $this->error = $this->db->lasterror(); }
-
-				// We rename directory ($this->ref = old ref, $num = new ref) in order not to lose the attachments
-				$oldref    = dol_sanitizeFileName($this->ref);
-				$newref    = dol_sanitizeFileName($num);
-				$dirsource = $conf->dolismq->dir_output . '/question/' . $oldref;
-				$dirdest   = $conf->dolismq->dir_output . '/question/' . $newref;
-				if ( ! $error && file_exists($dirsource)) {
-					dol_syslog(get_class($this) . "::validate() rename dir " . $dirsource . " into " . $dirdest);
-
-					if (@rename($dirsource, $dirdest)) {
-						dol_syslog("Rename ok");
-						// Rename docs starting with $oldref with $newref
-						$listoffiles = dol_dir_list($conf->dolismq->dir_output . '/question/' . $newref, 'files', 1, '^' . preg_quote($oldref, '/'));
-						foreach ($listoffiles as $fileentry) {
-							$dirsource = $fileentry['name'];
-							$dirdest   = preg_replace('/^' . preg_quote($oldref, '/') . '/', $newref, $dirsource);
-							$dirsource = $fileentry['path'] . '/' . $dirsource;
-							$dirdest   = $fileentry['path'] . '/' . $dirdest;
-							@rename($dirsource, $dirdest);
-						}
-					}
-				}
-			}
-		}
-
-		// Set new ref and current status
-		if ( ! $error) {
-			$this->ref    = $num;
-			$this->status = self::STATUS_VALIDATED;
-		}
-
-		if ( ! $error) {
-			$this->db->commit();
-			return 1;
-		} else {
-			$this->db->rollback();
-			return -1;
-		}
-	}
-
-
-	/**
-	 *	Set draft status
-	 *
-	 *	@param	User	$user			Object user that modify
-	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
-	 *	@return	int						<0 if KO, >0 if OK
-	 */
-	public function setDraft($user, $notrigger = 0)
-	{
-		// Protection
-		if ($this->status <= self::STATUS_DRAFT) {
-			return 0;
-		}
-
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->dolismq_advance->validate))))
-		 {
-		 $this->error='Permission denied';
-		 return -1;
-		 }*/
-
-		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'AUDIT_UNVALIDATE');
 	}
 
 	/**
@@ -534,53 +287,49 @@ class Question extends CommonObject
 		return $this->setStatusCommon($user, self::STATUS_LOCKED, $notrigger, 'QUESTION_LOCKED');
 	}
 
-
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *	Set cancel status
+	 *  Return if a question can be deleted
 	 *
-	 *	@param	User	$user			Object user that modify
-	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
-	 *	@return	int						<0 if KO, 0=Nothing done, >0 if OK
+	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function cancel($user, $notrigger = 0)
-	{
-		// Protection
-		if ($this->status != self::STATUS_VALIDATED) {
-			return 0;
-		}
-
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->dolismq_advance->validate))))
-		 {
-		 $this->error='Permission denied';
-		 return -1;
-		 }*/
-
-		return $this->setStatusCommon($user, self::STATUS_CANCELED, $notrigger, 'AUDIT_CANCEL');
+	public function is_erasable() {
+		return $this->is_linked_to_other_objects();
 	}
 
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *	Set back to validated status
+	 *  Return if a question is linked to another object
 	 *
-	 *	@param	User	$user			Object user that modify
-	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
-	 *	@return	int						<0 if KO, 0=Nothing done, >0 if OK
+	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function reopen($user, $notrigger = 0)
-	{
-		// Protection
-		if ($this->status != self::STATUS_CANCELED) {
-			return 0;
+	public function is_linked_to_other_objects() {
+
+		// Links between objects are stored in table element_element
+		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype';
+		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
+		$sql .= " WHERE fk_target = " . $this->id;
+		$sql .= " AND targettype = '" . $this->table_element . "'";
+
+		$resql = $this->db->query($sql);
+
+		if ($resql) {
+			$nbObjectsLinked = 0;
+			$num = $this->db->num_rows($resql);
+			$i = 0;
+			while ($i < $num) {
+				$nbObjectsLinked++;
+				$i++;
+			}
+			if ($nbObjectsLinked > 0) {
+				return -1;
+			} else {
+				return 1;
+			}
+		} else {
+			dol_print_error($this->db);
+			return -1;
 		}
-
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->dolismq_advance->validate))))
-		 {
-		 $this->error='Permission denied';
-		 return -1;
-		 }*/
-
-		return $this->setStatusCommon($user, self::STATUS_VALIDATED, $notrigger, 'AUDIT_REOPEN');
 	}
 
 	/**
@@ -595,13 +344,13 @@ class Question extends CommonObject
 	 */
 	public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $save_lastsearch_value = -1)
 	{
-		global $conf, $langs, $hookmanager;
+		global $conf, $langs;
 
 		if ( ! empty($conf->dol_no_mouse_hover)) $notooltip = 1; // Force disable tooltips
 
 		$result = '';
 
-		$label = img_picto('', $this->picto) . ' <u>' . $langs->trans("Question") . '</u>';
+		$label = '<i class="fas fa-question"></i>' . ' <u>' . $langs->trans("Question") . '</u>';
 		if (isset($this->status)) {
 			$label .= ' ' . $this->getLibStatut(5);
 		}
@@ -632,34 +381,7 @@ class Question extends CommonObject
 		$linkend    = '</a>';
 
 		$result .= $linkstart;
-
-		if (empty($this->showphoto_on_popup)) {
-			if ($withpicto) $result .= img_object(($notooltip ? '' : $label), ($this->picto ? $this->picto : 'generic'), ($notooltip ? (($withpicto != 2) ? 'class="paddingright"' : '') : 'class="' . (($withpicto != 2) ? 'paddingright ' : '') . 'classfortooltip"'), 0, 0, $notooltip ? 0 : 1);
-		} else {
-			if ($withpicto) {
-				require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
-
-				list($class, $module) = explode('@', $this->picto);
-				$upload_dir           = $conf->$module->multidir_output[$conf->entity] . "/$class/" . dol_sanitizeFileName($this->ref);
-				$filearray            = dol_dir_list($upload_dir, "files");
-				$filename             = $filearray[0]['name'];
-				if ( ! empty($filename)) {
-					$pospoint = strpos($filearray[0]['name'], '.');
-
-					$pathtophoto = $class . '/' . $this->ref . '/thumbs/' . substr($filename, 0, $pospoint) . '_mini' . substr($filename, $pospoint);
-					if (empty($conf->global->{strtoupper($module . '_' . $class) . '_FORMATLISTPHOTOSASUSERS'})) {
-						$result .= '<div class="floatleft inline-block valignmiddle divphotoref"><div class="photoref"><img class="photo' . $module . '" alt="No photo" border="0" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $module . '&entity=' . $conf->entity . '&file=' . urlencode($pathtophoto) . '"></div></div>';
-					} else {
-						$result .= '<div class="floatleft inline-block valignmiddle divphotoref"><img class="photouserphoto userphoto" alt="No photo" border="0" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $module . '&entity=' . $conf->entity . '&file=' . urlencode($pathtophoto) . '"></div>';
-					}
-
-					$result .= '</div>';
-				} else {
-					$result .= img_object(($notooltip ? '' : $label), ($this->picto ? $this->picto : 'generic'), ($notooltip ? (($withpicto != 2) ? 'class="paddingright"' : '') : 'class="' . (($withpicto != 2) ? 'paddingright ' : '') . 'classfortooltip"'), 0, 0, $notooltip ? 0 : 1);
-				}
-			}
-		}
-
+		if ($withpicto) $result      .= '<i class="fas fa-question"></i>' . ' ';
 		if ($withpicto != 2) $result .= $this->ref;
 
 		$result .= $linkend;
@@ -761,6 +483,21 @@ class Question extends CommonObject
 	}
 
 	/**
+	 * Sets object to supplied categories.
+	 *
+	 * Deletes object from existing categories not supplied.
+	 * Adds it to non existing supplied categories.
+	 * Existing categories are left untouch.
+	 *
+	 * @param  int[]|int $categories Category or categories IDs
+	 * @return void
+	 */
+	public function setCategories($categories)
+	{
+		return parent::setCategoriesCommon($categories, 'question');
+	}
+
+	/**
 	 * Check if question locked
 	 *
 	 * @param $fk_object
@@ -791,152 +528,6 @@ class Question extends CommonObject
 	public function initAsSpecimen()
 	{
 		$this->initAsSpecimenCommon();
-	}
-
-	/**
-	 * 	Create an array of lines
-	 *
-	 * 	@return array|int		array of lines if OK, <0 if KO
-	 */
-	public function getLinesArray()
-	{
-		$this->lines = array();
-
-		$objectline = new QuestionLine($this->db);
-		$result     = $objectline->fetchAll('ASC', 'position', 0, 0, array('customsql' => 'fk_question = ' . $this->id));
-
-		if (is_numeric($result)) {
-			$this->error  = $this->error;
-			$this->errors = $this->errors;
-			return $result;
-		} else {
-			$this->lines = $result;
-			return $this->lines;
-		}
-	}
-
-	/**
-	 *  Returns the reference to the following non used object depending on the active numbering module.
-	 *
-	 *  @return string      		Object free reference
-	 */
-	public function getNextNumRef()
-	{
-		global $langs, $conf;
-		$langs->load("dolismq@dolismq");
-
-		if (empty($conf->global->DOLISMQ_AUDIT_ADDON)) {
-			$conf->global->DOLISMQ_AUDIT_ADDON = 'mod_question_standard';
-		}
-
-		if ( ! empty($conf->global->DOLISMQ_AUDIT_ADDON)) {
-			$mybool = false;
-
-			$file      = $conf->global->DOLISMQ_AUDIT_ADDON . ".php";
-			$classname = $conf->global->DOLISMQ_AUDIT_ADDON;
-
-			// Include file with class
-			$dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
-			foreach ($dirmodels as $reldir) {
-				$dir = dol_buildpath($reldir . "core/modules/dolismq/");
-
-				// Load file with numbering class (if found)
-				$mybool |= @include_once $dir . $file;
-			}
-
-			if ($mybool === false) {
-				dol_print_error('', "Failed to include file " . $file);
-				return '';
-			}
-
-			if (class_exists($classname)) {
-				$obj    = new $classname();
-				$numref = $obj->getNextValue($this);
-
-				if ($numref != '' && $numref != '-1') {
-					return $numref;
-				} else {
-					$this->error = $obj->error;
-					//dol_print_error($this->db,get_class($this)."::getNextNumRef ".$obj->error);
-					return "";
-				}
-			} else {
-				print $langs->trans("Error") . " " . $langs->trans("ClassNotFound") . ' ' . $classname;
-				return "";
-			}
-		} else {
-			print $langs->trans("ErrorNumberingModuleNotSetup", $this->element);
-			return "";
-		}
-	}
-
-	/**
-	 *  Create a document onto disk according to template module.
-	 *
-	 *  @param	    string		$modele			Force template to use ('' to not force)
-	 *  @param		Translate	$outputlangs	objet lang a utiliser pour traduction
-	 *  @param      int			$hidedetails    Hide details of lines
-	 *  @param      int			$hidedesc       Hide description
-	 *  @param      int			$hideref        Hide ref
-	 *  @param      null|array  $moreparams     Array to provide more information
-	 *  @return     int         				0 if KO, 1 if OK
-	 */
-	public function generateDocument($modele, $outputlangs, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $moreparams = null)
-	{
-		global $conf, $langs;
-
-		$result               = 0;
-		$includedocgeneration = 1;
-
-		$langs->load("dolismq@dolismq");
-
-		if ( ! dol_strlen($modele)) {
-			$modele = 'standard_question';
-
-			if ( ! empty($this->model_pdf)) {
-				$modele = $this->model_pdf;
-			} elseif ( ! empty($conf->global->AUDIT_ADDON_PDF)) {
-				$modele = $conf->global->AUDIT_ADDON_PDF;
-			}
-		}
-
-		$modelpath = "core/modules/dolismq/doc/";
-
-		if ($includedocgeneration && ! empty($modele)) {
-			$result = $this->commonGenerateDocument($modelpath, $modele, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Action executed by scheduler
-	 * CAN BE A CRON TASK. In such a case, parameters come from the schedule job setup field 'Parameters'
-	 * Use public function doScheduledJob($param1, $param2, ...) to get parameters
-	 *
-	 * @return	int			0 if OK, <>0 if KO (this function is used also by cron so only 0 is OK)
-	 */
-	public function doScheduledJob()
-	{
-		global $conf, $langs;
-
-		//$conf->global->SYSLOG_FILE = 'DOL_DATA_ROOT/dolibarr_mydedicatedlofile.log';
-
-		$error        = 0;
-		$this->output = '';
-		$this->error  = '';
-
-		dol_syslog(__METHOD__, LOG_DEBUG);
-
-		$now = dol_now();
-
-		$this->db->begin();
-
-		// ...
-
-		$this->db->commit();
-
-		return $error;
 	}
 
 	/**
@@ -1048,33 +639,5 @@ class Question extends CommonObject
 
 		if ($outputmode) return $outarray;
 		return $out;
-	}
-
-}
-
-
-require_once DOL_DOCUMENT_ROOT . '/core/class/commonobjectline.class.php';
-
-/**
- * Class QuestionLine. You can also remove this and generate a CRUD class for lines objects.
- */
-class QuestionLine extends CommonObjectLine
-{
-	// To complete with content of an object QuestionLine
-	// We should have a field rowid, fk_question and position
-
-	/**
-	 * @var int  Does object support extrafields ? 0=No, 1=Yes
-	 */
-	public $isextrafieldmanaged = 0;
-
-	/**
-	 * Constructor
-	 *
-	 * @param DoliDb $db Database handler
-	 */
-	public function __construct(DoliDB $db)
-	{
-		$this->db = $db;
 	}
 }

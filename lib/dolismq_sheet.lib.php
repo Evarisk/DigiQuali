@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2021 EOXIA <dev@eoxia.com>
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,10 +29,13 @@
  */
 function sheetPrepareHead($object)
 {
-	global $db, $langs, $conf;
+	// Global variables definitions
+	global $conf, $langs;
 
+	// Load translation files required by the page
 	$langs->load("dolismq@dolismq");
 
+	// Initialize values
 	$h = 0;
 	$head = array();
 
@@ -41,16 +44,10 @@ function sheetPrepareHead($object)
 	$head[$h][2] = 'sheetCard';
 	$h++;
 
-//	require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
-//	require_once DOL_DOCUMENT_ROOT.'/core/class/link.class.php';
-//	$upload_dir = $conf->dolismq->dir_output."/sheet/".dol_sanitizeFileName($object->ref);
-//	$nbFiles = count(dol_dir_list($upload_dir, 'files', 0, '', '(\.meta|_preview.*\.png)$'));
-//	$nbLinks = Link::count($db, $object->element, $object->id);
-//	$head[$h][0] = dol_buildpath("/dolismq/view/sheet/sheet_document.php", 1).'?id='.$object->id;
-//	$head[$h][1] = $langs->trans('Documents');
-//	if (($nbFiles + $nbLinks) > 0) $head[$h][1] .= '<span class="badge marginleftonlyshort">'.($nbFiles + $nbLinks).'</span>';
-//	$head[$h][2] = 'document';
-//	$h++;
+	$head[$h][0] = dol_buildpath("/dolismq/view/control/control_list.php", 1).'?fromid='.$object->id . '&fromtype=fk_sheet';
+	$head[$h][1] = $langs->trans("Controls");
+	$head[$h][2] = 'control';
+	$h++;
 
 	$head[$h][0] = dol_buildpath("/dolismq/view/sheet/sheet_agenda.php", 1).'?id='.$object->id;
 	$head[$h][1] = $langs->trans("Events");
@@ -58,8 +55,6 @@ function sheetPrepareHead($object)
 	$h++;
 
 	complete_head_from_modules($conf, $langs, $object, $head, $h, 'sheet@dolismq');
-
-	complete_head_from_modules($conf, $langs, $object, $head, $h, 'sheet@dolismq', 'remove');
 
 	return $head;
 }

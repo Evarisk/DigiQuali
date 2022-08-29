@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2021 EOXIA <dev@eoxia.com>
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  */
 
 /**
- *	\file       htdocs/core/modules/dolismq/digiriskdocuments/controldocument/doc_controldocument_odt.modules.php
+ *	\file       core/modules/dolismq/controldocument/doc_controldocument_odt.modules.php
  *	\ingroup    dolismq
  *	\brief      File of class to build ODT documents for dolismq
  */
@@ -184,10 +184,6 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 		$outputlangs->charset_output = 'UTF-8';
 
 		$outputlangs->loadLangs(array("main", "dict", "companies", "dolismq@dolismq"));
-//
-//		$mod = new $conf->global->DIGIRISKDOLIBARR_GROUPMENTDOCUMENT_ADDON($this->db);
-//		$ref = $mod->getNextValue($object);
-
 
 
 		$dir = $conf->dolismq->multidir_output[isset($object->entity) ? $object->entity : 1] . '/controldocument/'. $object->ref;
@@ -215,7 +211,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$filename = $object->ref.'_'.$date.$photo.'.odt';
 			$filename = str_replace(' ', '_', $filename);
 			$filename = dol_sanitizeFileName($filename);
-//
+
 //			$object->last_main_doc = $filename;
 //
 //			$sql = "UPDATE ".MAIN_DB_PREFIX."dolismq_control";
@@ -265,7 +261,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$tmparray = array_merge($substitutionarray, $array_object_from_properties, $array_soc);
 			complete_substitutions_array($tmparray, $outputlangs, $object);
 
-			$filearray = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/' . $digiriskelement->element_type . '/' . $digiriskelement->ref . '/thumbs/', "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
+			$filearray = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/' . $object->element_type . '/' . $object->ref . '/thumbs/', "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
 			if (count($filearray)) {
 				$image = array_shift($filearray);
 				$tmparray['photoDefault'] = $image['fullname'];
@@ -323,7 +319,12 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 				case 2:
 					$tmparray['verdict'] = 'KO';
 					break;
+				default:
+					$tmparray['verdict'] = '';
+					break;
 			}
+
+			$tmparray['public_note'] = $object->note_public;
 
 			foreach ($tmparray as $key=>$value)
 			{
@@ -411,6 +412,9 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 										break;
 									case 4:
 										$tmparray['answer'] = $langs->trans('NotApplicable');
+										break;
+									default:
+										$tmparray['answer'] = ' ';
 										break;
 								}
 

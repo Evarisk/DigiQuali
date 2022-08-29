@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2021 EOXIA <dev@eoxia.com>
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ if ( ! $res && file_exists("../../../main.inc.php")) $res    = @include "../../.
 if ( ! $res && file_exists("../../../../main.inc.php")) $res = @include "../../../../main.inc.php";
 if ( ! $res) die("Include of main fails");
 
+// Libraries
 require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/functions2.lib.php';
@@ -44,6 +45,7 @@ require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../lib/dolismq_sheet.lib.php';
 require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 
+// Global variables definitions
 global $conf, $db, $langs, $hookmanager, $user;
 
 // Load translation files required by the page
@@ -78,7 +80,9 @@ if ( ! $sortorder) $sortorder = 'DESC,DESC';
 // Initialize technical objects
 $object      = new Sheet($db);
 $extrafields = new ExtraFields($db);
+
 $hookmanager->initHooks(array('sheetagenda', 'globalcard')); // Note that conf->hooks_modules contains array
+
 // Fetch optionals attributes and labels
 $extrafields->fetch_name_optionals_label($object->table_element);
 
@@ -119,7 +123,7 @@ if (empty($reshook)) {
 
 if ($object->id > 0) {
 	$title    = $langs->trans("Sheet") . ' - ' . $langs->trans("Agenda");
-	$help_url = 'FR:Module_DigiriskDolibarr';
+	$help_url = 'FR:Module_DoliSMQ';
 	$morejs   = array("/dolismq/js/dolismq.js.php");
 	$morecss  = array("/dolismq/css/dolismq.css");
 

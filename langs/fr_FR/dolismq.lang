@@ -1,4 +1,4 @@
-# Copyright (C) 2021 SuperAdmin
+# Copyright (C) 2022 EVARISK <dev@evarisk.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 # Module label 'ModuleDoliSMQName'
 ModuleDoliSMQName = DoliSMQ
 # Module description 'ModuleDoliSMQDesc'
-ModuleDoliSMQDesc = Description de DoliSMQ
+ModuleDoliSMQDesc = Système de management de la qualité pour Dolibarr
 
 #
 # Page d'administration
@@ -30,34 +30,16 @@ ModuleDoliSMQDesc = Description de DoliSMQ
 DoliSMQSetup = Configuration du module DoliSMQ
 Settings = Réglages
 DoliSMQSetupPage = Page de configuration du module DoliSMQ
+DoliSMQConfig = Configuration du module
 
 #
 # Page À propos
 #
+
+# Data - Donnée
 About = À propos
 DoliSMQAbout = À propos de DoliSMQ
 DoliSMQAboutPage = Page à propos de DoliSMQ
-
-#
-# Page d'exemple
-#
-MyPageName = Nom de ma page
-
-#
-# Box d'exemple
-#
-MyWidget = Mon widget
-MyWidgetDescription = Description de mon widget
-
-#
-# Traduction pour DoliSMQ
-#
-
-DoliSMQHelpAuditDateStart = La date de début d'audit
-Or = ou
-SelectProductsOrServices = Sélectionner un produit / service
-DoliSMQNumberOfModelFilesFound = Nombre de modèles par défaut
-DoliSMQConfig = Configuration du module
 
 
 
@@ -83,6 +65,7 @@ DoliSMQQuestionStandardModel = Renvoie le numéro sous la forme QUn où n est un
 # Data - Donnée
 AddQuestion = Ajouter une question
 NewQuestion = Nouvelle question
+ModifyQuestion = Modifier une question
 QuestionList = Liste des questions
 LinkedQuestionsList = Listes des questions liées
 addQuestionLink = Question ajoutée à la fiche modèle :
@@ -96,8 +79,19 @@ YouAnswered = Vous avez répondu à
 On = sur
 BewareQuestionsAnswered = Attention il manque %s réponse(s)
 ActionsOnQuestion = Événements liés au question
-
-
+QuestionsCategoriesArea = Espace des tags/catégories des questions
+ExtrafieldsQuestionManagement = Gestion des attributs supplémentaires des questions
+PhotoOk = Exemple de photo correcte
+PhotoKo = Exemple de photo incorrecte
+ShowPhoto = Afficher les photos
+AuthorizeAnswerPhoto = Autoriser l'envoi de photos sur les réponses
+ShowPhotoTooltip = Affiche les photos et la bibliothèque de média sur la question
+AuthorizeAnswerPhotoTooltip = Autorise l'envoi de photos sur les réponses de question
+NoteControl = Note publique
+EnterComment = Saisir les commentaires
+EnterCommentTooltip = Saisi le commentaire sur les réponses de question
+ErrorQuestionUsedInSheet = La question %s ne peut pas être supprimée, elle est utilisée dans une ou plusieurs fiches modèles.
+ErrorNoQuestionSelected = Aucune question sélectionnée
 
 #
 # Sheet
@@ -122,16 +116,46 @@ DoliSMQSheetStandardModel = Renvoie le numéro sous la forme MOn où n est un co
 Sheet = Fiche modèle
 AddSheet = Ajouter une fiche modèle
 NewSheet = Nouvelle fiche modèle
+ModifySheet = Modifier une fiche modèle
 SheetList = Liste des fiches modèles
 SheetLinked = Modèle de contrôle
 FKSheet = Fiche Modèle
-AllQuestionsMustHaveLocked = Tous les questions doivent être verrouillé pour verrouiller la fiche modèle
+AllQuestionsMustHaveLocked = Tous les questions doivent être verrouillées pour verrouiller la fiche modèle
 LockSheet = Verrouiller la fiche modèle
 ConfirmLockSheet = Êtes-vous sûr de vouloir verrouiller la fiche modèle ? <br> Le verrouillage empêche toutes modifications de la fiche modèle.
 NoLotForThisProduct = Pas de lot défini pour ce produit
 ModalAddPhoto = Bibliothèque de médias
 SheetManagement = Gestion des fiches modèles
 ActionsOnSheet = Événements liés au fiche modèle
+SheetsCategoriesArea = Espace des tags/catégories des fiches modèles
+ExtrafieldsSheetManagement = Gestion des attributs supplémentaires des fiches modèles
+SheetCategories = Catégories des fiches modèles
+GenerateCategories = Génération des catégories de fiche modèle par défaut
+AlreadyGenerated = Déjà généré(e)s
+NotCreated = Pas encore créé(e)s
+CategoriesGeneration = Cette option permet la génération des catégories par défaut des des fiches modèles. Les catégories créées seront : <br> - Qualité <br> - Hygiène <br> - Sécurité <br> - Environnement <br> - Sureté <br> - Réglementaire <br> - Bureau d'Etude <br> - Fournisseurs <br> - Commercial <br> - Production <br> - Méthodes <br> - Comptabilité <br> - Logistique <br> - Informatique <br>
+SheetData = Donnés configurables des fiches modèles
+UniqueLinkedElement = Liaison unique sur les éléments de Dolibarr
+UniqueLinkedElementDescription = Lier un seul élément de Dolibarr à une fiche modèle
+ErrorMultipleLinkedElement = Erreur la fiche modèle est liée à plusieurs éléments <br> Veuillez désactiver l'option de configuration : "Liaison unique sur les éléments de Dolibarr" pour pouvoir faire cela
+ErrorSheetUsedInControl = La fiche modèle %s ne peut pas être supprimée, elle est utilisée dans un ou plusieurs contrôles.
+ConfigElementLinked = Vous n'avez pas configuré d'éléments liés, veuillez cliquer ici pour vous rendre sur la page de configuration
+ConfigControl = Page de configuration des contrôles
+
+
+# Tags - catégories
+Quality = Qualité
+HealthSecurity = Hygiène et sécurité
+Environment = Environnement
+Safety = Sureté
+Regulatory = Réglementaire
+DesignOffice = Bureau d'Etude
+Suppliers = Fournisseurs
+CommercialDoliSMQ = Commercial
+Production = Production
+Methods = Méthodes
+Logistics = Logistique
+ComputerScience = Informatique
 
 
 
@@ -200,6 +224,11 @@ ShowTaskDescription = Afficher le lien entre les tâches et les contrôles
 NoLotDefined = Pas de numéros de lots/série trouvé
 SelectAProductFirst = Sélectionnez d'abord un produit
 ActionsOnControl = Événements liés au contrôle
+RegulatoryScore = Score réglementaire
+ExtrafieldsControlManagement = Gestion des attributs supplémentaires des contrôles
+WithLastControl = Avec le dernier contrôle
+ControlMustBeLockedToSendEmail = Le contrôle doit être verrouillé pour pouvoir l'envoyer par e-mail
+SelectUser = Sélectionner un utilisateur
 
 
 
@@ -243,6 +272,8 @@ ControlDocumentData = Données configurables des fiches de contrôle
 ControlDocumentName = Afficher les médias dans la fiche de contrôle
 ControlDocumentDescription = Afficher les médias des questions dans la fiche de contrôle du document ODT
 ControlDocumentPDFDoliSMQTemplate =	Modèle de fiche de contrôle au format PDF
+ControlDocumentSentByMailTrigger = Email fiche de contrôle envoyée
+
 
 
 #
@@ -259,4 +290,9 @@ Locked = Verrouillé
 Lock = Verrouiller
 NoData = N/A
 ErrorFileNotFound = Aucun logo de la société renseigné
+MinimizeMenu = Réduire le menu
+Or = ou
+SelectProductsOrServices = Sélectionner un produit / service
+DoliSMQNumberOfModelFilesFound = Nombre de modèles par défaut
+DoliSMQArea = Bienvenue sur DoliSMQ
 

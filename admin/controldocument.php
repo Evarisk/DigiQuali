@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2021 EOXIA <dev@eoxia.com>
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 /**
  * \file    admin/controldocument/controldocument.php
  * \ingroup dolismq
- * \brief   dolismq controldocument page.
+ * \brief   DoliSMQ controldocument config page.
  */
 
 // Load Dolibarr environment
@@ -36,27 +36,36 @@ if (!$res && file_exists("../../../main.inc.php")) $res = @include "../../../mai
 if (!$res && file_exists("../../../../main.inc.php")) $res = @include "../../../../main.inc.php";
 if (!$res) die("Include of main fails");
 
-global $langs, $user;
-
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
 
 require_once '../lib/dolismq.lib.php';
 require_once '../class/control.class.php';
 
-// Translations
+// Global variables definitions
+global $conf, $db, $langs, $user;
+
+// Load translation files required by the page
 $langs->loadLangs(array("admin", "dolismq@dolismq"));
 
-// Access control
-if (!$user->admin) accessforbidden();
-
-// Parameters
+// Get parameters
 $action     = GETPOST('action', 'alpha');
 $backtopage = GETPOST('backtopage', 'alpha');
 $value      = GETPOST('value', 'alpha');
 $type       = GETPOST('type', 'alpha');
 $const 		= GETPOST('const', 'alpha');
 $label 		= GETPOST('label', 'alpha');
+$modele     = GETPOST('module', 'alpha');
+
+// Initialize objects
+// Technical objets
+$control = new Control($db);
+
+// View objects
+$form = new Form($db);
+
+// Access control
+if (!$user->admin) accessforbidden();
 
 /*
  * Actions
@@ -71,10 +80,8 @@ if ($action == 'set') {
 	header("Location: " . $_SERVER["PHP_SELF"]);
 }
 
+// Generate a specimen PDF
 if ($action == 'specimen') {
-	$modele = GETPOST('module', 'alpha');
-
-	$control = new Control($db);
 	$control->initAsSpecimen();
 
 	// Search template files
@@ -89,17 +96,16 @@ if ($action == 'specimen') {
 		}
 	}
 
+	//Generate specimen file
 	if ($filefound) {
 		require_once $file;
-
 		$module = new $classname($db);
-
 		if ($module->write_file($control, $langs) > 0) {
-			header("Location: ".DOL_URL_ROOT."/document.php?modulepart=dolisqm&file=SPECIMEN.pdf");
+			header("Location: ".DOL_URL_ROOT."/document.php?modulepart=dolismq&file=SPECIMEN.pdf");
 			return;
 		} else {
-			setEventMessages($obj->error, $obj->errors, 'errors');
-			dol_syslog($obj->error, LOG_ERR);
+			setEventMessages($control->error, $control->errors, 'errors');
+			dol_syslog($control->error, LOG_ERR);
 		}
 	} else {
 		setEventMessages($langs->trans("ErrorModuleNotFound"), null, 'errors');
@@ -107,21 +113,18 @@ if ($action == 'specimen') {
 	}
 }
 
-// Set default model
+// Set default model Or set numering module
 if ($action == 'setdoc') {
 	$constforval = "DOLISMQ_CONTROLDOCUMENT_DEFAULT_MODEL";
 	$label       = '';
 
-	if (dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity))
-	{
+	if (dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity)) {
 		$conf->global->$constforval = $value;
 	}
 
 	// On active le modele
 	$ret = delDocumentModel($value, $type);
-
-	if ($ret > 0)
-	{
+	if ($ret > 0) {
 		$ret = addDocumentModel($value, $type, $label);
 	}
 } elseif ($action == 'setmod') {
@@ -129,21 +132,19 @@ if ($action == 'setdoc') {
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
 
-
 /*
  * View
  */
 
-$help_url = 'FR:Module_DigiriskDolibarr#L.27onglet_Document_Digirisk';
+$help_url = 'FR:Module_DoliSMQ';
 $title    = $langs->trans("ControlDocument");
-
 $morejs   = array("/dolismq/js/dolismq.js.php");
 $morecss  = array("/dolismq/css/dolismq.css");
 
-llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
+llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);
 
 // Subheader
-$linkback = '<a href="'.($backtopage ? $backtopage : DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';
+$linkback = '<a href="'.($backtopage ?: DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';
 
 print load_fiche_titre($title, $linkback, 'dolismq@dolismq');
 
@@ -152,15 +153,14 @@ $head = dolismqAdminPrepareHead();
 print dol_get_fiche_head($head, 'controldocument', '', -1, "dolismq@dolismq");
 
 $types = array(
-	'ControlDocument' 				=> 'controldocument'
+	'ControlDocument' => 'controldocument'
 );
 
 $pictos = array(
-	'ControlDocument' 				=> '<i class="fas fa-file"></i> '
+	'ControlDocument' => '<i class="fas fa-file"></i>'
 );
 
 foreach ($types as $type => $documentType) {
-
 	print load_fiche_titre($pictos[$type] . $langs->trans($type), '', '');
 	print '<hr>';
 
@@ -171,13 +171,12 @@ foreach ($types as $type => $documentType) {
 	print '<tr class="liste_titre">';
 	print '<td>'.$langs->trans("Name").'</td>';
 	print '<td>'.$langs->trans("Description").'</td>';
-	print '<td class="nowrap">'.$langs->trans("Example").'</td>';
+	print '<td>'.$langs->trans("Example").'</td>';
 	print '<td class="center">'.$langs->trans("Status").'</td>';
 	print '<td class="center">'.$langs->trans("ShortInfo").'</td>';
 	print '</tr>';
 
 	clearstatcache();
-
 	$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/".$documentType."/");
 	if (is_dir($dir)) {
 		$handle = opendir($dir);
@@ -223,7 +222,7 @@ foreach ($types as $type => $documentType) {
 							// Example for listing risks action
 							$htmltooltip = '';
 							$htmltooltip .= ''.$langs->trans("Version").': <b>'.$module->getVersion().'</b><br>';
-							$nextval = $module->getNextValue($object_document);
+							$nextval = $module->getNextValue($module);
 							if ("$nextval" != $langs->trans("NotAvailable")) {  // Keep " on nextval
 								$htmltooltip .= $langs->trans("NextValue").': ';
 								if ($nextval) {
@@ -289,7 +288,6 @@ foreach ($types as $type => $documentType) {
 	print "</tr>";
 
 	clearstatcache();
-
 	$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/".$documentType."/");
 	if (is_dir($dir)) {
 		$handle = opendir($dir);
@@ -377,6 +375,7 @@ foreach ($types as $type => $documentType) {
 
 	print '</table>';
 
+	//Control document data
 	print load_fiche_titre($langs->trans("ControlDocumentData"), '', '');
 
 	print '<table class="noborder centpercent">';
@@ -386,7 +385,8 @@ foreach ($types as $type => $documentType) {
 	print '<td class="center">' . $langs->trans("Status") . '</td>';
 	print '</tr>';
 
-	print '<tr class="oddeven"><td>';
+	//Display document medias conf
+	print '<tr><td>';
 	print $langs->trans('ControlDocumentName');
 	print "</td><td>";
 	print $langs->trans('ControlDocumentDescription');
@@ -397,8 +397,8 @@ foreach ($types as $type => $documentType) {
 	print '</td>';
 	print '</tr>';
 	print '</table>';
-	print '<hr>';
 }
+
 // Page end
 print dol_get_fiche_end();
 llxFooter();

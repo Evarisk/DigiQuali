@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2021 EOXIA <dev@eoxia.com>
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 		$this->name        = preg_replace('/^Interface/i', '', get_class($this));
 		$this->family      = "demo";
 		$this->description = "DoliSMQ triggers.";
-		$this->version     = '1.2.0';
+		$this->version     = '1.3.0';
 		$this->picto       = 'dolismq@dolismq';
 	}
 
@@ -356,18 +356,18 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				$actioncomm->create($user);
 				break;
 
-			case 'CONTROL_SET_USER_CONTROLLER' :
-
+			case 'CONTROLDOCUMENT_SENTBYMAIL' :
 				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
 				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
 				$now        = dol_now();
 				$actioncomm = new ActionComm($this->db);
 
 				$actioncomm->elementtype = 'control@dolismq';
-				$actioncomm->code        = 'AC_CONTROL_SET_USER_CONTROLLER';
+				$actioncomm->code        = 'AC_CONTROLDOCUMENT_SENTBYMAIL';
 				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('ControlSetUserControllerTrigger', $user->login);
+				$actioncomm->label       = $langs->transnoentities('ControlDocumentSentByMailTrigger');
 				$actioncomm->datep       = $now;
+				$actioncomm->fk_element  = $object->id;
 				$actioncomm->userownerid = $user->id;
 				$actioncomm->percentage  = -1;
 

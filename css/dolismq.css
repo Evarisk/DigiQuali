@@ -1825,6 +1825,15 @@
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
+.control-audit.multiselect {
+  margin-top: -60px;
+}
+.control-audit.multiselect > .wpeo-table {
+  background: none !important;
+}
+.control-audit.multiselect .table-cell {
+  padding-top: 0;
+}
 .control-audit .wpeo-table.table-flex .table-row:not(.table-header):nth-of-type(odd) {
   background: none;
 }

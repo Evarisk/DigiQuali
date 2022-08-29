@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2021 EOXIA <dev@eoxia.com>
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 /**
  * \file    admin/control.php
  * \ingroup dolismq
- * \brief   Digiriskdolibarr control page.
+ * \brief   DoliSMQ control config page.
  */
 
 // Load Dolibarr environment
@@ -36,29 +36,28 @@ if ( ! $res && file_exists("../../../main.inc.php")) $res    = @include "../../.
 if ( ! $res && file_exists("../../../../main.inc.php")) $res = @include "../../../../main.inc.php";
 if ( ! $res) die("Include of main fails");
 
-global $conf, $db, $langs, $user;
-
 // Libraries
-require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
-require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-require_once DOL_DOCUMENT_ROOT.'/core/class/extrafields.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 
-//require_once '../class/control.class.php';
 require_once '../lib/dolismq.lib.php';
 
-// Translations
+// Global variables definitions
+global $conf, $db, $langs, $user;
+
+// Load translation files required by the page
 $langs->loadLangs(array("admin", "dolismq@dolismq"));
 
-// Access control
-if ( ! $user->admin) accessforbidden();
-
-// Parameters
+// Get parameters
 $action     = GETPOST('action', 'alpha');
 $backtopage = GETPOST('backtopage', 'alpha');
 $value      = GETPOST('value', 'alpha');
 $attrname   = GETPOST('attrname', 'alpha');
 
-// List of supported format
+// Initialize objects
+// View objects
+$form = new Form($db);
+
+// List of supported format type extrafield label
 $tmptype2label = ExtraFields::$type2label;
 $type2label = array('');
 foreach ($tmptype2label as $key => $val) {
@@ -66,62 +65,43 @@ foreach ($tmptype2label as $key => $val) {
 }
 
 $elementtype = 'dolismq_control'; //Must be the $table_element of the class that manage extrafield
-$type  = 'control';
-$error = 0;
+$error = 0; //Error counter
 
-// Initialize technical objects
-$usertmp = new User($db);
-//$control = new Control($db);
-$actioncomm = new ActionComm($db);
-$extrafields = new ExtraFields($db);
+// Access control
+if (!$user->admin) accessforbidden();
 
 /*
  * Actions
  */
 
-require DOL_DOCUMENT_ROOT.'/core/actions_extrafields.inc.php';
+//Extrafields actions
+require DOL_DOCUMENT_ROOT . '/core/actions_extrafields.inc.php';
 
+//Set numering modele for control object
 if ($action == 'setmod') {
-	$constforval = 'DOLISMQ_' . strtoupper($type) . "_ADDON";
+	$constforval = 'DOLISMQ_' . strtoupper('control') . "_ADDON";
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
 
+//Set numering modele for controldet object
 if ($action == 'setmodControlDet') {
-	$constforval = 'DIGIRISKDOLIBARR_' . strtoupper('controldet') . "_ADDON";
+	$constforval = 'DOLISMQ_' . strtoupper('controldet') . "_ADDON";
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
-
-
-//if ($action == 'setUserController') {
-//	if ( ! $error) {
-//		$constforval = 'DOLISMQ_' . strtoupper($type) . "_SET_USER_CONTROLLER";
-//		dolibarr_set_const($db, $constforval, $value, 'integer', 0, '', $conf->entity);
-//		setEventMessages($langs->trans("SetupSaved"), null, 'mesgs');
-//		$control->call_trigger(strtoupper(get_class($control)).'_SET_USER_CONTROLLER', $user);
-//		$allActions = $actioncomm->getActions($db);
-//		$lastAction = array_shift($allActions);
-//		setEventMessages($langs->trans("ActionSaved") . '<a target="_blank" href="' . dol_buildpath('/comm/action/card.php?id=' . $lastAction->id, 2) . '">' . $lastAction->id . '</a>',null, 'mesgs');
-//		header("Location: " . $_SERVER["PHP_SELF"]);
-//	}
-//}
 
 /*
  * View
  */
 
-$form = new Form($db);
+$help_url = 'FR:Module_DoliSMQ';
+$title    = $langs->trans("Control");
+$morejs   = array("/dolismq/js/dolismq.js.php");
+$morecss  = array("/dolismq/css/dolismq.css");
 
-$help_url   = 'FR:Module_DigiriskDolibarr#L.27onglet_.C3.89l.C3.A9ment_Digirisk';
-$title      = $langs->trans("Control");
-$textobject = $langs->transnoentitiesnoconv("Control");
-
-$morejs  = array("/dolismq/js/dolismq.js.php");
-$morecss = array("/dolismq/css/dolismq.css");
-
-llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
+llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);
 
 // Subheader
-$linkback = '<a href="' . ($backtopage ? $backtopage : DOL_URL_ROOT . '/admin/modules.php?restore_lastsearch_values=1') . '">' . $langs->trans("BackToModuleList") . '</a>';
+$linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?restore_lastsearch_values=1') . '">' . $langs->trans("BackToModuleList") . '</a>';
 
 print load_fiche_titre($title, $linkback, 'dolismq@dolismq');
 
@@ -142,7 +122,7 @@ print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
 print '<td>' . $langs->trans("Name") . '</td>';
 print '<td>' . $langs->trans("Description") . '</td>';
-print '<td class="nowrap">' . $langs->trans("Example") . '</td>';
+print '<td>' . $langs->trans("Example") . '</td>';
 print '<td class="center">' . $langs->trans("Status") . '</td>';
 print '<td class="center">' . $langs->trans("ShortInfo") . '</td>';
 print '</tr>';
@@ -191,7 +171,7 @@ if (is_dir($dir)) {
 						// Example for listing risks action
 						$htmltooltip  = '';
 						$htmltooltip .= '' . $langs->trans("Version") . ': <b>' . $module->getVersion() . '</b><br>';
-						$nextval      = $module->getNextValue($object_document);
+						$nextval      = $module->getNextValue($module);
 						if ("$nextval" != $langs->trans("NotAvailable")) {  // Keep " on nextval
 							$htmltooltip .= $langs->trans("NextValue") . ': ';
 							if ($nextval) {
@@ -221,7 +201,7 @@ if (is_dir($dir)) {
 print '</table>';
 
 /*
- *  Numbering module
+ *  Numbering module @todo il faut simplifier ça si on utilise pas les masques personnaliser
  */
 
 print load_fiche_titre($langs->trans("DoliSMQControlDetNumberingModule"), '', '');
@@ -230,7 +210,7 @@ print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
 print '<td>' . $langs->trans("Name") . '</td>';
 print '<td>' . $langs->trans("Description") . '</td>';
-print '<td class="nowrap">' . $langs->trans("Example") . '</td>';
+print '<td>' . $langs->trans("Example") . '</td>';
 print '<td class="center">' . $langs->trans("Status") . '</td>';
 print '<td class="center">' . $langs->trans("ShortInfo") . '</td>';
 print '</tr>';
@@ -279,7 +259,7 @@ if (is_dir($dir)) {
 						// Example for listing risks action
 						$htmltooltip  = '';
 						$htmltooltip .= '' . $langs->trans("Version") . ': <b>' . $module->getVersion() . '</b><br>';
-						$nextval      = $module->getNextValue($object_document);
+						$nextval      = $module->getNextValue($module);
 						if ("$nextval" != $langs->trans("NotAvailable")) {  // Keep " on nextval
 							$htmltooltip .= $langs->trans("NextValue") . ': ';
 							if ($nextval) {
@@ -308,6 +288,7 @@ if (is_dir($dir)) {
 
 print '</table>';
 
+//Control data
 print load_fiche_titre($langs->trans("ControlData"), '', '');
 
 print '<table class="noborder centpercent">';
@@ -317,7 +298,8 @@ print '<td>' . $langs->trans("Description") . '</td>';
 print '<td class="center">' . $langs->trans("Status") . '</td>';
 print '</tr>';
 
-print '<tr class="oddeven"><td>';
+//Display medias conf
+print '<tr><td>';
 print $langs->trans('DisplayMedias');
 print "</td><td>";
 print $langs->trans('DisplayMediasDescription');
@@ -328,7 +310,8 @@ print ajax_constantonoff('DOLISMQ_CONTROL_DISPLAY_MEDIAS');
 print '</td>';
 print '</tr>';
 
-print '<tr class="oddeven"><td>';
+//Show product conf
+print '<tr><td>';
 print $langs->trans('ShowProduct');
 print "</td><td>";
 print $langs->trans('ShowProductDescription');
@@ -339,7 +322,8 @@ print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_PRODUCT');
 print '</td>';
 print '</tr>';
 
-print '<tr class="oddeven"><td>';
+//Show productlot conf
+print '<tr><td>';
 print $langs->trans('ShowProductLot');
 print "</td><td>";
 print $langs->trans('ShowProductLotDescription');
@@ -350,7 +334,8 @@ print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_PRODUCTLOT');
 print '</td>';
 print '</tr>';
 
-print '<tr class="oddeven"><td>';
+//Show thirdparty conf
+print '<tr><td>';
 print $langs->trans('ShowThirdParty');
 print "</td><td>";
 print $langs->trans('ShowThirdPartyDescription');
@@ -361,7 +346,8 @@ print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_THIRDPARTY');
 print '</td>';
 print '</tr>';
 
-print '<tr class="oddeven"><td>';
+//Show project conf
+print '<tr><td>';
 print $langs->trans('ShowProject');
 print "</td><td>";
 print $langs->trans('ShowProjectDescription');
@@ -372,7 +358,8 @@ print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_PROJECT');
 print '</td>';
 print '</tr>';
 
-print '<tr class="oddeven"><td>';
+//Show task conf
+print '<tr><td>';
 print $langs->trans('ShowTask');
 print "</td><td>";
 print $langs->trans('ShowTaskDescription');
@@ -382,20 +369,10 @@ print '<td class="center">';
 print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_TASK');
 print '</td>';
 print '</tr>';
-
-//print '<tr class="oddeven"><td><label for="UserController">' . $langs->trans("UserController") . '</label></td>';
-//print '<td>' . $langs->trans("UserControllerDescription") . '</td>';
-//print '<td class="center">';
-//if ($conf->global->DOLISMQ_CONTROL_SET_USER_CONTROLLER) {
-//	print '<a class="reposition" href="'.$_SERVER["PHP_SELF"].'?action=setUserController&value=0" alt="'.$langs->trans("Default").'">'.img_picto($langs->trans("Activated"), 'switch_on').'</a>';
-//}
-//else {
-//	print '<a class="reposition" href="'.$_SERVER["PHP_SELF"].'?action=setUserController&value=1" alt="'.$langs->trans("Default").'">'.img_picto($langs->trans("Disabled"), 'switch_off').'</a>';
-//}
-//print '</td>';
-//print '</tr>';
 print '</table>';
-print '<br>';
+
+//Extrafields control management
+print load_fiche_titre($langs->trans("ExtrafieldsControlManagement"), '', '');
 
 require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_view.tpl.php';
 
@@ -408,17 +385,13 @@ if ($action != 'create' && $action != 'edit') {
 
 // Creation of an optional field
 if ($action == 'create') {
-	print "<br>";
 	print load_fiche_titre($langs->trans('NewAttribute'));
-
 	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_add.tpl.php';
 }
 
 // Edition of an optional field
 if ($action == 'edit' && !empty($attrname)) {
-	print "<br>";
 	print load_fiche_titre($langs->trans("FieldEdition", $attrname));
-
 	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_edit.tpl.php';
 }
 

@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2021 EOXIA <dev@eoxia.com>
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-
 
 /**
  * \file        class/control.class.php
@@ -85,11 +84,7 @@ class Control extends CommonObject
 		'fk_user_modif'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
 		'fk_sheet'           => array('type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5,),
 		'fk_user_controller' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'FKUserController','positioncard' => 1, 'enabled' => '1', 'position' => 24, 'notnull' => 1, 'visible' => 5, 'foreignkey' => 'user.rowid'),
-//		'fk_product'         => array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'Product', 'enabled' => '1', 'position' => 21, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'product.rowid'),
-//		'fk_lot'             => array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'Batch', 'enabled' => '1', 'position' => 22, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'productlot.rowid'),
-//		'fk_project'         => array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 26, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'project.rowid'),
-//		'fk_task'            => array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 27, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'task.rowid'),
-//		'fk_soc'             => array('type' => 'integer:Societe:societe/class/societe.class.php', 'label' => 'ThirdParty', 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'societe.rowid'),
+		'fk_project'         => array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'FKProject','positioncard' => 2, 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'projet.rowid'),
 	);
 
 	public $rowid;
@@ -107,11 +102,7 @@ class Control extends CommonObject
 	public $fk_user_modif;
 	public $fk_sheet;
 	public $fk_user_controller;
-//	public $fk_product;
-//	public $fk_lot;
-//	public $fk_project;
-//	public $fk_task;
-//	public $fk_soc;
+	public $fk_project;
 
 	/**
 	 * Constructor
@@ -159,88 +150,6 @@ class Control extends CommonObject
 	}
 
 	/**
-	 * Clone an object into another one
-	 *
-	 * @param  	User 	$user      	User that creates
-	 * @param  	int 	$fromid     Id of object to clone
-	 * @return 	mixed 				New object created, <0 if KO
-	 */
-	public function createFromClone(User $user, $fromid)
-	{
-		global $langs, $extrafields;
-		$error = 0;
-
-		dol_syslog(__METHOD__, LOG_DEBUG);
-
-		$object = new self($this->db);
-
-		$this->db->begin();
-
-		// Load source object
-		$result = $object->fetchCommon($fromid);
-		if ($result > 0 && ! empty($object->table_element_line)) $object->fetchLines();
-
-		// Reset some properties
-		unset($object->id);
-		unset($object->fk_user_creat);
-		unset($object->import_key);
-
-		// Clear fields
-		if (property_exists($object, 'ref')) $object->ref     = empty($this->fields['ref']['default']) ? "Copy_Of_" . $object->ref : $this->fields['ref']['default'];
-		if (property_exists($object, 'label')) $object->label = empty($this->fields['label']['default']) ? $langs->trans("CopyOf") . " " . $object->label : $this->fields['label']['default'];
-		if (property_exists($object, 'status')) { $object->status = self::STATUS_DRAFT; }
-		if (property_exists($object, 'date_creation')) { $object->date_creation = dol_now(); }
-		if (property_exists($object, 'date_modification')) { $object->date_modification = null; }
-		// ...
-		// Clear extrafields that are unique
-		if (is_array($object->array_options) && count($object->array_options) > 0) {
-			$extrafields->fetch_name_optionals_label($this->table_element);
-			foreach ($object->array_options as $key => $option) {
-				$shortkey = preg_replace('/options_/', '', $key);
-				if ( ! empty($extrafields->attributes[$this->table_element]['unique'][$shortkey])) {
-					//var_dump($key); var_dump($clonedObj->array_options[$key]); exit;
-					unset($object->array_options[$key]);
-				}
-			}
-		}
-
-		// Create clone
-		$object->context['createfromclone'] = 'createfromclone';
-		$result                             = $object->createCommon($user);
-		if ($result < 0) {
-			$error++;
-			$this->error  = $object->error;
-			$this->errors = $object->errors;
-		}
-
-		if ( ! $error) {
-			// copy internal contacts
-			if ($this->copy_linked_contact($object, 'internal') < 0) {
-				$error++;
-			}
-		}
-
-		if ( ! $error) {
-			// copy external contacts if same company
-			if (property_exists($this, 'socid') && $this->socid == $object->socid) {
-				if ($this->copy_linked_contact($object, 'external') < 0)
-					$error++;
-			}
-		}
-
-		unset($object->context['createfromclone']);
-
-		// End
-		if ( ! $error) {
-			$this->db->commit();
-			return $object;
-		} else {
-			$this->db->rollback();
-			return -1;
-		}
-	}
-
-	/**
 	 * Load object in memory from the database
 	 *
 	 * @param int    $id   Id object
@@ -262,11 +171,9 @@ class Control extends CommonObject
 	public function fetchLines()
 	{
 		$this->lines = array();
-
 		$result = $this->fetchLinesCommon();
 		return $result;
 	}
-
 
 	/**
 	 * Load list of objects in memory from the database.
@@ -281,8 +188,6 @@ class Control extends CommonObject
 	 */
 	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
 	{
-		global $conf;
-
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
 		$records = array();
@@ -329,6 +234,7 @@ class Control extends CommonObject
 
 				$record = new self($this->db);
 				$record->setVarsFromFetchObj($obj);
+				$record->fetchObjectLinked('', 'product', '', 'dolismq_control');
 
 				$records[$record->id] = $record;
 
@@ -367,144 +273,7 @@ class Control extends CommonObject
 	public function delete(User $user, $notrigger = false)
 	{
 		return $this->deleteCommon($user, $notrigger);
-		//return $this->deleteCommon($user, $notrigger, 1);
 	}
-
-	/**
-	 *  Delete a line of object in database
-	 *
-	 *	@param  User	$user       User that delete
-	 *  @param	int		$idline		Id of line to delete
-	 *  @param 	bool 	$notrigger  false=launch triggers after, true=disable triggers
-	 *  @return int         		>0 if OK, <0 if KO
-	 */
-	public function deleteLine(User $user, $idline, $notrigger = false)
-	{
-		if ($this->status < 0) {
-			$this->error = 'ErrorDeleteLineNotAllowedByObjectStatus';
-			return -2;
-		}
-
-		return $this->deleteLineCommon($user, $idline, $notrigger);
-	}
-
-
-	/**
-	 *	Validate object
-	 *
-	 *	@param		User	$user     		User making status change
-	 *  @param		int		$notrigger		1=Does not execute triggers, 0= execute triggers
-	 *	@return  	int						<=0 if OK, 0=Nothing done, >0 if KO
-	 */
-	public function validate($user, $notrigger = 0)
-	{
-		global $conf, $langs;
-
-		require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
-
-		$error = 0;
-
-		// Protection
-		if ($this->status == self::STATUS_VALIDATED) {
-			dol_syslog(get_class($this) . "::validate action abandonned: already validated", LOG_WARNING);
-			return 0;
-		}
-
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->control->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->control->control_advance->validate))))
-		 {
-		 $this->error='NotEnoughPermissions';
-		 dol_syslog(get_class($this)."::valid ".$this->error, LOG_ERR);
-		 return -1;
-		 }*/
-
-		$now = dol_now();
-
-		$this->db->begin();
-
-		// Define new ref
-		if ( ! $error && (preg_match('/^[\(]?PROV/i', $this->ref) || empty($this->ref))) { // empty should not happened, but when it occurs, the test save life
-			$num = $this->getNextNumRef();
-		} else {
-			$num = $this->ref;
-		}
-		$this->newref = $num;
-
-		if ( ! empty($num)) {
-			// Validate
-			$sql                                                  = "UPDATE " . MAIN_DB_PREFIX . $this->table_element;
-			$sql                                                 .= " SET ref = '" . $this->db->escape($num) . "',";
-			$sql                                                 .= " status = " . self::STATUS_VALIDATED;
-			if ( ! empty($this->fields['date_validation'])) $sql .= ", date_validation = '" . $this->db->idate($now) . "'";
-			if ( ! empty($this->fields['fk_user_valid'])) $sql   .= ", fk_user_valid = " . $user->id;
-			$sql                                                 .= " WHERE rowid = " . $this->id;
-
-			dol_syslog(get_class($this) . "::validate()", LOG_DEBUG);
-			$resql = $this->db->query($sql);
-			if ( ! $resql) {
-				dol_print_error($this->db);
-				$this->error = $this->db->lasterror();
-				$error++;
-			}
-
-			if ( ! $error && ! $notrigger) {
-				// Call trigger
-				$result = $this->call_trigger('AUDIT_VALIDATE', $user);
-				if ($result < 0) $error++;
-				// End call triggers
-			}
-		}
-
-		if ( ! $error) {
-			$this->oldref = $this->ref;
-
-			// Rename directory if dir was a temporary ref
-			if (preg_match('/^[\(]?PROV/i', $this->ref)) {
-				// Now we rename also files into index
-				$sql   = 'UPDATE ' . MAIN_DB_PREFIX . "ecm_files set filename = CONCAT('" . $this->db->escape($this->newref) . "', SUBSTR(filename, " . (strlen($this->ref) + 1) . ")), filepath = 'control/" . $this->db->escape($this->newref) . "'";
-				$sql  .= " WHERE filename LIKE '" . $this->db->escape($this->ref) . "%' AND filepath = 'control/" . $this->db->escape($this->ref) . "' and entity = " . $conf->entity;
-				$resql = $this->db->query($sql);
-				if ( ! $resql) { $error++; $this->error = $this->db->lasterror(); }
-
-				// We rename directory ($this->ref = old ref, $num = new ref) in order not to lose the attachments
-				$oldref    = dol_sanitizeFileName($this->ref);
-				$newref    = dol_sanitizeFileName($num);
-				$dirsource = $conf->dolismq->dir_output . '/control/' . $oldref;
-				$dirdest   = $conf->dolismq->dir_output . '/control/' . $newref;
-				if ( ! $error && file_exists($dirsource)) {
-					dol_syslog(get_class($this) . "::validate() rename dir " . $dirsource . " into " . $dirdest);
-
-					if (@rename($dirsource, $dirdest)) {
-						dol_syslog("Rename ok");
-						// Rename docs starting with $oldref with $newref
-						$listoffiles = dol_dir_list($conf->dolismq->dir_output . '/control/' . $newref, 'files', 1, '^' . preg_quote($oldref, '/'));
-						foreach ($listoffiles as $fileentry) {
-							$dirsource = $fileentry['name'];
-							$dirdest   = preg_replace('/^' . preg_quote($oldref, '/') . '/', $newref, $dirsource);
-							$dirsource = $fileentry['path'] . '/' . $dirsource;
-							$dirdest   = $fileentry['path'] . '/' . $dirdest;
-							@rename($dirsource, $dirdest);
-						}
-					}
-				}
-			}
-		}
-
-		// Set new ref and current status
-		if ( ! $error) {
-			$this->ref    = $num;
-			$this->status = self::STATUS_VALIDATED;
-		}
-
-		if ( ! $error) {
-			$this->db->commit();
-			return 1;
-		} else {
-			$this->db->rollback();
-			return -1;
-		}
-	}
-
 
 	/**
 	 *	Set draft status
@@ -547,52 +316,74 @@ class Control extends CommonObject
 		return $this->setStatusCommon($user, self::STATUS_LOCKED, $notrigger, 'CONTROL_LOCKED');
 	}
 
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *	Set cancel status
+	 *  Return if a control can be deleted
 	 *
-	 *	@param	User	$user			Object user that modify
-	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
-	 *	@return	int						<0 if KO, 0=Nothing done, >0 if OK
+	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function cancel($user, $notrigger = 0)
-	{
-		// Protection
-		if ($this->status != self::STATUS_VALIDATED) {
-			return 0;
-		}
-
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->dolismq_advance->validate))))
-		 {
-		 $this->error='Permission denied';
-		 return -1;
-		 }*/
-
-		return $this->setStatusCommon($user, self::STATUS_CANCELED, $notrigger, 'AUDIT_CANCEL');
+	public function is_erasable() {
+		return $this->is_linked_to_other_objects();
 	}
 
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *	Set back to validated status
+	 *  Return if a control is linked to another object
 	 *
-	 *	@param	User	$user			Object user that modify
-	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
-	 *	@return	int						<0 if KO, 0=Nothing done, >0 if OK
+	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function reopen($user, $notrigger = 0)
-	{
-		// Protection
-		if ($this->status != self::STATUS_CANCELED) {
-			return 0;
+	public function is_linked_to_other_objects() {
+
+		// Links between objects are stored in table element_element
+		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype';
+		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
+		$sql .= " WHERE fk_target = " . $this->id;
+		$sql .= " AND targettype = '" . $this->table_element . "'";
+
+		$resql = $this->db->query($sql);
+
+		if ($resql) {
+			$nbObjectsLinked = 0;
+			$num = $this->db->num_rows($resql);
+			$i = 0;
+			while ($i < $num) {
+				$nbObjectsLinked++;
+				$i++;
+			}
+			if ($nbObjectsLinked > 0) {
+				return -1;
+			} else {
+				return 1;
+			}
+		} else {
+			dol_print_error($this->db);
+			return -1;
 		}
+	}
 
-		/*if (! ((empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->write))
-		 || (! empty($conf->global->MAIN_USE_ADVANCED_PERMS) && ! empty($user->rights->dolismq->dolismq_advance->validate))))
-		 {
-		 $this->error='Permission denied';
-		 return -1;
-		 }*/
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
+	/**
+	 *  Delete control links to objects linked
+	 *
+	 *  @return    int         <=0 if no, >0 if yes
+	 */
+	public function delete_object_links() {
 
-		return $this->setStatusCommon($user, self::STATUS_VALIDATED, $notrigger, 'AUDIT_REOPEN');
+		// Links between objects are stored in table element_element
+		$sql = 'DELETE';
+		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
+		$sql .= " WHERE fk_target = " . $this->id;
+		$sql .= " AND targettype = '" . $this->table_element . "'";
+
+		$resql = $this->db->query($sql);
+
+		if ($resql) {
+			$this->db->commit();
+			return 1;
+		} else {
+			dol_print_error($this->db);
+			return -1;
+		}
 	}
 
 	/**
@@ -607,13 +398,13 @@ class Control extends CommonObject
 	 */
 	public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $save_lastsearch_value = -1)
 	{
-		global $conf, $langs, $hookmanager;
+		global $conf, $langs;
 
 		if ( ! empty($conf->dol_no_mouse_hover)) $notooltip = 1; // Force disable tooltips
 
 		$result = '';
 
-		$label = img_picto('', $this->picto) . ' <u>' . $langs->trans("Control") . '</u>';
+		$label = '<i class="fas fa-tasks"></i>' . ' <u>' . $langs->trans("Control") . '</u>';
 		if (isset($this->status)) {
 			$label .= ' ' . $this->getLibStatut(5);
 		}
@@ -644,34 +435,7 @@ class Control extends CommonObject
 		$linkend    = '</a>';
 
 		$result .= $linkstart;
-
-		if (empty($this->showphoto_on_popup)) {
-			if ($withpicto) $result .= img_object(($notooltip ? '' : $label), ($this->picto ? $this->picto : 'generic'), ($notooltip ? (($withpicto != 2) ? 'class="paddingright"' : '') : 'class="' . (($withpicto != 2) ? 'paddingright ' : '') . 'classfortooltip"'), 0, 0, $notooltip ? 0 : 1);
-		} else {
-			if ($withpicto) {
-				require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
-
-				list($class, $module) = explode('@', $this->picto);
-				$upload_dir           = $conf->$module->multidir_output[$conf->entity] . "/$class/" . dol_sanitizeFileName($this->ref);
-				$filearray            = dol_dir_list($upload_dir, "files");
-				$filename             = $filearray[0]['name'];
-				if ( ! empty($filename)) {
-					$pospoint = strpos($filearray[0]['name'], '.');
-
-					$pathtophoto = $class . '/' . $this->ref . '/thumbs/' . substr($filename, 0, $pospoint) . '_mini' . substr($filename, $pospoint);
-					if (empty($conf->global->{strtoupper($module . '_' . $class) . '_FORMATLISTPHOTOSASUSERS'})) {
-						$result .= '<div class="floatleft inline-block valignmiddle divphotoref"><div class="photoref"><img class="photo' . $module . '" alt="No photo" border="0" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $module . '&entity=' . $conf->entity . '&file=' . urlencode($pathtophoto) . '"></div></div>';
-					} else {
-						$result .= '<div class="floatleft inline-block valignmiddle divphotoref"><img class="photouserphoto userphoto" alt="No photo" border="0" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $module . '&entity=' . $conf->entity . '&file=' . urlencode($pathtophoto) . '"></div>';
-					}
-
-					$result .= '</div>';
-				} else {
-					$result .= img_object(($notooltip ? '' : $label), ($this->picto ? $this->picto : 'generic'), ($notooltip ? (($withpicto != 2) ? 'class="paddingright"' : '') : 'class="' . (($withpicto != 2) ? 'paddingright ' : '') . 'classfortooltip"'), 0, 0, $notooltip ? 0 : 1);
-				}
-			}
-		}
-
+		if ($withpicto) $result      .= '<i class="fas fa-tasks"></i>' . ' ';
 		if ($withpicto != 2) $result .= $this->ref;
 
 		$result .= $linkend;
@@ -697,6 +461,18 @@ class Control extends CommonObject
 	{
 		return $this->LibStatut($this->status, $mode);
 	}
+
+	/**
+	 *  Return the label of the status
+	 *
+	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
+	 *  @return	string 			       Label of status
+	 */
+	public function getLibVerdict($mode = 0)
+	{
+		return $this->LibVerdict($this->verdict, $mode);
+	}
+
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
@@ -725,6 +501,30 @@ class Control extends CommonObject
 		if ($status == self::STATUS_LOCKED) $statusType = 'status4';
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
+	}
+
+	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
+	/**
+	 *  Return the status
+	 *
+	 *  @param	int		$verdict        Id status
+	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
+	 *  @return string 			       Label of status
+	 */
+	public function LibVerdict($verdict, $mode = 0)
+	{
+		global $langs;
+
+		$this->labelStatus[0] = $langs->trans('NA');
+		$this->labelStatus[1] = $langs->trans('OK');
+		$this->labelStatus[2] = $langs->trans('KO');
+
+		$verdictType = 'status' . $verdict;
+		if ($verdict == 0) $verdictType = 'status6';
+		if ($verdict == 1) $verdictType = 'status4';
+		if ($verdict == 2) $verdictType = 'status8';
+
+		return dolGetStatus($this->labelStatus[$verdict], $this->labelStatusShort[$verdict], '', $verdictType, $mode);
 	}
 
 	/**
@@ -807,61 +607,6 @@ class Control extends CommonObject
 	}
 
 	/**
-	 *  Returns the reference to the following non used object depending on the active numbering module.
-	 *
-	 *  @return string      		Object free reference
-	 */
-	public function getNextNumRef()
-	{
-		global $langs, $conf;
-		$langs->load("dolismq@dolismq");
-
-		if (empty($conf->global->DOLISMQ_AUDIT_ADDON)) {
-			$conf->global->DOLISMQ_AUDIT_ADDON = 'mod_control_standard';
-		}
-
-		if ( ! empty($conf->global->DOLISMQ_AUDIT_ADDON)) {
-			$mybool = false;
-
-			$file      = $conf->global->DOLISMQ_AUDIT_ADDON . ".php";
-			$classname = $conf->global->DOLISMQ_AUDIT_ADDON;
-
-			// Include file with class
-			$dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
-			foreach ($dirmodels as $reldir) {
-				$dir = dol_buildpath($reldir . "core/modules/dolismq/");
-
-				// Load file with numbering class (if found)
-				$mybool |= @include_once $dir . $file;
-			}
-
-			if ($mybool === false) {
-				dol_print_error('', "Failed to include file " . $file);
-				return '';
-			}
-
-			if (class_exists($classname)) {
-				$obj    = new $classname();
-				$numref = $obj->getNextValue($this);
-
-				if ($numref != '' && $numref != '-1') {
-					return $numref;
-				} else {
-					$this->error = $obj->error;
-					//dol_print_error($this->db,get_class($this)."::getNextNumRef ".$obj->error);
-					return "";
-				}
-			} else {
-				print $langs->trans("Error") . " " . $langs->trans("ClassNotFound") . ' ' . $classname;
-				return "";
-			}
-		} else {
-			print $langs->trans("ErrorNumberingModuleNotSetup", $this->element);
-			return "";
-		}
-	}
-
-	/**
 	 *  Create a document onto disk according to template module.
 	 *
 	 *  @param	    string		$modele			Force template to use ('' to not force)
@@ -899,37 +644,6 @@ class Control extends CommonObject
 
 		return $result;
 	}
-
-	/**
-	 * Action executed by scheduler
-	 * CAN BE A CRON TASK. In such a case, parameters come from the schedule job setup field 'Parameters'
-	 * Use public function doScheduledJob($param1, $param2, ...) to get parameters
-	 *
-	 * @return	int			0 if OK, <>0 if KO (this function is used also by cron so only 0 is OK)
-	 */
-	public function doScheduledJob()
-	{
-		global $conf, $langs;
-
-		//$conf->global->SYSLOG_FILE = 'DOL_DATA_ROOT/dolibarr_mydedicatedlofile.log';
-
-		$error        = 0;
-		$this->output = '';
-		$this->error  = '';
-
-		dol_syslog(__METHOD__, LOG_DEBUG);
-
-		$now = dol_now();
-
-		$this->db->begin();
-
-		// ...
-
-		$this->db->commit();
-
-		return $error;
-	}
-
 
 	/**
 	 *	Fetch array of objects linked to current object (object of enabled modules only). Links are loaded into
@@ -1075,8 +789,8 @@ class Control extends CommonObject
 			return -1;
 		}
 	}
-
 }
+
 class ControlLine extends CommonObjectLine
 {
 	/**
@@ -1128,7 +842,7 @@ class ControlLine extends CommonObjectLine
 	 */
 	public function __construct(DoliDB $db)
 	{
-		global $conf, $langs;
+		global $conf;
 
 		$this->db = $db;
 
@@ -1145,7 +859,6 @@ class ControlLine extends CommonObjectLine
 	public function fetch($rowid)
 	{
 		global $db;
-
 
 		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
@@ -1176,7 +889,7 @@ class ControlLine extends CommonObjectLine
 	}
 
 	/**
-	 *    Load preventionplan line line from database
+	 *    Load control line from database
 	 *
 	 * @param int $parent_id
 	 * @param int $limit
@@ -1188,7 +901,6 @@ class ControlLine extends CommonObjectLine
 		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answser_photo, t.comment, t.fk_question, t.fk_control ';
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
-
 
 		$result = $db->query($sql);
 
@@ -1226,7 +938,7 @@ class ControlLine extends CommonObjectLine
 	}
 
 	/**
-	 *    Load preventionplan line line from database
+	 *    Load control line from database and from parent
 	 *
 	 * @param int $parent_id
 	 * @param int $limit
@@ -1276,7 +988,7 @@ class ControlLine extends CommonObjectLine
 	}
 
 	/**
-	 *    Load preventionplan line line from database
+	 *    Load control line from database form parent with question
 	 *
 	 * @param int $control_id
 	 * @param int $question_id

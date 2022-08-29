@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2021 SuperAdmin
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 /**
  * \file    lib/dolismq.lib.php
  * \ingroup dolismq
- * \brief   Library files with common functions for DoliSMQ
+ * \brief   Library files with common functions for Admin conf
  */
 
 /**
@@ -28,37 +28,33 @@
  */
 function dolismqAdminPrepareHead()
 {
-	global $langs, $conf;
+	// Global variables definitions
+	global $conf, $langs;
 
+	// Load translation files required by the page
 	$langs->load("dolismq@dolismq");
 
+	// Initialize values
 	$h = 0;
 	$head = array();
 
-	/*
-	$head[$h][0] = dol_buildpath("/dolismq/admin/myobject_extrafields.php", 1);
-	$head[$h][1] = $langs->trans("ExtraFields");
-	$head[$h][2] = 'myobject_extrafields';
-	$h++;
-	*/
-
 	$head[$h][0] = dol_buildpath("/dolismq/admin/question.php", 1);
-	$head[$h][1] = $langs->trans("Question");
+	$head[$h][1] = '<i class="fas fa-question"></i>  ' . $langs->trans("Question");
 	$head[$h][2] = 'question';
 	$h++;
 
 	$head[$h][0] = dol_buildpath("/dolismq/admin/sheet.php", 1);
-	$head[$h][1] = $langs->trans("Sheet");
+	$head[$h][1] = '<i class="fas fa-list"></i>  ' . $langs->trans("Sheet");
 	$head[$h][2] = 'sheet';
 	$h++;
 
 	$head[$h][0] = dol_buildpath("/dolismq/admin/control.php", 1);
-	$head[$h][1] = $langs->trans("Control");
+	$head[$h][1] = '<i class="fas fa-tasks"></i>  ' . $langs->trans("Control");
 	$head[$h][2] = 'control';
 	$h++;
 
 	$head[$h][0] = dol_buildpath("/dolismq/admin/controldocument.php", 1);
-	$head[$h][1] = $langs->trans("ControlDocument");
+	$head[$h][1] = '<i class="fas fa-file"></i>  ' . $langs->trans("ControlDocument");
 	$head[$h][2] = 'controldocument';
 	$h++;
 

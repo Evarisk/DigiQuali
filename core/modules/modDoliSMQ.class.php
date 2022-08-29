@@ -1,8 +1,5 @@
 <?php
-/* Copyright (C) 2004-2018  Laurent Destailleur     <eldy@users.sourceforge.net>
- * Copyright (C) 2018-2019  Nicolas ZABOURI         <info@inovea-conseil.com>
- * Copyright (C) 2019-2020  Frédéric France         <frederic.france@netlogic.fr>
- * Copyright (C) 2019-2022 Eoxia <dev@eoxia.com>
+/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +19,7 @@
  * 	\defgroup   dolismq     Module DoliSMQ
  *  \brief      DoliSMQ module descriptor.
  *
- *  \file       htdocs/dolismq/core/modules/modDoliSMQ.class.php
+ *  \file       core/modules/modDoliSMQ.class.php
  *  \ingroup    dolismq
  *  \brief      Description and activation file for module DoliSMQ
  */
@@ -72,7 +69,7 @@ class modDoliSMQ extends DolibarrModules
 		$this->editor_url = 'https://evarisk.com/';
 
 		// Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-		$this->version = '1.2.0';
+		$this->version = '1.3.0';
 		// Url to the file with your last numberversion of this module
 		//$this->url_last_version = 'http://www.example.com/versionmodule.txt';
 
@@ -115,11 +112,8 @@ class modDoliSMQ extends DolibarrModules
 			),
 			// Set here all hooks context managed by module. To find available hook context, make a "grep -r '>initHooks(' *" on source code. You can also set hook context to 'all'
 			'hooks' => array(
-				//   'data' => array(
-				//       'hookcontext1',
-				//       'hookcontext2',
-				//   ),
-				//   'entity' => '0',
+				'category',
+				'categoryindex'
 			),
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -142,7 +136,7 @@ class modDoliSMQ extends DolibarrModules
 		// A condition to hide module
 		$this->hidden = false;
 		// List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
-		$this->depends = array('modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM', 'modProjet');
+		$this->depends = array('modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM', 'modProjet', 'modCategorie');
 		$this->requiredby = array(); // List of module class names as string to disable if this one is disabled. Example: array('modModuleToDisable1', ...)
 		$this->conflictwith = array(); // List of module class names as string this module is in conflict with. Example: array('modModuleToDisable1', ...)
 
@@ -167,6 +161,8 @@ class modDoliSMQ extends DolibarrModules
 		$this->const = array(
 			// CONST SHEET
 			1 => array('DOLISMQ_SHEET_ADDON', 'chaine', 'mod_sheet_standard', '', 0, 'current'),
+			2 => array('DOLISMQ_SHEET_TAGS_SET', 'integer', 0, '', 0, 'current'),
+			3 => array('DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT', 'integer', 1, '', 0, 'current'),
 
 			// CONST QUESTION
 			10 => array('DOLISMQ_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'),
@@ -174,12 +170,11 @@ class modDoliSMQ extends DolibarrModules
 			// CONST CONTROL
 			20 => array('DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'),
 			21 => array('DOLISMQ_CONTROL_DISPLAY_MEDIAS', 'integer', 1, '', 0, 'current'),
-			//22 => array('DOLISMQ_CONTROL_SET_USER_CONTROLLER', 'integer', 0, '', 0, 'current'),
-			23 => array('DOLISMQ_CONTROL_SHOW_PRODUCT', 'integer', 0, '', 0, 'current'),
-			24 => array('DOLISMQ_CONTROL_SHOW_PRODUCTLOT', 'integer', 0, '', 0, 'current'),
-			25 => array('DOLISMQ_CONTROL_SHOW_THIRDPARTY', 'integer', 0, '', 0, 'current'),
-			26 => array('DOLISMQ_CONTROL_SHOW_PROJECT', 'integer', 0, '', 0, 'current'),
-			27 => array('DOLISMQ_CONTROL_SHOW_TASK', 'integer', 0, '', 0, 'current'),
+			22 => array('DOLISMQ_CONTROL_SHOW_PRODUCT', 'integer', 0, '', 0, 'current'),
+			23 => array('DOLISMQ_CONTROL_SHOW_PRODUCTLOT', 'integer', 0, '', 0, 'current'),
+			24 => array('DOLISMQ_CONTROL_SHOW_THIRDPARTY', 'integer', 0, '', 0, 'current'),
+			25 => array('DOLISMQ_CONTROL_SHOW_PROJECT', 'integer', 0, '', 0, 'current'),
+			26 => array('DOLISMQ_CONTROL_SHOW_TASK', 'integer', 0, '', 0, 'current'),
 
 			//CONST CONTROL DOCUMENT
 			30 => array('DOLISMQ_CONTROLDOCUMENT_ADDON', 'chaine', 'mod_controldocument_standard', '', 0, 'current'),
@@ -207,11 +202,12 @@ class modDoliSMQ extends DolibarrModules
 		// Array to add new pages in new tabs
 		$this->tabs = array();
 		// Example:
-		$this->tabs[]    = array('data' => 'productlot:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=productbatch');
-		$this->tabs[]    = array('data' => 'product:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=product'); // To add a new tab identified by code tabname1
-		$this->tabs[]    = array('data' => 'project:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project');  					// To add a new tab identified by code tabname1
-		$this->tabs[]    = array('data' => 'thirdparty:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=societe');  					// To add a new tab identified by code tabname1
-		$this->tabs[]    = array('data' => 'task:+control:Control:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project_task');  					// To add a new tab identified by code tabname1
+		$this->tabs[]    = array('data' => 'productlot:+control:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=productbatch');
+		$this->tabs[]    = array('data' => 'product:+control:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=product'); // To add a new tab identified by code tabname1
+		$this->tabs[]    = array('data' => 'project:+control:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project');  					// To add a new tab identified by code tabname1
+		$this->tabs[]    = array('data' => 'thirdparty:+control:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=societe');  					// To add a new tab identified by code tabname1
+		$this->tabs[]    = array('data' => 'task:+control:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project_task');  					// To add a new tab identified by code tabname1
+		$this->tabs[]    = array('data' => 'user:+control:Controls:dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=user');  					// To add a new tab identified by code tabname1
 
 		// Dictionaries
 		$this->dictionaries = array();
@@ -241,14 +237,7 @@ class modDoliSMQ extends DolibarrModules
 
 		// Boxes/Widgets
 		// Add here list of php file(s) stored in dolismq/core/boxes that contains a class to show a widget.
-		$this->boxes = array(
-			//  0 => array(
-			//      'file' => 'dolismqwidget1.php@dolismq',
-			//      'note' => 'Widget provided by DoliSMQ',
-			//      'enabledbydefaulton' => 'Home',
-			//  ),
-			//  ...
-		);
+		$this->boxes = array();
 
 		// Cronjobs (List of cron jobs entries to add when module is enabled)
 		// unit_frequency must be 60 for minute, 3600 for hour, 86400 for day, 604800 for week
@@ -376,108 +365,108 @@ class modDoliSMQ extends DolibarrModules
 		);
 
 		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq',
-			'type'=>'left',
-			'titre'=>$langs->trans('QuestionList'),
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_question',
-			'url'=>'/dolismq/view/question/question_list.php',
-			'langs'=>'dolismq@dolismq',
-			'position'=>1100+$r,
-			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'$user->rights->dolismq->question->read',
-			'target'=>'',
-			'user'=>2,
-		);
-
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_question',
-			'type'=>'left',
-			'titre'=>$langs->trans('AddQuestion'),
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_question',
-			'url'=>'/dolismq/view/question/question_card.php?action=create',
-			'langs'=>'dolismq@dolismq',
-			'position'=>1100+$r,
-			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'$user->rights->dolismq->question->write',
-			'target'=>'',
-			'user'=>2
-		);
-
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq',
-			'type'=>'left',
-			'titre'=>$langs->trans('SheetList'),
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_sheet',
-			'url'=>'/dolismq/view/sheet/sheet_list.php',
-			'langs'=>'dolismq@dolismq',
-			'position'=>1100+$r,
-			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'$user->rights->dolismq->sheet->read',
-			'target'=>'',
-			'user'=>2,
-		);
-
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_sheet',
-			'type'=>'left',
-			'titre'=>$langs->trans('AddSheet'),
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_sheet',
-			'url'=>'/dolismq/view/sheet/sheet_card.php?action=create',
-			'langs'=>'dolismq@dolismq',
-			'position'=>1100+$r,
-			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'$user->rights->dolismq->sheet->write',
-			'target'=>'',
-			'user'=>2
-		);
-
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq',
-			'type'=>'left',
-			'titre'=>$langs->trans('ControlList'),
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_control',
-			'url'=>'/dolismq/view/control/control_list.php',
-			'langs'=>'dolismq@dolismq',
-			'position'=>1100+$r,
-			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'$user->rights->dolismq->control->read',
-			'target'=>'',
-			'user'=>2,
-		);
-
-		$this->menu[$r++]=array(
-			'fk_menu'=>'fk_mainmenu=dolismq,fk_leftmenu=dolismq_control',
-			'type'=>'left',
-			'titre'=>$langs->trans('AddControl'),
-			'mainmenu'=>'dolismq',
-			'leftmenu'=>'dolismq_control',
-			'url'=>'/dolismq/view/control/control_card.php?action=create',
-			'langs'=>'dolismq@dolismq',
-			'position'=>1100+$r,
-			'enabled'=>'$conf->dolismq->enabled',
-			'perms'=>'$user->rights->dolismq->control->write',
-			'target'=>'',
-			'user'=>2
+			'fk_menu'  => 'fk_mainmenu=dolismq',
+			'type'     => 'left',
+			'titre'    => '<i class="fas fa-question"></i>  ' . $langs->trans('Question'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq_question',
+			'url'      => '/dolismq/view/question/question_list.php',
+			'langs'    => 'dolismq@dolismq',
+			'position' => 1100 + $r,
+			'enabled'  => '$conf->dolismq->enabled',
+			'perms'    => '$user->rights->dolismq->question->read',
+			'target'   => '',
+			'user'     => 2,
 		);
 
 		$this->menu[$r++] = array(
-			'fk_menu' => 'fk_mainmenu=dolismq',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type' => 'left',			                // This is a Left menu entry
-			'titre' => '<i class="fas fa-cog"></i>  ' . $langs->trans('DoliSMQConfig'),
+			'fk_menu'  => 'fk_mainmenu=dolismq,fk_leftmenu=dolismq_question',
+			'type'     => 'left',
+			'titre'    => '<i class="fas fa-tags"></i>  ' . $langs->trans('Categories'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq_question',
+			'url'      => '/categories/index.php?type=question',
+			'langs'    => 'ticket',
+			'position' => 1100 + $r,
+			'enabled'  => '$conf->dolismq->enabled && $conf->categorie->enabled',
+			'perms'    => '$user->rights->dolismq->question->read',
+			'target'   => '',
+			'user'     => 0,
+		);
+
+		$this->menu[$r++]=array(
+			'fk_menu'  => 'fk_mainmenu=dolismq',
+			'type'     => 'left',
+			'titre'    => '<i class="fas fa-list"></i>  ' . $langs->trans('Sheet'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq_sheet',
+			'url'      => '/dolismq/view/sheet/sheet_list.php',
+			'langs'    => 'dolismq@dolismq',
+			'position' => 1100 + $r,
+			'enabled'  => '$conf->dolismq->enabled',
+			'perms'    => '$user->rights->dolismq->sheet->read',
+			'target'   => '',
+			'user'     => 2,
+		);
+
+		$this->menu[$r++] = array(
+			'fk_menu'  => 'fk_mainmenu=dolismq,fk_leftmenu=dolismq_sheet',
+			'type'     => 'left',
+			'titre'    => '<i class="fas fa-tags"></i>  ' . $langs->trans('Categories'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq_sheet',
+			'url'      => '/categories/index.php?type=sheet',
+			'langs'    => 'ticket',
+			'position' => 1100 + $r,
+			'enabled'  => '$conf->dolismq->enabled && $conf->categorie->enabled',
+			'perms'    => '$user->rights->dolismq->sheet->read',
+			'target'   => '',
+			'user'     => 0,
+		);
+
+		$this->menu[$r++]=array(
+			'fk_menu'  => 'fk_mainmenu=dolismq',
+			'type'     => 'left',
+			'titre'    => '<i class="fas fa-tasks"></i>  ' . $langs->trans('Control'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq_control',
+			'url'      => '/dolismq/view/control/control_list.php',
+			'langs'    => 'dolismq@dolismq',
+			'position' => 1100 + $r,
+			'enabled'  => '$conf->dolismq->enabled',
+			'perms'    => '$user->rights->dolismq->control->read',
+			'target'   => '',
+			'user'     => 2,
+		);
+
+		$this->menu[$r++] = array(
+			'fk_menu'  => 'fk_mainmenu=dolismq',	    // '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
+			'type'     => 'left',			                // This is a Left menu entry
+			'titre'    => '<i class="fas fa-cog"></i>  ' . $langs->trans('DoliSMQConfig'),
 			'mainmenu' => 'dolismq',
 			'leftmenu' => 'dolismq',
-			'url' => '/dolismq/admin/setup.php',
-			'langs' => 'dolismq@dolismq',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'url'      => '/dolismq/admin/setup.php',
+			'langs'    => 'dolismq@dolismq',	        // Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
 			'position' => 1100 + $r,
-			'enabled' => '$conf->dolismq->enabled',  // Define condition to show or hide menu entry. Use '$conf->digiriskdolibarr->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
-			'perms' => '$user->rights->dolismq->adminpage->read',			                // Use 'perms'=>'$user->rights->digiriskdolibarr->level1->level2' if you want your menu with a permission rules
-			'target' => '',
-			'user' => 0,				                // 0=Menu for internal users, 1=external users, 2=both
+			'enabled'  => '$conf->dolismq->enabled',  // Define condition to show or hide menu entry. Use '$conf->dolismq->enabled' if entry must be visible if module is enabled. Use '$leftmenu==\'system\'' to show if leftmenu system is selected.
+			'perms'    => '$user->rights->dolismq->adminpage->read',			                // Use 'perms'=>'$user->rights->dolismq->level1->level2' if you want your menu with a permission rules
+			'target'   => '',
+			'user'     => 0,				                // 0=Menu for internal users, 1=external users, 2=both
+		);
+
+		$this->menu[$r++] = array(
+			'fk_menu'  => 'fk_mainmenu=dolismq',
+			'type'     => 'left',
+			'titre'    => '<span class="minimizeMenu" title="'. $langs->transnoentities('MinimizeMenu') .'"><i class="fas fa-bars"></i>  ' . $langs->transnoentities('MinimizeMenu') . '</span>',
+			'mainmenu' => 'dolismq',
+			'leftmenu' => '',
+			'url'      => '',
+			'langs'    => 'dolismq@dolismq',
+			'position' => 1100 + $r,
+			'enabled'  => '$conf->dolismq->enabled',
+			'perms'    => 1,
+			'target'   => '',
+			'user'     => 0,
 		);
 	}
 

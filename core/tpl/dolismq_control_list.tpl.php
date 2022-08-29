@@ -46,6 +46,18 @@ foreach($element_element_fields as $generic_name => $element_element_name) {
 		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $element_element_name .' on ('. $element_element_name .'.fk_source = ' . $id_to_search . ' AND '. $element_element_name .'.sourcetype="'. $element_element_name .'" AND '. $element_element_name .'.targettype = "dolismq_control")';
 	}
 }
+$specific_sortfields = array(
+	't.fk_product' => 'product',
+	't.fk_thirdparty' => 'societe',
+	't.fk_project' => 'project',
+	't.fk_lot' => 'productbatch',
+	't.fk_task' => 'project_task'
+);
+
+if (array_key_exists($sortfield,$specific_sortfields)) {
+	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $specific_sortfields[$sortfield] .' on ( '. $specific_sortfields[$sortfield] .'.sourcetype="'. $specific_sortfields[$sortfield] .'" AND '. $specific_sortfields[$sortfield] .'.targettype = "dolismq_control" AND '. $specific_sortfields[$sortfield] .'.fk_target = t.rowid)';
+}
+
 
 // Add table from hooks
 $parameters = array();
@@ -104,8 +116,11 @@ $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters, $object); // Note that $action and $object may have been modified by hook
 $sql .= $hookmanager->resPrint;
 
-$sql .= $db->order($sortfield, $sortorder);
-
+if (array_key_exists($sortfield, $specific_sortfields)) {
+	$sql .= ' ORDER BY '. $specific_sortfields[$sortfield] .'.fk_source ' . $sortorder;
+} else {
+	$sql .= $db->order($sortfield, $sortorder);
+}
 // Count total nb of records
 $nbtotalofrecords = '';
 if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST)) {
@@ -144,9 +159,11 @@ if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $
 // --------------------------------------------------------------------
 
 $arrayofselected = is_array($toselect) ? $toselect : array();
+$extraparams = $fromtype && $fromid ? '?fromtype=' . $fromtype . '&fromid=' . $fromid : '';
 
 $param = '';
 if (!empty($contextpage) && $contextpage != $_SERVER["PHP_SELF"]) $param .= '&contextpage='.urlencode($contextpage);
+$param .= $fromtype && $fromid ? '&fromtype=' . $fromtype . '&fromid=' . $fromid : '';
 if ($limit > 0 && $limit != $conf->liste_limit) $param .= '&limit='.urlencode($limit);
 foreach ($search as $key => $val)
 {
@@ -167,8 +184,6 @@ $arrayofmassactions = array(
 if ($permissiontodelete) $arrayofmassactions['predelete'] = '<span class="fa fa-trash paddingrightonly"></span>'.$langs->trans("Delete");
 if (GETPOST('nomassaction', 'int') || in_array($massaction, array('presend', 'predelete'))) $arrayofmassactions = array();
 $massactionbutton = $form->selectMassAction('', $arrayofmassactions);
-
-$extraparams = $fromtype && $fromid ? '?fromtype=' . $fromtype . '&fromid=' . $fromid : '';
 
 print '<form method="POST" id="searchFormList" action="'.$_SERVER["PHP_SELF"].$extraparams.'">'."\n";
 if ($optioncss != '') print '<input type="hidden" name="optioncss" value="'.$optioncss.'">';
@@ -237,7 +252,7 @@ foreach ($object->fields as $key => $val)
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
 		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) print $form->selectarray('search_'.$key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
 		elseif ($key == 'fk_sheet') {
-			print $sheet->select_sheet_list(GETPOST('fk_sheet'));
+			print $sheet->select_sheet_list(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : GETPOST('search_fk_sheet'), 'search_fk_sheet');
 		}
 		elseif (strpos($val['type'], 'integer:') === 0) {
 			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'maxwidth125', 1);
@@ -408,9 +423,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
 
 	$i++;
 }
-
-// Show total line
-include DOL_DOCUMENT_ROOT . '/core/tpl/list_print_total.tpl.php';
 
 // If no record found
 if ($num == 0)

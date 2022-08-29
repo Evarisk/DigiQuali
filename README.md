@@ -2,9 +2,9 @@
 
 ## Informations
 
-Version du module: 1.2.0
+Version du module: 1.3.0
 
-Dernière mise à jour: 04/05/2022
+Dernière mise à jour: 21/06/2022
 
 Prérequis:
 * Dolibarr min version 14.0.0
@@ -19,9 +19,9 @@ Assitance: [Forum www.dolibarr.fr](https://www.dolibarr.fr) / Par mail à contac
 Demo: [Demo Dolismq](https://www.demodoli.digirisk.com) - ID: demo - Password: demo
 
 <!--
-Documentation: [Wiki Dolismq](https://wiki.dolibarr.org/index.php/Module_DigiriskDolibarr)
+Documentation: [Wiki DoliSMQ](https://wiki.dolibarr.org/index.php/Module_DoliSMQ)
 
-Forum: [Forum Digirisk](https://www.dolibarr.fr/forum/t/module-digirisk-document-unique/37119)
+Forum: [Forum DoliSMQ]
 -->
 
 ## Features

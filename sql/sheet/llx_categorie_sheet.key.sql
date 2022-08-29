@@ -13,10 +13,8 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see https://www.gnu.org/licenses/.
 
-ALTER TABLE llx_dolismq_control ADD INDEX idx_dolismq_control_rowid (rowid);
-ALTER TABLE llx_dolismq_control ADD INDEX idx_dolismq_control_ref (ref);
-ALTER TABLE llx_dolismq_control ADD INDEX idx_dolismq_control_status (status);
-ALTER TABLE llx_dolismq_control ADD CONSTRAINT llx_dolismq_control_fk_user_creat FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid);
-ALTER TABLE llx_dolismq_control ADD INDEX idx_dolismq_control_fk_sheet (fk_sheet);
-ALTER TABLE llx_dolismq_control ADD INDEX idx_dolismq_control_fk_user_controller (fk_user_controller);
-ALTER TABLE llx_dolismq_control ADD INDEX idx_dolismq_control_fk_project (fk_project);
+ALTER TABLE llx_categorie_sheet ADD PRIMARY KEY pk_categorie_sheet (fk_categorie, fk_sheet);
+ALTER TABLE llx_categorie_sheet ADD INDEX idx_categorie_sheet_fk_categorie (fk_categorie);
+ALTER TABLE llx_categorie_sheet ADD INDEX idx_categorie_sheet_fk_sheet (fk_sheet);
+ALTER TABLE llx_categorie_sheet ADD CONSTRAINT fk_categorie_sheet_categorie_rowid FOREIGN KEY (fk_categorie) REFERENCES llx_categorie (rowid);
+ALTER TABLE llx_categorie_sheet ADD CONSTRAINT fk_categorie_sheet_dolismq_sheet_rowid FOREIGN KEY (fk_sheet) REFERENCES llx_dolismq_sheet (rowid);
