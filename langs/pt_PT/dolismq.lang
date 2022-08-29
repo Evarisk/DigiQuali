@@ -1,0 +1,262 @@
+# Copyright (C) 2021 SuperAdmin
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+#
+# Générique
+#
+
+# Module label 'ModuleDoliSMQName'
+ModuleDoliSMQName =DoliSMQ
+# Module description 'ModuleDoliSMQDesc'
+ModuleDoliSMQDesc =Descrição do DoliSMQ
+
+#
+# Page d'administration
+#
+
+# Data - Donnée
+DoliSMQSetup =Configuração do Módulo DoliSMQ
+Settings =Definições
+DoliSMQSetupPage =Página de configuração do módulo DoliSMQ
+
+#
+# Page À propos
+#
+About =Sobre
+DoliSMQAbout =Sobre o DoliSMQ
+DoliSMQAboutPage =Página sobre DoliSMQ
+
+#
+# Page d'exemple
+#
+MyPageName =nome da minha página
+
+#
+# Box d'exemple
+#
+MyWidget =Meu widget
+MyWidgetDescription =Descrição do meu widget
+
+#
+# Traduction pour DoliSMQ
+#
+
+DoliSMQHelpAuditDateStart =A data de início da auditoria
+Or =Onde
+SelectProductsOrServices =Selecione um produto/serviço
+DoliSMQNumberOfModelFilesFound =Número de modelos padrão
+DoliSMQConfig =Configuração do módulo
+
+
+
+#
+# Questions
+#
+
+# Rights - Droits
+ReadQuestion =Consultar perguntas
+CreateQuestion =Criar/editar perguntas
+DeleteQuestion =Excluir perguntas
+
+# Trigger - Déclencheur
+QuestionCreateTrigger =Pergunta criada
+QuestionModifyTrigger =Pergunta editada
+QuestionDeleteTrigger =Pergunta excluída
+QuestionLockedTrigger =pergunta bloqueada
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQQuestionNumberingModule =Padrão de numeração de perguntas DoliSMQ
+DoliSMQQuestionStandardModel =Retorna o número no formato QUn onde n é um contador sequencial sem quebra e sem reset para 0.
+
+# Data - Donnée
+AddQuestion =Adicionar pergunta
+NewQuestion =nova pergunta
+QuestionList =Lista de perguntas
+LinkedQuestionsList =Listas de perguntas relacionadas
+addQuestionLink =Pergunta adicionada à folha de modelo:
+removeQuestionLink =Pergunta removida da planilha de modelo:
+LockQuestion =Bloquear pergunta
+ConfirmLockQuestion =Tem certeza de que deseja bloquear a pergunta?<br> O bloqueio impede qualquer alteração na pergunta.
+LockQuestions =Todas as perguntas selecionadas são alteradas para o status bloqueado
+QuestionManagement =Gerenciamento de perguntas
+ThereAre =Há
+YouAnswered =Você respondeu a
+On =sobre
+BewareQuestionsAnswered =Atenção faltando %s resposta(s)
+ActionsOnQuestion =Eventos relacionados à pergunta
+
+
+
+#
+# Sheet
+#
+
+# Rights - Droits
+ReadSheet =Consulte as fichas do modelo
+CreateSheet =Criar/Modificar folhas de modelo
+DeleteSheet =Excluir folhas de modelo
+
+# Trigger - Déclencheur
+SheetCreateTrigger =Folha de modelo criada
+SheetModifyTrigger =Folha de modelo modificada
+SheetDeleteTrigger =Arquivo de modelo excluído
+SheetLockedTrigger =Folha de modelo bloqueada
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQSheetNumberingModule =Modelo de numeração das folhas de modelo do DoliSMQ
+DoliSMQSheetStandardModel =Retorna o número na forma MOn onde n é um contador sequencial sem quebra e sem redefinir para 0.
+
+# Data - Donnée
+Sheet =Folha de modelo
+AddSheet =Adicionar uma folha de modelo
+NewSheet =Nova folha de modelo
+SheetList =Lista de folhas de modelo
+SheetLinked =Modelo de controle
+FKSheet =Folha de modelo
+AllQuestionsMustHaveLocked =Todas as perguntas devem ser bloqueadas para bloquear a folha de modelo
+LockSheet =Cartão de modelo de bloqueio
+ConfirmLockSheet =Tem certeza de que deseja bloquear o cartão do modelo?<br> O bloqueio impede quaisquer modificações no arquivo de modelo.
+NoLotForThisProduct =Nenhum lote definido para este produto
+ModalAddPhoto =biblioteca de mídia
+SheetManagement =Gerenciamento de arquivos de modelo
+ActionsOnSheet =Eventos relacionados ao formulário do modelo
+
+
+
+#
+# Control
+#
+
+# Rights - Droits
+ReadControl =Ver controles
+CreateControl =Criar/editar controles
+DeleteControl =Excluir controles
+
+# Trigger - Déclencheur
+ControlCreateTrigger =Controle criado
+ControlModifyTrigger =Controle modificado
+ControlDeleteTrigger =Controle removido
+ControlDraftedTrigger =Controle de rascunho
+ControlValidatedTrigger =Controle validado
+ControlLockedTrigger =Controle bloqueado
+ControlSetUserControllerTrigger =Alterado o controlador padrão para %s
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQControlNumberingModule =Padrão de numeração de controle DoliSMQ
+DoliSMQControlStandardModel =Retorna o número na forma FCn onde n é um contador sequencial sem quebra e sem reset para 0.
+
+# Data - Donnée
+Control =Ao controle
+AddControl =Adicionar um controle
+NewControl =Novo controle
+ControlList =Lista de controles
+FKUserController =Controlador
+ControlDate =Data de controle
+Controls =Controles
+ControlMustBeDraft =O controle deve ser rascunho para acessar este recurso
+ControlMustBeValidated =O controle deve ser validado para reabri-lo
+ControlMustBeValidatedToLock =O controle deve ser validado e ter um veredicto para bloqueá-lo
+ControlVerdictSelected =A sentença já foi definida
+ControlMustBeValidatedToSetVerdict =O controle deve ser validado para definir o veredicto
+SetOK/KO =Ajustado/Inadequado
+Batch =Lote/Série
+VerdictControl =Escolha do veredicto
+ValidateControl =Validar controle
+ReOpenControl =Reabrir controle
+LockControl =Controle de bloqueio
+ConfirmValidateControl =Tem certeza de que deseja validar o controle?
+ConfirmReOpenControl =Tem certeza de que deseja reabrir o cheque?<br> A reabertura remove o veredicto da revisão.
+ConfirmLockControl =Tem certeza de que deseja bloquear o controle?<br> O bloqueio impede qualquer alteração no controle.
+ProjectLinked =Projeto relacionado
+ControlManagement =Gerenciamento de controles
+ControlData =Dados de controle configuráveis
+DisplayMedias =Mostrar mídia no controle
+DisplayMediasDescription =Mostrar mídia de perguntas no controle
+ChangeUserController =Direito de alterar o usuário controlador
+TaskLinked =Tarefa relacionada
+ThirdPartyLinked =Terceiro vinculado
+ShowProduct =Mostrar produtos
+ShowProductDescription =Mostrar o link entre produtos e controles
+ShowProductLot =Ver Lote/Números de Série
+ShowProductLotDescription =Mostrar link entre lotes/números de série e controles
+ShowThirdParty =Mostrar terceiros
+ShowThirdPartyDescription =Mostrar link entre partes e controles
+ShowProject =Mostrar projetos
+ShowProjectDescription =Mostrar o link entre projetos e controles
+ShowTask =Ver tarefas
+ShowTaskDescription =Mostrar o link entre tarefas e controles
+NoLotDefined =Nenhum lote/número de série encontrado
+SelectAProductFirst =Primeiro selecione um produto
+ActionsOnControl =Eventos de controle
+
+
+
+#
+# ControlDet
+#
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQControlDetNumberingModule =Modelo de numeração de linha da folha de controle DoliSMQ
+DoliSMQControlDetStandardModel =Retorna o número no formato FCRn onde n é um contador sequencial sem quebra e sem reset para 0.
+
+# Data - Donnée
+AnswerSaved =As respostas foram salvas
+Repair =Consertar
+NotApplicable =Não aplicável
+AnswerPhoto =foto
+
+
+
+#
+# ControlDocument - Fiche de Contrôle
+#
+
+# Right - Droit
+
+# Trigger - Déclencheur
+ControlDocumentGeneratedWithDolibarr =Planilha de controle gerada com Dolibarr
+
+# Mod Numbering - Modèle de numérotation
+DoliSMQControlDocumentDocumentNumberingModule =Modelo de numeração da folha de controle DoliSMQ
+DoliSMQControlDocumentStandardModel =Retorna o número na forma FCDn onde n é um contador sequencial sem quebra e sem reset para 0.
+
+# ODT Template - Template ODT
+DoliSMQTemplateDocumentControlDocument =Modelo de Documento de Folhas de Controle DoliSMQ
+ControlDocumentCustomDoliSMQTemplate =ODT personalizado de folhas de controle
+ControlDocumentDoliSMQTemplate =ODT padrão para folhas de controle
+
+# Data - Donnée
+ControlDocument =Lista de controle
+ControlDocumentData =Dados configuráveis de folhas de controle
+ControlDocumentName =Mostrar mídia na folha de controle
+ControlDocumentDescription =Exibir mídia de pergunta na folha de controle do documento ODT
+ControlDocumentPDFDoliSMQTemplate =Modelo de checklist em formato PDF
+
+
+#
+# Other
+#
+
+# Data - Donnée
+SelectProducts =Selecione um produto
+AddMedia =Adicionar mídia
+NoMediaLinked =Nenhuma mídia relacionada
+ReOpened =Reabrir
+ValidatedControl =Válido
+Locked =Bloqueado
+Lock =Trancar
+NoData =N / D
+ErrorFileNotFound =Nenhum logotipo da empresa fornecido
+
