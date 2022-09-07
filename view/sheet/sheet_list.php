@@ -253,7 +253,7 @@ if (empty($reshook)) {
 
 $now = dol_now();
 
-$morejs = array("/dolismq/js/dolismq.js.php");
+$morejs = array("/dolismq/js/dolismq.js");
 
 $help_url = '';
 $title    = $langs->trans("SheetList");

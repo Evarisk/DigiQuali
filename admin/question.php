@@ -89,7 +89,7 @@ if ($action == 'setmod') {
 
 $help_url = 'FR:Module_DoliSMQ';
 $title    = $langs->trans("Question");
-$morejs   = array("/dolismq/js/dolismq.js.php");
+$morejs   = array("/dolismq/js/dolismq.js");
 $morecss  = array("/dolismq/css/dolismq.css");
 
 llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);

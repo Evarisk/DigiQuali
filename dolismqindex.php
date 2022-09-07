@@ -49,7 +49,7 @@ if (! $user->rights->dolismq->read) accessforbidden();
  * View
  */
 
-$morejs = array("/dolismq/js/dolismq.js.php");
+$morejs = array("/dolismq/js/dolismq.js");
 
 llxHeader("", $langs->trans("DoliSMQArea"), "", "", 0, 0, $morejs);
 

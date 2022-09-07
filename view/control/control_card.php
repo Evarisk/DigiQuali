@@ -779,7 +779,7 @@ $title         = $langs->trans("Control");
 $title_create  = $langs->trans("NewControl");
 $title_edit    = $langs->trans("ModifyControl");
 $help_url      = '';
-$morejs        = array("/dolismq/js/dolismq.js.php");
+$morejs        = array("/dolismq/js/dolismq.js");
 $morecss       = array("/dolismq/css/dolismq.css");
 
 llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);

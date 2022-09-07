@@ -271,7 +271,7 @@ $title_create  = $langs->trans("NewSheet");
 $title_edit    = $langs->trans("ModifySheet");
 
 $help_url = '';
-$morejs   = array("/dolismq/js/dolismq.js.php");
+$morejs   = array("/dolismq/js/dolismq.js");
 $morecss  = array("/dolismq/css/dolismq.css");
 
 llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);

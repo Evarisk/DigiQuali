@@ -17,14 +17,13 @@
  */
 
 /**
- * \file    dolismq/js/dolismq.js.php
+ * \file    dolismq/js/dolismq.js
  * \ingroup dolismq
  * \brief   JavaScript file for module DoliSMQ.
  */
 
 /* Javascript library of module DoliSMQ */
 
-'use strict';
 /**
  * @namespace EO_Framework_Init
  *
