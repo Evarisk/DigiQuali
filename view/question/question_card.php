@@ -395,8 +395,8 @@ if (empty($reshook)) {
 					copy($pathToECMPhoto, $pathToQuestionPhoto . '/' . $filename);
 					$ecmfile->fetch(0,'',($conf->entity > 1 ? $conf->entity . '/' : ''). 'ecm/dolismq/medias/' . $filename);
 					$date = dol_print_date(dol_now(),'dayxcard');
-					$extension = preg_split('/\./', $filename);
-					$newFilename = $conf->entity . '_' . $ecmfile->id . '_' . (dol_strlen($object->ref) > 0 ? $object->ref : $refQuestionMod->getNextValue($object)). '_' . $date . '.' . $extension[1];
+					$extension = pathinfo($filename, PATHINFO_EXTENSION);
+					$newFilename = $conf->entity . '_' . $ecmfile->id . '_' . (dol_strlen($object->ref) > 0 ? $object->ref : $refQuestionMod->getNextValue($object)) . '_' . $date . '.' . $extension;
 					rename($pathToQuestionPhoto . '/' . $filename, $pathToQuestionPhoto . '/' . $newFilename);
 
 					global $maxwidthmini, $maxheightmini, $maxwidthsmall,$maxheightsmall ;
