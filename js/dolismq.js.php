@@ -99,6 +99,8 @@ if (empty($dolibarr_nocache)) {
  * @copyright 2015-2021 Eoxia
  */
 
+'use strict';
+
 if ( ! window.eoxiaJS ) {
 	/**
 	 * [eoxiaJS description]
