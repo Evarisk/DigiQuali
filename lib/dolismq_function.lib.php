@@ -136,7 +136,7 @@ function dolismqshowdocuments($modulepart, $modulesubdir, $filedir, $urlsource, 
 		if ( ! empty($modellist)) {
 			asort($modellist);
 			$out      .= '<span class="hideonsmartphone">' . $langs->trans('Model') . ' </span>';
-			$modellist = array_filter($modellist, 'remove_index');
+			$modellist = array_filter($modellist, 'dolismqremove_index');
 			if (is_array($modellist) && count($modellist) == 1) {    // If there is only one element
 				$arraykeys                = array_keys($modellist);
 				$arrayvalues              = preg_replace('/template_/', '', array_values($modellist)[0]);
@@ -326,7 +326,7 @@ function dolismqshowdocuments($modulepart, $modulesubdir, $filedir, $urlsource, 
  * @param   string $model
  * @return  '' or $model
  */
-function remove_index($model)
+function dolismqremove_index($model)
 {
 	if (preg_match('/index.php/', $model)) {
 		return '';
