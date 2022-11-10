@@ -597,9 +597,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 	// QUESTIONS LINES
-	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
+	print '<div class="div-table-responsive-no-min">';
 	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '');
-	print '<table id="tablelines" class="noborder noshadow">';
+	print '<table id="tablelines" class="centpercent noborder noshadow">';
 
 	global $forceall, $forcetoshowtitlelines;
 
