@@ -486,7 +486,7 @@ llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
 
 // Part to create
 if ($action == 'create') {
-	print load_fiche_titre($langs->trans('NewQuestion'), '', 'dolismq@dolismq');
+	print load_fiche_titre($langs->trans('NewQuestion'), '', 'object_'.$object->picto);
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'" id="createQuestionForm" enctype="multipart/form-data">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
@@ -597,7 +597,7 @@ include DOL_DOCUMENT_ROOT . '/custom/dolismq/core/tpl/dolismq_medias_gallery_mod
 
 // Part to edit record
 if (($id || $ref) && $action == 'edit') {
-	print load_fiche_titre($langs->trans("ModifyQuestion"), '', 'dolismq@dolismq');
+	print load_fiche_titre($langs->trans("ModifyQuestion"), '', 'object_'.$object->picto);
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
@@ -722,7 +722,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$res = $object->fetch_optionals();
 
 	$head = questionPrepareHead($object);
-	print dol_get_fiche_head($head, 'questionCard', $langs->trans("Question"), -1, "dolismq@dolismq");
+	print dol_get_fiche_head($head, 'questionCard', $langs->trans("Question"), -1, $object->picto);
 
 	$formconfirm = '';
 

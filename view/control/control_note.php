@@ -121,7 +121,7 @@ if ($id > 0 || !empty($ref)) {
 
 	$head = controlPrepareHead($object);
 
-	print dol_get_fiche_head($head, 'note', $langs->trans('Notes'), -1, "dolismq@dolismq");
+	print dol_get_fiche_head($head, 'note', $langs->trans('Notes'), -1, $object->picto);
 
 	// Object card
 	// ------------------------------------------------------------

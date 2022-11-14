@@ -786,7 +786,7 @@ llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);
 
 // Part to create
 if ($action == 'create') {
-	print load_fiche_titre($title_create, '', "dolismq@dolismq");
+	print load_fiche_titre($title_create, '', 'object_'.$object->picto);
 
 	print '<form method="POST" id="createControlForm" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
@@ -918,7 +918,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$res = $object->fetch_optionals();
 
 	$head = controlPrepareHead($object);
-	print dol_get_fiche_head($head, 'controlCard', $langs->trans("Control"), -1, "dolismq@dolismq");
+	print dol_get_fiche_head($head, 'controlCard', $langs->trans("Control"), -1, 'object_'.$object->picto);
 
 	$formconfirm = '';
 

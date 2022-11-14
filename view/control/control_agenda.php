@@ -131,7 +131,7 @@ if ($object->id > 0) {
 
 	$head = controlPrepareHead($object);
 
-	print dol_get_fiche_head($head, 'controlAgenda', $title, -1, "dolismq@dolismq");
+	print dol_get_fiche_head($head, 'controlAgenda', $title, -1, $object->picto);
 
 	// Object card
 	// ------------------------------------------------------------

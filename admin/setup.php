@@ -64,11 +64,11 @@ llxHeader('', $langs->trans($page_name), '', '', 0, 0, $morejs);
 // Subheader
 $linkback = '<a href="'.($backtopage ?: DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';
 
-print load_fiche_titre($langs->trans($page_name), $linkback, 'dolismq@dolismq');
+print load_fiche_titre($langs->trans($page_name), $linkback, 'dolismq_color@dolismq');
 
 // Configuration header
 $head = dolismqAdminPrepareHead();
-print dol_get_fiche_head($head, 'settings', '', -1, "dolismq@dolismq");
+print dol_get_fiche_head($head, 'settings', '', -1, "dolismq_color@dolismq");
 
 // Setup page goes here
 echo '<span class="opacitymedium">'.$langs->trans("DoliSMQSetupPage").'</span><br><br>';
