@@ -18,3 +18,7 @@ ALTER TABLE `llx_dolismq_question` ADD `authorize_answer_photo` BOOLEAN NULL AFT
 ALTER TABLE `llx_dolismq_question` ADD `enter_comment` BOOLEAN NULL AFTER `authorize_answer_photo`;
 
 ALTER TABLE `llx_dolismq_control` ADD `fk_project` INTEGER NULL AFTER `fk_user_controller`;
+
+-- 1.4.0
+
+ALTER TABLE `llx_element_element` ADD `position` INTEGER;

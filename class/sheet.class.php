@@ -670,7 +670,7 @@ class Sheet extends CommonObject
 		 }*/
 
 		// Links between objects are stored in table element_element
-		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype';
+		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype, position';
 		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
 		$sql .= " WHERE ";
 		if ($justsource || $justtarget) {
@@ -701,16 +701,16 @@ class Sheet extends CommonObject
 				$obj = $this->db->fetch_object($resql);
 				if ($justsource || $justtarget) {
 					if ($justsource) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->rowid] = $obj->fk_target;
+						$this->linkedObjectsIds[$obj->targettype][$obj->position] = $obj->fk_target;
 					} elseif ($justtarget) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->rowid] = $obj->fk_source;
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position] = $obj->fk_source;
 					}
 				} else {
 					if ($obj->fk_source == $sourceid && $obj->sourcetype == $sourcetype) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->rowid] = $obj->fk_target;
+						$this->linkedObjectsIds[$obj->targettype][$obj->position] = $obj->fk_target;
 					}
 					if ($obj->fk_target == $targetid && $obj->targettype == $targettype) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->rowid] = $obj->fk_source;
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position] = $obj->fk_source;
 					}
 				}
 
@@ -755,5 +755,24 @@ class Sheet extends CommonObject
 			return -1;
 		}
 	}
+
+	/**
+	 *	Update questions position in sheet
+	 *
+	 *	@param	array	$idsArray			Array containing position and ids of questions in sheet
+	 */
+	public function updateQuestionsPosition($idsArray)
+	{
+		foreach ($idsArray as $position => $questionId) {
+			$sql = 'UPDATE '. MAIN_DB_PREFIX . 'element_element';
+			$sql .= ' SET position =' . ($position + 1);
+			$sql .= ' WHERE fk_source = ' . $this->id;
+			$sql .= ' AND sourcetype = "sheet"';
+			$sql .= ' AND fk_target =' . $questionId;
+			$sql .= ' AND targettype = "dolismq_question"';
+			$this->db->query($sql);
+		}
+	}
+
 }
 

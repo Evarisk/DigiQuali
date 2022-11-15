@@ -202,6 +202,11 @@ if (empty($reshook)) {
 		$object->setCategories(GETPOST('categories', 'array'));
 	}
 
+	if ($action == 'moveLine' && $permissiontoadd) {
+		$idsArray = json_decode(file_get_contents('php://input'), true);
+		$object->updateQuestionsPosition($idsArray['order']);
+	}
+
 	// Action to delete
 	if ($action == 'confirm_delete' && !empty($permissiontodelete)) {
 		if (!($object->id > 0)) {
@@ -571,7 +576,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<div class="clearboth"></div>';
 
 	$object->fetchQuestionsLinked($id, 'sheet');
-	$questionIds = $object->linkedObjectsIds;
+	$questionIds = $object->linkedObjectsIds['dolismq_question'];
+	ksort($questionIds);
 
 	// Buttons for actions
 	if ($action != 'presend' && $action != 'editline') {
@@ -607,9 +613,50 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Define colspan for the button 'Add'
 	$colspan = 3;
+	?>
+	<script>
+		$(document).ready(function(){
+			$(".move-line").css("background-image",'url(<?php echo DOL_URL_ROOT.'/theme/'.$conf->theme.'/img/grip.png'; ?>)');
+			$(".move-line").css("background-repeat","no-repeat");
+			$(".move-line").css("background-position","center center");
+			$('#tablelines tbody').sortable({
+				handle: '.move-line',
+				connectWith:'#tablelines tbody .line-row',
+				tolerance:'intersect',
+				over:function(event,ui){
+				},
+				stop: function(event, ui) {
+					let token = $('.fiche').find('input[name="token"]').val();
 
+					let separator = '&'
+					if (document.URL.match(/action=/)) {
+						document.URL = document.URL.split(/\?/)[0]
+						separator = '?'
+					}
+					lineOrder = [];
+					$('.line-row').each(function(  ) {
+						lineOrder.push($(this).attr('id'));
+					});
+					console.log(lineOrder)
+					$.ajax({
+						url: document.URL + separator + "action=moveLine&token=" + token,
+						type: "POST",
+						data: JSON.stringify({
+							order: lineOrder
+						}),
+						processData: false,
+						contentType: false,
+						success: function ( resp ) {
+						}
+					});
+				}
+			});
+
+		});
+	</script>
+	<?php
 	// Lines
-	print '<tr class="liste_titre">';
+	print '<thead><tr class="liste_titre">';
 	print '<td>' . $langs->trans('Ref') . '</td>';
 	print '<td>' . $langs->trans('Label') . '</td>';
 	print '<td>' . $langs->trans('Description') . '</td>';
@@ -617,15 +664,16 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>' . $langs->trans('PhotoKo') . '</td>';
 	print '<td>' . $langs->trans('Status') . '</td>';
 	print '<td class="center">' . $langs->trans('Action') . '</td>';
-	print '</tr>';
+	print '<td class="center"></td>';
+	print '</tr></thead>';
 
-	if ( ! empty($questionIds['dolismq_question']) && $questionIds > 0) {
-		print '<tr>';
-		foreach ($questionIds['dolismq_question'] as $questionId) {
+	if ( ! empty($questionIds) && $questionIds > 0) {
+		print '<tbody><tr>';
+		foreach ($questionIds as $questionId) {
 			$item = $question;
 			$item->fetch($questionId);
 
-			print '<tr>';
+			print '<tr id="'. $item->id .'" class="line-row oddeven">';
 			print '<td>';
 			print $item->getNomUrl();
 			print '</td>';
@@ -671,12 +719,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				print '</a>';
 			}
 			print '</td>';
-			print '</tr>';
 
+			print '<td class="move-line ui-sortable-handle">';
+			print '</td>';
+			print '</tr>';
 			// Other attributes
 			include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php';
 		}
-		print '</tr>';
+		print '</tr></tbody>';
 	}
 
 	if ($object->status != 2) {
@@ -685,12 +735,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<input type="hidden" name="action" value="addQuestion">';
 		print '<input type="hidden" name="id" value="' . $id . '">';
 
-		print '<td class="">';
-		print $question->select_question_list(0, 'questionId', '', '1', 0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds['dolismq_question']);
+		print '<tr class="add-line"><td class="">';
+		print $question->select_question_list(0, 'questionId', '', '1', 0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds);
 		print '</td>';
 		print '<td>';
 		print ' &nbsp; <input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
-		print '</td>';
+		print '</td></tr>';
 
 		print '</form>';
 	}
