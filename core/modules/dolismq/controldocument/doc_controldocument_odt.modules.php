@@ -355,7 +355,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 				if ($foundtagforlines) {
 					if ( ! empty( $object ) ) {
 						$listlines = $odfHandler->setSegment('questions');
-						$object->fetchQuestionsLinked($object->fk_sheet, 'sheet');
+						$object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet');
 						$questionIds = $object->linkedObjectsIds;
 						if ( ! empty($questionIds['dolismq_question']) && $questionIds > 0) {
 							foreach ($questionIds['dolismq_question'] as $questionId) {

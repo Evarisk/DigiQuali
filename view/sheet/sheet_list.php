@@ -203,7 +203,18 @@ if (empty($reshook)) {
 						$category->del_type($objecttmp, 'sheet');
 					}
 				}
-				$objecttmp->delete_object_links();
+				$objecttmp->fetchObjectLinked($toselectid,'dolismq_' . $object->element);
+				$objecttmp->element = 'dolismq_' . $objecttmp->element;
+
+				if (is_array($objecttmp->linkedObjects) && !empty($objecttmp->linkedObjects)) {
+					foreach($objecttmp->linkedObjects as $linkedObjectType => $linkedObjectArray) {
+						foreach($linkedObjectArray as $linkedObject) {
+							if (method_exists($objecttmp, 'is_erasable') && $objecttmp->is_erasable() > 0) {
+								$objecttmp->deleteObjectLinked($linkedObject->id, $linkedObjectType);
+							}
+						}
+					}
+				}
 				$result = $objecttmp->delete($user);
 
 				if (empty($result)) { // if delete returns 0, there is at least one object linked

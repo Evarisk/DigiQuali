@@ -123,7 +123,7 @@ if (empty($reshook)) {
 		$questionId = GETPOST('questionId');
 		if ($questionId > 0) {
 			$question->fetch($questionId);
-			$question->add_object_linked($object->element,$id);
+			$question->add_object_linked('dolismq_' . $object->element,$id);
 			setEventMessages($langs->trans('addQuestionLink') . ' ' . $question->ref, array());
 
 			header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
@@ -138,7 +138,7 @@ if (empty($reshook)) {
 		$questionId = GETPOST('questionId');
 		$question->fetch($questionId);
 		$question->element = 'dolismq_'.$question->element;
-		$question->deleteObjectLinked($id, $object->element);
+		$question->deleteObjectLinked($id, 'dolismq_' . $object->element);
 		setEventMessages($langs->trans('removeQuestionLink') . ' ' . $question->ref, array());
 
 		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
@@ -224,7 +224,20 @@ if (empty($reshook)) {
 			}
 		}
 
-		$object->delete_object_links();
+		$object->fetchObjectLinked($id, 'dolismq_' . $object->element);
+		$object->element = 'dolismq_' . $object->element;
+
+		if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
+			foreach($object->linkedObjects as $linkedObjectType => $linkedObjectArray) {
+				foreach($linkedObjectArray as $linkedObject) {
+
+					if (method_exists($object, 'is_erasable') && $object->is_erasable() > 0) {
+						$object->deleteObjectLinked('','',$linkedObject->id, $linkedObjectType);
+					}
+				}
+			}
+		}
+		exit;
 		$result = $object->delete($user);
 
 		if ($result > 0) {
@@ -575,9 +588,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	$object->fetchQuestionsLinked($id, 'sheet');
+	$object->fetchObjectLinked($id, 'dolismq_' . $object->element);
 	$questionIds = $object->linkedObjectsIds['dolismq_question'];
-	ksort($questionIds);
+	if (is_array($questionIds) && !empty($questionIds)) {
+		ksort($questionIds);
+	}
 
 	// Buttons for actions
 	if ($action != 'presend' && $action != 'editline') {

@@ -506,8 +506,8 @@ class Question extends CommonObject
 	 */
 	public function checkQuestionsLocked($questionIds)
 	{
-		if ( ! empty($questionIds['dolismq_question']) && $questionIds > 0) {
-			foreach ($questionIds['dolismq_question'] as $questionId) {
+		if ( ! empty($questionIds) && $questionIds > 0) {
+			foreach ($questionIds as $questionId) {
 				$this->fetch($questionId);
 				if ($this->status == 2) {
 					continue;

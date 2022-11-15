@@ -22,3 +22,9 @@ ALTER TABLE `llx_dolismq_control` ADD `fk_project` INTEGER NULL AFTER `fk_user_c
 -- 1.4.0
 
 ALTER TABLE `llx_element_element` ADD `position` INTEGER;
+UPDATE `llx_element_element` SET `sourcetype` = 'dolismq_question' WHERE `sourcetype` = 'question';
+UPDATE `llx_element_element` SET `sourcetype` = 'dolismq_sheet' WHERE `sourcetype` = 'sheet';
+UPDATE `llx_element_element` SET `sourcetype` = 'dolismq_control' WHERE `sourcetype` = 'control';
+UPDATE `llx_element_element` SET `targettype` = 'dolismq_question' WHERE `targettype` = 'question';
+UPDATE `llx_element_element` SET `targettype` = 'dolismq_sheet' WHERE `targettype` = 'sheet';
+UPDATE `llx_element_element` SET `targettype` = 'dolismq_control' WHERE `targettype` = 'control';

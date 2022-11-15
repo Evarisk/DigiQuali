@@ -280,9 +280,16 @@ if (empty($reshook)) {
 			$result = $objecttmp->fetch($toselectid);
 			if ($result > 0) {
 
-				if (method_exists($objecttmp, 'is_erasable') && $objecttmp->is_erasable() <= 0) {
-					//@todo a changer par deleteObjectLinked après refacto
-					$objecttmp->delete_object_links();
+				$objecttmp->fetchObjectLinked('','',$toselectid, 'dolismq_' . $object->element);
+				$objecttmp->element = 'dolismq_' . $objecttmp->element;
+				if (is_array($objecttmp->linkedObjects) && !empty($objecttmp->linkedObjects)) {
+					foreach($objecttmp->linkedObjects as $linkedObjectType => $linkedObjectArray) {
+						foreach($linkedObjectArray as $linkedObject) {
+							if (method_exists($objecttmp, 'is_erasable') && $objecttmp->is_erasable() <= 0) {
+								$objecttmp->deleteObjectLinked($linkedObject->id, $linkedObjectType);
+							}
+						}
+					}
 				}
 
 				$result = $objecttmp->delete($user);

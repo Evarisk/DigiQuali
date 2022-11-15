@@ -333,20 +333,6 @@ if (empty($reshook)) {
 		foreach ($files as $file) {
 			if (is_file($file['fullname']) && $file['name'] == $filename) {
 				unlink($file['fullname']);
-//				$result = $controldet->fetchFromParentWithQuestion($object->id, $question->id);
-//				if ($result > 0 && is_array($result)) {
-//					$controldet = array_shift($result);
-//					$allAnswerPhoto = preg_split('/,/', $controldet->answer_photo);
-//					array_pop($allAnswerPhoto);
-//					$controldet->answer_photo = '';
-//					foreach ($allAnswerPhoto as $key => $answer_photo) {
-//						if ($answer_photo != $filename){
-//							$controldet->answer_photo .= $answer_photo . ',';
-//						}
-//					}
-//
-//					$controldet->update($user);
-//				}
 			}
 		}
 
@@ -372,11 +358,10 @@ if (empty($reshook)) {
 
 		$controldet = new ControlLine($db);
 		$sheet->fetch($object->fk_sheet);
-		//@todo a changer par fetchObjectLinked après refacto
-		$object->fetchQuestionsLinked($sheet->id, 'sheet');
-		$questionIds = $object->linkedObjectsIds;
+		$object->fetchObjectLinked($sheet->id, 'dolismq_sheet');
+		$questionIds = $object->linkedObjectsIds['dolismq_question'];
 
-		foreach ($questionIds['dolismq_question'] as $questionId) {
+		foreach ($questionIds as $questionId) {
 			$controldettmp = $controldet;
 			//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
 			$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
@@ -398,20 +383,6 @@ if (empty($reshook)) {
 				}
 
 				$question->fetch($questionId);
-
-//				//Add files linked
-//				$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
-//				$fileList            = dol_dir_list($pathToQuestionPhoto, 'files');
-//				$controldettmp->answer_photo = '';
-//				if ( ! empty($fileList)) {
-//					foreach ($fileList as $fileToSave) {
-//						if (is_file($fileToSave['fullname'])) {
-//							//sauvegarder réponse photo
-//							$controldettmp->answer_photo .= $fileToSave['name'] . ',';
-//						}
-//					}
-//				}
-
 				$controldettmp->update($user);
 			} else {
 				$controldettmp = $controldet;
@@ -440,23 +411,8 @@ if (empty($reshook)) {
 
 				$question->fetch($questionId);
 
-//				//Add files linked
-//				$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
-//				$fileList = dol_dir_list($pathToQuestionPhoto, 'files');
-//				if (!empty($fileList)) {
-//					foreach ($fileList as $fileToSave) {
-//						if (is_file($fileToSave['fullname'])) {
-//							//sauvegarder réponse photo
-//							$controldettmp->answer_photo .= $fileToSave['name'] . ',';
-//						}
-//					}
-//				}
-
 				$controldettmp->entity = $conf->entity;
-				//if ($answer > 0 || dol_strlen($comment) > 0) {
-					$controldettmp->insert($user);
-					//$controldettmp->answer_photo = '';
-				//}
+				$controldettmp->insert($user);
 			}
 		}
 
@@ -472,11 +428,18 @@ if (empty($reshook)) {
 		$nbok = 0;
 		$TMsg = array();
 		$result = $objecttmp->fetch($id);
-		if ($result > 0) {
 
-			if (method_exists($objecttmp, 'is_erasable') && $objecttmp->is_erasable() <= 0) {
-				//@todo a changer par deleteObjectLinked après refacto
-				$objecttmp->delete_object_links();
+		if ($result > 0) {
+			$objecttmp->fetchObjectLinked('','',$id, 'dolismq_' . $object->element);
+			$objecttmp->element = 'dolismq_' . $objecttmp->element;
+			if (is_array($objecttmp->linkedObjects) && !empty($objecttmp->linkedObjects)) {
+				foreach($objecttmp->linkedObjects as $linkedObjectType => $linkedObjectArray) {
+					foreach($linkedObjectArray as $linkedObject) {
+						if (method_exists($objecttmp, 'is_erasable') && $objecttmp->is_erasable() <= 0) {
+							$objecttmp->deleteObjectLinked($linkedObject->id, $linkedObjectType);
+						}
+					}
+				}
 			}
 
 			$result = $objecttmp->delete($user);
@@ -643,7 +606,7 @@ if (empty($reshook)) {
 			if ($result > 0) {
 				$controldet = new ControlLine($db);
 				$sheet->fetch($object->fk_sheet);
-				$object->fetchQuestionsLinked($sheet->id, 'sheet');
+				$object->fetchObjectLinked($sheet->id, 'dolismq_sheet');
 				$questionIds = $object->linkedObjectsIds;
 				foreach ($questionIds['dolismq_question'] as $questionId) {
 					$controldettmp = $controldet;
@@ -968,7 +931,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		// a mettre après le confirm
 		$controldet = new ControlLine($db);
 		$sheet->fetch($object->fk_sheet);
-		$object->fetchQuestionsLinked($sheet->id, 'sheet');
+		$object->fetchObjectLinked($sheet->id, 'dolismq_sheet');
 		$questionIds = $object->linkedObjectsIds;
 
 		if (!empty($questionIds)) {
@@ -1591,7 +1554,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// QUESTION LINES
 	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
 
-	$object->fetchQuestionsLinked($sheet->id, 'sheet');
+	$object->fetchObjectLinked($sheet->id, 'dolismq_sheet');
 	$questionIds = $object->linkedObjectsIds;
 
 	if (!empty($questionIds)) {
