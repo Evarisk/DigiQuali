@@ -41,6 +41,18 @@ About = À propos
 DoliSMQAbout = À propos de DoliSMQ
 DoliSMQAboutPage = Page à propos de DoliSMQ
 
+#
+# Page index
+#
+
+# Data - Donnée
+DoliSMQArea = Bienvenue sur DoliSMQ
+DoliSMQUpdate = Mise à jour de DoliSMQ :
+DoliSMQHasBeenUpdatedTo = DoliSMQ a été mis à jour en version %s
+DoliSMQPatchNote = Note de mise à jour DoliSMQ %s
+ShowPatchNote = Consulter la note de mise à jour
+DontShowPatchNote = Ne plus afficher la note de mise à jour
+
 
 
 #
@@ -93,6 +105,7 @@ EnterCommentTooltip = Saisi le commentaire sur les réponses de question
 ErrorQuestionUsedInSheet = La question %s ne peut pas être supprimée, elle est utilisée dans une ou plusieurs fiches modèles.
 ErrorNoQuestionSelected = Aucune question sélectionnée
 ConfirmCloneQuestion = Êtes-vous sûr(e) de vouloir cloner cette question ?
+
 
 
 #
@@ -296,5 +309,3 @@ MinimizeMenu = Réduire le menu
 Or = ou
 SelectProductsOrServices = Sélectionner un produit / service
 DoliSMQNumberOfModelFilesFound = Nombre de modèles par défaut
-DoliSMQArea = Bienvenue sur DoliSMQ
-

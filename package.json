@@ -4,11 +4,11 @@
     "update": "npm install",
     "start": "node node_modules/gulp/bin/gulp.js"
   },
-  "author": "Eoxia",
+  "author": "Evarisk",
   "contributors": [
     {
-      "name": "Eoxia",
-      "email": "dev@eoxia.com"
+      "name": "Evarisk",
+      "email": "dev@evarisk.com"
     }
   ],
   "license": "GPLv3",

@@ -181,6 +181,11 @@ window.eoxiaJS.modal.openModal = function ( event ) {
 		$('#media_gallery').find('.wpeo-button').attr('value', idSelected);
 	}
 
+	// Open modal patch note.
+	if ($(this).hasClass('show-patchnote')) {
+		$('.fiche .wpeo-modal-patchnote').addClass('modal-active');
+	}
+
 	$('.notice').addClass('hidden');
 };
 
@@ -676,6 +681,190 @@ if ( ! window.eoxiaJS.loader ) {
 		}
 	};
 }
+
+/**
+ * @namespace EO_Framework_Tooltip
+ *
+ * @author Eoxia <dev@eoxia.com>
+ * @copyright 2015-2018 Eoxia
+ */
+
+if ( ! window.eoxiaJS.tooltip ) {
+
+	/**
+	 * [tooltip description]
+	 *
+	 * @memberof EO_Framework_Tooltip
+	 *
+	 * @type {Object}
+	 */
+	window.eoxiaJS.tooltip = {};
+
+	/**
+	 * [description]
+	 *
+	 * @memberof EO_Framework_Tooltip
+	 *
+	 * @returns {void} [description]
+	 */
+	window.eoxiaJS.tooltip.init = function() {
+		window.eoxiaJS.tooltip.event();
+	};
+
+	window.eoxiaJS.tooltip.tabChanged = function() {
+		$( '.wpeo-tooltip' ).remove();
+	}
+
+	/**
+	 * [description]
+	 *
+	 * @memberof EO_Framework_Tooltip
+	 *
+	 * @returns {void} [description]
+	 */
+	window.eoxiaJS.tooltip.event = function() {
+		$( document ).on( 'mouseenter touchstart', '.wpeo-tooltip-event:not([data-tooltip-persist="true"])', window.eoxiaJS.tooltip.onEnter );
+		$( document ).on( 'mouseleave touchend', '.wpeo-tooltip-event:not([data-tooltip-persist="true"])', window.eoxiaJS.tooltip.onOut );
+	};
+
+	window.eoxiaJS.tooltip.onEnter = function( event ) {
+		window.eoxiaJS.tooltip.display( $( this ) );
+	};
+
+	window.eoxiaJS.tooltip.onOut = function( event ) {
+		window.eoxiaJS.tooltip.remove( $( this ) );
+	};
+
+	/**
+	 * [description]
+	 *
+	 * @memberof EO_Framework_Tooltip
+	 *
+	 * @param  {void} event [description]
+	 * @returns {void}       [description]
+	 */
+	window.eoxiaJS.tooltip.display = function( element ) {
+		var direction = ( $( element ).data( 'direction' ) ) ? $( element ).data( 'direction' ) : 'top';
+		var el = $( '<span class="wpeo-tooltip tooltip-' + direction + '">' + $( element ).attr( 'aria-label' ) + '</span>' );
+		var pos = $( element ).position();
+		var offset = $( element ).offset();
+		$( element )[0].tooltipElement = el;
+		$( 'body' ).append( $( element )[0].tooltipElement );
+
+		if ( $( element ).data( 'color' ) ) {
+			el.addClass( 'tooltip-' + $( element ).data( 'color' ) );
+		}
+
+		var top = 0;
+		var left = 0;
+
+		switch( $( element ).data( 'direction' ) ) {
+			case 'left':
+				top = ( offset.top - ( el.outerHeight() / 2 ) + ( $( element ).outerHeight() / 2 ) ) + 'px';
+				left = ( offset.left - el.outerWidth() - 10 ) + 3 + 'px';
+				break;
+			case 'right':
+				top = ( offset.top - ( el.outerHeight() / 2 ) + ( $( element ).outerHeight() / 2 ) ) + 'px';
+				left = offset.left + $( element ).outerWidth() + 8 + 'px';
+				break;
+			case 'bottom':
+				top = ( offset.top + $( element ).height() + 10 ) + 10 + 'px';
+				left = ( offset.left - ( el.outerWidth() / 2 ) + ( $( element ).outerWidth() / 2 ) ) + 'px';
+				break;
+			case 'top':
+				top = offset.top - el.outerHeight() - 4  + 'px';
+				left = ( offset.left - ( el.outerWidth() / 2 ) + ( $( element ).outerWidth() / 2 ) ) + 'px';
+				break;
+			default:
+				top = offset.top - el.outerHeight() - 4  + 'px';
+				left = ( offset.left - ( el.outerWidth() / 2 ) + ( $( element ).outerWidth() / 2 ) ) + 'px';
+				break;
+		}
+
+		el.css( {
+			'top': top,
+			'left': left,
+			'opacity': 1
+		} );
+
+		$( element ).on("remove", function() {
+			$( $( element )[0].tooltipElement ).remove();
+
+		} );
+	};
+
+	/**
+	 * [description]
+	 *
+	 * @memberof EO_Framework_Tooltip
+	 *
+	 * @param  {void} event [description]
+	 * @returns {void}       [description]
+	 */
+	window.eoxiaJS.tooltip.remove = function( element ) {
+		if ( $( element )[0] && $( element )[0].tooltipElement ) {
+			$( $( element )[0].tooltipElement ).remove();
+		}
+	};
+}
+
+/**
+ * Initialise l'objet "notice" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.
+ *
+ * @since   1.4.0
+ * @version 1.4.0
+ */
+window.eoxiaJS.notice = {};
+
+/**
+ * La méthode appelée automatiquement par la bibliothèque EoxiaJS.
+ *
+ * @since   1.4.0
+ * @version 1.4.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.notice.init = function() {
+	window.eoxiaJS.notice.event();
+};
+
+/**
+ * La méthode contenant tous les événements pour l'évaluateur.
+ *
+ * @since   1.4.0
+ * @version 1.4.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.notice.event = function() {
+	$(document).on('click', '.notice-close', window.eoxiaJS.notice.closeNotice);
+};
+
+/**
+ * Clique sur une des user de la liste.
+ *
+ * @since   1.4.0
+ * @version 1.4.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.notice.closeNotice = function() {
+	$(this).closest('.notice').fadeOut(function () {
+		$(this).closest('.notice').addClass("hidden");
+	});
+
+	if ($(this).hasClass('notice-close-forever')) {
+		let token = $(this).closest('.notice').find('input[name="token"]').val();
+		let querySeparator = '?';
+
+		document.URL.match(/\?/) ? querySeparator = '&' : 1;
+
+		$.ajax({
+			url: document.URL + querySeparator + 'action=closenotice&token='+token,
+			type: "POST",
+		});
+	}
+};
 
 /**
  * Initialise l'objet "question" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.

@@ -185,7 +185,12 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_CONTROLDOCUMENT_ADDON_PDF', 'chaine', 'calypso', '', 0, 'current'],
 
 			// CONST CONTROL LINE
-			$i => ['DOLISMQ_CONTROLDET_ADDON', 'chaine', 'mod_controldet_standard', '', 0, 'current'],
+			$i++ => ['DOLISMQ_CONTROLDET_ADDON', 'chaine', 'mod_controldet_standard', '', 0, 'current'],
+
+			// CONST MODULE
+			$i++ => ['DOLISMQ_VERSION','chaine', $this->version, '', 0, 'current'],
+			$i++ => ['DOLISMQ_DB_VERSION', 'chaine', $this->version, '', 0, 'current'],
+			$i   => ['DOLISMQ_SHOW_PATCH_NOTE', 'integer', 1, '', 0, 'current']
 		];
 
 		// Some keys to add into the overwriting translation tables
