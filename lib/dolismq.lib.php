@@ -26,45 +26,45 @@
  *
  * @return array
  */
-function dolismqAdminPrepareHead()
+function dolismqAdminPrepareHead(): array
 {
 	// Global variables definitions
 	global $conf, $langs;
 
 	// Load translation files required by the page
-	$langs->load("dolismq@dolismq");
+	$langs->load('dolismq@dolismq');
 
 	// Initialize values
 	$h = 0;
-	$head = array();
+	$head = [];
 
-	$head[$h][0] = dol_buildpath("/dolismq/admin/question.php", 1);
-	$head[$h][1] = '<i class="fas fa-question"></i>  ' . $langs->trans("Question");
+	$head[$h][0] = dol_buildpath('/dolismq/admin/question.php', 1);
+	$head[$h][1] = '<i class="fas fa-question pictofixedwidth"></i>' . $langs->trans('Question');
 	$head[$h][2] = 'question';
 	$h++;
 
-	$head[$h][0] = dol_buildpath("/dolismq/admin/sheet.php", 1);
-	$head[$h][1] = '<i class="fas fa-list"></i>  ' . $langs->trans("Sheet");
+	$head[$h][0] = dol_buildpath('/dolismq/admin/sheet.php', 1);
+	$head[$h][1] = '<i class="fas fa-list pictofixedwidth"></i>' . $langs->trans('Sheet');
 	$head[$h][2] = 'sheet';
 	$h++;
 
-	$head[$h][0] = dol_buildpath("/dolismq/admin/control.php", 1);
-	$head[$h][1] = '<i class="fas fa-tasks"></i>  ' . $langs->trans("Control");
+	$head[$h][0] = dol_buildpath('/dolismq/admin/control.php', 1);
+	$head[$h][1] = '<i class="fas fa-tasks pictofixedwidth"></i>' . $langs->trans('Control');
 	$head[$h][2] = 'control';
 	$h++;
 
-	$head[$h][0] = dol_buildpath("/dolismq/admin/controldocument.php", 1);
-	$head[$h][1] = '<i class="fas fa-file"></i>  ' . $langs->trans("ControlDocument");
+	$head[$h][0] = dol_buildpath('/dolismq/admin/controldocument.php', 1);
+	$head[$h][1] = '<i class="fas fa-file pictofixedwidth"></i>' . $langs->trans('ControlDocument');
 	$head[$h][2] = 'controldocument';
 	$h++;
 
-	$head[$h][0] = dol_buildpath("/dolismq/admin/setup.php", 1);
-	$head[$h][1] = '<i class="fas fa-cog"></i>  ' . $langs->trans("Settings");
+	$head[$h][0] = dol_buildpath('/dolismq/admin/setup.php', 1);
+	$head[$h][1] = '<i class="fas fa-cog pictofixedwidth"></i>' . $langs->trans('Settings');
 	$head[$h][2] = 'settings';
 	$h++;
 
-	$head[$h][0] = dol_buildpath("/dolismq/admin/about.php", 1);
-	$head[$h][1] = '<i class="fab fa-readme"></i> ' . $langs->trans("About");
+	$head[$h][0] = dol_buildpath('/dolismq/admin/about.php', 1);
+	$head[$h][1] = '<i class="fab fa-readme pictofixedwidth"></i>' . $langs->trans('About');
 	$head[$h][2] = 'about';
 	$h++;
 

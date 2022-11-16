@@ -24,33 +24,33 @@
 /**
  * Prepare array of tabs for Sheet
  *
- * @param	Sheet	$object		    Sheet
- * @return 	array					Array of tabs
+ * @param 	Sheet $object		Sheet
+ * @return 	array				Array of tabs
  */
-function sheetPrepareHead($object)
+function sheetPrepareHead(Sheet $object): array
 {
 	// Global variables definitions
 	global $conf, $langs;
 
 	// Load translation files required by the page
-	$langs->load("dolismq@dolismq");
+	$langs->load('dolismq@dolismq');
 
 	// Initialize values
 	$h = 0;
-	$head = array();
+	$head = [];
 
-	$head[$h][0] = dol_buildpath("/dolismq/view/sheet/sheet_card.php", 1).'?id='.$object->id;
-	$head[$h][1] = $langs->trans("Card");
+	$head[$h][0] = dol_buildpath('/dolismq/view/sheet/sheet_card.php', 1).'?id='.$object->id;
+	$head[$h][1] = '<i class="fas fa-info-circle pictofixedwidth"></i>' . $langs->trans('Card');
 	$head[$h][2] = 'sheetCard';
 	$h++;
 
-	$head[$h][0] = dol_buildpath("/dolismq/view/control/control_list.php", 1).'?fromid='.$object->id . '&fromtype=fk_sheet';
-	$head[$h][1] = $langs->trans("Controls");
+	$head[$h][0] = dol_buildpath('/dolismq/view/control/control_list.php', 1).'?fromid='.$object->id . '&fromtype=fk_sheet';
+	$head[$h][1] = '<i class="fas fa-tasks pictofixedwidth"></i>' . $langs->trans('Controls');
 	$head[$h][2] = 'control';
 	$h++;
 
-	$head[$h][0] = dol_buildpath("/dolismq/view/sheet/sheet_agenda.php", 1).'?id='.$object->id;
-	$head[$h][1] = $langs->trans("Events");
+	$head[$h][0] = dol_buildpath('/dolismq/view/sheet/sheet_agenda.php', 1).'?id='.$object->id;
+	$head[$h][1] = '<i class="fas fa-calendar-alt pictofixedwidth"></i>' . $langs->trans('Events');
 	$head[$h][2] = 'sheetAgenda';
 	$h++;
 
