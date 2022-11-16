@@ -141,7 +141,7 @@ ErrorMultipleLinkedElement = Erreur la fiche modèle est liée à plusieurs él�
 ErrorSheetUsedInControl = La fiche modèle %s ne peut pas être supprimée, elle est utilisée dans un ou plusieurs contrôles.
 ConfigElementLinked = Vous n'avez pas configuré d'éléments liés, veuillez cliquer ici pour vous rendre sur la page de configuration
 ConfigControl = Page de configuration des contrôles
-
+ConfirmCloneSheet = Êtes-vous sûr(e) de vouloir cloner cette fiche modèle ?
 
 # Tags - catégories
 Quality = Qualité

@@ -432,6 +432,54 @@ class Sheet extends CommonObject
 		}
 	}
 
+
+	/**
+	 * Clone an object into another one
+	 *
+	 * @param User $user User that creates
+	 * @param int $fromid Id of object to clone
+	 * @param $options
+	 * @return    mixed                New object created, <0 if KO
+	 * @throws Exception
+	 */
+	public function createFromClone(User $user, $fromid)
+	{
+		global $conf, $langs;
+		$error = 0;
+
+		$refSheetMod = new $conf->global->DOLISMQ_SHEET_ADDON($db);
+		require_once __DIR__ . '/../core/modules/dolismq/sheet/mod_sheet_standard.php';
+
+		dol_syslog(__METHOD__, LOG_DEBUG);
+
+		$object = new self($this->db);
+
+		$this->db->begin();
+
+		// Load source object
+		$result = $object->fetchCommon($fromid);
+		if ($result > 0 && ! empty($object->table_element_line)) {
+			$object->fetchLines();
+		}
+
+		// Create clone
+		$object->context['createfromclone'] = 'createfromclone';
+
+		$object->ref = $refSheetMod->getNextValue($object);
+		$objectid                           = $object->create($user);
+
+		unset($object->context['createfromclone']);
+
+		// End
+		if ( ! $error) {
+			$this->db->commit();
+			return $objectid;
+		} else {
+			$this->db->rollback();
+			return -1;
+		}
+	}
+
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
 	 *  Return if a sheet can be deleted
