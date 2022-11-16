@@ -104,9 +104,7 @@ class modDoliSMQ extends DolibarrModules
 			// Set this to 1 if module has its own theme directory (theme)
 			'theme' => 0,
 			// Set this to relative path of css file if module has its own css file
-			'css' => [
-				//    '/dolismq/css/dolismq.css.php',
-			],
+			'css' => ['/dolismq/css/dolismq_all.css'],
 			// Set this to relative path of js file if module must load a js on all pages
 			'js' => [
 				//   '/dolismq/js/dolismq.js.php',
@@ -127,7 +125,7 @@ class modDoliSMQ extends DolibarrModules
 			'/dolismq/question',
 			'/ecm/dolismq',
 			'/ecm/dolismq/medias',
-			'/ecm/dolisirh/controldocument'
+			'/ecm/dolismq/controldocument'
 		];
 
 		// Config pages. Put here list of php page, stored into dolismq/admin directory, to use to set up module.
@@ -205,12 +203,12 @@ class modDoliSMQ extends DolibarrModules
 		$this->tabs   = [];
 		$pictopath    = dol_buildpath('/custom/dolismq/img/dolismq_color.png', 1);
 		$pictoDoliSMQ = img_picto('', $pictopath, '', 1, 0, 0, '', 'pictoDoliSMQ');
-		$this->tabs[] = ['data' => 'productlot:+control' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=productbatch'];
-		$this->tabs[] = ['data' => 'product:+control' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=product'];
-		$this->tabs[] = ['data' => 'project:+control' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project'];
-		$this->tabs[] = ['data' => 'thirdparty:+control' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=societe'];
-		$this->tabs[] = ['data' => 'task:+control' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project_task'];
-		$this->tabs[] = ['data' => 'user:+control' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=user'];
+		$this->tabs[] = ['data' => 'productlot:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=productbatch'];
+		$this->tabs[] = ['data' => 'product:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=product'];
+		$this->tabs[] = ['data' => 'project:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project'];
+		$this->tabs[] = ['data' => 'thirdparty:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=societe'];
+		$this->tabs[] = ['data' => 'task:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project_task'];
+		$this->tabs[] = ['data' => 'user:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=user'];
 
 		// Dictionaries
 		$this->dictionaries = [];
@@ -350,18 +348,19 @@ class modDoliSMQ extends DolibarrModules
 
 		// Add here entries to declare new menus
 		$this->menu[$r++] = [
-			'fk_menu'  => '', 														// '' if this is a top menu. For left menu, use 'fk_mainmenu=xxx' or 'fk_mainmenu=xxx,fk_leftmenu=yyy' where xxx is mainmenucode and yyy is a leftmenucode
-			'type'     => 'top', 													// This is a Top menu entry
-			'titre'    => 'DoliSMQ',
+			'fk_menu'  => 'fk_mainmenu=dolismq',
+			'type'     => 'top',
+			'titre'    => $langs->trans('DoliSMQ'),
+			'prefix'   => '<i class="fas fa-home pictofixedwidth"></i>',
 			'mainmenu' => 'dolismq',
 			'leftmenu' => '',
 			'url'      => '/dolismq/dolismqindex.php',
-			'langs'    => 'dolismq@dolismq', 										// Lang file to use (without .lang) by module. File must be in langs/code_CODE/ directory.
+			'langs'    => 'dolismq@dolismq',
 			'position' => 1000 + $r,
-			'enabled'  => '$conf->dolismq->enabled', 								// Define condition to show or hide menu entry. Use '$conf->dolismq->enabled' if entry must be visible if module is enabled.
-			'perms'    => '$user->rights->dolismq->lire',  							// Use 'perms'=>'$user->rights->dolismq->level1->level2' if you want your menu with a permission rules
+			'enabled'  => '$conf->dolismq->enabled',
+			'perms'    => '$user->rights->dolismq->lire',
 			'target'   => '',
-			'user'     => 0, 														// 0=Menu for internal users, 1=external users, 2=both
+			'user'     => 0,
 		];
 
 		$this->menu[$r++] = [

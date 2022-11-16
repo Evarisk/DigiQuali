@@ -1,0 +1,14 @@
+div.mainmenu.dolismq {
+    background-image: none;
+}
+
+div.mainmenu.dolismq::before {
+    content: '\f46c';
+}
+
+.pictoDoliSMQ {
+    vertical-align: middle;
+    text-align: left;
+    width: 20px;
+    padding-right: 4px;
+}
