@@ -452,7 +452,6 @@ class Sheet extends CommonObject
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
 		$object = new self($this->db);
-
 		$this->db->begin();
 
 		// Load source object
@@ -462,12 +461,14 @@ class Sheet extends CommonObject
 		}
 
 		// Create clone
+		$object->fetchObjectLinked($object->id, 'dolismq_' . $object->element);
 		$object->context['createfromclone'] = 'createfromclone';
-
 		$object->ref = $refSheetMod->getNextValue($object);
 		$object->status = 1;
 		$objectid                           = $object->create($user);
 
+
+		//add categories
 		$cat = new Categorie($this->db);
 		$categories = $cat->containing($fromid, 'sheet');
 
@@ -478,6 +479,13 @@ class Sheet extends CommonObject
 			if ($objectid > 0) {
 				$object->fetch($objectid);
 				$object->setCategories($categoryIds);
+			}
+		}
+
+		//add objects linked
+		if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
+			foreach ($object->linkedObjects['dolismq_question'] as $question) {
+				$question->add_object_linked('dolismq_' . $object->element,$objectid);
 			}
 		}
 
