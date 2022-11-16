@@ -432,7 +432,6 @@ class Sheet extends CommonObject
 		}
 	}
 
-
 	/**
 	 * Clone an object into another one
 	 *
@@ -447,7 +446,7 @@ class Sheet extends CommonObject
 		global $conf, $langs;
 		$error = 0;
 
-		$refSheetMod = new $conf->global->DOLISMQ_SHEET_ADDON($db);
+		$refSheetMod = new $conf->global->DOLISMQ_SHEET_ADDON($this->db);
 		require_once __DIR__ . '/../core/modules/dolismq/sheet/mod_sheet_standard.php';
 
 		dol_syslog(__METHOD__, LOG_DEBUG);
@@ -466,7 +465,21 @@ class Sheet extends CommonObject
 		$object->context['createfromclone'] = 'createfromclone';
 
 		$object->ref = $refSheetMod->getNextValue($object);
+		$object->status = 1;
 		$objectid                           = $object->create($user);
+
+		$cat = new Categorie($this->db);
+		$categories = $cat->containing($fromid, 'sheet');
+
+		if (is_array($categories) && !empty($categories)) {
+			foreach($categories as $cat) {
+				$categoryIds[] = $cat->id;
+			}
+			if ($objectid > 0) {
+				$object->fetch($objectid);
+				$object->setCategories($categoryIds);
+			}
+		}
 
 		unset($object->context['createfromclone']);
 

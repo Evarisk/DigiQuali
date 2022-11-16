@@ -92,6 +92,8 @@ EnterComment = Saisir les commentaires
 EnterCommentTooltip = Saisi le commentaire sur les réponses de question
 ErrorQuestionUsedInSheet = La question %s ne peut pas être supprimée, elle est utilisée dans une ou plusieurs fiches modèles.
 ErrorNoQuestionSelected = Aucune question sélectionnée
+ConfirmCloneQuestion = Êtes-vous sûr(e) de vouloir cloner cette question ?
+
 
 #
 # Sheet

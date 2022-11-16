@@ -483,6 +483,66 @@ class Question extends CommonObject
 	}
 
 	/**
+	 * Clone an object into another one
+	 *
+	 * @param User $user User that creates
+	 * @param int $fromid Id of object to clone
+	 * @param $options
+	 * @return    mixed                New object created, <0 if KO
+	 * @throws Exception
+	 */
+	public function createFromClone(User $user, $fromid)
+	{
+		global $conf, $langs;
+		$error = 0;
+
+		$refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($this->db);
+		require_once __DIR__ . '/../core/modules/dolismq/question/mod_question_standard.php';
+
+		dol_syslog(__METHOD__, LOG_DEBUG);
+
+		$object = new self($this->db);
+
+		$this->db->begin();
+
+		// Load source object
+		$result = $object->fetchCommon($fromid);
+		if ($result > 0 && ! empty($object->table_element_line)) {
+			$object->fetchLines();
+		}
+
+		// Create clone
+		$object->context['createfromclone'] = 'createfromclone';
+		$object->ref = $refQuestionMod->getNextValue($object);
+		$object->status = 1;
+		$objectid                           = $object->create($user);
+
+		$cat = new Categorie($this->db);
+		$categories = $cat->containing($fromid, 'question');
+
+		if (is_array($categories) && !empty($categories)) {
+			foreach($categories as $cat) {
+				$categoryIds[] = $cat->id;
+			}
+			if ($objectid > 0) {
+				$object->fetch($objectid);
+				$object->setCategories($categoryIds);
+			}
+		}
+
+		unset($object->context['createfromclone']);
+
+		// End
+		if ( ! $error) {
+			$this->db->commit();
+			return $objectid;
+		} else {
+			$this->db->rollback();
+			return -1;
+		}
+	}
+
+	/**
 	 * Sets object to supplied categories.
 	 *
 	 * Deletes object from existing categories not supplied.
