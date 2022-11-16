@@ -67,7 +67,7 @@ if (!$user->admin) accessforbidden();
 
 $page_name = "DoliSMQAbout";
 $help_url  = 'FR:Module_DoliSMQ';
-$morejs    = array("/dolismq/js/dolismq.js.php");
+$morejs    = array("/dolismq/js/dolismq.js");
 
 llxHeader('', $langs->trans($page_name), $help_url, '', 0, 0, $morejs);
 

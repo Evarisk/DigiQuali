@@ -342,7 +342,7 @@ if (empty($reshook)) {
 $now      = dol_now();
 $help_url = '';
 $title    = $langs->trans("ControlList");
-$morejs   = array("/dolismq/js/dolismq.js.php");
+$morejs   = array("/dolismq/js/dolismq.js");
 $morecss  = array("/dolismq/css/dolismq.css");
 
 llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);

@@ -57,7 +57,7 @@ if (!$user->admin) accessforbidden();
  */
 
 $page_name = "DoliSMQSetup";
-$morejs    = array("/dolismq/js/dolismq.js.php");
+$morejs    = array("/dolismq/js/dolismq.js");
 
 llxHeader('', $langs->trans($page_name), '', '', 0, 0, $morejs);
 

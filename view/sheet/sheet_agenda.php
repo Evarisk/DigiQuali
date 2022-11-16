@@ -124,7 +124,7 @@ if (empty($reshook)) {
 if ($object->id > 0) {
 	$title    = $langs->trans("Sheet") . ' - ' . $langs->trans("Agenda");
 	$help_url = 'FR:Module_DoliSMQ';
-	$morejs   = array("/dolismq/js/dolismq.js.php");
+	$morejs   = array("/dolismq/js/dolismq.js");
 	$morecss  = array("/dolismq/css/dolismq.css");
 
 	llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);

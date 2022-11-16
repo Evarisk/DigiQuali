@@ -493,7 +493,7 @@ if (empty($reshook)) {
 
 $title    = $langs->trans("Question");
 $help_url = '';
-$morejs   = array("/dolismq/js/dolismq.js.php");
+$morejs   = array("/dolismq/js/dolismq.js");
 $morecss  = array("/dolismq/css/dolismq.css");
 
 llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);

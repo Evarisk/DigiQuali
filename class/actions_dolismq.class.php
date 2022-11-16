@@ -110,7 +110,7 @@ class ActionsDolismq
 		$error = 0; // Error counter
 
 		if (preg_match('/categoryindex/', $parameters['context'])) {	    // do something only for the context 'somecontext1' or 'somecontext2'
-			print '<script src="../custom/dolismq/js/dolismq.js.php"></script>';
+			print '<script src="../custom/dolismq/js/dolismq.js"></script>';
 		}
 
 		if (!$error) {

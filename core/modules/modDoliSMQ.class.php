@@ -107,7 +107,7 @@ class modDoliSMQ extends DolibarrModules
 			'css' => ['/dolismq/css/dolismq_all.css'],
 			// Set this to relative path of js file if module must load a js on all pages
 			'js' => [
-				//   '/dolismq/js/dolismq.js.php',
+				//   '/dolismq/js/dolismq.js',
 			],
 			// Set here all hooks context managed by module. To find available hook context, make a "grep -r '>initHooks(' *" on source code. You can also set hook context to 'all'
 			'hooks' => [
@@ -344,7 +344,6 @@ class modDoliSMQ extends DolibarrModules
 		// Main menu entries to add
 		$this->menu = [];
 		$r = 0;
-		$langs->load('dolismq@dolismq');
 
 		// Add here entries to declare new menus
 		$this->menu[$r++] = [
