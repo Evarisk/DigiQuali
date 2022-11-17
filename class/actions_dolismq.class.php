@@ -67,27 +67,33 @@ class ActionsDolismq
 	 *
 	 * @param   array           $parameters     Hook metadatas (context, etc...)
 	 * @param   CommonObject    $object         The object to process (an invoice if you are in invoice module, a propale in propale's module, etc...)
-	 * @return  int                             < 0 on error, 0 on success, 1 to replace standard code
+	 * @return  int                             0 < on error, 0 on success, 1 to replace standard code
 	 */
 	public function constructCategory($parameters, &$object)
 	{
 		$error = 0; // Error counter
 
-		if (in_array($parameters['currentcontext'], array('category', 'somecontext2'))) { // do something only for the context 'somecontext1' or 'somecontext2'
-			$tags = array(
-				'question' => array(
-					'id' => 50,
-					'code' => 'question',
+		if (($parameters['currentcontext'] == 'category')) {
+			$tags = [
+				'question' => [
+					'id'        => 436301001,
+					'code'      => 'question',
 					'obj_class' => 'Question',
 					'obj_table' => 'dolismq_question',
-				),
-				'sheet' => array(
-					'id' => 51,
-					'code' => 'sheet',
+				],
+				'sheet' => [
+					'id'        => 436301002,
+					'code'      => 'sheet',
 					'obj_class' => 'Sheet',
 					'obj_table' => 'dolismq_sheet',
-				),
-			);
+				],
+				'control' => [
+					'id'        => 436301003,
+					'code'      => 'control',
+					'obj_class' => 'Control',
+					'obj_table' => 'dolismq_control',
+				]
+			];
 		}
 
 		if (!$error) {

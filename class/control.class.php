@@ -60,32 +60,32 @@ class Control extends CommonObject
 	 */
 	public $picto = 'control@dolismq';
 
-	const STATUS_DRAFT     = 0;
-	const STATUS_VALIDATED = 1;
-	const STATUS_LOCKED    = 2;
+	public const STATUS_DRAFT     = 0;
+	public const STATUS_VALIDATED = 1;
+	public const STATUS_LOCKED    = 2;
 
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
 	 */
-	public $fields = array(
-		'rowid'              => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
-		'ref'                => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
-		'ref_ext'            => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "External reference of object"),
-		'entity'             => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
-		'date_creation'      => array('type' => 'datetime', 'label' => 'ControlDate', 'enabled' => '1', 'position' => 40, 'positioncard' => 10, 'notnull' => 1, 'visible' => 5,),
-		'tms'                => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
-		'import_key'         => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
-		'status'             => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0', 'arrayofkeyval' => array('0' => 'Draft', '1' => 'ValidatedControl', '2' => 'Locked'),),
-		'note_public'        => array('type'=>'textarea', 'label'=>'PublicNote', 'enabled'=>'1', 'position'=>80, 'notnull'=>0, 'visible'=>0,),
-		'note_private'       => array('type'=>'textarea', 'label'=>'PrivateNote', 'enabled'=>'1', 'position'=>90, 'notnull'=>0, 'visible'=>0,),
-		'type'               => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 100, 'notnull' => 0, 'visible' => 0,),
-		'verdict'            => array('type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 110,'positioncard' => 20, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => array('0' => '', '1' => 'OK', '2' => 'KO'),),
-		'fk_user_creat'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',),
-		'fk_user_modif'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
-		'fk_sheet'           => array('type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5,),
-		'fk_user_controller' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'FKUserController','positioncard' => 1, 'enabled' => '1', 'position' => 24, 'notnull' => 1, 'visible' => 5, 'foreignkey' => 'user.rowid'),
-		'fk_project'         => array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'FKProject','positioncard' => 2, 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'projet.rowid'),
-	);
+	public $fields = [
+		'rowid'              => ['type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => 'Id'],
+		'ref'                => ['type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => 'Reference of object'],
+		'ref_ext'            => ['type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 0, 'visible' => 0],
+		'entity'             => ['type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0],
+		'date_creation'      => ['type' => 'datetime', 'label' => 'ControlDate', 'enabled' => '1', 'position' => 40, 'positioncard' => 10, 'notnull' => 1, 'visible' => 5],
+		'tms'                => ['type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0],
+		'import_key'         => ['type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 0],
+		'status'             => ['type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0', 'arrayofkeyval' => ['0' => 'Draft', '1' => 'ValidatedControl', '2' => 'Locked']],
+		'note_public'        => ['type' => 'html', 'label' => 'PublicNote', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0],
+		'note_private'       => ['type' => 'html', 'label' => 'PrivateNote', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 0],
+		'type'               => ['type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 100, 'notnull' => 0, 'visible' => 0],
+		'verdict'            => ['type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 110,'positioncard' => 20, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => ['0' => '', '1' => 'OK', '2' => 'KO']],
+		'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
+		'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0],
+		'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5],
+		'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1', 'label' => 'FKUserController','positioncard' => 1, 'enabled' => '1', 'position' => 24, 'notnull' => 1, 'visible' => 3, 'css' => 'maxwidth500 widthcentpercentminusxx', 'picto' => 'user', 'foreignkey' => 'user.rowid'],
+		'fk_project'         => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project','positioncard' => 2, 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 3, 'css' => 'maxwidth500 widthcentpercentminusxx', 'picto' => 'project', 'foreignkey' => 'projet.rowid']
+	];
 
 	public $rowid;
 	public $ref;
@@ -337,7 +337,7 @@ class Control extends CommonObject
 		// Links between objects are stored in table element_element
 		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype';
 		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
-		$sql .= " WHERE fk_target = " . $this->id;
+		$sql .= ' WHERE fk_target = ' . $this->id;
 		$sql .= " AND targettype = '" . $this->table_element . "'";
 
 		$resql = $this->db->query($sql);
@@ -372,7 +372,7 @@ class Control extends CommonObject
 		// Links between objects are stored in table element_element
 		$sql = 'DELETE';
 		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
-		$sql .= " WHERE fk_target = " . $this->id;
+		$sql .= ' WHERE fk_target = ' . $this->id;
 		$sql .= " AND targettype = '" . $this->table_element . "'";
 
 		$resql = $this->db->query($sql);
@@ -404,7 +404,7 @@ class Control extends CommonObject
 
 		$result = '';
 
-		$label = '<i class="fas fa-tasks"></i>' . ' <u>' . $langs->trans("Control") . '</u>';
+		$label = '<i class="fas fa-tasks"></i>' . ' <u>' . $langs->trans('Control') . '</u>';
 		if (isset($this->status)) {
 			$label .= ' ' . $this->getLibStatut(5);
 		}
@@ -416,14 +416,14 @@ class Control extends CommonObject
 		if ($option != 'nolink') {
 			// Add param to save lastsearch_values or not
 			$add_save_lastsearch_values                                                                                      = ($save_lastsearch_value == 1 ? 1 : 0);
-			if ($save_lastsearch_value == -1 && preg_match('/list\.php/', $_SERVER["PHP_SELF"])) $add_save_lastsearch_values = 1;
+			if ($save_lastsearch_value == -1 && preg_match('/list\.php/', $_SERVER['PHP_SELF'])) $add_save_lastsearch_values = 1;
 			if ($add_save_lastsearch_values) $url                                                                           .= '&save_lastsearch_values=1';
 		}
 
 		$linkclose = '';
 		if (empty($notooltip)) {
 			if ( ! empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER)) {
-				$label      = $langs->trans("ShowControl");
+				$label      = $langs->trans('ShowControl');
 				$linkclose .= ' alt="' . dol_escape_htmltag($label, 1) . '"';
 			}
 			$linkclose .= ' title="' . dol_escape_htmltag($label, 1) . '"';
@@ -624,7 +624,7 @@ class Control extends CommonObject
 		$result               = 0;
 		$includedocgeneration = 1;
 
-		$langs->load("dolismq@dolismq");
+		$langs->load('dolismq@dolismq');
 
 		if ( ! dol_strlen($modele)) {
 			$modele = 'standard_control';
@@ -636,13 +636,28 @@ class Control extends CommonObject
 			}
 		}
 
-		$modelpath = "core/modules/dolismq/controldocument/";
+		$modelpath = 'core/modules/dolismq/controldocument/';
 
 		if ($includedocgeneration && ! empty($modele)) {
 			$result = $this->commonGenerateDocument($modelpath, $modele, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams['object']);
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Sets object to supplied categories.
+	 *
+	 * Deletes object from existing categories not supplied.
+	 * Adds it to non-existing supplied categories.
+	 * Existing categories are left untouch.
+	 *
+	 * @param  int[]|int $categories Category or categories IDs
+	 * @return float|int
+	 */
+	public function setCategories($categories)
+	{
+		return parent::setCategoriesCommon($categories, 'control');
 	}
 }
 
@@ -676,8 +691,8 @@ class ControlLine extends CommonObjectLine
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
 	 */
 	public $fields = array(
-		'rowid'             => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'comment' => "Id"),
-		'ref'               => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 1, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
+		'rowid'             => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'comment' => 'Id'),
+		'ref'               => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 1, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => 'Reference of object'),
 		'ref_ext'           => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 0, 'visible' => 0,),
 		'entity'            => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
 		'date_creation'     => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 0,),
@@ -916,21 +931,21 @@ class ControlLine extends CommonObjectLine
 		$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . 'dolismq_controldet';
 		$sql .= ' ( ref, entity, status, date_creation, answer, answer_photo, comment, fk_question, fk_control, fk_user_creat';
 		$sql .= ')';
-		$sql .= " VALUES (";
-		$sql .= "'" . $db->escape($this->ref) . "'" . ", ";
-		$sql .= $this->entity . ", ";
-		$sql .= 1 . ", ";
-		$sql .= "'" . $db->escape($db->idate($now)) . "'" . ", ";
-		$sql .= "'" . $db->escape($this->answer) . "'" . ", ";
-		$sql .= "'" . $db->escape($this->answer_photo) . "'" . ", ";
-		$sql .= "'" . $db->escape($this->comment) . "'" . ", ";
-		$sql .= $this->fk_question . ", ";
-		$sql .= $this->fk_control . ", ";
+		$sql .= ' VALUES (';
+		$sql .= "'" . $db->escape($this->ref) . "'" . ', ';
+		$sql .= $this->entity . ', ';
+		$sql .= 1 . ', ';
+		$sql .= "'" . $db->escape($db->idate($now)) . "'" . ', ';
+		$sql .= "'" . $db->escape($this->answer) . "'" . ', ';
+		$sql .= "'" . $db->escape($this->answer_photo) . "'" . ', ';
+		$sql .= "'" . $db->escape($this->comment) . "'" . ', ';
+		$sql .= $this->fk_question . ', ';
+		$sql .= $this->fk_control . ', ';
 		$sql .= $user->id;
 
 		$sql .= ')';
 
-		dol_syslog(get_class($this) . "::insert", LOG_DEBUG);
+		dol_syslog(get_class($this) . '::insert', LOG_DEBUG);
 		$resql = $db->query($sql);
 
 		if ($resql) {
@@ -972,19 +987,19 @@ class ControlLine extends CommonObjectLine
 		$db->begin();
 
 		// Mise a jour ligne en base
-		$sql  = "UPDATE " . MAIN_DB_PREFIX . "dolismq_controldet SET";
+		$sql  = 'UPDATE ' . MAIN_DB_PREFIX . 'dolismq_controldet SET';
 
 		$sql .= " ref='" . $db->escape($this->ref) . "',";
 		$sql .= " status='" . $db->escape($this->status) . "',";
 		$sql .= " answer='" . $db->escape($this->answer) . "',";
-		$sql .= " answer_photo=" . '"' . $db->escape($this->answer_photo) . '"' . ",";
-		$sql .= " comment=" . '"' . $db->escape($this->comment) . '"' .",";
-		$sql .= " fk_question=" . $db->escape($this->fk_question). ",";
-		$sql .= " fk_control=" . $db->escape($this->fk_control);
+		$sql .= ' answer_photo=' . '"' . $db->escape($this->answer_photo) . '"' . ',';
+		$sql .= ' comment=' . '"' . $db->escape($this->comment) . '"' . ',';
+		$sql .= ' fk_question=' . $db->escape($this->fk_question). ',';
+		$sql .= ' fk_control=' . $db->escape($this->fk_control);
 
-		$sql .= " WHERE rowid = " . $this->id;
+		$sql .= ' WHERE rowid = ' . $this->id;
 
-		dol_syslog(get_class($this) . "::update", LOG_DEBUG);
+		dol_syslog(get_class($this) . '::update', LOG_DEBUG);
 
 		$resql = $db->query($sql);
 
@@ -1016,8 +1031,8 @@ class ControlLine extends CommonObjectLine
 
 		$db->begin();
 
-		$sql = "DELETE FROM " . MAIN_DB_PREFIX . "dolismq_controldet WHERE rowid = " . $this->id;
-		dol_syslog(get_class($this) . "::delete", LOG_DEBUG);
+		$sql = 'DELETE FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet WHERE rowid = ' . $this->id;
+		dol_syslog(get_class($this) . '::delete', LOG_DEBUG);
 		if ($db->query($sql)) {
 			$db->commit();
 			// Triggers
@@ -1028,7 +1043,7 @@ class ControlLine extends CommonObjectLine
 			}
 			return 1;
 		} else {
-			$this->error = $db->error() . " sql=" . $sql;
+			$this->error = $db->error() . ' sql=' . $sql;
 			$db->rollback();
 			return -1;
 		}

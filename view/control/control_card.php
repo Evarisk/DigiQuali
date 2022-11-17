@@ -24,18 +24,18 @@
 // Load Dolibarr environment
 $res = 0;
 // Try main.inc.php into web root known defined into CONTEXT_DOCUMENT_ROOT (not always defined)
-if (!$res && !empty($_SERVER["CONTEXT_DOCUMENT_ROOT"])) $res = @include $_SERVER["CONTEXT_DOCUMENT_ROOT"]."/main.inc.php";
+if (!$res && !empty($_SERVER['CONTEXT_DOCUMENT_ROOT'])) $res = @include $_SERVER['CONTEXT_DOCUMENT_ROOT']. '/main.inc.php';
 // Try main.inc.php into web root detected using web root calculated from SCRIPT_FILENAME
 $tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME']; $tmp2 = realpath(__FILE__); $i = strlen($tmp) - 1; $j = strlen($tmp2) - 1;
 while ($i > 0 && $j > 0 && isset($tmp[$i]) && isset($tmp2[$j]) && $tmp[$i] == $tmp2[$j]) { $i--; $j--; }
-if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1))."/main.inc.php")) $res = @include substr($tmp, 0, ($i + 1))."/main.inc.php";
-if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php")) $res = @include dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php";
+if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1)). '/main.inc.php')) $res = @include substr($tmp, 0, ($i + 1)). '/main.inc.php';
+if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1))). '/main.inc.php')) $res = @include dirname(substr($tmp, 0, ($i + 1))). '/main.inc.php';
 // Try main.inc.php using relative path
-if (!$res && file_exists("../main.inc.php")) $res = @include "../main.inc.php";
-if ( ! $res && file_exists("../../main.inc.php")) $res       = @include "../../main.inc.php";
-if ( ! $res && file_exists("../../../main.inc.php")) $res    = @include "../../../main.inc.php";
-if ( ! $res && file_exists("../../../../main.inc.php")) $res = @include "../../../../main.inc.php";
-if (!$res) die("Include of main fails");
+if (!$res && file_exists('../main.inc.php')) $res = @include '../main.inc.php';
+if ( ! $res && file_exists('../../main.inc.php')) $res       = @include '../../main.inc.php';
+if ( ! $res && file_exists('../../../main.inc.php')) $res    = @include '../../../main.inc.php';
+if ( ! $res && file_exists('../../../../main.inc.php')) $res = @include '../../../../main.inc.php';
+if (!$res) die('Include of main fails');
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
@@ -49,6 +49,7 @@ require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
+require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
@@ -64,7 +65,7 @@ require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
-$langs->loadLangs(array("dolismq@dolismq", "other"));
+$langs->loadLangs(array('dolismq@dolismq', 'other'));
 
 // Get parameters
 $id                  = GETPOST('id', 'int');
@@ -90,6 +91,7 @@ $thirdparty       = new Societe($db);
 $productlot       = new Productlot($db);
 $extrafields      = new ExtraFields($db);
 $ecmfile 		  = new EcmFiles($db);
+$category         = new Categorie($db);
 $refControlMod    = new $conf->global->DOLISMQ_CONTROL_ADDON($db);
 $refControlDetMod = new $conf->global->DOLISMQ_CONTROLDET_ADDON($db);
 
@@ -105,7 +107,7 @@ $extrafields->fetch_name_optionals_label($object->table_element);
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
 // Initialize array of search criterias
-$search_all = GETPOST("search_all", 'alpha');
+$search_all = GETPOST('search_all', 'alpha');
 $search = array();
 foreach ($object->fields as $key => $val) {
 	if (GETPOST('search_'.$key, 'alpha')) $search[$key] = GETPOST('search_'.$key, 'alpha');
@@ -145,115 +147,11 @@ if (empty($reshook)) {
 			else $backtopage = dol_buildpath('/dolismq/view/control/control_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
 		}
 	}
-	// Action to add record
-	if ($action == 'add' && !empty($permissiontoadd)) {
-		foreach ($object->fields as $key => $val) {
-			if ($object->fields[$key]['type'] == 'duration') {
-				if (GETPOST($key.'hour') == '' && GETPOST($key.'min') == '') {
-					continue; // The field was not submited to be edited
-				}
-			} else {
-				if (!GETPOSTISSET($key)) {
-					continue; // The field was not submited to be edited
-				}
-			}
-			// Ignore special fields
-			if (in_array($key, array('rowid', 'entity', 'import_key'))) {
-				continue;
-			}
-			if (in_array($key, array('date_creation', 'tms', 'fk_user_creat', 'fk_user_modif'))) {
-				if (!in_array(abs($val['visible']), array(1, 3))) {
-					continue; // Only 1 and 3 that are case to create
-				}
-			}
 
-			// Set value to insert
-			if (in_array($object->fields[$key]['type'], array('text', 'html'))) {
-				$value = GETPOST($key, 'restricthtml');
-			} elseif ($object->fields[$key]['type'] == 'date') {
-				$value = dol_mktime(12, 0, 0, GETPOST($key.'month', 'int'), GETPOST($key.'day', 'int'), GETPOST($key.'year', 'int'));	// for date without hour, we use gmt
-			} elseif ($object->fields[$key]['type'] == 'datetime') {
-				$value = dol_mktime(GETPOST($key.'hour', 'int'), GETPOST($key.'min', 'int'), GETPOST($key.'sec', 'int'), GETPOST($key.'month', 'int'), GETPOST($key.'day', 'int'), GETPOST($key.'year', 'int'), 'tzuserrel');
-			} elseif ($object->fields[$key]['type'] == 'duration') {
-				$value = 60 * 60 * GETPOST($key.'hour', 'int') + 60 * GETPOST($key.'min', 'int');
-			} elseif (preg_match('/^(integer|price|real|double)/', $object->fields[$key]['type'])) {
-				$value = price2num(GETPOST($key, 'alphanohtml')); // To fix decimal separator according to lang setup
-			} elseif ($object->fields[$key]['type'] == 'boolean') {
-				$value = ((GETPOST($key) == '1' || GETPOST($key) == 'on') ? 1 : 0);
-			} elseif ($object->fields[$key]['type'] == 'reference') {
-				$tmparraykey = array_keys($object->param_list);
-				$value = $tmparraykey[GETPOST($key)].','.GETPOST($key.'2');
-			} else {
-				$value = GETPOST($key, 'alphanohtml');
-			}
-			if (preg_match('/^integer:/i', $object->fields[$key]['type']) && $value == '-1') {
-				$value = ''; // This is an implicit foreign key field
+	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
+	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
-			}
-			if (!empty($object->fields[$key]['foreignkey']) && $value == '-1') {
-				$value = ''; // This is an explicit foreign key field
-			}
-
-			//var_dump($key.' '.$value.' '.$object->fields[$key]['type']);
-
-			$object->$key = $value;
-			if ($val['notnull'] > 0 && $object->$key == '' && !is_null($val['default']) && $val['default'] == '(PROV)') {
-				$object->$key = '(PROV)';
-			}
-			if ($val['notnull'] > 0 && $object->$key == '' && is_null($val['default'])) {
-				$error++;
-				setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv($val['label'])), null, 'errors');
-			}
-		}
-
-		$object->fk_project = GETPOST('projectid');
-
-		// Fill array 'array_options' with data from add form
-		if (!$error) {
-			$ret = $extrafields->setOptionalsFromPost(null, $object);
-			if ($ret < 0) {
-				$error++;
-			}
-		}
-
-		if (!$error) {
-			$result = $object->create($user);
-			if ($result > 0) {
-				if (!empty(GETPOST('fk_product')) && GETPOST('fk_product') > 0) {
-					$object->add_object_linked('product', GETPOST('fk_product'));
-				}
-				if (!empty(GETPOST('fk_productlot')) && GETPOST('fk_productlot') > 0) {
-					$object->add_object_linked('productbatch', GETPOST('fk_productlot'));
-				}
-				if (!empty(GETPOST('fk_soc')) && GETPOST('fk_soc') > 0) {
-					$object->add_object_linked('societe', GETPOST('fk_soc'));
-				}
-				if (!empty(GETPOST('fk_project')) && GETPOST('fk_project') > 0) {
-					$object->add_object_linked('project', GETPOST('fk_project'));
-				}
-				if (!empty(GETPOST('fk_task')) && GETPOST('fk_task') > 0) {
-					$object->add_object_linked('project_task', GETPOST('fk_task'));
-				}
-				// Creation OK
-				$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
-				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
-				header("Location: ".$urltogo);
-				exit;
-			} else {
-				// Creation KO
-				if (!empty($object->errors)) {
-					setEventMessages(null, $object->errors, 'errors');
-				} else {
-					setEventMessages($object->error, null, 'errors');
-				}
-				$action = 'create';
-			}
-		} else {
-			$action = 'create';
-		}
-	}
-
-	if ( ! $error && $action == "addFiles") {
+	if ( ! $error && $action == 'addFiles') {
 		$data = json_decode(file_get_contents('php://input'), true);
 
 		$filenames  = $data['filenames'];
@@ -309,15 +207,15 @@ if (empty($reshook)) {
 					$destfull = $pathToQuestionPhoto . '/' . $newFilename;
 
 					// Create thumbs
-					$imgThumbSmall = vignette($destfull, $maxwidthsmall, $maxheightsmall, '_small', 50, "thumbs");
+					$imgThumbSmall = vignette($destfull, $maxwidthsmall, $maxheightsmall, '_small', 50, 'thumbs');
 					// Create mini thumbs for image (Ratio is near 16/9)
-					$imgThumbMini = vignette($destfull, $maxwidthmini, $maxheightmini, '_mini', 50, "thumbs");
+					$imgThumbMini = vignette($destfull, $maxwidthmini, $maxheightmini, '_mini', 50, 'thumbs');
 				}
 			}
 		}
 	}
 
-	if ( ! $error && $action == "unlinkFile" && $permissiontodelete) {
+	if ( ! $error && $action == 'unlinkFile' && $permissiontodelete) {
 		$data = json_decode(file_get_contents('php://input'), true);
 
 		$filename    = $data['filename'];
@@ -345,7 +243,7 @@ if (empty($reshook)) {
 
 		$urltogo = str_replace('__ID__', $id, $backtopage);
 		$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-		header("Location: " . $urltogo);
+		header('Location: ' . $urltogo);
 		exit;
 	}
 
@@ -417,7 +315,7 @@ if (empty($reshook)) {
 		}
 
 		setEventMessages($langs->trans('AnswerSaved'), array());
-		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
+		header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 		exit;
 	}
 
@@ -448,9 +346,9 @@ if (empty($reshook)) {
 				$db->commit();
 
 				// Delete OK
-				setEventMessages("RecordDeleted", null, 'mesgs');
+				setEventMessages('RecordDeleted', null, 'mesgs');
 
-				header("Location: ".$backurlforlist);
+				header('Location: ' .$backurlforlist);
 				exit;
 			} else {
 				$error++;
@@ -474,7 +372,7 @@ if (empty($reshook)) {
 	// Action to build doc
 	if ($action == 'builddoc' && $permissiontoadd) {
 		if (is_numeric(GETPOST('model', 'alpha'))) {
-			$error = $langs->trans("ErrorFieldRequired", $langs->transnoentities("Model"));
+			$error = $langs->trans('ErrorFieldRequired', $langs->transnoentities('Model'));
 		} else {
 			// Reload to get all modified line records and be ready for hooks
 			$ret = $object->fetch($id);
@@ -514,7 +412,7 @@ if (empty($reshook)) {
 				$newlang = $object->default_lang; // for thirdparty
 			}
 			if (!empty($newlang)) {
-				$outputlangs = new Translate("", $conf);
+				$outputlangs = new Translate('', $conf);
 				$outputlangs->setDefaultLang($newlang);
 			}
 
@@ -541,7 +439,7 @@ if (empty($reshook)) {
 				$action = '';
 			} else {
 				if (empty($donotredirect)) {	// This is set when include is done by bulk action "Bill Orders"
-					setEventMessages($langs->trans("FileGenerated"), null);
+					setEventMessages($langs->trans('FileGenerated'), null);
 
 					$urltoredirect = $_SERVER['REQUEST_URI'];
 					$urltoredirect = preg_replace('/#builddoc$/', '', $urltoredirect);
@@ -564,7 +462,7 @@ if (empty($reshook)) {
 				// Set verdict Control
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-				header("Location: " . $urltogo);
+				header('Location: ' . $urltogo);
 				exit;
 			} else {
 				// Set verdict Control error
@@ -579,12 +477,12 @@ if (empty($reshook)) {
 		if ( ! empty($upload_dir)) {
 			require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
-			$langs->load("other");
+			$langs->load('other');
 			$filetodelete = GETPOST('file', 'alpha');
 			$file         = $upload_dir . '/' . $filetodelete;
 			$ret          = dol_delete_file($file, 0, 0, 0, $object);
-			if ($ret) setEventMessages($langs->trans("FileWasRemoved", $filetodelete), null, 'mesgs');
-			else setEventMessages($langs->trans("ErrorFailToDeleteFile", $filetodelete), null, 'errors');
+			if ($ret) setEventMessages($langs->trans('FileWasRemoved', $filetodelete), null, 'mesgs');
+			else setEventMessages($langs->trans('ErrorFailToDeleteFile', $filetodelete), null, 'errors');
 
 			// Make a redirect to avoid to keep the remove_file into the url that create side effects
 			$urltoredirect = $_SERVER['REQUEST_URI'];
@@ -652,7 +550,7 @@ if (empty($reshook)) {
 				// Set validated OK
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-				header("Location: " . $urltogo);
+				header('Location: ' . $urltogo);
 				exit;
 			} else {
 				// Set validated KO
@@ -673,7 +571,7 @@ if (empty($reshook)) {
 				// Set reopened OK
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-				header("Location: " . $urltogo);
+				header('Location: ' . $urltogo);
 				exit;
 			} else {
 				// Set reopened KO
@@ -692,38 +590,13 @@ if (empty($reshook)) {
 				// Set locked OK
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-				header("Location: " . $urltogo);
+				header('Location: ' . $urltogo);
 				exit;
 			} else {
 				// Set locked KO
 				if ( ! empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
 				else setEventMessages($object->error, null, 'errors');
 			}
-		}
-	}
-
-	// Action to update one extrafield
-	if ($action == "update_extras" && !empty($permissiontoadd)) {
-		$object->fetch(GETPOST('id', 'int'));
-
-		$ret = $extrafields->setOptionalsFromPost(null, $object, GETPOST('attribute', 'restricthtml'));
-		if ($ret < 0) {
-			$error++;
-		}
-
-		if (!$error) {
-			$result = $object->insertExtraFields(empty($triggermodname) ? '' : $triggermodname, $user);
-			if ($result < 0) {
-				$error++;
-			}
-		}
-
-		if ($error) {
-			setEventMessages($object->error, $object->errors, 'errors');
-			$action = 'edit_extras';
-		} else {
-			setEventMessages($langs->trans('RecordSaved'), null, 'mesgs');
-			$action = 'view';
 		}
 	}
 
@@ -738,12 +611,12 @@ if (empty($reshook)) {
  * View
  */
 
-$title         = $langs->trans("Control");
-$title_create  = $langs->trans("NewControl");
-$title_edit    = $langs->trans("ModifyControl");
+$title         = $langs->trans('Control');
+$title_create  = $langs->trans('NewControl');
+$title_edit    = $langs->trans('ModifyControl');
 $help_url      = '';
-$morejs        = array("/dolismq/js/dolismq.js.php");
-$morecss       = array("/dolismq/css/dolismq.css");
+$morejs        = array('/dolismq/js/dolismq.js');
+$morecss       = array('/dolismq/css/dolismq.css');
 
 llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);
 
@@ -751,7 +624,7 @@ llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);
 if ($action == 'create') {
 	print load_fiche_titre($title_create, '', 'object_'.$object->picto);
 
-	print '<form method="POST" id="createControlForm" action="'.$_SERVER["PHP_SELF"].'">';
+	print '<form method="POST" id="createControlForm" action="'.$_SERVER['PHP_SELF'].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="add">';
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
@@ -765,96 +638,70 @@ if ($action == 'create') {
 		$sheet->fetch(GETPOST('fk_sheet'));
 	}
 
-	//Ref -- Ref
-	print '<tr><td class="fieldrequired titlefieldcreate">' . $langs->trans("Ref") . '</td><td>';
-	print '<input hidden class="flat" type="text" size="36" name="ref" id="ref" value="' . $refControlMod->getNextValue($object) . '">';
-	print $refControlMod->getNextValue($object);
-	print '</td></tr>';
+	// Common attributes
+	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_add.tpl.php';
 
-	//FK User controller
-	if ($user->rights->dolismq->adminpage->changeusercontroller) {
-		$userlist = $form->select_dolusers(( ! empty(GETPOST('fk_user_controller')) ? GETPOST('fk_user_controller') : $user->id), '', 0, null, 0, '', '', $conf->entity, 0, 0, 'AND u.statut = 1', 0, '', 'minwidth300', 0, 1);
-		print '<tr>';
-		print '<td class="fieldrequired " style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
-		print '<td>';
-		print $form->selectarray('fk_user_controller', $userlist, ( ! empty(GETPOST('fk_user_controller')) ? GETPOST('fk_user_controller') : $user->id), $langs->trans('SelectUser'), null, null, null, "40%", 0, 0, '', 'minwidth300', 1);
-		print '<a href="' . DOL_URL_ROOT . '/user/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddUser") . '"></span></a>';
+	// Categories
+	if (!empty($conf->categorie->enabled)) {
+		print '<tr><td>'.$langs->trans('Categories').'</td><td>';
+		$cate_arbo = $form->select_all_categories('control', '', 'parent', 64, 0, 1);
+		print img_picto('', 'category').$form->multiselectarray('categories', $cate_arbo, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
 		print '</td></tr>';
-	} else {
-		print '<tr>';
-		print '<td class="fieldrequired " style="width:10%">' . img_picto('', 'user') . ' ' . $form->editfieldkey('FKUserController', 'FKUserController_id', '', $object, 0) . '</td>';
-		print '<td>' . $user->getNomUrl() . '</td>';
-		print '<input type="hidden" name="fk_user_controller" value="' . $user->id . '">';
-		print '</td></tr>';
-	}
-
-	// Project
-	if (!empty($conf->projet->enabled)) {
-		print '<tr>';
-		print '<td>'.img_picto('', 'project', 'class="paddingrightonly"') . $langs->trans("Project").'</td><td>';
-		print  $formproject->select_projects(-1, GETPOST("projectid"), 'projectid', 0, 0, 1, 0, 0, 0, 0, '', 1, 0, 'minwidth300');
-		print ' <a href="'.DOL_URL_ROOT.'/projet/card.php?action=create&status=1&backtopage='.urlencode($_SERVER["PHP_SELF"].'?action=create').'"><span class="fa fa-plus-circle valignmiddle" title="'.$langs->trans("AddProject").'"></span></a>';
-		print '</td>';
-		print '</tr>';
 	}
 
 	//FK SHEET
-	print '<tr><td class="fieldrequired">' . $langs->trans("SheetLinked") . '</td><td>';
-	print $sheet->select_sheet_list(GETPOST('fk_sheet')?: $sheet->id);
-	print '</td></tr>';
-
-	print '<tr><td><hr></td><td>';
-	print '<hr>';
+	print '<tr><td class="fieldrequired">' . $langs->trans('SheetLinked') . '</td><td>';
+	print '<i class="fas fa-list"></i>' . $sheet->select_sheet_list(GETPOST('fk_sheet')?: $sheet->id);
 	print '</td></tr>';
 
 	print '<div class="fields-content">';
 	//FK Product
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT && preg_match('/"product":1/',$sheet->element_linked)) {
-		print '<tr><td class="">' . img_picto('', 'product', 'class="paddingrightonly"') . $langs->trans("Product") . ' ' . $langs->trans('Or') . ' ' . $langs->trans('Service') . '</td><td>';
+		print '<tr><td class="">' . $langs->trans('Product') . ' ' . $langs->trans('Or') . ' ' . $langs->trans('Service') . '</td><td>';
 		$events = array();
 		$events[1] = array('method' => 'getProductLots', 'url' => dol_buildpath('/custom/dolismq/core/ajax/lots.php?showempty=1', 1), 'htmlname' => 'fk_productlot');
-		print $form->select_produits(GETPOST('fk_product'), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices', 0, 'minwidth300');
-		print '<a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
+		print img_picto('', 'product') . $form->select_produits(GETPOST('fk_product'), 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices', 0, 'minwidth500');
+		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddThirdParty') . '"></span></a>';
 		print '</td></tr>';
 	}
 
 	//FK PRODUCTLOT
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT && preg_match('/"productlot":1/',$sheet->element_linked)) {
 		print '<tr><td class="">';
-		print img_picto('', 'lot', 'class="paddingrightonly"') . $langs->trans("Lot");
+		print $langs->trans('Lot');
 		print '</td><td class="lot-container">';
 		print '<span class="lot-content">';
 		$data = json_decode(file_get_contents('php://input'), true);
 		dol_strlen($data['productRef']) > 0 ? $product->fetch(0, $data['productRef']) : 0;
-		print dolismq_select_product_lots((!empty(GETPOST('fk_product')) ? GETPOST('fk_product') : $product->id), GETPOST('fk_productlot'), 'fk_productlot', 1, '', '', 0, 'minwidth300', false, 0, array(), false, '', 'fk_productlot');
+		print img_picto('', 'lot') . dolismq_select_product_lots((!empty(GETPOST('fk_product')) ? GETPOST('fk_product') : $product->id), GETPOST('fk_productlot'), 'fk_productlot', 1, '', '', 0, 'minwidth500', false, 0, array(), false, '', 'fk_productlot');
 		print '</span>';
 		print '</td></tr>';
 	}
 
 	//FK Soc
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY && preg_match('/"thirdparty":1/',$sheet->element_linked)) {
-		print '<tr><td class="">' . img_picto('', 'building', 'class="paddingrightonly"') . $langs->trans("ThirdPartyLinked") . '</td><td>';
-		print $form->select_company(GETPOST('fk_soc'), 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'minwidth300');
-		print ' <a href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddThirdParty") . '"></span></a>';
+		print '<tr><td class="">' . $langs->trans('ThirdPartyLinked') . '</td><td>';
+		print img_picto('', 'building') . $form->select_company(GETPOST('fk_soc'), 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'minwidth500');
+		print ' <a class="butActionNew" href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddThirdParty') . '"></span></a>';
 		print '</td></tr>';
 	}
 
 	//FK Project
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT && preg_match('/"project":1/',$sheet->element_linked)) {
-		print '<tr><td class="">' . img_picto('', 'project', 'class="paddingrightonly"') . $langs->trans("ProjectLinked") . '</td><td>';
-		print $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1), GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth300');
-		print '<a href="' . DOL_URL_ROOT . '/projet/card.php?socid=' . GETPOST('fk_soc') . '&action=create&backtopage=' . urlencode($_SERVER["PHP_SELF"] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans("AddProject") . '"></span></a>';
+		print '<tr><td class="">' . $langs->trans('ProjectLinked') . '</td><td>';
+		print img_picto('', 'project') . $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1), GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth500');
+		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/projet/card.php?socid=' . GETPOST('fk_soc') . '&action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProject') . '"></span></a>';
 		print '</td></tr>';
 	}
 
 	//FK Task
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_TASK && preg_match('/"task":1/',$sheet->element_linked)) {
-		print '<tr><td class="">' . img_picto('', 'projecttask', 'class="paddingrightonly"') . $langs->trans("TaskLinked");
+		print '<tr><td class="">' . $langs->trans('TaskLinked');
 		print '</td><td class="task-container">';
 		print '<span class="task-content">';
 		$data = json_decode(file_get_contents('php://input'), true);
 		dol_strlen($data['projectRef']) > 0 ? $project->fetch(0, $data['projectRef']) : 0;
-		$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST("fk_task"), 'fk_task', 24, 0, '1', 1, 0, 0, 'minwidth300', (!empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
+		img_picto('', 'projecttask') . $formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST('fk_task'), 'fk_task', 24, 0, '1', 1, 0, 0, 'minwidth500', (!empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
 		print '</span>';
 		print '</td></tr>';
 	}
@@ -867,11 +714,7 @@ if ($action == 'create') {
 
 	print dol_get_fiche_end();
 
-	print '<div class="center">';
-	print '<input type="submit" class="button" name="add" value="'.dol_escape_htmltag($langs->trans("Create")).'">';
-	print '&nbsp; ';
-	print '<input type="'.($backtopage ? "submit" : "button").'" class="button button-cancel" name="cancel" value="'.dol_escape_htmltag($langs->trans("Cancel")).'"'.($backtopage ? '' : ' onclick="javascript:history.go(-1)"').'>'; // Cancel for create does not post form if we don't know the backtopage
-	print '</div>';
+	print $form->buttonsSaveCancel('Create');
 
 	print '</form>';
 }
@@ -881,13 +724,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$res = $object->fetch_optionals();
 
 	$head = controlPrepareHead($object);
-	print dol_get_fiche_head($head, 'controlCard', $langs->trans("Control"), -1, 'object_'.$object->picto);
+	print dol_get_fiche_head($head, 'controlCard', $langs->trans('Control'), -1, $object->picto);
 
 	$formconfirm = '';
 
 	// Confirmation to delete
 	if ($action == 'delete') {
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('DeleteControl'), $langs->trans('ConfirmDeleteObject'), 'confirm_delete', '', 0, 1);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'].'?id='.$object->id, $langs->trans('DeleteControl'), $langs->trans('ConfirmDeleteObject'), 'confirm_delete', '', 0, 1);
 	}
 
 	if ($action == 'setVerdict') {
@@ -915,15 +758,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		$formquestion = array(
-			array('type' => 'select', 'name' => 'verdict', 'label' => '<span class="fieldrequired">' . $langs->trans("VerdictControl") . '</span>', 'values' => array('1' => 'OK', '2' => 'KO'), 'select_show_empty' => 0),
+			array('type' => 'select', 'name' => 'verdict', 'label' => '<span class="fieldrequired">' . $langs->trans('VerdictControl') . '</span>', 'values' => array('1' => 'OK', '2' => 'KO'), 'select_show_empty' => 0),
 			array('type' => 'text', 'name' => 'OK', 'label' => '<span class="answer" value="1" style="pointer-events: none"><i class="fas fa-check"></i></span>', 'value' => $answerOK, 'moreattr' => 'readonly'),
 			array('type' => 'text', 'name' => 'KO', 'label' => '<span class="answer" value="2" style="pointer-events: none"><i class="fas fa-times"></i></span>', 'value' => $answerKO, 'moreattr' => 'readonly'),
 			array('type' => 'text', 'name' => 'Repair', 'label' => '<span class="answer" value="3" style="pointer-events: none"><i class="fas fa-tools"></i></span>', 'value' => $answerRepair, 'moreattr' => 'readonly'),
 			array('type' => 'text', 'name' => 'NotApplicable', 'label' => '<span class="answer" value="4" style="pointer-events: none">N/A</span>', 'value' => $answerNotApplicable, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'noteControl', 'label' => '<div class="note-control" style="margin-top: 20px;">' . $langs->trans("NoteControl") . '</div>'),
+			array('type' => 'text', 'name' => 'noteControl', 'label' => '<div class="note-control" style="margin-top: 20px;">' . $langs->trans('NoteControl') . '</div>'),
 		);
 
-		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $text, 'confirm_setVerdict', $formquestion, '', 1, 300);
+		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $text, 'confirm_setVerdict', $formquestion, '', 1, 300);
 	}
 
 	// SetValidated confirmation
@@ -962,7 +805,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		// Always output when not jmobile nor js
-		$page = $_SERVER["PHP_SELF"] . '?id=' . $object->id;
+		$page = $_SERVER['PHP_SELF'] . '?id=' . $object->id;
 		$title =  $langs->trans('ValidateControl');
 		$action = 'confirm_setValidated';
 		$formquestion = '';
@@ -980,7 +823,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$inputko = array();
 
 		// Clean parameters
-		$newselectedchoice = empty($selectedchoice) ? "no" : $selectedchoice;
+		$newselectedchoice = empty($selectedchoice) ? 'no' : $selectedchoice;
 		if ($conf->browser->layout == 'phone') {
 			$width = '95%';
 		}
@@ -1175,7 +1018,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
             	$( "#'.$dialogconfirm.'" ).dialog(
             	{
-                    autoOpen: '.($autoOpen ? "true" : "false").',';
+                    autoOpen: '.($autoOpen ? 'true' : 'false').',';
 			if ($newselectedchoice == 'no') {
 				$formconfirm .= '
 						open: function() {
@@ -1190,7 +1033,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                     modal: true,
                     closeOnEscape: false,
                     buttons: {
-                        "'.dol_escape_js($langs->transnoentities("Yes")).'": function() {
+                        "'.dol_escape_js($langs->transnoentities('Yes')).'": function() {
                         	var options = "&token='.urlencode(newToken()).'";
                         	var inputok = '.json_encode($inputok).';	/* List of fields into form */
                          	var pageyes = "'.dol_escape_js(!empty($pageyes) ? $pageyes : '').'";
@@ -1215,7 +1058,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             				return;
                             $(this).dialog("close");
                         },
-                        "'.dol_escape_js($langs->transnoentities("No")).'": function() {
+                        "'.dol_escape_js($langs->transnoentities('No')).'": function() {
                         	var options = "&token='.urlencode(newToken()).'";
                          	var inputko = '.json_encode($inputko).';	/* List of fields into form */
                          	var pageno="'.dol_escape_js(!empty($pageno) ? $pageno : '').'";
@@ -1280,8 +1123,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$formconfirm .= '<tr class="valid">';
 			$formconfirm .= '<td class="valid">'.$questionForConfirm.'</td>';
 			$formconfirm .= '<td class="valid center">';
-			$formconfirm .= $form->selectyesno("confirm", $newselectedchoice, 0, false, 0, 0, 'marginleftonly marginrightonly');
-			$formconfirm .= '<input class="button valignmiddle confirmvalidatebutton" type="submit" value="'.$langs->trans("Validate").'">';
+			$formconfirm .= $form->selectyesno('confirm', $newselectedchoice, 0, false, 0, 0, 'marginleftonly marginrightonly');
+			$formconfirm .= '<input class="button valignmiddle confirmvalidatebutton" type="submit" value="'.$langs->trans('Validate').'">';
 			$formconfirm .= '</td>';
 			$formconfirm .= '</tr>'."\n";
 
@@ -1317,61 +1160,46 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// SetReopened confirmation
 	if (($action == 'setReopened' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile)))		// Output when action = clone if jmobile or no js
 		|| ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {							// Always output when not jmobile nor js
-		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('ReOpenControl'), $langs->trans('ConfirmReOpenControl', $object->ref), 'confirm_setReopened', '', 'yes', 'actionButtonReOpen', 350, 600);
+		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ReOpenControl'), $langs->trans('ConfirmReOpenControl', $object->ref), 'confirm_setReopened', '', 'yes', 'actionButtonReOpen', 350, 600);
 	}
 
 	// SetLocked confirmation
 	if (($action == 'setLocked' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile)))		// Output when action = clone if jmobile or no js
 		|| ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {							// Always output when not jmobile nor js
-		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockControl'), $langs->trans('ConfirmLockControl', $object->ref), 'confirm_setLocked', '', 'yes', 'actionButtonLock', 350, 600);
+		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('LockControl'), $langs->trans('ConfirmLockControl', $object->ref), 'confirm_setLocked', '', 'yes', 'actionButtonLock', 350, 600);
 	}
 
 	// Call Hook formConfirm
 	$parameters = array('formConfirm' => $formconfirm, 'lineid' => $lineid);
 	$reshook    = $hookmanager->executeHooks('formConfirm', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-	if (empty($reshook)) $formconfirm .= $hookmanager->resPrint;
-	elseif ($reshook > 0) $formconfirm = $hookmanager->resPrint;
+	if (empty($reshook)) {
+		$formconfirm .= $hookmanager->resPrint;
+	} elseif ($reshook > 0) {
+		$formconfirm = $hookmanager->resPrint;
+	}
 
 	// Print form confirm
 	print $formconfirm;
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.dol_buildpath('/dolismq/view/control/control_list.php', 1).'?restore_lastsearch_values=1'.'">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="' .dol_buildpath('/dolismq/view/control/control_list.php', 1) . '">' . $langs->trans('BackToList') . '</a>';
 
 	$morehtmlref = '<div class="refidno">';
 	// Project
 	if (!empty($conf->projet->enabled)) {
-		$langs->load("projects");
-		$morehtmlref .= $langs->trans('Project').' ';
-		if ($permissiontoadd) {
-			if ($action != 'set_project') {
-				$morehtmlref .= '<a class="editfielda" href="'.$_SERVER['PHP_SELF'].'?action=set_project&token='.newToken().'&id='.$object->id.'">'.img_edit($langs->transnoentitiesnoconv('SetProject')).'</a> : ';
-			}
-			if ($action == 'set_project') {
-				$morehtmlref .= '<form method="post" action="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'">';
-				$morehtmlref .= '<input type="hidden" name="action" value="classin">';
-				$morehtmlref .= '<input type="hidden" name="token" value="'.newToken().'">';
-				$morehtmlref .= $formproject->select_projects(-1, $object->fk_project, 'projectid', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'maxwidth500');
-				$morehtmlref .= '<input type="submit" class="button valignmiddle" value="'.$langs->trans("Modify").'">';
-				$morehtmlref .= '</form>';
-			} else {
-				$morehtmlref .= $form->form_project($_SERVER['PHP_SELF'].'?id='.$object->id, -1, $object->fk_project, 'none', 0, 0, 0, 1);
-			}
+		$langs->load('projects');
+		$morehtmlref .= $langs->trans('Project') . ' ';
+		if (!empty($object->fk_project)) {
+			$project->fetch($object->fk_project);
+			$morehtmlref .= ': ' . $project->getNomUrl(1, '', 1);
 		} else {
-			if (!empty($object->fk_project)) {
-				$project->fetch($object->fk_project);
-				$morehtmlref .= ' : '.$project->getNomUrl(1);
-				if ($project->title) {
-					$morehtmlref .= ' - '.$project->title;
-				}
-			} else {
-				$morehtmlref .= '';
-			}
+			$morehtmlref .= '';
 		}
 	}
 	$morehtmlref .= '</div>';
 
+	$object->picto = 'control_small@dolismq';
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
 	print '<div class="fichecenter">';
@@ -1379,26 +1207,23 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<div class="underbanner clearboth"></div>';
 	print '<table class="border centpercent tableforfield">'."\n";
 
-	unset($object->fields['fk_sheet']);
+	// Common attributes
+	unset($object->fields['fk_project']); // Hide field already shown in banner
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
-	//FKSheet -- Modèle
-	print '<tr><td class="titlefield">';
-	print $langs->trans("FKSheet");
-	print '</td>';
-	print '<td>';
-	$sheet->fetch($object->fk_sheet);
-	if ($sheet > 0) {
-		print $sheet->getNomUrl();
+	// Categories
+	if ($conf->categorie->enabled) {
+		print '<tr><td class="valignmiddle">' . $langs->trans('Categories') . '</td><td>';
+		print $form->showCategories($object->id, 'control', 1);
+		print '</td></tr>';
 	}
-	print '<td></tr>';
 
 	$object->fetchObjectLinked('', 'product', '', 'dolismq_control');
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
 		//FKProduct -- Produit
 		print '<tr><td class="titlefield">';
-		print $langs->trans("Product");
+		print $langs->trans('Product');
 		print '</td>';
 		print '<td>';
 		$product->fetch(array_shift($object->linkedObjectsIds['product']));
@@ -1412,7 +1237,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
 		//FKLot -- Numéro de série
 		print '<tr><td class="titlefield">';
-		print $langs->trans("Batch");
+		print $langs->trans('Batch');
 		print '</td>';
 		print '<td>';
 		$productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
@@ -1426,7 +1251,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
 		//Fk_soc - Tiers lié
 		print '<tr><td class="titlefield">';
-		print $langs->trans("ThirdParty");
+		print $langs->trans('ThirdParty');
 		print '</td>';
 		print '<td>';
 		$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
@@ -1440,7 +1265,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT) && (!empty($object->linkedObjectsIds['project']))) {
 		//Fk_project - Projet lié
 		print '<tr><td class="titlefield">';
-		print $langs->trans("Project");
+		print $langs->trans('Project');
 		print '</td>';
 		print '<td>';
 		$project->fetch(array_shift($object->linkedObjectsIds['project']));
@@ -1454,7 +1279,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK) && (!empty($object->linkedObjectsIds['project_task']))) {
 		//Fk_task - Tâche liée
 		print '<tr><td class="titlefield">';
-		print $langs->trans("Task");
+		print $langs->trans('Task');
 		print '</td>';
 		print '<td>';
 		$task->fetch(array_shift($object->linkedObjectsIds['project_task']));
@@ -1462,13 +1287,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print $task->getNomUrl(1);
 		}
 		print '</td></tr>';
-	}
-
-	// Categories
-	if ($conf->categorie->enabled) {
-		print '<tr><td class="valignmiddle">'.$langs->trans("Categories").'</td><td>';
-		print $form->showCategories($sheet->id, 'sheet', 1);
-		print "</td></tr>";
 	}
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
@@ -1480,16 +1298,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php'; ?>
 
 	<script type="text/javascript">
-		$(function () {
 		let answerCounter = 0
-			jQuery("#tablelines").children().each(function() {
-				if ($(this).find(".answer.active").length > 0) {
-					answerCounter += 1;
-				}
-			})
-
-			jQuery('.answerCounter').text(answerCounter)
+		jQuery("#tablelines").children().each(function() {
+			if ($(this).find(".answer.active").length > 0) {
+				answerCounter += 1;
+			}
 		})
+
+		jQuery('.answerCounter').text(answerCounter)
 	</script>
 	<?php
 
@@ -1499,13 +1315,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'?action=save&id='.$object->id.'" id="saveControl" enctype="multipart/form-data">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?action=save&id='.$object->id.'" id="saveControl" enctype="multipart/form-data">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="save">';
 
 	// Buttons for actions
 	if ($action != 'presend' && $action != 'editline') {
-		print '<div class="tabsAction">'."\n";
+		print '<div class="tabsAction">';
 		$parameters = array();
 		$reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
 		if ($reshook < 0) {
@@ -1513,42 +1329,63 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		if (empty($reshook)) {
-			if ($object->status == 0) {
-				print '<input type="submit" id="saveButton" class="saveButton butActionRefused" value="'.$langs->trans("Save").'">';
-				print '<a id ="validateButton" class="validateButton butAction" href="'.$_SERVER["PHP_SELF"].'?action=setValidated&id='.$object->id.'" id="actionButtonValidate" title="">' . $langs->trans("Validate") . '</a>';
+			// Modify
+			if ($object->status == $object::STATUS_DRAFT) {
+				print '<a class="butAction" id="actionButtonEdit" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit' . '">' . $langs->trans('Modify') . '</a>';
 			} else {
-				print '<a class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans("ControlMustBeDraft")) . '">' . $langs->trans("Save") . '</a>';
-				print '<a class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans("ControlMustBeDraft")) . '">' . $langs->trans("Validate") . '</a>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $langs->trans('Modify') . '</span>';
 			}
+
+			// Save question answer
+			if ($object->status == $object::STATUS_DRAFT) {
+				print '<input type="submit" id="saveButton" class="saveButton butActionRefused" value="' . $langs->trans('Save') . '">';
+			} else {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $langs->trans('Save') . '</span>';
+			}
+
+			// Validate
+			if ($object->status == $object::STATUS_DRAFT) {
+				print '<a class="validateButton butAction" id="actionButtonValidate" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated' . '">' . $langs->trans('Validate') . '</a>';
+			} else {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $langs->trans('Validate') . '</span>';
+			}
+
 			// Set verdict control
-			if ($object->status == 1 && $object->verdict == null) {
+			if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null) {
 				if ($permissiontoadd) {
-					print '<a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=setVerdict'.(empty($conf->global->MAIN_JUMP_TAG) ? '' : '#close').'"';
-					print '>'.$langs->trans('SetOK/KO').'</a>';
+					print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setVerdict' . '">' . $langs->trans('SetOK/KO') . '</a>';
 				}
+			} elseif ($object->status == $object::STATUS_DRAFT) {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . $langs->trans('SetOK/KO') . '</span>';
 			} else {
-				if($object->status == 0) {
-					print '<a class="butActionRefused classfortooltip" title="'.$langs->trans("ControlMustBeValidatedToSetVerdict").'"';
-					print '>'.$langs->trans('SetOK/KO').'</a>';
-				} else {
-					print '<a class="butActionRefused classfortooltip" title="'.$langs->trans("ControlVerdictSelected").'"';
-					print '>'.$langs->trans('SetOK/KO').'</a>';
-				}
-
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . $langs->trans('SetOK/KO') . '</span>';
 			}
 
-			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 ) ? 'actionButtonReOpen' : '') . '" title="' . (($object->status == 1 ) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidated"))) . '">' . $langs->trans("ReOpened") . '</span>';
-			print '<span class="' . (($object->status == 1 && $object->verdict != null) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 && $object->verdict != null) ? 'actionButtonLock' : '') . '" title="' . (($object->status == 1 && $object->verdict != null) ? '' : dol_escape_htmltag($langs->trans("ControlMustBeValidatedToLock"))) . '">' . $langs->trans("Lock") . '</span>';
+			// ReOpen
+			if ($object->status == $object::STATUS_VALIDATED) {
+				print '<span class="butAction" id="actionButtonReOpen" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setDraft' . '">' . $langs->trans('ReOpened') . '</span>';
+			} else {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidated')) . '">' . $langs->trans('ReOpened') . '</span>';
+			}
 
+			// Lock
+			if ($object->status == $object::STATUS_VALIDATED && $object->verdict != null) {
+				print '<span class="butAction" id="actionButtonLock">' . $langs->trans('Lock') . '</span>';
+			} else {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToLock')) . '">' . $langs->trans('Lock') . '</span>';
+			}
+
+			// Send email
 			if ($object->status == $object::STATUS_LOCKED) {
-				print dolGetButtonAction($langs->trans('SendMail'), '', 'default', $_SERVER["PHP_SELF"].'?id='.$object->id.'&action=presend&mode=init&token='.newToken().'#formmailbeforetitle', '', $object->status == $object::STATUS_LOCKED);
+				print dolGetButtonAction($langs->trans('SendMail'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=presend&mode=init&token='.newToken().'#formmailbeforetitle', '', $object->status == $object::STATUS_LOCKED);
 			} else {
-				print '<a class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans("ControlMustBeLockedToSendEmail")) . '">' . $langs->trans("SendMail") . '</a>';
+				print '<span class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans('ControlMustBeLockedToSendEmail')) . '">' . $langs->trans('SendMail') . '</span>';
 			}
+
 			// Delete (need delete permission, or if draft, just need create/modify permission)
 			print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 		}
-		print '</div>'."\n";
+		print '</div>';
 	}
 
 	// QUESTION LINES
@@ -1565,7 +1402,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter"></span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . $questionCounter;
 
-	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', ''); ?>
+	print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', ''); ?>
 
 		<!-- Réponses -->
 <!--	<div class="control-audit multiselect">-->
@@ -1734,7 +1571,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '</div>';
 	print '</div>';
-	print "</form>";
+	print '</form>';
 	print dol_get_fiche_end();
 
 	$includedocgeneration = 1;
@@ -1744,7 +1581,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$objref = dol_sanitizeFileName($object->ref);
 		$dir_files = $object->element . 'document/' . $objref;
 		$filedir = $upload_dir . '/' . $dir_files;
-		$urlsource = $_SERVER["PHP_SELF"] . '?id=' . $id;
+		$urlsource = $_SERVER['PHP_SELF'] . '?id=' . $id;
 
 		$defaultmodel = 'controldocument_odt';
 		$title = $langs->trans('WorkUnitDocument');
@@ -1790,7 +1627,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 //	$ref = dol_sanitizeFileName($ecmfile->filename);
 
 	if ($action == 'presend') {
-		$langs->load("mails");
+		$langs->load('mails');
 
 		$titreform = 'SendMail';
 
@@ -1923,7 +1760,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$formmail->param['models']    = $modelmail;
 		$formmail->param['models_id'] = GETPOST('modelmailselected', 'int');
 		$formmail->param['id']        = $object->id;
-		$formmail->param['returnurl'] = $_SERVER["PHP_SELF"] . '?id=' . $object->id;
+		$formmail->param['returnurl'] = $_SERVER['PHP_SELF'] . '?id=' . $object->id;
 		$formmail->param['fileinit']  = $filevalue;
 
 		// Show form
