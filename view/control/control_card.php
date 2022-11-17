@@ -654,6 +654,9 @@ if ($action == 'create') {
 	print '<i class="fas fa-list"></i>' . $sheet->select_sheet_list(GETPOST('fk_sheet')?: $sheet->id);
 	print '</td></tr>';
 
+	print '<tr><td><hr></td><td>';
+	print '<hr>';
+
 	print '<div class="fields-content">';
 	//FK Product
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT && preg_match('/"product":1/',$sheet->element_linked)) {
@@ -689,7 +692,7 @@ if ($action == 'create') {
 	//FK Project
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT && preg_match('/"project":1/',$sheet->element_linked)) {
 		print '<tr><td class="">' . $langs->trans('ProjectLinked') . '</td><td>';
-		print img_picto('', 'project') . $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1), GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth500');
+		print img_picto('', 'project') . $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1), GETPOST('projectid'), 'projectid', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth500');
 		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/projet/card.php?socid=' . GETPOST('fk_soc') . '&action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProject') . '"></span></a>';
 		print '</td></tr>';
 	}
@@ -701,7 +704,7 @@ if ($action == 'create') {
 		print '<span class="task-content">';
 		$data = json_decode(file_get_contents('php://input'), true);
 		dol_strlen($data['projectRef']) > 0 ? $project->fetch(0, $data['projectRef']) : 0;
-		img_picto('', 'projecttask') . $formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST('fk_task'), 'fk_task', 24, 0, '1', 1, 0, 0, 'minwidth500', (!empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
+		img_picto('', 'projecttask') . $formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST('fk_task'), 'fk_task', 24, 0, '1', 1, 0, 0, 'minwidth500', (!empty(GETPOST('projectid')) ? GETPOST('fk_project') : $project->id), '');
 		print '</span>';
 		print '</td></tr>';
 	}
@@ -1298,14 +1301,16 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php'; ?>
 
 	<script type="text/javascript">
-		let answerCounter = 0
-		jQuery("#tablelines").children().each(function() {
-			if ($(this).find(".answer.active").length > 0) {
-				answerCounter += 1;
-			}
-		})
+		$(function () {
+			let answerCounter = 0
+			jQuery("#tablelines").children().each(function() {
+				if ($(this).find(".answer.active").length > 0) {
+					answerCounter += 1;
+				}
+			})
 
-		jQuery('.answerCounter').text(answerCounter)
+			jQuery('.answerCounter').text(answerCounter)
+		})
 	</script>
 	<?php
 
@@ -1330,11 +1335,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		if (empty($reshook)) {
 			// Modify
-			if ($object->status == $object::STATUS_DRAFT) {
-				print '<a class="butAction" id="actionButtonEdit" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit' . '">' . $langs->trans('Modify') . '</a>';
-			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $langs->trans('Modify') . '</span>';
-			}
+//			if ($object->status == $object::STATUS_DRAFT) {
+//				print '<a class="butAction" id="actionButtonEdit" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit' . '">' . $langs->trans('Modify') . '</a>';
+//			} else {
+//				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $langs->trans('Modify') . '</span>';
+//			}
 
 			// Save question answer
 			if ($object->status == $object::STATUS_DRAFT) {
@@ -1345,7 +1350,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Validate
 			if ($object->status == $object::STATUS_DRAFT) {
-				print '<a class="validateButton butAction" id="actionButtonValidate" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated' . '">' . $langs->trans('Validate') . '</a>';
+				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated' . '">' . $langs->trans('Validate') . '</a>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $langs->trans('Validate') . '</span>';
 			}
@@ -1391,7 +1396,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// QUESTION LINES
 	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
 
-	$object->fetchObjectLinked($sheet->id, 'dolismq_sheet');
+	$object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet');
 	$questionIds = $object->linkedObjectsIds;
 
 	if (!empty($questionIds)) {

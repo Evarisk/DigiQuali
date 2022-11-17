@@ -1231,10 +1231,9 @@ window.eoxiaJS.control.showSelectObjectLinked = function ( event ) {
 
 	let sheetId = formData.get('fk_sheet')
 	let userController = formData.get('fk_user_controller')
-	let projectId = formData.get('projectid')
-
+	let projectId = formData.get('fk_project')
 	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&fk_sheet=' + sheetId + '&token=' + token
-	urlToGo += '&projectid=' + projectId
+	urlToGo += '&fk_project=' + projectId
 	urlToGo += '&fk_user_controller=' + userController
 
 	$.ajax({
