@@ -146,26 +146,9 @@ if (empty($reshook)) {
 	}
 
 	if ($action == 'add' && $permissiontoadd) {
-		$showArray = array();
-		$elementArray = array(
-			'product',
-			'productlot',
-			'thirdparty',
-			'project',
-			'task',
-		);
-
-		foreach ($elementArray as $element) {
-			if ((GETPOST('show_'.$element) == 'on')) {
-				$showArray[$element] = 1;
-			}
-		}
-
-		if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
-			$totalArray = count($showArray);
-			if ($totalArray > 1){
-				$error++;
-				setEventMessages($langs->trans('ErrorMultipleLinkedElement'), null, 'errors');
+		if (is_array(GETPOST('linked_object')) && !empty(GETPOST('linked_object'))) {
+			foreach (GETPOST('linked_object') as $linked_object_type) {
+				$showArray[$linked_object_type] = 1;
 			}
 		}
 
@@ -173,26 +156,9 @@ if (empty($reshook)) {
 	}
 
 	if ($action == 'update' && $permissiontoadd) {
-		$showArray = array();
-		$elementArray = array(
-			'product',
-			'productlot',
-			'thirdparty',
-			'project',
-			'task',
-		);
-
-		foreach ($elementArray as $element) {
-			if ((GETPOST('show_'.$element) == 'on')) {
-				$showArray[$element] = 1;
-			}
-		}
-
-		if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
-			$totalArray = count($showArray);
-			if ($totalArray > 1){
-				$error++;
-				setEventMessages($langs->trans('ErrorMultipleLinkedElement'), null, 'errors');
+		if (is_array(GETPOST('linked_object')) && !empty(GETPOST('linked_object'))) {
+			foreach (GETPOST('linked_object') as $linked_object_type) {
+				$showArray[$linked_object_type] = 1;
 			}
 		}
 
@@ -306,6 +272,34 @@ $help_url = '';
 $morejs   = array("/dolismq/js/dolismq.js");
 $morecss  = array("/dolismq/css/dolismq.css");
 
+$elementArray = array(
+	'product' => array(
+		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT,
+		'langs' => 'ProductOrService',
+		'picto' => 'product'
+	),
+	'productlot' => array(
+		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT,
+		'langs' => 'Batch',
+		'picto' => 'lot'
+	),
+	'thirdparty' => array(
+		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY,
+		'langs' => 'ThirdParty',
+		'picto' => 'building'
+	),
+	'project' => array(
+		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PROJECT,
+		'langs' => 'Project',
+		'picto' => 'project'
+	),
+	'task' => array(
+		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_TASK,
+		'langs' => 'Task',
+		'picto' => 'projecttask'
+	),
+);
+
 llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);
 
 // Part to create
@@ -314,7 +308,6 @@ if ($action == 'create') {
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
-	print '<input type="hidden" name="conf_unique_linked_element" value="'.$conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT.'">';
 	print '<input type="hidden" name="action" value="add">';
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 	if ($backtopageforcancel) print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
@@ -335,34 +328,6 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	//FK Element
-	$elementArray = array(
-		'product' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT,
-			'langs' => 'ProductOrService',
-			'picto' => 'product'
-		),
-		'productlot' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT,
-			'langs' => 'Batch',
-			'picto' => 'lot'
-		),
-		'thirdparty' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY,
-			'langs' => 'ThirdParty',
-			'picto' => 'building'
-		),
-		'project' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PROJECT,
-			'langs' => 'Project',
-			'picto' => 'project'
-		),
-		'task' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_TASK,
-			'langs' => 'Task',
-			'picto' => 'projecttask'
-		),
-	);
-
 	if (empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK)) {
 		print '<div class="wpeo-notice notice-info">';
 		print '<div class="notice-content">';
@@ -375,7 +340,11 @@ if ($action == 'create') {
 	foreach ($elementArray as $key => $element) {
 		if (!empty($element['conf'])) {
 			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
-			print '<input type="radio" id="show_'.$key.'" name="show_'.$key.'">';
+			if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
+				print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'"">';
+			} else {
+				print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'">';
+			}
 			print '</td></tr>';
 		}
 	}
@@ -433,38 +402,14 @@ if (($id || $ref) && $action == 'edit') {
 	//FK Element
 	$elementLinked = json_decode($object->element_linked);
 
-	$elementArray = array(
-		'product' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT,
-			'langs' => 'ProductOrService',
-			'picto' => 'product'
-		),
-		'productlot' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT,
-			'langs' => 'Batch',
-			'picto' => 'lot'
-		),
-		'thirdparty' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY,
-			'langs' => 'ThirdParty',
-			'picto' => 'building'
-		),
-		'project' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PROJECT,
-			'langs' => 'Project',
-			'picto' => 'project'
-		),
-		'task' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_TASK,
-			'langs' => 'Task',
-			'picto' => 'projecttask'
-		),
-	);
-
 	foreach ($elementArray as $key => $element) {
 		if (!empty($element['conf'])) {
 			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
-			print '<input type="radio" id="show_'.$key.'" name="show_'.$key.'"'.(($elementLinked->$key > 0) ? 'checked=checked' : '').'>';
+			if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
+				print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'"'.(($elementLinked->$key > 0) ? 'checked=checked' : '').'>';
+			} else {
+				print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'"'.(($elementLinked->$key > 0) ? 'checked=checked' : '').'>';
+			}
 			print '</td></tr>';
 		}
 	}

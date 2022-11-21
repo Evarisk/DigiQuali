@@ -979,27 +979,6 @@ window.eoxiaJS.sheet.init = function() {
  * @return {void}
  */
 window.eoxiaJS.sheet.event = function() {
-	$( document ).on( 'click', 'input[type=radio]', window.eoxiaJS.sheet.toggleRadioButton );
-};
-
-/**
- * Toggle checkbox.
- *
- * @since   1.3.0
- * @version 1.3.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.eoxiaJS.sheet.toggleRadioButton = function ( event ) {
-	let confUniqueLinkedElement = $(this).closest('.fiche').find('input[name="conf_unique_linked_element"]').val();
-
-	if (confUniqueLinkedElement) {
-		$(':radio').each(function () {
-			this.checked = false;
-		});
-		this.checked = true;
-	}
 };
 
 /**
