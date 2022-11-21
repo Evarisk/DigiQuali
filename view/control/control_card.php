@@ -632,7 +632,7 @@ if ($action == 'create') {
 
 	print dol_get_fiche_head();
 
-	print '<table class="border centpercent tableforfieldcreate control-table">'."\n";
+	print '<table class="border centpercent tableforfieldcreate control-table"><thead>'."\n";
 
 	if (!empty(GETPOST('fk_sheet'))) {
 		$sheet->fetch(GETPOST('fk_sheet'));
@@ -652,12 +652,13 @@ if ($action == 'create') {
 	//FK SHEET
 	print '<tr><td class="fieldrequired">' . $langs->trans('SheetLinked') . '</td><td>';
 	print '<i class="fas fa-list"></i>' . $sheet->select_sheet_list(GETPOST('fk_sheet')?: $sheet->id);
-	print '</td></tr>';
+	print '</td></tr></thead>';
 
 	print '<tr><td><hr></td><td>';
 	print '<hr>';
 
 	print '<div class="fields-content">';
+
 	//FK Product
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT && preg_match('/"product":1/',$sheet->element_linked)) {
 		print '<tr><td class="">' . $langs->trans('Product') . ' ' . $langs->trans('Or') . ' ' . $langs->trans('Service') . '</td><td>';

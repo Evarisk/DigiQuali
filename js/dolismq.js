@@ -1242,7 +1242,7 @@ window.eoxiaJS.control.showSelectObjectLinked = function ( event ) {
 		processData: false,
 		contentType: false,
 		success: function ( resp ) {
-			$('.tabBar.tabBarWithBottom').html($(resp).find('.tabBar.tabBarWithBottom').children())
+			$('.tabBar.tabBarWithBottom tbody').html($(resp).find('.tabBar.tabBarWithBottom tbody').children())
 		},
 		error: function ( ) {
 		}
