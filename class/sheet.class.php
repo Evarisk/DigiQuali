@@ -297,7 +297,7 @@ class Sheet extends CommonObject
 
 		$result = '';
 
-		$label = '<i class="fas fa-list"></i>' . ' <u>' . $langs->trans("Sheet") . '</u>';
+		$label = '<i class="fas fa-list" style="color: #d35968;"></i> <u>'.$langs->trans('Sheet').'</u>';
 		if (isset($this->status)) {
 			$label .= ' ' . $this->getLibStatut(5);
 		}
@@ -329,8 +329,8 @@ class Sheet extends CommonObject
 		$linkstart .= $linkclose . '>';
 		$linkend    = '</a>';
 
+		if ($withpicto) $result .= '<i class="fas fa-list" style="color: #d35968;"></i>' . ' ';
 		$result .= $linkstart;
-		if ($withpicto) $result      .= '<i class="fas fa-list"></i>' . ' ';
 		if ($withpicto != 2) $result .= $this->ref . ' - ' . $this->label;
 
 		$result .= $linkend;

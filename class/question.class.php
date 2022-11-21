@@ -350,7 +350,7 @@ class Question extends CommonObject
 
 		$result = '';
 
-		$label = '<i class="fas fa-question"></i>' . ' <u>' . $langs->trans("Question") . '</u>';
+		$label = '<i class="fas fa-question" style="color: #d35968;"></i> <u>' . $langs->trans("Question") . '</u>';
 		if (isset($this->status)) {
 			$label .= ' ' . $this->getLibStatut(5);
 		}
@@ -380,8 +380,8 @@ class Question extends CommonObject
 		$linkstart .= $linkclose . '>';
 		$linkend    = '</a>';
 
+		if ($withpicto) $result .= '<i class="fas fa-question" style="color: #d35968;"></i>' . ' ';
 		$result .= $linkstart;
-		if ($withpicto) $result      .= '<i class="fas fa-question"></i>' . ' ';
 		if ($withpicto != 2) $result .= $this->ref;
 
 		$result .= $linkend;

@@ -1193,10 +1193,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Project
 	if (!empty($conf->projet->enabled)) {
 		$langs->load('projects');
-		$morehtmlref .= $langs->trans('Project') . ' ';
 		if (!empty($object->fk_project)) {
 			$project->fetch($object->fk_project);
-			$morehtmlref .= ': ' . $project->getNomUrl(1, '', 1);
+			$morehtmlref .= $langs->trans('Project') . ' : ' . $project->getNomUrl(1, '', 1);
 		} else {
 			$morehtmlref .= '';
 		}

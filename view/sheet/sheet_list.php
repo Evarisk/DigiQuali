@@ -510,7 +510,7 @@ while ($i < ($limit ? min($num, $limit) : $num)) {
 		if (!empty($arrayfields['t.'.$key]['checked'])) {
 			print '<td'.($cssforfield ? ' class="'.$cssforfield.'"' : '').'>';
 			if ($key == 'status') print $object->getLibStatut(5);
-			elseif ($key == 'ref') print $object->getNomUrl();
+			elseif ($key == 'ref') print $object->getNomUrl(1);
 			else print $object->showOutputField($val, $key, $object->$key, '');
 			print '</td>';
 			if (!$i) $totalarray['nbfield']++;

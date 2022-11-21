@@ -342,7 +342,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			if ($key == 'status') {
 				print $object->getLibStatut(5);
 			}
-			elseif ($key == 'ref') print $object->getNomUrl();
+			elseif ($key == 'ref') print $object->getNomUrl(1);
 			elseif ($key == 'fk_product') {
 				$object->fetchObjectLinked('', 'product','', 'dolismq_control');
 				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
@@ -390,7 +390,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_sheet') {
 				$sheet->fetch($object->fk_sheet);
-				print $sheet->getNomUrl();
+				print $sheet->getNomUrl(1);
 			}
 			else print $object->showOutputField($val, $key, $object->$key, '');
 			print '</td>';

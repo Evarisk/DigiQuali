@@ -167,6 +167,7 @@ if ($object->id) {
 	$morehtmlref = '<div class="refidno">';
 	$morehtmlref .= '</div>';
 
+	$object->picto = 'question_small@dolismq';
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
 	print '<div class="fichecenter">';

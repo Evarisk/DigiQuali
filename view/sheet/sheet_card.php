@@ -450,7 +450,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$res = $object->fetch_optionals();
 
 	$head = sheetPrepareHead($object);
-	print dol_get_fiche_head($head, 'sheetCard', $langs->trans("Sheet"), -1, 'object_'.$object->picto);
+	print dol_get_fiche_head($head, 'sheetCard', $langs->trans("Sheet"), -1, $object->picto);
 
 	$formconfirm = '';
 
@@ -488,6 +488,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$morehtmlref = '<div class="refidno">';
 	$morehtmlref .= '</div>';
 
+	$object->picto = 'sheet_small@dolismq';
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
 	print '<div class="fichecenter">';

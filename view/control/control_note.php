@@ -56,6 +56,8 @@ if (!$res) {
 }
 
 // Libraries
+require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
+
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../lib/dolismq_control.lib.php';
 
@@ -76,6 +78,7 @@ $backtopage = GETPOST('backtopage', 'alpha');
 // Technical objets
 $object = new Control($db);
 $extrafields = new ExtraFields($db);
+$project     = new Project($db);
 
 // View objects
 $form = new Form($db);
@@ -128,8 +131,19 @@ if ($id > 0 || !empty($ref)) {
 	$linkback = '<a href="'.dol_buildpath('/dolismq/control_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
 
 	$morehtmlref = '<div class="refidno">';
+	// Project
+	if (!empty($conf->projet->enabled)) {
+		$langs->load('projects');
+		if (!empty($object->fk_project)) {
+			$project->fetch($object->fk_project);
+			$morehtmlref .= $langs->trans('Project') . ' : ' . $project->getNomUrl(1, '', 1);
+		} else {
+			$morehtmlref .= '';
+		}
+	}
 	$morehtmlref .= '</div>';
 
+	$object->picto = 'control_small@dolismq';
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
 	print '<div class="fichecenter">';

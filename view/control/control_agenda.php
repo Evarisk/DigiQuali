@@ -139,7 +139,7 @@ if ($object->id > 0) {
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="' . dol_buildpath('/dolisirh/view/control/control_list.php', 1).'">' . $langs->trans('BackToList') . '</a>';
+	$linkback = '<a href="' . dol_buildpath('/dolismq/view/control/control_list.php', 1).'">' . $langs->trans('BackToList') . '</a>';
 
 	$morehtmlref = '<div class="refidno">';
 	// Project
@@ -154,7 +154,7 @@ if ($object->id > 0) {
 	}
 	$morehtmlref .= '</div>';
 
-	$object->picto = 'control_small@dolisirh';
+	$object->picto = 'control_small@dolismq';
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
 	print '<div class="fichecenter">';

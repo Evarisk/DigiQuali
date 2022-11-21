@@ -137,9 +137,9 @@ if ($object->id > 0) {
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.dol_buildpath('/dolisirh/view/sheet/sheet_list.php', 1).'">'.$langs->trans('BackToList').'</a>';
+	$linkback = '<a href="'.dol_buildpath('/dolismq/view/sheet/sheet_list.php', 1).'">'.$langs->trans('BackToList').'</a>';
 
-	$object->picto = 'sheet_small@dolisirh';
+	$object->picto = 'sheet_small@dolismq';
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref');
 
 	print '<div class="fichecenter">';

@@ -611,7 +611,7 @@ include DOL_DOCUMENT_ROOT . '/custom/dolismq/core/tpl/dolismq_medias_gallery_mod
 
 // Part to edit record
 if (($id || $ref) && $action == 'edit') {
-	print load_fiche_titre($langs->trans("ModifyQuestion"), '', 'object_'.$object->picto);
+	print load_fiche_titre($langs->trans("ModifyQuestion"), '', $object->picto);
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
@@ -769,10 +769,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.dol_buildpath('/dolismq/view/question/question_list.php', 1).'?restore_lastsearch_values=1'.'">'.$langs->trans("BackToList").'</a>';
+	$linkback = '<a href="'.dol_buildpath('/dolismq/view/question/question_list.php', 1).'">'.$langs->trans("BackToList").'</a>';
 
-	dol_strlen($object->label) ? $morehtmlref = '<span>'. ' - ' .$object->label . '</span>' : '';
+	$morehtmlref = '<div class="refidno">';
+	dol_strlen($object->label) ? $morehtmlref .= '<span>'. ' - ' .$object->label . '</span>' : '';
+	$morehtmlref .= '</div>';
 
+	$object->picto = 'question_small@dolismq';
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
 	print '<div class="fichecenter">';
