@@ -361,30 +361,94 @@ class Control extends CommonObject
 		}
 	}
 
-	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *  Delete control links to objects linked
+	 * Clone an object into another one
 	 *
-	 *  @return    int         <=0 if no, >0 if yes
+	 * @param User $user User that creates
+	 * @param int $fromid Id of object to clone
+	 * @param $options
+	 * @return    mixed                New object created, <0 if KO
+	 * @throws Exception
 	 */
-	public function delete_object_links() {
+	public function createFromClone(User $user, $fromid)
+	{
+		global $conf, $langs;
+		$error = 0;
 
-		// Links between objects are stored in table element_element
-		$sql = 'DELETE';
-		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
-		$sql .= ' WHERE fk_target = ' . $this->id;
-		$sql .= " AND targettype = '" . $this->table_element . "'";
+		dol_syslog(__METHOD__, LOG_DEBUG);
 
-		$resql = $this->db->query($sql);
+		$object = new self($this->db);
+		$this->db->begin();
 
-		if ($resql) {
+		// Load source object
+		$result = $object->fetchCommon($fromid);
+		if ($result > 0 && ! empty($object->table_element_line)) {
+			$object->fetchLines();
+		}
+
+		// Create clone
+		$object->fetchObjectLinked('','',$object->id, 'dolismq_' . $object->element);
+		$object->context['createfromclone'] = 'createfromclone';
+		$object->ref = '';
+		$object->status = 1;
+		$objectid = $object->create($user);
+
+
+		//add categories
+		$cat = new Categorie($this->db);
+		$categories = $cat->containing($fromid, 'control');
+
+		if (is_array($categories) && !empty($categories)) {
+			foreach($categories as $cat) {
+				$categoryIds[] = $cat->id;
+			}
+			if ($objectid > 0) {
+				$object->fetch($objectid);
+				$object->setCategories($categoryIds);
+			}
+		}
+
+		//add objects linked
+		if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
+			if (!empty($object->linkedObjects['project'])) {
+				foreach ($object->linkedObjects['project'] as $project) {
+					$object->add_object_linked($project->element, $project->id);
+				}
+			}
+			if (!empty($object->linkedObjects['project_task'])) {
+				foreach ($object->linkedObjects['project_task'] as $project_task) {
+					$object->add_object_linked($project_task->element, $project_task->id);
+				}
+			}
+			if (!empty($object->linkedObjects['product'])) {
+				foreach ($object->linkedObjects['product'] as $product) {
+					$object->add_object_linked($product->element, $product->id);
+				}
+			}
+			if (!empty($object->linkedObjects['productbatch'])) {
+				foreach ($object->linkedObjects['productbatch'] as $productbatch) {
+					$object->add_object_linked($productbatch->element, $productbatch->id);
+				}
+			}
+			if (!empty($object->linkedObjects['societe'])) {
+				foreach ($object->linkedObjects['societe'] as $societe) {
+					$object->add_object_linked($societe->element, $societe->id);
+				}
+			}
+		}
+
+		unset($object->context['createfromclone']);
+
+		// End
+		if ( ! $error) {
 			$this->db->commit();
-			return 1;
+			return $objectid;
 		} else {
-			dol_print_error($this->db);
+			$this->db->rollback();
 			return -1;
 		}
 	}
+
 
 	/**
 	 *  Return a link to the object card (with optionaly the picto)
