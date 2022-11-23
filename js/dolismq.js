@@ -1215,6 +1215,7 @@ window.eoxiaJS.control.showSelectObjectLinked = function ( event ) {
 	urlToGo += '&fk_project=' + projectId
 	urlToGo += '&fk_user_controller=' + userController
 
+	window.eoxiaJS.loader.display($('.tabBar.tabBarWithBottom tbody'))
 	$.ajax({
 		url: urlToGo,
 		type: "POST",
@@ -1222,6 +1223,7 @@ window.eoxiaJS.control.showSelectObjectLinked = function ( event ) {
 		contentType: false,
 		success: function ( resp ) {
 			$('.tabBar.tabBarWithBottom tbody').html($(resp).find('.tabBar.tabBarWithBottom tbody').children())
+			$('.wpeo-loader').removeClass('wpeo-loader')
 		},
 		error: function ( ) {
 		}
