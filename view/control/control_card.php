@@ -716,7 +716,7 @@ if ($action == 'create') {
 	//FK Project
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT && preg_match('/"project":1/',$sheet->element_linked)) {
 		print '<tr><td class="">' . $langs->trans('ProjectLinked') . '</td><td>';
-		print img_picto('', 'project') . $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1), GETPOST('projectid'), 'projectid', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth500');
+		print img_picto('', 'project') . $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1), GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth500');
 		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/projet/card.php?socid=' . GETPOST('fk_soc') . '&action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProject') . '"></span></a>';
 		print '</td></tr>';
 	}
@@ -1223,8 +1223,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Project
 	if (!empty($conf->projet->enabled)) {
 		$langs->load('projects');
-		if (!empty($object->fk_project)) {
-			$project->fetch($object->fk_project);
+		if (!empty($object->projectid)) {
+			$project->fetch($object->projectid);
 			$morehtmlref .= $langs->trans('Project') . ' : ' . $project->getNomUrl(1, '', 1);
 		} else {
 			$morehtmlref .= '';
@@ -1241,7 +1241,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<table class="border centpercent tableforfield">'."\n";
 
 	// Common attributes
-	unset($object->fields['fk_project']); // Hide field already shown in banner
+	unset($object->fields['projectid']); // Hide field already shown in banner
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 

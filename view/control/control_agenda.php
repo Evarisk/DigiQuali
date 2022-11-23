@@ -145,8 +145,8 @@ if ($object->id > 0) {
 	// Project
 	if (!empty($conf->projet->enabled)) {
 		$langs->load('projects');
-		if (!empty($object->fk_project)) {
-			$project->fetch($object->fk_project);
+		if (!empty($object->projectid)) {
+			$project->fetch($object->projectid);
 			$morehtmlref .= $langs->trans('Project') . ' : ' . $project->getNomUrl(1, '', 1);
 		} else {
 			$morehtmlref .= '';

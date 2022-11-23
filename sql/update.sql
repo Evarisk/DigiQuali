@@ -20,7 +20,7 @@ ALTER TABLE `llx_dolismq_question` ADD `enter_comment` BOOLEAN NULL AFTER `autho
 ALTER TABLE `llx_dolismq_control` ADD `fk_project` INTEGER NULL AFTER `fk_user_controller`;
 
 -- 1.4.0
-
+ALTER TABLE `llx_dolismq_control` CHANGE `fk_project` `projectid` integer;
 ALTER TABLE `llx_element_element` ADD `position` INTEGER;
 UPDATE `llx_element_element` SET `sourcetype` = 'dolismq_question' WHERE `sourcetype` = 'question';
 UPDATE `llx_element_element` SET `sourcetype` = 'dolismq_sheet' WHERE `sourcetype` = 'sheet';
