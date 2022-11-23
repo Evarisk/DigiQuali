@@ -72,7 +72,7 @@ QuestionLockedTrigger = Question verrouillée
 
 # Mod Numbering - Modèle de numérotation
 DoliSMQQuestionNumberingModule = Modèle de numérotation des questions de DoliSMQ
-DoliSMQQuestionStandardModel = Renvoie le numéro sous la forme QUn où n est un compteur séquentiel sans rupture et sans remise à 0.
+DoliSMQQuestionStandardModel = Renvoie le numéro sous la forme QUyymm-nnnn où n est un compteur séquentiel sans rupture et sans remise à 0.
 
 # Data - Donnée
 AddQuestion = Ajouter une question
@@ -125,7 +125,7 @@ SheetLockedTrigger = Fiche modèle verrouillée
 
 # Mod Numbering - Modèle de numérotation
 DoliSMQSheetNumberingModule = Modèle de numérotation des fiches modèles de DoliSMQ
-DoliSMQSheetStandardModel = Renvoie le numéro sous la forme MOn où n est un compteur séquentiel sans rupture et sans remise à 0.
+DoliSMQSheetStandardModel = Renvoie le numéro sous la forme MOyymm-nnnn où n est un compteur séquentiel sans rupture et sans remise à 0.
 
 # Data - Donnée
 Sheet = Fiche modèle
@@ -194,7 +194,7 @@ ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
 
 # Mod Numbering - Modèle de numérotation
 DoliSMQControlNumberingModule = Modèle de numérotation des contrôles de DoliSMQ
-DoliSMQControlStandardModel = Renvoie le numéro sous la forme FCn où n est un compteur séquentiel sans rupture et sans remise à 0.
+DoliSMQControlStandardModel = Renvoie le numéro sous la forme FCyymm-nnnn où n est un compteur séquentiel sans rupture et sans remise à 0.
 
 # Data - Donnée
 Control = Contrôle
@@ -253,7 +253,7 @@ SelectUser = Sélectionner un utilisateur
 
 # Mod Numbering - Modèle de numérotation
 DoliSMQControlDetNumberingModule = Modèle de numérotation des lignes des fiches de contrôle de DoliSMQ
-DoliSMQControlDetStandardModel = Renvoie le numéro sous la forme FCRn où n est un compteur séquentiel sans rupture et sans remise à 0.
+DoliSMQControlDetStandardModel = Renvoie le numéro sous la forme FCRyymm-nnnn où n est un compteur séquentiel sans rupture et sans remise à 0.
 
 # Data - Donnée
 AnswerSaved = Les réponses ont été sauvegardées
@@ -274,7 +274,7 @@ ControlDocumentGeneratedWithDolibarr = Fiche de contrôle générée avec Doliba
 
 # Mod Numbering - Modèle de numérotation
 DoliSMQControlDocumentDocumentNumberingModule = Modèle de numérotation des fiches de contrôle de DoliSMQ
-DoliSMQControlDocumentStandardModel = Renvoie le numéro sous la forme FCDn où n est un compteur séquentiel sans rupture et sans remise à 0.
+DoliSMQControlDocumentStandardModel = Renvoie le numéro sous la forme FCDyymm-nnnn où n est un compteur séquentiel sans rupture et sans remise à 0.
 
 # ODT Template - Template ODT
 DoliSMQTemplateDocumentControlDocument = Modèle de documents des fiches de contrôle de DoliSMQ
