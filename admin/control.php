@@ -107,7 +107,7 @@ print load_fiche_titre($title, $linkback, 'dolismq_color@dolismq');
 
 // Configuration header
 $head = dolismqAdminPrepareHead();
-print dol_get_fiche_head($head, 'control', '', -1, "dolismq_color@dolismq");
+print dol_get_fiche_head($head, 'control', $title, -1, "dolismq_color@dolismq");
 
 print load_fiche_titre($langs->trans("ControlManagement"), '', '');
 print '<hr>';

@@ -78,7 +78,7 @@ print load_fiche_titre($langs->trans($page_name), $linkback, 'dolismq_color@doli
 
 // Configuration header
 $head = dolismqAdminPrepareHead();
-print dol_get_fiche_head($head, 'about', '', 0, 'dolismq_color@dolismq');
+print dol_get_fiche_head($head, 'about', $langs->trans($page_name), -1, 'dolismq_color@dolismq');
 
 print $dolismq->getDescLong();
 
