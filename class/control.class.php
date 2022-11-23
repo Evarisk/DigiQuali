@@ -487,8 +487,11 @@ class Control extends CommonObject
 		$object->fetchObjectLinked('','',$object->id, 'dolismq_' . $object->element);
 		$object->context['createfromclone'] = 'createfromclone';
 		$object->ref = '';
-		$object->status = 1;
+		$object->status = 0;
+		$object->verdict = null;
+		$object->note_public = null;
 		$objectid = $object->create($user);
+
 
 
 		//add categories
