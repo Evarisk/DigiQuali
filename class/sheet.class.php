@@ -680,6 +680,152 @@ class Sheet extends CommonObject
 		return $out;
 	}
 
+
+	/**
+	 *	Fetch array of objects linked to current object (object of enabled modules only). Links are loaded into
+	 *		this->linkedObjectsIds array +
+	 *		this->linkedObjects array if $loadalsoobjects = 1
+	 *  Possible usage for parameters:
+	 *  - all parameters empty -> we look all link to current object (current object can be source or target)
+	 *  - source id+type -> will get target list linked to source
+	 *  - target id+type -> will get source list linked to target
+	 *  - source id+type + target type -> will get target list of the type
+	 *  - target id+type + target source -> will get source list of the type
+	 *
+	 *	@param	int		$sourceid			Object source id (if not defined, id of object)
+	 *	@param  string	$sourcetype			Object source type (if not defined, element name of object)
+	 *	@param  int		$targetid			Object target id (if not defined, id of object)
+	 *	@param  string	$targettype			Object target type (if not defined, elemennt name of object)
+	 *	@param  string	$clause				'OR' or 'AND' clause used when both source id and target id are provided
+	 *  @param  int		$alsosametype		0=Return only links to object that differs from source type. 1=Include also link to objects of same type.
+	 *  @param  string	$orderby			SQL 'ORDER BY' clause
+	 *  @param	int		$loadalsoobjects	Load also array this->linkedObjects (Use 0 to increase performances)
+	 *	@return int							<0 if KO, >0 if OK
+	 *  @see	add_object_linked(), updateObjectLinked(), deleteObjectLinked()
+	 */
+	public function fetchQuestionsLinked($sourceid = null, $sourcetype = '', $targetid = null, $targettype = '', $clause = 'OR', $alsosametype = 1, $orderby = 'sourcetype', $loadalsoobjects = 1)
+	{
+		global $conf;
+
+		$this->linkedObjectsIds = array();
+		$this->linkedObjects = array();
+
+		$justsource = false;
+		$justtarget = false;
+		$withtargettype = false;
+		$withsourcetype = false;
+
+		if (!empty($sourceid) && !empty($sourcetype) && empty($targetid)) {
+			$justsource = true; // the source (id and type) is a search criteria
+			if (!empty($targettype)) {
+				$withtargettype = true;
+			}
+		}
+		if (!empty($targetid) && !empty($targettype) && empty($sourceid)) {
+			$justtarget = true; // the target (id and type) is a search criteria
+			if (!empty($sourcetype)) {
+				$withsourcetype = true;
+			}
+		}
+
+		$sourceid = (!empty($sourceid) ? $sourceid : $this->id);
+		$targetid = (!empty($targetid) ? $targetid : $this->id);
+		$sourcetype = (!empty($sourcetype) ? $sourcetype : $this->element);
+		$targettype = (!empty($targettype) ? $targettype : $this->element);
+
+		/*if (empty($sourceid) && empty($targetid))
+		 {
+		 dol_syslog('Bad usage of function. No source nor target id defined (nor as parameter nor as object id)', LOG_ERR);
+		 return -1;
+		 }*/
+
+		// Links between objects are stored in table element_element
+		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype, position';
+		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
+		$sql .= " WHERE ";
+		if ($justsource || $justtarget) {
+			if ($justsource) {
+				$sql .= "fk_source = ".((int) $sourceid)." AND sourcetype = '".$this->db->escape($sourcetype)."'";
+				if ($withtargettype) {
+					$sql .= " AND targettype = '".$this->db->escape($targettype)."'";
+				}
+			} elseif ($justtarget) {
+				$sql .= "fk_target = ".((int) $targetid)." AND targettype = '".$this->db->escape($targettype)."'";
+				if ($withsourcetype) {
+					$sql .= " AND sourcetype = '".$this->db->escape($sourcetype)."'";
+				}
+			}
+		} else {
+			$sql .= "(fk_source = ".((int) $sourceid)." AND sourcetype = '".$this->db->escape($sourcetype)."')";
+			$sql .= " ".$clause." (fk_target = ".((int) $targetid)." AND targettype = '".$this->db->escape($targettype)."')";
+		}
+		$sql .= ' ORDER BY '.$orderby;
+
+		dol_syslog(get_class($this)."::fetchObjectLink", LOG_DEBUG);
+		$resql = $this->db->query($sql);
+
+		if ($resql) {
+			$num = $this->db->num_rows($resql);
+			$i = 0;
+			while ($i < $num) {
+				$obj = $this->db->fetch_object($resql);
+				if ($justsource || $justtarget) {
+					if ($justsource) {
+						$this->linkedObjectsIds[$obj->targettype][$obj->position] = $obj->fk_target;
+					} elseif ($justtarget) {
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position] = $obj->fk_source;
+					}
+				} else {
+					if ($obj->fk_source == $sourceid && $obj->sourcetype == $sourcetype) {
+						$this->linkedObjectsIds[$obj->targettype][$obj->position] = $obj->fk_target;
+					}
+					if ($obj->fk_target == $targetid && $obj->targettype == $targettype) {
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position] = $obj->fk_source;
+					}
+				}
+
+				$i++;
+			}
+
+			if (!empty($this->linkedObjectsIds)) {
+				$tmparray = $this->linkedObjectsIds;
+				foreach ($tmparray as $objecttype => $objectids) {       // $objecttype is a module name ('facture', 'mymodule', ...) or a module name with a suffix ('project_task', 'mymodule_myobj', ...)
+					// Parse element/subelement (ex: project_task, cabinetmed_consultation, ...)
+					$module = $element = $subelement = $objecttype;
+					$regs = array();
+					if ($objecttype != 'supplier_proposal' && $objecttype != 'order_supplier' && $objecttype != 'invoice_supplier'
+						&& preg_match('/^([^_]+)_([^_]+)/i', $objecttype, $regs)) {
+						$module = $element = $regs[1];
+
+						$subelement = $regs[2];
+					}
+					// Here $module, $classfile and $classname are set
+					if ((($element != $this->element) || $alsosametype)) {
+						if ($loadalsoobjects) {
+							dol_include_once('/'.$classpath.'/'.$classfile.'.class.php');
+							//print '/'.$classpath.'/'.$classfile.'.class.php '.class_exists($classname);
+							if (class_exists($classname)) {
+								foreach ($objectids as $i => $objectid) {	// $i is rowid into llx_element_element
+									$object = new $classname($this->db);
+									$ret = $object->fetch($objectid);
+									if ($ret >= 0) {
+										$this->linkedObjects[$objecttype][$i] = $object;
+									}
+								}
+							}
+						}
+					} else {
+						unset($this->linkedObjectsIds[$objecttype]);
+					}
+				}
+			}
+			return 1;
+		} else {
+			dol_print_error($this->db);
+			return -1;
+		}
+	}
+
 	/**
 	 *	Update questions position in sheet
 	 *
@@ -691,7 +837,7 @@ class Sheet extends CommonObject
 			$sql = 'UPDATE '. MAIN_DB_PREFIX . 'element_element';
 			$sql .= ' SET position =' . ($position + 1);
 			$sql .= ' WHERE fk_source = ' . $this->id;
-			$sql .= ' AND sourcetype = "sheet"';
+			$sql .= ' AND sourcetype = "dolismq_sheet"';
 			$sql .= ' AND fk_target =' . $questionId;
 			$sql .= ' AND targettype = "dolismq_question"';
 			$this->db->query($sql);

@@ -555,11 +555,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	$object->fetchObjectLinked($id, 'dolismq_' . $object->element);
+	$object->fetchQuestionsLinked($id, 'dolismq_' . $object->element);
 	$questionIds = $object->linkedObjectsIds['dolismq_question'];
 	if (is_array($questionIds) && !empty($questionIds)) {
 		ksort($questionIds);
 	}
+
 
 	// Buttons for actions
 	if ($action != 'presend' && $action != 'editline') {
