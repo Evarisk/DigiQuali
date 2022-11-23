@@ -148,6 +148,65 @@ if (empty($reshook)) {
 		}
 	}
 
+	if ($action == 'confirm_delete' && $permissiontodelete) {
+		$db->begin();
+
+		$objecttmp = $object;
+		$nbok = 0;
+		$TMsg = array();
+		$result = $objecttmp->fetch($id);
+
+		if ($result > 0) {
+			$categories = $objecttmp->getCategoriesCommon('control');
+			if (is_array($categories) && !empty($categories)) {
+				foreach ($categories as $cat_id) {
+					$category = new Categorie($db);
+					$category->fetch($cat_id);
+					$category->del_type($objecttmp, 'control');
+				}
+			}
+
+			$objecttmp->fetchObjectLinked('','',$id, 'dolismq_' . $object->element);
+			$objecttmp->element = 'dolismq_' . $objecttmp->element;
+			if (is_array($objecttmp->linkedObjects) && !empty($objecttmp->linkedObjects)) {
+				foreach($objecttmp->linkedObjects as $linkedObjectType => $linkedObjectArray) {
+					foreach($linkedObjectArray as $linkedObject) {
+						if (method_exists($objecttmp, 'is_erasable') && $objecttmp->is_erasable() <= 0) {
+							$objecttmp->deleteObjectLinked($linkedObject->id, $linkedObjectType);
+						}
+					}
+				}
+			}
+
+			$result = $objecttmp->delete($user);
+
+			if ($result > 0) {
+				$db->commit();
+
+				// Delete OK
+				setEventMessages('RecordDeleted', null, 'mesgs');
+
+				header('Location: ' .$backurlforlist);
+				exit;
+			} else {
+				$error++;
+				if (!empty($object->errors)) {
+					setEventMessages(null, $object->errors, 'errors');
+				} else {
+					setEventMessages($object->error, null, 'errors');
+				}
+			}
+			$action = '';
+		} else {
+			setEventMessages($objecttmp->error, $objecttmp->errors, 'errors');
+			$error++;
+		}
+
+
+
+		//var_dump($listofobjectthirdparties);exit;
+	}
+
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
@@ -331,56 +390,6 @@ if (empty($reshook)) {
 				$action = '';
 			}
 		}
-	}
-
-	if (!$error && $action == 'confirm_delete' && $permissiontodelete) {
-		$db->begin();
-
-		$objecttmp = $object;
-		$nbok = 0;
-		$TMsg = array();
-		$result = $objecttmp->fetch($id);
-
-		if ($result > 0) {
-			$objecttmp->fetchObjectLinked('','',$id, 'dolismq_' . $object->element);
-			$objecttmp->element = 'dolismq_' . $objecttmp->element;
-			if (is_array($objecttmp->linkedObjects) && !empty($objecttmp->linkedObjects)) {
-				foreach($objecttmp->linkedObjects as $linkedObjectType => $linkedObjectArray) {
-					foreach($linkedObjectArray as $linkedObject) {
-						if (method_exists($objecttmp, 'is_erasable') && $objecttmp->is_erasable() <= 0) {
-							$objecttmp->deleteObjectLinked($linkedObject->id, $linkedObjectType);
-						}
-					}
-				}
-			}
-
-			$result = $objecttmp->delete($user);
-
-			if ($result > 0) {
-				$db->commit();
-
-				// Delete OK
-				setEventMessages('RecordDeleted', null, 'mesgs');
-
-				header('Location: ' .$backurlforlist);
-				exit;
-			} else {
-				$error++;
-				if (!empty($object->errors)) {
-					setEventMessages(null, $object->errors, 'errors');
-				} else {
-					setEventMessages($object->error, null, 'errors');
-				}
-			}
-			$action = '';
-		} else {
-			setEventMessages($objecttmp->error, $objecttmp->errors, 'errors');
-			$error++;
-		}
-
-
-
-		//var_dump($listofobjectthirdparties);exit;
 	}
 
 	// Action to build doc
