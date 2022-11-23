@@ -503,6 +503,8 @@ class modDoliSMQ extends DolibarrModules
 	 */
 	public function init($options = ''): int
 	{
+		global $conf;
+
 		$sql    = [];
 		$result = $this->_load_tables('/dolismq/sql/');
 
@@ -513,6 +515,9 @@ class modDoliSMQ extends DolibarrModules
 				$this->_load_tables('/dolismq/sql/' . $subFolder . '/');
 			}
 		}
+
+		dolibarr_set_const($this->db, 'DOLISMQ_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
+		dolibarr_set_const($this->db, 'DOLISMQ_DB_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
 
 		delDocumentModel('controldocument_odt', 'controldocument');
 
