@@ -288,6 +288,11 @@ $elementArray = array(
 		'langs' => 'ThirdParty',
 		'picto' => 'building'
 	),
+	'socpeople' => array(
+		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_SOCPEOPLE,
+		'langs' => 'Contact',
+		'picto' => 'address'
+	),
 	'project' => array(
 		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PROJECT,
 		'langs' => 'Project',
@@ -508,34 +513,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$elementLinked = json_decode($object->element_linked);
 
 	//FK Element
-	$elementArray = array(
-		'product' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT,
-			'langs' => 'ProductOrService',
-			'picto' => 'product'
-		),
-		'productlot' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT,
-			'langs' => 'Batch',
-			'picto' => 'lot'
-		),
-		'thirdparty' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY,
-			'langs' => 'ThirdParty',
-			'picto' => 'building'
-		),
-		'project' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PROJECT,
-			'langs' => 'Project',
-			'picto' => 'project'
-		),
-		'task' => array(
-			'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_TASK,
-			'langs' => 'Task',
-			'picto' => 'projecttask'
-		),
-	);
-
 	foreach ($elementArray as $key => $element) {
 		if ($elementLinked->$key > 0) {
 			if (!empty($element['conf'])) {

@@ -48,6 +48,7 @@ require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
+require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
 require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
@@ -88,6 +89,7 @@ $product          = new Product($db);
 $project          = new Project($db);
 $task             = new Task($db);
 $thirdparty       = new Societe($db);
+$contact          = new Contact($db);
 $productlot       = new Productlot($db);
 $extrafields      = new ExtraFields($db);
 $ecmfile 		  = new EcmFiles($db);
@@ -708,8 +710,19 @@ if ($action == 'create') {
 	//FK Soc
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY && preg_match('/"thirdparty":1/',$sheet->element_linked)) {
 		print '<tr><td class="">' . $langs->trans('ThirdPartyLinked') . '</td><td>';
+		$events = array();
+		$events[] = array('method' => 'getContacts', 'url' => dol_buildpath('/core/ajax/contacts.php', 1), 'htmlname' => 'contactid', 'params' => array('add-customer-contact' => 'disabled'));
 		print img_picto('', 'building') . $form->select_company(GETPOST('fk_soc'), 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'minwidth500');
 		print ' <a class="butActionNew" href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddThirdParty') . '"></span></a>';
+		print '</td></tr>';
+	}
+
+	// FK Socpeople
+	if ($conf->global->DOLISMQ_CONTROL_SHOW_SOCPEOPLE && preg_match('/"socpeople":1/',$sheet->element_linked)) {
+		print '<tr><td class="">' . $langs->trans('SocPeopleLinked') . '</td><td>';
+		// If no fk_soc, set to -1 to avoid full contacts list
+		print img_picto('', 'address') . $form->selectcontacts(((GETPOST('fk_soc') > 0) ? GETPOST('fk_soc') : -1), ((GETPOST('fk_socpeople') > 0) ? GETPOST('fk_socpeople') : ''), 'fk_socpeople', 3, '', '', 0, 'minwidth500');
+		print ' <a class="butActionNew" href="' . DOL_URL_ROOT . '/contact/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddContact') . '"></span></a>';
 		print '</td></tr>';
 	}
 
@@ -1290,6 +1303,20 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
 		if ($thirdparty > 0) {
 			print $thirdparty->getNomUrl(1);
+		}
+		print '</td></tr>';
+	}
+
+	$object->fetchObjectLinked('', 'socpeople','', 'dolismq_control');
+	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_SOCPEOPLE) && (!empty($object->linkedObjectsIds['socpeople']))) {
+		//Fk_socpeople - Contact/adresse
+		print '<tr><td class="titlefield">';
+		print $langs->trans('Contact');
+		print '</td>';
+		print '<td>';
+		$contact->fetch(array_shift($object->linkedObjectsIds['socpeople']));
+		if ($contact > 0) {
+			print $contact->getNomUrl(1);
 		}
 		print '</td></tr>';
 	}

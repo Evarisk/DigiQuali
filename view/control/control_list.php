@@ -44,6 +44,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 
 require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
+require_once DOL_DOCUMENT_ROOT.'/contact/class/contact.class.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
@@ -51,6 +52,7 @@ require_once DOL_DOCUMENT_ROOT.'/projet/class/task.class.php';
 require_once DOL_DOCUMENT_ROOT . "/categories/class/categorie.class.php";
 
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/contact.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/project.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/product.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/usergroups.lib.php';
@@ -137,6 +139,10 @@ if (!empty($fromtype)) {
 			$objectLinked = new Societe($db);
 			$prehead = 'societe_prepare_head';
 			break;
+		case 'socpeople' :
+			$objectLinked = new Contact($db);
+			$prehead = 'contact_prepare_head';
+			break;
 		case 'user' :
 			$objectLinked = new User($db);
 			$prehead = 'user_prepare_head';
@@ -155,17 +161,20 @@ if (!empty($fromtype)) {
 $arrayfields['t.fk_product']    = array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'Product', 'enabled' => '1', 'position' => 21, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'product.rowid', 'checked' => 1);
 $arrayfields['t.fk_lot']        = array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'Batch', 'enabled' => '1', 'position' => 22, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'productlot.rowid', 'checked' => 1);
 $arrayfields['t.fk_thirdparty'] = array('type' => 'integer:Societe:societe/class/societe.class.php', 'label' => 'ThirdParty', 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'societe.rowid', 'checked' => 1);
-$arrayfields['t.fk_project']    = array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 26, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'project.rowid', 'checked' => 1);
-$arrayfields['t.fk_task']       = array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 27, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'task.rowid', 'checked' => 1);
+$arrayfields['t.fk_socpeople']  = array('type' => 'integer:Contact:contact/class/contact.class.php', 'label' => 'Contact', 'enabled' => '1', 'position' => 26, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'socpeople.rowid', 'checked' => 1);
+$arrayfields['t.fk_project']    = array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 27, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'project.rowid', 'checked' => 1);
+$arrayfields['t.fk_task']       = array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 28, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'task.rowid', 'checked' => 1);
 
 $object->fields['fk_product']    = $arrayfields['t.fk_product'];
 $object->fields['fk_lot']        = $arrayfields['t.fk_lot'];
 $object->fields['fk_thirdparty'] = $arrayfields['t.fk_thirdparty'];
+$object->fields['fk_socpeople']  = $arrayfields['t.fk_socpeople'];
 $object->fields['fk_project']    = $arrayfields['t.fk_project'];
 $object->fields['fk_task']       = $arrayfields['t.fk_task'];
 
 $element_element_fields = array(
 	'fk_thirdparty' => 'societe',
+	'fk_socpeople' => 'socpeople',
 	'fk_product' => 'product',
 	'fk_lot' => 'productbatch',
 	'fk_project' => 'project',

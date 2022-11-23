@@ -346,6 +346,18 @@ print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_THIRDPARTY');
 print '</td>';
 print '</tr>';
 
+//Show socpeople conf
+print '<tr><td>';
+print $langs->trans('ShowSocPeople');
+print "</td><td>";
+print $langs->trans('ShowSocPeopleDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_SOCPEOPLE');
+print '</td>';
+print '</tr>';
+
 //Show project conf
 print '<tr><td>';
 print $langs->trans('ShowProject');
