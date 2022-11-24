@@ -176,6 +176,7 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_CONTROL_SHOW_SOCPEOPLE', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_SHOW_PROJECT', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_SHOW_TASK', 'integer', 0, '', 0, 'current'],
+			$i++ => ['DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
 
 			//CONST CONTROL DOCUMENT
 			$i++ => ['DOLISMQ_CONTROLDOCUMENT_ADDON', 'chaine', 'mod_controldocument_standard', '', 0, 'current'],
@@ -191,7 +192,11 @@ class modDoliSMQ extends DolibarrModules
 			// CONST MODULE
 			$i++ => ['DOLISMQ_VERSION','chaine', $this->version, '', 0, 'current'],
 			$i++ => ['DOLISMQ_DB_VERSION', 'chaine', $this->version, '', 0, 'current'],
-			$i   => ['DOLISMQ_SHOW_PATCH_NOTE', 'integer', 1, '', 0, 'current']
+			$i++ => ['DOLISMQ_SHOW_PATCH_NOTE', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM', 'integer', 854, '', 0, 'current'],
+			$i++ => ['DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM', 'integer', 480, '', 0, 'current'],
+			$i++ => ['DOLISMQ_MEDIA_MAX_WIDTH_LARGE', 'integer', 1280, '', 0, 'current'],
+			$i   => ['DOLISMQ_MEDIA_MAX_HEIGHT_LARGE', 'integer', 720, '', 0, 'current']
 		];
 
 		// Some keys to add into the overwriting translation tables

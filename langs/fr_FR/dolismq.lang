@@ -54,6 +54,22 @@ ShowPatchNote = Consulter la note de mise à jour
 DontShowPatchNote = Ne plus afficher la note de mise à jour
 
 
+#
+# DOLiSMQ
+#
+
+# Media - Media
+MediaData = Données configurables des médias
+MediaMaxWidthMedium = Largeur du média medium
+MediaMaxWidthMediumDescription = Largeur du média (dimension medium) avec pour ratio 16:9
+MediaMaxHeightMedium = Hauteur du média medium
+MediaMaxHeightMediumDescription = Hauteur du média (dimension medium) avec pour ratio 16:9
+MediaMaxWidthLarge = Largeur du média large
+MediaMaxWidthLargeDescription = Largeur du média (dimension large) avec pour ratio 16:9
+MediaMaxHeightLarge = Hauteur du média large
+MediaMaxHeightLargeDescription = Hauteur du média (dimension large) avec pour ratio 16:9
+
+
 
 #
 # Questions
@@ -247,6 +263,10 @@ ExtrafieldsControlManagement = Gestion des attributs supplémentaires des contr�
 WithLastControl = Avec le dernier contrôle
 ControlMustBeLockedToSendEmail = Le contrôle doit être verrouillé pour pouvoir l'envoyer par e-mail
 SelectUser = Sélectionner un utilisateur
+ControlsCategoriesArea = Espace des tags/catégories des contrôles
+MediaGalleryQuestionAnswers = Galerie photo des réponses aux questions
+UseLargeSizeMedia = Utiliser la taille large des médias sur la galerie photo
+UseLargeSizeMediaDescription = Afficher la galerie photo en taille large sinon en taille moyenne
 
 
 

@@ -381,6 +381,18 @@ print '<td class="center">';
 print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_TASK');
 print '</td>';
 print '</tr>';
+
+//Use large size media in gallery
+print '<tr><td>';
+print $langs->trans('UseLargeSizeMedia');
+print "</td><td>";
+print $langs->trans('UseLargeSizeMediaDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY');
+print '</td>';
+print '</tr>';
 print '</table>';
 
 //Extrafields control management

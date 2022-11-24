@@ -61,6 +61,11 @@ function controlPrepareHead(Control $object): array
 		$h++;
 	}
 
+	$head[$h][0] = dol_buildpath('/dolismq/view/control/control_medias.php', 1).'?id='.$object->id;
+	$head[$h][1] = '<i class="fas fa-file-image pictofixedwidth"></i>' . $langs->trans('Medias');
+	$head[$h][2] = 'controlMedias';
+	$h++;
+
 	$head[$h][0] = dol_buildpath('/dolismq/view/control/control_agenda.php', 1).'?id='.$object->id;
 	$head[$h][1] = '<i class="fas fa-calendar-alt pictofixedwidth"></i>' . $langs->trans('Events');
 	$head[$h][2] = 'controlAgenda';

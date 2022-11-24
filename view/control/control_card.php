@@ -268,6 +268,8 @@ if (empty($reshook)) {
 					$destfull = $pathToQuestionPhoto . '/' . $newFilename;
 
 					// Create thumbs
+					$imgThumbLarge = vignette($destfull, 1280, 720, '_large', 50, 'thumbs');
+					$imgThumbMedium = vignette($destfull, 854, 480, '_medium', 50, 'thumbs');
 					$imgThumbSmall = vignette($destfull, $maxwidthsmall, $maxheightsmall, '_small', 50, 'thumbs');
 					// Create mini thumbs for image (Ratio is near 16/9)
 					$imgThumbMini = vignette($destfull, $maxwidthmini, $maxheightmini, '_mini', 50, 'thumbs');
