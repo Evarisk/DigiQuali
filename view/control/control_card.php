@@ -312,7 +312,16 @@ if (empty($reshook)) {
 
 	if ($action == 'classin' && $permissiontoadd) {
 		// Link to a project
-		$object->setProject(GETPOST('projectid', 'int'));
+		$object->projectid = GETPOST('projectid', 'int');
+		$object->update($user, 1);
+	}
+
+	if ($action == 'set_categories' && $permissiontoadd) {
+		if ($object->fetch($id) > 0) {
+			$result = $object->setCategories(GETPOST('categories', 'array'));
+			header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $id);
+			exit();
+		}
 	}
 
 	if ($action == 'save') {
@@ -1236,11 +1245,29 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Project
 	if (!empty($conf->projet->enabled)) {
 		$langs->load('projects');
-		if (!empty($object->projectid)) {
-			$project->fetch($object->projectid);
-			$morehtmlref .= $langs->trans('Project') . ' : ' . $project->getNomUrl(1, '', 1);
+		$morehtmlref .= $langs->trans('Project') . ' ';
+		if ($user->rights->ticket->write) {
+			if ($action != 'classify') {
+				$morehtmlref .= '<a class="editfielda" href="' . $_SERVER['PHP_SELF'] . '?action=classify&token=' . newToken() . '&id=' . $object->id .'">' . img_edit($langs->transnoentitiesnoconv('SetProject')) . '</a>';
+			}
+			$morehtmlref .= ' : ';
+			if ($action == 'classify') {
+				$morehtmlref .= '<form method="post" action="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '">';
+				$morehtmlref .= '<input type="hidden" name="action" value="classin">';
+				$morehtmlref .= '<input type="hidden" name="token" value="'.newToken().'">';
+				$morehtmlref .= $formproject->select_projects(0, $object->projectid, 'projectid', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'maxwidth500');
+				$morehtmlref .= '<input type="submit" class="button valignmiddle" value="' . $langs->trans("Modify") . '">';
+				$morehtmlref .= '</form>';
+			} else {
+				$morehtmlref .= $form->form_project($_SERVER['PHP_SELF'] . '?id=' .$object->id, 0, $object->projectid, 'none', 0, 0, 0, 1);
+			}
 		} else {
-			$morehtmlref .= '';
+			if (!empty($object->projectid)) {
+				$project->fetch($object->projectid);
+				$morehtmlref .= $project->getNomUrl(1, '', 1);
+			} else {
+				$morehtmlref .= '';
+			}
 		}
 	}
 	$morehtmlref .= '</div>';
@@ -1260,9 +1287,33 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Categories
 	if ($conf->categorie->enabled) {
-		print '<tr><td class="valignmiddle">' . $langs->trans('Categories') . '</td><td>';
-		print $form->showCategories($object->id, 'control', 1);
-		print '</td></tr>';
+		print '<tr><td class="valignmiddle">' . $langs->trans('Categories') . '</td>';
+		if ($action != 'categories') {
+			print '<td style="display: flex"><a class="editfielda" href="' . $_SERVER['PHP_SELF'] . '?action=categories&id=' . $object->id . '">' . img_edit($langs->trans('Modify')) . '</a>';
+			print $form->showCategories($object->id, 'control', 1) . '</td>';
+		}
+		if ($permissiontoadd && $action == 'categories') {
+			$cate_arbo = $form->select_all_categories('control', '', 'parent', 64, 0, 1);
+			if (is_array($cate_arbo)) {
+				// Categories
+				print '<td>';
+				print '<form action="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '" method="post">';
+				print '<input type="hidden" name="token" value="'.newToken().'">';
+				print '<input type="hidden" name="action" value="set_categories">';
+
+				$cats = $category->containing($object->id, 'control');
+				$arrayselected = array();
+				foreach ($cats as $cat) {
+					$arrayselected[] = $cat->id;
+				}
+
+				print img_picto('', 'category') . $form->multiselectarray('categories', $cate_arbo, $arrayselected, '', 0, 'quatrevingtpercent widthcentpercentminusx', 0, 0);
+				print '<input type="submit" class="button button-edit small" value="'.$langs->trans('Save').'">';
+				print '</form>';
+				print "</td>";
+			}
+		}
+		print '</tr>';
 	}
 
 	$object->fetchObjectLinked('', 'product', '', 'dolismq_control');
