@@ -771,16 +771,16 @@ class Sheet extends CommonObject
 				$obj = $this->db->fetch_object($resql);
 				if ($justsource || $justtarget) {
 					if ($justsource) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->position] = $obj->fk_target;
+						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $i] = $obj->fk_target;
 					} elseif ($justtarget) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->position] = $obj->fk_source;
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $i] = $obj->fk_source;
 					}
 				} else {
 					if ($obj->fk_source == $sourceid && $obj->sourcetype == $sourcetype) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->position] = $obj->fk_target;
+						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $i] = $obj->fk_target;
 					}
 					if ($obj->fk_target == $targetid && $obj->targettype == $targettype) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->position] = $obj->fk_source;
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $i] = $obj->fk_source;
 					}
 				}
 
