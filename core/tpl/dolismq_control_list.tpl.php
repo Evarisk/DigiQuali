@@ -108,6 +108,11 @@ foreach ($search as $key => $val) {
 }
 
 if ($search_all) $sql .= natural_search(array_keys($fieldstosearchall), $search_all);
+
+if (!empty($conf->categorie->enabled)) {
+	$sql .= Categorie::getFilterSelectQuery('control', "t.rowid", $search_category_array);
+}
+
 //$sql.= dolSqlDateFilter("t.field", $search_xxxday, $search_xxxmonth, $search_xxxyear);
 // Add where from extra fields
 include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_search_sql.tpl.php';
@@ -214,6 +219,13 @@ if ($search_all)
 }
 
 $moreforfilter = '';
+
+// Filter on categories
+if (!empty($conf->categorie->enabled) && $user->rights->categorie->lire) {
+	$formcategory = new FormCategory($db);
+	$moreforfilter .= $formcategory->getFilterBox('control', $search_category_array);
+}
+
 $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldPreListTitle', $parameters, $object); // Note that $action and $object may have been modified by hook
 if (empty($reshook)) $moreforfilter .= $hookmanager->resPrint;
