@@ -1455,11 +1455,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// QUESTION LINES
 	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
 
-	$object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet');
-	$questionIds = $object->linkedObjectsIds;
+	$sheet->fetch($object->fk_sheet);
+	$sheet->fetchQuestionsLinked($object->fk_sheet, 'dolismq_' . $sheet->element);
+	$questionIds = $sheet->linkedObjectsIds['dolismq_question'];
 
+	if (is_array($questionIds) && !empty($questionIds)) {
+		ksort($questionIds);
+	}
 	if (!empty($questionIds)) {
-		$questionCounter = count($questionIds['dolismq_question']);
+		$questionCounter = count($questionIds);
 	} else {
 		$questionCounter = 0;
 	}
@@ -1505,8 +1509,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$colspan = 3;
 
 	// Lines
-	if ( ! empty($questionIds['dolismq_question']) && $questionIds > 0) {
-		foreach ($questionIds['dolismq_question'] as $questionId) {
+	if ( ! empty($questionIds) && $questionIds > 0) {
+		foreach ($questionIds as $questionId) {
 			$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
 			$answer = 0;
 			$comment = '';
