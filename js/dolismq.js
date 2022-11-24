@@ -1149,20 +1149,20 @@ window.eoxiaJS.control.reloadProductLot = function ( event ) {
  * @return {void}
  */
 window.eoxiaJS.control.reloadTask = function ( event ) {
-	let selectTitle = $(this).closest('td').find('#select2-fk_project-container').attr('title')
-	let projectRef = selectTitle.split(/ /)[0]
-	let projectRef2 = projectRef.slice(0, -1)
+
+	var controlForm = document.getElementById('createControlForm');
+	var formData = new FormData(controlForm);
+
+	let sheetId = formData.get('fk_sheet')
+	let projectId = formData.get('fk_project')
+
 	let token = $('.id-container').find('input[name="token"]').val();
-	let sheetID = $('#sheetID').val();
 	let action = '?action=create'
-	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetID
+	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + 'fk_project=' + projectId
 
 	$.ajax({
 		url: urlToGo,
 		type: "POST",
-		data: JSON.stringify({
-			projectRef: projectRef2,
-		}),
 		processData: false,
 		contentType: false,
 		success: function ( resp ) {

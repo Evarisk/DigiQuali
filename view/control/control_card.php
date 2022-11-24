@@ -740,9 +740,8 @@ if ($action == 'create') {
 		print '<tr><td class="">' . $langs->trans('TaskLinked');
 		print '</td><td class="task-container">';
 		print '<span class="task-content">';
-		$data = json_decode(file_get_contents('php://input'), true);
-		dol_strlen($data['projectRef']) > 0 ? $project->fetch(0, $data['projectRef']) : 0;
-		img_picto('', 'projecttask') . $formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST('fk_task'), 'fk_task', 24, 0, '1', 1, 0, 0, 'minwidth500', (!empty(GETPOST('projectid')) ? GETPOST('fk_project') : $project->id), '');
+		dol_strlen(GETPOST('fk_project')) > 0 ? $project->fetch(GETPOST('fk_project')) : 0;
+		img_picto('', 'projecttask') . $formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST('fk_task'), 'fk_task', 24, 0, '1', 1, 0, 0, 'minwidth500', (!empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
 		print '</span>';
 		print '</td></tr>';
 	}
