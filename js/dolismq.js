@@ -1114,22 +1114,23 @@ window.eoxiaJS.control.updateButtonsStatus = function (  ) {
  * @return {void}
  */
 window.eoxiaJS.control.reloadProductLot = function ( event ) {
-	let selectTitle = $(this).closest('td').find('#select2-fk_product-container').attr('title')
-	let productRef = selectTitle.split(/ /)[0]
 	let token = $('.id-container').find('input[name="token"]').val();
-	let sheetID = $('#sheetID').val();
 	let action = '?action=create'
-	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetID
 
+	var controlForm = document.getElementById('createControlForm');
+	var formData = new FormData(controlForm);
+
+	let sheetId = formData.get('fk_sheet')
+	let productId = formData.get('fk_product')
+
+	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_product=' + productId
 	$.ajax({
 		url: urlToGo,
 		type: "POST",
-		data: JSON.stringify({
-			productRef: productRef,
-		}),
 		processData: false,
 		contentType: false,
 		success: function ( resp ) {
+			console.log($(resp).find('.lot-content'))
 			$('.lot-container').html($(resp).find('.lot-content'))
 		},
 		error: function ( ) {

@@ -702,9 +702,8 @@ if ($action == 'create') {
 		print $langs->trans('Lot');
 		print '</td><td class="lot-container">';
 		print '<span class="lot-content">';
-		$data = json_decode(file_get_contents('php://input'), true);
-		dol_strlen($data['productRef']) > 0 ? $product->fetch(0, $data['productRef']) : 0;
-		print img_picto('', 'lot') . dolismq_select_product_lots((!empty(GETPOST('fk_product')) ? GETPOST('fk_product') : $product->id), GETPOST('fk_productlot'), 'fk_productlot', 1, '', '', 0, 'minwidth500', false, 0, array(), false, '', 'fk_productlot');
+		dol_strlen(GETPOST('fk_product')) > 0 ? $product->fetch(GETPOST('fk_product')) : 0;
+		print img_picto('', 'lot') . dolismq_select_product_lots((!empty(GETPOST('fk_product')) ? GETPOST('fk_product') : ''), GETPOST('fk_productlot'), 'fk_productlot', 1, '', '', 0, 'minwidth500', false, 0, array(), false, '', 'fk_productlot');
 		print '</span>';
 		print '</td></tr>';
 	}
