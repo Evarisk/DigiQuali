@@ -730,7 +730,7 @@ if ($action == 'create') {
 	//FK Project
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT && preg_match('/"project":1/',$sheet->element_linked)) {
 		print '<tr><td class="">' . $langs->trans('ProjectLinked') . '</td><td>';
-		print img_picto('', 'project') . $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1), GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth500');
+		print img_picto('', 'project') . $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), GETPOST('fk_project'), 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'minwidth500');
 		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/projet/card.php?socid=' . GETPOST('fk_soc') . '&action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProject') . '"></span></a>';
 		print '</td></tr>';
 	}
