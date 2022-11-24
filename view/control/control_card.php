@@ -722,8 +722,8 @@ if ($action == 'create') {
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_SOCPEOPLE && preg_match('/"socpeople":1/',$sheet->element_linked)) {
 		print '<tr><td class="">' . $langs->trans('SocPeopleLinked') . '</td><td>';
 		// If no fk_soc, set to -1 to avoid full contacts list
-		print img_picto('', 'address') . $form->selectcontacts(((GETPOST('fk_soc') > 0) ? GETPOST('fk_soc') : -1), ((GETPOST('fk_socpeople') > 0) ? GETPOST('fk_socpeople') : ''), 'fk_socpeople', 3, '', '', 0, 'minwidth500');
-		print ' <a class="butActionNew" href="' . DOL_URL_ROOT . '/contact/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddContact') . '"></span></a>';
+		print img_picto('', 'address') . $form->selectcontacts(((GETPOST('fk_soc') > 0) ? GETPOST('fk_soc') : -1), ((GETPOST('fk_socpeople') > 0) ? GETPOST('fk_socpeople') : ''), 'fk_socpeople', 1, '', '', 0, 'minwidth500');
+		print ' <class="butActionNew" href="' . DOL_URL_ROOT . '/contact/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddContact') . '"></span></a>';
 		print '</td></tr>';
 	}
 

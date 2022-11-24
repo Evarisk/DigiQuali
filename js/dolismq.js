@@ -1015,6 +1015,7 @@ window.eoxiaJS.control.event = function() {
 	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.showCommentUnsaved );
 	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 	$( document ).on( 'change', '#fk_project', window.eoxiaJS.control.reloadTask );
+	$( document ).on( 'change', '#fk_soc', window.eoxiaJS.control.reloadSocpeople );
 	$( document ).on( 'click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
 	$( document ).on( 'change', '#fk_sheet', window.eoxiaJS.control.showSelectObjectLinked);
 	//$( document ).on( 'click', '#select_all_answer', window.eoxiaJS.control.selectAllAnswer);
@@ -1158,7 +1159,7 @@ window.eoxiaJS.control.reloadTask = function ( event ) {
 
 	let token = $('.id-container').find('input[name="token"]').val();
 	let action = '?action=create'
-	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + 'fk_project=' + projectId
+	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_project=' + projectId
 
 	$.ajax({
 		url: urlToGo,
@@ -1171,7 +1172,40 @@ window.eoxiaJS.control.reloadTask = function ( event ) {
 		error: function ( ) {
 		}
 	});
-	//$(this).closest('.control-table').find('.lot-container').load(document.URL+'&productRef='+productRef + ' .lot-content')
+};
+
+/**
+ * Reload socpeople selector after company selection.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.control.reloadSocpeople = function ( event ) {
+
+	var controlForm = document.getElementById('createControlForm');
+	var formData = new FormData(controlForm);
+
+	let socId = formData.get('fk_soc')
+	let sheetId = formData.get('fk_sheet')
+
+	let token = $('.id-container').find('input[name="token"]').val();
+	let action = '?action=create'
+	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_soc=' + socId
+
+	$.ajax({
+		url: urlToGo,
+		type: "POST",
+		processData: false,
+		contentType: false,
+		success: function ( resp ) {
+			$('#fk_socpeople').html($(resp).find('#fk_socpeople').children())
+		},
+		error: function ( ) {
+		}
+	});
 };
 
 /**
