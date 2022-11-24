@@ -267,6 +267,7 @@ ControlsCategoriesArea = Espace des tags/catégories des contrôles
 MediaGalleryQuestionAnswers = Galerie photo des réponses aux questions
 UseLargeSizeMedia = Utiliser la taille large des médias sur la galerie photo
 UseLargeSizeMediaDescription = Afficher la galerie photo en taille large sinon en taille moyenne
+ConfirmCloneControl = Êtes-vous sûr(e) de vouloir cloner ce contrôle ?
 
 
 
