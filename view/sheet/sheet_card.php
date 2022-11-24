@@ -702,7 +702,20 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td>';
 		print '<td>';
 		print ' &nbsp; <input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
-		print '</td></tr>';
+		print '</td>';
+		print '<td>';
+		print '</td>';
+		print '<td>';
+		print '</td>';
+		print '<td>';
+		print '</td>';
+		print '<td>';
+		print '</td>';
+		print '<td>';
+		print '</td>';
+		print '<td>';
+		print '</td>';
+		print '</tr>';
 
 		print '</form>';
 	}
