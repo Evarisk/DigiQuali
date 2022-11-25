@@ -1,0 +1,39 @@
+.control-list-medias {
+  .question-section {
+    display: block;
+    margin-bottom: 20px;
+
+    &::after {
+      display: block;
+      content: '';
+      clear: both;
+    }
+  }
+  .question-ref {
+    font-weight: 800;
+    display: block;
+    clear: both;
+  }
+
+  .media-container {
+    display: block;
+    float: left;
+    width: 150px;
+    height: 150px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+
+    a {
+      transition: all 0.2s ease-out;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+    .photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+}
