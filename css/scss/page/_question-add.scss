@@ -1,0 +1,18 @@
+.question-table {
+  .linked-medias-list {
+    display: flex;
+    gap: 10px;
+    height: auto !important;
+
+    @media ( max-width: 500px ) {
+      flex-wrap: wrap;
+    }
+  }
+}
+
+div.tabBar table.border.question-table tr.linked-medias,
+div.tabBar table.border.question-table tr.linked-medias .linked-medias-list {
+  @media ( max-width: 500px ) {
+    height: auto !important;
+  }
+}

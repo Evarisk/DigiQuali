@@ -554,7 +554,7 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 
 			if ($show_favorite_button) {
 				$return .= '
-				<div class="wpeo-button button-square-50 button-blue media-gallery-favorite" value="' . $object->id . '">
+				<div class="wpeo-button button-square-50 button-blue media-gallery-favorite '. ($favorite == $photo ? 'favorite' : '') .'" value="' . $object->id . '">
 					<input class="element-linked-id" type="hidden" value="' . ($object->id > 0 ? $object->id : 0) . '">
 					<input class="filename" type="hidden" value="' . $photo . '">
 					<i class="' . ($favorite == $photo ? 'fas' : ($object->photo == $photo ? 'fas' : 'far')) . ' fa-star button-icon"></i>

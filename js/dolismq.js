@@ -377,6 +377,7 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event, photo, typeFrom, id) {
 
 				$('.tabBar .linked-medias.'+type+' .linked-medias-list').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .linked-medias-list', () => {
 					$('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .fa-star').first().removeClass('far').addClass('fas')
+					$('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite').first().addClass('favorite')
 					let favoriteMedia = $('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .filename').attr('value')
 					$('#'+type).val(favoriteMedia)
 				})
@@ -590,8 +591,10 @@ window.eoxiaJS.mediaGallery.addToFavorite = function( event ) {
 
 	previousFavorite.removeClass('fas')
 	previousFavorite.addClass('far')
+	previousFavorite.closest('.media-gallery-favorite').removeClass('favorite')
 	newFavorite.addClass('fas')
 	newFavorite.removeClass('far')
+	newFavorite.closest('.media-gallery-favorite').addClass('favorite')
 
 	if (filename.length > 0) {
 		$(this).closest('.linked-medias').find('.favorite-photo').val(filename)
