@@ -619,7 +619,7 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
  *  @param	integer		$disableifempty Set tag 'disabled' on select if there is no choice
  *	@return	 int						<0 if KO, Nb of product_lots in list if OK
  */
-function dolismq_select_product_lots($productid, $selected = '', $htmlname = 'fk_productlot', $showempty = 0, $exclude = '', $limitto = '', $showfunction = 0, $moreclass = '', $options_only = false, $showsoc = 0, $forcecombo = 0, $events = array(), $moreparam = '', $htmlid = '', $multiple = false, $disableifempty = 0, $exclude_already_add = '')
+function dolismq_select_product_lots($productid = -1, $selected = '', $htmlname = 'fk_productlot', $showempty = 0, $exclude = '', $limitto = '', $showfunction = 0, $moreclass = '', $options_only = false, $showsoc = 0, $forcecombo = 0, $events = array(), $moreparam = '', $htmlid = '', $multiple = false, $disableifempty = 0, $exclude_already_add = '')
 {
 	global $conf, $langs, $hookmanager, $action, $db;
 
