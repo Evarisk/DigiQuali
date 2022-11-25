@@ -1883,7 +1883,7 @@ div.wpeo-modal-patchnote .wpeo-button {
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
 .control-audit > .wpeo-table:nth-of-type(odd) {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(38, 60, 92, 0.15);
 }
 .control-audit > .wpeo-table .cell-photo-check {
   text-align: right;
