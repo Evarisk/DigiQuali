@@ -30,7 +30,7 @@ ModuleDoliSMQDesc = Système de management de la qualité pour Dolibarr
 DoliSMQSetup = Configuration du module DoliSMQ
 Settings = Réglages
 DoliSMQSetupPage = Page de configuration du module DoliSMQ
-DoliSMQConfig = Configuration du module
+DoliSMQConfig = Configuration
 
 #
 # Page À propos
@@ -55,7 +55,7 @@ DontShowPatchNote = Ne plus afficher la note de mise à jour
 
 
 #
-# DOLiSMQ
+# DoliSMQ
 #
 
 # Media - Media
@@ -334,3 +334,6 @@ Or = ou
 SelectProductsOrServices = Sélectionner un produit / service
 DoliSMQNumberOfModelFilesFound = Nombre de modèles par défaut
 SocPeople = Contact/Adresse
+CloseModal = Fermer
+PhotoWellSent = La photo a été ajoutée à la bibliothèque de médias
+PhotoNotSent = La photo ne s'est pas correctement envoyée
