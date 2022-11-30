@@ -155,13 +155,12 @@ if ($id > 0 || !empty($ref)) {
 	if (!empty($questionIds['dolismq_question']) && $questionIds > 0) {
 		foreach ($questionIds['dolismq_question'] as $questionId) {
 			$question->fetch($questionId);
-			if ($question->authorize_answer_photo > 0 && $object->status > $object::STATUS_DRAFT) {
+			if ($question->authorize_answer_photo > 0 && $object->status > $object::STATUS_DRAFT && file_exists($conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref)) {
 				print '<div class="question-section">';
 				print '<span class="question-ref">' . $question->ref . '</span>';
 				print '<div class="table-cell table-full linked-medias answer_photo">';
 				$relativepath = 'dolismq/medias/thumbs';
 				print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref, ($conf->global->DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY ? 'large' : 'medium'), '', 0, 0, 0, 200, 200, 0, 0, 0, 'control/' . $object->ref . '/answer_photo/' . $question->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $questionControlDet->answer_photo), 0, 0);
-				print '</td></tr>';
 				print '</div>';
 				print '</div>';
 			}
