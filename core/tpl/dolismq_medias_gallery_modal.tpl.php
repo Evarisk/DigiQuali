@@ -96,7 +96,7 @@ if ( ! $error && $action == "uploadPhoto" && ! empty($conf->global->MAIN_UPLOAD_
 			$allMedias = count($filearray); ?>
 			<ul class="wpeo-pagination">
 				<?php for ($i = 1; $i <= $allMedias/$conf->global->DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY; $i++) : ?>
-					<li class="pagination-element pagination-current">
+					<li class="pagination-element <?php echo ($i == 1 ? 'pagination-current' : '') ?>">
 						<a class="selected-page" value="<?php echo $i - 1; ?>"><?php echo $i; ?></a>
 					</li>
 				<?php endfor; ?>

@@ -1,5 +1,9 @@
 .wpeo-modal.modal-photo {
 
+  .modal-container {
+    max-height: 650px;
+  }
+
   &.modal-active {
     z-index: 2014;
   }

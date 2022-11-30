@@ -2125,6 +2125,9 @@ div.tabBar table.border.question-table tr.linked-medias .linked-medias-list {
   }
 }
 
+.wpeo-modal.modal-photo .modal-container {
+  max-height: 650px;
+}
 .wpeo-modal.modal-photo.modal-active {
   z-index: 2014;
 }
