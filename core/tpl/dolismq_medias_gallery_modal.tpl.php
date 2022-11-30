@@ -85,13 +85,25 @@ if ( ! $error && $action == "uploadPhoto" && ! empty($conf->global->MAIN_UPLOAD_
 				<div class="wpeo-gridlayout grid-4 grid-gap-3 grid-margin-2 ecm-photo-list ecm-photo-list">
 					<?php
 					$relativepath = 'dolismq/medias/thumbs';
-					print dolismq_show_medias('ecm', $conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias', 'small');
+					print dolismq_show_medias('ecm', $conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias', ($conf->browser->layout == 'phone' ? 'mini' : 'small'), 80, 80, (!empty(GETPOST('offset')) ? GETPOST('offset') : 0));
 					?>
 				</div>
 			</div>
 		</div>
 		<!-- Modal-Footer -->
 		<div class="modal-footer">
+			<?php $filearray = dol_dir_list($conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/', "files", 0, '', '(\.meta|_preview.*\.png)$', 'date', SORT_DESC);
+			$allMedias = count($filearray); ?>
+			<ul class="wpeo-pagination">
+				<?php for ($i = 1; $i <= $allMedias/$conf->global->DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY; $i++) : ?>
+					<li class="pagination-element pagination-current">
+						<a class="selected-page" value="<?php echo $i - 1; ?>"><?php echo $i; ?></a>
+					</li>
+				<?php endfor; ?>
+				<li class="pagination-element">
+					<a class="selected-page" value="<?php echo $i - 1; ?>"><?php echo $i; ?></a>
+				</li>
+			</ul>
 			<div class="save-photo wpeo-button button-blue button-disable" value="">
 				<input class="type-from" value="" type="hidden" />
 				<span><?php echo $langs->trans('Add'); ?></span>

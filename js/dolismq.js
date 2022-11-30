@@ -256,6 +256,7 @@ window.eoxiaJS.mediaGallery.event = function() {
 	$( document ).on( 'click', '.media-gallery-unlink', window.eoxiaJS.mediaGallery.unlinkFile );
 	$( document ).on( 'click', '.media-gallery-favorite', window.eoxiaJS.mediaGallery.addToFavorite );
 	$( document ).on( 'submit', '#fast-upload-photo-ok', window.eoxiaJS.mediaGallery.fastUpload );
+	$( document ).on( 'click', '.selected-page', window.eoxiaJS.mediaGallery.selectPage );
 }
 
 /**
@@ -600,6 +601,39 @@ window.eoxiaJS.mediaGallery.addToFavorite = function( event ) {
 		$(this).closest('.linked-medias').find('.favorite-photo').val(filename)
 	}
 
+};
+
+/**
+ * Action select page.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.mediaGallery.selectPage = function( event ) {
+	let offset = $(this).attr('value');
+	$(this).closest('.wpeo-pagination').find('.pagination-element').removeClass('pagination-current');
+	$(this).closest('.pagination-element').addClass('pagination-current');
+
+	let elementParent = $('.modal-container').find('.ecm-photo-list-content');
+	let querySeparator = '?';
+	document.URL.match(/\?/) ? querySeparator = '&' : 1
+	let token = $('.fiche').find('input[name="token"]').val();
+	window.eoxiaJS.loader.display($('#media_gallery').find('.modal-content'));
+
+	$.ajax({
+		url: document.URL + querySeparator + "token=" + token + "&offset=" + offset,
+		type: "POST",
+		processData: false,
+		contentType: false,
+		success: function ( resp ) {
+			$('.wpeo-loader').removeClass('wpeo-loader')
+			elementParent.html($(resp).find('.ecm-photo-list-content'));
+		},
+		error: function ( ) {
+		}
+	})
 };
 
 

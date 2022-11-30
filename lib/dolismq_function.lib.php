@@ -335,9 +335,9 @@ function dolismqremove_index($model)
 	}
 }
 
-function dolismq_show_medias($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, $nbbyrow = 5, $showfilename = 0, $showaction = 0, $maxHeight = 80, $maxWidth = 80, $nolink = 0, $notitle = 0, $usesharelink = 0, $subdir = "")
+function dolismq_show_medias($modulepart = 'ecm', $sdir, $size = 0, $maxHeight = 80, $maxWidth = 80, $offset = 0)
 {
-	global $conf, $user, $langs;
+	global $conf;
 
 	include_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 	include_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
@@ -345,31 +345,30 @@ function dolismq_show_medias($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, 
 	$sortfield = 'date';
 	$sortorder = 'desc';
 	$dir       = $sdir . '/';
-	$pdir      = $subdir . '/';
 
 
 	$return  = '<!-- Photo -->' . "\n";
 	$nbphoto = 0;
 
-	$filearray = dol_dir_list($dir, "files", 0, '', '(\.meta|_preview.*\.png)$', $sortfield, (strtolower($sortorder) == 'desc' ? SORT_DESC : SORT_ASC), 1);
+	$filearray = dol_dir_list($dir, "files", 0, '', '(\.meta|_preview.*\.png)$', $sortfield, (strtolower($sortorder) == 'desc' ? SORT_DESC : SORT_ASC));
 	$j         = 0;
 
 	if (count($filearray)) {
 		if ($sortfield && $sortorder) {
 			$filearray = dol_sort_array($filearray, $sortfield, $sortorder);
 		}
-		foreach ($filearray as $key => $val) {
-			$file = $val['name'];
+		for ($i = 0 + ($offset * $conf->global->DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY); $i < $conf->global->DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY + ($offset * $conf->global->DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY);  $i++) {
+			$file = $filearray[$i]['name'];
 
 			if (image_format_supported($file) >= 0) {
 				$nbphoto++;
 
-				if ($size == 1 || $size == 'small') {   // Format vignette
+				if ($size == 'mini' || $size == 'small') {   // Format vignette
 					$relativepath = 'dolismq/medias/thumbs';
 					$modulepart   = 'ecm';
 					$path         = DOL_URL_ROOT . '/document.php?modulepart=' . $modulepart . '&attachment=0&file=' . str_replace('/', '%2F', $relativepath);
 
-					$filename = preg_split('/\./',  $val['name']);
+					$filename = preg_split('/\./',  $file);
 					$filename = $filename[0].'_'.$size.'.'.$filename[1];
 
 					?>
@@ -377,15 +376,15 @@ function dolismq_show_medias($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, 
 					<div class="center clickable-photo clickable-photo<?php echo $j; ?>" value="<?php echo $j; ?>" element="risk-evaluation">
 						<figure class="photo-image">
 							<?php
-							$urladvanced = getAdvancedPreviewUrl($modulepart, 'dolismq/medias/' .$val['name'], 0, 'entity=' . $conf->entity); ?>
+							$urladvanced = getAdvancedPreviewUrl($modulepart, 'dolismq/medias/' .$file, 0, 'entity=' . $conf->entity); ?>
 							<a class="clicked-photo-preview" href="<?php echo $urladvanced; ?>"><i class="fas fa-2x fa-search-plus"></i></a>
-							<?php if (image_format_supported($val['name']) >= 0) : ?>
+							<?php if (image_format_supported($file) >= 0) : ?>
 								<?php $fullpath = $path . '/' . $filename . '&entity=' . $conf->entity; ?>
-							<input class="filename" type="hidden" value="<?php echo $val['name']; ?>">
+							<input class="filename" type="hidden" value="<?php echo $file; ?>">
 							<img class="photo photo<?php echo $j ?>" height="<?php echo $maxHeight; ?>" width="<?php echo $maxWidth; ?>" src="<?php echo $fullpath; ?>">
 							<?php endif; ?>
 						</figure>
-						<div class="title"><?php echo $val['name']; ?></div>
+						<div class="title"><?php echo $file; ?></div>
 					</div><?php
 					$j++;
 				}

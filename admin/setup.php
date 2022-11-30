@@ -57,11 +57,12 @@ if (!$user->admin) accessforbidden();
  * Actions
  */
 
-if ($action == 'setMediaDimension') {
+if ($action == 'setMediaInfos') {
 	$MediaMaxWidthMedium = GETPOST('MediaMaxWidthMedium', 'alpha');
 	$MediaMaxHeightMedium = GETPOST('MediaMaxHeightMedium', 'alpha');
 	$MediaMaxWidthLarge = GETPOST('MediaMaxWidthLarge', 'alpha');
 	$MediaMaxHeightLarge = GETPOST('MediaMaxHeightLarge', 'alpha');
+	$DisplayNumberMediaGallery = GETPOST('DisplayNumberMediaGallery', 'alpha');
 
 	if (!empty($MediaMaxWidthMedium) || $MediaMaxWidthMedium === '0') {
 		dolibarr_set_const($db, "DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM", $MediaMaxWidthMedium, 'integer', 0, '', $conf->entity);
@@ -74,6 +75,9 @@ if ($action == 'setMediaDimension') {
 	}
 	if (!empty($MediaMaxHeightLarge) || $MediaMaxHeightLarge === '0') {
 		dolibarr_set_const($db, "DOLISMQ_MEDIA_MAX_HEIGHT_LARGE", $MediaMaxHeightLarge, 'integer', 0, '', $conf->entity);
+	}
+	if (!empty($DisplayNumberMediaGallery) || $DisplayNumberMediaGallery === '0') {
+		dolibarr_set_const($db, "DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY", $DisplayNumberMediaGallery, 'integer', 0, '', $conf->entity);
 	}
 }
 
@@ -102,7 +106,7 @@ print load_fiche_titre($langs->trans("MediaData"), '', '');
 
 print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '" name="media_data">';
 print '<input type="hidden" name="token" value="' . newToken() . '">';
-print '<input type="hidden" name="action" value="setMediaDimension">';
+print '<input type="hidden" name="action" value="setMediaInfos">';
 print '<table class="noborder centpercent editmode">';
 print '<tr class="liste_titre">';
 print '<td>' . $langs->trans("Name") . '</td>';
@@ -132,6 +136,12 @@ print '</td></tr>';
 print '<tr class="oddeven"><td><label for="MediaMaxHeightLarge">' . $langs->trans("MediaMaxHeightLarge") . '</label></td>';
 print '<td>' . $langs->trans("MediaMaxHeightLargeDescription") . '</td>';
 print '<td><input type="number" name="MediaMaxHeightLarge" value="' . $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE . '"></td>';
+print '<td><input type="submit" class="button" name="save" value="' . $langs->trans("Save") . '">';
+print '</td></tr>';
+
+print '<tr class="oddeven"><td><label for="DisplayNumberMediaGallery">' . $langs->trans("DisplayNumberMediaGallery") . '</label></td>';
+print '<td>' . $langs->trans("DisplayNumberMediaGalleryDescription") . '</td>';
+print '<td><input type="number" name="DisplayNumberMediaGallery" value="' . $conf->global->DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY . '"></td>';
 print '<td><input type="submit" class="button" name="save" value="' . $langs->trans("Save") . '">';
 print '</td></tr>';
 

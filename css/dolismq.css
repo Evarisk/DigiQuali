@@ -1868,6 +1868,73 @@ div.wpeo-modal-patchnote .wpeo-button {
 
 /* Simple */
 /* Moderne */
+/*--------------------------------------------------------------
+	Module : Pagination
+	Version : 1.0.0
+
+	.wpeo-pagination -> classe de base du mobule
+--------------------------------------------------------------*/
+.wpeo-pagination {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-flow: row wrap;
+  flex-flow: row wrap;
+  -webkit-box-flex: 0;
+  -ms-flex: 0 1 auto;
+  flex: 0 1 auto;
+  margin: 0;
+  padding: 0;
+}
+.wpeo-pagination .pagination-element {
+  margin: 0;
+  list-style-type: none;
+  padding: 0 0.2em;
+}
+.wpeo-pagination .pagination-element a {
+  padding: 0.2em 0.8em;
+  display: inline-block;
+  background: #fff;
+  border-radius: 4px;
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.8);
+  font-size: 12px;
+}
+.wpeo-pagination .pagination-element a:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+.wpeo-pagination .pagination-element .pagination-icon {
+  font-size: 12px;
+}
+
+/* Pagination active */
+.wpeo-pagination .pagination-element.pagination-current a {
+  background: #0d8aff;
+  color: #fff;
+}
+.wpeo-pagination .pagination-element.pagination-current a:hover {
+  background: #0d8aff;
+}
+
+/* Prev & Next */
+.wpeo-pagination .pagination-element.pagination-prev, .wpeo-pagination .pagination-element.pagination-next {
+  font-weight: 700;
+}
+.wpeo-pagination .pagination-element.pagination-prev a, .wpeo-pagination .pagination-element.pagination-next a {
+  background: rgba(0, 0, 0, 0.05);
+}
+.wpeo-pagination .pagination-element.pagination-prev a:hover, .wpeo-pagination .pagination-element.pagination-next a:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+.wpeo-pagination .pagination-element.pagination-prev .pagination-icon {
+  margin-right: 0.4em;
+}
+.wpeo-pagination .pagination-element.pagination-next .pagination-icon {
+  margin-left: 0.4em;
+}
+
 .control-audit * {
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
