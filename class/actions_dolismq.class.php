@@ -127,4 +127,31 @@ class ActionsDolismq
 			return -1;
 		}
 	}
+
+	/**
+	 *  Overloading the redirectAfterConnection function : replacing the parent's function with the one below
+	 *
+	 * @param $parameters
+	 * @return int
+	 */
+	public function redirectAfterConnection($parameters)
+	{
+		global $conf;
+
+		if ($parameters['currentcontext'] == 'mainloginpage') {
+			if ($conf->browser->layout == 'phone') {
+				$value = dol_buildpath('/custom/dolismq/dolismqindex.php', 1);
+			} else {
+				$value = '';
+			}
+		}
+
+		if (true) {
+			$this->resprints = $value;
+			return 0; // or return 1 to replace standard code
+		} else {
+			$this->errors[] = 'Error message';
+			return -1;
+		}
+	}
 }
