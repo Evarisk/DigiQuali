@@ -139,6 +139,7 @@ class Sheet extends CommonObject
 	 */
 	public function create(User $user, $notrigger = false)
 	{
+		$this->status = 1;
 		return $this->createCommon($user, $notrigger);
 	}
 
