@@ -174,7 +174,7 @@ class dolismqwidget1 extends ModeleBoxes
 						$test = array_values($control->linkedObjectsIds[$fromtype]);
 						if ($test[0] == $fromid) {
 							$sheet->fetch($control->fk_sheet);
-							$categories = $categorystatic->getListForItem($sheet->id, 'sheet');
+							$categories = $categorystatic->getListForItem($control->id, $control->element);
 							foreach ($categories as $category) {
 								$boxHeads[$category['label']][] = array(
 									// Title text
