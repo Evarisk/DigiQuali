@@ -54,9 +54,15 @@ ShowPatchNote = Consulter la note de mise à jour
 DontShowPatchNote = Ne plus afficher la note de mise à jour
 
 
+
 #
 # DoliSMQ
 #
+
+# Data - Donnée
+DoliSMQData = Données configurables de DoliSMQ
+RedirectAfterConnection = Redirection après la connexion au site
+RedirectAfterConnectionDescription = Redirection sur la page de bienvenue de DoliSMQ par défaut au lieu de celle de Dolibarr.
 
 # Media - Media
 MediaData = Données configurables des médias

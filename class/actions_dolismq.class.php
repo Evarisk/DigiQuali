@@ -139,7 +139,7 @@ class ActionsDolismq
 		global $conf;
 
 		if ($parameters['currentcontext'] == 'mainloginpage') {
-			if ($conf->browser->layout == 'phone') {
+			if ($conf->global->DOLISMQ_REDIRECT_AFTER_CONNECTION) {
 				$value = dol_buildpath('/custom/dolismq/dolismqindex.php', 1);
 			} else {
 				$value = '';

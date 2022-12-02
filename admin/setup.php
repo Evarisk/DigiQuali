@@ -102,6 +102,26 @@ print dol_get_fiche_head($head, 'settings', $langs->trans($page_name), -1, "doli
 // Setup page goes here
 echo '<span class="opacitymedium">'.$langs->trans("DoliSMQSetupPage").'</span><br><br>';
 
+print load_fiche_titre($langs->trans("DoliSMQData"), '', '');
+
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans("Name") . '</td>';
+print '<td>' . $langs->trans("Description") . '</td>';
+print '<td class="center">' . $langs->trans("Status") . '</td>';
+print '</tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('RedirectAfterConnection');
+print '</td><td>';
+print $langs->trans('RedirectAfterConnectionDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_REDIRECT_AFTER_CONNECTION');
+print '</td>';
+print '</tr>';
+
 print load_fiche_titre($langs->trans("MediaData"), '', '');
 
 print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '" name="media_data">';
