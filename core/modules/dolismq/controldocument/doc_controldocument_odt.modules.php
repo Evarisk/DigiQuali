@@ -277,6 +277,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$sheet      = new Sheet($db);
 			$usertmp    = new User($db);
 			$thirdparty = new Societe($db);
+			$contact    = new Contact($db);
 			$project    = new Project($db);
 			$task		= new Task($db);
 
@@ -292,13 +293,15 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			if (!empty($object->linkedObjectsIds['societe'])) {
 				$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
 			}
+			if (!empty($object->linkedObjectsIds['contact'])) {
+				$contact->fetch(array_shift($object->linkedObjectsIds['contact']));
+			}
 			if (!empty($object->linkedObjectsIds['project'])) {
 				$project->fetch(array_shift($object->linkedObjectsIds['project']));
 			}
 			if (!empty($object->linkedObjectsIds['project_task'])) {
 				$task->fetch(array_shift($object->linkedObjectsIds['project_task']));
 			}
-
 
 			$tmparray['mycompany_name']     = $conf->global->MAIN_INFO_SOCIETE_NOM;
 			$tmparray['control_ref']        = $object->ref;
@@ -309,6 +312,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$tmparray['sheet_label']        = $sheet->label;
 			$tmparray['control_date']       = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
 			$tmparray['thirdparty_label']   = $thirdparty->name;
+			$tmparray['contact_label']      = $contact->firstname . ' '. $contact->lastname;
 			$tmparray['project_task_ref']   = $project->ref . '-' . $task->ref;
 			$tmparray['project_task_label'] = $project->label . '-' . $task->label;
 
