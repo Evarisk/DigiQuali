@@ -1052,7 +1052,7 @@ window.eoxiaJS.control.event = function() {
 	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.showCommentUnsaved );
 	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 	$( document ).on( 'change', '#fk_project', window.eoxiaJS.control.reloadTask );
-	$( document ).on( 'change', '#fk_soc', window.eoxiaJS.control.reloadSocpeopleAndProject );
+	$( document ).on( 'change', '#fk_soc', window.eoxiaJS.control.reloadContactAndProject );
 	$( document ).on( 'click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
 	$( document ).on( 'change', '#fk_sheet', window.eoxiaJS.control.showSelectObjectLinked);
 	//$( document ).on( 'click', '#select_all_answer', window.eoxiaJS.control.selectAllAnswer);
@@ -1212,7 +1212,7 @@ window.eoxiaJS.control.reloadTask = function ( event ) {
 };
 
 /**
- * Reload socpeople selector after company selection.
+ * Reload contact selector after company selection.
  *
  * @since   1.0.0
  * @version 1.0.0
@@ -1220,7 +1220,7 @@ window.eoxiaJS.control.reloadTask = function ( event ) {
  * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.eoxiaJS.control.reloadSocpeopleAndProject = function ( event ) {
+window.eoxiaJS.control.reloadContactAndProject = function ( event ) {
 
 	var controlForm = document.getElementById('createControlForm');
 	var formData = new FormData(controlForm);
@@ -1238,7 +1238,7 @@ window.eoxiaJS.control.reloadSocpeopleAndProject = function ( event ) {
 		processData: false,
 		contentType: false,
 		success: function ( resp ) {
-			$('#fk_socpeople').html($(resp).find('#fk_socpeople').children())
+			$('#fk_contact').html($(resp).find('#fk_contact').children())
 			$('#fk_project').html($(resp).find('#fk_project').children())
 		},
 		error: function ( ) {

@@ -727,11 +727,11 @@ if ($action == 'create') {
 		print '</td></tr>';
 	}
 
-	// FK Socpeople
-	if ($conf->global->DOLISMQ_CONTROL_SHOW_SOCPEOPLE && preg_match('/"socpeople":1/',$sheet->element_linked)) {
-		print '<tr><td class="">' . $langs->trans('SocPeopleLinked') . '</td><td>';
+	// FK Contact
+	if ($conf->global->DOLISMQ_CONTROL_SHOW_CONTACT && preg_match('/"contact":1/',$sheet->element_linked)) {
+		print '<tr><td class="">' . $langs->trans('ContactLinked') . '</td><td>';
 		// If no fk_soc, set to -1 to avoid full contacts list
-		print img_picto('', 'address', 'class="pictofixedwidth"') . $form->selectcontacts(((GETPOST('fk_soc') > 0) ? GETPOST('fk_soc') : -1), ((GETPOST('fk_socpeople') > 0) ? GETPOST('fk_socpeople') : ''), 'fk_socpeople', 1, '', '', 0, 'minwidth500 widthcentpercentminusxx');
+		print img_picto('', 'address', 'class="pictofixedwidth"') . $form->selectcontacts(((GETPOST('fk_soc') > 0) ? GETPOST('fk_soc') : -1), ((GETPOST('fk_contact') > 0) ? GETPOST('fk_contact') : ''), 'fk_contact', 1, '', '', 0, 'minwidth500 widthcentpercentminusxx');
 		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/contact/card.php?action=create' . ((GETPOST('fk_soc') > 0) ? '&socid=' . GETPOST('fk_soc') : '') . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddContact') . '"></span></a>';
 		print '</td></tr>';
 	}
@@ -996,14 +996,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	$object->fetchObjectLinked('', 'socpeople','', 'dolismq_control');
-	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_SOCPEOPLE) && (!empty($object->linkedObjectsIds['socpeople']))) {
-		//Fk_socpeople - Contact/adresse
+	$object->fetchObjectLinked('', 'contact','', 'dolismq_control');
+	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_CONTACT) && (!empty($object->linkedObjectsIds['contact']))) {
+		//Fk_contact - Contact/adresse
 		print '<tr><td class="titlefield">';
 		print $langs->trans('Contact');
 		print '</td>';
 		print '<td>';
-		$contact->fetch(array_shift($object->linkedObjectsIds['socpeople']));
+		$contact->fetch(array_shift($object->linkedObjectsIds['contact']));
 		if ($contact > 0) {
 			print $contact->getNomUrl(1);
 		}

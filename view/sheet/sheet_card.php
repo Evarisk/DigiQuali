@@ -288,8 +288,8 @@ $elementArray = array(
 		'langs' => 'ThirdParty',
 		'picto' => 'building'
 	),
-	'socpeople' => array(
-		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_SOCPEOPLE,
+	'contact' => array(
+		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_CONTACT,
 		'langs' => 'Contact',
 		'picto' => 'address'
 	),

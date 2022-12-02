@@ -346,15 +346,15 @@ print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_THIRDPARTY');
 print '</td>';
 print '</tr>';
 
-//Show socpeople conf
+//Show contact conf
 print '<tr><td>';
-print $langs->trans('ShowSocPeople');
+print $langs->trans('ShowContact');
 print "</td><td>";
-print $langs->trans('ShowSocPeopleDescription');
+print $langs->trans('ShowContactDescription');
 print '</td>';
 
 print '<td class="center">';
-print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_SOCPEOPLE');
+print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_CONTACT');
 print '</td>';
 print '</tr>';
 
