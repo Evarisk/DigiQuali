@@ -320,6 +320,8 @@ ControlDocumentName = Afficher les médias dans la fiche de contrôle
 ControlDocumentDescription = Afficher les médias des questions dans la fiche de contrôle du document ODT
 ControlDocumentPDFDoliSMQTemplate =	Modèle de fiche de contrôle au format PDF
 ControlDocumentSentByMailTrigger = Email fiche de contrôle envoyée
+controldocument.odt = Fiche de Contrôle
+controldocument_photo.odt = Fiche de Contrôle avec photo
 
 
 
