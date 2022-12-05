@@ -653,16 +653,16 @@ class Control extends CommonObject
 			global $langs;
 			//$langs->load("dolismq@dolismq");
 			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('Draft');
-			$this->labelStatus[self::STATUS_VALIDATED]       = $langs->trans('ValidatedControl');
-			$this->labelStatus[self::STATUS_LOCKED]       = $langs->trans('Locked');
+			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('ValidatedControl');
+			$this->labelStatus[self::STATUS_LOCKED]         = $langs->trans('Locked');
 			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('Draft');
-			$this->labelStatusShort[self::STATUS_VALIDATED]     = $langs->trans('ValidatedControl');
-			$this->labelStatusShort[self::STATUS_LOCKED]     = $langs->trans('Locked');
+			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('ValidatedControl');
+			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->trans('Locked');
 		}
 
 		$statusType = 'status' . $status;
 		if ($status == self::STATUS_VALIDATED) $statusType = 'status4';
-		if ($status == self::STATUS_LOCKED) $statusType = 'status4';
+		if ($status == self::STATUS_LOCKED) $statusType = 'status6';
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}
