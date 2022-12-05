@@ -1053,6 +1053,7 @@ window.eoxiaJS.control.event = function() {
 	$( document ).on( 'change', '#fk_soc', window.eoxiaJS.control.reloadContactAndProject );
 	$( document ).on( 'click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
 	$( document ).on( 'change', '#fk_sheet', window.eoxiaJS.control.showSelectObjectLinked);
+	$( document ).on( 'click', '.toggleControlInfo', window.eoxiaJS.control.toggleControlInfo );
 	//$( document ).on( 'click', '#select_all_answer', window.eoxiaJS.control.selectAllAnswer);
 };
 
@@ -1299,6 +1300,25 @@ window.eoxiaJS.control.showSelectObjectLinked = function ( event ) {
 		error: function ( ) {
 		}
 	});
+}
+
+/**
+ * Show control info if toggle control info is on.
+ *
+ * @since   1.4.0
+ * @version 1.4.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.control.toggleControlInfo = function ( event ) {
+	if ($(this).hasClass('fa-minus-square')) {
+		$(this).removeClass('fa-minus-square').addClass('fa-caret-square-down')
+		$(this).closest('.fiche').find('.fichecenter.controlInfo').addClass('hidden')
+	} else {
+		$(this).removeClass('fa-caret-square-down').addClass('fa-minus-square')
+		$(this).closest('.fiche').find('.fichecenter.controlInfo').removeClass('hidden')
+	}
 }
 
 /**

@@ -908,12 +908,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 		}
 	}
+	if ($conf->browser->layout == 'phone') {
+		$morehtmlref .= '<br><i class="toggleControlInfo far fa-caret-square-down"></i>';
+	}
 	$morehtmlref .= '</div>';
 
 	$object->picto = 'control_small@dolismq';
 	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
 
-	print '<div class="fichecenter">';
+	print '<div class="fichecenter controlInfo' . ($conf->browser->layout == 'phone' ? ' hidden' : '') . '">';
 	print '<div class="fichehalfleft">';
 	print '<div class="underbanner clearboth"></div>';
 	print '<table class="border centpercent tableforfield">'."\n";
@@ -1079,7 +1082,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 		}
 
-		print '<span class="butAction" id="actionButtonClone" title="" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=clone' . '">' . $langs->trans("ToClone") . '</span>';
+		print '<span class="butAction" id="actionButtonClone" title="" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=clone' . '">' . ($conf->browser->layout == 'phone' ? '<i class="fas fa-clone"></i>' : $langs->trans('ToClone')) . '</span>';
 
 		if (empty($reshook)) {
 			// Modify
@@ -1091,52 +1094,52 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Save question answer
 			if ($object->status == $object::STATUS_DRAFT) {
-				print '<input type="submit" id="saveButton" class="saveButton butActionRefused" value="' . $langs->trans('Save') . '">';
+				print '<button type="submit" id="saveButton" class="saveButton butActionRefused">' . ($conf->browser->layout == 'phone' ? '<i class="fas fa-save"></i>' : $langs->trans('Save')) . '</button>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $langs->trans('Save') . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . ($conf->browser->layout == 'phone' ? '<i class="fas fa-save"></i>' : $langs->trans('Save')) . '</span>';
 			}
 
 			// Validate
 			if ($object->status == $object::STATUS_DRAFT) {
-				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . $langs->trans('Validate') . '</a>';
+				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . ($conf->browser->layout == 'phone' ? '<i class="fas fa-check"></i>' : $langs->trans('Validate')) . '</a>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $langs->trans('Validate') . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . ($conf->browser->layout == 'phone' ? '<i class="fas fa-check"></i>' : $langs->trans('Validate')) . '</span>';
 			}
 
 			// Set verdict control
 			if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null) {
 				if ($permissiontoadd) {
-					print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setVerdict&token=' . newToken() . '">' . $langs->trans('SetOK/KO') . '</a>';
+					print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setVerdict&token=' . newToken() . '">' . ($conf->browser->layout == 'phone' ? '<i class="fas fa-tasks"></i>' : $langs->trans('SetOK/KO')) . '</a>';
 				}
 			} elseif ($object->status == $object::STATUS_DRAFT) {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . $langs->trans('SetOK/KO') . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' .($conf->browser->layout == 'phone' ? '<i class="fas fa-tasks"></i>' : $langs->trans('SetOK/KO')) . '</span>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . $langs->trans('SetOK/KO') . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . ($conf->browser->layout == 'phone' ? '<i class="fas fa-tasks"></i>' : $langs->trans('SetOK/KO')) . '</span>';
 			}
 
 			// ReOpen
 			if ($object->status == $object::STATUS_VALIDATED) {
-				print '<span class="butAction" id="actionButtonReOpen" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setDraft' . '">' . $langs->trans('ReOpened') . '</span>';
+				print '<span class="butAction" id="actionButtonReOpen" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setDraft' . '">' . ($conf->browser->layout == 'phone' ? '<i class="fas fa-lock-open"></i>' : $langs->trans('ReOpened')) . '</span>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidated')) . '">' . $langs->trans('ReOpened') . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidated')) . '">' . ($conf->browser->layout == 'phone' ? '<i class="fas fa-lock-open"></i>' : $langs->trans('ReOpened')) . '</span>';
 			}
 
 			// Lock
 			if ($object->status == $object::STATUS_VALIDATED && $object->verdict != null) {
 				print '<span class="butAction" id="actionButtonLock">' . $langs->trans('Lock') . '</span>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToLock')) . '">' . $langs->trans('Lock') . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToLock')) . '">' . ($conf->browser->layout == 'phone' ? '<i class="fas fa-lock"></i>' : $langs->trans('Lock')) . '</span>';
 			}
 
 			// Send email
 			if ($object->status == $object::STATUS_LOCKED) {
 				print dolGetButtonAction($langs->trans('SendMail'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=presend&mode=init&token='.newToken().'#formmailbeforetitle', '', $object->status == $object::STATUS_LOCKED);
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans('ControlMustBeLockedToSendEmail')) . '">' . $langs->trans('SendMail') . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans('ControlMustBeLockedToSendEmail')) . '">' . ($conf->browser->layout == 'phone' ? '<i class="fas fa-paper-plane"></i>' : $langs->trans('SendMail')) . '</span>';
 			}
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
-			print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
+			print dolGetButtonAction(($conf->browser->layout == 'phone' ? '<i class="fas fa-trash"></i>' : $langs->trans('Delete')) , '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 		}
 		print '</div>';
 	}
