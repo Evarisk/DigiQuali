@@ -155,7 +155,7 @@ if ($id > 0 || !empty($ref)) {
 	if (!empty($questionIds['dolismq_question']) && $questionIds > 0) {
 		foreach ($questionIds['dolismq_question'] as $questionId) {
 			$question->fetch($questionId);
-			if ($question->authorize_answer_photo > 0 && $object->status > $object::STATUS_DRAFT && file_exists($conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref)) {
+			if ($question->authorize_answer_photo > 0 && file_exists($conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref)) {
 				print '<div class="question-section">';
 				print '<span class="question-ref">' . $question->ref . '</span>';
 				print '<div class="table-cell table-full linked-medias answer_photo">';
