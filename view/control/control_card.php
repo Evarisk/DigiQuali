@@ -892,7 +892,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if (!empty($conf->projet->enabled)) {
 		$langs->load('projects');
 		$morehtmlref .= $langs->trans('Project') . ' ';
-		if ($user->rights->ticket->write) {
+		if ($user->rights->projet->creer) {
 			if ($action != 'classify') {
 				$morehtmlref .= '<a class="editfielda" href="' . $_SERVER['PHP_SELF'] . '?action=classify&token=' . newToken() . '&id=' . $object->id .'">' . img_edit($langs->transnoentitiesnoconv('SetProject')) . '</a>';
 			}
