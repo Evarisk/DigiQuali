@@ -332,6 +332,7 @@ controldocument_photo.odt = Fiche de Contrôle avec photo
 # Data - Donnée
 SelectProducts = Sélectionner un produit
 AddMedia = Ajouter un média
+SearchFile = Rechercher un fichier
 NoMediaLinked = Pas de média lié
 ReOpened = Rouvrir
 ValidatedControl = Validé

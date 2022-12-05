@@ -56,33 +56,39 @@ if ( ! $error && $action == "uploadPhoto" && ! empty($conf->global->MAIN_UPLOAD_
 					<div class="notice-close"><i class="fas fa-times"></i></div>
 				</div>
 			</div>
-			<?php
-			// To attach new file
-			if (( ! empty($conf->use_javascript_ajax) && empty($conf->global->MAIN_ECM_DISABLE_JS)) || ! empty($section)) {
-				$sectiondir = GETPOST('file', 'alpha') ? GETPOST('file', 'alpha') : GETPOST('section_dir', 'alpha');
-				print '<!-- Start form to attach new file in dolismq_photo_view.tpl.tpl.php sectionid=' . $section . ' sectiondir=' . $sectiondir . ' -->' . "\n";
-				include_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
-				print '<strong>' . $langs->trans('AddFile') . '</strong>'
-				?>
+			<div class="wpeo-gridlayout grid-2">
+				<div class="modal-add-media">
+					<?php
+					// To attach new file
+					if (( ! empty($conf->use_javascript_ajax) && empty($conf->global->MAIN_ECM_DISABLE_JS)) || ! empty($section)) {
+						$sectiondir = GETPOST('file', 'alpha') ? GETPOST('file', 'alpha') : GETPOST('section_dir', 'alpha');
+						print '<!-- Start form to attach new file in dolismq_photo_view.tpl.tpl.php sectionid=' . $section . ' sectiondir=' . $sectiondir . ' -->' . "\n";
+						include_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
+						print '<strong>' . $langs->trans('AddFile') . '</strong>'
+						?>
 
-				<input type="file" id="add_media_to_gallery" class="flat minwidth400 maxwidth200onsmartphone" name="userfile[]" multiple accept>
-			<?php } else print '&nbsp;';
-			// End "Add new file" area
-			?>
-			<div class="underbanner clearboth"></div>
-			<div class="form-element">
-				<div class="form-field-container">
-					<div class="wpeo-autocomplete">
-						<label class="autocomplete-label" for="media-gallery-search">
-							<i class="autocomplete-icon-before far fa-search"></i>
-							<input id="search_in_gallery" placeholder="<?php echo $langs->trans('Search') . '...' ?>" class="autocomplete-search-input" type="text" />
-							<span class="autocomplete-icon-after"><i class="far fa-times"></i></span>
-						</label>
+						<input type="file" id="add_media_to_gallery" class="flat minwidth400 maxwidth200onsmartphone" name="userfile[]" multiple accept>
+					<?php } else print '&nbsp;';
+					// End "Add new file" area
+					?>
+					<div class="underbanner clearboth"></div>
+				</div>
+				<div class="form-element">
+					<span class="form-label"><strong><?php print $langs->trans('SearchFile') ?></strong></span>
+					<div class="form-field-container">
+						<div class="wpeo-autocomplete">
+							<label class="autocomplete-label" for="media-gallery-search">
+								<i class="autocomplete-icon-before fas fa-search"></i>
+								<input id="search_in_gallery" placeholder="<?php echo $langs->trans('Search') . '...' ?>" class="autocomplete-search-input" type="text" />
+<!--								<span class="autocomplete-icon-after"><i class="fas fa-times"></i></span>-->
+							</label>
+						</div>
 					</div>
 				</div>
 			</div>
+
 			<div class="ecm-photo-list-content">
-				<div class="wpeo-gridlayout grid-4 grid-gap-3 grid-margin-2 ecm-photo-list ecm-photo-list">
+				<div class="wpeo-gridlayout grid-5 grid-gap-3 grid-margin-2 ecm-photo-list ecm-photo-list">
 					<?php
 					$relativepath = 'dolismq/medias/thumbs';
 					print dolismq_show_medias('ecm', $conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias', ($conf->browser->layout == 'phone' ? 'mini' : 'small'), 80, 80, (!empty(GETPOST('offset')) ? GETPOST('offset') : 0));

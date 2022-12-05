@@ -272,7 +272,6 @@ window.eoxiaJS.mediaGallery.selectPhoto = function( event ) {
 	let parent = $(this).closest('.modal-content')
 
 	if ($(this).hasClass('clicked-photo')) {
-		$(this).attr('style', 'none !important')
 		$(this).removeClass('clicked-photo')
 
 		if ($('.clicked-photo').length === 0) {
@@ -282,7 +281,6 @@ window.eoxiaJS.mediaGallery.selectPhoto = function( event ) {
 	} else {
 		parent.closest('.modal-container').find('.save-photo').removeClass('button-disable');
 
-		parent.find('.clickable-photo'+photoID).attr('style', 'border: 5px solid #0d8aff !important');
 		parent.find('.clickable-photo'+photoID).addClass('clicked-photo');
 	}
 };

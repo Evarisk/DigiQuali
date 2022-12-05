@@ -2130,7 +2130,6 @@ div.tabBar table.border.question-table tr.linked-medias .linked-medias-list {
   z-index: 2014;
 }
 .wpeo-modal.modal-photo .clickable-photo {
-  border: 5px solid #fff;
   -webkit-transition: all 0.2s ease-out;
   transition: all 0.2s ease-out;
   width: 100%;
@@ -2141,18 +2140,26 @@ div.tabBar table.border.question-table tr.linked-medias .linked-medias-list {
 .wpeo-modal.modal-photo .clickable-photo:hover .photo-image .photo {
   opacity: 0.8;
 }
+.wpeo-modal.modal-photo .clickable-photo.clicked-photo .photo-image {
+  border: 5px solid #0d8aff;
+}
+.wpeo-modal.modal-photo .clickable-photo.clicked-photo .title {
+  color: #0d8aff;
+}
 .wpeo-modal.modal-photo .clickable-photo .photo-image {
   position: relative;
   width: 100%;
   max-width: 120px;
   height: 120px;
   margin: auto;
+  border: 5px solid #fff;
 }
 .wpeo-modal.modal-photo .clickable-photo .photo-image .photo {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
+  height: 100%;
   -o-object-fit: cover;
   object-fit: cover;
   max-width: none !important;
@@ -2165,9 +2172,11 @@ div.tabBar table.border.question-table tr.linked-medias .linked-medias-list {
   top: 1em;
   right: 1em;
   z-index: 900;
+  width: 25px;
   height: 25px;
   line-height: 25px;
   background: #fff;
+  border-radius: 50%;
   color: #0d8aff;
   -webkit-transition: all 0.2s ease-out;
   transition: all 0.2s ease-out;
@@ -2188,6 +2197,28 @@ div.tabBar table.border.question-table tr.linked-medias .linked-medias-list {
   padding-bottom: 0.5em;
 }
 .wpeo-modal.modal-photo input[type=file] {
+  border-bottom: 0 !important;
+}
+
+.wpeo-modal.modal-photo .wpeo-autocomplete .autocomplete-label {
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  border-bottom: 1px solid var(--colortopbordertitle1);
+}
+.wpeo-modal.modal-photo .wpeo-autocomplete .autocomplete-label .autocomplete-icon-before {
+  margin: auto 0;
+}
+.wpeo-modal.modal-photo .wpeo-autocomplete .autocomplete-label .autocomplete-search-input {
+  width: 100%;
+  border-bottom: 0;
+  padding: 5px;
+}
+.wpeo-modal.modal-photo .wpeo-autocomplete .autocomplete-label .autocomplete-search-input:focus {
+  border-bottom: 0 !important;
+}
+.wpeo-modal.modal-photo .wpeo-autocomplete .autocomplete-label input:focus:not(.button):not(.select2-search__field):not(#top-bookmark-search-input) {
   border-bottom: 0 !important;
 }
 
