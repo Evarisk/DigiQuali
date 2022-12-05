@@ -5,6 +5,7 @@ require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
 require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
+require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 
 require_once __DIR__.'/../../class/sheet.class.php';
@@ -17,6 +18,7 @@ $usertmp       = new User($db);
 $projecttmp    = new Project($db);
 $tasktmp       = new Task($db);
 $thirdparty    = new Societe($db);
+$contact       = new Contact($db);
 $formproject   = new FormProjets($db);
 
 // Build and execute select
@@ -47,17 +49,18 @@ foreach($element_element_fields as $generic_name => $element_element_name) {
 	}
 }
 $specific_sortfields = array(
-	't.fk_product' => 'product',
-	't.fk_thirdparty' => 'societe',
-	't.fk_project' => 'project',
-	't.fk_lot' => 'productbatch',
-	't.fk_task' => 'project_task'
+	'fk_product'    => 'product',
+	'fk_lot'        => 'productbatch',
+	'fk_user'       => 'user',
+	'fk_thirdparty' => 'societe',
+	'fk_contact'    => 'contact',
+	'fk_project'    => 'project',
+	'fk_task'       => 'project_task'
 );
 
 if (array_key_exists($sortfield,$specific_sortfields)) {
 	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $specific_sortfields[$sortfield] .' on ( '. $specific_sortfields[$sortfield] .'.sourcetype="'. $specific_sortfields[$sortfield] .'" AND '. $specific_sortfields[$sortfield] .'.targettype = "dolismq_control" AND '. $specific_sortfields[$sortfield] .'.fk_target = t.rowid)';
 }
-
 
 // Add table from hooks
 $parameters = array();
@@ -373,12 +376,30 @@ while ($i < ($limit ? min($num, $limit) : $num))
 					}
 				}
 			}
+			elseif ($key == 'fk_user') {
+				$object->fetchObjectLinked('', 'user','', 'dolismq_control');
+				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_USER) && (!empty($object->linkedObjectsIds['user']))) {
+					$usertmp->fetch(array_shift($object->linkedObjectsIds['user']));
+					if ($usertmp > 0) {
+						print $usertmp->getNomUrl(1);
+					}
+				}
+			}
 			elseif ($key == 'fk_thirdparty') {
 				$object->fetchObjectLinked('', 'societe','', 'dolismq_control');
 				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
 					$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
 					if ($thirdparty > 0) {
 						print $thirdparty->getNomUrl(1);
+					}
+				}
+			}
+			elseif ($key == 'fk_contact') {
+				$object->fetchObjectLinked('', 'contact','', 'dolismq_control');
+				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_CONTACT) && (!empty($object->linkedObjectsIds['contact']))) {
+					$contact->fetch(array_shift($object->linkedObjectsIds['contact']));
+					if ($contact > 0) {
+						print $contact->getNomUrl(1);
 					}
 				}
 			}

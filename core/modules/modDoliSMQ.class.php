@@ -173,6 +173,7 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_CONTROL_DISPLAY_MEDIAS', 'integer', 1, '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_SHOW_PRODUCT', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_SHOW_PRODUCTLOT', 'integer', 0, '', 0, 'current'],
+			$i++ => ['DOLISMQ_CONTROL_SHOW_USER', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_SHOW_THIRDPARTY', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_SHOW_CONTACT', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_SHOW_PROJECT', 'integer', 0, '', 0, 'current'],

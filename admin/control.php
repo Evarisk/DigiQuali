@@ -334,6 +334,18 @@ print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_PRODUCTLOT');
 print '</td>';
 print '</tr>';
 
+//Show user conf
+print '<tr><td>';
+print $langs->trans('ShowUser');
+print "</td><td>";
+print $langs->trans('ShowUserDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_SHOW_USER');
+print '</td>';
+print '</tr>';
+
 //Show thirdparty conf
 print '<tr><td>';
 print $langs->trans('ShowThirdParty');

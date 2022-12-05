@@ -283,6 +283,11 @@ $elementArray = array(
 		'langs' => 'Batch',
 		'picto' => 'lot'
 	),
+	'user' => array(
+		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_USER,
+		'langs' => 'User',
+		'picto' => 'user'
+	),
 	'thirdparty' => array(
 		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY,
 		'langs' => 'ThirdParty',
@@ -333,7 +338,7 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	//FK Element
-	if (empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK)) {
+	if (empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_USER) && empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && empty($conf->global->DOLISMQ_CONTROL_SHOW_CONTACT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK)) {
 		print '<div class="wpeo-notice notice-info">';
 		print '<div class="notice-content">';
 		print '<div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . '<a href="' .dol_buildpath('/custom/dolismq/admin/control.php', 2).'">' . ' : ' . $langs->trans('ConfigControl') . '</a>';

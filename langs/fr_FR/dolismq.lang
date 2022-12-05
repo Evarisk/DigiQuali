@@ -256,6 +256,8 @@ ShowProduct = Afficher les produits
 ShowProductDescription = Afficher le lien entre les produits et les contrôles
 ShowProductLot = Afficher les numéros de lots/série
 ShowProductLotDescription = Afficher le lien entre les numéros de lots/série et les contrôles
+ShowUser = Afficher les utilisateurs
+ShowUserDescription = Afficher le lien entre les utilisateurs et les contrôles
 ShowThirdParty = Afficher les tiers
 ShowThirdPartyDescription = Afficher le lien entre les tiers et les contrôles
 ShowContact = Afficher les contacts/adresses
@@ -277,6 +279,10 @@ MediaGalleryQuestionAnswers = Galerie photo des réponses aux questions
 UseLargeSizeMedia = Utiliser la taille large des médias sur la galerie photo
 UseLargeSizeMediaDescription = Afficher la galerie photo en taille large sinon en taille moyenne
 ConfirmCloneControl = Êtes-vous sûr(e) de vouloir cloner ce contrôle ?
+UserLinked = Utilisateur lié
+AddProduct = Créer produit ou service
+AddProductLot = Créer numéro de lot/série
+AddUser = Créer utilisateur
 
 
 

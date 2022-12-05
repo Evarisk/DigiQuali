@@ -255,6 +255,9 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				if (!empty(GETPOST('fk_productlot')) && GETPOST('fk_productlot') > 0) {
 					$object->add_object_linked('productbatch', GETPOST('fk_productlot'));
 				}
+				if (!empty(GETPOST('fk_user')) && GETPOST('fk_user') > 0) {
+					$object->add_object_linked('user', GETPOST('fk_user'));
+				}
 				if (!empty(GETPOST('fk_soc')) && GETPOST('fk_soc') > 0) {
 					$object->add_object_linked('societe', GETPOST('fk_soc'));
 				}
