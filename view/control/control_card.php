@@ -1098,7 +1098,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Validate
 			if ($object->status == $object::STATUS_DRAFT) {
-				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated' . '">' . $langs->trans('Validate') . '</a>';
+				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . $langs->trans('Validate') . '</a>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $langs->trans('Validate') . '</span>';
 			}
@@ -1106,7 +1106,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			// Set verdict control
 			if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null) {
 				if ($permissiontoadd) {
-					print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setVerdict' . '">' . $langs->trans('SetOK/KO') . '</a>';
+					print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setVerdict&token=' . newToken() . '">' . $langs->trans('SetOK/KO') . '</a>';
 				}
 			} elseif ($object->status == $object::STATUS_DRAFT) {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . $langs->trans('SetOK/KO') . '</span>';
