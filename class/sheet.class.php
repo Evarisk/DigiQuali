@@ -447,6 +447,8 @@ class Sheet extends CommonObject
 		global $conf, $langs;
 		$error = 0;
 
+		$question = new Question($this->db);
+
 		$refSheetMod = new $conf->global->DOLISMQ_SHEET_ADDON($this->db);
 		require_once __DIR__ . '/../core/modules/dolismq/sheet/mod_sheet_standard.php';
 
@@ -462,7 +464,7 @@ class Sheet extends CommonObject
 		}
 
 		// Create clone
-		$object->fetchObjectLinked($object->id, 'dolismq_' . $object->element);
+		$object->fetchQuestionsLinked($object->id, 'dolismq_' . $object->element);
 		$object->context['createfromclone'] = 'createfromclone';
 		$object->ref = $refSheetMod->getNextValue($object);
 		$object->status = 1;
@@ -484,10 +486,12 @@ class Sheet extends CommonObject
 		}
 
 		//add objects linked
-		if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
-			foreach ($object->linkedObjects['dolismq_question'] as $question) {
+		if (is_array($object->linkedObjectsIds) && !empty($object->linkedObjectsIds)) {
+			foreach ($object->linkedObjectsIds['dolismq_question'] as $questionId => $questionPosition) {
+				$question->fetch($questionId);
 				$question->add_object_linked('dolismq_' . $object->element,$objectid);
 			}
+			$object->updateQuestionsPosition($object->linkedObjectsIds['dolismq_question']);
 		}
 
 		unset($object->context['createfromclone']);
@@ -521,31 +525,6 @@ class Sheet extends CommonObject
 		}
 
 		return $result;
-	}
-
-	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
-	/**
-	 *  Delete control links to objects linked
-	 *
-	 *  @return    int         <=0 if no, >0 if yes
-	 */
-	public function delete_object_links() {
-
-		// Links between objects are stored in table element_element
-		$sql = 'DELETE';
-		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
-		$sql .= " WHERE fk_source = " . $this->id;
-		$sql .= " AND sourcetype = '" . $this->element . "'";
-
-		$resql = $this->db->query($sql);
-
-		if ($resql) {
-			$this->db->commit();
-			return 1;
-		} else {
-			dol_print_error($this->db);
-			return -1;
-		}
 	}
 
 	/**
