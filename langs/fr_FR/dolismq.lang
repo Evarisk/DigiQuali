@@ -137,9 +137,9 @@ ConfirmCloneQuestion = Êtes-vous sûr(e) de vouloir cloner cette question ?
 #
 
 # Rights - Droits
-ReadSheet = Consulter les fiches modèle
-CreateSheet = Créer/Modifier les fiches modèle
-DeleteSheet = Supprimer les fiches modèle
+ReadSheet = Consulter les fiches modèles
+CreateSheet = Créer/Modifier les fiches modèles
+DeleteSheet = Supprimer les fiches modèles
 
 # Trigger - Déclencheur
 SheetCreateTrigger = Fiche modèle créée
@@ -328,7 +328,7 @@ ControlDocumentDescription = Afficher les médias des questions dans la fiche de
 ControlDocumentPDFDoliSMQTemplate =	Modèle de fiche de contrôle au format PDF
 ControlDocumentSentByMailTrigger = Email fiche de contrôle envoyée
 controldocument.odt = Fiche de Contrôle
-controldocument_photo.odt = Fiche de Contrôle avec photo
+controldocument_photo.odt = Fiche de Contrôle avec photos
 
 
 
