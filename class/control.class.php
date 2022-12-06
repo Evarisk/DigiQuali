@@ -771,45 +771,6 @@ class Control extends CommonObject
 	}
 
 	/**
-	 *  Create a document onto disk according to template module.
-	 *
-	 *  @param	    string		$modele			Force template to use ('' to not force)
-	 *  @param		Translate	$outputlangs	objet lang a utiliser pour traduction
-	 *  @param      int			$hidedetails    Hide details of lines
-	 *  @param      int			$hidedesc       Hide description
-	 *  @param      int			$hideref        Hide ref
-	 *  @param      null|array  $moreparams     Array to provide more information
-	 *  @return     int         				0 if KO, 1 if OK
-	 */
-	public function generateDocument($modele, $outputlangs, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $moreparams = null)
-	{
-		global $conf, $langs;
-
-		$result               = 0;
-		$includedocgeneration = 1;
-
-		$langs->load('dolismq@dolismq');
-
-		if ( ! dol_strlen($modele)) {
-			$modele = 'standard_control';
-
-			if ( ! empty($this->model_pdf)) {
-				$modele = $this->model_pdf;
-			} elseif ( ! empty($conf->global->AUDIT_ADDON_PDF)) {
-				$modele = $conf->global->AUDIT_ADDON_PDF;
-			}
-		}
-
-		$modelpath = 'core/modules/dolismq/controldocument/';
-
-		if ($includedocgeneration && ! empty($modele)) {
-			$result = $this->commonGenerateDocument($modelpath, $modele, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams['object']);
-		}
-
-		return $result;
-	}
-
-	/**
 	 * Sets object to supplied categories.
 	 *
 	 * Deletes object from existing categories not supplied.

@@ -57,6 +57,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
+require_once __DIR__ . '/../../class/dolismqdocuments/controldocument.class.php';
 require_once __DIR__ . '/../../lib/dolismq_control.lib.php';
 require_once __DIR__ . '/../../core/modules/dolismq/control/mod_control_standard.php';
 require_once __DIR__ . '/../../core/modules/dolismq/controldet/mod_controldet_standard.php';
@@ -82,6 +83,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Technical objets
 $object           = new Control($db);
 $controldet       = new ControlLine($db);
+$controldocument  = new ControlDocument($db);
 $sheet            = new Sheet($db);
 $question         = new Question($db);
 $usertmp          = new User($db);
@@ -407,103 +409,38 @@ if (empty($reshook)) {
 
 	// Action to build doc
 	if ($action == 'builddoc' && $permissiontoadd) {
-		if (is_numeric(GETPOST('model', 'alpha'))) {
-			$error = $langs->trans('ErrorFieldRequired', $langs->transnoentities('Model'));
-		} else {
-			// Reload to get all modified line records and be ready for hooks
-			$ret = $object->fetch($id);
-			$ret = $object->fetch_thirdparty();
-			/*if (empty($object->id) || ! $object->id > 0)
-			{
-				dol_print_error('Object must have been loaded by a fetch');
-				exit;
-			}*/
+		$outputlangs = $langs;
+		$newlang     = '';
 
-			// Save last template used to generate document
-//			if (GETPOST('model', 'alpha')) {
-//				$object->setDocModel($user, GETPOST('model', 'alpha'));
-//			}
-
-			// Special case to force bank account
-			//if (property_exists($object, 'fk_bank'))
-			//{
-			if (GETPOST('fk_bank', 'int')) {
-				// this field may come from an external module
-				$object->fk_bank = GETPOST('fk_bank', 'int');
-			} elseif (!empty($object->fk_account)) {
-				$object->fk_bank = $object->fk_account;
-			}
-			//}
-
-			$outputlangs = $langs;
-			$newlang = '';
-
-			if ($conf->global->MAIN_MULTILANGS && empty($newlang) && GETPOST('lang_id', 'aZ09')) {
-				$newlang = GETPOST('lang_id', 'aZ09');
-			}
-			if ($conf->global->MAIN_MULTILANGS && empty($newlang) && isset($object->thirdparty->default_lang)) {
-				$newlang = $object->thirdparty->default_lang; // for proposal, order, invoice, ...
-			}
-			if ($conf->global->MAIN_MULTILANGS && empty($newlang) && isset($object->default_lang)) {
-				$newlang = $object->default_lang; // for thirdparty
-			}
-			if (!empty($newlang)) {
-				$outputlangs = new Translate('', $conf);
-				$outputlangs->setDefaultLang($newlang);
-			}
-
-			// To be sure vars is defined
-			if (empty($hidedetails)) {
-				$hidedetails = 0;
-			}
-			if (empty($hidedesc)) {
-				$hidedesc = 0;
-			}
-			if (empty($hideref)) {
-				$hideref = 0;
-			}
-			if (empty($moreparams)) {
-				$moreparams = null;
-			}
-
-			$moreparams['object'] = $object;
-
-			$result = $object->generateDocument(GETPOST('model'), $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
-
-			if ($result <= 0) {
-				setEventMessages($object->error, $object->errors, 'errors');
-				$action = '';
-			} else {
-				if (empty($donotredirect)) {	// This is set when include is done by bulk action "Bill Orders"
-					setEventMessages($langs->trans('FileGenerated'), null);
-
-					$urltoredirect = $_SERVER['REQUEST_URI'];
-					$urltoredirect = preg_replace('/#builddoc$/', '', $urltoredirect);
-					$urltoredirect = preg_replace('/action=builddoc&?/', '', $urltoredirect); // To avoid infinite loop
-
-					header('Location: '.$urltoredirect.'#builddoc');
-					exit;
-				}
-			}
+		if ($conf->global->MAIN_MULTILANGS && empty($newlang) && GETPOST('lang_id', 'aZ09')) $newlang = GETPOST('lang_id', 'aZ09');
+		if ( ! empty($newlang)) {
+			$outputlangs = new Translate("", $conf);
+			$outputlangs->setDefaultLang($newlang);
 		}
-	}
 
-	if ($action == 'confirm_setVerdict' && $permissiontoadd && !GETPOST('cancel', 'alpha')) {
-		$object->fetch($id);
-		if ( ! $error) {
-			$object->verdict = GETPOST('verdict', 'int');
-			$object->note_public = GETPOST('noteControl');
-			$result = $object->update($user);
-			if ($result > 0) {
-				// Set verdict Control
-				$urltogo = str_replace('__ID__', $result, $backtopage);
-				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-				header('Location: ' . $urltogo);
+		// To be sure vars is defined
+		if (empty($hidedetails)) $hidedetails = 0;
+		if (empty($hidedesc)) $hidedesc       = 0;
+		if (empty($hideref)) $hideref         = 0;
+		if (empty($moreparams)) $moreparams   = null;
+
+		$model = GETPOST('model', 'alpha');
+
+		$moreparams['object'] = $object;
+		$moreparams['user']   = $user;
+
+		$result = $controldocument->generateDocument($model, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
+		if ($result <= 0) {
+			setEventMessages($object->error, $object->errors, 'errors');
+			$action = '';
+		} else {
+			if (empty($donotredirect)) {
+				setEventMessages($langs->trans("FileGenerated") . ' - ' . $controldocument->last_main_doc, null);
+				$urltoredirect = $_SERVER['REQUEST_URI'];
+				$urltoredirect = preg_replace('/#builddoc$/', '', $urltoredirect);
+				$urltoredirect = preg_replace('/action=builddoc&?/', '', $urltoredirect); // To avoid infinite loop
+				header('Location: ' . $urltoredirect . '#builddoc');
 				exit;
-			} else {
-				// Set verdict Control error
-				if ( ! empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
-				else setEventMessages($object->error, null, 'errors');
 			}
 		}
 	}
@@ -529,6 +466,26 @@ if (empty($reshook)) {
 			exit;
 		} else {
 			setEventMessages('BugFoundVarUploaddirnotDefined', null, 'errors');
+		}
+	}
+
+	if ($action == 'confirm_setVerdict' && $permissiontoadd && !GETPOST('cancel', 'alpha')) {
+		$object->fetch($id);
+		if ( ! $error) {
+			$object->verdict = GETPOST('verdict', 'int');
+			$object->note_public = GETPOST('noteControl');
+			$result = $object->update($user);
+			if ($result > 0) {
+				// Set verdict Control
+				$urltogo = str_replace('__ID__', $result, $backtopage);
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
+				header('Location: ' . $urltogo);
+				exit;
+			} else {
+				// Set verdict Control error
+				if ( ! empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
+				else setEventMessages($object->error, null, 'errors');
+			}
 		}
 	}
 

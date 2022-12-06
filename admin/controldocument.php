@@ -88,7 +88,7 @@ if ($action == 'specimen') {
 	$file = ''; $classname = ''; $filefound = 0;
 	$dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
 	foreach ($dirmodels as $reldir) {
-		$file = dol_buildpath('/custom'.$reldir."core/modules/dolismq/controldocument/pdf_".$modele.".modules.php", 0);
+		$file = dol_buildpath('/custom'.$reldir."core/modules/dolismq/dolismqdocumets/controldocument/pdf_".$modele.".modules.php", 0);
 		if (file_exists($file)) {
 			$filefound = 1;
 			$classname = "pdf_".$modele;
@@ -177,7 +177,7 @@ foreach ($types as $type => $documentType) {
 	print '</tr>';
 
 	clearstatcache();
-	$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/".$documentType."/");
+	$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/dolismqdocuments/".$documentType."/");
 	if (is_dir($dir)) {
 		$handle = opendir($dir);
 		if (is_resource($handle)) {
@@ -288,7 +288,7 @@ foreach ($types as $type => $documentType) {
 	print "</tr>";
 
 	clearstatcache();
-	$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/".$documentType."/");
+	$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/dolismqdocuments/".$documentType."/");
 	if (is_dir($dir)) {
 		$handle = opendir($dir);
 		if (is_resource($handle)) {

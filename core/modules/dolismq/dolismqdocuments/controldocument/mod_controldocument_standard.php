@@ -17,7 +17,7 @@
  */
 
 /**
- *	\file       core/modules/dolismq/controldocument/mod_controldocument_standard.php
+ *	\file       core/modules/dolismq/dolismqdocumets/controldocument/mod_controldocument_standard.php
  * \ingroup     dolismq
  *	\brief      File containing class for numbering module Standard
  */
@@ -94,7 +94,7 @@ class mod_controldocument_standard
 		// first we get the max value
 		$posindice = strlen($this->prefix) + 6;
 		$sql = "SELECT MAX(CAST(SUBSTRING(ref FROM ".$posindice.") AS SIGNED)) as max";
-		$sql .= " FROM ".MAIN_DB_PREFIX."dolismq_documents";
+		$sql .= " FROM ".MAIN_DB_PREFIX."dolismq_dolismqdocuments";
 		$sql .= " WHERE ref LIKE '".$db->escape($this->prefix)."____-%'";
 		if ($object->ismultientitymanaged == 1) {
 			$sql .= " AND entity = ".$conf->entity;
