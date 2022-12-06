@@ -924,7 +924,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 	}
 	if ($conf->browser->layout == 'phone') {
-		$morehtmlref .= '<br><i class="toggleControlInfo far fa-caret-square-down"></i>';
+		$morehtmlref .= '<br><i class="toggleControlInfo far fa-caret-square-down"></i>' . ' ' . $langs->trans('DisplayMoreInfo');
 	}
 	$morehtmlref .= '</div>';
 
