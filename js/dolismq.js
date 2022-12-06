@@ -1286,7 +1286,7 @@ window.eoxiaJS.control.showSelectObjectLinked = function ( event ) {
 	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&fk_sheet=' + sheetId + '&token=' + token
 	urlToGo += '&fk_project=' + projectId
 	urlToGo += '&fk_user_controller=' + userController
-
+console.log(urlToGo)
 	window.eoxiaJS.loader.display($('.tabBar.tabBarWithBottom tbody'))
 	$.ajax({
 		url: urlToGo,
