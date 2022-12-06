@@ -27,6 +27,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/doc.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/functions.lib.php';
 
 require_once __DIR__ . '/modules_controldocument.php';
 require_once __DIR__ . '/mod_controldocument_standard.php';
@@ -283,6 +284,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$question   = new Question($this->db);
 			$sheet      = new Sheet($this->db);
 			$usertmp    = new User($this->db);
+			$usertmp2   = new User($this->db);
 			$thirdparty = new Societe($this->db);
 			$contact    = new Contact($this->db);
 			$project    = new Project($this->db);
@@ -297,6 +299,9 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			}
 			$sheet->fetch($object->fk_sheet);
 			$usertmp->fetch($object->fk_user_controller);
+			if (!empty($object->linkedObjectsIds['user'])) {
+				$usertmp2->fetch(array_shift($object->linkedObjectsIds['user']));
+			}
 			if (!empty($object->linkedObjectsIds['societe'])) {
 				$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
 			}
@@ -318,6 +323,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$tmparray['sheet_ref']          = $sheet->ref;
 			$tmparray['sheet_label']        = $sheet->label;
 			$tmparray['control_date']       = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+			$tmparray['user_label']         = $usertmp2->lastname . ' '. $usertmp2->firstname;
 			$tmparray['thirdparty_label']   = $thirdparty->name;
 			$tmparray['contact_label']      = $contact->firstname . ' '. $contact->lastname;
 			$tmparray['project_task_ref']   = $project->ref . '-' . $task->ref;
@@ -449,7 +455,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 									$tmparray['photo2'] = ' ';
 								}
 
-								$tmparray['comment'] = $comment;
+								$tmparray['comment'] = dol_htmlentitiesbr_decode(strip_tags($comment, '<br>'));
 
 								unset($tmparray['object_fields']);
 								unset($tmparray['object_array_options']);
