@@ -715,7 +715,7 @@ if ($action == 'create') {
 		print '</td><td class="lot-container">';
 		print '<span class="lot-content">';
 		dol_strlen(GETPOST('fk_product')) > 0 ? $product->fetch(GETPOST('fk_product')) : 0;
-		print img_picto('', 'lot', 'class="pictofixedwidth"') . dolismq_select_product_lots((!empty(GETPOST('fk_product')) ? GETPOST('fk_product') : -1), $productlot_post, 'fk_productlot', 1, '', '', 0, 'maxwidth500 widthcentpercentminusxx', false, 0, array(), false, '', 'fk_productlot');
+		print img_picto('', 'lot', 'class="pictofixedwidth"') . dolismq_select_product_lots((!empty(GETPOST('fk_product')) ? GETPOST('fk_product') : 0), $productlot_post, 'fk_productlot', 1, '', '', 0, 'maxwidth500 widthcentpercentminusxx', false, 0, array(), false, '', 'fk_productlot');
 		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/product/stock/productlot_card.php?action=create' . ((GETPOST('fk_product') > 0) ? '&fk_product=' . GETPOST('fk_product') : '') . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProductLot') . '"></span></a>';
 		print '</span>';
 		print '</td></tr>';
@@ -744,7 +744,7 @@ if ($action == 'create') {
 		$contact_post = GETPOST('fk_contact') ?: (GETPOST('fromtype') == 'contact' ? GETPOST('fromid') : 0);
 		print '<tr><td class="">' . $langs->trans('ContactLinked') . '</td><td>';
 		// If no fk_soc, set to -1 to avoid full contacts list
-		print img_picto('', 'address', 'class="pictofixedwidth"') . $form->selectcontacts(((GETPOST('fk_soc') > 0) ? GETPOST('fk_soc') : -1), $contact_post, 'fk_contact', 1, '', '', 0, 'maxwidth500 widthcentpercentminusxx');
+		print img_picto('', 'address', 'class="pictofixedwidth"') . $form->selectcontacts(((GETPOST('fk_soc') > 0) ? GETPOST('fk_soc') : 0), $contact_post, 'fk_contact', 1, '', '', 0, 'maxwidth500 widthcentpercentminusxx');
 		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/contact/card.php?action=create' . ((GETPOST('fk_soc') > 0) ? '&socid=' . GETPOST('fk_soc') : '') . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddContact') . '"></span></a>';
 		print '</td></tr>';
 	}
@@ -766,8 +766,7 @@ if ($action == 'create') {
 		print '<span class="task-content">';
 		dol_strlen(GETPOST('fk_project')) > 0 ? $project->fetch(GETPOST('fk_project')) : 0;
 		print img_picto('', 'projecttask', 'class="pictofixedwidth"');
-		$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), $task_post, 'fk_task', 24, 0, '1', 1, 0, 0, 'maxwidth500 widthcentpercentminusxx', (!empty(GETPOST('fk_project')) ? GETPOST('fk_project') : $project->id), '');
-		//print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/projet/tasks.php?action=create' . ((GETPOST('fk_project') > 0) ? '&task_parent=' . GETPOST('fk_project') : '') . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddTask') . '"></span></a>';
+		$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), $task_post, 'fk_task', 24, 0, '1', 1, 0, 0, 'maxwidth500 widthcentpercentminusxx', GETPOST('fk_project') ?: 0, '');
 		print '</span>';
 		print '</td></tr>';
 	}
