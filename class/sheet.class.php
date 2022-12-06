@@ -486,7 +486,7 @@ class Sheet extends CommonObject
 		}
 
 		//add objects linked
-		if (is_array($object->linkedObjectsIds) && !empty($object->linkedObjectsIds)) {
+		if (is_array($object->linkedObjectsIds['dolismq_question']) && !empty($object->linkedObjectsIds['dolismq_question'])) {
 			foreach ($object->linkedObjectsIds['dolismq_question'] as $questionId => $questionPosition) {
 				$question->fetch($questionId);
 				$question->add_object_linked('dolismq_' . $object->element,$objectid);
@@ -751,16 +751,16 @@ class Sheet extends CommonObject
 				$obj = $this->db->fetch_object($resql);
 				if ($justsource || $justtarget) {
 					if ($justsource) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $i] = $obj->fk_target;
+						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $i+1] = $obj->fk_target;
 					} elseif ($justtarget) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $i] = $obj->fk_source;
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $i+1] = $obj->fk_source;
 					}
 				} else {
 					if ($obj->fk_source == $sourceid && $obj->sourcetype == $sourcetype) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $i] = $obj->fk_target;
+						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $i+1] = $obj->fk_target;
 					}
 					if ($obj->fk_target == $targetid && $obj->targettype == $targettype) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $i] = $obj->fk_source;
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $i+1] = $obj->fk_source;
 					}
 				}
 
