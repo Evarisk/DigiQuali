@@ -297,8 +297,6 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			if (!empty($object->linkedObjectsIds['productbatch'])) {
 				$productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
 			}
-			$sheet->fetch($object->fk_sheet);
-			$usertmp->fetch($object->fk_user_controller);
 			if (!empty($object->linkedObjectsIds['user'])) {
 				$usertmp2->fetch(array_shift($object->linkedObjectsIds['user']));
 			}
@@ -315,19 +313,22 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 				$task->fetch(array_shift($object->linkedObjectsIds['project_task']));
 			}
 
-			$tmparray['mycompany_name']     = $conf->global->MAIN_INFO_SOCIETE_NOM;
-			$tmparray['control_ref']        = $object->ref;
-			$tmparray['nom']                = $usertmp->lastname . ' '. $usertmp->firstname;
-			$tmparray['product_ref']        = $product->ref;
-			$tmparray['lot_ref']            = $productlot->batch;
-			$tmparray['sheet_ref']          = $sheet->ref;
-			$tmparray['sheet_label']        = $sheet->label;
-			$tmparray['control_date']       = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
-			$tmparray['user_label']         = $usertmp2->lastname . ' '. $usertmp2->firstname;
-			$tmparray['thirdparty_label']   = $thirdparty->name;
-			$tmparray['contact_label']      = $contact->firstname . ' '. $contact->lastname;
-			$tmparray['project_task_ref']   = $project->ref . '-' . $task->ref;
-			$tmparray['project_task_label'] = $project->label . '-' . $task->label;
+			$sheet->fetch($object->fk_sheet);
+			$usertmp->fetch($object->fk_user_controller);
+
+			$tmparray['mycompany_name']   = $conf->global->MAIN_INFO_SOCIETE_NOM;
+			$tmparray['control_ref']      = $object->ref;
+			$tmparray['nom']              = $usertmp->lastname . ' '. $usertmp->firstname;
+			$tmparray['product_ref']      = $product->ref;
+			$tmparray['lot_ref']          = $productlot->batch;
+			$tmparray['sheet_ref']        = $sheet->ref;
+			$tmparray['sheet_label']      = $sheet->label;
+			$tmparray['control_date']     = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+			$tmparray['user_label']       = (!empty($usertmp2->id > 0) ? $usertmp2->lastname . ' ' . $usertmp2->firstname : '');
+			$tmparray['thirdparty_label'] = $thirdparty->name;
+			$tmparray['contact_label']    = (!empty($contact->id > 0) ? $contact->firstname . ' ' . $contact->lastname : '');
+			$tmparray['project_label']    = (!empty($project->id > 0) ? $project->ref . ' - ' . $project->title : '');
+			$tmparray['task_label']       = (!empty($task->id > 0) ? $task->ref . ' - ' . $task->label : '');
 
 			switch ($object->verdict) {
 				case 1:
