@@ -513,10 +513,10 @@ if ($action == 'create') {
 	print '<table class="border centpercent tableforfieldcreate question-table">'."\n";
 
 	// Ref -- Ref
-	print '<tr><td class="titlefieldcreate fieldrequired">' . $langs->trans("Ref") . '</td><td>';
-	print '<input hidden class="flat" type="text" size="36" name="ref" id="ref" value="' . $refQuestionMod->getNextValue($object) . '">';
-	print $refQuestionMod->getNextValue($object);
-	print '</td></tr>';
+//	print '<tr><td class="titlefieldcreate fieldrequired">' . $langs->trans("Ref") . '</td><td>';
+//	print '<input hidden class="flat" type="text" size="36" name="ref" id="ref" value="' . $refQuestionMod->getNextValue($object) . '">';
+//	print $refQuestionMod->getNextValue($object);
+//	print '</td></tr>';
 
 	// Label -- Libellé
 	print '<tr><td class="">'.$langs->trans("Label").'</td><td>';

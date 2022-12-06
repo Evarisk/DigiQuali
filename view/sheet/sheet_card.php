@@ -327,10 +327,10 @@ if ($action == 'create') {
 	print '<table class="border centpercent tableforfieldcreate sheet-table">'."\n";
 
 	//Ref -- Ref
-	print '<tr><td class="titlefieldcreate fieldrequired">' . $langs->trans("Ref") . '</td><td>';
-	print '<input hidden class="flat" type="text" size="36" name="ref" id="ref" value="' . $refSheetMod->getNextValue($object) . '">';
-	print $refSheetMod->getNextValue($object);
-	print '</td></tr>';
+//	print '<tr><td class="titlefieldcreate fieldrequired">' . $langs->trans("Ref") . '</td><td>';
+//	print '<input hidden class="flat" type="text" size="36" name="ref" id="ref" value="' . $refSheetMod->getNextValue($object) . '">';
+//	print $refSheetMod->getNextValue($object);
+//	print '</td></tr>';
 
 	//Label -- Libellé
 	print '<tr><td class="">' . $langs->trans("Label") . '</td><td>';
