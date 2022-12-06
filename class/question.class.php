@@ -149,7 +149,10 @@ class Question extends CommonObject
 	 */
 	public function create(User $user, $notrigger = false)
 	{
+		global $conf;
+		$refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($this->db);
 		$this->status = 1;
+		$this->ref = $refQuestionMod->getNextValue($this);
 		return $this->createCommon($user, $notrigger);
 	}
 

@@ -139,7 +139,10 @@ class Sheet extends CommonObject
 	 */
 	public function create(User $user, $notrigger = false)
 	{
+		global $conf;
+		$refSheetMod = new $conf->global->DOLISMQ_SHEET_ADDON($this->db);
 		$this->status = 1;
+		$this->ref = $refSheetMod->getNextValue($this);
 		return $this->createCommon($user, $notrigger);
 	}
 
