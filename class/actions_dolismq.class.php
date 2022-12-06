@@ -106,6 +106,63 @@ class ActionsDolismq
 	}
 
 	/**
+	 * Overloading the doActions function : replacing the parent's function with the one below
+	 *
+	 * @param  array  $parameters Hook metadata (context, etc...)
+	 * @param  object $object     The object to process
+	 * @param  string $action     Current action (if set). Generally create or edit or null
+	 * @return int                0 < on error, 0 on success, 1 to replace standard code
+	 */
+	public function doActions(array $parameters, $object, string $action): int
+	{
+		global $langs, $user;
+
+		$error = 0; // Error counter
+
+		if (preg_match('/categorycard/', $parameters['context'])) {
+			$id = GETPOST('id');
+			$element_id = GETPOST('element_id');
+			$type = GETPOST('type');
+			if ($id > 0 && $element_id > 0 && ($type == 'question' || $type == 'sheet' || $type == 'control') && $user->rights->dolismq->$type->write) {
+				require_once __DIR__ . '/' . $type . '.class.php';
+				$classname = ucfirst($type);
+				$newobject = new $classname($this->db);
+
+				$newobject->fetch($element_id);
+
+				if (GETPOST('action') == 'addintocategory') {
+					$result = $object->add_type($newobject, $type);
+					if ($result >= 0) {
+						setEventMessages($langs->trans("WasAddedSuccessfully", $newobject->ref), array());
+
+					} else {
+						if ($object->error == 'DB_ERROR_RECORD_ALREADY_EXISTS') {
+							setEventMessages($langs->trans("ObjectAlreadyLinkedToCategory"), array(), 'warnings');
+						} else {
+							setEventMessages($object->error, $object->errors, 'errors');
+						}
+					}
+				} elseif (GETPOST('action') == 'delintocategory') {
+					$result = $object->del_type($newobject, $type);
+					if ($result < 0) {
+						dol_print_error('', $object->error);
+					}
+					$action = '';
+				}
+			}
+		}
+
+		if (!$error) {
+			$this->results = array('myreturn' => 999);
+			$this->resprints = 'A text to show';
+			return 0; // or return 1 to replace standard code
+		} else {
+			$this->errors[] = 'Error message';
+			return -1;
+		}
+	}
+
+	/**
 	 * Overloading the printCommonFooter function : replacing the parent's function with the one below
 	 *
 	 * @param   array           $parameters     Hook metadatas (context, etc...)
@@ -113,10 +170,97 @@ class ActionsDolismq
 	 */
 	public function printCommonFooter($parameters)
 	{
+		global $conf, $form, $langs, $user;
+
 		$error = 0; // Error counter
 
 		if (preg_match('/categoryindex/', $parameters['context'])) {	    // do something only for the context 'somecontext1' or 'somecontext2'
 			print '<script src="../custom/dolismq/js/dolismq.js"></script>';
+		} elseif (preg_match('/categorycard/', $parameters['context']) && preg_match('/viewcat.php/', $_SERVER["PHP_SELF"])) {
+			$id = GETPOST('id');
+			$type = GETPOST('type');
+
+			// Load variable for pagination
+			$limit = GETPOST('limit', 'int') ?GETPOST('limit', 'int') : $conf->liste_limit;
+			$sortfield = GETPOST('sortfield', 'aZ09comma');
+			$sortorder = GETPOST('sortorder', 'aZ09comma');
+			$page = GETPOSTISSET('pageplusone') ? (GETPOST('pageplusone') - 1) : GETPOST("page", 'int');
+			if (empty($page) || $page == -1) {
+				$page = 0;
+			}     // If $page is not defined, or '' or -1 or if we click on clear filters or if we select empty mass action
+			$offset = $limit * $page;
+
+			if ($type == 'question' || $type == 'sheet' || $type == 'control') {
+				require_once __DIR__ . '/' . $type . '.class.php';
+
+				$classname = ucfirst($type);
+				$object = new $classname($this->db);
+
+				$arrayObjects = $object->fetchAll();
+				if (is_array($arrayObjects) && !empty($arrayObjects)) {
+					foreach ($arrayObjects as $objectsingle) {
+						$array[$objectsingle->id] = $objectsingle->ref;
+					}
+				}
+
+				$category = new Categorie($this->db);
+				$category->fetch($id);
+				$elements = $category->getObjectsInCateg($type, 0, $limit, $offset);
+
+				if ($elements < 0) {
+					dol_print_error($this->db, $category->error, $category->errors);
+				} else {
+					// Form to add record into a category
+					print '<br>';
+
+					print '<form method="post" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&type=' . $type . '">';
+					print '<input type="hidden" name="token" value="'.newToken().'">';
+					print '<input type="hidden" name="action" value="addintocategory">';
+
+					print '<table class="noborder centpercent">';
+					print '<tr class="liste_titre"><td>';
+					print $langs->trans("Add". ucfirst($type) . "IntoCategory") . ' ';
+					print $form->selectarray('element_id', $array, '', 1);
+					print '<input type="submit" class="button buttongen" value="'.$langs->trans("ClassifyInCategory").'"></td>';
+					print '</tr>';
+					print '</table>';
+					print '</form>';
+
+					print '<br>';
+
+					$param = '&limit=' . $limit . '&id=' . $id . '&type=' . $type;
+					$num = count($elements);
+					print_barre_liste($langs->trans(ucfirst($type)), $page, $_SERVER["PHP_SELF"], $param, '', '', '', $num, '', 'object_'.$type.'@dolismq', 0, '', '', $limit);
+
+					print '<table class="noborder centpercent">';
+					print '<tr class="liste_titre"><td colspan="3">'.$langs->trans("Ref").'</td></tr>';
+					if (count($elements) > 0) {
+						$i = 0;
+						foreach ($elements as $element) {
+							$i++;
+							if ($i > $limit) break;
+
+							print '<tr class="oddeven">';
+							print '<td class="nowrap" valign="top">';
+							print $element->getNomUrl(1);
+							print '</td>';
+							// Link to delete from category
+							print '<td class="right">';
+							if ($user->rights->categorie->creer) {
+								print '<a href="' . $_SERVER["PHP_SELF"] . '?action=delintocategory&id=' . $id . '&type=' . $type . '&element_id=' . $element->id . '&token=' . newToken() . '">';
+								print $langs->trans("DeleteFromCat");
+								print img_picto($langs->trans("DeleteFromCat"), 'unlink', '', false, 0, 0, '', 'paddingleft');
+								print '</a>';
+							}
+							print '</td>';
+							print '</tr>';
+						}
+					} else {
+						print '<tr class="oddeven"><td colspan="2" class="opacitymedium">'.$langs->trans("ThisCategoryHasNoItems").'</td></tr>';
+					}
+					print '</table>';
+				}
+			}
 		}
 
 		if (!$error) {

@@ -129,6 +129,7 @@ EnterCommentTooltip = Saisi le commentaire sur les réponses de question
 ErrorQuestionUsedInSheet = La question %s ne peut pas être supprimée, elle est utilisée dans une ou plusieurs fiches modèles.
 ErrorNoQuestionSelected = Aucune question sélectionnée
 ConfirmCloneQuestion = Êtes-vous sûr(e) de vouloir cloner cette question ?
+AddQuestionIntoCategory = Assigner cette catégorie à la question
 
 
 
@@ -181,6 +182,7 @@ ErrorSheetUsedInControl = La fiche modèle %s ne peut pas être supprimée, elle
 ConfigElementLinked = Vous n'avez pas configuré d'éléments liés, veuillez cliquer ici pour vous rendre sur la page de configuration
 ConfigControl = Page de configuration des contrôles
 ConfirmCloneSheet = Êtes-vous sûr(e) de vouloir cloner cette fiche modèle ?
+AddSheetIntoCategory = Assigner cette catégorie à la fiche modèle
 
 # Tags - catégories
 Quality = Qualité
@@ -283,6 +285,7 @@ UserLinked = Utilisateur lié
 AddProduct = Créer produit ou service
 AddProductLot = Créer numéro de lot/série
 AddUser = Créer utilisateur
+AddControlIntoCategory = Assigner cette catégorie au contrôle
 
 
 
