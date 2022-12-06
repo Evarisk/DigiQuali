@@ -211,56 +211,61 @@ class ActionsDolismq
 					dol_print_error($this->db, $category->error, $category->errors);
 				} else {
 					// Form to add record into a category
-					print '<br>';
+					$out = '<br>';
 
-					print '<form method="post" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&type=' . $type . '">';
-					print '<input type="hidden" name="token" value="'.newToken().'">';
-					print '<input type="hidden" name="action" value="addintocategory">';
+					$out .= '<form method="post" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&type=' . $type . '">';
+					$out .= '<input type="hidden" name="token" value="'.newToken().'">';
+					$out .= '<input type="hidden" name="action" value="addintocategory">';
 
-					print '<table class="noborder centpercent">';
-					print '<tr class="liste_titre"><td>';
-					print $langs->trans("Add". ucfirst($type) . "IntoCategory") . ' ';
-					print $form->selectarray('element_id', $array, '', 1);
-					print '<input type="submit" class="button buttongen" value="'.$langs->trans("ClassifyInCategory").'"></td>';
-					print '</tr>';
-					print '</table>';
-					print '</form>';
+					$out .= '<table class="noborder centpercent">';
+					$out .= '<tr class="liste_titre"><td>';
+					$out .= $langs->trans("Add". ucfirst($type) . "IntoCategory") . ' ';
+					$out .= $form->selectarray('element_id', $array, '', 1);
+					$out .= '<input type="submit" class="button buttongen" value="'.$langs->trans("ClassifyInCategory").'"></td>';
+					$out .= '</tr>';
+					$out .= '</table>';
+					$out .= '</form>';
 
-					print '<br>';
+					$out .= '<br>';
 
-					$param = '&limit=' . $limit . '&id=' . $id . '&type=' . $type;
-					$num = count($elements);
-					print_barre_liste($langs->trans(ucfirst($type)), $page, $_SERVER["PHP_SELF"], $param, '', '', '', $num, '', 'object_'.$type.'@dolismq', 0, '', '', $limit);
+					//$param = '&limit=' . $limit . '&id=' . $id . '&type=' . $type;
+					//$num = count($elements);
+					//print_barre_liste($langs->trans(ucfirst($type)), $page, $_SERVER["PHP_SELF"], $param, '', '', '', $num, '', 'object_'.$type.'@dolismq', 0, '', '', $limit);
 
-					print '<table class="noborder centpercent">';
-					print '<tr class="liste_titre"><td colspan="3">'.$langs->trans("Ref").'</td></tr>';
+					$out .= '<table class="noborder centpercent">';
+					$out .= '<tr class="liste_titre"><td colspan="3">'.$langs->trans("Ref").'</td></tr>';
 					if (count($elements) > 0) {
 						$i = 0;
 						foreach ($elements as $element) {
 							$i++;
 							if ($i > $limit) break;
 
-							print '<tr class="oddeven">';
-							print '<td class="nowrap" valign="top">';
-							print $element->getNomUrl(1);
-							print '</td>';
+							$out .= '<tr class="oddeven">';
+							$out .= '<td class="nowrap" valign="top">';
+							$out .= $element->getNomUrl(1);
+							$out .= '</td>';
 							// Link to delete from category
-							print '<td class="right">';
+							$out .= '<td class="right">';
 							if ($user->rights->categorie->creer) {
-								print '<a href="' . $_SERVER["PHP_SELF"] . '?action=delintocategory&id=' . $id . '&type=' . $type . '&element_id=' . $element->id . '&token=' . newToken() . '">';
-								print $langs->trans("DeleteFromCat");
-								print img_picto($langs->trans("DeleteFromCat"), 'unlink', '', false, 0, 0, '', 'paddingleft');
-								print '</a>';
+								$out .= '<a href="' . $_SERVER["PHP_SELF"] . '?action=delintocategory&id=' . $id . '&type=' . $type . '&element_id=' . $element->id . '&token=' . newToken() . '">';
+								$out .= $langs->trans("DeleteFromCat");
+								$out .= img_picto($langs->trans("DeleteFromCat"), 'unlink', '', false, 0, 0, '', 'paddingleft');
+								$out .= '</a>';
 							}
-							print '</td>';
-							print '</tr>';
+							$out .= '</td>';
+							$out .= '</tr>';
 						}
 					} else {
-						print '<tr class="oddeven"><td colspan="2" class="opacitymedium">'.$langs->trans("ThisCategoryHasNoItems").'</td></tr>';
+						$out .= '<tr class="oddeven"><td colspan="2" class="opacitymedium">'.$langs->trans("ThisCategoryHasNoItems").'</td></tr>';
 					}
-					print '</table>';
+					$out .= '</table>';
 				}
-			}
+			} ?>
+
+			<script>
+				jQuery('.fichecenter').last().after(<?php echo json_encode($out) ; ?>)
+			</script>
+			<?php
 		}
 
 		if (!$error) {
