@@ -140,7 +140,7 @@ class ActionsDolismq
 
 		if ($parameters['currentcontext'] == 'mainloginpage') {
 			if ($conf->global->DOLISMQ_REDIRECT_AFTER_CONNECTION) {
-				$value = dol_buildpath('/custom/dolismq/dolismqindex.php', 1);
+				$value = dol_buildpath('/custom/dolismq/dolismqindex.php?mainmenu=dolismq', 1);
 			} else {
 				$value = '';
 			}
