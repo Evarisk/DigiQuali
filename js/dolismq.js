@@ -1050,7 +1050,7 @@ window.eoxiaJS.control.event = function() {
 	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.showCommentUnsaved );
 	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 	$( document ).on( 'change', '#fk_project', window.eoxiaJS.control.reloadTask );
-	$( document ).on( 'change', '#fk_soc', window.eoxiaJS.control.reloadContactAndProject );
+	$( document ).on( 'change', '#fk_soc', window.eoxiaJS.control.reloadContact );
 	$( document ).on( 'click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
 	$( document ).on( 'change', '#fk_sheet', window.eoxiaJS.control.showSelectObjectLinked);
 	$( document ).on( 'click', '.toggleControlInfo', window.eoxiaJS.control.toggleControlInfo );
@@ -1219,7 +1219,7 @@ window.eoxiaJS.control.reloadTask = function ( event ) {
  * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.eoxiaJS.control.reloadContactAndProject = function ( event ) {
+window.eoxiaJS.control.reloadContact = function ( event ) {
 
 	var controlForm = document.getElementById('createControlForm');
 	var formData = new FormData(controlForm);
@@ -1238,7 +1238,6 @@ window.eoxiaJS.control.reloadContactAndProject = function ( event ) {
 		contentType: false,
 		success: function ( resp ) {
 			$('#fk_contact').html($(resp).find('#fk_contact').children())
-			$('#fk_project').html($(resp).find('#fk_project').children())
 		},
 		error: function ( ) {
 		}
