@@ -627,6 +627,8 @@ if ($action == 'create') {
 
 	print '<table class="border centpercent tableforfieldcreate control-table"><thead>'."\n";
 
+	$object->fields['fk_user_controller']['default'] = $user->id;
+
 	if (!empty(GETPOST('fk_sheet'))) {
 		$sheet->fetch(GETPOST('fk_sheet'));
 	}
