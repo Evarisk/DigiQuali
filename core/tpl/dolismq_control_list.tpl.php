@@ -51,18 +51,9 @@ foreach($element_element_fields as $generic_name => $element_element_name) {
 		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $element_element_name .' on ('. $element_element_name .'.fk_source = ' . $id_to_search . ' AND '. $element_element_name .'.sourcetype="'. $element_element_name .'" AND '. $element_element_name .'.targettype = "dolismq_control")';
 	}
 }
-$specific_sortfields = array(
-	'fk_product'    => 'product',
-	'fk_lot'        => 'productbatch',
-	'fk_user'       => 'user',
-	'fk_thirdparty' => 'societe',
-	'fk_contact'    => 'contact',
-	'fk_project'    => 'project',
-	'fk_task'       => 'project_task'
-);
 
-if (array_key_exists($sortfield,$specific_sortfields)) {
-	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $specific_sortfields[$sortfield] .' on ( '. $specific_sortfields[$sortfield] .'.sourcetype="'. $specific_sortfields[$sortfield] .'" AND '. $specific_sortfields[$sortfield] .'.targettype = "dolismq_control" AND '. $specific_sortfields[$sortfield] .'.fk_target = t.rowid)';
+if (array_key_exists($sortfield,$element_element_fields)) {
+	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $element_element_fields[$sortfield] .' on ( '. $element_element_fields[$sortfield] .'.sourcetype="'. $element_element_fields[$sortfield] .'" AND '. $element_element_fields[$sortfield] .'.targettype = "dolismq_control" AND '. $element_element_fields[$sortfield] .'.fk_target = t.rowid)';
 }
 
 // Add table from hooks
@@ -127,8 +118,8 @@ $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters, $object); // Note that $action and $object may have been modified by hook
 $sql .= $hookmanager->resPrint;
 
-if (array_key_exists($sortfield, $specific_sortfields)) {
-	$sql .= ' ORDER BY '. $specific_sortfields[$sortfield] .'.fk_source ' . $sortorder;
+if (array_key_exists($sortfield, $element_element_fields)) {
+	$sql .= ' ORDER BY '. $element_element_fields[$sortfield] .'.fk_source ' . $sortorder;
 } else {
 	$sql .= $db->order($sortfield, $sortorder);
 }
@@ -308,7 +299,7 @@ foreach ($object->fields as $key => $val)
 	elseif (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && $val['label'] != 'TechnicalID') $cssforfield .= ($cssforfield ? ' ' : '').'right';
 	if (!empty($arrayfields['t.'.$key]['checked']))
 	{
-		print getTitleFieldOfList($arrayfields['t.'.$key]['label'], 0, $_SERVER['PHP_SELF'], 't.'.$key, '', $param, ($cssforfield ? 'class="'.$cssforfield.'"' : ''), $sortfield, $sortorder, ($cssforfield ? $cssforfield.' ' : ''))."\n";
+		print getTitleFieldOfList($arrayfields['t.'.$key]['label'], 0, $_SERVER['PHP_SELF'], $key, '', $param, ($cssforfield ? 'class="'.$cssforfield.'"' : ''), $sortfield, $sortorder, ($cssforfield ? $cssforfield.' ' : ''))."\n";
 	}
 }
 // Extra fields
