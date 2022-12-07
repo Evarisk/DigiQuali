@@ -23,7 +23,7 @@ $formproject   = new FormProjets($db);
 
 // Build and execute select
 // --------------------------------------------------------------------
-$sql = 'SELECT ';
+$sql = 'SELECT DISTINCT ';
 foreach ($object->fields as $key => $val)
 {
 	if (!array_key_exists($key, $element_element_fields)) {
