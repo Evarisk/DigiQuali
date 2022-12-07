@@ -659,7 +659,7 @@ if ($action == 'create') {
 	//FK Product
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT && preg_match('/"product":1/',$sheet->element_linked)) {
 		$product_post = GETPOST('fk_product') ?: (GETPOST('fromtype') == 'product' ? GETPOST('fromid') : 0);
-		print '<tr><td class="">' . $langs->trans('Product') . ' ' . $langs->trans('Or') . ' ' . $langs->trans('Service') . '</td><td>';
+		print '<tr><td class="">' . $langs->trans('ProductOrServiceLinked') . '</td><td>';
 		print img_picto('', 'product', 'class="pictofixedwidth"');
 		$form->select_produits($product_post, 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices', 0, 'maxwidth500 widthcentpercentminusxx');
 		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/product/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProduct') . '"></span></a>';
@@ -670,7 +670,7 @@ if ($action == 'create') {
 	if ($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT && preg_match('/"productlot":1/',$sheet->element_linked)) {
 		$productlot_post = GETPOST('fk_productlot') ?: (GETPOST('fromtype') == 'productbatch' ? GETPOST('fromid') : 0);
 		print '<tr><td class="">';
-		print $langs->trans('Lot');
+		print $langs->trans('BatchLinked');
 		print '</td><td class="lot-container">';
 		print '<span class="lot-content">';
 		dol_strlen(GETPOST('fk_product')) > 0 ? $product->fetch(GETPOST('fk_product')) : 0;
@@ -934,7 +934,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
 		//FKProduct -- Produit
 		print '<tr><td class="titlefield">';
-		print $langs->trans('Product');
+		print $langs->trans('ProductOrService');
 		print '</td>';
 		print '<td>';
 		$product->fetch(array_shift($object->linkedObjectsIds['product']));
