@@ -385,7 +385,7 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event, photo, typeFrom, id) {
 			$('.wpeo-modal.modal-photo').html($(resp).find('.wpeo-modal.modal-photo .modal-container'))
 		},
 		error: function ( ) {
-			modalFrom.find('.messageErrorSavePhoto').removeClass('hidden')
+			//modalFrom.find('.messageErrorSavePhoto').removeClass('hidden')
 		}
 	});
 };
