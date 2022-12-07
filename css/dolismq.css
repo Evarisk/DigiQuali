@@ -2126,9 +2126,6 @@ div.tabBar table.border.question-table tr.linked-medias .linked-medias-list {
 .wpeo-modal.modal-photo .modal-container {
   max-height: 650px;
 }
-.wpeo-modal.modal-photo.modal-active {
-  z-index: 2014;
-}
 .wpeo-modal.modal-photo .clickable-photo {
   -webkit-transition: all 0.2s ease-out;
   transition: all 0.2s ease-out;
