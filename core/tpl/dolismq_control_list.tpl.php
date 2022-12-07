@@ -264,7 +264,7 @@ foreach ($object->fields as $key => $val)
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
 		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) print $form->selectarray('search_'.$key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
 		elseif ($key == 'fk_sheet') {
-			print $sheet->select_sheet_list(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : GETPOST('search_fk_sheet'), 'search_fk_sheet');
+			print $sheet->select_sheet_list(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : ($search['fk_sheet'] ?: 0), 'search_fk_sheet');
 		}
 		elseif (strpos($val['type'], 'integer:') === 0) {
 			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'maxwidth125', 1);
