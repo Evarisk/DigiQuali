@@ -136,7 +136,7 @@ class modDoliSMQ extends DolibarrModules
 		// A condition to hide module
 		$this->hidden = false;
 		// List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
-		$this->depends = ['modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM', 'modProjet', 'modCategorie'];
+		$this->depends = ['modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM', 'modProjet', 'modCategorie', 'modSaturne'];
 		$this->requiredby = []; // List of module class names as string to disable if this one is disabled. Example: array('modModuleToDisable1', ...)
 		$this->conflictwith = []; // List of module class names as string this module is in conflict with. Example: array('modModuleToDisable1', ...)
 
@@ -217,7 +217,7 @@ class modDoliSMQ extends DolibarrModules
 		// Array to add new pages in new tabs
 		$this->tabs   = [];
 		$pictopath    = dol_buildpath('/custom/dolismq/img/dolismq_color.png', 1);
-		$pictoDoliSMQ = img_picto('', $pictopath, '', 1, 0, 0, '', 'pictoDoliSMQ');
+		$pictoDoliSMQ = img_picto('', $pictopath, '', 1, 0, 0, '', 'pictoSaturne');
 		$this->tabs[] = ['data' => 'productlot:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=productbatch'];
 		$this->tabs[] = ['data' => 'product:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=product'];
 		$this->tabs[] = ['data' => 'project:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project'];
