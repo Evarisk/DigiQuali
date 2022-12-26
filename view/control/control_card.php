@@ -22,20 +22,8 @@
  */
 
 // Load Dolibarr environment
-$res = 0;
-// Try main.inc.php into web root known defined into CONTEXT_DOCUMENT_ROOT (not always defined)
-if (!$res && !empty($_SERVER['CONTEXT_DOCUMENT_ROOT'])) $res = @include $_SERVER['CONTEXT_DOCUMENT_ROOT']. '/main.inc.php';
-// Try main.inc.php into web root detected using web root calculated from SCRIPT_FILENAME
-$tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME']; $tmp2 = realpath(__FILE__); $i = strlen($tmp) - 1; $j = strlen($tmp2) - 1;
-while ($i > 0 && $j > 0 && isset($tmp[$i]) && isset($tmp2[$j]) && $tmp[$i] == $tmp2[$j]) { $i--; $j--; }
-if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1)). '/main.inc.php')) $res = @include substr($tmp, 0, ($i + 1)). '/main.inc.php';
-if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1))). '/main.inc.php')) $res = @include dirname(substr($tmp, 0, ($i + 1))). '/main.inc.php';
-// Try main.inc.php using relative path
-if (!$res && file_exists('../main.inc.php')) $res = @include '../main.inc.php';
-if ( ! $res && file_exists('../../main.inc.php')) $res       = @include '../../main.inc.php';
-if ( ! $res && file_exists('../../../main.inc.php')) $res    = @include '../../../main.inc.php';
-if ( ! $res && file_exists('../../../../main.inc.php')) $res = @include '../../../../main.inc.php';
-if (!$res) die('Include of main fails');
+if (file_exists("../../../saturne/saturne.main.inc.php")) $res = @include "../../../saturne/saturne.main.inc.php";
+
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
@@ -74,6 +62,7 @@ $langs->loadLangs(array('dolismq@dolismq', 'other'));
 $id                  = GETPOST('id', 'int');
 $ref                 = GETPOST('ref', 'alpha');
 $action              = GETPOST('action', 'aZ09');
+$subaction           = GETPOST('subaction', 'aZ09');
 $confirm             = GETPOST('confirm', 'alpha');
 $cancel              = GETPOST('cancel', 'aZ09');
 $contextpage         = GETPOST('contextpage', 'aZ') ?GETPOST('contextpage', 'aZ') : 'controlcard'; // To manage different context of search
@@ -215,72 +204,6 @@ if (empty($reshook)) {
 
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
-
-	if ( ! $error && $action == 'addFiles') {
-		$data = json_decode(file_get_contents('php://input'), true);
-
-		$filenames  = $data['filenames'];
-		$questionId = $data['questionId'];
-		$type 	    = $data['type'];
-
-		$object->fetch($id);
-		$question->fetch($questionId);
-		if (dol_strlen($object->ref) > 0) {
-			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/' .  $type;
-			dol_mkdir($pathToQuestionPhoto);
-			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/' .  $type . '/' . $question->ref;
-			dol_mkdir($pathToQuestionPhoto);
-		} else {
-			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . 'tmp/' . 'QU0/' . $type ;
-		}
-
-		if (preg_match('/vVv/', $filenames)) {
-			$filenames = preg_split('/vVv/', $filenames);
-			array_pop($filenames);
-		} else {
-			$filenames = array($filenames);
-		}
-
-
-		if ( ! (empty($filenames))) {
-			if ( ! is_dir($conf->dolismq->multidir_output[$conf->entity] . '/control/tmp/')) {
-				dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/control/tmp/');
-			}
-
-			if ( ! is_dir($conf->dolismq->multidir_output[$conf->entity] . '/control/' . (dol_strlen($object->ref) > 0 ? $object->ref : 'tmp/QU0') )) {
-				dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/control/' . (dol_strlen($object->ref) > 0 ? $object->ref : 'tmp/QU0'));
-			}
-
-			foreach ($filenames as $filename) {
-				$entity = ($conf->entity > 1) ? '/' . $conf->entity : '';
-
-				if (is_file($conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/' . $filename)) {
-					$pathToECMPhoto = $conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/' . $filename;
-
-//					if ( ! is_dir($pathToQuestionPhoto)) {
-//						mkdir($pathToQuestionPhoto);
-//					}
-
-					copy($pathToECMPhoto, $pathToQuestionPhoto . '/' . $filename);
-					$ecmfile->fetch(0,'',(($conf->entity > 1) ? $conf->entity.'/ecm/dolismq/medias/' : 'ecm/dolismq/medias/') . $filename);
-					$date = dol_print_date(dol_now(),'dayxcard');
-					$extension = preg_split('/\./', $filename);
-					$newFilename = $conf->entity . '_' . $ecmfile->id . '_' . $object->ref . '_' . $question->ref . '_' . $date . '.' . $extension[1];
-					rename($pathToQuestionPhoto . '/' . $filename, $pathToQuestionPhoto . '/' . $newFilename);
-
-					global $maxwidthmini, $maxheightmini, $maxwidthsmall,$maxheightsmall ;
-					$destfull = $pathToQuestionPhoto . '/' . $newFilename;
-
-					// Create thumbs
-					$imgThumbLarge = vignette($destfull, 1280, 720, '_large', 50, 'thumbs');
-					$imgThumbMedium = vignette($destfull, 854, 480, '_medium', 50, 'thumbs');
-					$imgThumbSmall = vignette($destfull, $maxwidthsmall, $maxheightsmall, '_small', 50, 'thumbs');
-					// Create mini thumbs for image (Ratio is near 16/9)
-					$imgThumbMini = vignette($destfull, $maxwidthmini, $maxheightmini, '_mini', 50, 'thumbs');
-				}
-			}
-		}
-	}
 
 	if ( ! $error && $action == 'unlinkFile' && $permissiontodelete) {
 		$data = json_decode(file_get_contents('php://input'), true);
@@ -613,7 +536,7 @@ $help_url      = '';
 $morejs        = array('/dolismq/js/dolismq.js');
 $morecss       = array('/dolismq/css/dolismq.css');
 
-llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);
+saturneHeader('dolismq', $action, $subaction,'', $title, $help_url, '', 0, 0, $morejs, $morecss);
 
 // Part to create
 if ($action == 'create') {
@@ -1267,26 +1190,24 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				<div class="table-row">
 					<!-- Galerie -->
 					<?php if ($item->authorize_answer_photo > 0) : ?>
-						<div class="table-cell table-full linked-medias answer_photo">
-						<?php if ($object->status > 0 ) : ?>
-							<?php $relativepath = 'dolismq/medias/thumbs';
-							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 0, 1);
-							print '</td></tr>'; ?>
-						<?php else : ?>
+						<div class="table-cell table-full linked-medias answer_photo_<?php echo $item->id ?>">
+						<?php if ($object->status == 0 ) : ?>
 							<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-answer-photo'.$item->id.'" name="userfile'.$item->id.'[]" nonce="answer_photo'.$item->id.'" multiple capture="environment" accept="image/*" onchange="window.eoxiaJS.mediaGallery.fastUpload(this.nonce)">'; ?>
+							<input type="hidden" class="question-answer-photo" id="answer_photo_<?php echo $item->id ?>" name="answer_photo_<?php echo $item->id ?>" value=""/>
 							<label for="fast-upload-answer-photo<?php echo $item->id ?>">
 								<div class="wpeo-button button-square-50">
 									<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
 								</div>
 							</label>
-							<input type="hidden" class="question-answer-photo" id="answer_photo<?php echo $item->id ?>" name="answer_photo<?php echo $item->id ?>" value="test"/>
 							<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
-								<input type="hidden" class="type-from" value="answer_photo"/>
+								<input type="hidden" class="from-id" value="<?php echo $object->id ?>"/>
+								<input type="hidden" class="from-type" value="<?php echo $object->element ?>"/>
+								<input type="hidden" class="from-subtype" value="answer_photo_<?php echo $item->id ?>"/>
 								<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 							</div>
-							<?php $relativepath = 'dolismq/medias/thumbs';
-							print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, 1, 1); ?>
 						<?php endif; ?>
+						<?php $relativepath = 'dolismq/medias/thumbs';
+						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo_' . $item->id, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo_' . $item->id, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, $object->status == 0, 1); ?>
 					</div>
 					<?php endif; ?>
 					<!-- Réponses -->

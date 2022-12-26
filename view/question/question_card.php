@@ -28,8 +28,6 @@ if (file_exists("../../../saturne/saturne.main.inc.php")) $res = @include "../..
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formfile.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
-require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmfiles.class.php';
-require_once DOL_DOCUMENT_ROOT.'/ecm/class/ecmdirectory.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
 require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
@@ -50,6 +48,7 @@ $langs->loadLangs(array("dolismq@dolismq", "other"));
 $id                  = GETPOST('id', 'int');
 $ref                 = GETPOST('ref', 'alpha');
 $action              = GETPOST('action', 'aZ09');
+$subaction           = GETPOST('subaction', 'aZ09');
 $confirm             = GETPOST('confirm', 'alpha');
 $cancel              = GETPOST('cancel', 'aZ09');
 $contextpage         = GETPOST('contextpage', 'aZ') ?GETPOST('contextpage', 'aZ') : 'questioncard'; // To manage different context of search
@@ -60,8 +59,6 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Technical objets
 $object         = new Question($db);
 $extrafields    = new ExtraFields($db);
-$ecmfile        = new EcmFiles($db);
-$ecmdir         = new EcmDirectory($db);
 $refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($db);
 
 // View objects
@@ -354,66 +351,6 @@ if (empty($reshook)) {
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
-	if ( ! $error && $action == "addFiles") {
-		$data = json_decode(file_get_contents('php://input'), true);
-
-		$filenames  = $data['filenames'];
-		$questionId = $data['questionId'];
-		$type 	    = $data['type'];
-
-		$object->fetch($questionId);
-		if (dol_strlen($object->ref) > 0) {
-			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $object->ref . '/' . $type;
-		} else {
-			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type ;
-		}
-
-		if (preg_match('/vVv/', $filenames)) {
-			$filenames = preg_split('/vVv/', $filenames);
-			array_pop($filenames);
-		} else {
-			$filenames = array($filenames);
-		}
-
-		if ( ! (empty($filenames))) {
-			if ( ! is_dir($conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/')) {
-				dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/');
-			}
-
-			if ( ! is_dir($conf->dolismq->multidir_output[$conf->entity] . '/question/' . (dol_strlen($object->ref) > 0 ? $object->ref : 'tmp/QU0') )) {
-
-				dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/question/' . (dol_strlen($object->ref) > 0 ? $object->ref : 'tmp/QU0'));
-			}
-
-			foreach ($filenames as $filename) {
-				$entity = ($conf->entity > 1) ? '/' . $conf->entity : '';
-
-				if (is_file($conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/' . $filename)) {
-					$pathToECMPhoto = $conf->ecm->multidir_output[$conf->entity] . '/dolismq/medias/' . $filename;
-
-					if ( ! is_dir($pathToQuestionPhoto)) {
-						mkdir($pathToQuestionPhoto);
-					}
-
-					copy($pathToECMPhoto, $pathToQuestionPhoto . '/' . $filename);
-					$ecmfile->fetch(0,'',($conf->entity > 1 ? $conf->entity . '/' : ''). 'ecm/dolismq/medias/' . $filename);
-					$date = dol_print_date(dol_now(),'dayxcard');
-					$extension = pathinfo($filename, PATHINFO_EXTENSION);
-					$newFilename = $conf->entity . '_' . $ecmfile->id . '_' . (dol_strlen($object->ref) > 0 ? $object->ref : $refQuestionMod->getNextValue($object)) . '_' . $date . '.' . $extension;
-					rename($pathToQuestionPhoto . '/' . $filename, $pathToQuestionPhoto . '/' . $newFilename);
-
-					global $maxwidthmini, $maxheightmini, $maxwidthsmall,$maxheightsmall ;
-					$destfull = $pathToQuestionPhoto . '/' . $newFilename;
-
-					// Create thumbs
-					$imgThumbSmall = vignette($destfull, $maxwidthsmall, $maxheightsmall, '_small', 50, "thumbs");
-					// Create mini thumbs for image (Ratio is near 16/9)
-					$imgThumbMini = vignette($destfull, $maxwidthmini, $maxheightmini, '_mini', 50, "thumbs");
-				}
-			}
-		}
-	}
-
 	if ( ! $error && $action == "unlinkFile" && $permissiontodelete) {
 		$data = json_decode(file_get_contents('php://input'), true);
 
@@ -485,7 +422,7 @@ $help_url = '';
 $morejs   = array("/dolismq/js/dolismq.js");
 $morecss  = array("/dolismq/css/dolismq.css");
 
-saturneHeader('dolismq','', $title, $help_url, '', '', '', $morejs, $morecss);
+saturneHeader('dolismq', $action,$subaction, '', $title, $help_url, '', '', '', $morejs, $morecss);
 
 // Part to create
 if ($action == 'create') {
@@ -546,7 +483,9 @@ if ($action == 'create') {
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo GETPOST('favorite_photo_ok') ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-		<input type="hidden" class="type-from" value="photo_ok"/>
+		<input type="hidden" class="from-type" value="question"/>
+		<input type="hidden" class="from-subtype" value="photo_ok"/>
+		<input type="hidden" class="from-id" value="<?php echo 0 ?>"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
@@ -563,7 +502,9 @@ if ($action == 'create') {
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo GETPOST('favorite_photo_ko') ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-		<input type="hidden" class="type-from" value="photo_ko"/>
+		<input type="hidden" class="from-type" value="question"/>
+		<input type="hidden" class="from-subtype" value="photo_ko"/>
+		<input type="hidden" class="from-id" value="<?php echo 0 ?>"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
@@ -663,7 +604,9 @@ if (($id || $ref) && $action == 'edit') {
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo (dol_strlen($object->photo_ok) > 0 ? $object->photo_ok : GETPOST('favorite_photo_ok')) ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-		<input type="hidden" class="type-from" value="photo_ok"/>
+		<input type="hidden" class="from-type" value="question"/>
+		<input type="hidden" class="from-subtype" value="photo_ok"/>
+		<input type="hidden" class="from-id" value="<?php echo $object->id ?>"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
@@ -681,7 +624,9 @@ if (($id || $ref) && $action == 'edit') {
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo (dol_strlen($object->photo_ko) > 0 ? $object->photo_ko : GETPOST('favorite_photo_ko')) ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-		<input type="hidden" class="type-from" value="photo_ko"/>
+		<input type="hidden" class="from-type" value="question"/>
+		<input type="hidden" class="from-subtype" value="photo_ko"/>
+		<input type="hidden" class="from-id" value="<?php echo $object->id ?>"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
