@@ -180,6 +180,7 @@ window.eoxiaJS.modal.openModal = function ( event ) {
 		$('#media_gallery').find('.from-id').attr('value', $(this).find('.from-id').val());
 		$('#media_gallery').find('.from-type').attr('value', $(this).find('.from-type').val());
 		$('#media_gallery').find('.from-subtype').attr('value', $(this).find('.from-subtype').val());
+		$('#media_gallery').find('.from-subdir').attr('value', $(this).find('.from-subdir').val());
 		$('#media_gallery').find('.wpeo-button').attr('value', idSelected);
 	}
 

@@ -443,6 +443,7 @@ if ($action == 'create') {
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="from-type" value="question"/>
 		<input type="hidden" class="from-subtype" value="photo_ok"/>
+		<input type="hidden" class="from-subdir" value="photo_ok"/>
 		<input type="hidden" class="from-id" value="<?php echo 0 ?>"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
@@ -462,6 +463,7 @@ if ($action == 'create') {
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="from-type" value="question"/>
 		<input type="hidden" class="from-subtype" value="photo_ko"/>
+		<input type="hidden" class="from-subdir" value="photo_ok"/>
 		<input type="hidden" class="from-id" value="<?php echo 0 ?>"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
@@ -564,6 +566,7 @@ if (($id || $ref) && $action == 'edit') {
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="from-type" value="question"/>
 		<input type="hidden" class="from-subtype" value="photo_ok"/>
+		<input type="hidden" class="from-subdir" value="photo_ok"/>
 		<input type="hidden" class="from-id" value="<?php echo $object->id ?>"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
@@ -584,6 +587,7 @@ if (($id || $ref) && $action == 'edit') {
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="from-type" value="question"/>
 		<input type="hidden" class="from-subtype" value="photo_ko"/>
+		<input type="hidden" class="from-subdir" value="photo_ok"/>
 		<input type="hidden" class="from-id" value="<?php echo $object->id ?>"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>

@@ -1143,7 +1143,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					<?php if ($item->authorize_answer_photo > 0) : ?>
 						<div class="table-cell table-full linked-medias answer_photo_<?php echo $item->id ?>">
 						<?php if ($object->status == 0 ) : ?>
-							<?php print '<input style="display: none" class="fast-upload" type="file" id="fast-upload-answer-photo'.$item->id.'" name="userfile'.$item->id.'[]" nonce="answer_photo'.$item->id.'" multiple capture="environment" accept="image/*" onchange="window.eoxiaJS.mediaGallery.fastUpload(this.nonce)">'; ?>
+							<input hidden multiple class="fast-upload" id="fast-upload-answer-photo<?php echo $item->id ?>" type="file" name="userfile[]" capture="environment" accept="image/*">
 							<input type="hidden" class="question-answer-photo" id="answer_photo_<?php echo $item->id ?>" name="answer_photo_<?php echo $item->id ?>" value=""/>
 							<label for="fast-upload-answer-photo<?php echo $item->id ?>">
 								<div class="wpeo-button button-square-50">
@@ -1154,11 +1154,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								<input type="hidden" class="from-id" value="<?php echo $object->id ?>"/>
 								<input type="hidden" class="from-type" value="<?php echo $object->element ?>"/>
 								<input type="hidden" class="from-subtype" value="answer_photo_<?php echo $item->id ?>"/>
+								<input type="hidden" class="from-subdir" value="answer_photo/<?php echo $item->ref ?>"/>
 								<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 							</div>
 						<?php endif; ?>
 						<?php $relativepath = 'dolismq/medias/thumbs';
-						print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo_' . $item->id, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo_' . $item->id, $item, '', 0, $object->status == 0, 1);
+						print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, $item, '', 0, $object->status == 0, 1);
 						?>
 					</div>
 					<?php endif; ?>
@@ -1188,8 +1189,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			<?php
 		}
 	}
-
-	include DOL_DOCUMENT_ROOT . '/custom/dolismq/core/tpl/dolismq_medias_gallery_modal.tpl.php';
 
 	print '</div>';
 	print '</div>';
