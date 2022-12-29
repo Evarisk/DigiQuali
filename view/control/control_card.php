@@ -1076,33 +1076,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', ''); ?>
 
-		<!-- Réponses -->
-<!--	<div class="control-audit multiselect">-->
-<!--		<div class="wpeo-table table-flex">-->
-<!--			<div class="table-row">-->
-<!--				<div class="table-cell table-250 table-end --><?php //echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?><!--">-->
-<!--					--><?php
-//					print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" id="select_all_answer" value="1">';
-//					print '<i class="fas fa-check"></i>';
-//					print '</span>';
-//
-//					print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 2 ? 'active' : '') . '" id="select_all_answer" value="2">';
-//					print '<i class="fas fa-times"></i>';
-//					print '</span>';
-//
-//					print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 3 ? 'active' : '') . '" id="select_all_answer" value="3">';
-//					print '<i class="fas fa-tools"></i>';
-//					print '</span>';
-//
-//					print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 4 ? 'active' : '') . '" id="select_all_answer" value="4">';
-//					print 'N/A';
-//					print '</span>';
-//					?>
-<!--				</div>-->
-<!--			</div>-->
-<!--		</div>-->
-<!--	</div>-->
-
 	<?php print '<div id="tablelines" class="control-audit noborder noshadow" width="100%">';
 
 	global $forceall, $forcetoshowtitlelines;
@@ -1155,33 +1128,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					</div>
 					<!-- Photo OK KO -->
 					<?php if ($item->show_photo > 0) : ?>
-						<div class="table-cell table-450 cell-photo-check">
+						<div class="table-cell table-450 cell-photo-check wpeo-table">
 						<?php
 						if (!empty($conf->global->DOLISMQ_CONTROL_DISPLAY_MEDIAS)) :
-							if (dol_strlen($item->photo_ok)) {
-								$urladvanced = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
-								print ($urladvanced) ? '<a href="' . $urladvanced . '" class="question-photo-check ok">' : '<div class="question-photo-check ok">';
-								print '<img class="photo photo-ok' . ($urladvanced ? ' clicked-photo-preview' : '') . '" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ok)) . '" >';
-								print '<i class="fas fa-check-circle"></i>';
-								print ($urladvanced) ? '</a>' : '</div>';
-							} else {
-								print '<div class="question-photo-check ok">';
-								print '<img class="photo photo-ok" height="80" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
-								print '<i class="fas fa-check-circle"></i>';
-								print '</div>';
-							}
-							if (dol_strlen($item->photo_ko)) {
-								$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
-								print ($urladvanced) ? '<a href="' . $urladvanced . '" class="question-photo-check ko">' : '<div class="question-photo-check ko">';
-								print '<img class="photo photo-ko'. ($urladvanced ? ' clicked-photo-preview' : '').'" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ko)) . '" >';
-								print '<i class="fas fa-times-circle"></i>';
-								print ($urladvanced) ? '</a>' : '</div>';
-							} else {
-								print '<div class="question-photo-check ko">';
-								print '<img class="photo photo-ko question-photo-check ko" height="80" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
-								print '<i class="fas fa-times-circle"></i>';
-								print '</div>';
-							}
+							print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ok', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, 'question/'. $item->ref . '/photo_ok', $item, 'photo_ok', 0, 0, 0,1, 'photo-ok', 0);
+							print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ko', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, 'question/'. $item->ref . '/photo_ko', $item, 'photo_ko', 0, 0, 0,1, 'photo-ko', 0);
 						endif;
 						?>
 					</div>
@@ -1207,7 +1158,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							</div>
 						<?php endif; ?>
 						<?php $relativepath = 'dolismq/medias/thumbs';
-						print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo_' . $item->id, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo_' . $item->id, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $itemControlDet->answer_photo ), 0, $object->status == 0, 1); ?>
+						print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo_' . $item->id, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo_' . $item->id, $item, '', 0, $object->status == 0, 1);
+						?>
 					</div>
 					<?php endif; ?>
 					<!-- Réponses -->

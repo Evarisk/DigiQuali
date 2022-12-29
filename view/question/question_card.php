@@ -351,48 +351,6 @@ if (empty($reshook)) {
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
-	if ( ! $error && $action == "unlinkFile" && $permissiontodelete) {
-		$data = json_decode(file_get_contents('php://input'), true);
-
-		$filename = $data['filename'];
-		$type     = $data['type'];
-		$id     = $data['id'];
-
-		if ($id > 0) {
-			$object->fetch($id);
-			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $object->ref . '/' . $type;
-		} else {
-			$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/' . $type;
-		}
-
-		$files = dol_dir_list($pathToQuestionPhoto);
-
-		foreach ($files as $file) {
-			if (is_file($file['fullname']) && $file['name'] == $filename) {
-
-				unlink($file['fullname']);
-				if ($object->$type == $filename) {
-					$object->$type = '';
-					$object->update($user);
-				}
-			}
-		}
-		$files = dol_dir_list($pathToQuestionPhoto . '/thumbs');
-		foreach ($files as $file) {
-			if (preg_match('/' . preg_split('/\./', $filename)[0] . '/', $file['name'])) {
-				unlink($file['fullname']);
-			}
-		}
-//		if ($riskassessment->photo == $filename) {
-//			$riskassessment->photo = '';
-//			$riskassessment->update($user, true);
-//		}
-		$urltogo = str_replace('__ID__', $id, $backtopage);
-		$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-		header("Location: " . $urltogo);
-		exit;
-	}
-
 	// Action to set status STATUS_LOCKED
 	if ($action == 'confirm_setLocked') {
 		$object->fetch($id);
@@ -490,7 +448,7 @@ if ($action == 'create') {
 	</div>
 	<?php
 	$relativepath = 'dolismq/medias/thumbs';
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ok', 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'question/tmp/QU0/photo_ok', $object, 'photo_ok');
+	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ok', 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'question/tmp/QU0/photo_ok', $object, 'photo_ok', 1, $permissiontodelete);
 	print '</td></tr>';
 	// Photo KO -- Photo KO
 	print '<tr class="linked-medias photo_ko hidden" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td class="linked-medias-list">'; ?>
@@ -508,7 +466,7 @@ if ($action == 'create') {
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ko', 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'question/tmp/QU0/photo_ko', $object, 'photo_ko');
+	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ko', 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'question/tmp/QU0/photo_ko', $object, 'photo_ko', 1, $permissiontodelete);
 	print '</td></tr>';
 
 	// Categories
@@ -611,7 +569,7 @@ if (($id || $ref) && $action == 'edit') {
 	</div>
 	<?php
 	$relativepath = 'dolismq/medias/thumbs';
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'question/'. $object->ref . '/photo_ok', $object, 'photo_ok');
+	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'question/'. $object->ref . '/photo_ok', $object, 'photo_ok', 1, $permissiontodelete);
 	print '</td></tr>';
 
 	// Photo KO -- Photo KO
@@ -630,7 +588,7 @@ if (($id || $ref) && $action == 'edit') {
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'question/'. $object->ref . '/photo_ko', $object, 'photo_ko');
+	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'question/'. $object->ref . '/photo_ko', $object, 'photo_ko', 1, $permissiontodelete);
 	print '</td></tr>';
 
 	// Tags-Categories
@@ -753,14 +711,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print $langs->trans("PhotoOk");
 		print '</td>';
 		print '<td>';
-		if (dol_strlen($object->photo_ok)) {
-			$urladvanced               = getAdvancedPreviewUrl('dolismq', $object->element . '/' . $object->ref . '/photo_ok/' . $object->photo_ok, 0, 'entity=' . $conf->entity);
-			if ($urladvanced) print '<a href="' . $urladvanced . '">';
-			print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($object->element . '/' . $object->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $object->photo_ok)) . '" >';
-			print '</a>';
-		} else {
-			print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
-		}
+		print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ok', $object, 'photo_ok', 0, 0, 0,1);
 		print '</td></tr>';
 
 		//Photo KO -- Photo KO
@@ -768,14 +719,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print $langs->trans("PhotoKo");
 		print '</td>';
 		print '<td>';
-		if (dol_strlen($object->photo_ko)) {
-			$urladvanced = getAdvancedPreviewUrl('dolismq', $object->element . '/' . $object->ref . '/photo_ko/' . $object->photo_ko, 0, 'entity=' . $conf->entity);
-			if ($urladvanced) print '<a href="' . $urladvanced . '">';
-			print '<img width="40" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($object->element . '/' . $object->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $object->photo_ko)) . '" >';
-			print '</a>';
-		} else {
-			print '<img height="40" src="' . DOL_URL_ROOT . '/public/theme/common/nophoto.png">';
-		}
+		print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ko', $object, 'photo_ko', 0, 0, 0,1);
 		print '</td></tr>';
 	}
 
