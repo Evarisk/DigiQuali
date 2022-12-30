@@ -380,7 +380,7 @@ $help_url = '';
 $morejs   = array("/dolismq/js/dolismq.js");
 $morecss  = array("/dolismq/css/dolismq.css");
 
-saturneHeader('dolismq', $action,$subaction, '', $title, $help_url, '', '', '', $morejs, $morecss);
+saturneHeader('dolismq', $action, $subaction, 1,'', $title, $help_url, '', '', '', $morejs, $morecss);
 
 // Part to create
 if ($action == 'create') {
