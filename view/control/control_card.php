@@ -1151,6 +1151,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								</div>
 							</label>
 							<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
+								<input type="hidden" class="modal-to-open" value="media_gallery"/>
 								<input type="hidden" class="from-id" value="<?php echo $object->id ?>"/>
 								<input type="hidden" class="from-type" value="<?php echo $object->element ?>"/>
 								<input type="hidden" class="from-subtype" value="answer_photo_<?php echo $item->id ?>"/>

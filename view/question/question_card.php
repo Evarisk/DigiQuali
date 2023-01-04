@@ -441,6 +441,7 @@ if ($action == 'create') {
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo GETPOST('favorite_photo_ok') ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
+		<input type="hidden" class="modal-to-open" value="media_gallery"/>
 		<input type="hidden" class="from-type" value="question"/>
 		<input type="hidden" class="from-subtype" value="photo_ok"/>
 		<input type="hidden" class="from-subdir" value="photo_ok"/>
@@ -461,6 +462,7 @@ if ($action == 'create') {
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo GETPOST('favorite_photo_ko') ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
+		<input type="hidden" class="modal-to-open" value="media_gallery"/>
 		<input type="hidden" class="from-type" value="question"/>
 		<input type="hidden" class="from-subtype" value="photo_ko"/>
 		<input type="hidden" class="from-subdir" value="photo_ko"/>

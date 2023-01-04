@@ -22,11 +22,7 @@
  */
 
 // Load Dolibarr environment
-if (file_exists('../../main.inc.php')) {
-	require_once '../../main.inc.php';
-} else {
-	die('Include of main fails');
-}
+if (file_exists("../saturne/saturne.main.inc.php")) $res = @include "../saturne/saturne.main.inc.php";
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
@@ -67,7 +63,7 @@ $title    = $langs->trans('DoliSMQArea');
 $morejs   = ['/dolismq/js/dolismq.js'];
 $morecss  = ['/dolismq/css/dolismq.css'];
 
-llxHeader('', $title . ' ' . $dolismq->version, $help_url, '', 0, 0, $morejs, $morecss);
+saturneHeader('dolismq', $action,'',0,'', $title . ' ' . $dolismq->version, $help_url, '', 0, 0, $morejs, $morecss);
 
 print load_fiche_titre($title . ' ' . $dolismq->version, '', 'dolismq_color.png@dolismq');
 
@@ -96,6 +92,7 @@ if ($conf->global->DOLISMQ_SHOW_PATCH_NOTE) : ?>
 		<div class="notice-content">
 			<div class="notice-title"><?php echo $langs->trans("DoliSMQPatchNote", $dolismq->version); ?>
 				<div class="show-patchnote wpeo-button button-square-40 button-blue wpeo-tooltip-event modal-open" aria-label="<?php echo $langs->trans('ShowPatchNote'); ?>">
+					<input hidden class="modal-to-open" value="patch-note">
 					<i class="fas fa-list button-icon"></i>
 				</div>
 			</div>
@@ -103,7 +100,7 @@ if ($conf->global->DOLISMQ_SHOW_PATCH_NOTE) : ?>
 		<div class="notice-close notice-close-forever wpeo-tooltip-event" aria-label="<?php echo $langs->trans("DontShowPatchNote"); ?>" data-direction="left"><i class="fas fa-times"></i></div>
 	</div>
 
-	<div class="wpeo-modal wpeo-modal-patchnote">
+	<div class="wpeo-modal wpeo-modal-patchnote" id="patch-note">
 		<div class="modal-container wpeo-modal-event" style="max-width: 1280px; max-height: 1000px">
 			<!-- Modal-Header -->
 			<div class="modal-header">
