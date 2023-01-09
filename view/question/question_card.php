@@ -22,7 +22,7 @@
  */
 
 // Load Dolibarr environment
-if (file_exists("../../../saturne/saturne.main.inc.php")) $res = @include "../../../saturne/saturne.main.inc.php";
+if (file_exists("../../dolismq.main.inc.php")) $res = @include "../../dolismq.main.inc.php";
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
@@ -83,14 +83,12 @@ if (empty($action) && empty($id) && empty($ref)) $action = 'view';
 // Load object
 include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
 
-
 $permissiontoread   = $user->rights->dolismq->question->read;
 $permissiontoadd    = $user->rights->dolismq->question->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 $permissiontodelete = $user->rights->dolismq->question->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
 
 // Security check - Protection if external user
-if (!$permissiontoread) accessforbidden();
-
+saturne_check_access($module, $object, $permissiontoread);
 
 /*
  * Actions
@@ -380,7 +378,7 @@ $help_url = '';
 $morejs   = array("/dolismq/js/dolismq.js");
 $morecss  = array("/dolismq/css/dolismq.css");
 
-saturneHeader('dolismq', $action, $subaction, 1,'', $title, $help_url, '', '', '', $morejs, $morecss);
+saturneHeader($module, $action, $subaction, 1,'', $title, $help_url, '', '', '', $morejs, $morecss);
 
 // Part to create
 if ($action == 'create') {

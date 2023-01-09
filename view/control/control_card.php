@@ -22,7 +22,7 @@
  */
 
 // Load Dolibarr environment
-if (file_exists("../../../saturne/saturne.main.inc.php")) $res = @include "../../../saturne/saturne.main.inc.php";
+if (file_exists("../../dolismq.main.inc.php")) $res = @include "../../dolismq.main.inc.php";
 
 
 // Libraries
@@ -119,9 +119,7 @@ $permissiontodelete = $user->rights->dolismq->control->delete || ($permissiontoa
 $upload_dir = $conf->dolismq->multidir_output[isset($object->entity) ? $object->entity : 1];
 
 // Security check - Protection if external user
-if ($user->socid > 0) accessforbidden();
-if ($user->socid > 0) $socid = $user->socid;
-if (!$permissiontoread) accessforbidden();
+saturne_check_access($module, $object, $permissiontoread);
 
 /*
  * Actions
