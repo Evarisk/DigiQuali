@@ -486,22 +486,6 @@ class modDoliSMQ extends DolibarrModules
 			'target'   => '',
 			'user'     => 0,																	// 0=Menu for internal users, 1=external users, 2=both
 		];
-
-		$this->menu[$r++] = [
-			'fk_menu'  => 'fk_mainmenu=dolismq',
-			'type'     => 'left',
-			'titre'    => $langs->transnoentities('MinimizeMenu'),
-			'prefix'   => '<i class="fas fa-chevron-circle-left pictofixedwidth"></i>',
-			'mainmenu' => 'dolismq',
-			'leftmenu' => 'minimizemenu',
-			'url'      => '',
-			'langs'    => 'dolismq@dolismq',
-			'position' => 1000 + $r,
-			'enabled'  => '$conf->dolismq->enabled',
-			'perms'    => '$user->rights->dolismq->lire',
-			'target'   => '',
-			'user'     => 0,
-		];
 	}
 
 	/**
