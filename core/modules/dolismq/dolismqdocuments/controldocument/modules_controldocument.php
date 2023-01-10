@@ -40,6 +40,6 @@ abstract class ModeleODTControlDocument extends CommonDocGenerator
 	public static function liste_modeles($db, $maxfilenamelength = 0)
 	{
 		require_once __DIR__ . '/../../../../../lib/dolismq_function.lib.php';
-		return doliSMQGetListOfModels($db, 'controldocument', $maxfilenamelength);
+		return saturne_get_list_of_models($db, 'controldocument', $maxfilenamelength);
 	}
 }

@@ -1206,7 +1206,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$defaultmodel = 'controldocument_odt';
 		$title = $langs->trans('WorkUnitDocument');
 
-		print dolismqshowdocuments('dolismq:ControlDocument', $dir_files, $filedir, $urlsource, 1, 1, $object->model_pdf, 1, 0, 0, 0, 0, '', 0, '', empty($soc->default_lang) ? '' : $soc->default_lang, $object, 0, 'remove_file', (($object->status > $object::STATUS_DRAFT) ? 1 : 0), $langs->trans('ControlMustBeValidatedToGenerated'));
+		print saturne_show_documents('dolismq:ControlDocument', $dir_files, $filedir, $urlsource, 1, 1, $object->model_pdf, 1, 0, 0, 0, 0, '', 0, '', empty($soc->default_lang) ? '' : $soc->default_lang, $object, 0, 'remove_file', (($object->status > $object::STATUS_DRAFT) ? 1 : 0), $langs->trans('ControlMustBeValidatedToGenerated'));
 		print '</div>';
 
 		print '</div><div class="fichehalfright">';
