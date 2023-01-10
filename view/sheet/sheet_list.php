@@ -41,6 +41,8 @@ if (!$res) die("Include of main fails");
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcategory.class.php';
+require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
 
 // load dolismq libraries
 require_once __DIR__.'/../../class/sheet.class.php';
@@ -86,6 +88,10 @@ $hookmanager->initHooks(array('sheetlist')); // Note that conf->hooks_modules co
 // Fetch optionals attributes and labels
 $extrafields->fetch_name_optionals_label($object->table_element);
 //$extrafields->fetch_name_optionals_label($object->table_element_line);
+
+if (!empty($conf->categorie->enabled)) {
+	$search_category_array = GETPOST("search_category_sheet_list", "array");
+}
 
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
@@ -164,6 +170,7 @@ if (empty($reshook)) {
 		}
 		$toselect = '';
 		$search_array_options = array();
+		$search_category_array = array();
 	}
 	if (GETPOST('button_removefilter_x', 'alpha') || GETPOST('button_removefilter.x', 'alpha') || GETPOST('button_removefilter', 'alpha')
 		|| GETPOST('button_search_x', 'alpha') || GETPOST('button_search.x', 'alpha') || GETPOST('button_search', 'alpha'))
@@ -203,7 +210,18 @@ if (empty($reshook)) {
 						$category->del_type($objecttmp, 'sheet');
 					}
 				}
-				$objecttmp->delete_object_links();
+				$objecttmp->fetchObjectLinked($toselectid,'dolismq_' . $object->element);
+				$objecttmp->element = 'dolismq_' . $objecttmp->element;
+
+				if (is_array($objecttmp->linkedObjects) && !empty($objecttmp->linkedObjects)) {
+					foreach($objecttmp->linkedObjects as $linkedObjectType => $linkedObjectArray) {
+						foreach($linkedObjectArray as $linkedObject) {
+							if (method_exists($objecttmp, 'is_erasable') && $objecttmp->is_erasable() > 0) {
+								$objecttmp->deleteObjectLinked($linkedObject->id, $linkedObjectType);
+							}
+						}
+					}
+				}
 				$result = $objecttmp->delete($user);
 
 				if (empty($result)) { // if delete returns 0, there is at least one object linked
@@ -253,7 +271,7 @@ if (empty($reshook)) {
 
 $now = dol_now();
 
-$morejs = array("/dolismq/js/dolismq.js.php");
+$morejs = array("/dolismq/js/dolismq.js");
 
 $help_url = '';
 $title    = $langs->trans("SheetList");
@@ -274,6 +292,9 @@ $reshook = $hookmanager->executeHooks('printFieldListSelect', $parameters, $obje
 $sql .= preg_replace('/^,/', '', $hookmanager->resPrint);
 $sql = preg_replace('/,\s*$/', '', $sql);
 $sql .= " FROM ".MAIN_DB_PREFIX.$object->table_element." as t";
+if (!empty($conf->categorie->enabled)) {
+	$sql .= Categorie::getFilterJoinQuery('sheet', "t.rowid");
+}
 if (is_array($extrafields->attributes[$object->table_element]['label']) && count($extrafields->attributes[$object->table_element]['label'])) $sql .= " LEFT JOIN ".MAIN_DB_PREFIX.$object->table_element."_extrafields as ef on (t.rowid = ef.fk_object)";
 // Add table from hooks
 $parameters = array();
@@ -291,6 +312,11 @@ foreach ($search as $key => $val) {
 	if ($search[$key] != '') $sql .= natural_search($key, $search[$key], (($key == 'status') ? 2 : $mode_search));
 }
 if ($search_all) $sql .= natural_search(array_keys($fieldstosearchall), $search_all);
+
+if (!empty($conf->categorie->enabled)) {
+	$sql .= Categorie::getFilterSelectQuery('sheet', "t.rowid", $search_category_array);
+}
+
 //$sql.= dolSqlDateFilter("t.field", $search_xxxday, $search_xxxmonth, $search_xxxyear);
 // Add where from extra fields
 include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_sql.tpl.php';
@@ -374,7 +400,7 @@ print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
 
 $newcardbutton = dolGetButtonTitle($langs->trans('NewSheet'), '', 'fa fa-plus-circle', dol_buildpath('/dolismq/view/sheet/sheet_card.php', 1).'?action=create', '', $permissiontoadd);
 
-print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, "dolismq@dolismq", 0, $newcardbutton, '', $limit, 0, 0, 1);
+print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'object_'.$object->picto, 0, $newcardbutton, '', $limit, 0, 0, 1);
 
 // Add code for pre mass action (confirmation or email presend form)
 include DOL_DOCUMENT_ROOT.'/core/tpl/massactions_pre.tpl.php';
@@ -385,6 +411,13 @@ if ($search_all) {
 }
 
 $moreforfilter = '';
+
+// Filter on categories
+if (!empty($conf->categorie->enabled) && $user->rights->categorie->lire) {
+	$formcategory = new FormCategory($db);
+	$moreforfilter .= $formcategory->getFilterBox('sheet', $search_category_array);
+}
+
 $parameters    = array();
 $reshook       = $hookmanager->executeHooks('printFieldPreListTitle', $parameters, $object); // Note that $action and $object may have been modified by hook
 if (empty($reshook)) $moreforfilter .= $hookmanager->resPrint;
@@ -499,7 +532,7 @@ while ($i < ($limit ? min($num, $limit) : $num)) {
 		if (!empty($arrayfields['t.'.$key]['checked'])) {
 			print '<td'.($cssforfield ? ' class="'.$cssforfield.'"' : '').'>';
 			if ($key == 'status') print $object->getLibStatut(5);
-			elseif ($key == 'ref') print $object->getNomUrl();
+			elseif ($key == 'ref') print $object->getNomUrl(1);
 			else print $object->showOutputField($val, $key, $object->$key, '');
 			print '</td>';
 			if (!$i) $totalarray['nbfield']++;

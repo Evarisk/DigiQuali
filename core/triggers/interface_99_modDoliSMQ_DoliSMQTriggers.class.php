@@ -47,7 +47,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 		$this->name        = preg_replace('/^Interface/i', '', get_class($this));
 		$this->family      = "demo";
 		$this->description = "DoliSMQ triggers.";
-		$this->version     = '1.3.0';
+		$this->version     = '1.4.0';
 		$this->picto       = 'dolismq@dolismq';
 	}
 
@@ -248,6 +248,28 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
 				$now        = dol_now();
 				$actioncomm = new ActionComm($this->db);
+
+				if (!empty(GETPOST('fk_product')) && GETPOST('fk_product') > 0) {
+					$object->add_object_linked('product', GETPOST('fk_product'));
+				}
+				if (!empty(GETPOST('fk_productlot')) && GETPOST('fk_productlot') > 0) {
+					$object->add_object_linked('productbatch', GETPOST('fk_productlot'));
+				}
+				if (!empty(GETPOST('fk_user')) && GETPOST('fk_user') > 0) {
+					$object->add_object_linked('user', GETPOST('fk_user'));
+				}
+				if (!empty(GETPOST('fk_soc')) && GETPOST('fk_soc') > 0) {
+					$object->add_object_linked('societe', GETPOST('fk_soc'));
+				}
+				if (!empty(GETPOST('fk_contact')) && GETPOST('fk_contact') > 0) {
+					$object->add_object_linked('contact', GETPOST('fk_contact'));
+				}
+				if (!empty(GETPOST('fk_project')) && GETPOST('fk_project') > 0) {
+					$object->add_object_linked('project', GETPOST('fk_project'));
+				}
+				if (!empty(GETPOST('fk_task')) && GETPOST('fk_task') > 0) {
+					$object->add_object_linked('project_task', GETPOST('fk_task'));
+				}
 
 				$actioncomm->elementtype = 'control@dolismq';
 				$actioncomm->code        = 'AC_CONTROL_CREATE';

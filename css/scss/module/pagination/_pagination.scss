@@ -1,0 +1,72 @@
+/*--------------------------------------------------------------
+	Module : Pagination
+	Version : 1.0.0
+
+	.wpeo-pagination -> classe de base du mobule
+--------------------------------------------------------------*/
+
+.wpeo-pagination {
+	display: flex;
+	flex-flow: row wrap;
+	flex: 0 1 auto;
+	margin: 0;
+	padding: 0;
+
+	.pagination-element {
+		margin: 0;
+		list-style-type: none;
+		padding: 0 0.2em;
+
+		a {
+			padding: 0.2em 0.8em;
+			display: inline-block;
+			background: #fff;
+			border-radius: 4px;
+			text-decoration: none;
+			color: rgba(0,0,0,0.8);
+			font-size: 12px;
+			&:hover {
+				background: rgba(0,0,0,0.1);
+			}
+		}
+		.pagination-icon {
+			font-size: 12px;
+		}
+	}
+}
+
+/* Pagination active */
+.wpeo-pagination .pagination-element {
+	&.pagination-current {
+		a {
+			background: $color__primary;
+			color: #fff;
+			&:hover {
+				background: $color__primary;
+			}
+		}
+	}
+}
+
+/* Prev & Next */
+.wpeo-pagination .pagination-element {
+	&.pagination-prev, &.pagination-next {
+		font-weight: 700;
+		a {
+			background: rgba(0,0,0,0.05);
+			&:hover {
+				background: rgba(0,0,0,0.15);
+			}
+		}
+	}
+	&.pagination-prev {
+		.pagination-icon {
+			margin-right: 0.4em;
+		}
+	}
+	&.pagination-next {
+		.pagination-icon {
+			margin-left: 0.4em;
+		}
+	}
+}

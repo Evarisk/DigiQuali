@@ -1,7 +1,7 @@
 .media-container {
   position: relative;
 
-  .media-gallery-unlink {
+  .media-gallery-unlink, .media-gallery-favorite {
     width: 30px !important;
     height: 30px !important;
     line-height: 30px !important;
@@ -18,6 +18,16 @@
 
     .button-icon {
       line-height: 30px !important;
+    }
+  }
+
+  .media-gallery-favorite {
+    top: auto;
+    bottom: -10px;
+
+    &.favorite {
+      background: #ffa500 !important;
+      color: #fff !important;
     }
   }
 }

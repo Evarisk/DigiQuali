@@ -30,7 +30,7 @@ ModuleDoliSMQDesc = Système de management de la qualité pour Dolibarr
 DoliSMQSetup = Configuration du module DoliSMQ
 Settings = Réglages
 DoliSMQSetupPage = Page de configuration du module DoliSMQ
-DoliSMQConfig = Configuration du module
+DoliSMQConfig = Configuration
 
 #
 # Page À propos
@@ -40,6 +40,42 @@ DoliSMQConfig = Configuration du module
 About = À propos
 DoliSMQAbout = À propos de DoliSMQ
 DoliSMQAboutPage = Page à propos de DoliSMQ
+
+#
+# Page index
+#
+
+# Data - Donnée
+DoliSMQArea = Bienvenue sur DoliSMQ
+DoliSMQUpdate = Mise à jour de DoliSMQ :
+DoliSMQHasBeenUpdatedTo = DoliSMQ a été mis à jour en version %s
+DoliSMQPatchNote = Note de mise à jour DoliSMQ %s
+ShowPatchNote = Consulter la note de mise à jour
+DontShowPatchNote = Ne plus afficher la note de mise à jour
+
+
+
+#
+# DoliSMQ
+#
+
+# Data - Donnée
+DoliSMQData = Données configurables de DoliSMQ
+RedirectAfterConnection = Redirection après la connexion au site
+RedirectAfterConnectionDescription = Redirection sur la page de bienvenue de DoliSMQ par défaut au lieu de celle de Dolibarr.
+
+# Media - Media
+MediaData = Données configurables des médias
+MediaMaxWidthMedium = Largeur du média medium
+MediaMaxWidthMediumDescription = Largeur du média (dimension medium) avec pour ratio 16:9
+MediaMaxHeightMedium = Hauteur du média medium
+MediaMaxHeightMediumDescription = Hauteur du média (dimension medium) avec pour ratio 16:9
+MediaMaxWidthLarge = Largeur du média large
+MediaMaxWidthLargeDescription = Largeur du média (dimension large) avec pour ratio 16:9
+MediaMaxHeightLarge = Hauteur du média large
+MediaMaxHeightLargeDescription = Hauteur du média (dimension large) avec pour ratio 16:9
+DisplayNumberMediaGallery = Nombre de média afficher dans la bibliothèque de média
+DisplayNumberMediaGalleryDescription = Affiche 8 médias (par défault) par page dans la bibliothèque de média
 
 
 
@@ -60,7 +96,7 @@ QuestionLockedTrigger = Question verrouillée
 
 # Mod Numbering - Modèle de numérotation
 DoliSMQQuestionNumberingModule = Modèle de numérotation des questions de DoliSMQ
-DoliSMQQuestionStandardModel = Renvoie le numéro sous la forme QUn où n est un compteur séquentiel sans rupture et sans remise à 0.
+DoliSMQQuestionStandardModel = Renvoie le numéro sous la forme QUyymm-nnnn où n est un compteur séquentiel sans rupture et sans remise à 0.
 
 # Data - Donnée
 AddQuestion = Ajouter une question
@@ -92,15 +128,19 @@ EnterComment = Saisir les commentaires
 EnterCommentTooltip = Saisi le commentaire sur les réponses de question
 ErrorQuestionUsedInSheet = La question %s ne peut pas être supprimée, elle est utilisée dans une ou plusieurs fiches modèles.
 ErrorNoQuestionSelected = Aucune question sélectionnée
+ConfirmCloneQuestion = Êtes-vous sûr(e) de vouloir cloner cette question ?
+AddQuestionIntoCategory = Assigner cette catégorie à la question
+
+
 
 #
 # Sheet
 #
 
 # Rights - Droits
-ReadSheet = Consulter les fiches modèle
-CreateSheet = Créer/Modifier les fiches modèle
-DeleteSheet = Supprimer les fiches modèle
+ReadSheet = Consulter les fiches modèles
+CreateSheet = Créer/Modifier les fiches modèles
+DeleteSheet = Supprimer les fiches modèles
 
 # Trigger - Déclencheur
 SheetCreateTrigger = Fiche modèle créée
@@ -110,7 +150,7 @@ SheetLockedTrigger = Fiche modèle verrouillée
 
 # Mod Numbering - Modèle de numérotation
 DoliSMQSheetNumberingModule = Modèle de numérotation des fiches modèles de DoliSMQ
-DoliSMQSheetStandardModel = Renvoie le numéro sous la forme MOn où n est un compteur séquentiel sans rupture et sans remise à 0.
+DoliSMQSheetStandardModel = Renvoie le numéro sous la forme MOyymm-nnnn où n est un compteur séquentiel sans rupture et sans remise à 0.
 
 # Data - Donnée
 Sheet = Fiche modèle
@@ -141,7 +181,8 @@ ErrorMultipleLinkedElement = Erreur la fiche modèle est liée à plusieurs él�
 ErrorSheetUsedInControl = La fiche modèle %s ne peut pas être supprimée, elle est utilisée dans un ou plusieurs contrôles.
 ConfigElementLinked = Vous n'avez pas configuré d'éléments liés, veuillez cliquer ici pour vous rendre sur la page de configuration
 ConfigControl = Page de configuration des contrôles
-
+ConfirmCloneSheet = Êtes-vous sûr(e) de vouloir cloner cette fiche modèle ?
+AddSheetIntoCategory = Assigner cette catégorie à la fiche modèle
 
 # Tags - catégories
 Quality = Qualité
@@ -179,7 +220,7 @@ ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
 
 # Mod Numbering - Modèle de numérotation
 DoliSMQControlNumberingModule = Modèle de numérotation des contrôles de DoliSMQ
-DoliSMQControlStandardModel = Renvoie le numéro sous la forme FCn où n est un compteur séquentiel sans rupture et sans remise à 0.
+DoliSMQControlStandardModel = Renvoie le numéro sous la forme FCyymm-nnnn où n est un compteur séquentiel sans rupture et sans remise à 0.
 
 # Data - Donnée
 Control = Contrôle
@@ -194,8 +235,10 @@ ControlMustBeValidated = Le contrôle doit être validé pour le rouvrir
 ControlMustBeValidatedToLock = Le contrôle doit être validé et avoir un verdict pour le verrouiller
 ControlVerdictSelected = Le verdict a déjà été défini
 ControlMustBeValidatedToSetVerdict = Le contrôle doit être validé pour définir le verdict
+ControlMustBeValidatedToGenerated = Le contrôle doit être validé pour générer la fiche de contrôle
 SetOK/KO = Apte/Inapte
 Batch = Lot/Série
+BatchLinked = Lot/Série contrôlé
 VerdictControl = Choix du verdict
 ValidateControl = Valider le contrôle
 ReOpenControl = Rouvrir le contrôle
@@ -203,20 +246,25 @@ LockControl = Verrouiller le contrôle
 ConfirmValidateControl = Êtes-vous sûr de vouloir valider le contrôle ?
 ConfirmReOpenControl = Êtes-vous sûr de vouloir rouvrir le contrôle ? <br> La réouverture supprime le verdict  du contrôle.
 ConfirmLockControl = Êtes-vous sûr de vouloir verrouiller le contrôle ? <br> Le verrouillage empêche toutes modifications du contrôle.
-ProjectLinked = Projet lié
+ProjectLinked = Projet contrôlé
 ControlManagement = Gestion des contrôles
 ControlData = Données configurables des contrôles
 DisplayMedias = Afficher les médias dans le contrôle
 DisplayMediasDescription = Afficher les médias des questions dans le contrôle
 ChangeUserController = Droit permettant de changer l'utilisateur contrôleur
-TaskLinked = Tâche liée
-ThirdPartyLinked = Tiers lié
+TaskLinked = Tâche contrôlée
+ThirdPartyLinked = Tiers contrôlé
+ContactLinked = Contact/Adresse contrôlée
 ShowProduct = Afficher les produits
 ShowProductDescription = Afficher le lien entre les produits et les contrôles
 ShowProductLot = Afficher les numéros de lots/série
 ShowProductLotDescription = Afficher le lien entre les numéros de lots/série et les contrôles
+ShowUser = Afficher les utilisateurs
+ShowUserDescription = Afficher le lien entre les utilisateurs et les contrôles
 ShowThirdParty = Afficher les tiers
 ShowThirdPartyDescription = Afficher le lien entre les tiers et les contrôles
+ShowContact = Afficher les contacts/adresses
+ShowContactDescription = Afficher le lien entre les contacts/adresses et les contrôles
 ShowProject = Afficher les projets
 ShowProjectDescription = Afficher le lien entre les projets et les contrôles
 ShowTask = Afficher les tâches
@@ -229,6 +277,17 @@ ExtrafieldsControlManagement = Gestion des attributs supplémentaires des contr�
 WithLastControl = Avec le dernier contrôle
 ControlMustBeLockedToSendEmail = Le contrôle doit être verrouillé pour pouvoir l'envoyer par e-mail
 SelectUser = Sélectionner un utilisateur
+ControlsCategoriesArea = Espace des tags/catégories des contrôles
+MediaGalleryQuestionAnswers = Galerie photo des réponses aux questions
+UseLargeSizeMedia = Utiliser la taille large des médias sur la galerie photo
+UseLargeSizeMediaDescription = Afficher la galerie photo en taille large sinon en taille moyenne
+ConfirmCloneControl = Êtes-vous sûr(e) de vouloir cloner ce contrôle ?
+UserLinked = Utilisateur contrôlé
+AddProduct = Créer produit ou service
+AddProductLot = Créer numéro de lot/série
+AddUser = Créer utilisateur
+AddControlIntoCategory = Assigner cette catégorie au contrôle
+ProductOrServiceLinked = Produit ou service contrôlé
 
 
 
@@ -238,7 +297,7 @@ SelectUser = Sélectionner un utilisateur
 
 # Mod Numbering - Modèle de numérotation
 DoliSMQControlDetNumberingModule = Modèle de numérotation des lignes des fiches de contrôle de DoliSMQ
-DoliSMQControlDetStandardModel = Renvoie le numéro sous la forme FCRn où n est un compteur séquentiel sans rupture et sans remise à 0.
+DoliSMQControlDetStandardModel = Renvoie le numéro sous la forme FCRyymm-nnnn où n est un compteur séquentiel sans rupture et sans remise à 0.
 
 # Data - Donnée
 AnswerSaved = Les réponses ont été sauvegardées
@@ -259,7 +318,7 @@ ControlDocumentGeneratedWithDolibarr = Fiche de contrôle générée avec Doliba
 
 # Mod Numbering - Modèle de numérotation
 DoliSMQControlDocumentDocumentNumberingModule = Modèle de numérotation des fiches de contrôle de DoliSMQ
-DoliSMQControlDocumentStandardModel = Renvoie le numéro sous la forme FCDn où n est un compteur séquentiel sans rupture et sans remise à 0.
+DoliSMQControlDocumentStandardModel = Renvoie le numéro sous la forme FCDyymm-nnnn où n est un compteur séquentiel sans rupture et sans remise à 0.
 
 # ODT Template - Template ODT
 DoliSMQTemplateDocumentControlDocument = Modèle de documents des fiches de contrôle de DoliSMQ
@@ -273,6 +332,8 @@ ControlDocumentName = Afficher les médias dans la fiche de contrôle
 ControlDocumentDescription = Afficher les médias des questions dans la fiche de contrôle du document ODT
 ControlDocumentPDFDoliSMQTemplate =	Modèle de fiche de contrôle au format PDF
 ControlDocumentSentByMailTrigger = Email fiche de contrôle envoyée
+controldocument.odt = Fiche de Contrôle
+controldocument_photo.odt = Fiche de Contrôle avec photos
 
 
 
@@ -283,6 +344,7 @@ ControlDocumentSentByMailTrigger = Email fiche de contrôle envoyée
 # Data - Donnée
 SelectProducts = Sélectionner un produit
 AddMedia = Ajouter un média
+SearchFile = Rechercher un fichier
 NoMediaLinked = Pas de média lié
 ReOpened = Rouvrir
 ValidatedControl = Validé
@@ -294,5 +356,8 @@ MinimizeMenu = Réduire le menu
 Or = ou
 SelectProductsOrServices = Sélectionner un produit / service
 DoliSMQNumberOfModelFilesFound = Nombre de modèles par défaut
-DoliSMQArea = Bienvenue sur DoliSMQ
-
+Contact = Contact/Adresse
+CloseModal = Fermer
+PhotoWellSent = La photo a été ajoutée à la bibliothèque de médias
+PhotoNotSent = La photo ne s'est pas correctement envoyée
+DisplayMoreInfo = Afficher plus d'informations

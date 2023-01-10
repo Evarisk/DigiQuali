@@ -60,32 +60,32 @@ class Control extends CommonObject
 	 */
 	public $picto = 'control@dolismq';
 
-	const STATUS_DRAFT     = 0;
-	const STATUS_VALIDATED = 1;
-	const STATUS_LOCKED    = 2;
+	public const STATUS_DRAFT     = 0;
+	public const STATUS_VALIDATED = 1;
+	public const STATUS_LOCKED    = 2;
 
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
 	 */
-	public $fields = array(
-		'rowid'              => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
-		'ref'                => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
-		'ref_ext'            => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "External reference of object"),
-		'entity'             => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
-		'date_creation'      => array('type' => 'datetime', 'label' => 'ControlDate', 'enabled' => '1', 'position' => 40, 'positioncard' => 10, 'notnull' => 1, 'visible' => 5,),
-		'tms'                => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
-		'import_key'         => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
-		'status'             => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0', 'arrayofkeyval' => array('0' => 'Draft', '1' => 'ValidatedControl', '2' => 'Locked'),),
-		'note_public'        => array('type'=>'textarea', 'label'=>'PublicNote', 'enabled'=>'1', 'position'=>80, 'notnull'=>0, 'visible'=>0,),
-		'note_private'       => array('type'=>'textarea', 'label'=>'PrivateNote', 'enabled'=>'1', 'position'=>90, 'notnull'=>0, 'visible'=>0,),
-		'type'               => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 100, 'notnull' => 0, 'visible' => 0,),
-		'verdict'            => array('type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 110,'positioncard' => 20, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => array('0' => '', '1' => 'OK', '2' => 'KO'),),
-		'fk_user_creat'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',),
-		'fk_user_modif'      => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
-		'fk_sheet'           => array('type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5,),
-		'fk_user_controller' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'FKUserController','positioncard' => 1, 'enabled' => '1', 'position' => 24, 'notnull' => 1, 'visible' => 5, 'foreignkey' => 'user.rowid'),
-		'fk_project'         => array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'FKProject','positioncard' => 2, 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'projet.rowid'),
-	);
+	public $fields = [
+		'rowid'              => ['type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => 'Id'],
+		'ref'                => ['type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => 'Reference of object'],
+		'ref_ext'            => ['type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 0, 'visible' => 0],
+		'entity'             => ['type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0],
+		'date_creation'      => ['type' => 'datetime', 'label' => 'ControlDate', 'enabled' => '1', 'position' => 40, 'positioncard' => 10, 'notnull' => 1, 'visible' => 5],
+		'tms'                => ['type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0],
+		'import_key'         => ['type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 0],
+		'status'             => ['type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0', 'arrayofkeyval' => ['0' => 'Draft', '1' => 'ValidatedControl', '2' => 'Locked']],
+		'note_public'        => ['type' => 'html', 'label' => 'PublicNote', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0],
+		'note_private'       => ['type' => 'html', 'label' => 'PrivateNote', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 0],
+		'type'               => ['type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 100, 'notnull' => 0, 'visible' => 0],
+		'verdict'            => ['type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 110,'positioncard' => 20, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => ['0' => '', '1' => 'OK', '2' => 'KO']],
+		'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
+		'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0],
+		'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5, 'css' => 'maxwidth500 widthcentpercentminusxx'],
+		'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1', 'label' => 'FKUserController','positioncard' => 1, 'enabled' => '1', 'position' => 24, 'notnull' => 1, 'visible' => 3, 'css' => 'maxwidth500 widthcentpercentminusxx', 'picto' => 'user', 'foreignkey' => 'user.rowid'],
+		'projectid'         => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project','positioncard' => 2, 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 3, 'css' => 'maxwidth500 widthcentpercentminusxx', 'picto' => 'project', 'foreignkey' => 'projet.rowid']
+	];
 
 	public $rowid;
 	public $ref;
@@ -298,10 +298,107 @@ class Control extends CommonObject
 	 *	@param	User	$user			Object user that modify
 	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
 	 *	@return	int						<0 if KO, >0 if OK
+	 *  @throws Exception
 	 */
 	public function setValidated($user, $notrigger = 0)
 	{
-		return $this->setStatusCommon($user, self::STATUS_VALIDATED, $notrigger, 'CONTROL_VALIDATED');
+		global $conf;
+
+		require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
+
+		$error = 0;
+
+		// Protection
+		if ($this->status == self::STATUS_VALIDATED) {
+			dol_syslog(get_class($this)."::validate action abandonned: already validated", LOG_WARNING);
+			return 0;
+		}
+
+		$this->db->begin();
+
+		// Define new ref
+		if ((preg_match('/^\(?PROV/i', $this->ref) || empty($this->ref))) { // empty should not happen, but when it occurs, the test save life
+			$num = $this->getNextNumRef();
+		} else {
+			$num = $this->ref;
+		}
+		$this->newref = $num;
+
+		if (!empty($num)) {
+			// Validate
+			$sql = "UPDATE ".MAIN_DB_PREFIX.$this->table_element;
+			$sql .= " SET ref = '".$this->db->escape($num)."',";
+			$sql .= " status = ".self::STATUS_VALIDATED;
+			$sql .= " WHERE rowid = ".($this->id);
+
+			dol_syslog(get_class($this)."::validate()", LOG_DEBUG);
+			$resql = $this->db->query($sql);
+			if (!$resql) {
+				dol_print_error($this->db);
+				$this->error = $this->db->lasterror();
+				$error++;
+			}
+
+			if (!$error && !$notrigger) {
+				// Call trigger
+				$result = $this->call_trigger('CONTROL_VALIDATED', $user);
+				if ($result < 0) {
+					$error++;
+				}
+				// End call triggers
+			}
+		}
+
+		if (!$error) {
+			$this->oldref = $this->ref;
+
+			// Rename directory if dir was a temporary ref
+			if (preg_match('/^\(?PROV/i', $this->ref)) {
+				// Now we rename also files into index
+				$sql = 'UPDATE '.MAIN_DB_PREFIX."ecm_files set filename = CONCAT('".$this->db->escape($this->newref)."', SUBSTR(filename, ".(strlen($this->ref) + 1).")), filepath = 'control/".$this->db->escape($this->newref)."'";
+				$sql .= " WHERE filename LIKE '".$this->db->escape($this->ref)."%' AND filepath = 'control/".$this->db->escape($this->ref)."' and entity = ".$conf->entity;
+				$resql = $this->db->query($sql);
+				if (!$resql) {
+					$error++; $this->error = $this->db->lasterror();
+				}
+
+				// We rename directory ($this->ref = old ref, $num = new ref) in order not to lose the attachments
+				$oldref = dol_sanitizeFileName($this->ref);
+				$newref = dol_sanitizeFileName($num);
+				$dirsource = $conf->dolismq->dir_output.'/control/'.$oldref;
+				$dirdest = $conf->dolismq->dir_output.'/control/'.$newref;
+				if (!$error && file_exists($dirsource)) {
+					dol_syslog(get_class($this)."::validate() rename dir ".$dirsource." into ".$dirdest);
+
+					if (@rename($dirsource, $dirdest)) {
+						dol_syslog("Rename ok");
+						// Rename docs starting with $oldref with $newref
+						$listoffiles = dol_dir_list($conf->dolismq->dir_output.'/control/'.$newref, 'files', 1, '^'.preg_quote($oldref, '/'));
+						foreach ($listoffiles as $fileentry) {
+							$dirsource = $fileentry['name'];
+							$dirdest = preg_replace('/^'.preg_quote($oldref, '/').'/', $newref, $dirsource);
+							$dirsource = $fileentry['path'].'/'.$dirsource;
+							$dirdest = $fileentry['path'].'/'.$dirdest;
+							@rename($dirsource, $dirdest);
+						}
+					}
+				}
+			}
+		}
+
+		// Set new ref and current status
+		if (!$error) {
+			$this->ref = $num;
+			$this->status = self::STATUS_VALIDATED;
+		}
+
+		if (!$error) {
+			$this->db->commit();
+			return 1;
+		} else {
+			$this->db->rollback();
+			return -1;
+		}
 	}
 
 	/**
@@ -337,7 +434,7 @@ class Control extends CommonObject
 		// Links between objects are stored in table element_element
 		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype';
 		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
-		$sql .= " WHERE fk_target = " . $this->id;
+		$sql .= ' WHERE fk_target = ' . $this->id;
 		$sql .= " AND targettype = '" . $this->table_element . "'";
 
 		$resql = $this->db->query($sql);
@@ -361,30 +458,97 @@ class Control extends CommonObject
 		}
 	}
 
-	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *  Delete control links to objects linked
+	 * Clone an object into another one
 	 *
-	 *  @return    int         <=0 if no, >0 if yes
+	 * @param User $user User that creates
+	 * @param int $fromid Id of object to clone
+	 * @param $options
+	 * @return    mixed                New object created, <0 if KO
+	 * @throws Exception
 	 */
-	public function delete_object_links() {
+	public function createFromClone(User $user, $fromid)
+	{
+		global $conf, $langs;
+		$error = 0;
 
-		// Links between objects are stored in table element_element
-		$sql = 'DELETE';
-		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
-		$sql .= " WHERE fk_target = " . $this->id;
-		$sql .= " AND targettype = '" . $this->table_element . "'";
+		dol_syslog(__METHOD__, LOG_DEBUG);
 
-		$resql = $this->db->query($sql);
+		$object = new self($this->db);
+		$this->db->begin();
 
-		if ($resql) {
+		// Load source object
+		$result = $object->fetchCommon($fromid);
+		if ($result > 0 && ! empty($object->table_element_line)) {
+			$object->fetchLines();
+		}
+
+		// Create clone
+		$object->fetchObjectLinked('','',$object->id, 'dolismq_' . $object->element);
+		$object->context['createfromclone'] = 'createfromclone';
+		$object->ref = '';
+		$object->status = 0;
+		$object->verdict = null;
+		$object->note_public = null;
+		$objectid = $object->create($user);
+
+
+
+		//add categories
+		$cat = new Categorie($this->db);
+		$categories = $cat->containing($fromid, 'control');
+
+		if (is_array($categories) && !empty($categories)) {
+			foreach($categories as $cat) {
+				$categoryIds[] = $cat->id;
+			}
+			if ($objectid > 0) {
+				$object->fetch($objectid);
+				$object->setCategories($categoryIds);
+			}
+		}
+
+		//add objects linked
+		if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
+			if (!empty($object->linkedObjects['project'])) {
+				foreach ($object->linkedObjects['project'] as $project) {
+					$object->add_object_linked($project->element, $project->id);
+				}
+			}
+			if (!empty($object->linkedObjects['project_task'])) {
+				foreach ($object->linkedObjects['project_task'] as $project_task) {
+					$object->add_object_linked($project_task->element, $project_task->id);
+				}
+			}
+			if (!empty($object->linkedObjects['product'])) {
+				foreach ($object->linkedObjects['product'] as $product) {
+					$object->add_object_linked($product->element, $product->id);
+				}
+			}
+			if (!empty($object->linkedObjects['productbatch'])) {
+				foreach ($object->linkedObjects['productbatch'] as $productbatch) {
+					$object->add_object_linked($productbatch->element, $productbatch->id);
+				}
+			}
+			if (!empty($object->linkedObjects['societe'])) {
+				foreach ($object->linkedObjects['societe'] as $societe) {
+					$object->add_object_linked($societe->element, $societe->id);
+				}
+			}
+		}
+
+		unset($object->context['createfromclone']);
+
+		// End
+		if ( ! $error) {
 			$this->db->commit();
-			return 1;
+			return $objectid;
 		} else {
-			dol_print_error($this->db);
+			$this->db->rollback();
 			return -1;
 		}
 	}
+
 
 	/**
 	 *  Return a link to the object card (with optionaly the picto)
@@ -404,7 +568,7 @@ class Control extends CommonObject
 
 		$result = '';
 
-		$label = '<i class="fas fa-tasks"></i>' . ' <u>' . $langs->trans("Control") . '</u>';
+		$label = '<i class="fas fa-tasks" style="color: #d35968;"></i> <u>'.$langs->trans('Control').'</u>';
 		if (isset($this->status)) {
 			$label .= ' ' . $this->getLibStatut(5);
 		}
@@ -416,14 +580,14 @@ class Control extends CommonObject
 		if ($option != 'nolink') {
 			// Add param to save lastsearch_values or not
 			$add_save_lastsearch_values                                                                                      = ($save_lastsearch_value == 1 ? 1 : 0);
-			if ($save_lastsearch_value == -1 && preg_match('/list\.php/', $_SERVER["PHP_SELF"])) $add_save_lastsearch_values = 1;
+			if ($save_lastsearch_value == -1 && preg_match('/list\.php/', $_SERVER['PHP_SELF'])) $add_save_lastsearch_values = 1;
 			if ($add_save_lastsearch_values) $url                                                                           .= '&save_lastsearch_values=1';
 		}
 
 		$linkclose = '';
 		if (empty($notooltip)) {
 			if ( ! empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER)) {
-				$label      = $langs->trans("ShowControl");
+				$label      = $langs->trans('ShowControl');
 				$linkclose .= ' alt="' . dol_escape_htmltag($label, 1) . '"';
 			}
 			$linkclose .= ' title="' . dol_escape_htmltag($label, 1) . '"';
@@ -434,8 +598,8 @@ class Control extends CommonObject
 		$linkstart .= $linkclose . '>';
 		$linkend    = '</a>';
 
+		if ($withpicto) $result .= '<i class="fas fa-tasks" style="color: #d35968;"></i>' . ' ';
 		$result .= $linkstart;
-		if ($withpicto) $result      .= '<i class="fas fa-tasks"></i>' . ' ';
 		if ($withpicto != 2) $result .= $this->ref;
 
 		$result .= $linkend;
@@ -489,16 +653,16 @@ class Control extends CommonObject
 			global $langs;
 			//$langs->load("dolismq@dolismq");
 			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('Draft');
-			$this->labelStatus[self::STATUS_VALIDATED]       = $langs->trans('ValidatedControl');
-			$this->labelStatus[self::STATUS_LOCKED]       = $langs->trans('Locked');
+			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('ValidatedControl');
+			$this->labelStatus[self::STATUS_LOCKED]         = $langs->trans('Locked');
 			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('Draft');
-			$this->labelStatusShort[self::STATUS_VALIDATED]     = $langs->trans('ValidatedControl');
-			$this->labelStatusShort[self::STATUS_LOCKED]     = $langs->trans('Locked');
+			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('ValidatedControl');
+			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->trans('Locked');
 		}
 
 		$statusType = 'status' . $status;
 		if ($status == self::STATUS_VALIDATED) $statusType = 'status4';
-		if ($status == self::STATUS_LOCKED) $statusType = 'status4';
+		if ($status == self::STATUS_LOCKED) $statusType = 'status6';
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}
@@ -607,186 +771,72 @@ class Control extends CommonObject
 	}
 
 	/**
-	 *  Create a document onto disk according to template module.
+	 * Sets object to supplied categories.
 	 *
-	 *  @param	    string		$modele			Force template to use ('' to not force)
-	 *  @param		Translate	$outputlangs	objet lang a utiliser pour traduction
-	 *  @param      int			$hidedetails    Hide details of lines
-	 *  @param      int			$hidedesc       Hide description
-	 *  @param      int			$hideref        Hide ref
-	 *  @param      null|array  $moreparams     Array to provide more information
-	 *  @return     int         				0 if KO, 1 if OK
+	 * Deletes object from existing categories not supplied.
+	 * Adds it to non-existing supplied categories.
+	 * Existing categories are left untouch.
+	 *
+	 * @param  int[]|int $categories Category or categories IDs
+	 * @return float|int
 	 */
-	public function generateDocument($modele, $outputlangs, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $moreparams = null)
+	public function setCategories($categories)
 	{
-		global $conf, $langs;
-
-		$result               = 0;
-		$includedocgeneration = 1;
-
-		$langs->load("dolismq@dolismq");
-
-		if ( ! dol_strlen($modele)) {
-			$modele = 'standard_control';
-
-			if ( ! empty($this->model_pdf)) {
-				$modele = $this->model_pdf;
-			} elseif ( ! empty($conf->global->AUDIT_ADDON_PDF)) {
-				$modele = $conf->global->AUDIT_ADDON_PDF;
-			}
-		}
-
-		$modelpath = "core/modules/dolismq/controldocument/";
-
-		if ($includedocgeneration && ! empty($modele)) {
-			$result = $this->commonGenerateDocument($modelpath, $modele, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams['object']);
-		}
-
-		return $result;
+		return parent::setCategoriesCommon($categories, 'control');
 	}
 
 	/**
-	 *	Fetch array of objects linked to current object (object of enabled modules only). Links are loaded into
-	 *		this->linkedObjectsIds array +
-	 *		this->linkedObjects array if $loadalsoobjects = 1
-	 *  Possible usage for parameters:
-	 *  - all parameters empty -> we look all link to current object (current object can be source or target)
-	 *  - source id+type -> will get target list linked to source
-	 *  - target id+type -> will get source list linked to target
-	 *  - source id+type + target type -> will get target list of the type
-	 *  - target id+type + target source -> will get source list of the type
+	 * Returns the reference to the following non-used object depending on the active numbering module.
 	 *
-	 *	@param	int		$sourceid			Object source id (if not defined, id of object)
-	 *	@param  string	$sourcetype			Object source type (if not defined, element name of object)
-	 *	@param  int		$targetid			Object target id (if not defined, id of object)
-	 *	@param  string	$targettype			Object target type (if not defined, elemennt name of object)
-	 *	@param  string	$clause				'OR' or 'AND' clause used when both source id and target id are provided
-	 *  @param  int		$alsosametype		0=Return only links to object that differs from source type. 1=Include also link to objects of same type.
-	 *  @param  string	$orderby			SQL 'ORDER BY' clause
-	 *  @param	int		$loadalsoobjects	Load also array this->linkedObjects (Use 0 to increase performances)
-	 *	@return int							<0 if KO, >0 if OK
-	 *  @see	add_object_linked(), updateObjectLinked(), deleteObjectLinked()
+	 *  @return string Object free reference
 	 */
-	public function fetchQuestionsLinked($sourceid = null, $sourcetype = '', $targetid = null, $targettype = '', $clause = 'OR', $alsosametype = 1, $orderby = 'sourcetype', $loadalsoobjects = 1)
+	public function getNextNumRef(): string
 	{
-		global $conf;
+		global $langs, $conf;
+		$langs->load("dolismq@dolismq");
 
-		$this->linkedObjectsIds = array();
-		$this->linkedObjects = array();
-
-		$justsource = false;
-		$justtarget = false;
-		$withtargettype = false;
-		$withsourcetype = false;
-
-		if (!empty($sourceid) && !empty($sourcetype) && empty($targetid)) {
-			$justsource = true; // the source (id and type) is a search criteria
-			if (!empty($targettype)) {
-				$withtargettype = true;
-			}
-		}
-		if (!empty($targetid) && !empty($targettype) && empty($sourceid)) {
-			$justtarget = true; // the target (id and type) is a search criteria
-			if (!empty($sourcetype)) {
-				$withsourcetype = true;
-			}
+		if (empty($conf->global->DOLISMQ_CONTROL_ADDON)) {
+			$conf->global->DOLISMQ_CONTROL_ADDON = 'mod_control_standard';
 		}
 
-		$sourceid = (!empty($sourceid) ? $sourceid : $this->id);
-		$targetid = (!empty($targetid) ? $targetid : $this->id);
-		$sourcetype = (!empty($sourcetype) ? $sourcetype : $this->element);
-		$targettype = (!empty($targettype) ? $targettype : $this->element);
+		if (!empty($conf->global->DOLISMQ_CONTROL_ADDON)) {
+			$mybool = false;
 
-		/*if (empty($sourceid) && empty($targetid))
-		 {
-		 dol_syslog('Bad usage of function. No source nor target id defined (nor as parameter nor as object id)', LOG_ERR);
-		 return -1;
-		 }*/
+			$file = $conf->global->DOLISMQ_CONTROL_ADDON.".php";
+			$classname = $conf->global->DOLISMQ_CONTROL_ADDON;
 
-		// Links between objects are stored in table element_element
-		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype';
-		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
-		$sql .= " WHERE ";
-		if ($justsource || $justtarget) {
-			if ($justsource) {
-				$sql .= "fk_source = ".((int) $sourceid)." AND sourcetype = '".$this->db->escape($sourcetype)."'";
-				if ($withtargettype) {
-					$sql .= " AND targettype = '".$this->db->escape($targettype)."'";
-				}
-			} elseif ($justtarget) {
-				$sql .= "fk_target = ".((int) $targetid)." AND targettype = '".$this->db->escape($targettype)."'";
-				if ($withsourcetype) {
-					$sql .= " AND sourcetype = '".$this->db->escape($sourcetype)."'";
-				}
+			// Include file with class
+			$dirmodels = array_merge(array('/'), $conf->modules_parts['models']);
+			foreach ($dirmodels as $reldir) {
+				$dir = dol_buildpath($reldir."core/modules/dolismq/control/");
+
+				// Load file with numbering class (if found)
+				$mybool |= @include_once $dir.$file;
 			}
-		} else {
-			$sql .= "(fk_source = ".((int) $sourceid)." AND sourcetype = '".$this->db->escape($sourcetype)."')";
-			$sql .= " ".$clause." (fk_target = ".((int) $targetid)." AND targettype = '".$this->db->escape($targettype)."')";
-		}
-		$sql .= ' ORDER BY '.$orderby;
 
-		dol_syslog(get_class($this)."::fetchObjectLink", LOG_DEBUG);
-		$resql = $this->db->query($sql);
+			if ($mybool === false) {
+				dol_print_error('', "Failed to include file ".$file);
+				return '';
+			}
 
-		if ($resql) {
-			$num = $this->db->num_rows($resql);
-			$i = 0;
-			while ($i < $num) {
-				$obj = $this->db->fetch_object($resql);
-				if ($justsource || $justtarget) {
-					if ($justsource) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->rowid] = $obj->fk_target;
-					} elseif ($justtarget) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->rowid] = $obj->fk_source;
-					}
+			if (class_exists($classname)) {
+				$obj = new $classname();
+				$numref = $obj->getNextValue($this);
+
+				if ($numref != '' && $numref != '-1') {
+					return $numref;
 				} else {
-					if ($obj->fk_source == $sourceid && $obj->sourcetype == $sourcetype) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->rowid] = $obj->fk_target;
-					}
-					if ($obj->fk_target == $targetid && $obj->targettype == $targettype) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->rowid] = $obj->fk_source;
-					}
+					$this->error = $obj->error;
+					//dol_print_error($this->db,get_class($this)."::getNextNumRef ".$obj->error);
+					return "";
 				}
-
-				$i++;
+			} else {
+				print $langs->trans("Error")." ".$langs->trans("ClassNotFound").' '.$classname;
+				return "";
 			}
-
-			if (!empty($this->linkedObjectsIds)) {
-				$tmparray = $this->linkedObjectsIds;
-				foreach ($tmparray as $objecttype => $objectids) {       // $objecttype is a module name ('facture', 'mymodule', ...) or a module name with a suffix ('project_task', 'mymodule_myobj', ...)
-					// Parse element/subelement (ex: project_task, cabinetmed_consultation, ...)
-					$module = $element = $subelement = $objecttype;
-					$regs = array();
-					if ($objecttype != 'supplier_proposal' && $objecttype != 'order_supplier' && $objecttype != 'invoice_supplier'
-						&& preg_match('/^([^_]+)_([^_]+)/i', $objecttype, $regs)) {
-						$module = $element = $regs[1];
-
-						$subelement = $regs[2];
-					}
-					// Here $module, $classfile and $classname are set
-					if ((($element != $this->element) || $alsosametype)) {
-						if ($loadalsoobjects) {
-							dol_include_once('/'.$classpath.'/'.$classfile.'.class.php');
-							//print '/'.$classpath.'/'.$classfile.'.class.php '.class_exists($classname);
-							if (class_exists($classname)) {
-								foreach ($objectids as $i => $objectid) {	// $i is rowid into llx_element_element
-									$object = new $classname($this->db);
-									$ret = $object->fetch($objectid);
-									if ($ret >= 0) {
-										$this->linkedObjects[$objecttype][$i] = $object;
-									}
-								}
-							}
-						}
-					} else {
-						unset($this->linkedObjectsIds[$objecttype]);
-					}
-				}
-			}
-			return 1;
 		} else {
-			dol_print_error($this->db);
-			return -1;
+			print $langs->trans("ErrorNumberingModuleNotSetup", $this->element);
+			return "";
 		}
 	}
 }
@@ -821,8 +871,8 @@ class ControlLine extends CommonObjectLine
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
 	 */
 	public $fields = array(
-		'rowid'             => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'comment' => "Id"),
-		'ref'               => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 1, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
+		'rowid'             => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'comment' => 'Id'),
+		'ref'               => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 1, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => 'Reference of object'),
 		'ref_ext'           => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 0, 'visible' => 0,),
 		'entity'            => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
 		'date_creation'     => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 0,),
@@ -1061,21 +1111,21 @@ class ControlLine extends CommonObjectLine
 		$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . 'dolismq_controldet';
 		$sql .= ' ( ref, entity, status, date_creation, answer, answer_photo, comment, fk_question, fk_control, fk_user_creat';
 		$sql .= ')';
-		$sql .= " VALUES (";
-		$sql .= "'" . $db->escape($this->ref) . "'" . ", ";
-		$sql .= $this->entity . ", ";
-		$sql .= 1 . ", ";
-		$sql .= "'" . $db->escape($db->idate($now)) . "'" . ", ";
-		$sql .= "'" . $db->escape($this->answer) . "'" . ", ";
-		$sql .= "'" . $db->escape($this->answer_photo) . "'" . ", ";
-		$sql .= "'" . $db->escape($this->comment) . "'" . ", ";
-		$sql .= $this->fk_question . ", ";
-		$sql .= $this->fk_control . ", ";
+		$sql .= ' VALUES (';
+		$sql .= "'" . $db->escape($this->ref) . "'" . ', ';
+		$sql .= $this->entity . ', ';
+		$sql .= 1 . ', ';
+		$sql .= "'" . $db->escape($db->idate($now)) . "'" . ', ';
+		$sql .= "'" . $db->escape($this->answer) . "'" . ', ';
+		$sql .= "'" . $db->escape($this->answer_photo) . "'" . ', ';
+		$sql .= "'" . $db->escape($this->comment) . "'" . ', ';
+		$sql .= $this->fk_question . ', ';
+		$sql .= $this->fk_control . ', ';
 		$sql .= $user->id;
 
 		$sql .= ')';
 
-		dol_syslog(get_class($this) . "::insert", LOG_DEBUG);
+		dol_syslog(get_class($this) . '::insert', LOG_DEBUG);
 		$resql = $db->query($sql);
 
 		if ($resql) {
@@ -1117,19 +1167,19 @@ class ControlLine extends CommonObjectLine
 		$db->begin();
 
 		// Mise a jour ligne en base
-		$sql  = "UPDATE " . MAIN_DB_PREFIX . "dolismq_controldet SET";
+		$sql  = 'UPDATE ' . MAIN_DB_PREFIX . 'dolismq_controldet SET';
 
 		$sql .= " ref='" . $db->escape($this->ref) . "',";
 		$sql .= " status='" . $db->escape($this->status) . "',";
 		$sql .= " answer='" . $db->escape($this->answer) . "',";
-		$sql .= " answer_photo=" . '"' . $db->escape($this->answer_photo) . '"' . ",";
-		$sql .= " comment=" . '"' . $db->escape($this->comment) . '"' .",";
-		$sql .= " fk_question=" . $db->escape($this->fk_question). ",";
-		$sql .= " fk_control=" . $db->escape($this->fk_control);
+		$sql .= ' answer_photo=' . '"' . $db->escape($this->answer_photo) . '"' . ',';
+		$sql .= ' comment=' . '"' . $db->escape($this->comment) . '"' . ',';
+		$sql .= ' fk_question=' . $db->escape($this->fk_question). ',';
+		$sql .= ' fk_control=' . $db->escape($this->fk_control);
 
-		$sql .= " WHERE rowid = " . $this->id;
+		$sql .= ' WHERE rowid = ' . $this->id;
 
-		dol_syslog(get_class($this) . "::update", LOG_DEBUG);
+		dol_syslog(get_class($this) . '::update', LOG_DEBUG);
 
 		$resql = $db->query($sql);
 
@@ -1161,8 +1211,8 @@ class ControlLine extends CommonObjectLine
 
 		$db->begin();
 
-		$sql = "DELETE FROM " . MAIN_DB_PREFIX . "dolismq_controldet WHERE rowid = " . $this->id;
-		dol_syslog(get_class($this) . "::delete", LOG_DEBUG);
+		$sql = 'DELETE FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet WHERE rowid = ' . $this->id;
+		dol_syslog(get_class($this) . '::delete', LOG_DEBUG);
 		if ($db->query($sql)) {
 			$db->commit();
 			// Triggers
@@ -1173,7 +1223,7 @@ class ControlLine extends CommonObjectLine
 			}
 			return 1;
 		} else {
-			$this->error = $db->error() . " sql=" . $sql;
+			$this->error = $db->error() . ' sql=' . $sql;
 			$db->rollback();
 			return -1;
 		}

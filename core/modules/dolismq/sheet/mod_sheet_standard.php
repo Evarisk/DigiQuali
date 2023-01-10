@@ -73,47 +73,58 @@ class mod_sheet_standard
 	/**
 	 *  Return an example of numbering
 	 *
-	 *  @return     string      Example
+	 *  @return string Example
 	 */
-	public function getExample()
+	public function getExample(): string
 	{
-		return $this->prefix . "1";
+		return $this->prefix."0501-0001";
 	}
 
 	/**
-	 * 	Return next free value
+	 * Return next free value
 	 *
-	 *  @param  Object		$object		Object we need next value for
-	 *  @return string      			Value if KO, <0 if KO
+	 * @param  Object    $object Object we need next value for
+	 * @return string            Value if KO, <0 if KO
+	 * @throws Exception
 	 */
-	public function getNextValue($object, $version = 0)
+	public function getNextValue(object $object)
 	{
 		global $db, $conf;
 
 		// first we get the max value
-		$posindice = strlen($this->prefix) + 1;
-		$sql       = "SELECT MAX(CAST(SUBSTRING(ref FROM " . $posindice . ") AS SIGNED)) as max";
-		$sql      .= " FROM " . MAIN_DB_PREFIX . "dolismq_sheet";
-		$sql      .= " WHERE ref LIKE '" . $db->escape($this->prefix) . "%'";
+		$posindice = strlen($this->prefix) + 6;
+		$sql = "SELECT MAX(CAST(SUBSTRING(ref FROM ".$posindice.") AS SIGNED)) as max";
+		$sql .= " FROM ".MAIN_DB_PREFIX."dolismq_sheet";
+		$sql .= " WHERE ref LIKE '".$db->escape($this->prefix)."____-%'";
 		if ($object->ismultientitymanaged == 1) {
-			$sql .= " AND entity = " . $conf->entity;
+			$sql .= " AND entity = ".$conf->entity;
 		}
 
 		$resql = $db->query($sql);
 		if ($resql) {
-			$obj           = $db->fetch_object($resql);
-			if ($obj) $max = intval($obj->max);
-			else $max      = 0;
+			$obj = $db->fetch_object($resql);
+			if ($obj) {
+				$max = intval($obj->max);
+			} else {
+				$max = 0;
+			}
 		} else {
 			dol_syslog("mod_sheet_standard::getNextValue", LOG_DEBUG);
 			return -1;
 		}
 
-		if ($max >= (pow(10, 4) - 1)) $num = $max + 1; // If counter > 9999, we do not format on 4 chars, we take number as it is
-		else $num                          = sprintf("%s", $max + 1);
+		//$date=time();
+		$date = !empty($object->date_creation) ? $object->date_creation : dol_now();
+		$yymm = strftime("%y%m", $date);
 
-		dol_syslog("mod_sheet_standard::getNextValue return " . $this->prefix . $num);
-		return $this->prefix . $num;
+		if ($max >= (pow(10, 4) - 1)) {
+			$num = $max + 1; // If counter > 9999, we do not format on 4 chars, we take number as it is
+		} else {
+			$num = sprintf("%04s", $max + 1);
+		}
+
+		dol_syslog("mod_sheet_standard::getNextValue return ".$this->prefix.$yymm."-".$num);
+		return $this->prefix.$yymm."-".$num;
 	}
 
 	/**

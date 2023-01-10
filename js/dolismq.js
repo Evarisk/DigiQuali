@@ -19,18 +19,19 @@
 /**
  * \file    dolismq/js/dolismq.js.php
  * \ingroup dolismq
- * \brief   JavaScript file for module DoliSMQ.
+ * \brief	JavaScript file for module DoliSMQ.
  */
 
 /* Javascript library of module DoliSMQ */
 
-'use strict';
 /**
  * @namespace EO_Framework_Init
  *
  * @author Eoxia <dev@eoxia.com>
  * @copyright 2015-2021 Eoxia
  */
+
+'use strict';
 
 if ( ! window.eoxiaJS ) {
 	/**
@@ -180,6 +181,11 @@ window.eoxiaJS.modal.openModal = function ( event ) {
 		$('#media_gallery').find('.wpeo-button').attr('value', idSelected);
 	}
 
+	// Open modal patch note.
+	if ($(this).hasClass('show-patchnote')) {
+		$('.fiche .wpeo-modal-patchnote').addClass('modal-active');
+	}
+
 	$('.notice').addClass('hidden');
 };
 
@@ -250,6 +256,7 @@ window.eoxiaJS.mediaGallery.event = function() {
 	$( document ).on( 'click', '.media-gallery-unlink', window.eoxiaJS.mediaGallery.unlinkFile );
 	$( document ).on( 'click', '.media-gallery-favorite', window.eoxiaJS.mediaGallery.addToFavorite );
 	$( document ).on( 'submit', '#fast-upload-photo-ok', window.eoxiaJS.mediaGallery.fastUpload );
+	$( document ).on( 'click', '.selected-page', window.eoxiaJS.mediaGallery.selectPage );
 }
 
 /**
@@ -265,7 +272,6 @@ window.eoxiaJS.mediaGallery.selectPhoto = function( event ) {
 	let parent = $(this).closest('.modal-content')
 
 	if ($(this).hasClass('clicked-photo')) {
-		$(this).attr('style', 'none !important')
 		$(this).removeClass('clicked-photo')
 
 		if ($('.clicked-photo').length === 0) {
@@ -275,7 +281,6 @@ window.eoxiaJS.mediaGallery.selectPhoto = function( event ) {
 	} else {
 		parent.closest('.modal-container').find('.save-photo').removeClass('button-disable');
 
-		parent.find('.clickable-photo'+photoID).attr('style', 'border: 5px solid #0d8aff !important');
 		parent.find('.clickable-photo'+photoID).addClass('clicked-photo');
 	}
 };
@@ -371,6 +376,7 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event, photo, typeFrom, id) {
 
 				$('.tabBar .linked-medias.'+type+' .linked-medias-list').load(document.URL + '&favorite_' + type + '=' + favorite + ' .tabBar .linked-medias.'+type+' .linked-medias-list', () => {
 					$('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .fa-star').first().removeClass('far').addClass('fas')
+					$('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite').first().addClass('favorite')
 					let favoriteMedia = $('.linked-medias.'+type).find('.media-container').find('.media-gallery-favorite .filename').attr('value')
 					$('#'+type).val(favoriteMedia)
 				})
@@ -379,7 +385,7 @@ window.eoxiaJS.mediaGallery.savePhoto = function( event, photo, typeFrom, id) {
 			$('.wpeo-modal.modal-photo').html($(resp).find('.wpeo-modal.modal-photo .modal-container'))
 		},
 		error: function ( ) {
-			modalFrom.find('.messageErrorSavePhoto').removeClass('hidden')
+			//modalFrom.find('.messageErrorSavePhoto').removeClass('hidden')
 		}
 	});
 };
@@ -584,13 +590,48 @@ window.eoxiaJS.mediaGallery.addToFavorite = function( event ) {
 
 	previousFavorite.removeClass('fas')
 	previousFavorite.addClass('far')
+	previousFavorite.closest('.media-gallery-favorite').removeClass('favorite')
 	newFavorite.addClass('fas')
 	newFavorite.removeClass('far')
+	newFavorite.closest('.media-gallery-favorite').addClass('favorite')
 
 	if (filename.length > 0) {
 		$(this).closest('.linked-medias').find('.favorite-photo').val(filename)
 	}
 
+};
+
+/**
+ * Action select page.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.mediaGallery.selectPage = function( event ) {
+	let offset = $(this).attr('value');
+	$(this).closest('.wpeo-pagination').find('.pagination-element').removeClass('pagination-current');
+	$(this).closest('.pagination-element').addClass('pagination-current');
+
+	let elementParent = $('.modal-container').find('.ecm-photo-list-content');
+	let querySeparator = '?';
+	document.URL.match(/\?/) ? querySeparator = '&' : 1
+	let token = $('.fiche').find('input[name="token"]').val();
+	window.eoxiaJS.loader.display($('#media_gallery').find('.modal-content'));
+
+	$.ajax({
+		url: document.URL + querySeparator + "token=" + token + "&offset=" + offset,
+		type: "POST",
+		processData: false,
+		contentType: false,
+		success: function ( resp ) {
+			$('.wpeo-loader').removeClass('wpeo-loader')
+			elementParent.html($(resp).find('.ecm-photo-list-content'));
+		},
+		error: function ( ) {
+		}
+	})
 };
 
 
@@ -675,6 +716,190 @@ if ( ! window.eoxiaJS.loader ) {
 		}
 	};
 }
+
+/**
+ * @namespace EO_Framework_Tooltip
+ *
+ * @author Eoxia <dev@eoxia.com>
+ * @copyright 2015-2018 Eoxia
+ */
+
+if ( ! window.eoxiaJS.tooltip ) {
+
+	/**
+	 * [tooltip description]
+	 *
+	 * @memberof EO_Framework_Tooltip
+	 *
+	 * @type {Object}
+	 */
+	window.eoxiaJS.tooltip = {};
+
+	/**
+	 * [description]
+	 *
+	 * @memberof EO_Framework_Tooltip
+	 *
+	 * @returns {void} [description]
+	 */
+	window.eoxiaJS.tooltip.init = function() {
+		window.eoxiaJS.tooltip.event();
+	};
+
+	window.eoxiaJS.tooltip.tabChanged = function() {
+		$( '.wpeo-tooltip' ).remove();
+	}
+
+	/**
+	 * [description]
+	 *
+	 * @memberof EO_Framework_Tooltip
+	 *
+	 * @returns {void} [description]
+	 */
+	window.eoxiaJS.tooltip.event = function() {
+		$( document ).on( 'mouseenter touchstart', '.wpeo-tooltip-event:not([data-tooltip-persist="true"])', window.eoxiaJS.tooltip.onEnter );
+		$( document ).on( 'mouseleave touchend', '.wpeo-tooltip-event:not([data-tooltip-persist="true"])', window.eoxiaJS.tooltip.onOut );
+	};
+
+	window.eoxiaJS.tooltip.onEnter = function( event ) {
+		window.eoxiaJS.tooltip.display( $( this ) );
+	};
+
+	window.eoxiaJS.tooltip.onOut = function( event ) {
+		window.eoxiaJS.tooltip.remove( $( this ) );
+	};
+
+	/**
+	 * [description]
+	 *
+	 * @memberof EO_Framework_Tooltip
+	 *
+	 * @param  {void} event [description]
+	 * @returns {void}       [description]
+	 */
+	window.eoxiaJS.tooltip.display = function( element ) {
+		var direction = ( $( element ).data( 'direction' ) ) ? $( element ).data( 'direction' ) : 'top';
+		var el = $( '<span class="wpeo-tooltip tooltip-' + direction + '">' + $( element ).attr( 'aria-label' ) + '</span>' );
+		var pos = $( element ).position();
+		var offset = $( element ).offset();
+		$( element )[0].tooltipElement = el;
+		$( 'body' ).append( $( element )[0].tooltipElement );
+
+		if ( $( element ).data( 'color' ) ) {
+			el.addClass( 'tooltip-' + $( element ).data( 'color' ) );
+		}
+
+		var top = 0;
+		var left = 0;
+
+		switch( $( element ).data( 'direction' ) ) {
+			case 'left':
+				top = ( offset.top - ( el.outerHeight() / 2 ) + ( $( element ).outerHeight() / 2 ) ) + 'px';
+				left = ( offset.left - el.outerWidth() - 10 ) + 3 + 'px';
+				break;
+			case 'right':
+				top = ( offset.top - ( el.outerHeight() / 2 ) + ( $( element ).outerHeight() / 2 ) ) + 'px';
+				left = offset.left + $( element ).outerWidth() + 8 + 'px';
+				break;
+			case 'bottom':
+				top = ( offset.top + $( element ).height() + 10 ) + 10 + 'px';
+				left = ( offset.left - ( el.outerWidth() / 2 ) + ( $( element ).outerWidth() / 2 ) ) + 'px';
+				break;
+			case 'top':
+				top = offset.top - el.outerHeight() - 4  + 'px';
+				left = ( offset.left - ( el.outerWidth() / 2 ) + ( $( element ).outerWidth() / 2 ) ) + 'px';
+				break;
+			default:
+				top = offset.top - el.outerHeight() - 4  + 'px';
+				left = ( offset.left - ( el.outerWidth() / 2 ) + ( $( element ).outerWidth() / 2 ) ) + 'px';
+				break;
+		}
+
+		el.css( {
+			'top': top,
+			'left': left,
+			'opacity': 1
+		} );
+
+		$( element ).on("remove", function() {
+			$( $( element )[0].tooltipElement ).remove();
+
+		} );
+	};
+
+	/**
+	 * [description]
+	 *
+	 * @memberof EO_Framework_Tooltip
+	 *
+	 * @param  {void} event [description]
+	 * @returns {void}       [description]
+	 */
+	window.eoxiaJS.tooltip.remove = function( element ) {
+		if ( $( element )[0] && $( element )[0].tooltipElement ) {
+			$( $( element )[0].tooltipElement ).remove();
+		}
+	};
+}
+
+/**
+ * Initialise l'objet "notice" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.
+ *
+ * @since   1.4.0
+ * @version 1.4.0
+ */
+window.eoxiaJS.notice = {};
+
+/**
+ * La méthode appelée automatiquement par la bibliothèque EoxiaJS.
+ *
+ * @since   1.4.0
+ * @version 1.4.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.notice.init = function() {
+	window.eoxiaJS.notice.event();
+};
+
+/**
+ * La méthode contenant tous les événements pour l'évaluateur.
+ *
+ * @since   1.4.0
+ * @version 1.4.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.notice.event = function() {
+	$(document).on('click', '.notice-close', window.eoxiaJS.notice.closeNotice);
+};
+
+/**
+ * Clique sur une des user de la liste.
+ *
+ * @since   1.4.0
+ * @version 1.4.0
+ *
+ * @return {void}
+ */
+window.eoxiaJS.notice.closeNotice = function() {
+	$(this).closest('.notice').fadeOut(function () {
+		$(this).closest('.notice').addClass("hidden");
+	});
+
+	if ($(this).hasClass('notice-close-forever')) {
+		let token = $(this).closest('.notice').find('input[name="token"]').val();
+		let querySeparator = '?';
+
+		document.URL.match(/\?/) ? querySeparator = '&' : 1;
+
+		$.ajax({
+			url: document.URL + querySeparator + 'action=closenotice&token='+token,
+			type: "POST",
+		});
+	}
+};
 
 /**
  * Initialise l'objet "question" ainsi que la méthode "init" obligatoire pour la bibliothèque EoxiaJS.
@@ -789,27 +1014,6 @@ window.eoxiaJS.sheet.init = function() {
  * @return {void}
  */
 window.eoxiaJS.sheet.event = function() {
-	$( document ).on( 'click', 'input[type=radio]', window.eoxiaJS.sheet.toggleRadioButton );
-};
-
-/**
- * Toggle checkbox.
- *
- * @since   1.3.0
- * @version 1.3.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.eoxiaJS.sheet.toggleRadioButton = function ( event ) {
-	let confUniqueLinkedElement = $(this).closest('.fiche').find('input[name="conf_unique_linked_element"]').val();
-
-	if (confUniqueLinkedElement) {
-		$(':radio').each(function () {
-			this.checked = false;
-		});
-		this.checked = true;
-	}
 };
 
 /**
@@ -846,8 +1050,10 @@ window.eoxiaJS.control.event = function() {
 	$( document ).on( 'keyup', '.question-comment', window.eoxiaJS.control.showCommentUnsaved );
 	$( document ).on( 'change', '#fk_product', window.eoxiaJS.control.reloadProductLot );
 	$( document ).on( 'change', '#fk_project', window.eoxiaJS.control.reloadTask );
+	$( document ).on( 'change', '#fk_soc', window.eoxiaJS.control.reloadContact );
 	$( document ).on( 'click', '.validateButton', window.eoxiaJS.control.getAnswerCounter);
 	$( document ).on( 'change', '#fk_sheet', window.eoxiaJS.control.showSelectObjectLinked);
+	$( document ).on( 'click', '.toggleControlInfo', window.eoxiaJS.control.toggleControlInfo );
 	//$( document ).on( 'click', '#select_all_answer', window.eoxiaJS.control.selectAllAnswer);
 };
 
@@ -945,22 +1151,23 @@ window.eoxiaJS.control.updateButtonsStatus = function (  ) {
  * @return {void}
  */
 window.eoxiaJS.control.reloadProductLot = function ( event ) {
-	let selectTitle = $(this).closest('td').find('#select2-fk_product-container').attr('title')
-	let productRef = selectTitle.split(/ /)[0]
 	let token = $('.id-container').find('input[name="token"]').val();
-	let sheetID = $('#sheetID').val();
 	let action = '?action=create'
-	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetID
 
+	var controlForm = document.getElementById('createControlForm');
+	var formData = new FormData(controlForm);
+
+	let sheetId = formData.get('fk_sheet')
+	let productId = formData.get('fk_product')
+
+	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_product=' + productId
 	$.ajax({
 		url: urlToGo,
 		type: "POST",
-		data: JSON.stringify({
-			productRef: productRef,
-		}),
 		processData: false,
 		contentType: false,
 		success: function ( resp ) {
+			console.log($(resp).find('.lot-content'))
 			$('.lot-container').html($(resp).find('.lot-content'))
 		},
 		error: function ( ) {
@@ -979,20 +1186,20 @@ window.eoxiaJS.control.reloadProductLot = function ( event ) {
  * @return {void}
  */
 window.eoxiaJS.control.reloadTask = function ( event ) {
-	let selectTitle = $(this).closest('td').find('#select2-fk_project-container').attr('title')
-	let projectRef = selectTitle.split(/ /)[0]
-	let projectRef2 = projectRef.slice(0, -1)
+
+	var controlForm = document.getElementById('createControlForm');
+	var formData = new FormData(controlForm);
+
+	let sheetId = formData.get('fk_sheet')
+	let projectId = formData.get('fk_project')
+
 	let token = $('.id-container').find('input[name="token"]').val();
-	let sheetID = $('#sheetID').val();
 	let action = '?action=create'
-	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetID
+	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_project=' + projectId
 
 	$.ajax({
 		url: urlToGo,
 		type: "POST",
-		data: JSON.stringify({
-			projectRef: projectRef2,
-		}),
 		processData: false,
 		contentType: false,
 		success: function ( resp ) {
@@ -1001,7 +1208,40 @@ window.eoxiaJS.control.reloadTask = function ( event ) {
 		error: function ( ) {
 		}
 	});
-	//$(this).closest('.control-table').find('.lot-container').load(document.URL+'&productRef='+productRef + ' .lot-content')
+};
+
+/**
+ * Reload contact selector after company selection.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.control.reloadContact = function ( event ) {
+
+	var controlForm = document.getElementById('createControlForm');
+	var formData = new FormData(controlForm);
+
+	let socId = formData.get('fk_soc')
+	let sheetId = formData.get('fk_sheet')
+
+	let token = $('.id-container').find('input[name="token"]').val();
+	let action = '?action=create'
+	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_soc=' + socId
+
+	$.ajax({
+		url: urlToGo,
+		type: "POST",
+		processData: false,
+		contentType: false,
+		success: function ( resp ) {
+			$('#fk_contact').html($(resp).find('#fk_contact').children())
+		},
+		error: function ( ) {
+		}
+	});
 };
 
 /**
@@ -1041,23 +1281,43 @@ window.eoxiaJS.control.showSelectObjectLinked = function ( event ) {
 
 	let sheetId = formData.get('fk_sheet')
 	let userController = formData.get('fk_user_controller')
-	let projectId = formData.get('projectid')
-
+	let projectId = formData.get('fk_project')
 	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&fk_sheet=' + sheetId + '&token=' + token
-	urlToGo += '&projectid=' + projectId
+	urlToGo += '&fk_project=' + projectId
 	urlToGo += '&fk_user_controller=' + userController
-
+console.log(urlToGo)
+	window.eoxiaJS.loader.display($('.tabBar.tabBarWithBottom tbody'))
 	$.ajax({
 		url: urlToGo,
 		type: "POST",
 		processData: false,
 		contentType: false,
 		success: function ( resp ) {
-			$('.tabBar.tabBarWithBottom').html($(resp).find('.tabBar.tabBarWithBottom').children())
+			$('.tabBar.tabBarWithBottom tbody').html($(resp).find('.tabBar.tabBarWithBottom tbody').children())
+			$('.wpeo-loader').removeClass('wpeo-loader')
 		},
 		error: function ( ) {
 		}
 	});
+}
+
+/**
+ * Show control info if toggle control info is on.
+ *
+ * @since   1.4.0
+ * @version 1.4.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.eoxiaJS.control.toggleControlInfo = function ( event ) {
+	if ($(this).hasClass('fa-minus-square')) {
+		$(this).removeClass('fa-minus-square').addClass('fa-caret-square-down')
+		$(this).closest('.fiche').find('.fichecenter.controlInfo').addClass('hidden')
+	} else {
+		$(this).removeClass('fa-caret-square-down').addClass('fa-minus-square')
+		$(this).closest('.fiche').find('.fichecenter.controlInfo').removeClass('hidden')
+	}
 }
 
 /**
@@ -1096,8 +1356,8 @@ window.eoxiaJS.menu.event = function() {
 /**
  * Action Toggle main menu.
  *
- * @since   8.5.0
- * @version 9.0.1
+ * @since   1.4.0
+ * @version 1.4.0
  *
  * @return {void}
  */
@@ -1107,7 +1367,7 @@ window.eoxiaJS.menu.toggleMenu = function() {
 	var elementParent = $(this).closest('#id-left').find('div.vmenu')
 	var text = '';
 
-	if ($(this).find('.minimizeMenu').length > 0) {
+	if ($(this).find('span.vmenu').find('.fa-chevron-circle-left').length > 0) {
 
 		menu.each(function () {
 			text = $(this).html().split('</i>');
@@ -1121,63 +1381,69 @@ window.eoxiaJS.menu.toggleMenu = function() {
 		elementParent.css('width', '30px');
 		elementParent.find('.blockvmenusearch').hide();
 
-		$('.minimizeMenu').html($('.minimizeMenu').html() + ' >')
+		$('span.vmenu').attr('title', ' Agrandir le menu')
+		$('span.vmenu').html($('span.vmenu').html());
 
-		$(this).find('.minimizeMenu').removeClass('minimizeMenu').addClass('maximizeMenu');
+		$(this).find('span.vmenu').find('.fa-chevron-circle-left').removeClass('fa-chevron-circle-left').addClass('fa-chevron-circle-right');
 		localStorage.setItem('maximized', 'false')
 
-	} else if ($(this).find('.maximizeMenu').length > 0) {
+	} else if ($(this).find('span.vmenu').find('.fa-chevron-circle-right').length > 0) {
 
 		menu.each(function () {
-			$(this).html($(this).html().replace('&gt;','') + ' ' + $(this).attr('title'));
+			$(this).html($(this).html().replace('&gt;','') + $(this).attr('title'));
 		});
 
 		elementParent.css('width', '188px');
 		elementParent.find('.blockvmenusearch').show();
-		$('div.menu_titre').attr('style', 'width: 188px !important')
-		$('div.menu_contenu').attr('style', 'width: 188px !important')
+		$('div.menu_titre').attr('style', 'width: 188px !important; cursor : pointer' )
+		$('span.vmenu').attr('title', ' Réduire le menu')
+		$('span.vmenu').html('<i class="fas fa-chevron-circle-left pictofixedwidth"></i>Réduire le menu');
 
 		localStorage.setItem('maximized', 'true')
 
-		$(this).find('.maximizeMenu').removeClass('maximizeMenu').addClass('minimizeMenu');
+		$(this).find('span.vmenu').find('.fa-chevron-circle-right').removeClass('fa-chevron-circle-right').addClass('fa-chevron-circle-left');
 	}
 };
 
 /**
  * Action set  menu.
  *
- * @since   8.5.0
- * @version 9.0.1
+ * @since   1.4.0
+ * @version 1.4.0
  *
  * @return {void}
  */
 window.eoxiaJS.menu.setMenu = function() {
-	$('.minimizeMenu').parent().parent().parent().attr('style', 'cursor:pointer ! important')
+	if ($('.blockvmenu.blockvmenufirst').length > 0) {
+		if ($('.blockvmenu.blockvmenufirst').html().match(/dolismq/)) {
+			$('span.vmenu').find('.fa-chevron-circle-left').parent().parent().parent().attr('style', 'cursor:pointer ! important')
 
-	if (localStorage.maximized == 'false') {
-		$('#id-left').attr('style', 'display:none !important')
-	}
+			if (localStorage.maximized == 'false') {
+				$('#id-left').attr('style', 'display:none !important')
+			}
 
-	if (localStorage.maximized == 'false') {
-		var text = '';
-		var menu = $('#id-left').find('a.vmenu, font.vmenudisabled, span.vmenu, a.vsmenu');
-		var elementParent = $(document).find('div.vmenu')
+			if (localStorage.maximized == 'false') {
+				var text = '';
+				var menu = $('#id-left').find('a.vmenu, font.vmenudisabled, span.vmenu, a.vsmenu');
+				var elementParent = $(document).find('div.vmenu')
 
-		menu.each(function () {
-			text = $(this).html().split('</i>');
-			$(this).attr('title', text[1])
-			$(this).html(text[0]);
-		});
+				menu.each(function () {
+					text = $(this).html().split('</i>');
+					$(this).attr('title', text[1])
+					$(this).html(text[0]);
+				});
 
-		$('#id-left').attr('style', 'display:block !important')
-		$('div.menu_titre').attr('style', 'width: 50px !important')
-		$('div.menu_contenu').attr('style', 'width: 50px !important')
+				$('#id-left').attr('style', 'display:block !important')
+				$('div.menu_titre').attr('style', 'width: 50px !important')
+				$('span.vmenu').attr('title', ' Agrandir le menu')
 
-		$('.minimizeMenu').html($('.minimizeMenu').html() + ' >')
-		$('.minimizeMenu').removeClass('minimizeMenu').addClass('maximizeMenu');
+				$('span.vmenu').html($('span.vmenu').html())
+				$('span.vmenu').find('.fa-chevron-circle-left').removeClass('fa-chevron-circle-left').addClass('fa-chevron-circle-right');
 
-		elementParent.css('width', '30px');
-		elementParent.find('.blockvmenusearch').hide();
+				elementParent.css('width', '30px');
+				elementParent.find('.blockvmenusearch').hide();
+			}
+		}
 	}
 };
 

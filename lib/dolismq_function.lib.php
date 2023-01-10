@@ -92,7 +92,7 @@ function dolismqshowdocuments($modulepart, $modulesubdir, $filedir, $urlsource, 
 		}
 
 		// For normalized external modules.
-		$file = dol_buildpath('/' . $modulepart . '/core/modules/' . $modulepart . '/' . strtolower($submodulepart) . '/modules_' . strtolower($submodulepart) . '.php', 0);
+		$file = dol_buildpath('/' . $modulepart . '/core/modules/' . $modulepart . '/dolismqdocuments/' . strtolower($submodulepart) . '/modules_' . strtolower($submodulepart) . '.php', 0);
 		include_once $file;
 
 		$class = 'ModeleODT' . $submodulepart;
@@ -135,13 +135,12 @@ function dolismqshowdocuments($modulepart, $modulesubdir, $filedir, $urlsource, 
 		// Model
 		if ( ! empty($modellist)) {
 			asort($modellist);
-			$out      .= '<span class="hideonsmartphone">' . $langs->trans('Model') . ' </span>';
-			$modellist = array_filter($modellist, 'remove_index');
-			if (is_array($modellist) && count($modellist) == 1) {    // If there is only one element
-				$arraykeys                = array_keys($modellist);
-				$arrayvalues              = preg_replace('/template_/', '', array_values($modellist)[0]);
-				$modellist[$arraykeys[0]] = $arrayvalues;
-				$modelselected            = $arraykeys[0];
+			$out      .= '<span class="hideonsmartphone"> <i class="fas fa-file-word"></i> </span>';
+			$modellist = array_filter($modellist, 'dolismqremove_index');
+			foreach ($modellist as $key => $modellistsingle) {
+				$arrayvalues              = preg_replace('/template_/', '', $modellistsingle);
+				$modellist[$key] = $langs->trans($arrayvalues);
+				$modelselected            = $key;
 			}
 			$morecss                                        = 'maxwidth200';
 			if ($conf->browser->layout == 'phone') $morecss = 'maxwidth100';
@@ -156,30 +155,35 @@ function dolismqshowdocuments($modulepart, $modulesubdir, $filedir, $urlsource, 
 
 		// Button
 		if ($active) {
-			$genbutton  = '<input class="button buttongen" id="' . $forname . '_generatebutton" name="' . $forname . '_generatebutton"';
-			$genbutton .= ' type="submit" value="' . $buttonlabel . '"';
+			$genbutton  = '<input style="display : none" class="button buttongen" id="' . $forname . '_generatebutton" name="' . $forname . '_generatebutton" type="submit" value="' . $buttonlabel . '"' . '>';
+			$genbutton .= '<label for="' . $forname . '_generatebutton">';
+			$genbutton .= '<div class="wpeo-button button-square-40 button-blue wpeo-tooltip-event" aria-label="' . $langs->trans('Generate') . '"><i class="fas fa-print button-icon"></i></div>';
+			$genbutton .= '</label>';
 		} else {
-			$genbutton  = '<input class="button buttongen disabled" name="' . $forname . '_generatebutton" style="cursor: not-allowed"';
-			$genbutton .= '  value="' . $buttonlabel . '"';
+			$genbutton  = '<input style="display : none" class="button buttongen disabled" name="' . $forname . '_generatebutton" style="cursor: not-allowed" value="' . $buttonlabel . '"' . '>';
+			$genbutton .= '<label for="' . $forname . '_generatebutton">';
+			$genbutton .= '<i class="fas fa-exclamation-triangle pictowarning wpeo-tooltip-event" aria-label="' . $langs->trans($tooltiptext) . '"></i>';
+			$genbutton .= '<div class="wpeo-button button-square-40 button-grey wpeo-tooltip-event" aria-label="' . $langs->trans('Generate') . '"><i class="fas fa-print button-icon"></i></div>';
+			$genbutton .= '</label>';
 		}
 
-		if ( ! $allowgenifempty && ! is_array($modellist) && empty($modellist)) $genbutton .= ' disabled';
-		$genbutton                                                                         .= '>';
-		if ($allowgenifempty && ! is_array($modellist) && empty($modellist) && empty($conf->dol_no_mouse_hover) && $modulepart != 'unpaid') {
-			$langs->load("errors");
-			$genbutton .= ' ' . img_warning($langs->transnoentitiesnoconv("WarningNoDocumentModelActivated"));
-		}
-		if ( ! $allowgenifempty && ! is_array($modellist) && empty($modellist) && empty($conf->dol_no_mouse_hover) && $modulepart != 'unpaid') $genbutton = '';
-		if (empty($modellist) && ! $showempty && $modulepart != 'unpaid') $genbutton                                                                      = '';
+//		if ( ! $allowgenifempty && ! is_array($modellist) && empty($modellist)) $genbutton .= ' disabled';
+//		$genbutton                                                                         .= '>';
+//		if ($allowgenifempty && ! is_array($modellist) && empty($modellist) && empty($conf->dol_no_mouse_hover) && $modulepart != 'unpaid') {
+//			$langs->load("errors");
+//			$genbutton .= ' ' . img_warning($langs->transnoentitiesnoconv("WarningNoDocumentModelActivated"));
+//		}
+//		if ( ! $allowgenifempty && ! is_array($modellist) && empty($modellist) && empty($conf->dol_no_mouse_hover) && $modulepart != 'unpaid') $genbutton = '';
+//		if (empty($modellist) && ! $showempty && $modulepart != 'unpaid') $genbutton                                                                      = '';
 		$out                                                                                                                                             .= $genbutton;
-		if ( ! $active) {
-			$htmltooltip  = '';
-			$htmltooltip .= $tooltiptext;
-
-			$out .= '<span class="center">';
-			$out .= $form->textwithpicto($langs->trans('Help'), $htmltooltip, 1, 0);
-			$out .= '</span>';
-		}
+//		if ( ! $active) {
+//			$htmltooltip  = '';
+//			$htmltooltip .= $tooltiptext;
+//
+//			$out .= '<span class="center">';
+//			$out .= $form->textwithpicto($langs->trans('Help'), $htmltooltip, 1, 0);
+//			$out .= '</span>';
+//		}
 
 		$out .= '</th>';
 
@@ -258,7 +262,7 @@ function dolismqshowdocuments($modulepart, $modulesubdir, $filedir, $urlsource, 
 					$out .= '<td class="right nowraponall">';
 					if ($delallowed) {
 						$tmpurlsource = preg_replace('/#[a-zA-Z0-9_]*$/', '', $urlsource);
-						$out         .= '<a href="' . $tmpurlsource . ((strpos($tmpurlsource, '?') === false) ? '?' : '&amp;') . 'action=' . $removeaction . '&amp;file=' . urlencode($relativepath);
+						$out         .= '<a href="' . $tmpurlsource . ((strpos($tmpurlsource, '?') === false) ? '?' : '&amp;') . 'action=' . $removeaction . '&amp;file=' . urlencode($relativepath) . '&token=' . newToken();
 						$out         .= ($param ? '&amp;' . $param : '');
 						$out         .= '">' . img_picto($langs->trans("Delete"), 'delete') . '</a>';
 					}
@@ -326,7 +330,7 @@ function dolismqshowdocuments($modulepart, $modulesubdir, $filedir, $urlsource, 
  * @param   string $model
  * @return  '' or $model
  */
-function remove_index($model)
+function dolismqremove_index($model)
 {
 	if (preg_match('/index.php/', $model)) {
 		return '';
@@ -335,9 +339,9 @@ function remove_index($model)
 	}
 }
 
-function dolismq_show_medias($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, $nbbyrow = 5, $showfilename = 0, $showaction = 0, $maxHeight = 80, $maxWidth = 80, $nolink = 0, $notitle = 0, $usesharelink = 0, $subdir = "")
+function dolismq_show_medias($modulepart = 'ecm', $sdir, $size = 0, $maxHeight = 80, $maxWidth = 80, $offset = 0)
 {
-	global $conf, $user, $langs;
+	global $conf;
 
 	include_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 	include_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
@@ -345,31 +349,30 @@ function dolismq_show_medias($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, 
 	$sortfield = 'date';
 	$sortorder = 'desc';
 	$dir       = $sdir . '/';
-	$pdir      = $subdir . '/';
 
 
 	$return  = '<!-- Photo -->' . "\n";
 	$nbphoto = 0;
 
-	$filearray = dol_dir_list($dir, "files", 0, '', '(\.meta|_preview.*\.png)$', $sortfield, (strtolower($sortorder) == 'desc' ? SORT_DESC : SORT_ASC), 1);
+	$filearray = dol_dir_list($dir, "files", 0, '', '(\.meta|_preview.*\.png)$', $sortfield, (strtolower($sortorder) == 'desc' ? SORT_DESC : SORT_ASC));
 	$j         = 0;
 
 	if (count($filearray)) {
 		if ($sortfield && $sortorder) {
 			$filearray = dol_sort_array($filearray, $sortfield, $sortorder);
 		}
-		foreach ($filearray as $key => $val) {
-			$file = $val['name'];
+		for ($i = 0 + ($offset * $conf->global->DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY); $i < $conf->global->DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY + ($offset * $conf->global->DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY);  $i++) {
+			$file = $filearray[$i]['name'];
 
 			if (image_format_supported($file) >= 0) {
 				$nbphoto++;
 
-				if ($size == 1 || $size == 'small') {   // Format vignette
+				if ($size == 'mini' || $size == 'small') {   // Format vignette
 					$relativepath = 'dolismq/medias/thumbs';
 					$modulepart   = 'ecm';
 					$path         = DOL_URL_ROOT . '/document.php?modulepart=' . $modulepart . '&attachment=0&file=' . str_replace('/', '%2F', $relativepath);
 
-					$filename = preg_split('/\./',  $val['name']);
+					$filename = preg_split('/\./',  $file);
 					$filename = $filename[0].'_'.$size.'.'.$filename[1];
 
 					?>
@@ -377,15 +380,15 @@ function dolismq_show_medias($modulepart = 'ecm', $sdir, $size = 0, $nbmax = 0, 
 					<div class="center clickable-photo clickable-photo<?php echo $j; ?>" value="<?php echo $j; ?>" element="risk-evaluation">
 						<figure class="photo-image">
 							<?php
-							$urladvanced = getAdvancedPreviewUrl($modulepart, 'dolismq/medias/' .$val['name'], 0, 'entity=' . $conf->entity); ?>
+							$urladvanced = getAdvancedPreviewUrl($modulepart, 'dolismq/medias/' .$file, 0, 'entity=' . $conf->entity); ?>
 							<a class="clicked-photo-preview" href="<?php echo $urladvanced; ?>"><i class="fas fa-2x fa-search-plus"></i></a>
-							<?php if (image_format_supported($val['name']) >= 0) : ?>
+							<?php if (image_format_supported($file) >= 0) : ?>
 								<?php $fullpath = $path . '/' . $filename . '&entity=' . $conf->entity; ?>
-							<input class="filename" type="hidden" value="<?php echo $val['name']; ?>">
+							<input class="filename" type="hidden" value="<?php echo $file; ?>">
 							<img class="photo photo<?php echo $j ?>" height="<?php echo $maxHeight; ?>" width="<?php echo $maxWidth; ?>" src="<?php echo $fullpath; ?>">
 							<?php endif; ?>
 						</figure>
-						<div class="title"><?php echo $val['name']; ?></div>
+						<div class="title"><?php echo $file; ?></div>
 					</div><?php
 					$j++;
 				}
@@ -524,6 +527,28 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 					if ($showfilename) $return .= '<br>' . $viewfilename;
 				}
 
+				if ($size == 'large') {
+					$relativefile = preg_replace('/^\//', '', $pdir . $photo);
+					if (empty($nolink)) {
+						$urladvanced               = getAdvancedPreviewUrl($modulepart, $relativefile, 0, 'entity=' . $conf->entity);
+						if ($urladvanced) $return .= '<a href="' . $urladvanced . '">';
+						else $return              .= '<a href="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $modulepart . '&entity=' . $conf->entity . '&file=' . urlencode($pdir . $photo) . '" class="aphoto" target="_blank">';
+					}
+					$return .= '<img width="' . $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE . '" height="' . $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE . '" class="photo photowithmargin" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $modulepart . '&entity=' . $conf->entity . '&file=' . urlencode($pdir . $photo) . '">';
+					if ($showfilename) $return .= '<br>' . $viewfilename;
+				}
+
+				if ($size == 'medium') {
+					$relativefile = preg_replace('/^\//', '', $pdir . $photo);
+					if (empty($nolink)) {
+						$urladvanced               = getAdvancedPreviewUrl($modulepart, $relativefile, 0, 'entity=' . $conf->entity);
+						if ($urladvanced) $return .= '<a href="' . $urladvanced . '">';
+						else $return              .= '<a href="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $modulepart . '&entity=' . $conf->entity . '&file=' . urlencode($pdir . $photo) . '" class="aphoto" target="_blank">';
+					}
+					$return .= '<img width="' . $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM . '" height="' . $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM . '" class="photo photowithmargin" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=' . $modulepart . '&entity=' . $conf->entity . '&file=' . urlencode($pdir . $photo) . '">';
+					if ($showfilename) $return .= '<br>' . $viewfilename;
+				}
+
 				// On continue ou on arrete de boucler ?
 				if ($nbmax && $nbphoto >= $nbmax) break;
 			}
@@ -532,7 +557,7 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
 
 			if ($show_favorite_button) {
 				$return .= '
-				<div class="wpeo-button button-square-50 button-blue media-gallery-favorite" value="' . $object->id . '">
+				<div class="wpeo-button button-square-50 button-blue media-gallery-favorite '. ($favorite == $photo ? 'favorite' : '') .'" value="' . $object->id . '">
 					<input class="element-linked-id" type="hidden" value="' . ($object->id > 0 ? $object->id : 0) . '">
 					<input class="filename" type="hidden" value="' . $photo . '">
 					<i class="' . ($favorite == $photo ? 'fas' : ($object->photo == $photo ? 'fas' : 'far')) . ' fa-star button-icon"></i>
@@ -597,7 +622,7 @@ function dolismq_show_medias_linked($modulepart = 'ecm', $sdir, $size = 0, $nbma
  *  @param	integer		$disableifempty Set tag 'disabled' on select if there is no choice
  *	@return	 int						<0 if KO, Nb of product_lots in list if OK
  */
-function dolismq_select_product_lots($productid, $selected = '', $htmlname = 'fk_productlot', $showempty = 0, $exclude = '', $limitto = '', $showfunction = 0, $moreclass = '', $options_only = false, $showsoc = 0, $forcecombo = 0, $events = array(), $moreparam = '', $htmlid = '', $multiple = false, $disableifempty = 0, $exclude_already_add = '')
+function dolismq_select_product_lots($productid = -1, $selected = '', $htmlname = 'fk_productlot', $showempty = 0, $exclude = '', $limitto = '', $showfunction = 0, $moreclass = '', $options_only = false, $showsoc = 0, $forcecombo = 0, $events = array(), $moreparam = '', $htmlid = '', $multiple = false, $disableifempty = 0, $exclude_already_add = '')
 {
 	global $conf, $langs, $hookmanager, $action, $db;
 
@@ -693,3 +718,99 @@ function dolismq_select_product_lots($productid, $selected = '', $htmlname = 'fk
 	}
 }
 
+/**
+ *    Return list of activated modules usable for document generation
+ *
+ * @param  DoliDB     $db                   Database handler
+ * @param  string     $type                 Type of models (company, invoice, ...)
+ * @param  int        $maxfilenamelength    Max length of value to show
+ * @return array|int                        0 if no module is activated, or array(key=>label). For modules that need directory scan, key is completed with ":filename".
+ * @throws Exception
+ */
+function doliSMQGetListOfModels($db, $type, $maxfilenamelength = 0)
+{
+	global $conf, $langs;
+	$liste = array();
+	$found = 0;
+	$dirtoscan = '';
+
+	$sql = "SELECT nom as id, nom as doc_template_name, libelle as label, description as description";
+	$sql .= " FROM ".MAIN_DB_PREFIX."document_model";
+	$sql .= " WHERE type = '".$db->escape($type)."'";
+	$sql .= " AND entity IN (0,".$conf->entity.")";
+	$sql .= " ORDER BY description DESC";
+
+	dol_syslog('/core/lib/function2.lib.php::getListOfModels', LOG_DEBUG);
+	$resql = $db->query($sql);
+	if ($resql) {
+		$num = $db->num_rows($resql);
+		$i = 0;
+		while ($i < $num) {
+			$found = 1;
+
+			$obj = $db->fetch_object($resql);
+
+			// If this generation module needs to scan a directory, then description field is filled
+			// with the constant that contains list of directories to scan (COMPANY_ADDON_PDF_ODT_PATH, ...).
+			if (!empty($obj->description)) {	// A list of directories to scan is defined
+				include_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
+
+				$const = $obj->description;
+				//irtoscan.=($dirtoscan?',':'').preg_replace('/[\r\n]+/',',',trim($conf->global->$const));
+				$dirtoscan = preg_replace('/[\r\n]+/', ',', trim($conf->global->$const));
+
+				$listoffiles = array();
+
+				// Now we add models found in directories scanned
+				$listofdir = explode(',', $dirtoscan);
+				foreach ($listofdir as $key => $tmpdir) {
+					$tmpdir = trim($tmpdir);
+					$tmpdir = preg_replace('/DOL_DATA_ROOT/', DOL_DATA_ROOT, $tmpdir);
+					$tmpdir = preg_replace('/DOL_DOCUMENT_ROOT/', DOL_DOCUMENT_ROOT, $tmpdir);
+
+					if (!$tmpdir) {
+						unset($listofdir[$key]);
+						continue;
+					}
+					if (is_dir($tmpdir)) {
+						// all type of template is allowed
+						$tmpfiles = dol_dir_list($tmpdir, 'files', 0, '', '', 'name', SORT_ASC, 0);
+						if (count($tmpfiles)) {
+							$listoffiles = array_merge($listoffiles, $tmpfiles);
+						}
+					}
+				}
+
+				if (count($listoffiles)) {
+					foreach ($listoffiles as $record) {
+						$max = ($maxfilenamelength ? $maxfilenamelength : 28);
+						$liste[$obj->id.':'.$record['fullname']] = dol_trunc($record['name'], $max, 'middle');
+					}
+				} else {
+					$liste[0] = $obj->label.': '.$langs->trans("None");
+				}
+			} else {
+				if ($type == 'member' && $obj->doc_template_name == 'standard') {   // Special case, if member template, we add variant per format
+					global $_Avery_Labels;
+					include_once DOL_DOCUMENT_ROOT.'/core/lib/format_cards.lib.php';
+					foreach ($_Avery_Labels as $key => $val) {
+						$liste[$obj->id.':'.$key] = ($obj->label ? $obj->label : $obj->doc_template_name).' '.$val['name'];
+					}
+				} else {
+					// Common usage
+					$liste[$obj->id] = $obj->label ? $obj->label : $obj->doc_template_name;
+				}
+			}
+			$i++;
+		}
+	} else {
+		dol_print_error($db);
+		return -1;
+	}
+
+	if ($found) {
+		return $liste;
+	} else {
+		return 0;
+	}
+}

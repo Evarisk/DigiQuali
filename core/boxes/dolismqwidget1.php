@@ -174,50 +174,52 @@ class dolismqwidget1 extends ModeleBoxes
 						$test = array_values($control->linkedObjectsIds[$fromtype]);
 						if ($test[0] == $fromid) {
 							$sheet->fetch($control->fk_sheet);
-							$categories = $categorystatic->getListForItem($sheet->id, 'sheet');
-							foreach ($categories as $category) {
-								$boxHeads[$category['label']][] = array(
-									// Title text
-									'text' => $langs->trans($category['label']),
-									// Add a link
-									'sublink' => '',
-									// Sublink icon placed after the text
-									'subpicto' => 'filter.png',
-									// Sublink icon HTML alt text
-									'subtext' => '',
-									// Sublink HTML target
-									'target' => 'none', // Set '' to get target="_blank"
-									// HTML class attached to the picto and link
-									'subclass' => 'linkobject boxfilter',
-									// Limit and truncate with "…" the displayed text lenght, 0 = disabled
-									'limit' => dol_strlen($langs->trans($category['label'])),
-									// Adds translated " (Graph)" to a hidden form value's input (?)
-									'graph' => false
-								);
+							$categories = $categorystatic->getListForItem($control->id, $control->element);
+							if (is_array($categories) && !empty($categories)) {
+								foreach ($categories as $category) {
+									$boxHeads[$category['label']][] = array(
+										// Title text
+										'text' => $langs->trans($category['label']),
+										// Add a link
+										'sublink' => '',
+										// Sublink icon placed after the text
+										'subpicto' => 'filter.png',
+										// Sublink icon HTML alt text
+										'subtext' => '',
+										// Sublink HTML target
+										'target' => 'none', // Set '' to get target="_blank"
+										// HTML class attached to the picto and link
+										'subclass' => 'linkobject boxfilter',
+										// Limit and truncate with "…" the displayed text lenght, 0 = disabled
+										'limit' => dol_strlen($langs->trans($category['label'])),
+										// Adds translated " (Graph)" to a hidden form value's input (?)
+										'graph' => false
+									);
 
-								$boxContents[$category['label']][$sheet->id][$control->id][0] = array(
-									0 => array(
-										'tr' => 'class="nohover showiffilter' . $this->boxcode . ' hideobject"',
-										'td' => 'class="nohover"',
-										'textnoformat' => $boxcontent,
-									),
-									1 => array(
-										'td' => 'class="right"',
-										'text' => '',
-									)
-								);
+									$boxContents[$category['label']][$sheet->id][$control->id][0] = array(
+										0 => array(
+											'tr' => 'class="nohover showiffilter' . $this->boxcode . ' hideobject"',
+											'td' => 'class="nohover"',
+											'textnoformat' => $boxcontent,
+										),
+										1 => array(
+											'td' => 'class="right"',
+											'text' => '',
+										)
+									);
 
-								$boxContents[$category['label']][$sheet->id][$control->id][1] = array(
-									0 => array(
-										'td' => '',
-										'text' => $control->getNomUrl(0) . ' - ' . $sheet->getNomUrl(0)
-									),
-									1 => array(
-										'td' => 'class="right"',
-										'text' => $control->getLibVerdict(3),
-										'verdict' => $control->verdict
-									)
-								);
+									$boxContents[$category['label']][$sheet->id][$control->id][1] = array(
+										0 => array(
+											'td' => '',
+											'text' => $control->getNomUrl(0) . ' - ' . $sheet->getNomUrl(0)
+										),
+										1 => array(
+											'td' => 'class="right"',
+											'text' => $control->getLibVerdict(3),
+											'verdict' => $control->verdict
+										)
+									);
+								}
 							}
 						}
 					}

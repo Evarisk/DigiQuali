@@ -88,7 +88,7 @@ if ($action == 'specimen') {
 	$file = ''; $classname = ''; $filefound = 0;
 	$dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
 	foreach ($dirmodels as $reldir) {
-		$file = dol_buildpath('/custom'.$reldir."core/modules/dolismq/controldocument/pdf_".$modele.".modules.php", 0);
+		$file = dol_buildpath('/custom'.$reldir."core/modules/dolismq/dolismqdocumets/controldocument/pdf_".$modele.".modules.php", 0);
 		if (file_exists($file)) {
 			$filefound = 1;
 			$classname = "pdf_".$modele;
@@ -138,7 +138,7 @@ if ($action == 'setdoc') {
 
 $help_url = 'FR:Module_DoliSMQ';
 $title    = $langs->trans("ControlDocument");
-$morejs   = array("/dolismq/js/dolismq.js.php");
+$morejs   = array("/dolismq/js/dolismq.js");
 $morecss  = array("/dolismq/css/dolismq.css");
 
 llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);
@@ -146,11 +146,11 @@ llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);
 // Subheader
 $linkback = '<a href="'.($backtopage ?: DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';
 
-print load_fiche_titre($title, $linkback, 'dolismq@dolismq');
+print load_fiche_titre($title, $linkback, 'dolismq_color@dolismq');
 
 // Configuration header
 $head = dolismqAdminPrepareHead();
-print dol_get_fiche_head($head, 'controldocument', '', -1, "dolismq@dolismq");
+print dol_get_fiche_head($head, 'controldocument', $title, -1, "dolismq_color@dolismq");
 
 $types = array(
 	'ControlDocument' => 'controldocument'
@@ -177,7 +177,7 @@ foreach ($types as $type => $documentType) {
 	print '</tr>';
 
 	clearstatcache();
-	$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/".$documentType."/");
+	$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/dolismqdocuments/".$documentType."/");
 	if (is_dir($dir)) {
 		$handle = opendir($dir);
 		if (is_resource($handle)) {
@@ -288,7 +288,7 @@ foreach ($types as $type => $documentType) {
 	print "</tr>";
 
 	clearstatcache();
-	$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/".$documentType."/");
+	$dir = dol_buildpath("/custom/dolismq/core/modules/dolismq/dolismqdocuments/".$documentType."/");
 	if (is_dir($dir)) {
 		$handle = opendir($dir);
 		if (is_resource($handle)) {

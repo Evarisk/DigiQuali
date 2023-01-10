@@ -17,7 +17,7 @@
  */
 
 /**
- *	\file       core/modules/controldocument/pdf_calypso.modules.php
+ *	\file       core/modules/dolismqdocumets/controldocument/pdf_calypso.modules.php
  *	\ingroup    dolismq
  *	\brief      Calypso control document template class file
  */

@@ -17,7 +17,7 @@
  */
 
 /**
- *	\file       core/modules/dolismq/controldocument/doc_controldocument_odt.modules.php
+ *	\file       core/modules/dolismq/dolismqdocumets/controldocument/doc_controldocument_odt.modules.php
  *	\ingroup    dolismq
  *	\brief      File of class to build ODT documents for dolismq
  */
@@ -27,8 +27,10 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/doc.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/functions.lib.php';
 
 require_once __DIR__ . '/modules_controldocument.php';
+require_once __DIR__ . '/mod_controldocument_standard.php';
 /**
  *	Class to build documents using ODF templates generator
  */
@@ -112,6 +114,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 		{
 			$tmpdir = trim($tmpdir);
 			$tmpdir = preg_replace('/DOL_DATA_ROOT/', DOL_DATA_ROOT, $tmpdir);
+			$tmpdir = preg_replace('/DOL_DOCUMENT_ROOT/', DOL_DOCUMENT_ROOT, $tmpdir);
 			if (!$tmpdir) {
 				unset($listofdir[$key]); continue;
 			}
@@ -163,42 +166,46 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 	 */
 	public function write_file($objectDocument, $outputlangs, $srctemplatepath, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $object)
 	{
-		// phpcs:enable
-		global $user, $langs, $conf, $hookmanager, $action, $mysoc, $db;
+		global $action, $conf, $hookmanager, $langs, $mysoc, $user;
 
-		if (empty($srctemplatepath))
-		{
+		if (empty($srctemplatepath)) {
 			dol_syslog("doc_controldocument_odt::write_file parameter srctemplatepath empty", LOG_WARNING);
 			return -1;
 		}
 
 		// Add odtgeneration hook
-		if (!is_object($hookmanager))
-		{
+		if (!is_object($hookmanager)) {
 			include_once DOL_DOCUMENT_ROOT . '/core/class/hookmanager.class.php';
 			$hookmanager = new HookManager($this->db);
 		}
+
 		$hookmanager->initHooks(array('odtgeneration'));
 
-		if (!is_object($outputlangs)) $outputlangs = $langs;
-		$outputlangs->charset_output = 'UTF-8';
+		if (!is_object($outputlangs)) {
+			$outputlangs = $langs;
+		}
 
+		$outputlangs->charset_output = 'UTF-8';
 		$outputlangs->loadLangs(array("main", "dict", "companies", "dolismq@dolismq"));
 
+		$refModName          = new $conf->global->DOLISMQ_CONTROLDOCUMENT_ADDON($this->db);
+		$objectDocumentRef   = $refModName->getNextValue($objectDocument);
+		$objectDocument->ref = $objectDocumentRef;
+		$objectDocumentID    = $objectDocument->create($user, true, $object);
 
+		$objectDocument->fetch($objectDocumentID);
+
+		$objectref = dol_sanitizeFileName($objectDocument->ref);
 		$dir = $conf->dolismq->multidir_output[isset($object->entity) ? $object->entity : 1] . '/controldocument/'. $object->ref;
 
-		if (!file_exists($dir))
-		{
-			if (dol_mkdir($dir) < 0)
-			{
+		if (!file_exists($dir)) {
+			if (dol_mkdir($dir) < 0) {
 				$this->error = $langs->transnoentities("ErrorCanNotCreateDir", $dir);
 				return -1;
 			}
 		}
 
-		if (file_exists($dir))
-		{
+		if (file_exists($dir)) {
 			$filename = preg_split('/controldocument\//' , $srctemplatepath);
 			$filename = preg_replace('/template_/','', $filename[1]);
 
@@ -208,18 +215,19 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			} else {
 				$photo = '';
 			}
-			$filename = $object->ref.'_'.$date.$photo.'.odt';
+			$filename = $objectref . '_' . $date . $photo . '.odt';
 			$filename = str_replace(' ', '_', $filename);
 			$filename = dol_sanitizeFileName($filename);
 
-//			$object->last_main_doc = $filename;
-//
-//			$sql = "UPDATE ".MAIN_DB_PREFIX."dolismq_control";
-//			$sql .= " SET last_main_doc =" .(!empty($filename) ? "'".$this->db->escape($filename)."'" : 'null');
-//			$sql .= " WHERE rowid = ".$object->id;
+			$objectDocument->last_main_doc = $filename;
+
+			$sql = "UPDATE ".MAIN_DB_PREFIX."dolismq_control";
+			$sql .= " SET last_main_doc =" .(!empty($filename) ? "'".$this->db->escape($filename)."'" : 'null');
+			$sql .= " WHERE rowid = ".$objectDocument->id;
 
 			dol_syslog("admin.lib::Insert last main doc", LOG_DEBUG);
-//			$this->db->query($sql);
+			$this->db->query($sql);
+
 			$file = $dir.'/'.$filename;
 
 			dol_mkdir($conf->dolismq->dir_temp);
@@ -270,15 +278,17 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 				$tmparray['photoDefault'] = DOL_DOCUMENT_ROOT.$nophoto;
 			}
 
-			$product    = new Product($db);
-			$productlot = new Productlot($db);
-			$controldet = new ControlLine($db);
-			$question   = new Question($db);
-			$sheet      = new Sheet($db);
-			$usertmp    = new User($db);
-			$thirdparty = new Societe($db);
-			$project    = new Project($db);
-			$task		= new Task($db);
+			$product    = new Product($this->db);
+			$productlot = new Productlot($this->db);
+			$controldet = new ControlLine($this->db);
+			$question   = new Question($this->db);
+			$sheet      = new Sheet($this->db);
+			$usertmp    = new User($this->db);
+			$usertmp2   = new User($this->db);
+			$thirdparty = new Societe($this->db);
+			$contact    = new Contact($this->db);
+			$project    = new Project($this->db);
+			$task		= new Task($this->db);
 
 			$object->fetchObjectLinked('', '', '', 'dolismq_control');
 			if (!empty($object->linkedObjectsIds['product'])) {
@@ -287,10 +297,14 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			if (!empty($object->linkedObjectsIds['productbatch'])) {
 				$productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
 			}
-			$sheet->fetch($object->fk_sheet);
-			$usertmp->fetch($object->fk_user_controller);
+			if (!empty($object->linkedObjectsIds['user'])) {
+				$usertmp2->fetch(array_shift($object->linkedObjectsIds['user']));
+			}
 			if (!empty($object->linkedObjectsIds['societe'])) {
 				$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
+			}
+			if (!empty($object->linkedObjectsIds['contact'])) {
+				$contact->fetch(array_shift($object->linkedObjectsIds['contact']));
 			}
 			if (!empty($object->linkedObjectsIds['project'])) {
 				$project->fetch(array_shift($object->linkedObjectsIds['project']));
@@ -299,18 +313,22 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 				$task->fetch(array_shift($object->linkedObjectsIds['project_task']));
 			}
 
+			$sheet->fetch($object->fk_sheet);
+			$usertmp->fetch($object->fk_user_controller);
 
-			$tmparray['mycompany_name']     = $conf->global->MAIN_INFO_SOCIETE_NOM;
-			$tmparray['control_ref']        = $object->ref;
-			$tmparray['nom']                = $usertmp->lastname . ' '. $usertmp->firstname;
-			$tmparray['product_ref']        = $product->ref;
-			$tmparray['lot_ref']            = $productlot->batch;
-			$tmparray['sheet_ref']          = $sheet->ref;
-			$tmparray['sheet_label']        = $sheet->label;
-			$tmparray['control_date']       = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
-			$tmparray['thirdparty_label']   = $thirdparty->name;
-			$tmparray['project_task_ref']   = $project->ref . '-' . $task->ref;
-			$tmparray['project_task_label'] = $project->label . '-' . $task->label;
+			$tmparray['mycompany_name']   = $conf->global->MAIN_INFO_SOCIETE_NOM;
+			$tmparray['control_ref']      = $object->ref;
+			$tmparray['nom']              = $usertmp->lastname . ' '. $usertmp->firstname;
+			$tmparray['product_ref']      = $product->ref;
+			$tmparray['lot_ref']          = $productlot->batch;
+			$tmparray['sheet_ref']        = $sheet->ref;
+			$tmparray['sheet_label']      = $sheet->label;
+			$tmparray['control_date']     = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+			$tmparray['user_label']       = (!empty($usertmp2->id > 0) ? $usertmp2->lastname . ' ' . $usertmp2->firstname : '');
+			$tmparray['thirdparty_label'] = $thirdparty->name;
+			$tmparray['contact_label']    = (!empty($contact->id > 0) ? $contact->firstname . ' ' . $contact->lastname : '');
+			$tmparray['project_label']    = (!empty($project->id > 0) ? $project->ref . ' - ' . $project->title : '');
+			$tmparray['task_label']       = (!empty($task->id > 0) ? $task->ref . ' - ' . $task->label : '');
 
 			switch ($object->verdict) {
 				case 1:
@@ -355,7 +373,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 				if ($foundtagforlines) {
 					if ( ! empty( $object ) ) {
 						$listlines = $odfHandler->setSegment('questions');
-						$object->fetchQuestionsLinked($object->fk_sheet, 'sheet');
+						$object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet');
 						$questionIds = $object->linkedObjectsIds;
 						if ( ! empty($questionIds['dolismq_question']) && $questionIds > 0) {
 							foreach ($questionIds['dolismq_question'] as $questionId) {
@@ -438,7 +456,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 									$tmparray['photo2'] = ' ';
 								}
 
-								$tmparray['comment'] = $comment;
+								$tmparray['comment'] = dol_htmlentitiesbr_decode(strip_tags($comment, '<br>'));
 
 								unset($tmparray['object_fields']);
 								unset($tmparray['object_array_options']);

@@ -67,18 +67,18 @@ if (!$user->admin) accessforbidden();
 
 $page_name = "DoliSMQAbout";
 $help_url  = 'FR:Module_DoliSMQ';
-$morejs    = array("/dolismq/js/dolismq.js.php");
+$morejs    = array("/dolismq/js/dolismq.js");
 
 llxHeader('', $langs->trans($page_name), $help_url, '', 0, 0, $morejs);
 
 // Subheader
 $linkback = '<a href="'.($backtopage ?: DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';
 
-print load_fiche_titre($langs->trans($page_name), $linkback, 'dolismq@dolismq');
+print load_fiche_titre($langs->trans($page_name), $linkback, 'dolismq_color@dolismq');
 
 // Configuration header
 $head = dolismqAdminPrepareHead();
-print dol_get_fiche_head($head, 'about', '', 0, 'dolismq@dolismq');
+print dol_get_fiche_head($head, 'about', $langs->trans($page_name), -1, 'dolismq_color@dolismq');
 
 print $dolismq->getDescLong();
 

@@ -24,23 +24,23 @@
 /**
  * Prepare array of tabs for Control
  *
- * @param	Control	$object		    Control
- * @return 	array					Array of tabs
+ * @param 	Control $object		Control
+ * @return 	array				Array of tabs
  */
-function controlPrepareHead($object)
+function controlPrepareHead(Control $object): array
 {
 	// Global variables definitions
 	global $conf, $langs;
 
 	// Load translation files required by the page
-	$langs->load("dolismq@dolismq");
+	$langs->load('dolismq@dolismq');
 
 	// Initialize variables
 	$h = 0;
-	$head = array();
+	$head = [];
 
-	$head[$h][0] = dol_buildpath("/dolismq/view/control/control_card.php", 1).'?id='.$object->id;
-	$head[$h][1] = $langs->trans("Card");
+	$head[$h][0] = dol_buildpath('/dolismq/view/control/control_card.php', 1).'?id='.$object->id;
+	$head[$h][1] = '<i class="fas fa-info-circle pictofixedwidth"></i>' . $langs->trans('Card');
 	$head[$h][2] = 'controlCard';
 	$h++;
 
@@ -53,7 +53,7 @@ function controlPrepareHead($object)
 			$nbNote++;
 		}
 		$head[$h][0] = dol_buildpath('/dolismq/view/control/control_note.php', 1).'?id='.$object->id;
-		$head[$h][1] = $langs->trans('Notes');
+		$head[$h][1] = '<i class="fas fa-comment pictofixedwidth"></i>' . $langs->trans('Notes');
 		if ($nbNote > 0) {
 			$head[$h][1] .= (empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER) ? '<span class="badge marginleftonlyshort">'.$nbNote.'</span>' : '');
 		}
@@ -61,8 +61,13 @@ function controlPrepareHead($object)
 		$h++;
 	}
 
-	$head[$h][0] = dol_buildpath("/dolismq/view/control/control_agenda.php", 1).'?id='.$object->id;
-	$head[$h][1] = $langs->trans("Events");
+	$head[$h][0] = dol_buildpath('/dolismq/view/control/control_medias.php', 1).'?id='.$object->id;
+	$head[$h][1] = '<i class="fas fa-file-image pictofixedwidth"></i>' . $langs->trans('Medias');
+	$head[$h][2] = 'controlMedias';
+	$h++;
+
+	$head[$h][0] = dol_buildpath('/dolismq/view/control/control_agenda.php', 1).'?id='.$object->id;
+	$head[$h][1] = '<i class="fas fa-calendar-alt pictofixedwidth"></i>' . $langs->trans('Events');
 	$head[$h][2] = 'controlAgenda';
 	$h++;
 

@@ -5,6 +5,7 @@ require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
 require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
+require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 
 require_once __DIR__.'/../../class/sheet.class.php';
@@ -17,11 +18,12 @@ $usertmp       = new User($db);
 $projecttmp    = new Project($db);
 $tasktmp       = new Task($db);
 $thirdparty    = new Societe($db);
+$contact       = new Contact($db);
 $formproject   = new FormProjets($db);
 
 // Build and execute select
 // --------------------------------------------------------------------
-$sql = 'SELECT ';
+$sql = 'SELECT DISTINCT ';
 foreach ($object->fields as $key => $val)
 {
 	if (!array_key_exists($key, $element_element_fields)) {
@@ -38,6 +40,9 @@ $reshook = $hookmanager->executeHooks('printFieldListSelect', $parameters, $obje
 $sql .= preg_replace('/^,/', '', $hookmanager->resPrint);
 $sql = preg_replace('/,\s*$/', '', $sql);
 $sql .= " FROM ".MAIN_DB_PREFIX.$object->table_element." as t";
+if (!empty($conf->categorie->enabled)) {
+	$sql .= Categorie::getFilterJoinQuery('control', "t.rowid");
+}
 if (is_array($extrafields->attributes[$object->table_element]['label']) && count($extrafields->attributes[$object->table_element]['label'])) $sql .= " LEFT JOIN ".MAIN_DB_PREFIX.$object->table_element."_extrafields as ef on (t.rowid = ef.fk_object)";
 
 foreach($element_element_fields as $generic_name => $element_element_name) {
@@ -46,18 +51,10 @@ foreach($element_element_fields as $generic_name => $element_element_name) {
 		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $element_element_name .' on ('. $element_element_name .'.fk_source = ' . $id_to_search . ' AND '. $element_element_name .'.sourcetype="'. $element_element_name .'" AND '. $element_element_name .'.targettype = "dolismq_control")';
 	}
 }
-$specific_sortfields = array(
-	't.fk_product' => 'product',
-	't.fk_thirdparty' => 'societe',
-	't.fk_project' => 'project',
-	't.fk_lot' => 'productbatch',
-	't.fk_task' => 'project_task'
-);
 
-if (array_key_exists($sortfield,$specific_sortfields)) {
-	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $specific_sortfields[$sortfield] .' on ( '. $specific_sortfields[$sortfield] .'.sourcetype="'. $specific_sortfields[$sortfield] .'" AND '. $specific_sortfields[$sortfield] .'.targettype = "dolismq_control" AND '. $specific_sortfields[$sortfield] .'.fk_target = t.rowid)';
+if (array_key_exists($sortfield,$element_element_fields)) {
+	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $element_element_fields[$sortfield] .' on ( '. $element_element_fields[$sortfield] .'.sourcetype="'. $element_element_fields[$sortfield] .'" AND '. $element_element_fields[$sortfield] .'.targettype = "dolismq_control" AND '. $element_element_fields[$sortfield] .'.fk_target = t.rowid)';
 }
-
 
 // Add table from hooks
 $parameters = array();
@@ -108,6 +105,11 @@ foreach ($search as $key => $val) {
 }
 
 if ($search_all) $sql .= natural_search(array_keys($fieldstosearchall), $search_all);
+
+if (!empty($conf->categorie->enabled)) {
+	$sql .= Categorie::getFilterSelectQuery('control', "t.rowid", $search_category_array);
+}
+
 //$sql.= dolSqlDateFilter("t.field", $search_xxxday, $search_xxxmonth, $search_xxxyear);
 // Add where from extra fields
 include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_search_sql.tpl.php';
@@ -116,8 +118,8 @@ $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters, $object); // Note that $action and $object may have been modified by hook
 $sql .= $hookmanager->resPrint;
 
-if (array_key_exists($sortfield, $specific_sortfields)) {
-	$sql .= ' ORDER BY '. $specific_sortfields[$sortfield] .'.fk_source ' . $sortorder;
+if (array_key_exists($sortfield, $element_element_fields)) {
+	$sql .= ' ORDER BY '. $element_element_fields[$sortfield] .'.fk_source ' . $sortorder;
 } else {
 	$sql .= $db->order($sortfield, $sortorder);
 }
@@ -178,7 +180,7 @@ $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldListSearchParam', $parameters, $object); // Note that $action and $object may have been modified by hook
 $param .= $hookmanager->resPrint;
 
-// List of mass actions availableF
+// List of mass actions available
 $arrayofmassactions = array(
 );
 if ($permissiontodelete) $arrayofmassactions['predelete'] = '<span class="fa fa-trash paddingrightonly"></span>'.$langs->trans("Delete");
@@ -196,9 +198,12 @@ print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
 if (GETPOSTISSET('id')) {
 	print '<input type="hidden" name="id" value="'.GETPOST('id','int').'">';
 }
+if (!empty($fromtype)) {
+	$fromurl = '&fromtype='.$fromtype.'&fromid='.$fromid;
+}
+$newcardbutton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/dolismq/view/control/control_card.php', 1).'?action=create'.$fromurl, '', $permissiontoadd);
 
-
-print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, "dolismq@dolismq", 0, $newcardbutton, '', $limit, 0, 0, 1);
+print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'object_'.$object->picto, 0, $newcardbutton, '', $limit, 0, 0, 1);
 
 // Add code for pre mass action (confirmation or email presend form)
 $topicmail = "SendControlRef";
@@ -214,6 +219,13 @@ if ($search_all)
 }
 
 $moreforfilter = '';
+
+// Filter on categories
+if (!empty($conf->categorie->enabled) && $user->rights->categorie->lire) {
+	$formcategory = new FormCategory($db);
+	$moreforfilter .= $formcategory->getFilterBox('control', $search_category_array);
+}
+
 $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldPreListTitle', $parameters, $object); // Note that $action and $object may have been modified by hook
 if (empty($reshook)) $moreforfilter .= $hookmanager->resPrint;
@@ -252,7 +264,7 @@ foreach ($object->fields as $key => $val)
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
 		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) print $form->selectarray('search_'.$key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
 		elseif ($key == 'fk_sheet') {
-			print $sheet->select_sheet_list(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : GETPOST('search_fk_sheet'), 'search_fk_sheet');
+			print $sheet->select_sheet_list(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : ($search['fk_sheet'] ?: 0), 'search_fk_sheet');
 		}
 		elseif (strpos($val['type'], 'integer:') === 0) {
 			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'maxwidth125', 1);
@@ -287,7 +299,7 @@ foreach ($object->fields as $key => $val)
 	elseif (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && $val['label'] != 'TechnicalID') $cssforfield .= ($cssforfield ? ' ' : '').'right';
 	if (!empty($arrayfields['t.'.$key]['checked']))
 	{
-		print getTitleFieldOfList($arrayfields['t.'.$key]['label'], 0, $_SERVER['PHP_SELF'], 't.'.$key, '', $param, ($cssforfield ? 'class="'.$cssforfield.'"' : ''), $sortfield, $sortorder, ($cssforfield ? $cssforfield.' ' : ''))."\n";
+		print getTitleFieldOfList($arrayfields['t.'.$key]['label'], 0, $_SERVER['PHP_SELF'], $key, '', $param, ($cssforfield ? 'class="'.$cssforfield.'"' : ''), $sortfield, $sortorder, ($cssforfield ? $cssforfield.' ' : ''))."\n";
 	}
 }
 // Extra fields
@@ -342,7 +354,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			if ($key == 'status') {
 				print $object->getLibStatut(5);
 			}
-			elseif ($key == 'ref') print $object->getNomUrl();
+			elseif ($key == 'ref') print $object->getNomUrl(1);
 			elseif ($key == 'fk_product') {
 				$object->fetchObjectLinked('', 'product','', 'dolismq_control');
 				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
@@ -361,12 +373,30 @@ while ($i < ($limit ? min($num, $limit) : $num))
 					}
 				}
 			}
+			elseif ($key == 'fk_user') {
+				$object->fetchObjectLinked('', 'user','', 'dolismq_control');
+				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_USER) && (!empty($object->linkedObjectsIds['user']))) {
+					$usertmp->fetch(array_shift($object->linkedObjectsIds['user']));
+					if ($usertmp > 0) {
+						print $usertmp->getNomUrl(1);
+					}
+				}
+			}
 			elseif ($key == 'fk_thirdparty') {
 				$object->fetchObjectLinked('', 'societe','', 'dolismq_control');
 				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
 					$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
 					if ($thirdparty > 0) {
 						print $thirdparty->getNomUrl(1);
+					}
+				}
+			}
+			elseif ($key == 'fk_contact') {
+				$object->fetchObjectLinked('', 'contact','', 'dolismq_control');
+				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_CONTACT) && (!empty($object->linkedObjectsIds['contact']))) {
+					$contact->fetch(array_shift($object->linkedObjectsIds['contact']));
+					if ($contact > 0) {
+						print $contact->getNomUrl(1);
 					}
 				}
 			}
@@ -390,7 +420,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_sheet') {
 				$sheet->fetch($object->fk_sheet);
-				print $sheet->getNomUrl();
+				print $sheet->getNomUrl(1);
 			}
 			else print $object->showOutputField($val, $key, $object->$key, '');
 			print '</td>';

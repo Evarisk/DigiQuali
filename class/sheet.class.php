@@ -75,7 +75,7 @@ class Sheet extends CommonObject
 		'date_creation'  => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 0,),
 		'tms'            => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
 		'import_key'     => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
-		'status'         => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>'1',),
+		'status'         => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>'1', 'arrayofkeyval' => ['0' => 'Draft', '1' => 'Enabled', '2' => 'Locked']),
 		'type'           => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
 		'label'          => array('type' => 'varchar(255)', 'label' => 'Label', 'enabled' => '1', 'position' => 11, 'notnull' => 0, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200', 'help' => "Help text", 'showoncombobox' => '1',),
 		'element_linked' => array('type' => 'text', 'label' => 'ElementLinked', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 0,),
@@ -139,6 +139,10 @@ class Sheet extends CommonObject
 	 */
 	public function create(User $user, $notrigger = false)
 	{
+		global $conf;
+		$refSheetMod = new $conf->global->DOLISMQ_SHEET_ADDON($this->db);
+		$this->status = 1;
+		$this->ref = $refSheetMod->getNextValue($this);
 		return $this->createCommon($user, $notrigger);
 	}
 
@@ -297,7 +301,7 @@ class Sheet extends CommonObject
 
 		$result = '';
 
-		$label = '<i class="fas fa-list"></i>' . ' <u>' . $langs->trans("Sheet") . '</u>';
+		$label = '<i class="fas fa-list" style="color: #d35968;"></i> <u>'.$langs->trans('Sheet').'</u>';
 		if (isset($this->status)) {
 			$label .= ' ' . $this->getLibStatut(5);
 		}
@@ -329,8 +333,8 @@ class Sheet extends CommonObject
 		$linkstart .= $linkclose . '>';
 		$linkend    = '</a>';
 
+		if ($withpicto) $result .= '<i class="fas fa-list" style="color: #d35968;"></i>' . ' ';
 		$result .= $linkstart;
-		if ($withpicto) $result      .= '<i class="fas fa-list"></i>' . ' ';
 		if ($withpicto != 2) $result .= $this->ref . ' - ' . $this->label;
 
 		$result .= $linkend;
@@ -432,6 +436,79 @@ class Sheet extends CommonObject
 		}
 	}
 
+	/**
+	 * Clone an object into another one
+	 *
+	 * @param User $user User that creates
+	 * @param int $fromid Id of object to clone
+	 * @param $options
+	 * @return    mixed                New object created, <0 if KO
+	 * @throws Exception
+	 */
+	public function createFromClone(User $user, $fromid)
+	{
+		global $conf, $langs;
+		$error = 0;
+
+		$question = new Question($this->db);
+
+		$refSheetMod = new $conf->global->DOLISMQ_SHEET_ADDON($this->db);
+		require_once __DIR__ . '/../core/modules/dolismq/sheet/mod_sheet_standard.php';
+
+		dol_syslog(__METHOD__, LOG_DEBUG);
+
+		$object = new self($this->db);
+		$this->db->begin();
+
+		// Load source object
+		$result = $object->fetchCommon($fromid);
+		if ($result > 0 && ! empty($object->table_element_line)) {
+			$object->fetchLines();
+		}
+
+		// Create clone
+		$object->fetchQuestionsLinked($object->id, 'dolismq_' . $object->element);
+		$object->context['createfromclone'] = 'createfromclone';
+		$object->ref = $refSheetMod->getNextValue($object);
+		$object->status = 1;
+		$objectid                           = $object->create($user);
+
+
+		//add categories
+		$cat = new Categorie($this->db);
+		$categories = $cat->containing($fromid, 'sheet');
+
+		if (is_array($categories) && !empty($categories)) {
+			foreach($categories as $cat) {
+				$categoryIds[] = $cat->id;
+			}
+			if ($objectid > 0) {
+				$object->fetch($objectid);
+				$object->setCategories($categoryIds);
+			}
+		}
+
+		//add objects linked
+		if (is_array($object->linkedObjectsIds['dolismq_question']) && !empty($object->linkedObjectsIds['dolismq_question'])) {
+			foreach ($object->linkedObjectsIds['dolismq_question'] as $questionId => $questionPosition) {
+				$question->fetch($questionId);
+				$question->add_object_linked('dolismq_' . $object->element,$objectid);
+			}
+			$object->updateQuestionsPosition($object->linkedObjectsIds['dolismq_question']);
+		}
+
+		unset($object->context['createfromclone']);
+
+		// End
+		if ( ! $error) {
+			$this->db->commit();
+			return $objectid;
+		} else {
+			$this->db->rollback();
+			return -1;
+		}
+	}
+
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
 	 *  Return if a sheet can be deleted
@@ -451,31 +528,6 @@ class Sheet extends CommonObject
 		}
 
 		return $result;
-	}
-
-	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
-	/**
-	 *  Delete control links to objects linked
-	 *
-	 *  @return    int         <=0 if no, >0 if yes
-	 */
-	public function delete_object_links() {
-
-		// Links between objects are stored in table element_element
-		$sql = 'DELETE';
-		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
-		$sql .= " WHERE fk_source = " . $this->id;
-		$sql .= " AND sourcetype = '" . $this->element . "'";
-
-		$resql = $this->db->query($sql);
-
-		if ($resql) {
-			$this->db->commit();
-			return 1;
-		} else {
-			dol_print_error($this->db);
-			return -1;
-		}
 	}
 
 	/**
@@ -524,7 +576,7 @@ class Sheet extends CommonObject
 	 * @return       string      HTML string with
 	 * @throws Exception
 	 */
-	public function select_sheet_list($selected = '', $htmlname = 'fk_sheet', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth300', $moreparam = '', $multiple = false)
+	public function select_sheet_list($selected = '', $htmlname = 'fk_sheet', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'maxwidth500 widthcentpercentminusxx', $moreparam = '', $multiple = false)
 	{
 		// phpcs:enable
 		global $conf, $user, $langs;
@@ -611,6 +663,7 @@ class Sheet extends CommonObject
 		return $out;
 	}
 
+
 	/**
 	 *	Fetch array of objects linked to current object (object of enabled modules only). Links are loaded into
 	 *		this->linkedObjectsIds array +
@@ -670,7 +723,7 @@ class Sheet extends CommonObject
 		 }*/
 
 		// Links between objects are stored in table element_element
-		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype';
+		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype, position';
 		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
 		$sql .= " WHERE ";
 		if ($justsource || $justtarget) {
@@ -701,16 +754,16 @@ class Sheet extends CommonObject
 				$obj = $this->db->fetch_object($resql);
 				if ($justsource || $justtarget) {
 					if ($justsource) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->rowid] = $obj->fk_target;
+						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $i+1] = $obj->fk_target;
 					} elseif ($justtarget) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->rowid] = $obj->fk_source;
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $i+1] = $obj->fk_source;
 					}
 				} else {
 					if ($obj->fk_source == $sourceid && $obj->sourcetype == $sourcetype) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->rowid] = $obj->fk_target;
+						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $i+1] = $obj->fk_target;
 					}
 					if ($obj->fk_target == $targetid && $obj->targettype == $targettype) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->rowid] = $obj->fk_source;
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $i+1] = $obj->fk_source;
 					}
 				}
 
@@ -755,5 +808,24 @@ class Sheet extends CommonObject
 			return -1;
 		}
 	}
+
+	/**
+	 *	Update questions position in sheet
+	 *
+	 *	@param	array	$idsArray			Array containing position and ids of questions in sheet
+	 */
+	public function updateQuestionsPosition($idsArray)
+	{
+		foreach ($idsArray as $position => $questionId) {
+			$sql = 'UPDATE '. MAIN_DB_PREFIX . 'element_element';
+			$sql .= ' SET position =' . ($position + 1);
+			$sql .= ' WHERE fk_source = ' . $this->id;
+			$sql .= ' AND sourcetype = "dolismq_sheet"';
+			$sql .= ' AND fk_target =' . $questionId;
+			$sql .= ' AND targettype = "dolismq_question"';
+			$this->db->query($sql);
+		}
+	}
+
 }
 

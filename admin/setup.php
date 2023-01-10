@@ -41,37 +41,131 @@ require_once DOL_DOCUMENT_ROOT."/core/lib/admin.lib.php";
 require_once '../lib/dolismq.lib.php';
 
 // Global variables definitions
-global $db, $langs, $user;
+global $conf, $db, $langs, $user;
 
 // Load translation files required by the page
 $langs->loadLangs(array("admin", "dolismq@dolismq"));
 
 // Get parameters
+$action     = GETPOST('action', 'alpha');
 $backtopage = GETPOST('backtopage', 'alpha');
 
 // Access control
 if (!$user->admin) accessforbidden();
 
 /*
+ * Actions
+ */
+
+if ($action == 'setMediaInfos') {
+	$MediaMaxWidthMedium = GETPOST('MediaMaxWidthMedium', 'alpha');
+	$MediaMaxHeightMedium = GETPOST('MediaMaxHeightMedium', 'alpha');
+	$MediaMaxWidthLarge = GETPOST('MediaMaxWidthLarge', 'alpha');
+	$MediaMaxHeightLarge = GETPOST('MediaMaxHeightLarge', 'alpha');
+	$DisplayNumberMediaGallery = GETPOST('DisplayNumberMediaGallery', 'alpha');
+
+	if (!empty($MediaMaxWidthMedium) || $MediaMaxWidthMedium === '0') {
+		dolibarr_set_const($db, "DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM", $MediaMaxWidthMedium, 'integer', 0, '', $conf->entity);
+	}
+	if (!empty($MediaMaxHeightMedium) || $MediaMaxHeightMedium === '0') {
+		dolibarr_set_const($db, "DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM", $MediaMaxHeightMedium, 'integer', 0, '', $conf->entity);
+	}
+	if (!empty($MediaMaxWidthLarge) || $MediaMaxWidthLarge === '0') {
+		dolibarr_set_const($db, "DOLISMQ_MEDIA_MAX_WIDTH_LARGE", $MediaMaxWidthLarge, 'integer', 0, '', $conf->entity);
+	}
+	if (!empty($MediaMaxHeightLarge) || $MediaMaxHeightLarge === '0') {
+		dolibarr_set_const($db, "DOLISMQ_MEDIA_MAX_HEIGHT_LARGE", $MediaMaxHeightLarge, 'integer', 0, '', $conf->entity);
+	}
+	if (!empty($DisplayNumberMediaGallery) || $DisplayNumberMediaGallery === '0') {
+		dolibarr_set_const($db, "DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY", $DisplayNumberMediaGallery, 'integer', 0, '', $conf->entity);
+	}
+}
+
+/*
  * View
  */
 
 $page_name = "DoliSMQSetup";
-$morejs    = array("/dolismq/js/dolismq.js.php");
+$morejs    = array("/dolismq/js/dolismq.js");
 
 llxHeader('', $langs->trans($page_name), '', '', 0, 0, $morejs);
 
 // Subheader
 $linkback = '<a href="'.($backtopage ?: DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';
 
-print load_fiche_titre($langs->trans($page_name), $linkback, 'dolismq@dolismq');
+print load_fiche_titre($langs->trans($page_name), $linkback, 'dolismq_color@dolismq');
 
 // Configuration header
 $head = dolismqAdminPrepareHead();
-print dol_get_fiche_head($head, 'settings', '', -1, "dolismq@dolismq");
+print dol_get_fiche_head($head, 'settings', $langs->trans($page_name), -1, "dolismq_color@dolismq");
 
 // Setup page goes here
 echo '<span class="opacitymedium">'.$langs->trans("DoliSMQSetupPage").'</span><br><br>';
+
+print load_fiche_titre($langs->trans("DoliSMQData"), '', '');
+
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans("Name") . '</td>';
+print '<td>' . $langs->trans("Description") . '</td>';
+print '<td class="center">' . $langs->trans("Status") . '</td>';
+print '</tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('RedirectAfterConnection');
+print '</td><td>';
+print $langs->trans('RedirectAfterConnectionDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_REDIRECT_AFTER_CONNECTION');
+print '</td>';
+print '</tr>';
+
+print load_fiche_titre($langs->trans("MediaData"), '', '');
+
+print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '" name="media_data">';
+print '<input type="hidden" name="token" value="' . newToken() . '">';
+print '<input type="hidden" name="action" value="setMediaInfos">';
+print '<table class="noborder centpercent editmode">';
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans("Name") . '</td>';
+print '<td>' . $langs->trans("Description") . '</td>';
+print '<td>' . $langs->trans("Value") . '</td>';
+print '<td>' . $langs->trans("Action") . '</td>';
+print '</tr>';
+
+print '<tr class="oddeven"><td><label for="MediaMaxWidthMedium">' . $langs->trans("MediaMaxWidthMedium") . '</label></td>';
+print '<td>' . $langs->trans("MediaMaxWidthMediumDescription") . '</td>';
+print '<td><input type="number" name="MediaMaxWidthMedium" value="' . $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM . '"></td>';
+print '<td><input type="submit" class="button" name="save" value="' . $langs->trans("Save") . '">';
+print '</td></tr>';
+
+print '<tr class="oddeven"><td><label for="MediaMaxHeightMedium">' . $langs->trans("MediaMaxHeightMedium") . '</label></td>';
+print '<td>' . $langs->trans("MediaMaxHeightMediumDescription") . '</td>';
+print '<td><input type="number" name="MediaMaxHeightMedium" value="' . $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM . '"></td>';
+print '<td><input type="submit" class="button" name="save" value="' . $langs->trans("Save") . '">';
+print '</td></tr>';
+
+print '<tr class="oddeven"><td><label for="MediaMaxWidthLarge">' . $langs->trans("MediaMaxWidthLarge") . '</label></td>';
+print '<td>' . $langs->trans("MediaMaxWidthLargeDescription") . '</td>';
+print '<td><input type="number" name="MediaMaxWidthLarge" value="' . $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE . '"></td>';
+print '<td><input type="submit" class="button" name="save" value="' . $langs->trans("Save") . '">';
+print '</td></tr>';
+
+print '<tr class="oddeven"><td><label for="MediaMaxHeightLarge">' . $langs->trans("MediaMaxHeightLarge") . '</label></td>';
+print '<td>' . $langs->trans("MediaMaxHeightLargeDescription") . '</td>';
+print '<td><input type="number" name="MediaMaxHeightLarge" value="' . $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE . '"></td>';
+print '<td><input type="submit" class="button" name="save" value="' . $langs->trans("Save") . '">';
+print '</td></tr>';
+
+print '<tr class="oddeven"><td><label for="DisplayNumberMediaGallery">' . $langs->trans("DisplayNumberMediaGallery") . '</label></td>';
+print '<td>' . $langs->trans("DisplayNumberMediaGalleryDescription") . '</td>';
+print '<td><input type="number" name="DisplayNumberMediaGallery" value="' . $conf->global->DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY . '"></td>';
+print '<td><input type="submit" class="button" name="save" value="' . $langs->trans("Save") . '">';
+print '</td></tr>';
+
+print '</table>';
 
 // Page end
 print dol_get_fiche_end();

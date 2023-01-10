@@ -3,17 +3,10 @@
 @import "element/element";
 @import "module/module";
 @import "page/page";
-@import "table/table";
 @import "modal/modal";
-
-@import "responsive/responsive";
 
 .preview-photo {
   z-index: 2100 !important;
-}
-
-.imgTabTitle {
-  max-height: 32px !important;
 }
 
 .dropdown-toggle::after {
@@ -23,4 +16,5 @@
 .favorite-photo {
   border: 5px solid #0d8aff;
 }
+
 

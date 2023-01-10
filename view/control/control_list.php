@@ -44,13 +44,16 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 
 require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
+require_once DOL_DOCUMENT_ROOT.'/contact/class/contact.class.php';
 require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
 require_once DOL_DOCUMENT_ROOT.'/projet/class/task.class.php';
-require_once DOL_DOCUMENT_ROOT . "/categories/class/categorie.class.php";
+require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcategory.class.php';
+require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
 
 require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/contact.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/project.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/product.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/usergroups.lib.php';
@@ -109,6 +112,10 @@ $hookmanager->initHooks(array('controllist')); // Note that conf->hooks_modules 
 $extrafields->fetch_name_optionals_label($object->table_element);
 //$extrafields->fetch_name_optionals_label($object->table_element_line);
 
+if (!empty($conf->categorie->enabled)) {
+	$search_category_array = GETPOST("search_category_control_list", "array");
+}
+
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
 // Default sort order (if not yet defined by previous GETPOST)
@@ -137,6 +144,10 @@ if (!empty($fromtype)) {
 			$objectLinked = new Societe($db);
 			$prehead = 'societe_prepare_head';
 			break;
+		case 'contact' :
+			$objectLinked = new Contact($db);
+			$prehead = 'contact_prepare_head';
+			break;
 		case 'user' :
 			$objectLinked = new User($db);
 			$prehead = 'user_prepare_head';
@@ -154,22 +165,28 @@ if (!empty($fromtype)) {
 //Define custom field provide by element_element
 $arrayfields['t.fk_product']    = array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'Product', 'enabled' => '1', 'position' => 21, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'product.rowid', 'checked' => 1);
 $arrayfields['t.fk_lot']        = array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'Batch', 'enabled' => '1', 'position' => 22, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'productlot.rowid', 'checked' => 1);
+$arrayfields['t.fk_user']       = array('type' => 'integer:User:user/class/user.class.php', 'label' => 'User', 'enabled' => '1', 'position' => 23, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'user.rowid', 'checked' => 1);
 $arrayfields['t.fk_thirdparty'] = array('type' => 'integer:Societe:societe/class/societe.class.php', 'label' => 'ThirdParty', 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'societe.rowid', 'checked' => 1);
-$arrayfields['t.fk_project']    = array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 26, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'project.rowid', 'checked' => 1);
-$arrayfields['t.fk_task']       = array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 27, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'task.rowid', 'checked' => 1);
+$arrayfields['t.fk_contact']    = array('type' => 'integer:Contact:contact/class/contact.class.php', 'label' => 'Contact', 'enabled' => '1', 'position' => 26, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'contact.rowid', 'checked' => 1);
+$arrayfields['t.fk_project']    = array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 27, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'project.rowid', 'checked' => 1);
+$arrayfields['t.fk_task']       = array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 28, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'task.rowid', 'checked' => 1);
 
 $object->fields['fk_product']    = $arrayfields['t.fk_product'];
 $object->fields['fk_lot']        = $arrayfields['t.fk_lot'];
+$object->fields['fk_user']       = $arrayfields['t.fk_user'];
 $object->fields['fk_thirdparty'] = $arrayfields['t.fk_thirdparty'];
+$object->fields['fk_contact']    = $arrayfields['t.fk_contact'];
 $object->fields['fk_project']    = $arrayfields['t.fk_project'];
 $object->fields['fk_task']       = $arrayfields['t.fk_task'];
 
 $element_element_fields = array(
+	'fk_product'    => 'product',
+	'fk_lot'        => 'productbatch',
+	'fk_user'       => 'user',
 	'fk_thirdparty' => 'societe',
-	'fk_product' => 'product',
-	'fk_lot' => 'productbatch',
-	'fk_project' => 'project',
-	'fk_task' => 'project_task'
+	'fk_contact'    => 'contact',
+	'fk_project'    => 'project',
+	'fk_task'       => 'project_task'
 );
 
 // Initialize array of search criterias
@@ -258,6 +275,7 @@ if (empty($reshook)) {
 		}
 		$toselect = '';
 		$search_array_options = array();
+		$search_category_array = array();
 	}
 	if (GETPOST('button_removefilter_x', 'alpha') || GETPOST('button_removefilter.x', 'alpha') || GETPOST('button_removefilter', 'alpha')
 		|| GETPOST('button_search_x', 'alpha') || GETPOST('button_search.x', 'alpha') || GETPOST('button_search', 'alpha'))
@@ -280,9 +298,16 @@ if (empty($reshook)) {
 			$result = $objecttmp->fetch($toselectid);
 			if ($result > 0) {
 
-				if (method_exists($objecttmp, 'is_erasable') && $objecttmp->is_erasable() <= 0) {
-					//@todo a changer par deleteObjectLinked après refacto
-					$objecttmp->delete_object_links();
+				$objecttmp->fetchObjectLinked('','',$toselectid, 'dolismq_' . $object->element);
+				$objecttmp->element = 'dolismq_' . $objecttmp->element;
+				if (is_array($objecttmp->linkedObjects) && !empty($objecttmp->linkedObjects)) {
+					foreach($objecttmp->linkedObjects as $linkedObjectType => $linkedObjectArray) {
+						foreach($linkedObjectArray as $linkedObject) {
+							if (method_exists($objecttmp, 'is_erasable') && $objecttmp->is_erasable() <= 0) {
+								$objecttmp->deleteObjectLinked($linkedObject->id, $linkedObjectType);
+							}
+						}
+					}
 				}
 
 				$result = $objecttmp->delete($user);
@@ -335,7 +360,7 @@ if (empty($reshook)) {
 $now      = dol_now();
 $help_url = '';
 $title    = $langs->trans("ControlList");
-$morejs   = array("/dolismq/js/dolismq.js.php");
+$morejs   = array("/dolismq/js/dolismq.js");
 $morecss  = array("/dolismq/css/dolismq.css");
 
 llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
@@ -344,6 +369,9 @@ if (!empty($fromtype)) {
 
 	$linkback = '<a href="'.DOL_URL_ROOT.'/'.$fromtype.'/list.php?restore_lastsearch_values=1">'.$langs->trans("BackToList").'</a>';
 
+	if ($fromtype == 'fk_sheet') {
+		$objectLinked->picto = 'sheet_small@dolismq';
+	}
 	dol_banner_tab($objectLinked, 'ref', $linkback, 0);
 }
 
@@ -361,7 +389,7 @@ if ($fromid) {
 					$test = array_values($control->linkedObjectsIds[$fromtype]);
 					if ($test[0] == $fromid) {
 						$sheet->fetch($control->fk_sheet);
-						$categories = $categorystatic->getListForItem($sheet->id, 'sheet');
+						$categories = $categorystatic->getListForItem($control->id, $control->element);
 						if (is_array($categories) && !empty($categories)) {
 							foreach ($categories as $category) {
 								$nbBox[$category['label']] = 1;
@@ -374,8 +402,10 @@ if ($fromid) {
 
 		if (!empty($categories)) {
 			$box->loadBox();
-			for ($i = 0; $i < count($nbBox); $i++) {
-				$box->showBox($i,$i);
+			if (is_array($nbBox) || is_object($nbBox)) {
+				for ($i = 0; $i < count($nbBox); $i++) {
+					$box->showBox($i,$i);
+				}
 			}
 		}
 	}
