@@ -156,12 +156,13 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 	/**
 	 *  Function to build a document on disk using the generic odt module.
 	 *
-	 *	@param		ControlDocument	$object				Object source to build document
+	 *	@param		ControlDocument	$objectDocument	Object source to build document
 	 *	@param		Translate	$outputlangs		Lang output object
 	 * 	@param		string		$srctemplatepath	Full path of source filename for generator using a template file
 	 *  @param		int			$hidedetails		Do not show line details
 	 *  @param		int			$hidedesc			Do not show desc
 	 *  @param		int			$hideref			Do not show ref
+	 *  @param		Object		$object				Object to retrieve info from
 	 *	@return		int         					1 if OK, <=0 if KO
 	 */
 	public function write_file($objectDocument, $outputlangs, $srctemplatepath, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $object)

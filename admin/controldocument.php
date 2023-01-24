@@ -88,7 +88,7 @@ if ($action == 'specimen') {
 	$file = ''; $classname = ''; $filefound = 0;
 	$dirmodels = array_merge(array('/'), (array) $conf->modules_parts['models']);
 	foreach ($dirmodels as $reldir) {
-		$file = dol_buildpath('/custom'.$reldir."core/modules/dolismq/dolismqdocumets/controldocument/pdf_".$modele.".modules.php", 0);
+		$file = dol_buildpath('/custom'.$reldir."core/modules/dolismq/dolismqdocumets/controldocument/pdf_".$modele."_controldocument.modules.php", 0);
 		if (file_exists($file)) {
 			$filefound = 1;
 			$classname = "pdf_".$modele;
