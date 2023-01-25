@@ -366,7 +366,9 @@ class Control extends CommonObject
 				$dirsource = $conf->dolismq->dir_output.'/control/'.$oldref;
 				$dirdest = $conf->dolismq->dir_output.'/control/'.$newref;
 
-				rename($dirsource, $dirdest);
+				if (is_dir($dirsource)) {
+					rename($dirsource, $dirdest);
+				}
 			}
 		}
 
