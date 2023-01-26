@@ -448,7 +448,7 @@ if ($action == 'create') {
 	</div>
 	<?php
 	$relativepath = 'dolismq/medias/thumbs';
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ok', 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'question/tmp/QU0/photo_ok', $object, 'photo_ok', 1, $permissiontodelete);
+	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ok', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/tmp/QU0/photo_ok', $object, 'photo_ok', 1, $permissiontodelete);
 	print '</td></tr>';
 	// Photo KO -- Photo KO
 	print '<tr class="linked-medias photo_ko hidden" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td class="linked-medias-list">'; ?>
@@ -468,7 +468,7 @@ if ($action == 'create') {
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ko', 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'question/tmp/QU0/photo_ko', $object, 'photo_ko', 1, $permissiontodelete);
+	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ko', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/tmp/QU0/photo_ko', $object, 'photo_ko', 1, $permissiontodelete);
 	print '</td></tr>';
 
 	// Categories
@@ -573,7 +573,7 @@ if (($id || $ref) && $action == 'edit') {
 	</div>
 	<?php
 	$relativepath = 'dolismq/medias/thumbs';
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'question/'. $object->ref . '/photo_ok', $object, 'photo_ok', 1, $permissiontodelete);
+	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ok', $object, 'photo_ok', 1, $permissiontodelete);
 	print '</td></tr>';
 
 	// Photo KO -- Photo KO
@@ -594,7 +594,7 @@ if (($id || $ref) && $action == 'edit') {
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'small', '', 0, 0, 0, 50, 50, 1, 0, 0, 'question/'. $object->ref . '/photo_ko', $object, 'photo_ko', 1, $permissiontodelete);
+	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ko', $object, 'photo_ko', 1, $permissiontodelete);
 	print '</td></tr>';
 
 	// Tags-Categories
