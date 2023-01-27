@@ -63,7 +63,7 @@ $title    = $langs->trans('DoliSMQArea');
 $morejs   = ['/dolismq/js/dolismq.js'];
 $morecss  = ['/dolismq/css/dolismq.css'];
 
-saturneHeader('dolismq', $action,'',0,'', $title . ' ' . $dolismq->version, $help_url, '', 0, 0, $morejs, $morecss);
+saturne_header('dolismq', $action,'',0,'', $title . ' ' . $dolismq->version, $help_url, '', 0, 0, $morejs, $morecss);
 
 print load_fiche_titre($title . ' ' . $dolismq->version, '', 'dolismq_color.png@dolismq');
 
