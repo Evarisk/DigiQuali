@@ -51,7 +51,7 @@ if (!$user->rights->dolismq->lire) accessforbidden();
 */
 
 if ($action == 'closenotice') {
-	dolibarr_set_const($db, "DoliSMQ_SHOW_PATCH_NOTE", 0, 'integer', 0, '', $conf->entity);
+	dolibarr_set_const($db, "DOLISMQ_SHOW_PATCH_NOTE", 0, 'integer', 0, '', $conf->entity);
 }
 
 /*
@@ -63,7 +63,7 @@ $title    = $langs->trans('DoliSMQArea');
 $morejs   = ['/dolismq/js/dolismq.js'];
 $morecss  = ['/dolismq/css/dolismq.css'];
 
-saturne_header('dolismq', $action,'',0,'', $title . ' ' . $dolismq->version, $help_url, '', 0, 0, $morejs, $morecss);
+saturne_header(0,'', $title . ' ' . $dolismq->version, $help_url, '', 0, 0, $morejs, $morecss);
 
 print load_fiche_titre($title . ' ' . $dolismq->version, '', 'dolismq_color.png@dolismq');
 
