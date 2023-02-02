@@ -450,6 +450,9 @@ if ($action == 'create') {
 	$relativepath = 'dolismq/medias/thumbs';
 	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ok', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/tmp/QU0/photo_ok', $object, 'photo_ok', 1, $permissiontodelete);
 	print '</td></tr>';
+
+	print '<tr></tr>';
+
 	// Photo KO -- Photo KO
 	print '<tr class="linked-medias photo_ko hidden" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td class="linked-medias-list">'; ?>
 	<input hidden multiple class="fast-upload" id="fast-upload-photo-ko" type="file" name="userfile[]" capture="environment" accept="image/*">
@@ -575,6 +578,8 @@ if (($id || $ref) && $action == 'edit') {
 	$relativepath = 'dolismq/medias/thumbs';
 	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ok', $object, 'photo_ok', 1, $permissiontodelete);
 	print '</td></tr>';
+
+	print '<tr></tr>';
 
 	// Photo KO -- Photo KO
 	print '<tr class="' . ($object->show_photo ? ' linked-medias photo_ko' : ' linked-medias photo_ko hidden' ) . '" style="' . ($object->show_photo ? ' ' : ' display:none') . '"><td><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td class="linked-medias-list">'; ?>
