@@ -131,9 +131,14 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 		// Page size for A4 format
 		$this->type = 'pdf';
 		$formatarray = pdf_getFormat();
-
-		$this->page_largeur = $formatarray['width'];
-		$this->page_hauteur = $formatarray['height'];
+		$this->orientation = 'L';
+		if ($this->orientation == 'L' || $this->orientation == 'Landscape') {
+			$this->page_largeur = $formatarray['height'];
+			$this->page_hauteur = $formatarray['width'];
+		} else {
+			$this->page_largeur = $formatarray['width'];
+			$this->page_hauteur = $formatarray['height'];
+		}
 
 		$this->format = array($this->page_largeur, $this->page_hauteur);
 		$this->marge_gauche = isset($conf->global->MAIN_PDF_MARGIN_LEFT) ? $conf->global->MAIN_PDF_MARGIN_LEFT : 10;
@@ -157,19 +162,32 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 		// Define position of columns
 		if ($this->orientation == 'L' || $this->orientation == 'Landscape') {
-			$this->posxref  = $this->marge_gauche + 1;
-			$this->posxdesc = $this->marge_gauche + 25;
-			$this->posxtest = $this->marge_gauche + 25;
+			$this->posxlabelinfo   = $this->marge_gauche + 10;
+			$this->posxcontrolinfo = $this->marge_gauche + 50;
+			$this->posxnote        = $this->marge_gauche + 30;
+
 		} else {
-			$this->posxref  = $this->marge_gauche + 1;
-			$this->posxdesc = $this->marge_gauche + 25;
-			$this->posxtest = $this->marge_gauche + 25;
+			$this->posxlabelinfo   = $this->marge_gauche + 10;
+			$this->posxcontrolinfo = $this->marge_gauche + 50;
+			$this->posxnote        = $this->marge_gauche + 30;
 		}
 
 		if ($this->page_largeur < 210) { // To work with US executive format
-			$this->posxref  -= 20;
-			$this->posxdesc -= 20;
-			$this->posxtest -= 20;
+			$this->posxcompanyname -= 30;
+			$this->posxcontrolref  -= 30;
+			$this->posxname        -= 30;
+			$this->posxproductref  -= 30;
+			$this->posxlotref      -= 30;
+			$this->posxsheetref    -= 30;
+			$this->posxsheetlabel  -= 45;
+			$this->posxuser        -= 30;
+			$this->posxthirdparty  -= 30;
+			$this->posxcontact     -= 30;
+			$this->posxproject     -= 30;
+			$this->posxtask        -= 30;
+			$this->posxcontroldate -= 30;
+			$this->posxverdict     -= 30;
+			$this->posxnote        -= 30;
 		}
 	}
 
@@ -278,11 +296,75 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				}
 
 				// Complete object by loading several other informations
-				$extrafields    = new ExtraFields($this->db);
-				empty($object->lines) ? $nblines = 3 : $nblines = count($object->lines);
+				$extrafields = new ExtraFields($this->db);
+				$product     = new Product($this->db);
+				$productlot  = new Productlot($this->db);
+				$controldet  = new ControlLine($this->db);
+				$question    = new Question($this->db);
+				$sheet       = new Sheet($this->db);
+				$usertmp     = new User($this->db);
+				$usertmp2    = new User($this->db);
+				$thirdparty  = new Societe($this->db);
+				$contact     = new Contact($this->db);
+				$project     = new Project($this->db);
+				$task        = new Task($this->db);
+
+				// Fetch control informations
+				$object->fetchObjectLinked('', '', '', 'dolismq_control');
+				if (!empty($object->linkedObjectsIds['product'])) {
+					$product->fetch(array_shift($object->linkedObjectsIds['product']));
+				}
+				if (!empty($object->linkedObjectsIds['productbatch'])) {
+					$productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
+				}
+				if (!empty($object->linkedObjectsIds['user'])) {
+					$usertmp2->fetch(array_shift($object->linkedObjectsIds['user']));
+				}
+				if (!empty($object->linkedObjectsIds['societe'])) {
+					$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
+				}
+				if (!empty($object->linkedObjectsIds['contact'])) {
+					$contact->fetch(array_shift($object->linkedObjectsIds['contact']));
+				}
+				if (!empty($object->linkedObjectsIds['project'])) {
+					$project->fetch(array_shift($object->linkedObjectsIds['project']));
+				}
+				if (!empty($object->linkedObjectsIds['project_task'])) {
+					$task->fetch(array_shift($object->linkedObjectsIds['project_task']));
+				}
+
+				$sheet->fetch($object->fk_sheet);
+				$usertmp->fetch($object->fk_user_controller);
+
+				// Assert control informations
+				$tmparray['SocietyName']      = (!empty($conf->global->MAIN_INFO_SOCIETE_NOM) ? $conf->global->MAIN_INFO_SOCIETE_NOM : $langs->trans('NoData'));
+				$tmparray['ControlDocument']  = (!empty($object->ref) ? $object->ref : $langs->trans('NoData'));
+				$tmparray['ControlerName']    = (!empty($usertmp->id > 0) ? $usertmp->lastname . ' '. $usertmp->firstname : $langs->trans('NoData'));
+				$tmparray['ControledProduct'] = (!empty($product->ref) ? $product->ref : $langs->trans('NoData'));
+				$tmparray['LotNumber']        = (!empty($productlot->batch) ? $productlot->batch : $langs->trans('NoData'));
+				$tmparray['Sheet']            = (!empty($sheet->ref) ? $sheet->ref . ' ' . $sheet->label : $langs->trans('NoData'));
+				$tmparray['ControlDate']      = (!empty($object->date_creation) ? dol_print_date($object->date_creation, 'dayhour', 'tzuser') : $langs->trans('NoData'));
+				$tmparray['User']             = (!empty($usertmp2->id > 0) ? $usertmp2->lastname . ' ' . $usertmp2->firstname : $langs->trans('NoData'));
+				$tmparray['ThirdParty']       = (!empty($thirdparty->name) ? $thirdparty->name : $langs->trans('NoData'));
+				$tmparray['Contact']          = (!empty($contact->id > 0) ? $contact->firstname . ' ' . $contact->lastname : $langs->trans('NoData'));
+				$tmparray['Project']          = (!empty($project->id > 0) ? $project->ref . ' - ' . $project->title : $langs->trans('NoData'));
+				$tmparray['Task']             = (!empty($task->id > 0) ? $task->ref . ' - ' . $task->label : $langs->trans('NoData'));
+
+				switch ($object->verdict) {
+					case 1:
+						$tmparray['Verdict'] = 'OK';
+						break;
+					case 2:
+						$tmparray['Verdict'] = 'KO';
+						break;
+					default:
+						$tmparray['Verdict'] = '';
+						break;
+				}
 
 				$pdf->Open();
 				$pagenb = 0;
+				$pageBreak = False;
 				$pdf->SetDrawColor(128, 128, 128);
 
 				$pdf->SetTitle($outputlangs->convToOutputCharset($object->ref));
@@ -293,8 +375,6 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				if (!empty($conf->global->MAIN_DISABLE_PDF_COMPRESSION)) {
 					$pdf->SetCompression(false);
 				}
-
-				//$pdf->SetMargins($this->marge_gauche, $this->marge_haute, $this->marge_droite); // Left, Top, Right
 
 				// New page
 				$pdf->AddPage($this->orientation);
@@ -307,64 +387,193 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$pdf->MultiCell(0, 20, ''); // Set interline to 3
 				$pdf->SetTextColor(0, 0, 0);
 
-				$tab_top = 50; // Set top container space before big container
-				$tab_top_newpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD) ? 42 : 10);
+				$tab_top = 40; // Set top container space before big container
+				$tab_top_newpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD) ? 40 : 10);
 
-				$tab_height = $this->page_hauteur - $tab_top - $heightforfooter - $heightforfreetext;
-
-				// Show public note
-				$notetoshow = empty($object->note_public) ? '' : $object->note_public;
-				if ($notetoshow) {
+				// Show control informations
+				foreach($tmparray as $key => $value) {
 					$substitutionarray = pdf_getSubstitutionArray($outputlangs, null, $object);
 					complete_substitutions_array($substitutionarray, $outputlangs, $object);
-					$notetoshow = make_substitutions($notetoshow, $substitutionarray, $outputlangs);
-					$notetoshow = convertBackOfficeMediasLinksToPublicLinks($notetoshow);
+					$value = make_substitutions($value, $substitutionarray, $outputlangs);
+					$value = convertBackOfficeMediasLinksToPublicLinks($value);
 
-					$tab_top -= 2;
+					// Left key cells must be bold
+					$pdf->SetFont('', 'B', $default_font_size);
+					$pdf->writeHTMLCell(190, 3, $this->posxlabelinfo - 8, $tab_top, dol_htmlentitiesbr($langs->trans($key)), 0, 1);
 
-					$pdf->SetFont('', '', $default_font_size - 1);
-					$pdf->writeHTMLCell(190, 3, $this->posxref - 1, $tab_top - 2, dol_htmlentitiesbr($notetoshow), 0, 1);
-					$nexY = $pdf->GetY();
-					$height_note = $nexY - $tab_top;
+					// Last key value should be bigger than the others value
+					if ($key == array_key_last($tmparray)) {
+						$pdf->SetFont('', '', $default_font_size + 5);
+					} else {
+						$pdf->SetFont('', '', $default_font_size);
+						$pdf->line($this->marge_gauche, $tab_top + 6, $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 20, $tab_top + 6);
+					}
+					$pdf->writeHTMLCell(190, 3, $this->posxcontrolinfo - 4, $tab_top, dol_htmlentitiesbr($value), 0, 1);
 
-					// Rect takes a length in 3rd parameter
-					$pdf->SetDrawColor(192, 192, 192);
-					$pdf->Rect($this->marge_gauche, $tab_top - 2, $this->page_largeur - $this->marge_gauche - $this->marge_droite, $height_note + 2);
+					$tab_top += 10;
+				}
+				// Rect takes a length in 3rd parameter
+				$pdf->SetDrawColor(120, 120, 120);
+				$pdf->Rect($this->marge_gauche, 35, $this->page_largeur - $this->marge_gauche - $this->marge_droite, $tab_top - 35);
+				$pdf->line($this->marge_gauche + $this->posxcontrolinfo - $this->posxlabelinfo, 35, $this->marge_gauche + $this->posxcontrolinfo - $this->posxlabelinfo, $tab_top);
+				$pdf->line($this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 20, 35, $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 20, $tab_top);
 
-					$tab_height = $tab_height - $height_note;
-					$tab_top = $nexY + 6;
-				} else {
-					$height_note = 0;
+				// Display public note and picture
+				$tab_top += 5;
+				$tmparray['NoteControl'] = $object->note_public;
+				$nophoto = '/public/theme/common/nophoto.png';
+				$tmparray['DefaultPhoto'] = DOL_DOCUMENT_ROOT.$nophoto;
+
+				$pdf->SetFont('', '', $default_font_size - 1);
+				$pdf->writeHTMLCell(190, 3, $this->marge_gauche, $tab_top, dol_htmlentitiesbr($langs->trans('NoteControl') . ' : '), 0, 1);
+				$pdf->writeHTMLCell(200, 3, $this->posxnote, $tab_top, dol_htmlentitiesbr($tmparray['NoteControl']), 0, 1);
+				$pdf->Image($tmparray['DefaultPhoto'], $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 40, 50, 0, $tab_top - 60);
+
+				// New page for the incoming table of questions/answer
+				$this->_pagefoot($pdf, $object, $outputlangs, 1);
+				$pdf->AddPage($this->orientation, '', true);
+				$pagenb++;
+				if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
+					$this->_pagehead($pdf, $object, 1, $outputlangs);
 				}
 
-				$heightoftitleline = 10;
-				$iniY = $tab_top + $heightoftitleline + 1;
-				$curY = $tab_top + $heightoftitleline + 1;
-				$nexY = $tab_top + $heightoftitleline + 1;
+				//Fetch and count the number of questions
+				$object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet');
 
-				// Loop on each lines
+				// Info before question/answer table
+				$pdf->SetFont('', '', $default_font_size + 2);
+				$pdf->writeHTMLCell(200, 3, $this->marge_gauche, $tab_top_newpage, dol_htmlentitiesbr($langs->trans('ControlAndAnswerList')), 0, 1, false, true, 'L');
 
-				for ($i = 0; $i < $nblines; $i++) {
-					$curY = $nexY;
-					$pdf->SetFont('', '', $default_font_size - 1); // Into loop to work with multipage
+				$iniY              = 45;
+				$curY              = $iniY + 10;
+				$curX              = $this->marge_gauche + 7;
+				$tableHeaderHeight = $this->marge_haute * 1.5;
+
+				// Draw the first rect at the top of table corresponding to cell informations
+				$pdf->SetDrawColor(120, 120, 120);
+				$pdf->Rect($this->marge_gauche, $curY, $this->page_largeur - $this->marge_gauche - $this->marge_droite, $tableHeaderHeight);
+
+				// Draw informations of the header table
+				$pdf->writeHTMLCell(20, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("QuestionRef")), 0, 1, false, true, "C");
+				$curX += 40;
+				$pdf->writeHTMLCell(40, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("QuestionTitle")), 0, 1, false, true, "C");
+				$curX += 58;
+				$pdf->writeHTMLCell(20, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("AnswerRef")), 0, 1, false, true, "C");
+				$curX += 65;
+				$pdf->writeHTMLCell(40, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("AnswerComment")), 0, 1, false, true, "C");
+				$curX += 72;
+				$pdf->writeHTMLCell(40, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("Status")), 0, 1, false, true, "C");
+				$curY += $tableHeaderHeight + 5;
+
+				// Loop on each questions
+				$nbQuestions = 0;
+				foreach($object->linkedObjects['dolismq_question'] as $question) {
+					$nbQuestions++;
+					$tmpTableArray = array();
+
+					// Question informations
+					$tmpTableArray['questionRef']  = $question->ref;
+					$tmpTableArray['questionLabel'] = $question->label;
+					$tmpTableArray['questionDesc'] = $question->description;
+
+					// Answer informations
+					$result = $controldet->fetchFromParentWithQuestion($object->id, $question->id);
+					if ($result > 0 && is_array($result)) {
+						$answer = array_shift($result);
+						$tmpTableArray['answerRef'] = $answer->ref;
+						$tmpTableArray['answerComment'] = (empty($answer->comment) ? 'NoData' : $answer->comment);
+						$answerResult = $answer->answer;
+
+						switch ($answerResult) {
+							case 1:
+								$tmpTableArray['answerLabel'] = $langs->trans('OK');
+								break;
+							case 2:
+								$tmpTableArray['answerLabel'] = $langs->trans('KO');
+								break;
+							case 3:
+								$tmpTableArray['answerLabel'] = $langs->trans('Repair');
+								break;
+							case 4:
+								$tmpTableArray['answerLabel'] = $langs->trans('NotApplicable');
+								break;
+							default:
+								$tmpTableArray['answerLabel'] = ' ';
+								break;
+						}
+					} else {
+						$tmpTableArray['answerRef'] = 'NoData';
+						$tmpTableArray['answerComment'] = 'NoData';
+						$tmpTableArray['answerLabel'] = 'NoData';
+					}
+
+					$pdf->startTransaction();
+
+					// If we are at the end of the page, create a new page a create a new top table
+					if ($pageBreak == True) {
+						if ($pagenb == 2) {
+							$this->_tableau($pdf, $tableHeaderHeight + $iniY + 10, $this->page_hauteur - $tableHeaderHeight - $tab_top_newpage - $iniY + 10, 2, $outputlangs);
+						}
+
+						$this->_pagefoot($pdf, $object, $outputlangs, 1);
+						$pdf->AddPage($this->orientation, '', true);
+						$pagenb++;
+						if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
+							$this->_pagehead($pdf, $object, 1, $outputlangs);
+						}
+
+						$curY = $tab_top_newpage;
+						$pdf->SetDrawColor(120, 120, 120);
+
+						//$pdf->line($this->marge_gauche, $curY - 5, $this->page_largeur - $this->marge_gauche - $this->marge_droite, $curY - 5);
+						if ($pagenb > 2) {
+							$this->_tableau($pdf, $tab_top_newpage - 5, $this->page_hauteur - $tab_top_newpage - $this->marge_basse, 0, $outputlangs);
+						}
+					}
+					$pdf->SetFont('', '', $default_font_size - 1);
 					$pdf->SetTextColor(0, 0, 0);
+					$curX = $this->marge_gauche + 5;
 
-					$pdf->setTopMargin(100);
-					$pdf->setPageOrientation($this->orientation, 1, $heightforfooter + $heightforfreetext + $heightforinfotot); // The only function to edit the bottom margin of current page to set it.
-					$pageposbefore = $pdf->getPage();
+					// Question ref
+					$pdf->writeHTMLCell(40, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionRef'])), 0, 1, false, true, "L");
+					$curX += 33;
 
-					// Description of line
-					$ref  = $object->ref;
-					$test = "test";
-					$desc = $this->description;
+					// Question label
+					$pdf->writeHTMLCell(55, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionLabel'])), 0, 1, false, true, "L");
+					$curY += 5;
+
+					// Question description
+					$pdf->writeHTMLCell(55, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionDesc'])), 0, 1, false, true, "L");
+					$curX += 65;
+					$curY -= 5;
+
+					// Answer ref
+					$pdf->writeHTMLCell(40, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerRef'])), 0, 1, false, true, "L");
+					$curX += 35;
+
+					// Answer comment
+					$pdf->writeHTMLCell(40, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerComment'])), 0, 1, false, true, "L");
+					$curX += 110;
+
+					// Status
+					$pdf->writeHTMLCell(25, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerLabel'])), 0, 1, false, true, "C");
+					$curY += 35;
+
+					// Draw line
+					$pageBreak = ($curY + 40 >= $this->page_hauteur - $this->marge_basse) ? True : False;
+					if ($pageBreak == False) {
+						$pdf->line($this->marge_gauche, $curY, $this->page_largeur - $this->marge_gauche, $curY);
+					}
+					$curY += 5;
+				}
+				$this->_pagefoot($pdf, $object, $outputlangs, 1);
+
+
+				/*for ($i = 0; $i < $nbQuestions; $i++) {
 
 					$showpricebeforepagebreak = 1;
 
 					$pdf->startTransaction();
-
-					// Ref
-					$pdf->SetXY($this->posxref, $curY);
-					$pdf->MultiCell($this->posxref - $this->posxdesc, 3, $outputlangs->convToOutputCharset($ref), 0, 'L');
 
 					$pageposafter = $pdf->getPage();
 					if ($pageposafter > $pageposbefore) {	// There is a pagebreak
@@ -382,7 +591,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 						$posyafter = $pdf->GetY();
 
 						if ($posyafter > ($this->page_hauteur - ($heightforfooter + $heightforfreetext + $heightforinfotot))) {	// There is no space left for total+free text
-							if ($i == ($nblines - 1)) {	// No more lines, and no space left to show total, so we create a new page
+							if ($i == ($nbQuestions - 1)) {	// No more lines, and no space left to show total, so we create a new page
 								$pdf->AddPage($this->orientation, '', true);
 								if (!empty($tplidx)) {
 									$pdf->useTemplate($tplidx);
@@ -474,7 +683,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					$pdf->MultiCell($this->posxref - $this->posxtest, 3, $outputlangs->convToOutputCharset($test), 0, 'L');
 
 					// Add line
-					if (!empty($conf->global->MAIN_PDF_DASH_BETWEEN_LINES) && $i < ($nblines - 1)) {
+					if (!empty($conf->global->MAIN_PDF_DASH_BETWEEN_LINES) && $i < ($nbQuestions - 1)) {
 						$pdf->setPage($pageposafter);
 						$pdf->SetLineStyle(array('dash'=>'1,1', 'color'=>array(80, 80, 80)));
 						//$pdf->SetDrawColor(190,190,200);
@@ -533,7 +742,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$this->_pagefoot($pdf, $object, $outputlangs);
 				if (method_exists($pdf, 'AliasNbPages')) {
 					$pdf->AliasNbPages();
-				}
+				}*/
 
 				$pdf->Close();
 
@@ -573,30 +782,39 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 	 *   @param		TCPDF		$pdf     		Object PDF
 	 *   @param		string		$tab_top		Top position of table
 	 *   @param		string		$tab_height		Height of table (rectangle)
-	 *   @param		int			$nexY			Y
+	 *   @param		int			$pagenb			Page number
 	 *   @param		Translate	$outputlangs	Langs object
 	 *   @param		int			$hidetop		Hide top bar of array
 	 *   @param		int			$hidebottom		Hide bottom bar of array
 	 *   @return	void
 	 */
-	protected function _tableau(&$pdf, $tab_top, $tab_height, $nexY, $outputlangs, $hidetop = 0, $hidebottom = 0)
+	protected function _tableau(&$pdf, $tab_top, $tab_height, $pagenb = 0, $outputlangs, $hidetop = 0, $hidebottom = 0)
 	{
-		global $conf, $mysoc;
-
-		$heightoftitleline = 10;
-
-		$default_font_size = pdf_getPDFFontSize($outputlangs);
-
 		$pdf->SetDrawColor(128, 128, 128);
 
 		// Draw rect of all tab (title + lines). Rect takes a length in 3rd parameter
 		$pdf->Rect($this->marge_gauche, $tab_top, $this->page_largeur - $this->marge_gauche - $this->marge_droite, $tab_height);
 
-		// Line takes a position y in 3rd parameter
-		$pdf->line($this->marge_gauche, $tab_top + $heightoftitleline, $this->page_largeur - $this->marge_droite, $tab_top + $heightoftitleline);
+		if ($pagenb == 2) {
+			$tab_top = 55;
+			$curY = $tab_top + $tab_height + $this->marge_haute * 1.5;
+		} else {
+			$curY = $this->page_hauteur - $this->marge_basse - 5;
+		}
 
-		$pdf->SetTextColor(0, 0, 0);
-		$pdf->SetFont('', '', $default_font_size);
+		// Line takes a position y in 3rd parameter
+		$curX = $this->marge_gauche;
+		$curX += 35;
+		$pdf->line($curX, $tab_top, $curX, $curY);
+		$curX += 60;
+		$pdf->line($curX, $tab_top, $curX, $curY);
+		$curX += 40;
+		$pdf->line($curX, $tab_top, $curX, $curY);
+		$curX += 110;
+		$pdf->line($curX, $tab_top, $curX, $curY);
+
+		//$pdf->SetTextColor(0, 0, 0);
+		//$pdf->SetFont('', '', $default_font_size);
 
 		//$pdf->SetXY($this->posxref, $tab_top + 1);
 		//$pdf->MultiCell($this->posxrisk - $this->posxref, 3, $outputlangs->transnoentities('Tasks'), '', 'L');
@@ -643,6 +861,18 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 			}
 		} else {
 			$pdf->MultiCell(100, 4, $outputlangs->transnoentities($this->emetteur->name), 0, 'L');
+		}
+
+		// CreativeCommons by-sa
+		$creativeCommons = DOL_DOCUMENT_ROOT . '/custom/dolismq/img/creativecommons/cc-by-sa_icon.png';
+		if (is_readable($creativeCommons)) {
+			$height = pdf_getHeightForLogo($creativeCommons);
+			$pdf->Image($creativeCommons, $this->page_largeur / 2 - $height, $posy, 22, 0); //height = 0 (auto)
+		} else {
+			$pdf->SetTextColor(200, 0, 0);
+			$pdf->SetFont('', 'B', $default_font_size - 2);
+			$pdf->MultiCell(100, 3, $langs->transnoentities('ErrorLogoFileNotFound', $creativeCommons), 0, 'L');
+			$pdf->MultiCell(100, 3, $langs->transnoentities('ErrorGoToModuleSetup'), 0, 'L');
 		}
 
 		$pdf->SetFont('', 'B', $default_font_size + 3);
