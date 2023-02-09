@@ -420,12 +420,15 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				// Display public note and picture
 				$tab_top += 5;
 				$tmparray['NoteControl'] = $object->note_public;
+				if (strlen($tmparray['NoteControl']) >= 1000) {
+					$tmparray['NoteControl'] = substr($tmparray['NoteControl'], 0, 1000) . '...';
+				}
 				$nophoto = '/public/theme/common/nophoto.png';
 				$tmparray['DefaultPhoto'] = DOL_DOCUMENT_ROOT.$nophoto;
 
 				$pdf->SetFont('', '', $default_font_size - 1);
 				$pdf->writeHTMLCell(190, 3, $this->marge_gauche, $tab_top, dol_htmlentitiesbr($langs->trans('NoteControl') . ' : '), 0, 1);
-				$pdf->writeHTMLCell(200, 3, $this->posxnote, $tab_top, dol_htmlentitiesbr($tmparray['NoteControl']), 0, 1);
+				$pdf->writeHTMLCell(240, 3, $this->posxnote, $tab_top, dol_htmlentitiesbr($tmparray['NoteControl']), 0, 1);
 				$pdf->Image($tmparray['DefaultPhoto'], $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 40, 50, 0, $tab_top - 60);
 
 				// New page for the incoming table of questions/answer
@@ -472,8 +475,8 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 					// Question informations
 					$tmpTableArray['questionRef']  = $question->ref;
-					$tmpTableArray['questionLabel'] = $question->label;
-					$tmpTableArray['questionDesc'] = $question->description;
+					$tmpTableArray['questionLabel'] = $langs->trans('Title') . ' : ' . $question->label;
+					$tmpTableArray['questionDesc'] = $langs->trans('Description') . ' : ' . $question->description;
 					if (strlen($tmpTableArray['questionDesc']) >= 240) {
 						$tmpTableArray['questionDesc'] = substr($tmpTableArray['questionDesc'], 0, 240) . '...';
 					}
@@ -483,7 +486,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					if ($result > 0 && is_array($result)) {
 						$answer = array_shift($result);
 						$tmpTableArray['answerRef'] = $answer->ref;
-						$tmpTableArray['answerComment'] = (empty($answer->comment) ? 'NoData' : $answer->comment);
+						$tmpTableArray['answerComment'] = (empty($answer->comment) ? 'NoData' :  $langs->trans('Comment') . ' : ' . $answer->comment);
 						$answerResult = $answer->answer;
 
 						switch ($answerResult) {
@@ -602,16 +605,19 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 						$curY += 10;
 					}
 					if (is_readable($path)) {
-						$height = pdf_getHeightForLogo($path);
-						$pdf->Image($path, $this->marge_gauche, $curY, 0, $height); // width=0 (auto)
+						list($width, $height) = getimagesize($path);
+						$pdf->Image($path, $this->marge_gauche, $curY, 0, 0, '', '', '', false, 300, 'C'); // width=0 (auto)
+						$curY += $height;
 					} else {
 						$pdf->SetTextColor(200, 0, 0);
 						$pdf->SetFont('', 'B', $default_font_size - 2);
 						$pdf->MultiCell(100, 3, $langs->transnoentities('ErrorLogoFileNotFound', $path), 0, 'L');
 						$pdf->MultiCell(100, 3, $langs->transnoentities('ErrorGoToModuleSetup'), 0, 'L');
+						$curY += 10;
 					}
 					$previousRef = $ref;
-					if ($curY + 40 >= $this->page_hauteur - $this->marge_basse) {
+
+					if ($curY >= $this->page_hauteur - $this->marge_basse && $path != array_key_last($photoArray)) {
 						$this->_pagefoot($pdf, $object, $outputlangs, 1);
 						$pdf->AddPage($this->orientation, '', true);
 						$pagenb++;
@@ -620,8 +626,6 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 						}
 						$curY = $tab_top_newpage;
 						$pdf->SetDrawColor(120, 120, 120);
-					} else {
-						$curY += $height + 1;
 					}
 				}
 				$this->_pagefoot($pdf, $object, $outputlangs, 1);
