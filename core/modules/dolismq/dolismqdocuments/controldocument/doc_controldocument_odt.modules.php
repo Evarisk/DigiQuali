@@ -367,11 +367,12 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 				}
 			}
 			// Replace tags of lines
-			try
-			{
+			try {
+				$photoArray       = [];
 				$foundtagforlines = 1;
+
 				if ($foundtagforlines) {
-					if ( ! empty( $object ) ) {
+					if (!empty($object)) {
 						$listlines = $odfHandler->setSegment('questions');
 						$object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet');
 						$questionIds = $object->linkedObjectsIds;
@@ -415,8 +416,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 										$tmparray['photo_ko'] = DOL_DOCUMENT_ROOT . $nophoto;
 									}
 								}
-
-								$tmparray['ref_answer'] = $itemControlDet->ref;
+								$answerRef = $itemControlDet->ref;
+								$tmparray['ref_answer'] = $answerRef;
 
 								switch ($answer) {
 									case 1:
@@ -438,22 +439,14 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 
 								$path = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $item->ref;
 								$fileList = dol_dir_list($path, 'files');
-								$tmparray['photo0'] = ' ';
-								$tmparray['photo1'] = ' ';
-								$tmparray['photo2'] = ' ';
-								if (!empty($fileList)) {
-									for ($i = 0; $i <= 2; $i++) {
-										if ( $fileList[$i]['level1name'] == $item->ref) {
-											$file_small = preg_split('/\./', $fileList[$i]['name']);
-											$new_file = $file_small[0] . '_small.' . $file_small[1];
-											$image = $path . '/thumbs/' . $new_file;
-											$tmparray['photo' . $i] = $image;
-										}
+								// Fill an array with photo path and ref of the answer for next loop
+								if (is_array($fileList) && !empty($fileList)) {
+									foreach ($fileList as $singleFile) {
+										$fileSmall = preg_split('/\./', $singleFile['name']);
+										$newFile = $fileSmall[0] . '_small.' . $fileSmall[1];
+										$image = $path . '/thumbs/' . $newFile;
+										$photoArray[$image] = $answerRef;
 									}
-								} else {
-									$tmparray['photo0'] = ' ';
-									$tmparray['photo1'] = ' ';
-									$tmparray['photo2'] = ' ';
 								}
 
 								$tmparray['comment'] = dol_htmlentitiesbr_decode(strip_tags($comment, '<br>'));
@@ -461,10 +454,10 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 								unset($tmparray['object_fields']);
 								unset($tmparray['object_array_options']);
 
-								complete_substitutions_array($tmparray, $outputlangs, $object, $line, "completesubstitutionarray_lines");
+								complete_substitutions_array($tmparray, $outputlangs, $object, $itemControlDet, "completesubstitutionarray_lines");
 								// Call the ODTSubstitutionLine hook
 								$parameters = array('odfHandler' => &$odfHandler, 'file' => $file, 'object' => $object, 'outputlangs' => $outputlangs, 'substitutionarray' => &$tmparray, 'line' => $line);
-								$reshook = $hookmanager->executeHooks('ODTSubstitutionLine', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
+								$hookmanager->executeHooks('ODTSubstitutionLine', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 								foreach ($tmparray as $key => $val) {
 									try {
 										if (file_exists($val)) {
@@ -477,9 +470,9 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 											}
 										}
 									} catch (OdfException $e) {
-										dol_syslog($e->getMessage(), LOG_INFO);
+										dol_syslog($e->getMessage());
 									} catch (SegmentException $e) {
-										dol_syslog($e->getMessage(), LOG_INFO);
+										dol_syslog($e->getMessage());
 									}
 								}
 								$listlines->merge();
@@ -488,31 +481,50 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 						}
 					}
 				}
-			}
-			catch (OdfException $e)
-			{
+			} catch (OdfException $e) {
 				$this->error = $e->getMessage();
 				dol_syslog($this->error, LOG_WARNING);
 				return -1;
 			}
+
+			// Loop on previous photos array
+			if (is_array($photoArray) && !empty($photoArray)) {
+				$photoLines = $odfHandler->setSegment('photos');
+				foreach ($photoArray as $photoPath => $answerRef) {
+
+					$tmparray['answer_ref'] = ($previousRef == $answerRef) ? '' : 'Réf : ' . $answerRef;
+					$tmparray['photo']      = $photoPath;
+
+					$previousRef = $answerRef;
+
+					foreach ($tmparray as $key => $val) {
+						try {
+							if (file_exists($val)) {
+								$result = $photoLines->setImage($key, $val);
+							} else {
+								if (empty($val)) {
+									$photoLines->setVars($key, '', true, 'UTF-8');
+								} else {
+									$photoLines->setVars($key, html_entity_decode($val, ENT_QUOTES | ENT_HTML5), true, 'UTF-8');
+								}
+							}
+						} catch (OdfException $e) {
+							dol_syslog($e->getMessage());
+						} catch (SegmentException $e) {
+							dol_syslog($e->getMessage());
+						}
+					}
+					$photoLines->merge();
+				}
+				$odfHandler->mergeSegment($photoLines);
+			}
+
 			// Replace labels translated
 			$tmparray = $outputlangs->get_translations_for_substitutions();
 
-			foreach ($tmparray as $key=>$value)
-			{
-
-				try {
-					$odfHandler->setVars($key, $value, true, 'UTF-8');
-				}
-				catch (OdfException $e)
-				{
-					dol_syslog($e->getMessage(), LOG_INFO);
-				}
-			}
-
 			// Call the beforeODTSave hook
-			$parameters = array('odfHandler'=>&$odfHandler, 'file'=>$file, 'object'=>$object, 'outputlangs'=>$outputlangs, 'substitutionarray'=>&$tmparray);
-			$reshook = $hookmanager->executeHooks('beforeODTSave', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
+			$parameters = ['odfHandler' => &$odfHandler, 'file' => $file, 'object' => $object, 'outputlangs' => $outputlangs, 'substitutionarray' => &$tmparray];
+			$hookmanager->executeHooks('beforeODTSave', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 
 			// Write new file
 			if (!empty($conf->global->MAIN_ODT_AS_PDF)) {
@@ -520,34 +532,32 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 					$odfHandler->exportAsAttachedPDF($file);
 				} catch (Exception $e) {
 					$this->error = $e->getMessage();
-					dol_syslog($e->getMessage(), LOG_INFO);
+					dol_syslog($e->getMessage());
 					return -1;
 				}
-			}
-			else {
+			} else {
 				try {
 					$odfHandler->saveToDisk($file);
 				} catch (Exception $e) {
 					$this->error = $e->getMessage();
-					dol_syslog($e->getMessage(), LOG_INFO);
+					dol_syslog($e->getMessage());
 					return -1;
 				}
 			}
 
-			$parameters = array('odfHandler'=>&$odfHandler, 'file'=>$file, 'object'=>$object, 'outputlangs'=>$outputlangs, 'substitutionarray'=>&$tmparray);
-			$reshook = $hookmanager->executeHooks('afterODTCreation', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
+			$parameters = ['odfHandler' => &$odfHandler, 'file' => $file, 'object' => $object, 'outputlangs' => $outputlangs, 'substitutionarray' => &$tmparray];
+			$hookmanager->executeHooks('afterODTCreation', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 
-			if (!empty($conf->global->MAIN_UMASK))
+			if (!empty($conf->global->MAIN_UMASK)) {
 				@chmod($file, octdec($conf->global->MAIN_UMASK));
+			}
 
 			$odfHandler = null; // Destroy object
 
-			$this->result = array('fullpath'=>$file);
+			$this->result = ['fullpath'=>$file];
 
 			return 1; // Success
-		}
-		else
-		{
+		} else {
 			$this->error = $langs->transnoentities("ErrorCanNotCreateDir", $dir);
 			return -1;
 		}
