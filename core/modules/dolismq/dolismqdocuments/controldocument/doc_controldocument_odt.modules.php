@@ -489,7 +489,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			}
 
 			// Loop on previous photos array
-			if (is_array($photoArray) && !empty($photoArray)) {
+			if (!empty($photo) && is_array($photoArray) && !empty($photoArray)) {
 				$photoLines = $odfHandler->setSegment('photos');
 				foreach ($photoArray as $photoPath => $answerRef) {
 
