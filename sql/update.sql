@@ -28,3 +28,6 @@ UPDATE `llx_element_element` SET `sourcetype` = 'dolismq_control' WHERE `sourcet
 UPDATE `llx_element_element` SET `targettype` = 'dolismq_question' WHERE `targettype` = 'question';
 UPDATE `llx_element_element` SET `targettype` = 'dolismq_sheet' WHERE `targettype` = 'sheet';
 UPDATE `llx_element_element` SET `targettype` = 'dolismq_control' WHERE `targettype` = 'control';
+
+-- 1.5.0
+DELETE FROM `llx_document_model` WHERE `nom` =  'calypso';

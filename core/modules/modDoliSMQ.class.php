@@ -186,7 +186,6 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_CONTROLDOCUMENT_CUSTOM_ADDON_ODT_PATH', 'chaine', 'DOL_DATA_ROOT' . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'ecm/dolismq/controldocument/', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROLDOCUMENT_DEFAULT_MODEL', 'chaine', 'template_controldocument_photo' ,'', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS', 'integer', 1,'', 0, 'current'],
-			$i++ => ['DOLISMQ_CONTROLDOCUMENT_ADDON_PDF', 'chaine', 'calypso', '', 0, 'current'],
 
 			// CONST CONTROL LINE
 			$i++ => ['DOLISMQ_CONTROLDET_ADDON', 'chaine', 'mod_controldet_standard', '', 0, 'current'],
@@ -515,8 +514,10 @@ class modDoliSMQ extends DolibarrModules
 		dolibarr_set_const($this->db, 'DOLISMQ_DB_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
 
 		delDocumentModel('controldocument_odt', 'controldocument');
+		delDocumentModel('calypso_controldocument', 'controldocument');
 
 		addDocumentModel('controldocument_odt', 'controldocument', 'ODT templates', 'DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH');
+		addDocumentModel('calypso_controldocument', 'controldocument', 'calypso');
 
 		if ($result < 0) return -1; // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
 

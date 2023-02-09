@@ -334,8 +334,15 @@ ControlDocumentPDFDoliSMQTemplate =	Modèle de fiche de contrôle au format PDF
 ControlDocumentSentByMailTrigger = Email fiche de contrôle envoyée
 controldocument.odt = Fiche de Contrôle
 controldocument_photo.odt = Fiche de Contrôle avec photos
-
-
+SocietyName = Nom de la société
+ControlerName = Nom du contrôleur
+ControledProduct = Produit contrôlé
+LotNumber = Numéro Lot/Série
+ControlAndAnswerList = Liste des points controlés et des réponses associées à ce contrôle
+QuestionRef = Réf. Question
+QuestionTitle = Titre - Description Question
+AnswerRef = Réf. Réponse
+AnswerComment = Commentaire Réponse
 
 #
 # Other
