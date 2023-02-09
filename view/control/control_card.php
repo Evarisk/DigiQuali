@@ -427,37 +427,30 @@ if (empty($reshook)) {
 					//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
 					$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
 
+					//sauvegarder réponse
+					$answer = GETPOST('answer'.$questionId);
+					if ($answer > 0) {
+						$controldettmp->answer = $answer;
+					}
+
+					//sauvegarder commentaire
+					$comment = GETPOST('comment'.$questionId);
+					if (dol_strlen($comment) > 0) {
+						$controldettmp->comment = $comment;
+					}
+
 					if ($result > 0 && is_array($result)) {
 						$controldettmp = array_shift($result);
-						//sauvegarder réponse
-						$answer = GETPOST('answer'.$questionId);
-						if ($answer > 0) {
-							$controldettmp->answer = $answer;
-						}
-
-						//sauvegarder commentaire
-						$comment = GETPOST('comment'.$questionId);
-
-						if (dol_strlen($comment) > 0) {
-							$controldettmp->comment = $comment;
-						}
 
 						$controldettmp->update($user);
 					} else {
+						if (empty($controldettmp->ref)) {
+							$controldettmp->ref = $refControlDetMod->getNextValue($controldettmp);
+						}
+
 						$controldettmp->fk_control  = $object->id;
 						$controldettmp->fk_question = $questionId;
 
-						//sauvegarder réponse
-						$answer = GETPOST('answer'.$questionId);
-						if ($answer > 0) {
-							$controldettmp->answer = $answer;
-						}
-
-						//sauvegarder commentaire
-						$comment = GETPOST('comment'.$questionId);
-						if (dol_strlen($comment) > 0) {
-							$controldettmp->comment = $comment;
-						}
 						$controldettmp->entity = $conf->entity;
 
 						$controldettmp->insert($user);
