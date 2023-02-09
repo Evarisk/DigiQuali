@@ -462,7 +462,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$pdf->writeHTMLCell(40, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("AnswerComment")), 0, 1, false, true, "C");
 				$curX += 72;
 				$pdf->writeHTMLCell(40, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("Status")), 0, 1, false, true, "C");
-				$curY += $tableHeaderHeight + 5;
+				$curY += $tableHeaderHeight + 2;
 
 				// Loop on each questions
 				$nbQuestions = 0;
@@ -474,6 +474,9 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					$tmpTableArray['questionRef']  = $question->ref;
 					$tmpTableArray['questionLabel'] = $question->label;
 					$tmpTableArray['questionDesc'] = $question->description;
+					if (strlen($tmpTableArray['questionDesc']) >= 240) {
+						$tmpTableArray['questionDesc'] = substr($tmpTableArray['questionDesc'], 0, 240) . '...';
+					}
 
 					// Answer informations
 					$result = $controldet->fetchFromParentWithQuestion($object->id, $question->id);
@@ -533,7 +536,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 							$this->_pagehead($pdf, $object, 1, $outputlangs);
 						}
 
-						$curY = $tab_top_newpage;
+						$curY = $tab_top_newpage - 3;
 						$pdf->SetDrawColor(120, 120, 120);
 
 						//$pdf->line($this->marge_gauche, $curY - 5, $this->page_largeur - $this->marge_gauche - $this->marge_droite, $curY - 5);
@@ -551,31 +554,36 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 					// Question label
 					$pdf->writeHTMLCell(55, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionLabel'])), 0, 1, false, true, "L");
-					$curY += 5;
+					$curY += 8;
 
 					// Question description
 					$pdf->writeHTMLCell(55, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionDesc'])), 0, 1, false, true, "L");
 					$curX += 65;
-					$curY -= 5;
+					$curY -= 8;
 
 					// Answer ref
 					$pdf->writeHTMLCell(40, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerRef'])), 0, 1, false, true, "L");
 					$curX += 35;
 
 					// Answer comment
-					$pdf->writeHTMLCell(40, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerComment'])), 0, 1, false, true, "L");
+					$pdf->writeHTMLCell(105, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerComment'])), 0, 1, false, true, "L");
 					$curX += 110;
 
 					// Status
 					$pdf->writeHTMLCell(25, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerLabel'])), 0, 1, false, true, "C");
-					$curY += 35;
+
+					$addY = 35;
+					if (strlen($tmpTableArray['answerComment']) >= 550) {
+						$addY += (intdiv(strlen($tmpTableArray['answerComment']), 550) * 35);
+					}
+					$curY += $addY;
 
 					// Draw line
 					$pageBreak = ($curY + 40 >= $this->page_hauteur - $this->marge_basse) ? True : False;
 					if ($pageBreak == False) {
 						$pdf->line($this->marge_gauche, $curY, $this->page_largeur - $this->marge_gauche, $curY);
 					}
-					$curY += 5;
+					$curY += 2;
 				}
 
 				$this->_pagefoot($pdf, $object, $outputlangs, 1);
@@ -591,7 +599,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				foreach($photoArray as $path => $ref) {
 					if ($ref != $previousRef) {
 						$pdf->writeHTMLCell(40, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($langs->trans($ref) . ' : '), 0, 1, false, true, "L");
-						$curY += 15;
+						$curY += 10;
 					}
 					if (is_readable($path)) {
 						$height = pdf_getHeightForLogo($path);
