@@ -477,9 +477,6 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					$tmpTableArray['questionRef']  = $question->ref;
 					$tmpTableArray['questionLabel'] = $langs->trans('Title') . ' : ' . $question->label;
 					$tmpTableArray['questionDesc'] = $langs->trans('Description') . ' : ' . $question->description;
-					if (strlen($tmpTableArray['questionDesc']) >= 240) {
-						$tmpTableArray['questionDesc'] = substr($tmpTableArray['questionDesc'], 0, 240) . '...';
-					}
 
 					// Answer informations
 					$result = $controldet->fetchFromParentWithQuestion($object->id, $question->id);
@@ -575,10 +572,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					// Status
 					$pdf->writeHTMLCell(25, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerLabel'])), 0, 1, false, true, "C");
 
-					$addY = 35;
-					if (strlen($tmpTableArray['answerComment']) >= 550) {
-						$addY += (intdiv(strlen($tmpTableArray['answerComment']), 550) * 35);
-					}
+					$addY = strlen($tmpTableArray['questionDesc']) > strlen($tmpTableArray['answerComment']) ? 10 + $pdf->getStringHeight(55, $tmpTableArray['questionDesc']) : 10 + $pdf->getStringHeight(105, $tmpTableArray['answerComment']);
 					$curY += $addY;
 
 					// Draw line
