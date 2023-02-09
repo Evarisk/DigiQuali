@@ -323,7 +323,7 @@ foreach ($types as $type => $documentType) {
 							// Active
 							if (in_array($name, $def)) {
 								print '<td class="center">';
-								print '<a href="'.$_SERVER["PHP_SELF"].'?action=del&amp;value='.$name.'&amp;const='.$module->scandir.'&amp;label='.urlencode($module->name).'&type='.preg_split('/_/',$documentType)[0].'">';
+								print '<a href="'.$_SERVER["PHP_SELF"].'?action=del&amp;value='.$name.'&amp;const='.$module->scandir.'&amp;label='.urlencode($module->name) .'&token=' . newToken() . '#' .'&type='.preg_split('/_/',$documentType)[0].'">';
 								print img_picto($langs->trans("Enabled"), 'switch_on');
 								print '</a>';
 								print "</td>";
@@ -331,7 +331,7 @@ foreach ($types as $type => $documentType) {
 							else
 							{
 								print '<td class="center">';
-								print '<a href="'.$_SERVER["PHP_SELF"].'?action=set&amp;value='.$name.'&amp;const='.$module->scandir.'&amp;label='.urlencode($module->name).'&type='.preg_split('/_/',$documentType)[0].'">'.img_picto($langs->trans("Disabled"), 'switch_off').'</a>';
+								print '<a href="'.$_SERVER["PHP_SELF"].'?action=set&amp;value='.$name.'&amp;const='.$module->scandir.'&amp;label='.urlencode($module->name) .'&token=' . newToken() . '#' .'&type='.preg_split('/_/',$documentType)[0].'">'.img_picto($langs->trans("Disabled"), 'switch_off').'</a>';
 								print "</td>";
 							}
 
