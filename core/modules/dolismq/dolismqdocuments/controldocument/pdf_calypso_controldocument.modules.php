@@ -585,47 +585,49 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				if ($pagenb == 2) {
 					$this->_tableau($pdf, $tableHeaderHeight + $iniY + 10, $this->page_hauteur - $tableHeaderHeight - $tab_top_newpage - $iniY + 10, 2, $outputlangs);
 				}
-
 				$this->_pagefoot($pdf, $object, $outputlangs, 1);
-				$pdf->AddPage($this->orientation, '', true);
-				$pagenb++;
-				if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
-					$this->_pagehead($pdf, $object, 1, $outputlangs);
-				}
-				$pdf->SetDrawColor(120, 120, 120);
 
-				$curY = $tab_top_newpage;
-				$previousRef = '';
-				foreach($photoArray as $path => $ref) {
-					if ($ref != $previousRef) {
-						$pdf->writeHTMLCell(40, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($langs->trans($ref) . ' : '), 0, 1, false, true, "L");
-						$curY += 10;
+				if (!empty($photoArray) && is_array($photoArray)) {
+					$pdf->AddPage($this->orientation, '', true);
+					$pagenb++;
+					if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
+						$this->_pagehead($pdf, $object, 1, $outputlangs);
 					}
-					if (is_readable($path)) {
-						list($width, $height) = getimagesize($path);
-						$pdf->Image($path, $this->marge_gauche, $curY, 0, 0, '', '', '', false, 300, 'C'); // width=0 (auto)
-						$curY += $height;
-					} else {
-						$pdf->SetTextColor(200, 0, 0);
-						$pdf->SetFont('', 'B', $default_font_size - 2);
-						$pdf->MultiCell(100, 3, $langs->transnoentities('ErrorLogoFileNotFound', $path), 0, 'L');
-						$pdf->MultiCell(100, 3, $langs->transnoentities('ErrorGoToModuleSetup'), 0, 'L');
-						$curY += 10;
-					}
-					$previousRef = $ref;
+					$pdf->SetDrawColor(120, 120, 120);
 
-					if ($curY >= $this->page_hauteur - $this->marge_basse && $path != array_key_last($photoArray)) {
-						$this->_pagefoot($pdf, $object, $outputlangs, 1);
-						$pdf->AddPage($this->orientation, '', true);
-						$pagenb++;
-						if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
-							$this->_pagehead($pdf, $object, 1, $outputlangs);
+					$curY = $tab_top_newpage;
+					$previousRef = '';
+					foreach ($photoArray as $path => $ref) {
+						if ($ref != $previousRef) {
+							$pdf->writeHTMLCell(40, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($langs->trans($ref) . ' : '), 0, 1, false, true, "L");
+							$curY += 10;
 						}
-						$curY = $tab_top_newpage;
-						$pdf->SetDrawColor(120, 120, 120);
+						if (is_readable($path)) {
+							list($width, $height) = getimagesize($path);
+							$pdf->Image($path, $this->marge_gauche, $curY, 0, 0, '', '', '', false, 300, 'C'); // width=0 (auto)
+							$curY += $height;
+						} else {
+							$pdf->SetTextColor(200, 0, 0);
+							$pdf->SetFont('', 'B', $default_font_size - 2);
+							$pdf->MultiCell(100, 3, $langs->transnoentities('ErrorLogoFileNotFound', $path), 0, 'L');
+							$pdf->MultiCell(100, 3, $langs->transnoentities('ErrorGoToModuleSetup'), 0, 'L');
+							$curY += 10;
+						}
+						$previousRef = $ref;
+
+						if ($curY >= $this->page_hauteur - $this->marge_basse && $path != array_key_last($photoArray)) {
+							$this->_pagefoot($pdf, $object, $outputlangs, 1);
+							$pdf->AddPage($this->orientation, '', true);
+							$pagenb++;
+							if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
+								$this->_pagehead($pdf, $object, 1, $outputlangs);
+							}
+							$curY = $tab_top_newpage;
+							$pdf->SetDrawColor(120, 120, 120);
+						}
 					}
+					$this->_pagefoot($pdf, $object, $outputlangs, 1);
 				}
-				$this->_pagefoot($pdf, $object, $outputlangs, 1);
 
 				$pdf->Close();
 
