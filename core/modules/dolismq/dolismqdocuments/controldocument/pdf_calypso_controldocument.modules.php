@@ -588,6 +588,9 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					}
 					$curY += 2;
 				}
+				if ($pagenb == 2) {
+					$this->_tableau($pdf, $tableHeaderHeight + $iniY + 10, $this->page_hauteur - $tableHeaderHeight - $tab_top_newpage - $iniY + 10, 2, $outputlangs);
+				}
 
 				$this->_pagefoot($pdf, $object, $outputlangs, 1);
 				$pdf->AddPage($this->orientation, '', true);
