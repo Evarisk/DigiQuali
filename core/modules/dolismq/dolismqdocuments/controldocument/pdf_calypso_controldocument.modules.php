@@ -300,7 +300,6 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$product     = new Product($this->db);
 				$productlot  = new Productlot($this->db);
 				$controldet  = new ControlLine($this->db);
-				$question    = new Question($this->db);
 				$sheet       = new Sheet($this->db);
 				$usertmp     = new User($this->db);
 				$usertmp2    = new User($this->db);
@@ -507,6 +506,18 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 						$tmpTableArray['answerLabel'] = 'NoData';
 					}
 
+					$path = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $tmpTableArray['questionRef'];
+					$fileList = dol_dir_list($path, 'files');
+					// Fill an array with photo path and ref of the answer for next loop
+					if (is_array($fileList) && !empty($fileList)) {
+						foreach ($fileList as $singleFile) {
+							$file_small = preg_split('/\./', $singleFile['name']);
+							$new_file = $file_small[0] . '_small.' . $file_small[1];
+							$image = $path . '/thumbs/' . $new_file;
+							$photoArray[$image] = $tmpTableArray['answerRef'];
+						}
+					}
+
 					$pdf->startTransaction();
 
 					// If we are at the end of the page, create a new page a create a new top table
@@ -566,183 +577,46 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					}
 					$curY += 5;
 				}
+
 				$this->_pagefoot($pdf, $object, $outputlangs, 1);
+				$pdf->AddPage($this->orientation, '', true);
+				$pagenb++;
+				if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
+					$this->_pagehead($pdf, $object, 1, $outputlangs);
+				}
+				$pdf->SetDrawColor(120, 120, 120);
 
-
-				/*for ($i = 0; $i < $nbQuestions; $i++) {
-
-					$showpricebeforepagebreak = 1;
-
-					$pdf->startTransaction();
-
-					$pageposafter = $pdf->getPage();
-					if ($pageposafter > $pageposbefore) {	// There is a pagebreak
-						$pdf->rollbackTransaction(true);
-						$pageposafter = $pageposbefore;
-						//print $pageposafter.'-'.$pageposbefore;exit;
-						$pdf->setPageOrientation($this->orientation, 1, $heightforfooter); // The only function to edit the bottom margin of current page to set it.
-
-						// Ref
-						$pdf->SetXY($this->posxref, $curY);
-						$posybefore = $pdf->GetY();
-						$pdf->MultiCell($this->posxref - $this->posxdesc, 3, $outputlangs->convToOutputCharset($ref), 0, 'L');
-
-						$pageposafter = $pdf->getPage();
-						$posyafter = $pdf->GetY();
-
-						if ($posyafter > ($this->page_hauteur - ($heightforfooter + $heightforfreetext + $heightforinfotot))) {	// There is no space left for total+free text
-							if ($i == ($nbQuestions - 1)) {	// No more lines, and no space left to show total, so we create a new page
-								$pdf->AddPage($this->orientation, '', true);
-								if (!empty($tplidx)) {
-									$pdf->useTemplate($tplidx);
-								}
-								if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
-									$this->_pagehead($pdf, $object, 0, $outputlangs);
-								}
-								$pdf->setPage($pageposafter + 1);
-							}
-						} else {
-							// We found a page break
-
-							// Allows data in the first page if description is long enough to break in multiples pages
-							if (!empty($conf->global->MAIN_PDF_DATA_ON_FIRST_PAGE)) {
-								$showpricebeforepagebreak = 1;
-							} else {
-								$showpricebeforepagebreak = 0;
-							}
-
-							$forcedesconsamepage = 1;
-							if ($forcedesconsamepage) {
-								$pdf->rollbackTransaction(true);
-								$pageposafter = $pageposbefore;
-								$pdf->setPageOrientation($this->orientation, 1, $heightforfooter); // The only function to edit the bottom margin of current page to set it.
-
-								$pdf->AddPage('', '', true);
-								if (!empty($tplidx)) {
-									$pdf->useTemplate($tplidx);
-								}
-								if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
-									$this->_pagehead($pdf, $object, 0, $outputlangs);
-								}
-								$pdf->setPage($pageposafter + 1);
-								$pdf->SetFont('', '', $default_font_size - 1); // On repositionne la police par defaut
-								$pdf->MultiCell(0, 3, ''); // Set interline to 3
-								$pdf->SetTextColor(0, 0, 0);
-
-								$pdf->setPageOrientation($this->orientation, 1, $heightforfooter); // The only function to edit the bottom margin of current page to set it.
-								$curY = $tab_top_newpage + $heightoftitleline + 1;
-
-								// Label
-								$pdf->SetXY($this->posxtest, $curY);
-								$posybefore = $pdf->GetY();
-								$pdf->MultiCell($this->posxtest, 3, $outputlangs->convToOutputCharset($test), 0, 'L');
-
-								// Description
-								$pdf->SetXY($this->posxdesc, $curY);
-								$posybefore = $pdf->GetY();
-								$pdf->MultiCell($this->posxdesc, 3, $outputlangs->convToOutputCharset($desc), 0, 'R');
-
-								$pageposafter = $pdf->getPage();
-								$posyafter = $pdf->GetY();
-							}
-						}
-						//var_dump($i.' '.$posybefore.' '.$posyafter.' '.($this->page_hauteur -  ($heightforfooter + $heightforfreetext + $heightforinfotot)).' '.$showpricebeforepagebreak);
-					} else // No pagebreak
-					{
-						$pdf->commitTransaction();
+				$curY = $tab_top_newpage;
+				$previousRef = '';
+				foreach($photoArray as $path => $ref) {
+					if ($ref != $previousRef) {
+						$pdf->writeHTMLCell(40, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($langs->trans($ref) . ' : '), 0, 1, false, true, "L");
+						$curY += 15;
 					}
-					$posYAfterDescription = $pdf->GetY();
-
-					$nexY = $pdf->GetY();
-					$pageposafter = $pdf->getPage();
-					$pdf->setPage($pageposbefore);
-					$pdf->setTopMargin($this->marge_haute);
-					$pdf->setPageOrientation($this->orientation, 1, 0); // The only function to edit the bottom margin of current page to set it.
-
-					// We suppose that a too long description is moved completely on next page
-					if ($pageposafter > $pageposbefore && empty($showpricebeforepagebreak)) {
-						//var_dump($pageposbefore.'-'.$pageposafter.'-'.$showpricebeforepagebreak);
-						$pdf->setPage($pageposafter);
-						$curY = $tab_top_newpage + $heightoftitleline + 1;
+					if (is_readable($path)) {
+						$height = pdf_getHeightForLogo($path);
+						$pdf->Image($path, $this->marge_gauche, $curY, 0, $height); // width=0 (auto)
+					} else {
+						$pdf->SetTextColor(200, 0, 0);
+						$pdf->SetFont('', 'B', $default_font_size - 2);
+						$pdf->MultiCell(100, 3, $langs->transnoentities('ErrorLogoFileNotFound', $path), 0, 'L');
+						$pdf->MultiCell(100, 3, $langs->transnoentities('ErrorGoToModuleSetup'), 0, 'L');
 					}
-
-					$pdf->SetFont('', '', $default_font_size - 1); // We reposition the default font
-
-					// ----- List of element to print in the main container of the pdf doc ----- //
-
-					// Ref of task
-					//$pdf->SetXY($this->posxref, $curY);
-					//$pdf->MultiCell($this->posxref - $this->posxdesc, 3, $outputlangs->convToOutputCharset($ref), 0, 'L');
-
-					// Desk of task
-					$pdf->SetXY($this->posxdesc, $curY);
-					$pdf->MultiCell($this->posxref - $this->posxdesc, 3, $outputlangs->convToOutputCharset($desc), 0, 'R');
-
-					// Label of task
-					$pdf->SetXY($this->posxtest, $curY);
-					$pdf->MultiCell($this->posxref - $this->posxtest, 3, $outputlangs->convToOutputCharset($test), 0, 'L');
-
-					// Add line
-					if (!empty($conf->global->MAIN_PDF_DASH_BETWEEN_LINES) && $i < ($nbQuestions - 1)) {
-						$pdf->setPage($pageposafter);
-						$pdf->SetLineStyle(array('dash'=>'1,1', 'color'=>array(80, 80, 80)));
-						//$pdf->SetDrawColor(190,190,200);
-						$pdf->line($this->marge_gauche, $nexY + 1, $this->page_largeur - $this->marge_droite, $nexY + 1);
-						$pdf->SetLineStyle(array('dash'=>0));
-					}
-
-					$nexY += 2; // Add space between lines
-
-					// Detect if some page were added automatically and output _tableau for past pages
-					while ($pagenb < $pageposafter) {
-						$pdf->setPage($pagenb);
-						if ($pagenb == 1) {
-							$this->_tableau($pdf, $tab_top, $this->page_hauteur - $tab_top - $heightforfooter, 0, $outputlangs, 0, 1);
-						} else {
-							$this->_tableau($pdf, $tab_top_newpage, $this->page_hauteur - $tab_top_newpage - $heightforfooter, 0, $outputlangs, 1, 1);
-						}
+					$previousRef = $ref;
+					if ($curY + 40 >= $this->page_hauteur - $this->marge_basse) {
 						$this->_pagefoot($pdf, $object, $outputlangs, 1);
-						$pagenb++;
-						$pdf->setPage($pagenb);
-						$pdf->setPageOrientation('', 1, 0); // The only function to edit the bottom margin of current page to set it.
-						if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
-							$this->_pagehead($pdf, $object, 0, $outputlangs);
-						}
-						if (!empty($tplidx)) {
-							$pdf->useTemplate($tplidx);
-						}
-					}
-					if (isset($object->lines[$i + 1]->pagebreak) && $object->lines[$i + 1]->pagebreak) {
-						if ($pagenb == 1) {
-							$this->_tableau($pdf, $tab_top, $this->page_hauteur - $tab_top - $heightforfooter, 0, $outputlangs, 0, 1);
-						} else {
-							$this->_tableau($pdf, $tab_top_newpage, $this->page_hauteur - $tab_top_newpage - $heightforfooter, 0, $outputlangs, 1, 1);
-						}
-						$this->_pagefoot($pdf, $object, $outputlangs, 1);
-						// New page
-						$pdf->AddPage($this->orientation);
-						if (!empty($tplidx)) {
-							$pdf->useTemplate($tplidx);
-						}
+						$pdf->AddPage($this->orientation, '', true);
 						$pagenb++;
 						if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
-							$this->_pagehead($pdf, $object, 0, $outputlangs);
+							$this->_pagehead($pdf, $object, 1, $outputlangs);
 						}
+						$curY = $tab_top_newpage;
+						$pdf->SetDrawColor(120, 120, 120);
+					} else {
+						$curY += $height + 1;
 					}
 				}
-				// Show square
-				if ($pagenb == 1) {
-					$this->_tableau($pdf, $tab_top, $this->page_hauteur - $tab_top - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 0, 0);
-				} else {
-					$this->_tableau($pdf, $tab_top_newpage, $this->page_hauteur - $tab_top_newpage - $heightforinfotot - $heightforfreetext - $heightforfooter, 0, $outputlangs, 1, 0);
-				}
-				$bottomlasttab = $this->page_hauteur - $heightforinfotot - $heightforfreetext - $heightforfooter + 1;
-
-				// Footer of the page
-				$this->_pagefoot($pdf, $object, $outputlangs);
-				if (method_exists($pdf, 'AliasNbPages')) {
-					$pdf->AliasNbPages();
-				}*/
+				$this->_pagefoot($pdf, $object, $outputlangs, 1);
 
 				$pdf->Close();
 
