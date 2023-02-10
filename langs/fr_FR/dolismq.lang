@@ -301,8 +301,8 @@ DoliSMQControlDetStandardModel = Renvoie le numéro sous la forme FCRyymm-nnnn o
 
 # Data - Donnée
 AnswerSaved = Les réponses ont été sauvegardées
-Repair = À réparer
-NotApplicable = Non applicable
+Repair = SAV
+NotApplicable = NA
 AnswerPhoto = Photo
 
 
