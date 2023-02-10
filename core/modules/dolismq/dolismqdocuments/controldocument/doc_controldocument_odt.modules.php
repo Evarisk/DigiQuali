@@ -527,14 +527,18 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$parameters = ['odfHandler' => &$odfHandler, 'file' => $file, 'object' => $object, 'outputlangs' => $outputlangs, 'substitutionarray' => &$tmparray];
 			$hookmanager->executeHooks('beforeODTSave', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
 
+			$fileInfos = pathinfo($filename);
+			$pdfName   = $fileInfos['filename'] . '.pdf';
+
 			// Write new file
-			if (!empty($conf->global->MAIN_ODT_AS_PDF)) {
+			if (!empty($conf->global->MAIN_ODT_AS_PDF) && $conf->global->DOLISMQ_AUTOMATIC_PDF_GENERATION > 0) {
 				try {
 					$odfHandler->exportAsAttachedPDF($file);
+					setEventMessages($langs->trans("FileGenerated") . ' - ' . $pdfName, null);
 				} catch (Exception $e) {
 					$this->error = $e->getMessage();
 					dol_syslog($e->getMessage());
-					return -1;
+					setEventMessages($langs->transnoentities('FileCouldNotBeGeneratedInPDF') . '<br>' . $langs->transnoentities('CheckDocumentationToEnablePDFGeneration'), null, 'errors');
 				}
 			} else {
 				try {
