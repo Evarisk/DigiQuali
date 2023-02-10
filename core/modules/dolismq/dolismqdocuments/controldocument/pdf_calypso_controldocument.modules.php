@@ -402,7 +402,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 					// Last key value should be bigger than the others value
 					if ($key == array_key_last($tmparray)) {
-						$pdf->SetFont('', '', $default_font_size + 5);
+						$pdf->SetFont('', 'B', $default_font_size + 5);
 					} else {
 						$pdf->SetFont('', '', $default_font_size);
 						$pdf->line($this->marge_gauche, $tab_top + 6, $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 20, $tab_top + 6);
@@ -426,10 +426,20 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$nophoto = '/public/theme/common/nophoto.png';
 				$tmparray['DefaultPhoto'] = DOL_DOCUMENT_ROOT.$nophoto;
 
+				$pdf->Image($tmparray['DefaultPhoto'], $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 40, 50, 0, $tab_top - 60);
+
+				if ($pdf->getStringHeight(240, $tmparray['NoteControl']) > 40) {
+					$this->_pagefoot($pdf, $object, $outputlangs, 1);
+					$pdf->AddPage($this->orientation, '', true);
+					$pdf->SetDrawColor(120, 120, 120);
+					if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
+						$this->_pagehead($pdf, $object, 1, $outputlangs);
+					}
+					$tab_top = $tab_top_newpage;
+				}
 				$pdf->SetFont('', '', $default_font_size - 1);
 				$pdf->writeHTMLCell(190, 3, $this->marge_gauche, $tab_top, dol_htmlentitiesbr($langs->trans('NoteControl') . ' : '), 0, 1);
 				$pdf->writeHTMLCell(240, 3, $this->posxnote, $tab_top, dol_htmlentitiesbr($tmparray['NoteControl']), 0, 1);
-				$pdf->Image($tmparray['DefaultPhoto'], $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 40, 50, 0, $tab_top - 60);
 
 				// New page for the incoming table of questions/answer
 				$this->_pagefoot($pdf, $object, $outputlangs, 1);
@@ -468,6 +478,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$curY += $tableHeaderHeight + 2;
 
 				// Loop on each questions
+				$tab_height  = 0;
 				$nbQuestions = 0;
 				foreach($object->linkedObjects['dolismq_question'] as $question) {
 					$nbQuestions++;
@@ -523,26 +534,32 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 					$pdf->startTransaction();
 
+					$addY      = (strlen($tmpTableArray['questionDesc']) >= strlen($tmpTableArray['answerComment'])) ? $pdf->getStringHeight(55, $tmpTableArray['questionDesc']) : $pdf->getStringHeight(105, $tmpTableArray['answerComment']);
+					if ($addY < 20) {
+						$addY += 10;
+					}
+					$pageBreak = ($curY + $addY >= $this->page_hauteur - $this->marge_basse) ? True : False;
+
 					// If we are at the end of the page, create a new page a create a new top table
 					if ($pageBreak == True) {
 						if ($pagenb == 2) {
-							$this->_tableau($pdf, $tableHeaderHeight + $iniY + 10, $this->page_hauteur - $tableHeaderHeight - $tab_top_newpage - $iniY + 10, 2, $outputlangs);
+							$this->_tableau($pdf, $tableHeaderHeight + $iniY + 10, $tab_height, 2, $outputlangs);
 						}
 
 						$this->_pagefoot($pdf, $object, $outputlangs, 1);
 						$pdf->AddPage($this->orientation, '', true);
 						$pagenb++;
+						$pdf->SetDrawColor(120, 120, 120);
 						if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
 							$this->_pagehead($pdf, $object, 1, $outputlangs);
 						}
-
-						$curY = $tab_top_newpage - 3;
-						$pdf->SetDrawColor(120, 120, 120);
-
-						//$pdf->line($this->marge_gauche, $curY - 5, $this->page_largeur - $this->marge_gauche - $this->marge_droite, $curY - 5);
 						if ($pagenb > 2) {
 							$this->_tableau($pdf, $tab_top_newpage - 5, $this->page_hauteur - $tab_top_newpage - $this->marge_basse, 0, $outputlangs);
 						}
+
+						$curY       = $tab_top_newpage - 3;
+						$tab_height = 0;
+						$pageBreak  = false;
 					}
 					$pdf->SetFont('', '', $default_font_size - 1);
 					$pdf->SetTextColor(0, 0, 0);
@@ -570,17 +587,16 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					$curX += 110;
 
 					// Status
-					$pdf->writeHTMLCell(25, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerLabel'])), 0, 1, false, true, "C");
+					$pdf->SetFont('', 'B', $default_font_size);
+					$pdf->writeHTMLCell(25, 3, $curX, $curY + ($addY / 2) - 4, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerLabel'])), 0, 1, false, true, "C");
 
-					$addY = strlen($tmpTableArray['questionDesc']) > strlen($tmpTableArray['answerComment']) ? 10 + $pdf->getStringHeight(55, $tmpTableArray['questionDesc']) : 10 + $pdf->getStringHeight(105, $tmpTableArray['answerComment']);
+					// Draw line if no page break (else line is drawn by table)
 					$curY += $addY;
-
-					// Draw line
-					$pageBreak = ($curY + 40 >= $this->page_hauteur - $this->marge_basse) ? True : False;
 					if ($pageBreak == False) {
 						$pdf->line($this->marge_gauche, $curY, $this->page_largeur - $this->marge_gauche, $curY);
 					}
-					$curY += 2;
+					$curY       += 2;
+					$tab_height += $addY + 2;
 				}
 				if ($pagenb == 2) {
 					$this->_tableau($pdf, $tableHeaderHeight + $iniY + 10, $this->page_hauteur - $tableHeaderHeight - $tab_top_newpage - $iniY + 10, 2, $outputlangs);
