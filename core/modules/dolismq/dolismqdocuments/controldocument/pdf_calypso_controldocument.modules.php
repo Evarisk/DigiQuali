@@ -224,9 +224,10 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 			$mod = new $conf->global->DOLISMQ_CONTROLDOCUMENT_ADDON($this->db);
 			$ref = $mod->getNextValue($objectDocument);
 
-			$objectref = dol_sanitizeFileName($ref);
+			$objectref   = dol_sanitizeFileName($ref);
+			$documentref = dol_sanitizeFileName($object->ref);
 
-			$dir = $conf->dolismq->multidir_output[isset($object->entity) ? $object->entity : 1] . '/controldocument/' . $object->ref;
+			$dir = $conf->dolismq->multidir_output[isset($object->entity) ? $object->entity : 1] . '/controldocument/' . $documentref;
 
 			if (!file_exists($dir)) {
 				if (dol_mkdir($dir) < 0) {
