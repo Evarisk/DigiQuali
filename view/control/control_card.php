@@ -354,7 +354,7 @@ if (empty($reshook)) {
 
 		$result = $controldocument->generateDocument($model, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
 		if ($result <= 0) {
-			setEventMessages($object->error, $object->errors, 'errors');
+			setEventMessages($controldocument->error, $controldocument->errors, 'errors');
 			$action = '';
 		} else {
 			if (empty($donotredirect)) {
