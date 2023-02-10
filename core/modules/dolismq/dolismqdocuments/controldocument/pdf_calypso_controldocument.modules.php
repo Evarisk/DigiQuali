@@ -271,19 +271,19 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$hookmanager->initHooks(array('pdfgeneration'));
 				$parameters = array('file'=>$file, 'object'=>$object, 'outputlangs'=>$outputlangs);
 				global $action;
-				$reshook = $hookmanager->executeHooks('beforePDFCreation', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
+				$hookmanager->executeHooks('beforePDFCreation', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
 
 				// Create pdf instance
 				$pdf = pdf_getInstance($this->format);
 				$default_font_size = pdf_getPDFFontSize($outputlangs); // Must be after pdf_getInstance
 				$pdf->SetAutoPageBreak(1, 0);
 
-				$heightforinfotot = 40; // Height reserved to output the info and total part
-				$heightforfreetext = (isset($conf->global->MAIN_PDF_FREETEXT_HEIGHT) ? $conf->global->MAIN_PDF_FREETEXT_HEIGHT : 5); // Height reserved to output the free text on last page
-				$heightforfooter = $this->marge_basse + 8; // Height reserved to output the footer (value include bottom margin)
-				if (!empty($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS)) {
-					$heightforfooter += 6;
-				}
+				//				$heightforinfotot = 40; // Height reserved to output the info and total part
+				//				$heightforfreetext = (isset($conf->global->MAIN_PDF_FREETEXT_HEIGHT) ? $conf->global->MAIN_PDF_FREETEXT_HEIGHT : 5); // Height reserved to output the free text on last page
+				//				$heightforfooter = $this->marge_basse + 8; // Height reserved to output the footer (value include bottom margin)
+				//				if (!empty($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS)) {
+				//					$heightforfooter += 6;
+				//				}
 
 				if (class_exists('TCPDF')) {
 					$pdf->setPrintHeader(false);
@@ -392,6 +392,11 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 				// Show control informations
 				foreach($tmparray as $key => $value) {
+					// Limit value to 35 character
+					if (strlen($value) > 35) {
+						$value = substr($value, 0, 32) . '...';
+					}
+
 					$substitutionarray = pdf_getSubstitutionArray($outputlangs, null, $object);
 					complete_substitutions_array($substitutionarray, $outputlangs, $object);
 					$value = make_substitutions($value, $substitutionarray, $outputlangs);
@@ -408,7 +413,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 						$pdf->SetFont('', '', $default_font_size);
 						$pdf->line($this->marge_gauche, $tab_top + 6, $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 20, $tab_top + 6);
 					}
-					$pdf->writeHTMLCell(190, 3, $this->posxcontrolinfo - 4, $tab_top, dol_htmlentitiesbr($value), 0, 1);
+					$pdf->writeHTMLCell(60, 3, $this->posxcontrolinfo - 9, $tab_top, dol_htmlentitiesbr($value), 0, 1);
 
 					$tab_top += 10;
 				}
@@ -421,9 +426,6 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				// Display public note and picture
 				$tab_top += 5;
 				$tmparray['NoteControl'] = $object->note_public;
-				if (strlen($tmparray['NoteControl']) >= 1000) {
-					$tmparray['NoteControl'] = substr($tmparray['NoteControl'], 0, 1000) . '...';
-				}
 				$nophoto = '/public/theme/common/nophoto.png';
 				$tmparray['DefaultPhoto'] = DOL_DOCUMENT_ROOT.$nophoto;
 
