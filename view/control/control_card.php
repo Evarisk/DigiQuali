@@ -24,7 +24,6 @@
 // Load Dolibarr environment
 if (file_exists("../../dolismq.main.inc.php")) $res = @include "../../dolismq.main.inc.php";
 
-
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
@@ -367,6 +366,9 @@ if (empty($reshook)) {
 			}
 		}
 	}
+
+	// Action to generate pdf from odt file
+	include_once DOL_DOCUMENT_ROOT . '/custom/saturne/core/tpl/documents/saturne_manual_pdf_generation_action.tpl.php';
 
 	// Delete file in doc form
 	if ($action == 'remove_file' && $permissiontodelete) {

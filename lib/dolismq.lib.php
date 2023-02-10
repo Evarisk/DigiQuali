@@ -53,9 +53,9 @@ function dolismqAdminPrepareHead(): array
 	$head[$h][2] = 'control';
 	$h++;
 
-	$head[$h][0] = dol_buildpath('/dolismq/admin/controldocument.php', 1);
-	$head[$h][1] = '<i class="fas fa-file pictofixedwidth"></i>' . $langs->trans('ControlDocument');
-	$head[$h][2] = 'controldocument';
+	$head[$h][0] = dol_buildpath("/dolismq/admin/documents.php", 1);
+	$head[$h][1] = '<i class="fas fa-file-alt"></i> ' . $langs->trans("YourDocuments");
+	$head[$h][2] = 'documents';
 	$h++;
 
 	$head[$h][0] = dol_buildpath('/dolismq/admin/setup.php', 1);
