@@ -198,8 +198,10 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM', 'integer', 480, '', 0, 'current'],
 			$i++ => ['DOLISMQ_MEDIA_MAX_WIDTH_LARGE', 'integer', 1280, '', 0, 'current'],
 			$i++ => ['DOLISMQ_MEDIA_MAX_HEIGHT_LARGE', 'integer', 720, '', 0, 'current'],
-			$i++ => ['DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY', 'integer', 10, '', 0, 'current'],
-			$i   => ['DOLISMQ_REDIRECT_AFTER_CONNECTION', 'integer', 0, '', 0, 'current']
+			$i++ => ['DOLISMQ_REDIRECT_AFTER_CONNECTION', 'integer', 0, '', 0, 'current'],
+
+			// CONST DOCUMENTS
+			$i++ => ['MAIN_ODT_AS_PDF', 'chaine', 'libreoffice', '', 0, 'current'],
 		];
 
 		// Some keys to add into the overwriting translation tables
