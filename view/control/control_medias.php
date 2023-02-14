@@ -36,7 +36,7 @@ require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 global $conf, $db,$hookmanager, $langs, $user;
 
 // Load translation files required by the page
-$langs->loadLangs(array("dolismq@dolismq", "companies"));
+saturne_load_langs(array("dolismq@dolismq", "companies"));
 
 // Get parameters
 $id         = GETPOST('id', 'int');
@@ -90,7 +90,7 @@ saturne_header(0,'', $langs->trans('Control'), $help_url, '', 0, 0, $morejs, $mo
 if ($id > 0 || !empty($ref)) {
 	$object->fetch_thirdparty();
 
-	$head = controlPrepareHead($object);
+	$head = control_prepare_head($object);
 
 	print dol_get_fiche_head($head, 'controlMedias', $langs->trans('Medias'), -1, $object->picto);
 

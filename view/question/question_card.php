@@ -42,7 +42,7 @@ require_once '../../lib/dolismq_function.lib.php';
 global $conf, $db, $hookmanager, $langs, $user, $langs;
 
 // Load translation files required by the page
-$langs->loadLangs(array("dolismq@dolismq", "other"));
+saturne_load_langs(array("dolismq@dolismq", "other"));
 
 // Get parameters
 $id                  = GETPOST('id', 'int');
@@ -72,7 +72,7 @@ $extrafields->fetch_name_optionals_label($object->table_element);
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
 // Initialize array of search criterias
-$search_all = GETPOST("search_all", 'alpha');
+$searchAll = GETPOST("search_all", 'alpha');
 $search = array();
 foreach ($object->fields as $key => $val) {
 	if (GETPOST('search_'.$key, 'alpha')) $search[$key] = GETPOST('search_'.$key, 'alpha');
@@ -88,7 +88,7 @@ $permissiontoadd    = $user->rights->dolismq->question->write; // Used by the in
 $permissiontodelete = $user->rights->dolismq->question->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
 
 // Security check - Protection if external user
-saturne_check_access($module, $object, $permissiontoread);
+saturne_check_access($permissiontoread, $object);
 
 /*
  * Actions
@@ -231,10 +231,10 @@ if (empty($reshook)) {
 
 			foreach ($types as $type) {
 				$pathToTmpPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/' . $type;
-				$photo_list = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type);
-				if ( ! empty($photo_list)) {
-					foreach ($photo_list as $file) {
-						if ($file['type'] !== 'dir') {
+				$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type);
+				if ( ! empty($photoList)) {
+					foreach ($photoList as $photo) {
+						if ($photo['type'] !== 'dir') {
 							$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object);
 							if (!is_dir($pathToQuestionPhoto)) {
 								mkdir($pathToQuestionPhoto);
@@ -244,13 +244,13 @@ if (empty($reshook)) {
 								mkdir($pathToQuestionPhotoType);
 							}
 
-							copy($file['fullname'], $pathToQuestionPhotoType . '/' . $file['name']);
+							copy($photo['fullname'], $pathToQuestionPhotoType . '/' . $photo['name']);
 
 							global $maxwidthmini, $maxheightmini, $maxwidthsmall,$maxheightsmall ;
-							$destfull = $pathToQuestionPhotoType . '/' . $file['name'];
+							$destfull = $pathToQuestionPhotoType . '/' . $photo['name'];
 
 							if (empty($object->$type)) {
-								$object->$type = $file['name'];
+								$object->$type = $photo['name'];
 							}
 
 							// Create thumbs
@@ -260,12 +260,12 @@ if (empty($reshook)) {
 							// Create mini thumbs for image (Ratio is near 16/9)
 							// Used on menu or for setup page for example
 							$imgThumbMini = vignette($destfull, $maxwidthmini, $maxheightmini, '_mini', 50, "thumbs");
-							unlink($file['fullname']);
+							unlink($photo['fullname']);
 						}
 					}
 				}
 				$filesThumbs = dol_dir_list($pathToTmpPhoto . '/thumbs/');
-				if ( ! empty($filesThumbs)) {
+				if (is_array($filesThumbs) && !empty($filesThumbs)) {
 					foreach ($filesThumbs as $fileThumb) {
 						unlink($fileThumb['fullname']);
 					}
@@ -375,10 +375,8 @@ if (empty($reshook)) {
 
 $title    = $langs->trans("Question");
 $help_url = '';
-$morejs   = array("/dolismq/js/dolismq.js");
-$morecss  = array("/dolismq/css/dolismq.css");
 
-saturne_header(1,'', $title, $help_url, '', '', '', $morejs, $morecss);
+saturne_header(1,'', $title, $help_url, '', '', '');
 
 // Part to create
 if ($action == 'create') {
@@ -393,12 +391,6 @@ if ($action == 'create') {
 	print dol_get_fiche_head(array(), '');
 
 	print '<table class="border centpercent tableforfieldcreate question-table">'."\n";
-
-	// Ref -- Ref
-//	print '<tr><td class="titlefieldcreate fieldrequired">' . $langs->trans("Ref") . '</td><td>';
-//	print '<input hidden class="flat" type="text" size="36" name="ref" id="ref" value="' . $refQuestionMod->getNextValue($object) . '">';
-//	print $refQuestionMod->getNextValue($object);
-//	print '</td></tr>';
 
 	// Label -- Libellé
 	print '<tr><td class="">'.$langs->trans("Label").'</td><td>';
@@ -477,8 +469,8 @@ if ($action == 'create') {
 	// Categories
 	if (!empty($conf->categorie->enabled)) {
 		print '<tr><td>'.$langs->trans("Categories").'</td><td>';
-		$cate_arbo = $form->select_all_categories('question', '', 'parent', 64, 0, 1);
-		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $cate_arbo, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+		$categoryArborescence = $form->select_all_categories('question', '', 'parent', 64, 0, 1);
+		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $categoryArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
 		print "</td></tr>";
 	}
 
@@ -605,7 +597,7 @@ if (($id || $ref) && $action == 'edit') {
 	// Tags-Categories
 	if ($conf->categorie->enabled) {
 		print '<tr><td>'.$langs->trans("Categories").'</td><td>';
-		$cate_arbo = $form->select_all_categories('question', '', 'parent', 64, 0, 1);
+		$categoryArborescence = $form->select_all_categories('question', '', 'parent', 64, 0, 1);
 		$c = new Categorie($db);
 		$cats = $c->containing($object->id, 'question');
 		$arrayselected = array();
@@ -614,7 +606,7 @@ if (($id || $ref) && $action == 'edit') {
 				$arrayselected[] = $cat->id;
 			}
 		}
-		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $cate_arbo, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $categoryArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
 		print "</td></tr>";
 	}
 
@@ -636,8 +628,7 @@ if (($id || $ref) && $action == 'edit') {
 if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
 	$res = $object->fetch_optionals();
 
-	$head = questionPrepareHead($object);
-	print dol_get_fiche_head($head, 'questionCard', $langs->trans("Question"), -1, $object->picto);
+	print saturne_fiche_head($object, 'questionCard', $langs->trans("Question"));
 
 	$formconfirm = '';
 
@@ -677,7 +668,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$morehtmlref .= '</div>';
 
 	$object->picto = 'question_small@dolismq';
-	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
+	saturne_banner_tab($object, 'ref', 1, 'ref', 'ref', $morehtmlref);
 
 	print '<div class="fichecenter">';
 	print '<div class="fichehalfleft">';
@@ -776,14 +767,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="fichehalfright">';
 
-	$MAXEVENT = 10;
+	$maxEvent = 10;
 
-	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-list-alt imgforviewmode', dol_buildpath('/dolismq/view/question/question_agenda.php', 1).'?id='.$object->id);
+	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliMeet&object_type=' . $object->element);
 
 	// List of actions on element
 	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
 	$formactions = new FormActions($db);
-	$somethingshown = $formactions->showactions($object, $object->element.'@'.$object->module, (is_object($object->thirdparty) ? $object->thirdparty->id : 0), 1, '', $MAXEVENT, '', $morehtmlcenter);
+	$somethingshown = $formactions->showactions($object, $object->element.'@'.$object->module, (is_object($object->thirdparty) ? $object->thirdparty->id : 0), 1, '', $maxEvent, '', $morehtmlcenter);
 
 	print '</div>';
 	print dol_get_fiche_end();

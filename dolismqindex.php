@@ -34,7 +34,7 @@ require_once __DIR__ . '/core/modules/modDoliSMQ.class.php';
 global $conf, $db, $langs, $user;
 
 // Load translation files required by the page
-$langs->loadLangs(['dolismq@dolismq']);
+saturne_load_langs(['dolismq@dolismq']);
 
 // Get parameters
 $action = GETPOST('action', 'aZ09');
@@ -44,8 +44,7 @@ $dolismq = new modDoliSMQ($db);
 $parse   = new Parsedown();
 
 // Security check
-if (!$user->rights->dolismq->lire) accessforbidden();
-
+saturne_check_access($user->rights->dolismq->lire);
 /*
  *  Actions
 */

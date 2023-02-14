@@ -22,20 +22,7 @@
  */
 
 // Load Dolibarr environment
-$res = 0;
-// Try main.inc.php into web root known defined into CONTEXT_DOCUMENT_ROOT (not always defined)
-if (!$res && !empty($_SERVER["CONTEXT_DOCUMENT_ROOT"])) $res = @include $_SERVER["CONTEXT_DOCUMENT_ROOT"]."/main.inc.php";
-// Try main.inc.php into web root detected using web root calculated from SCRIPT_FILENAME
-$tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME']; $tmp2 = realpath(__FILE__); $i = strlen($tmp) - 1; $j = strlen($tmp2) - 1;
-while ($i > 0 && $j > 0 && isset($tmp[$i]) && isset($tmp2[$j]) && $tmp[$i] == $tmp2[$j]) { $i--; $j--; }
-if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1))."/main.inc.php")) $res = @include substr($tmp, 0, ($i + 1))."/main.inc.php";
-if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php")) $res = @include dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php";
-// Try main.inc.php using relative path
-if (!$res && file_exists("../main.inc.php")) $res = @include "../main.inc.php";
-if ( ! $res && file_exists("../../main.inc.php")) $res       = @include "../../main.inc.php";
-if ( ! $res && file_exists("../../../main.inc.php")) $res    = @include "../../../main.inc.php";
-if ( ! $res && file_exists("../../../../main.inc.php")) $res = @include "../../../../main.inc.php";
-if (!$res) die("Include of main fails");
+if (file_exists("../../dolismq.main.inc.php")) $res = @include "../../dolismq.main.inc.php";
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
@@ -51,7 +38,7 @@ require_once '../../lib/dolismq_function.lib.php';
 global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
-$langs->loadLangs(array("dolismq@dolismq", "other", "product"));
+saturne_load_langs(array("dolismq@dolismq", "other", "product"));
 
 // Get parameters
 $id                  = GETPOST('id', 'int');
@@ -81,7 +68,7 @@ $extrafields->fetch_name_optionals_label($object->table_element);
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
 // Initialize array of search criterias
-$search_all = GETPOST("search_all", 'alpha');
+$searchAll = GETPOST("search_all", 'alpha');
 $search = array();
 foreach ($object->fields as $key => $val) {
 	if (GETPOST('search_'.$key, 'alpha')) $search[$key] = GETPOST('search_'.$key, 'alpha');
@@ -97,7 +84,7 @@ $permissiontoadd    = $user->rights->dolismq->sheet->write; // Used by the inclu
 $permissiontodelete = $user->rights->dolismq->sheet->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
 
 // Security check - Protection if external user
-if (!$permissiontoread) accessforbidden();
+saturne_check_access($permissiontoread, $object);
 
 /*
  * Actions
@@ -196,14 +183,12 @@ if (empty($reshook)) {
 		if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
 			foreach($object->linkedObjects as $linkedObjectType => $linkedObjectArray) {
 				foreach($linkedObjectArray as $linkedObject) {
-
-					if (method_exists($object, 'is_erasable') && $object->is_erasable() > 0) {
+					if (method_exists($object, 'isErasable') && $object->isErasable() > 0) {
 						$object->deleteObjectLinked('','',$linkedObject->id, $linkedObjectType);
 					}
 				}
 			}
 		}
-		exit;
 		$result = $object->delete($user);
 
 		if ($result > 0) {
@@ -269,8 +254,6 @@ $title_create  = $langs->trans("NewSheet");
 $title_edit    = $langs->trans("ModifySheet");
 
 $help_url = '';
-$morejs   = array("/dolismq/js/dolismq.js");
-$morecss  = array("/dolismq/css/dolismq.css");
 
 $elementArray = array(
 	'product' => array(
@@ -310,7 +293,7 @@ $elementArray = array(
 	),
 );
 
-llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);
+saturne_header(0,'', $title, $help_url, '', 0, 0);
 
 // Part to create
 if ($action == 'create') {
@@ -325,12 +308,6 @@ if ($action == 'create') {
 	print dol_get_fiche_head();
 
 	print '<table class="border centpercent tableforfieldcreate sheet-table">'."\n";
-
-	//Ref -- Ref
-//	print '<tr><td class="titlefieldcreate fieldrequired">' . $langs->trans("Ref") . '</td><td>';
-//	print '<input hidden class="flat" type="text" size="36" name="ref" id="ref" value="' . $refSheetMod->getNextValue($object) . '">';
-//	print $refSheetMod->getNextValue($object);
-//	print '</td></tr>';
 
 	//Label -- Libellé
 	print '<tr><td class="">' . $langs->trans("Label") . '</td><td>';
@@ -459,8 +436,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 {
 	$res = $object->fetch_optionals();
 
-	$head = sheetPrepareHead($object);
-	print dol_get_fiche_head($head, 'sheetCard', $langs->trans("Sheet"), -1, $object->picto);
+	print saturne_fiche_head($object, 'sheetCard', $langs->trans("Sheet"));
 
 	$formconfirm = '';
 
@@ -499,7 +475,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$morehtmlref .= '</div>';
 
 	$object->picto = 'sheet_small@dolismq';
-	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
+	saturne_banner_tab($object);
 
 	print '<div class="fichecenter">';
 	print '<div class="fichehalfleft">';
@@ -604,7 +580,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					$('.line-row').each(function(  ) {
 						lineOrder.push($(this).attr('id'));
 					});
-					console.log(lineOrder)
 					$.ajax({
 						url: document.URL + separator + "action=moveLine&token=" + token,
 						type: "POST",
@@ -634,7 +609,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td class="center"></td>';
 	print '</tr></thead>';
 
-	if ( ! empty($questionIds) && $questionIds > 0) {
+	if (is_array($questionIds) && !empty($questionIds)) {
 		print '<tbody><tr>';
 		foreach ($questionIds as $questionId) {
 			$item = $question;
@@ -678,7 +653,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print $item->getLibStatut(5);
 			print '</td>';
 
-
 			print '<td class="center">';
 			if ($object->status != 2) {
 				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=unlinkQuestion&questionId=' . $item->id . '">';
@@ -703,7 +677,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<input type="hidden" name="id" value="' . $id . '">';
 
 		print '<tr class="add-line"><td class="">';
-		print $question->select_question_list(0, 'questionId', '', '1', 0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds);
+		print $question->selectQuestionList(0, 'questionId', '', '1', 0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds);
 		print '</td>';
 		print '<td>';
 		print ' &nbsp; <input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
@@ -730,14 +704,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="fichehalfright">';
 
-	$MAXEVENT = 10;
+	$maxEvent = 10;
 
-	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-list-alt imgforviewmode', dol_buildpath('/dolismq/view/sheet/sheet_agenda.php', 1).'?id='.$object->id);
+	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliMeet&object_type=' . $object->element);
 
 	// List of actions on element
 	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
 	$formactions = new FormActions($db);
-	$somethingshown = $formactions->showactions($object, $object->element.'@'.$object->module, (is_object($object->thirdparty) ? $object->thirdparty->id : 0), 1, '', $MAXEVENT, '', $morehtmlcenter);
+	$somethingshown = $formactions->showactions($object, $object->element.'@'.$object->module, (is_object($object->thirdparty) ? $object->thirdparty->id : 0), 1, '', $maxEvent, '', $morehtmlcenter);
 
 	print '</div>';
 	print dol_get_fiche_end();
