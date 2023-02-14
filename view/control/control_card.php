@@ -357,7 +357,12 @@ if (empty($reshook)) {
 			$action = '';
 		} else {
 			if (empty($donotredirect)) {
-				setEventMessages($langs->trans("FileGenerated") . ' - ' . $controldocument->last_main_doc, null);
+				$documentUrl = DOL_URL_ROOT . '/document.php';
+				$documentPath = preg_split('/\//', $controldocument->last_main_doc, 2);
+				$modulepart   = $documentPath[0];
+				$filepath     = $documentPath[1];
+
+				setEventMessages($langs->trans("FileGenerated") . ' - ' . '<a href=' . $documentUrl . '?modulepart=' . $modulepart . '&amp;file=' . urlencode($filepath) . '&entity='. $conf->entity .'"' . '>' . $controldocument->last_main_doc, null);
 				$urltoredirect = $_SERVER['REQUEST_URI'];
 				$urltoredirect = preg_replace('/#builddoc$/', '', $urltoredirect);
 				$urltoredirect = preg_replace('/action=builddoc&?/', '', $urltoredirect); // To avoid infinite loop
