@@ -269,7 +269,7 @@ window.dolismq.control.showSelectObjectLinked = function ( event ) {
 	urlToGo += '&fk_project=' + projectId
 	urlToGo += '&fk_user_controller=' + userController
 	console.log(urlToGo)
-	window.dolismq.loader.display($('.tabBar.tabBarWithBottom tbody'))
+	window.saturne.loader.display($('.tabBar.tabBarWithBottom tbody'))
 	$.ajax({
 		url: urlToGo,
 		type: "POST",
