@@ -49,7 +49,7 @@ function dolismq_select_product_lots($productid = -1, $selected = '', $htmlname 
 {
 	global $conf, $langs, $hookmanager, $action, $db;
 
-	$langs->loadLangs(array("dolismQ@dolismq", "companies"));
+	saturne_load_langs(["companies"]);
 
 	if (empty($htmlid)) $htmlid = $htmlname;
 	$num                        = 0;
@@ -92,13 +92,13 @@ function dolismq_select_product_lots($productid = -1, $selected = '', $htmlname 
 		$i = 0;
 		if ($num) {
 			include_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
-			$product_lotsstatic = new Productlot($db);
+			$productLotStatic = new Productlot($db);
 
 			while ($i < $num) {
 				$obj = $db->fetch_object($resql);
 
-				$product_lotsstatic->id     = $obj->rowid;
-				$product_lotsstatic->batch  = $obj->batch;
+				$productLotStatic->id     = $obj->rowid;
+				$productLotStatic->batch  = $obj->batch;
 				if (empty($outputmode)) {
 					if (in_array($obj->rowid, $selected)) {
 						$out .= '<option value="' . $obj->rowid . '" selected>' . $obj->batch . '</option>';

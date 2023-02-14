@@ -27,13 +27,13 @@
  * @param  Question $object		Question
  * @return array				Array of tabs
  */
-function questionPrepareHead(Question $object): array
+function question_prepare_head(Question $object): array
 {
 	// Global variables definitions
 	global $conf, $db, $langs;
 
 	// Load translation files required by the page
-	$langs->load('dolismq@dolismq');
+	saturne_load_langs();
 
 	// Initialize values
 	$h = 0;

@@ -27,13 +27,13 @@
  * @param 	Sheet $object		Sheet
  * @return 	array				Array of tabs
  */
-function sheetPrepareHead(Sheet $object): array
+function sheet_prepare_head(Sheet $object): array
 {
 	// Global variables definitions
 	global $conf, $langs;
 
 	// Load translation files required by the page
-	$langs->load('dolismq@dolismq');
+	saturne_load_langs();
 
 	// Initialize values
 	$h = 0;

@@ -27,13 +27,13 @@
  * @param 	Control $object		Control
  * @return 	array				Array of tabs
  */
-function controlPrepareHead(Control $object): array
+function control_prepare_head(Control $object): array
 {
 	// Global variables definitions
 	global $conf, $langs;
 
 	// Load translation files required by the page
-	$langs->load('dolismq@dolismq');
+	saturne_load_langs();
 
 	// Initialize variables
 	$h = 0;

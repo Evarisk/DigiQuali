@@ -26,13 +26,13 @@
  *
  * @return array
  */
-function dolismqAdminPrepareHead(): array
+function dolismq_admin_prepare_head(): array
 {
 	// Global variables definitions
 	global $conf, $langs;
 
 	// Load translation files required by the page
-	$langs->load('dolismq@dolismq');
+	saturne_load_langs();
 
 	// Initialize values
 	$h = 0;
