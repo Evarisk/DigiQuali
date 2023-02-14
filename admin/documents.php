@@ -33,11 +33,11 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once '../lib/dolismq.lib.php';
 
 // Translations
-$langs->loadLangs(array('admin', 'dolismq@dolismq'));
+saturne_load_langs(array('admin', 'dolismq@dolismq'));
 
 // Access control
 $permissiontoread = $user->admin;
-saturne_check_access($module, $object, $permissiontoread);
+saturne_check_access($permissiontoread);
 
 // Parameters
 $action     = GETPOST('action', 'alpha');
@@ -196,7 +196,7 @@ $selectorAnchor .= '</select>';
 print load_fiche_titre($title, $selectorAnchor, 'dolismq32px@dolismq');
 
 // Configuration header
-$head = dolismqAdminPrepareHead();
+$head = dolismq_admin_prepare_head();
 print dol_get_fiche_head($head, 'documents', '', -1, 'dolismq@dolismq');
 
 print load_fiche_titre($langs->trans("DocumentsConfig"), '', '');

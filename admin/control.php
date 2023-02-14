@@ -22,19 +22,7 @@
  */
 
 // Load Dolibarr environment
-$res = 0;
-// Try main.inc.php into web root known defined into CONTEXT_DOCUMENT_ROOT (not always defined)
-if ( ! $res && ! empty($_SERVER["CONTEXT_DOCUMENT_ROOT"])) $res = @include $_SERVER["CONTEXT_DOCUMENT_ROOT"] . "/main.inc.php";
-// Try main.inc.php into web root detected using web root calculated from SCRIPT_FILENAME
-$tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME']; $tmp2 = realpath(__FILE__); $i = strlen($tmp) - 1; $j = strlen($tmp2) - 1;
-while ($i > 0 && $j > 0 && isset($tmp[$i]) && isset($tmp2[$j]) && $tmp[$i] == $tmp2[$j]) { $i--; $j--; }
-if ( ! $res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1)) . "/main.inc.php")) $res          = @include substr($tmp, 0, ($i + 1)) . "/main.inc.php";
-if ( ! $res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1))) . "/main.inc.php")) $res = @include dirname(substr($tmp, 0, ($i + 1))) . "/main.inc.php";
-// Try main.inc.php using relative path
-if ( ! $res && file_exists("../../main.inc.php")) $res       = @include "../../main.inc.php";
-if ( ! $res && file_exists("../../../main.inc.php")) $res    = @include "../../../main.inc.php";
-if ( ! $res && file_exists("../../../../main.inc.php")) $res = @include "../../../../main.inc.php";
-if ( ! $res) die("Include of main fails");
+if (file_exists("../dolismq.main.inc.php")) $res = @include "../dolismq.main.inc.php";
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
@@ -45,7 +33,7 @@ require_once '../lib/dolismq.lib.php';
 global $conf, $db, $langs, $user;
 
 // Load translation files required by the page
-$langs->loadLangs(array("admin", "dolismq@dolismq"));
+saturne_load_langs(['admin']);
 
 // Get parameters
 $action     = GETPOST('action', 'alpha');
@@ -68,7 +56,7 @@ $elementtype = 'dolismq_control'; //Must be the $table_element of the class that
 $error = 0; //Error counter
 
 // Access control
-if (!$user->admin) accessforbidden();
+saturne_check_access($user->admin);
 
 /*
  * Actions
@@ -93,12 +81,10 @@ if ($action == 'setmodControlDet') {
  * View
  */
 
-$help_url = 'FR:Module_DoliSMQ';
+$helpUrl = 'FR:Module_DoliSMQ';
 $title    = $langs->trans("Control");
-$morejs   = array("/dolismq/js/dolismq.js");
-$morecss  = array("/dolismq/css/dolismq.css");
 
-llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);
+saturne_header(0,'', $title, $helpUrl, '', 0, 0);
 
 // Subheader
 $linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?restore_lastsearch_values=1') . '">' . $langs->trans("BackToModuleList") . '</a>';
@@ -106,7 +92,7 @@ $linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?res
 print load_fiche_titre($title, $linkback, 'dolismq_color@dolismq');
 
 // Configuration header
-$head = dolismqAdminPrepareHead();
+$head = dolismq_admin_prepare_head();
 print dol_get_fiche_head($head, 'control', $title, -1, "dolismq_color@dolismq");
 
 print load_fiche_titre($langs->trans("ControlManagement"), '', '');
