@@ -239,8 +239,6 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$id = $objectDocument->create($user, true, $object);
 				$objectDocument->fetch($id);
 
-				$societyname = preg_replace('/\./', '_', $conf->global->MAIN_INFO_SOCIETE_NOM);
-
 				$filename = preg_split('/controldocument\//' , $srctemplatepath);
 				$filename = preg_replace('/template_/','', $filename[1]);
 

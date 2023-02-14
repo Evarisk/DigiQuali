@@ -134,7 +134,7 @@ class mod_question_standard
 	public function getVersion()
 	{
 		global $langs;
-		$langs->load("admin");
+		$langs->load('admin');
 
 		if ($this->version == 'development') return $langs->trans("VersionDevelopment");
 		if ($this->version == 'experimental') return $langs->trans("VersionExperimental");

@@ -63,7 +63,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 		global $langs, $mysoc;
 
 		// Load translation files required by the page
-		$langs->loadLangs(array("main", "companies"));
+		saturne_load_langs(array("main", "companies"));
 
 		$this->db = $db;
 		$this->name = $langs->trans('ControlDocumentDoliSMQTemplate');
@@ -96,7 +96,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 		global $conf, $langs;
 
 		// Load translation files required by the page
-		$langs->loadLangs(array("errors", "companies"));
+		saturne_load_langs(array("errors", "companies"));
 
 		$texte = $this->description.".<br>\n";
 		$texte .= '<form action="'.$_SERVER["PHP_SELF"].'" method="POST">';
@@ -264,10 +264,10 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$substitutionarray = getCommonSubstitutionArray($outputlangs, 0, null, $object);
 			$array_object_from_properties = $this->get_substitutionarray_each_var_object($object, $outputlangs);
 			//$array_object = $this->get_substitutionarray_object($object, $outputlangs);
-			$array_soc = $this->get_substitutionarray_mysoc($mysoc, $outputlangs);
-			$array_soc['mycompany_logo'] = preg_replace('/_small/', '_mini', $array_soc['mycompany_logo']);
+			$arraySoc = $this->get_substitutionarray_mysoc($mysoc, $outputlangs);
+			$arraySoc['mycompany_logo'] = preg_replace('/_small/', '_mini', $arraySoc['mycompany_logo']);
 
-			$tmparray = array_merge($substitutionarray, $array_object_from_properties, $array_soc);
+			$tmparray = array_merge($substitutionarray, $array_object_from_properties, $arraySoc);
 			complete_substitutions_array($tmparray, $outputlangs, $object);
 
 			$filearray = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/' . $object->element_type . '/' . $object->ref . '/thumbs/', "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
@@ -377,7 +377,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 						$listlines = $odfHandler->setSegment('questions');
 						$object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet');
 						$questionIds = $object->linkedObjectsIds;
-						if ( ! empty($questionIds['dolismq_question']) && $questionIds > 0) {
+						if (is_array($questionIds['dolismq_question']) && !empty($questionIds['dolismq_question'])) {
 							foreach ($questionIds['dolismq_question'] as $questionId) {
 								$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
 								if ($result > 0 && is_array($result)) {

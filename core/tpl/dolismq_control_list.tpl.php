@@ -26,7 +26,7 @@ $formproject   = new FormProjets($db);
 $sql = 'SELECT DISTINCT ';
 foreach ($object->fields as $key => $val)
 {
-	if (!array_key_exists($key, $element_element_fields)) {
+	if (!array_key_exists($key, $elementElementFields)) {
 		$sql .= 't.' . $key . ', ';
 	}
 }
@@ -45,15 +45,15 @@ if (!empty($conf->categorie->enabled)) {
 }
 if (is_array($extrafields->attributes[$object->table_element]['label']) && count($extrafields->attributes[$object->table_element]['label'])) $sql .= " LEFT JOIN ".MAIN_DB_PREFIX.$object->table_element."_extrafields as ef on (t.rowid = ef.fk_object)";
 
-foreach($element_element_fields as $generic_name => $element_element_name) {
-	if (GETPOST('search_'.$generic_name) > 0 || $fromtype == $element_element_name) {
-		$id_to_search = GETPOST('search_'.$generic_name) ?: $fromid;
-		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $element_element_name .' on ('. $element_element_name .'.fk_source = ' . $id_to_search . ' AND '. $element_element_name .'.sourcetype="'. $element_element_name .'" AND '. $element_element_name .'.targettype = "dolismq_control")';
+foreach($elementElementFields as $genericName => $elementElementName) {
+	if (GETPOST('search_'.$genericName) > 0 || $fromtype == $elementElementName) {
+		$id_to_search = GETPOST('search_'.$genericName) ?: $fromid;
+		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementName .' on ('. $elementElementName .'.fk_source = ' . $id_to_search . ' AND '. $elementElementName .'.sourcetype="'. $elementElementName .'" AND '. $elementElementName .'.targettype = "dolismq_control")';
 	}
 }
 
-if (array_key_exists($sortfield,$element_element_fields)) {
-	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $element_element_fields[$sortfield] .' on ( '. $element_element_fields[$sortfield] .'.sourcetype="'. $element_element_fields[$sortfield] .'" AND '. $element_element_fields[$sortfield] .'.targettype = "dolismq_control" AND '. $element_element_fields[$sortfield] .'.fk_target = t.rowid)';
+if (array_key_exists($sortfield,$elementElementFields)) {
+	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementFields[$sortfield] .' on ( '. $elementElementFields[$sortfield] .'.sourcetype="'. $elementElementFields[$sortfield] .'" AND '. $elementElementFields[$sortfield] .'.targettype = "dolismq_control" AND '. $elementElementFields[$sortfield] .'.fk_target = t.rowid)';
 }
 
 // Add table from hooks
@@ -63,14 +63,14 @@ $sql .= $hookmanager->resPrint;
 if ($object->ismultientitymanaged == 1) $sql .= " WHERE t.entity IN (".getEntity($object->element).")";
 else $sql .= " WHERE 1 = 1".$sqlfilter;
 
-foreach($element_element_fields as $generic_name => $element_element_name) {
-	if (GETPOST('search_'.$generic_name) > 0 || $fromtype == $element_element_name) {
-		$sql .= ' AND t.rowid = '. $element_element_name .'.fk_target ';
+foreach($elementElementFields as $genericName => $elementElementName) {
+	if (GETPOST('search_'.$genericName) > 0 || $fromtype == $elementElementName) {
+		$sql .= ' AND t.rowid = '. $elementElementName .'.fk_target ';
 	}
 }
 
 foreach ($search as $key => $val) {
-	if (!array_key_exists($key, $element_element_fields)) {
+	if (!array_key_exists($key, $elementElementFields)) {
 		if (array_key_exists($key, $object->fields)) {
 			if ($key == 'status' && $search[$key] == -1) {
 				continue;
@@ -104,7 +104,7 @@ foreach ($search as $key => $val) {
 	}
 }
 
-if ($search_all) $sql .= natural_search(array_keys($fieldstosearchall), $search_all);
+if ($searchAll) $sql .= natural_search(array_keys($fieldstosearchall), $searchAll);
 
 if (!empty($conf->categorie->enabled)) {
 	$sql .= Categorie::getFilterSelectQuery('control', "t.rowid", $search_category_array);
@@ -118,8 +118,8 @@ $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters, $object); // Note that $action and $object may have been modified by hook
 $sql .= $hookmanager->resPrint;
 
-if (array_key_exists($sortfield, $element_element_fields)) {
-	$sql .= ' ORDER BY '. $element_element_fields[$sortfield] .'.fk_source ' . $sortorder;
+if (array_key_exists($sortfield, $elementElementFields)) {
+	$sql .= ' ORDER BY '. $elementElementFields[$sortfield] .'.fk_source ' . $sortorder;
 } else {
 	$sql .= $db->order($sortfield, $sortorder);
 }
@@ -149,7 +149,7 @@ if (is_numeric($nbtotalofrecords) && ($limit > $nbtotalofrecords || empty($limit
 }
 
 // Direct jump if only one record found
-if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $search_all && !$page)
+if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $searchAll && !$page)
 {
 	$obj = $db->fetch_object($resql);
 	$id = $obj->rowid;
@@ -212,10 +212,10 @@ $objecttmp = new Control($db);
 $trackid = 'xxxx'.$object->id;
 include DOL_DOCUMENT_ROOT . '/core/tpl/massactions_pre.tpl.php';
 
-if ($search_all)
+if ($searchAll)
 {
 	foreach ($fieldstosearchall as $key => $val) $fieldstosearchall[$key] = $langs->trans($val);
-	print '<div class="divsearchfieldfilter">'.$langs->trans("FilterOnInto", $search_all).join(', ', $fieldstosearchall).'</div>';
+	print '<div class="divsearchfieldfilter">'.$langs->trans("FilterOnInto", $searchAll).join(', ', $fieldstosearchall).'</div>';
 }
 
 $moreforfilter = '';
@@ -264,7 +264,7 @@ foreach ($object->fields as $key => $val)
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
 		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) print $form->selectarray('search_'.$key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
 		elseif ($key == 'fk_sheet') {
-			print $sheet->select_sheet_list(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : ($search['fk_sheet'] ?: 0), 'search_fk_sheet');
+			print $sheet->selectSheetList(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : ($search['fk_sheet'] ?: 0), 'search_fk_sheet');
 		}
 		elseif (strpos($val['type'], 'integer:') === 0) {
 			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'maxwidth125', 1);

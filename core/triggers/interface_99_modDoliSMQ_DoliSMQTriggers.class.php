@@ -400,8 +400,6 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
 				break;
 		}
-
-
 		return 0;
 	}
 }

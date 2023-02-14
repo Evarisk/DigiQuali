@@ -87,7 +87,7 @@ class dolismqwidget1 extends ModeleBoxes
 	{
 		global $user, $langs;
 		// Translations
-		$langs->loadLangs(array("boxes", "dolismq@dolismq"));
+		saturne_load_langs(array("boxes", "dolismq@dolismq"));
 
 		parent::__construct($db, $param);
 
@@ -167,7 +167,7 @@ class dolismqwidget1 extends ModeleBoxes
 			$boxcontent .= '<script>date = new Date(); date.setTime(date.getTime()+(30*86400000)); document.cookie = "' . $cookie_name . '=' . $filterValue . '; expires= " + date.toGMTString() + "; path=/ "; </script>';
 		}
 
-		if (!empty($controls)) {
+		if (is_array($controls) && !empty($controls)) {
 			foreach ($controls as $control) {
 				if (!empty($control->linkedObjectsIds)) {
 					if (array_key_exists($fromtype, $control->linkedObjectsIds)) {
