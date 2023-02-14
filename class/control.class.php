@@ -405,8 +405,8 @@ class Control extends CommonObject
 	 *
 	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function is_erasable() {
-		return $this->is_linked_to_other_objects();
+	public function isErasable() {
+		return $this->isLinkedToOtherObjects();
 	}
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
@@ -415,7 +415,7 @@ class Control extends CommonObject
 	 *
 	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function is_linked_to_other_objects() {
+	public function isLinkedToOtherObjects() {
 
 		// Links between objects are stored in table element_element
 		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype';
@@ -543,10 +543,10 @@ class Control extends CommonObject
 	 *  @param  string  $option                     On what the link point to ('nolink', ...)
 	 *  @param  int     $notooltip                  1=Disable tooltip
 	 *  @param  string  $morecss                    Add more css on link
-	 *  @param  int     $save_lastsearch_value      -1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
+	 *  @param  int     $saveLastSearchValue       -1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
 	 *  @return	string                              String with URL
 	 */
-	public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $save_lastsearch_value = -1)
+	public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $saveLastSearchValue = -1)
 	{
 		global $conf, $langs;
 
@@ -565,9 +565,9 @@ class Control extends CommonObject
 
 		if ($option != 'nolink') {
 			// Add param to save lastsearch_values or not
-			$add_save_lastsearch_values                                                                                      = ($save_lastsearch_value == 1 ? 1 : 0);
-			if ($save_lastsearch_value == -1 && preg_match('/list\.php/', $_SERVER['PHP_SELF'])) $add_save_lastsearch_values = 1;
-			if ($add_save_lastsearch_values) $url                                                                           .= '&save_lastsearch_values=1';
+			$addSaveLastSearchValues = ($saveLastSearchValue == 1 ? 1 : 0);
+			if ($saveLastSearchValue == -1 && preg_match('/list\.php/', $_SERVER['PHP_SELF'])) $addSaveLastSearchValues = 1;
+			if ($addSaveLastSearchValues) $url .= '&save_lastsearch_values=1';
 		}
 
 		$linkclose = '';
@@ -620,7 +620,7 @@ class Control extends CommonObject
 	 */
 	public function getLibVerdict($mode = 0)
 	{
-		return $this->LibVerdict($this->verdict, $mode);
+		return $this->libVerdict($this->verdict, $mode);
 	}
 
 
@@ -661,7 +661,7 @@ class Control extends CommonObject
 	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
 	 *  @return string 			       Label of status
 	 */
-	public function LibVerdict($verdict, $mode = 0)
+	public function libVerdict($verdict, $mode = 0)
 	{
 		global $langs;
 

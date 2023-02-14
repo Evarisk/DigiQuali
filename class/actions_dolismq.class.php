@@ -121,14 +121,14 @@ class ActionsDolismq
 
 		if (preg_match('/categorycard/', $parameters['context'])) {
 			$id = GETPOST('id');
-			$element_id = GETPOST('element_id');
+			$elementId = GETPOST('element_id');
 			$type = GETPOST('type');
-			if ($id > 0 && $element_id > 0 && ($type == 'question' || $type == 'sheet' || $type == 'control') && $user->rights->dolismq->$type->write) {
+			if ($id > 0 && $elementId > 0 && ($type == 'question' || $type == 'sheet' || $type == 'control') && $user->rights->dolismq->$type->write) {
 				require_once __DIR__ . '/' . $type . '.class.php';
 				$classname = ucfirst($type);
 				$newobject = new $classname($this->db);
 
-				$newobject->fetch($element_id);
+				$newobject->fetch($elementId);
 
 				if (GETPOST('action') == 'addintocategory') {
 					$result = $object->add_type($newobject, $type);
@@ -205,9 +205,9 @@ class ActionsDolismq
 
 				$category = new Categorie($this->db);
 				$category->fetch($id);
-				$elements = $category->getObjectsInCateg($type, 0, $limit, $offset);
+				$objectsInCateg = $category->getObjectsInCateg($type, 0, $limit, $offset);
 
-				if ($elements < 0) {
+				if (is_array($objectsInCateg) && !empty($objectsInCateg)) {
 					dol_print_error($this->db, $category->error, $category->errors);
 				} else {
 					// Form to add record into a category
@@ -229,14 +229,14 @@ class ActionsDolismq
 					$out .= '<br>';
 
 					//$param = '&limit=' . $limit . '&id=' . $id . '&type=' . $type;
-					//$num = count($elements);
+					//$num = count($objectsInCateg);
 					//print_barre_liste($langs->trans(ucfirst($type)), $page, $_SERVER["PHP_SELF"], $param, '', '', '', $num, '', 'object_'.$type.'@dolismq', 0, '', '', $limit);
 
 					$out .= '<table class="noborder centpercent">';
 					$out .= '<tr class="liste_titre"><td colspan="3">'.$langs->trans("Ref").'</td></tr>';
-					if (count($elements) > 0) {
+					if (count($objectsInCateg) > 0) {
 						$i = 0;
-						foreach ($elements as $element) {
+						foreach ($objectsInCateg as $element) {
 							$i++;
 							if ($i > $limit) break;
 

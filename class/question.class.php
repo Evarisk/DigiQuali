@@ -297,8 +297,8 @@ class Question extends CommonObject
 	 *
 	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function is_erasable() {
-		return $this->is_linked_to_other_objects();
+	public function isErasable() {
+		return $this->isLinkedToOtherObjects();
 	}
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
@@ -307,7 +307,7 @@ class Question extends CommonObject
 	 *
 	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function is_linked_to_other_objects() {
+	public function isLinkedToOtherObjects() {
 
 		// Links between objects are stored in table element_element
 		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype';
@@ -343,10 +343,10 @@ class Question extends CommonObject
 	 *  @param  string  $option                     On what the link point to ('nolink', ...)
 	 *  @param  int     $notooltip                  1=Disable tooltip
 	 *  @param  string  $morecss                    Add more css on link
-	 *  @param  int     $save_lastsearch_value      -1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
+	 *  @param  int     $saveLastSearchValue      -1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
 	 *  @return	string                              String with URL
 	 */
-	public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $save_lastsearch_value = -1)
+	public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $saveLastSearchValue = -1)
 	{
 		global $conf, $langs;
 
@@ -365,9 +365,9 @@ class Question extends CommonObject
 
 		if ($option != 'nolink') {
 			// Add param to save lastsearch_values or not
-			$add_save_lastsearch_values                                                                                      = ($save_lastsearch_value == 1 ? 1 : 0);
-			if ($save_lastsearch_value == -1 && preg_match('/list\.php/', $_SERVER["PHP_SELF"])) $add_save_lastsearch_values = 1;
-			if ($add_save_lastsearch_values) $url                                                                           .= '&save_lastsearch_values=1';
+			$addSaveLastSearchValues = ($saveLastSearchValue == 1 ? 1 : 0);
+			if ($saveLastSearchValue == -1 && preg_match('/list\.php/', $_SERVER["PHP_SELF"])) $addSaveLastSearchValues = 1;
+			if ($addSaveLastSearchValues) $url .= '&save_lastsearch_values=1';
 		}
 
 		$linkclose = '';
@@ -564,13 +564,12 @@ class Question extends CommonObject
 	/**
 	 * Check if question locked
 	 *
-	 * @param $fk_object
-	 * @param $object_type
+	 * @param array $questionIds
 	 * @return int
 	 */
 	public function checkQuestionsLocked($questionIds)
 	{
-		if ( ! empty($questionIds) && $questionIds > 0) {
+		if (is_array($questionIds) && !empty($questionIds)) {
 			foreach ($questionIds as $questionId) {
 				$this->fetch($questionId);
 				if ($this->status == 2) {
@@ -580,6 +579,8 @@ class Question extends CommonObject
 				}
 			}
 			return 1;
+		} else {
+			return 0;
 		}
 	}
 
@@ -614,7 +615,7 @@ class Question extends CommonObject
 	 * @return       string      HTML string with
 	 * @throws Exception
 	 */
-	public function select_question_list($selected = '', $htmlname = 'socid', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth100', $moreparam = '', $multiple = false, $alreadyAdded = array())
+	public function selectQuestionList($selected = '', $htmlname = 'socid', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth100', $moreparam = '', $multiple = false, $alreadyAdded = array())
 	{
 		// phpcs:enable
 		global $conf, $user, $langs;
@@ -652,7 +653,7 @@ class Question extends CommonObject
 		$sql .= $this->db->plimit($limit, 0);
 
 		// Build output string
-		dol_syslog(get_class($this) . "::select_question_list", LOG_DEBUG);
+		dol_syslog(get_class($this) . "::selectQuestionList", LOG_DEBUG);
 		$resql = $this->db->query($sql);
 		if ($resql) {
 			if ( ! $forcecombo) {
