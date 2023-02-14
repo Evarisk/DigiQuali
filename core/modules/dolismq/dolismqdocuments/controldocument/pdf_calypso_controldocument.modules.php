@@ -126,7 +126,6 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 		$this->db = $db;
 		$this->name = 'calypso';
 		$this->description = $langs->trans('ControlDocumentPDFDoliSMQTemplate');
-		$this->update_main_doc_field = 1; // Save the name of generated file as the main doc when generating a doc with this template
 
 		// Page size for A4 format
 		$this->type = 'pdf';
@@ -253,7 +252,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 				$objectDocument->last_main_doc = $filename;
 
-				$sql  = 'UPDATE ' . MAIN_DB_PREFIX . 'dolismq_control';
+				$sql  = 'UPDATE ' . MAIN_DB_PREFIX . 'dolismq_dolismqdocuments';
 				$sql .= ' SET last_main_doc =' . (!empty($filename) ? "'" . $this->db->escape($filename) . "'" : 'null');
 				$sql .= ' WHERE rowid = ' . $objectDocument->id;
 

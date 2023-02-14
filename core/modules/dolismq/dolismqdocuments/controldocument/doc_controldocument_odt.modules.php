@@ -222,7 +222,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 
 			$objectDocument->last_main_doc = $filename;
 
-			$sql = "UPDATE ".MAIN_DB_PREFIX."dolismq_control";
+			$sql = "UPDATE ".MAIN_DB_PREFIX."dolismq_dolismqdocuments";
 			$sql .= " SET last_main_doc =" .(!empty($filename) ? "'".$this->db->escape($filename)."'" : 'null');
 			$sql .= " WHERE rowid = ".$objectDocument->id;
 
