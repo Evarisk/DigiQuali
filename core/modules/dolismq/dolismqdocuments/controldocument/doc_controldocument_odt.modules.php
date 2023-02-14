@@ -534,7 +534,10 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			if (!empty($conf->global->MAIN_ODT_AS_PDF) && $conf->global->DOLISMQ_AUTOMATIC_PDF_GENERATION > 0) {
 				try {
 					$odfHandler->exportAsAttachedPDF($file);
-					setEventMessages($langs->trans("FileGenerated") . ' - ' . $pdfName, null);
+
+					global $moduleNameLowerCase;
+					$documentUrl = DOL_URL_ROOT . '/document.php';
+					setEventMessages($langs->trans("FileGenerated") . ' - ' . '<a href=' . $documentUrl . '?modulepart=' . $moduleNameLowerCase . '&amp;file=' . urlencode('controldocument/' . $object->ref . '/' . $pdfName) . '&entity='. $conf->entity .'"' . '>' . $pdfName  . '</a>', null);
 				} catch (Exception $e) {
 					$this->error = $e->getMessage();
 					dol_syslog($e->getMessage());
