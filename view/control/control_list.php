@@ -351,7 +351,7 @@ if (!empty($fromtype)) {
 	if ($fromtype == 'fk_sheet') {
 		$objectLinked->picto = 'sheet_small@dolismq';
 	}
-	dol_banner_tab($objectLinked, 'ref', $linkback, 0);
+	saturne_banner_tab($objectLinked, 'ref', 0);
 }
 
 if ($fromid) {

@@ -40,7 +40,7 @@ class modDoliSMQ extends DolibarrModules
 		global $langs, $conf;
 		$this->db = $db;
 
-		saturne_load_langs();
+		$langs->load('dolismq@dolismq');
 
 		// Id for module (must be unique).
 		$this->numero = 436301;
