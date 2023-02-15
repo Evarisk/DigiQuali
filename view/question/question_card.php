@@ -667,7 +667,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	dol_strlen($object->label) ? $morehtmlref .= '<span>'. ' - ' .$object->label . '</span>' : '';
 	$morehtmlref .= '</div>';
 
-	$object->picto = 'question_small@dolismq';
 	saturne_banner_tab($object, 'ref', 1, 'ref', 'ref', $morehtmlref);
 
 	print '<div class="fichecenter">';

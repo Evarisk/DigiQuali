@@ -58,7 +58,7 @@ class Sheet extends CommonObject
 	/**
 	 * @var string String with name of icon for sheet. Must be the part after the 'object_' into object_sheet.png
 	 */
-	public $picto = 'sheet@dolismq';
+	public $picto = 'sheet_small@dolismq';
 
 	const STATUS_DRAFT     = 0;
 	const STATUS_VALIDATED = 1;

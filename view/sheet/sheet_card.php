@@ -474,7 +474,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$morehtmlref = '<div class="refidno">';
 	$morehtmlref .= '</div>';
 
-	$object->picto = 'sheet_small@dolismq';
 	saturne_banner_tab($object);
 
 	print '<div class="fichecenter">';

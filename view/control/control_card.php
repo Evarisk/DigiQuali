@@ -765,7 +765,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 	$morehtmlref .= '</div>';
 
-	$object->picto = 'control_small@dolismq';
 	saturne_banner_tab($object, 'ref', 1, 'ref', 'ref', $morehtmlref);
 
 	print '<div class="fichecenter controlInfo' . ($conf->browser->layout == 'phone' ? ' hidden' : '') . '">';

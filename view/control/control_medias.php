@@ -111,8 +111,7 @@ if ($id > 0 || !empty($ref)) {
 	}
 	$morehtmlref .= '</div>';
 
-	$object->picto = 'control_small@dolismq';
-	saturne_banner_tab($object, 'ref', 1, 'ref', 'ref');
+	saturne_banner_tab($object);
 
 	print '<div class="fichecenter control-list-medias">';
 	print '<div class="underbanner clearboth"></div>';
