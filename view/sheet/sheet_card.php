@@ -436,7 +436,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 {
 	$res = $object->fetch_optionals();
 
-	print saturne_fiche_head($object, 'sheetCard', $langs->trans("Sheet"));
+	print saturne_get_fiche_head($object, 'sheetCard', $langs->trans("Sheet"));
 
 	$formconfirm = '';
 

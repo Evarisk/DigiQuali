@@ -627,7 +627,7 @@ if ($action == 'create') {
 if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
 	$res = $object->fetch_optionals();
 
-	print saturne_fiche_head($object, 'controlCard', $langs->trans('Control'));
+	print saturne_get_fiche_head($object, 'controlCard', $langs->trans('Control'));
 
 	$formconfirm = '';
 
