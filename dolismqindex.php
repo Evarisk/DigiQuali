@@ -22,7 +22,7 @@
  */
 
 // Load Dolibarr environment
-if (file_exists("../saturne/saturne.main.inc.php")) $res = @include "../saturne/saturne.main.inc.php";
+if (file_exists("dolismq.main.inc.php")) $res = @include "dolismq.main.inc.php";
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
@@ -45,6 +45,7 @@ $parse   = new Parsedown();
 
 // Security check
 saturne_check_access($user->rights->dolismq->lire);
+
 /*
  *  Actions
 */
