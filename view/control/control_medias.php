@@ -92,7 +92,7 @@ if ($id > 0 || !empty($ref)) {
 
 	$head = control_prepare_head($object);
 
-	print dol_get_fiche_head($head, 'controlMedias', $langs->trans('Medias'), -1, $object->picto);
+	print saturne_get_fiche_head($object, 'controlMedias', $langs->trans('Medias'));
 
 	// Object card
 	// ------------------------------------------------------------

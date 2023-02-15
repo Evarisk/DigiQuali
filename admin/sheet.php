@@ -149,7 +149,7 @@ print load_fiche_titre($title, $linkback, 'dolismq_color@dolismq');
 
 // Configuration header
 $head = dolismq_admin_prepare_head();
-print dol_get_fiche_head($head, 'sheet', $title, -1, "dolismq_color@dolismq");
+print saturne_get_fiche_head(null, 'sheet', $title, $head, "dolismq_color@dolismq");
 
 print load_fiche_titre($langs->trans("SheetManagement"), '', '');
 print '<hr>';

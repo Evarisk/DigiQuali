@@ -113,39 +113,30 @@ if (!empty($fromtype)) {
 	switch ($fromtype) {
 		case 'project' :
 			$objectLinked = new Project($db);
-			$prehead = 'project_prepare_head';
 			break;
 		case 'product' :
 			$objectLinked = new Product($db);
-			$prehead = 'product_prepare_head';
 			break;
 		case 'productbatch' :
 			$objectLinked = new Productlot($db);
-			$prehead = 'productlot_prepare_head';
 			break;
 		case 'project_task' :
 			$objectLinked = new Task($db);
-			$prehead = 'task_prepare_head';
 			break;
 		case 'societe' :
 			$objectLinked = new Societe($db);
-			$prehead = 'societe_prepare_head';
 			break;
 		case 'contact' :
 			$objectLinked = new Contact($db);
-			$prehead = 'contact_prepare_head';
 			break;
 		case 'user' :
 			$objectLinked = new User($db);
-			$prehead = 'user_prepare_head';
 			break;
 		case 'fk_sheet' :
 			$objectLinked = new Sheet($db);
-			$prehead = 'sheet_prepare_head';
 			break;
 	}
 	$objectLinked->fetch($fromid);
-	$head = $prehead($objectLinked);
 	$linkedObjectsArray = array('sheet', 'user');
 }
 
@@ -344,7 +335,7 @@ $title    = $langs->trans("ControlList");
 
 saturne_header(0,'', $title, $help_url, '', '', '');
 if (!empty($fromtype)) {
-	print dol_get_fiche_head($head, 'control', $langs->trans("Control"), -1, $objectLinked->picto);
+	print saturne_get_fiche_head($objectLinked, 'control', $langs->trans("Control"));
 
 	$linkback = '<a href="'.DOL_URL_ROOT.'/'.$fromtype.'/list.php?restore_lastsearch_values=1">'.$langs->trans("BackToList").'</a>';
 

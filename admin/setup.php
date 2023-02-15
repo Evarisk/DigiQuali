@@ -85,7 +85,7 @@ print load_fiche_titre($langs->trans($page_name), $linkback, 'dolismq_color@doli
 
 // Configuration header
 $head = dolismq_admin_prepare_head();
-print dol_get_fiche_head($head, 'settings', $langs->trans($page_name), -1, "dolismq_color@dolismq");
+print saturne_get_fiche_head(null, 'settings', $langs->trans($page_name), $head, "dolismq_color@dolismq");
 
 // Setup page goes here
 echo '<span class="opacitymedium">'.$langs->trans("DoliSMQSetupPage").'</span><br><br>';

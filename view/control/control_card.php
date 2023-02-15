@@ -503,7 +503,7 @@ if ($action == 'create') {
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 	if ($backtopageforcancel) print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
 
-	print dol_get_fiche_head();
+	print saturne_get_fiche_head();
 
 	print '<table class="border centpercent tableforfieldcreate control-table"><thead>'."\n";
 
@@ -1228,7 +1228,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<br>';
 		print load_fiche_titre($langs->trans($titreform));
 
-		print dol_get_fiche_head('');
+		print saturne_get_fiche_head();
 
 		// Create form for email
 		include_once DOL_DOCUMENT_ROOT . '/core/class/html.formmail.class.php';
