@@ -42,7 +42,7 @@ require_once '../../lib/dolismq_function.lib.php';
 global $conf, $db, $hookmanager, $langs, $user, $langs;
 
 // Load translation files required by the page
-saturne_load_langs(array("dolismq@dolismq", "other"));
+saturne_load_langs(["other"]);
 
 // Get parameters
 $id                  = GETPOST('id', 'int');

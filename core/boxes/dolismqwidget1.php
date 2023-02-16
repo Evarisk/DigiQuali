@@ -86,8 +86,11 @@ class dolismqwidget1 extends ModeleBoxes
 	public function __construct(DoliDB $db, $param = '')
 	{
 		global $user, $langs;
+
+		dol_include_once('/saturne/lib/saturne_functions.lib.php');
+
 		// Translations
-		saturne_load_langs(array("boxes", "dolismq@dolismq"));
+		saturne_load_langs(["boxes"]);
 
 		parent::__construct($db, $param);
 

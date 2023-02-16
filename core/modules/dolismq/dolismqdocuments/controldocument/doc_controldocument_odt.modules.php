@@ -63,7 +63,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 		global $langs, $mysoc;
 
 		// Load translation files required by the page
-		saturne_load_langs(array("main", "companies"));
+		saturne_load_langs(["main", "companies"]);
 
 		$this->db = $db;
 		$this->name = $langs->trans('ControlDocumentDoliSMQTemplate');
@@ -96,7 +96,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 		global $conf, $langs;
 
 		// Load translation files required by the page
-		saturne_load_langs(array("errors", "companies"));
+		saturne_load_langs(["errors", "companies"]);
 
 		$texte = $this->description.".<br>\n";
 		$texte .= '<form action="'.$_SERVER["PHP_SELF"].'" method="POST">';

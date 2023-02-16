@@ -38,7 +38,7 @@ require_once '../../class/question.class.php';
 global $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
-saturne_load_langs(array("dolismq@dolismq", "other"));
+saturne_load_langs(["other"]);
 
 // Get parameters
 $action     = GETPOST('action', 'aZ09') ?GETPOST('action', 'aZ09') : 'view'; // The action 'add', 'create', 'edit', 'update', 'view', ...

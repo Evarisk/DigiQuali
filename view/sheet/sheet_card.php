@@ -38,7 +38,7 @@ require_once '../../lib/dolismq_function.lib.php';
 global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
-saturne_load_langs(array("dolismq@dolismq", "other", "product"));
+saturne_load_langs(["other", "product"]);
 
 // Get parameters
 $id                  = GETPOST('id', 'int');

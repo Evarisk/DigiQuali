@@ -33,7 +33,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once '../lib/dolismq.lib.php';
 
 // Translations
-saturne_load_langs(array('admin', 'dolismq@dolismq'));
+saturne_load_langs(['admin']);
 
 // Access control
 $permissiontoread = $user->admin;
