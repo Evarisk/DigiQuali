@@ -964,6 +964,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . ($conf->browser->layout == 'phone' ? '' : $langs->trans('Validate') . ' ') . '<i class="fas fa-check"></i>' . '</span>';
 			}
 
+			// ReOpen
+			if ($object->status == $object::STATUS_VALIDATED) {
+				print '<span class="butAction" id="actionButtonReOpen" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setDraft' . '">' . ($conf->browser->layout == 'phone' ? '' : $langs->trans('ReOpened') . ' ') . '<i class="fas fa-lock-open"></i>' . '</span>';
+			} else {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidated')) . '">' . ($conf->browser->layout == 'phone' ? '' : $langs->trans('ReOpened') . ' ') . '<i class="fas fa-lock-open"></i>' . '</span>';
+			}
+
 			// Set verdict control
 			if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null) {
 				if ($permissiontoadd) {
@@ -973,13 +980,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . ($conf->browser->layout == 'phone' ? '' : $langs->trans('SetOK/KO') . ' ') . '<i class="fas fa-tasks"></i>' . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . ($conf->browser->layout == 'phone' ? '' : $langs->trans('SetOK/KO') . ' ') . '<i class="fas fa-tasks"></i>' . '</span>';
-			}
-
-			// ReOpen
-			if ($object->status == $object::STATUS_VALIDATED) {
-				print '<span class="butAction" id="actionButtonReOpen" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setDraft' . '">' . ($conf->browser->layout == 'phone' ? '' : $langs->trans('ReOpened') . ' ') . '<i class="fas fa-lock-open"></i>' . '</span>';
-			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidated')) . '">' . ($conf->browser->layout == 'phone' ? '' : $langs->trans('ReOpened') . ' ') . '<i class="fas fa-lock-open"></i>' . '</span>';
 			}
 
 			// Lock
