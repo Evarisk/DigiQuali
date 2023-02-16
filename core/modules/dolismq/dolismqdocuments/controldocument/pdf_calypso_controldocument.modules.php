@@ -223,9 +223,10 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 			$mod = new $conf->global->DOLISMQ_CONTROLDOCUMENT_ADDON($this->db);
 			$ref = $mod->getNextValue($objectDocument);
 
-			$objectref = dol_sanitizeFileName($object->ref);
+			$objectref   = dol_sanitizeFileName($ref);
+			$documentref = dol_sanitizeFileName($object->ref);
 
-			$dir = $conf->dolismq->multidir_output[isset($object->entity) ? $object->entity : 1] . '/controldocument/' . $objectref;
+			$dir = $conf->dolismq->multidir_output[isset($object->entity) ? $object->entity : 1] . '/controldocument/' . $documentref;
 
 			if (!file_exists($dir)) {
 				if (dol_mkdir($dir) < 0) {
@@ -267,19 +268,19 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$hookmanager->initHooks(array('pdfgeneration'));
 				$parameters = array('file'=>$file, 'object'=>$object, 'outputlangs'=>$outputlangs);
 				global $action;
-				$reshook = $hookmanager->executeHooks('beforePDFCreation', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
+				$hookmanager->executeHooks('beforePDFCreation', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
 
 				// Create pdf instance
 				$pdf = pdf_getInstance($this->format);
 				$default_font_size = pdf_getPDFFontSize($outputlangs); // Must be after pdf_getInstance
 				$pdf->SetAutoPageBreak(1, 0);
 
-				$heightforinfotot = 40; // Height reserved to output the info and total part
-				$heightforfreetext = (isset($conf->global->MAIN_PDF_FREETEXT_HEIGHT) ? $conf->global->MAIN_PDF_FREETEXT_HEIGHT : 5); // Height reserved to output the free text on last page
-				$heightforfooter = $this->marge_basse + 8; // Height reserved to output the footer (value include bottom margin)
-				if (!empty($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS)) {
-					$heightforfooter += 6;
-				}
+				//				$heightforinfotot = 40; // Height reserved to output the info and total part
+				//				$heightforfreetext = (isset($conf->global->MAIN_PDF_FREETEXT_HEIGHT) ? $conf->global->MAIN_PDF_FREETEXT_HEIGHT : 5); // Height reserved to output the free text on last page
+				//				$heightforfooter = $this->marge_basse + 8; // Height reserved to output the footer (value include bottom margin)
+				//				if (!empty($conf->global->MAIN_GENERATE_DOCUMENTS_SHOW_FOOT_DETAILS)) {
+				//					$heightforfooter += 6;
+				//				}
 
 				if (class_exists('TCPDF')) {
 					$pdf->setPrintHeader(false);
@@ -388,6 +389,11 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 				// Show control informations
 				foreach($tmparray as $key => $value) {
+					// Limit value to 35 character
+					if (strlen($value) > 35) {
+						$value = substr($value, 0, 32) . '...';
+					}
+
 					$substitutionarray = pdf_getSubstitutionArray($outputlangs, null, $object);
 					complete_substitutions_array($substitutionarray, $outputlangs, $object);
 					$value = make_substitutions($value, $substitutionarray, $outputlangs);
@@ -399,12 +405,12 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 					// Last key value should be bigger than the others value
 					if ($key == array_key_last($tmparray)) {
-						$pdf->SetFont('', '', $default_font_size + 5);
+						$pdf->SetFont('', 'B', $default_font_size + 5);
 					} else {
 						$pdf->SetFont('', '', $default_font_size);
 						$pdf->line($this->marge_gauche, $tab_top + 6, $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 20, $tab_top + 6);
 					}
-					$pdf->writeHTMLCell(190, 3, $this->posxcontrolinfo - 4, $tab_top, dol_htmlentitiesbr($value), 0, 1);
+					$pdf->writeHTMLCell(60, 3, $this->posxcontrolinfo - 9, $tab_top, dol_htmlentitiesbr($value), 0, 1);
 
 					$tab_top += 10;
 				}
@@ -417,16 +423,23 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				// Display public note and picture
 				$tab_top += 5;
 				$tmparray['NoteControl'] = $object->note_public;
-				if (strlen($tmparray['NoteControl']) >= 1000) {
-					$tmparray['NoteControl'] = substr($tmparray['NoteControl'], 0, 1000) . '...';
-				}
 				$nophoto = '/public/theme/common/nophoto.png';
 				$tmparray['DefaultPhoto'] = DOL_DOCUMENT_ROOT.$nophoto;
 
+				$pdf->Image($tmparray['DefaultPhoto'], $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 40, 50, 0, $tab_top - 60);
+
+				if ($pdf->getStringHeight(240, $tmparray['NoteControl']) > 40) {
+					$this->_pagefoot($pdf, $object, $outputlangs, 1);
+					$pdf->AddPage($this->orientation, '', true);
+					$pdf->SetDrawColor(120, 120, 120);
+					if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
+						$this->_pagehead($pdf, $object, 1, $outputlangs);
+					}
+					$tab_top = $tab_top_newpage;
+				}
 				$pdf->SetFont('', '', $default_font_size - 1);
 				$pdf->writeHTMLCell(190, 3, $this->marge_gauche, $tab_top, dol_htmlentitiesbr($langs->trans('NoteControl') . ' : '), 0, 1);
 				$pdf->writeHTMLCell(240, 3, $this->posxnote, $tab_top, dol_htmlentitiesbr($tmparray['NoteControl']), 0, 1);
-				$pdf->Image($tmparray['DefaultPhoto'], $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 40, 50, 0, $tab_top - 60);
 
 				// New page for the incoming table of questions/answer
 				$this->_pagefoot($pdf, $object, $outputlangs, 1);
@@ -465,6 +478,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$curY += $tableHeaderHeight + 2;
 
 				// Loop on each questions
+				$tab_height  = 0;
 				$nbQuestions = 0;
 				foreach($object->linkedObjects['dolismq_question'] as $question) {
 					$nbQuestions++;
@@ -520,26 +534,32 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 					$pdf->startTransaction();
 
+					$addY      = (strlen($tmpTableArray['questionDesc']) >= strlen($tmpTableArray['answerComment'])) ? $pdf->getStringHeight(55, $tmpTableArray['questionDesc']) : $pdf->getStringHeight(105, $tmpTableArray['answerComment']);
+					if ($addY < 20) {
+						$addY += 10;
+					}
+					$pageBreak = ($curY + $addY >= $this->page_hauteur - $this->marge_basse) ? True : False;
+
 					// If we are at the end of the page, create a new page a create a new top table
 					if ($pageBreak == True) {
 						if ($pagenb == 2) {
-							$this->_tableau($pdf, $tableHeaderHeight + $iniY + 10, $this->page_hauteur - $tableHeaderHeight - $tab_top_newpage - $iniY + 10, 2, $outputlangs);
+							$this->_tableau($pdf, $tableHeaderHeight + $iniY + 10, $tab_height, 2, $outputlangs);
 						}
 
 						$this->_pagefoot($pdf, $object, $outputlangs, 1);
 						$pdf->AddPage($this->orientation, '', true);
 						$pagenb++;
+						$pdf->SetDrawColor(120, 120, 120);
 						if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
 							$this->_pagehead($pdf, $object, 1, $outputlangs);
 						}
-
-						$curY = $tab_top_newpage - 3;
-						$pdf->SetDrawColor(120, 120, 120);
-
-						//$pdf->line($this->marge_gauche, $curY - 5, $this->page_largeur - $this->marge_gauche - $this->marge_droite, $curY - 5);
 						if ($pagenb > 2) {
 							$this->_tableau($pdf, $tab_top_newpage - 5, $this->page_hauteur - $tab_top_newpage - $this->marge_basse, 0, $outputlangs);
 						}
+
+						$curY       = $tab_top_newpage - 3;
+						$tab_height = 0;
+						$pageBreak  = false;
 					}
 					$pdf->SetFont('', '', $default_font_size - 1);
 					$pdf->SetTextColor(0, 0, 0);
@@ -567,62 +587,67 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					$curX += 110;
 
 					// Status
-					$pdf->writeHTMLCell(25, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerLabel'])), 0, 1, false, true, "C");
+					$pdf->SetFont('', 'B', $default_font_size);
+					$pdf->writeHTMLCell(25, 3, $curX, $curY + ($addY / 2) - 4, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerLabel'])), 0, 1, false, true, "C");
 
-					$addY = strlen($tmpTableArray['questionDesc']) > strlen($tmpTableArray['answerComment']) ? 10 + $pdf->getStringHeight(55, $tmpTableArray['questionDesc']) : 10 + $pdf->getStringHeight(105, $tmpTableArray['answerComment']);
+					// Draw line if no page break (else line is drawn by table)
 					$curY += $addY;
-
-					// Draw line
-					$pageBreak = ($curY + 40 >= $this->page_hauteur - $this->marge_basse) ? True : False;
 					if ($pageBreak == False) {
 						$pdf->line($this->marge_gauche, $curY, $this->page_largeur - $this->marge_gauche, $curY);
 					}
-					$curY += 2;
+					$curY       += 2;
+					$tab_height += $addY + 2;
 				}
 				if ($pagenb == 2) {
 					$this->_tableau($pdf, $tableHeaderHeight + $iniY + 10, $this->page_hauteur - $tableHeaderHeight - $tab_top_newpage - $iniY + 10, 2, $outputlangs);
 				}
-
 				$this->_pagefoot($pdf, $object, $outputlangs, 1);
-				$pdf->AddPage($this->orientation, '', true);
-				$pagenb++;
-				if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
-					$this->_pagehead($pdf, $object, 1, $outputlangs);
-				}
-				$pdf->SetDrawColor(120, 120, 120);
 
-				$curY = $tab_top_newpage;
-				$previousRef = '';
-				foreach($photoArray as $path => $ref) {
-					if ($ref != $previousRef) {
-						$pdf->writeHTMLCell(40, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($langs->trans($ref) . ' : '), 0, 1, false, true, "L");
-						$curY += 10;
+				if (!empty($photoArray) && is_array($photoArray)) {
+					$pdf->AddPage($this->orientation, '', true);
+					$pagenb++;
+					if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
+						$this->_pagehead($pdf, $object, 1, $outputlangs);
 					}
-					if (is_readable($path)) {
-						list($width, $height) = getimagesize($path);
-						$pdf->Image($path, $this->marge_gauche, $curY, 0, 0, '', '', '', false, 300, 'C'); // width=0 (auto)
-						$curY += $height;
-					} else {
-						$pdf->SetTextColor(200, 0, 0);
-						$pdf->SetFont('', 'B', $default_font_size - 2);
-						$pdf->MultiCell(100, 3, $langs->transnoentities('ErrorLogoFileNotFound', $path), 0, 'L');
-						$pdf->MultiCell(100, 3, $langs->transnoentities('ErrorGoToModuleSetup'), 0, 'L');
-						$curY += 10;
-					}
-					$previousRef = $ref;
+					$pdf->SetDrawColor(120, 120, 120);
 
-					if ($curY >= $this->page_hauteur - $this->marge_basse && $path != array_key_last($photoArray)) {
-						$this->_pagefoot($pdf, $object, $outputlangs, 1);
-						$pdf->AddPage($this->orientation, '', true);
-						$pagenb++;
-						if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
-							$this->_pagehead($pdf, $object, 1, $outputlangs);
+					$curY = $tab_top_newpage;
+					$previousRef = '';
+					foreach ($photoArray as $path => $ref) {
+						if (is_readable($path)) {
+							if ($ref != $previousRef) {
+								$pdf->writeHTMLCell(100, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($ref . ' : '), 0, 1, false, true, "L");
+								$curY += 5;
+							}
+							$fileInfo = preg_split('/thumbs\//', $path);
+							$name = end($fileInfo);
+							$pdf->writeHTMLCell(180, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($name . ' : '), 0, 1, false, true, "L");
+							$curY += 10;
+							list($width, $height) = getimagesize($path);
+							$pdf->Image($path, $this->marge_gauche, $curY, 0, 0, '', '', '', false, 300, 'C'); // width=0 (auto)
+							$curY += $height;
+						} else {
+							$pdf->SetTextColor(200, 0, 0);
+							$pdf->SetFont('', 'B', $default_font_size - 2);
+							$pdf->MultiCell(100, 3, $langs->transnoentities('ErrorLogoFileNotFound', $path), 0, 'L');
+							$pdf->MultiCell(100, 3, $langs->transnoentities('ErrorGoToModuleSetup'), 0, 'L');
+							$curY += 10;
 						}
-						$curY = $tab_top_newpage;
-						$pdf->SetDrawColor(120, 120, 120);
+						$previousRef = $ref;
+
+						if ($curY >= $this->page_hauteur - $this->marge_basse && $path != array_key_last($photoArray)) {
+							$this->_pagefoot($pdf, $object, $outputlangs, 1);
+							$pdf->AddPage($this->orientation, '', true);
+							$pagenb++;
+							if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
+								$this->_pagehead($pdf, $object, 1, $outputlangs);
+							}
+							$curY = $tab_top_newpage;
+							$pdf->SetDrawColor(120, 120, 120);
+						}
 					}
+					$this->_pagefoot($pdf, $object, $outputlangs, 1);
 				}
-				$this->_pagefoot($pdf, $object, $outputlangs, 1);
 
 				$pdf->Close();
 
