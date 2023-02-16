@@ -603,7 +603,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				}
 				$this->_pagefoot($pdf, $object, $outputlangs, 1);
 
-				if (!empty($photoArray) && is_array($photoArray)) {
+				if (is_array($photoArray) && !empty($photoArray)) {
 					$pdf->AddPage($this->orientation, '', true);
 					$pageNbr++;
 					if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
