@@ -175,7 +175,7 @@ class ActionsDolismq
 		$error = 0; // Error counter
 
 		if (preg_match('/categoryindex/', $parameters['context'])) {	    // do something only for the context 'somecontext1' or 'somecontext2'
-			print '<script src="../custom/dolismq/js/dolismq.js"></script>';
+			print '<script src="../custom/dolismq/js/dolismq.min.js"></script>';
 		} elseif (preg_match('/categorycard/', $parameters['context']) && preg_match('/viewcat.php/', $_SERVER["PHP_SELF"])) {
 			$id = GETPOST('id');
 			$type = GETPOST('type');
@@ -207,7 +207,7 @@ class ActionsDolismq
 				$category->fetch($id);
 				$objectsInCateg = $category->getObjectsInCateg($type, 0, $limit, $offset);
 
-				if (is_array($objectsInCateg) && !empty($objectsInCateg)) {
+				if (!is_array($objectsInCateg) || empty($objectsInCateg)) {
 					dol_print_error($this->db, $category->error, $category->errors);
 				} else {
 					// Form to add record into a category
@@ -232,6 +232,7 @@ class ActionsDolismq
 					//$num = count($objectsInCateg);
 					//print_barre_liste($langs->trans(ucfirst($type)), $page, $_SERVER["PHP_SELF"], $param, '', '', '', $num, '', 'object_'.$type.'@dolismq', 0, '', '', $limit);
 
+					$out .= load_fiche_titre($langs->transnoentities($classname), '', 'object_' . $object->picto);
 					$out .= '<table class="noborder centpercent">';
 					$out .= '<tr class="liste_titre"><td colspan="3">'.$langs->trans("Ref").'</td></tr>';
 					if (count($objectsInCateg) > 0) {
