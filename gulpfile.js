@@ -7,10 +7,9 @@ var autoprefixer = require('gulp-autoprefixer');
 var uglify       = require('gulp-uglify');
 var concat       = require('gulp-concat');
 
-
 var paths = {
 	scss_core : [ 'css/scss/**/*.scss', 'css/' ],
-	js_backend: [ 'js/dolismq.js', 'js/modules/*.js' ]
+	js_backend: [ 'js/constructor.js', 'js/modules/*.js', 'js/' ]
 };
 
 /** Core */
@@ -31,14 +30,15 @@ gulp.task( 'scss_core', function() {
 
 gulp.task('js_backend', function () {
 	return gulp.src(paths.js_backend)
+		.pipe(concat('dolismq.js'))
+		.pipe(gulp.dest('./js/'))
 		.pipe(concat('dolismq.min.js'))
 		.pipe(uglify())
-		.pipe(gulp.dest('./js/')) // It will create folder client.min.js
+		.pipe(gulp.dest('./js/'))
 });
 
 /** Watch */
 gulp.task('default', function() {
 	gulp.watch(paths.scss_core[0], gulp.series('scss_core'));
-	gulp.watch(paths.js_backend[0], gulp.series('js_backend'));
 	gulp.watch(paths.js_backend[1], gulp.series('js_backend'));
 });
