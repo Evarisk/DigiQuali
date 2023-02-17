@@ -175,7 +175,7 @@ class ActionsDolismq
 		$error = 0; // Error counter
 
 		if (preg_match('/categoryindex/', $parameters['context'])) {	    // do something only for the context 'somecontext1' or 'somecontext2'
-			print '<script src="../custom/dolismq/js/dolismq.min.js"></script>';
+			print '<script src="../custom/dolismq/js/dolismq.js"></script>';
 		} elseif (preg_match('/categorycard/', $parameters['context']) && preg_match('/viewcat.php/', $_SERVER["PHP_SELF"])) {
 			$id = GETPOST('id');
 			$type = GETPOST('type');
