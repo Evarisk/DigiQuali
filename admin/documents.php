@@ -29,8 +29,11 @@ global $conf, $db, $langs, $user;
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmdirectory.class.php';
 
 require_once '../lib/dolismq.lib.php';
+require_once '../lib/dolismq_function.lib.php';
 
 // Translations
 saturne_load_langs(['admin']);
@@ -47,6 +50,9 @@ $type       = GETPOST('type', 'alpha');
 $const 		= GETPOST('const', 'alpha');
 $label 		= GETPOST('label', 'alpha');
 $modulepart = GETPOST('modulepart', 'aZ09');	// Used by actions_setmoduleoptions.inc.php
+
+$ecmdir     = new EcmDirectory($db);
+$upload_dir = $conf->dolismq->multidir_output[isset($conf->entity) ? $conf->entity : 1];
 
 /*
  * Actions
@@ -142,15 +148,37 @@ if ($action == 'setModuleOptions') {
 		foreach ($userfiles as $key => $userfile) {
 			if (empty($_FILES['userfile']['tmp_name'][$key])) {
 				$error++;
-				if ($_FILES['userfile']['error'][$key] == 1 || $_FILES['userfile']['error'][$key] == 2) {
-					setEventMessages($langs->trans('ErrorFileSizeTooLarge'), null, 'errors');
-				} else {
-					setEventMessages($langs->trans('ErrorFieldRequired', $langs->transnoentitiesnoconv('File')), null, 'errors');
+				setEventMessages($langs->trans('ErrorFieldRequired', $langs->transnoentitiesnoconv('File')), null, 'errors');
+			} else if (!empty($conf->global->MAIN_UPLOAD_DOC)) {
+				if (!empty($_FILES)) {
+					if (is_array($_FILES['userfile']['tmp_name'])) {
+						$userfiles = $_FILES['userfile']['tmp_name'];
+					} else {
+						$userfiles = array($_FILES['userfile']['tmp_name']);
+					}
+
+					foreach ($userfiles as $key => $userfile) {
+						if (empty($_FILES['userfile']['tmp_name'][$key])) {
+							$error++;
+							if ($_FILES['userfile']['error'][$key] == 1 || $_FILES['userfile']['error'][$key] == 2) {
+								setEventMessages($langs->trans('ErrorFileSizeTooLarge'), null, 'errors');
+							}
+						}
+					}
+
+					if (empty($error)) {
+						$filedir = $upload_dir . '/controlphoto/';
+
+						if (!empty($filedir)) {
+							$result = dol_add_file_process($filedir, 1, 1, 'userfile', '', null, '', 1, $object);
+							if ($result > 0) {
+								$imgThumbLarge  = vignette($filedir . '/' . $_FILES['userfile']['name'][$key], $conf->global->SATURNE_MEDIA_MAX_WIDTH_LARGE, $conf->global->SATURNE_MEDIA_MAX_HEIGHT_LARGE, '_large');
+								$imgThumbMedium = vignette($filedir . '/' . $_FILES['userfile']['name'][$key], $conf->global->SATURNE_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->SATURNE_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+								$result         = $ecmdir->changeNbOfFiles('+');
+							}
+						}
+					}
 				}
-			}
-			if (preg_match('/__.*__/', $_FILES['userfile']['name'][$key])) {
-				$error++;
-				setEventMessages($langs->trans('ErrorWrongFileName'), null, 'errors');
 			}
 		}
 
@@ -178,6 +206,8 @@ $help_url = '';
 $title    = $langs->trans('YourDocuments');
 saturne_header(0,'', $title, $help_url);
 
+$form = new Form($db);
+
 $types = array(
 	'ControlDocument' => 'controldocument',
 );
@@ -200,6 +230,10 @@ $head = dolismq_admin_prepare_head();
 print dol_get_fiche_head($head, 'documents', $title, -1, 'dolismq_color@dolismq');
 
 print load_fiche_titre($langs->trans("DocumentsConfig"), '', '');
+
+print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '" name="save" enctype="multipart/form-data">';
+print '<input type="hidden" name="token" value="' . newToken() . '">';
+print '<input type="hidden" name="action" value="update">';
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
@@ -258,6 +292,32 @@ foreach ($types as $type => $documentType) {
 		print ajax_constantonoff('DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS');
 		print '</td>';
 		print '</tr>';
+
+		// Default photo
+		print '<tr>';
+		print '<td class="titlefield">' . $form->editfieldkey($langs->trans("PhotoDefault"), 'PhotoDefault', '', $object, 0) . '</td>';
+		print '<td>';
+		$filearray = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/controlphoto/', "files", 0, '', '(\.odt|\.zip)', 'date', 'asc', 1);
+
+		if (count($filearray)) : ?>
+			<?php
+			$file       = array_shift($filearray);
+			$photoName  = saturne_get_thumb_name($file['name'], 'small');
+			?>
+			<span class="">
+				<?php print '<img width=80 class="" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode('/controlphoto/thumbs/' . $photoName) . '" >'; ?>
+			</span>
+		<?php else : ?>
+			<?php $nophoto = DOL_URL_ROOT . '/public/theme/common/nophoto.png'; ?>
+			<span class="">
+				<img class="" alt="No photo" src="<?php echo $nophoto ?>">
+			</span>
+		<?php endif;
+		print '<input class="flat" type="file" name="userfile[]" id="PhotoDefault" />';
+		print '<td> <input type="submit" class="button" name="save" value="' . $langs->trans("Save") . '">';
+		print '</div>';
+		print '</td></tr>';
+
 		print '</table>';
 	}
 

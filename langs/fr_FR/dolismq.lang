@@ -343,6 +343,7 @@ QuestionRef = Réf. Question
 QuestionTitle = Titre - Description Question
 AnswerRef = Réf. Réponse
 AnswerComment = Commentaire Réponse
+PhotoDefault = Photo par défaut
 
 #
 # Other

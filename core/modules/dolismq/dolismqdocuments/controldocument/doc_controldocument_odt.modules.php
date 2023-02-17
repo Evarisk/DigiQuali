@@ -270,7 +270,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$tmparray = array_merge($substitutionarray, $array_object_from_properties, $arraySoc);
 			complete_substitutions_array($tmparray, $outputlangs, $object);
 
-			$filearray = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/' . $object->element_type . '/' . $object->ref . '/thumbs/', "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
+			$filearray = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/controlphoto' . '/thumbs/', "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
+
 			if (count($filearray)) {
 				$image = array_shift($filearray);
 				$tmparray['photoDefault'] = $image['fullname'];
