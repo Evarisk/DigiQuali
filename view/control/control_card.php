@@ -151,9 +151,9 @@ if (empty($reshook)) {
 		if ($result > 0) {
 			$categories = $objecttmp->getCategoriesCommon('control');
 			if (is_array($categories) && !empty($categories)) {
-				foreach ($categories as $cat_id) {
+				foreach ($categories as $categoryId) {
 					$category = new Categorie($db);
-					$category->fetch($cat_id);
+					$category->fetch($categoryId);
 					$category->del_type($objecttmp, 'control');
 				}
 			}
@@ -491,7 +491,7 @@ $title_create  = $langs->trans('NewControl');
 $title_edit    = $langs->trans('ModifyControl');
 $help_url      = '';
 
-saturne_header(1,'', $title, $help_url, '', 0, 0);
+saturne_header(1,'', $title, $help_url);
 
 // Part to create
 if ($action == 'create') {
@@ -503,7 +503,7 @@ if ($action == 'create') {
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 	if ($backtopageforcancel) print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
 
-	print saturne_get_fiche_head();
+	print dol_get_fiche_head();
 
 	print '<table class="border centpercent tableforfieldcreate control-table"><thead>'."\n";
 
@@ -769,7 +769,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="fichecenter controlInfo' . ($conf->browser->layout == 'phone' ? ' hidden' : '') . '">';
 	print '<div class="fichehalfleft">';
-	print '<div class="underbanner clearboth"></div>';
 	print '<table class="border centpercent tableforfield">'."\n";
 
 	// Common attributes
@@ -808,7 +807,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</tr>';
 	}
 
-	$object->fetchObjectLinked('', 'product', '', 'dolismq_control');
+	$object->fetchObjectLinked('', '', '', 'dolismq_control');
+
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
 		//FKProduct -- Produit
 		print '<tr><td class="titlefield">';
@@ -822,7 +822,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<td></tr>';
 	}
 
-	$object->fetchObjectLinked('', 'productbatch','', 'dolismq_control');
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
 		//FKLot -- Numéro de série
 		print '<tr><td class="titlefield">';
@@ -836,7 +835,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	$object->fetchObjectLinked('', 'societe','', 'dolismq_control');
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_USER) && (!empty($object->linkedObjectsIds['user']))) {
 		//Fk_soc - Tiers lié
 		print '<tr><td class="titlefield">';
@@ -850,7 +848,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	$object->fetchObjectLinked('', 'societe','', 'dolismq_control');
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
 		//Fk_soc - Tiers lié
 		print '<tr><td class="titlefield">';
@@ -864,7 +861,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	$object->fetchObjectLinked('', 'contact','', 'dolismq_control');
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_CONTACT) && (!empty($object->linkedObjectsIds['contact']))) {
 		//Fk_contact - Contact/adresse
 		print '<tr><td class="titlefield">';
@@ -878,7 +874,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	$object->fetchObjectLinked('', 'project','', 'dolismq_control');
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT) && (!empty($object->linkedObjectsIds['project']))) {
 		//Fk_project - Projet lié
 		print '<tr><td class="titlefield">';
@@ -892,7 +887,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	$object->fetchObjectLinked('', 'project_task','', 'dolismq_control');
 	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK) && (!empty($object->linkedObjectsIds['project_task']))) {
 		//Fk_task - Tâche liée
 		print '<tr><td class="titlefield">';
