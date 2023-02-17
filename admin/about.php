@@ -66,7 +66,7 @@ print load_fiche_titre($langs->trans($pageName), $linkback, 'dolismq_color@dolis
 
 // Configuration header
 $head = dolismq_admin_prepare_head();
-print saturne_get_fiche_head(null, 'about', $langs->trans($pageName), $head, 'dolismq_color@dolismq');
+print dol_get_fiche_head($head, 'about', $langs->trans($pageName), -1, 'dolismq_color@dolismq');
 
 print $dolismq->getDescLong();
 

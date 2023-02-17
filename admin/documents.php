@@ -197,7 +197,7 @@ print load_fiche_titre($title, $selectorAnchor, 'dolismq_color@dolismq');
 
 // Configuration header
 $head = dolismq_admin_prepare_head();
-print saturne_get_fiche_head(null, 'documents', '', $head, 'dolismq_color@dolismq');
+print dol_get_fiche_head($head, 'documents', $title, -1, 'dolismq_color@dolismq');
 
 print load_fiche_titre($langs->trans("DocumentsConfig"), '', '');
 

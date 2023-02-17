@@ -87,7 +87,7 @@ print load_fiche_titre($title, $linkback, 'dolismq_color@dolismq');
 
 // Configuration header
 $head = dolismq_admin_prepare_head();
-print saturne_get_fiche_head(null, 'question', $title, $head, "dolismq_color@dolismq");
+print dol_get_fiche_head($head, 'question', $title, -1, "dolismq_color@dolismq");
 
 print load_fiche_titre($langs->trans("QuestionManagement"), '', '');
 print '<hr>';

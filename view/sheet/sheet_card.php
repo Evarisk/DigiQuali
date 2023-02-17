@@ -305,7 +305,7 @@ if ($action == 'create') {
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 	if ($backtopageforcancel) print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
 
-	print saturne_get_fiche_head();
+	print dol_get_fiche_head();
 
 	print '<table class="border centpercent tableforfieldcreate sheet-table">'."\n";
 
@@ -372,7 +372,7 @@ if (($id || $ref) && $action == 'edit') {
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 	if ($backtopageforcancel) print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
 
-	print saturne_get_fiche_head();
+	print dol_get_fiche_head();
 
 	print '<table class="border centpercent tableforfieldedit sheet-table">'."\n";
 

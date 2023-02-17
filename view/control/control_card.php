@@ -1222,7 +1222,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<br>';
 		print load_fiche_titre($langs->trans($titreform));
 
-		print saturne_get_fiche_head();
+		print dol_get_fiche_head();
 
 		// Create form for email
 		include_once DOL_DOCUMENT_ROOT . '/core/class/html.formmail.class.php';
