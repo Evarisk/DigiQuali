@@ -247,7 +247,6 @@ window.dolismq.control.reloadProductLot = function ( event ) {
 		processData: false,
 		contentType: false,
 		success: function ( resp ) {
-			console.log($(resp).find('.lot-content'))
 			$('.lot-container').html($(resp).find('.lot-content'))
 		},
 		error: function ( ) {
@@ -365,7 +364,7 @@ window.dolismq.control.showSelectObjectLinked = function ( event ) {
 	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&fk_sheet=' + sheetId + '&token=' + token
 	urlToGo += '&fk_project=' + projectId
 	urlToGo += '&fk_user_controller=' + userController
-	console.log(urlToGo)
+
 	window.saturne.loader.display($('.tabBar.tabBarWithBottom tbody'))
 	$.ajax({
 		url: urlToGo,
