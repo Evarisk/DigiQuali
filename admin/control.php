@@ -370,7 +370,7 @@ print '</tr>';
 
 //Show task conf
 print '<tr><td>';
-print $langs->trans('ShowTask');
+print $langs->trans('ShowTaskDoliSMQ');
 print "</td><td>";
 print $langs->trans('ShowTaskDescription');
 print '</td>';
