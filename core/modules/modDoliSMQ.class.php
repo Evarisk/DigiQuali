@@ -169,16 +169,16 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'],
 
 			// CONST CONTROL
-			$i++ => ['DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'],
-			$i++ => ['DOLISMQ_CONTROL_DISPLAY_MEDIAS', 'integer', 1, '', 0, 'current'],
-			$i++ => ['DOLISMQ_CONTROL_SHOW_PRODUCT', 'integer', 0, '', 0, 'current'],
-			$i++ => ['DOLISMQ_CONTROL_SHOW_PRODUCTLOT', 'integer', 0, '', 0, 'current'],
-			$i++ => ['DOLISMQ_CONTROL_SHOW_USER', 'integer', 0, '', 0, 'current'],
-			$i++ => ['DOLISMQ_CONTROL_SHOW_THIRDPARTY', 'integer', 0, '', 0, 'current'],
-			$i++ => ['DOLISMQ_CONTROL_SHOW_CONTACT', 'integer', 0, '', 0, 'current'],
-			$i++ => ['DOLISMQ_CONTROL_SHOW_PROJECT', 'integer', 0, '', 0, 'current'],
-			$i++ => ['DOLISMQ_CONTROL_SHOW_TASK', 'integer', 0, '', 0, 'current'],
-			$i++ => ['DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLISMQ_SHEET_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'],
+			$i++ => ['DOLISMQ_SHEET_DISPLAY_MEDIAS', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLISMQ_SHEET_LINK_PRODUCT', 'integer', 0, '', 0, 'current'],
+			$i++ => ['DOLISMQ_SHEET_LINK_PRODUCTLOT', 'integer', 0, '', 0, 'current'],
+			$i++ => ['DOLISMQ_SHEET_LINK_USER', 'integer', 0, '', 0, 'current'],
+			$i++ => ['DOLISMQ_SHEET_LINK_THIRDPARTY', 'integer', 0, '', 0, 'current'],
+			$i++ => ['DOLISMQ_SHEET_LINK_CONTACT', 'integer', 0, '', 0, 'current'],
+			$i++ => ['DOLISMQ_SHEET_LINK_PROJECT', 'integer', 0, '', 0, 'current'],
+			$i++ => ['DOLISMQ_SHEET_LINK_TASK', 'integer', 0, '', 0, 'current'],
+			$i++ => ['DOLISMQ_SHEET_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
 
 			//CONST CONTROL DOCUMENT
 			$i++ => ['DOLISMQ_CONTROLDOCUMENT_ADDON', 'chaine', 'mod_controldocument_standard', '', 0, 'current'],

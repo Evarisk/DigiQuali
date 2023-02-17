@@ -263,6 +263,91 @@ print '<td class="center">';
 print ajax_constantonoff('DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT');
 print '</td>';
 print '</tr>';
+
+//Show product conf
+print '<tr><td>';
+print $langs->trans('LinkProduct');
+print "</td><td>";
+print $langs->trans('LinkProductDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_LINK_PRODUCT');
+print '</td>';
+print '</tr>';
+
+//Link productlot conf
+print '<tr><td>';
+print $langs->trans('LinkProductLot');
+print "</td><td>";
+print $langs->trans('LinkProductLotDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_LINK_PRODUCTLOT');
+print '</td>';
+print '</tr>';
+
+//Link user conf
+print '<tr><td>';
+print $langs->trans('LinkUser');
+print "</td><td>";
+print $langs->trans('LinkUserDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_LINK_USER');
+print '</td>';
+print '</tr>';
+
+//Link thirdparty conf
+print '<tr><td>';
+print $langs->trans('LinkThirdParty');
+print "</td><td>";
+print $langs->trans('LinkThirdPartyDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_LINK_THIRDPARTY');
+print '</td>';
+print '</tr>';
+
+//Link contact conf
+print '<tr><td>';
+print $langs->trans('LinkContact');
+print "</td><td>";
+print $langs->trans('LinkContactDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_LINK_CONTACT');
+print '</td>';
+print '</tr>';
+
+//Link project conf
+print '<tr><td>';
+print $langs->trans('LinkProject');
+print "</td><td>";
+print $langs->trans('LinkProjectDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_LINK_PROJECT');
+print '</td>';
+print '</tr>';
+
+//Link task conf
+print '<tr><td>';
+print $langs->trans('LinkTaskDoliSMQ');
+print "</td><td>";
+print $langs->trans('LinkTaskDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_LINK_TASK');
+print '</td>';
+print '</tr>';
+
 print '</table>';
 
 // Generate categories

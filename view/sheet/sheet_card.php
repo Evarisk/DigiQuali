@@ -257,37 +257,37 @@ $help_url = '';
 
 $elementArray = array(
 	'product' => array(
-		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT,
+		'conf' => $conf->global->DOLISMQ_SHEET_LINK_PRODUCT,
 		'langs' => 'ProductOrService',
 		'picto' => 'product'
 	),
 	'productlot' => array(
-		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT,
+		'conf' => $conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT,
 		'langs' => 'Batch',
 		'picto' => 'lot'
 	),
 	'user' => array(
-		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_USER,
+		'conf' => $conf->global->DOLISMQ_SHEET_LINK_USER,
 		'langs' => 'User',
 		'picto' => 'user'
 	),
 	'thirdparty' => array(
-		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY,
+		'conf' => $conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY,
 		'langs' => 'ThirdParty',
 		'picto' => 'building'
 	),
 	'contact' => array(
-		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_CONTACT,
+		'conf' => $conf->global->DOLISMQ_SHEET_LINK_CONTACT,
 		'langs' => 'Contact',
 		'picto' => 'address'
 	),
 	'project' => array(
-		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_PROJECT,
+		'conf' => $conf->global->DOLISMQ_SHEET_LINK_PROJECT,
 		'langs' => 'Project',
 		'picto' => 'project'
 	),
 	'task' => array(
-		'conf' => $conf->global->DOLISMQ_CONTROL_SHOW_TASK,
+		'conf' => $conf->global->DOLISMQ_SHEET_LINK_TASK,
 		'langs' => 'Task',
 		'picto' => 'projecttask'
 	),
@@ -315,7 +315,7 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	//FK Element
-	if (empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_USER) && empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && empty($conf->global->DOLISMQ_CONTROL_SHOW_CONTACT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT) && empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK)) {
+	if (empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && empty($conf->global->DOLISMQ_SHEET_LINK_USER) && empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT) && empty($conf->global->DOLISMQ_SHEET_LINK_TASK)) {
 		print '<div class="wpeo-notice notice-info">';
 		print '<div class="notice-content">';
 		print '<div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . '<a href="' .dol_buildpath('/custom/dolismq/admin/control.php', 2).'">' . ' : ' . $langs->trans('ConfigControl') . '</a>';
