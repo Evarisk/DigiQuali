@@ -1,0 +1,8 @@
+div.tabsAction > span.butAction,
+div.tabsAction > span.butActionRefused,
+div.tabsAction > a.butAction,
+div.tabsAction > a.butActionDelete {
+  @media ( max-width: $media__small ) {
+    padding: 14px;
+  }
+}
