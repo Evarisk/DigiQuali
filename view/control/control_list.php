@@ -339,7 +339,7 @@ if (!empty($fromtype)) {
 
 	$linkback = '<a href="'.DOL_URL_ROOT.'/'.$fromtype.'/list.php?restore_lastsearch_values=1">'.$langs->trans("BackToList").'</a>';
 
-	saturne_banner_tab($objectLinked, 'ref', 0);
+	saturne_banner_tab($objectLinked, 'ref', '', 0);
 }
 
 if ($fromid) {
