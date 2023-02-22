@@ -336,7 +336,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				// Assert control informations
 				$tmpArray['SocietyName']      = (!empty($conf->global->MAIN_INFO_SOCIETE_NOM) ? $conf->global->MAIN_INFO_SOCIETE_NOM : $langs->trans('NoData'));
 				$tmpArray['ControlDocument']  = (!empty($object->ref) ? $object->ref : $langs->trans('NoData'));
-				$tmpArray['ControlerName']    = (!empty($userTmp->id > 0) ? $userTmp->lastname . ' '. $userTmp->firstname : $langs->trans('NoData'));
+				$tmpArray['ControlerName']    = (!empty($userTmp->id > 0) ? strtoupper($userTmp->lastname) . ' '. $userTmp->firstname : $langs->trans('NoData'));
 				$tmpArray['ControledProduct'] = (!empty($product->ref) ? $product->ref : $langs->trans('NoData'));
 				$tmpArray['LotNumber']        = (!empty($productlot->batch) ? $productlot->batch : $langs->trans('NoData'));
 				$tmpArray['Sheet']            = (!empty($sheet->ref) ? $sheet->ref . ' ' . $sheet->label : $langs->trans('NoData'));
