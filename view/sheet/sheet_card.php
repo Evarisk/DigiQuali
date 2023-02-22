@@ -114,7 +114,12 @@ if (empty($reshook)) {
 		$questionId = GETPOST('questionId');
 		if ($questionId > 0) {
 			$question->fetch($questionId);
-			$question->add_object_linked('dolismq_' . $object->element,$id);
+			$test = $question->add_object_linked('dolismq_' . $object->element,$id);
+
+			$questionsLinked = 	$object->fetchQuestionsLinked($id, 'dolismq_' . $object->element);
+			$questionIds     = $object->linkedObjectsIds['dolismq_question'];
+			$object->updateQuestionsPosition($questionIds);
+
 			setEventMessages($langs->trans('addQuestionLink') . ' ' . $question->ref, array());
 
 			header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
@@ -130,6 +135,11 @@ if (empty($reshook)) {
 		$question->fetch($questionId);
 		$question->element = 'dolismq_'.$question->element;
 		$question->deleteObjectLinked($id, 'dolismq_' . $object->element);
+
+		$questionsLinked = 	$object->fetchQuestionsLinked($id, 'dolismq_' . $object->element);
+		$questionIds     = $object->linkedObjectsIds['dolismq_question'];
+		$object->updateQuestionsPosition($questionIds);
+
 		setEventMessages($langs->trans('removeQuestionLink') . ' ' . $question->ref, array());
 
 		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
