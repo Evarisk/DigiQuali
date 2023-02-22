@@ -1,4 +1,4 @@
--- Copyright (C) 2022 EVARISK <dev@evarisk.com>
+-- Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -19,9 +19,9 @@ CREATE TABLE llx_dolismq_dolismqdocuments(
 	ref_ext       varchar(128),
 	entity        integer DEFAULT 1 NOT NULL,
 	date_creation datetime NOT NULL,
-	tms           timestamp,
-	import_key    integer DEFAULT NULL,
-	status        smallint DEFAULT 1 NOT NULL,
+    tms           timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    import_key    varchar(14),
+    status        integer DEFAULT 1 NOT NULL,
 	type          varchar(128),
 	json          text,
 	model_pdf     varchar(255),
