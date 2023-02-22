@@ -130,7 +130,7 @@ ErrorQuestionUsedInSheet = La question %s ne peut pas être supprimée, elle est
 ErrorNoQuestionSelected = Aucune question sélectionnée
 ConfirmCloneQuestion = Êtes-vous sûr(e) de vouloir cloner cette question ?
 AddQuestionIntoCategory = Assigner cette catégorie à la question
-
+TheQuestion = la question
 
 
 #
@@ -197,7 +197,7 @@ Production = Production
 Methods = Méthodes
 Logistics = Logistique
 ComputerScience = Informatique
-
+TheSheet = la fiche modèle
 
 
 #
@@ -288,7 +288,7 @@ AddProductLot = Créer numéro de lot/série
 AddUser = Créer utilisateur
 AddControlIntoCategory = Assigner cette catégorie au contrôle
 ProductOrServiceLinked = Produit ou service contrôlé
-
+TheControl = le contrôle
 
 
 #
