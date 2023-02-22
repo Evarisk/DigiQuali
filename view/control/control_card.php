@@ -741,7 +741,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$langs->load('projects');
 		$morehtmlref .= $langs->trans('Project') . ' ';
 		if ($user->rights->projet->creer) {
-			if ($action != 'classify') {
+			if ($action != 'classify' && $object->status < $object::STATUS_LOCKED) {
 				$morehtmlref .= '<a class="editfielda" href="' . $_SERVER['PHP_SELF'] . '?action=classify&token=' . newToken() . '&id=' . $object->id .'">' . img_edit($langs->transnoentitiesnoconv('SetProject')) . '</a>';
 			}
 			$morehtmlref .= ' : ';
