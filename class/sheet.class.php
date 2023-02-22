@@ -458,7 +458,6 @@ class Sheet extends CommonObject
 		$object->status = 1;
 		$objectid = $object->create($user);
 
-
 		//add categories
 		$cat = new Categorie($this->db);
 		$categories = $cat->containing($fromid, 'sheet');
@@ -475,9 +474,9 @@ class Sheet extends CommonObject
 
 		//add objects linked
 		if (is_array($object->linkedObjectsIds['dolismq_question']) && !empty($object->linkedObjectsIds['dolismq_question'])) {
-			foreach ($object->linkedObjectsIds['dolismq_question'] as $questionId => $questionPosition) {
+			foreach ($object->linkedObjectsIds['dolismq_question'] as $questionId) {
 				$question->fetch($questionId);
-				$question->add_object_linked('dolismq_' . $object->element,$objectid);
+				$question->add_object_linked('dolismq_' . $object->element, $objectid);
 			}
 			$object->updateQuestionsPosition($object->linkedObjectsIds['dolismq_question']);
 		}
