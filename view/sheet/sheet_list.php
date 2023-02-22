@@ -338,7 +338,7 @@ if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $
 // Output page
 // --------------------------------------------------------------------
 
-saturne_header(0,'', $title, $help_url, '', 0, 0);
+saturne_header(0,'', $title, $help_url);
 
 $arrayofselected = is_array($toselect) ? $toselect : array();
 

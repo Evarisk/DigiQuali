@@ -176,7 +176,7 @@ if ($action == 'setModuleOptions') {
 
 $help_url = '';
 $title    = $langs->trans('YourDocuments');
-saturne_header(0,'', $title, $help_url, '', '', '');
+saturne_header(0,'', $title, $help_url);
 
 $types = array(
 	'ControlDocument' => 'controldocument',

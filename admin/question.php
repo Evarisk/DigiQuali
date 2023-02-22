@@ -78,7 +78,7 @@ if ($action == 'setmod') {
 $helpUrl = 'FR:Module_DoliSMQ';
 $title   = $langs->trans("Question");
 
-saturne_header(0,'', $title, $helpUrl, '', 0, 0);
+saturne_header(0,'', $title, $helpUrl);
 
 // Subheader
 $linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?restore_lastsearch_values=1') . '">' . $langs->trans("BackToModuleList") . '</a>';

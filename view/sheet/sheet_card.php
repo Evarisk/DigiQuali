@@ -293,7 +293,7 @@ $elementArray = array(
 	),
 );
 
-saturne_header(0,'', $title, $help_url, '', 0, 0);
+saturne_header(0,'', $title, $help_url);
 
 // Part to create
 if ($action == 'create') {

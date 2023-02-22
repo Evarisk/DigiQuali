@@ -376,7 +376,7 @@ if (empty($reshook)) {
 $title    = $langs->trans("Question");
 $help_url = '';
 
-saturne_header(1,'', $title, $help_url, '', '', '');
+saturne_header(1,'', $title, $help_url);
 
 // Part to create
 if ($action == 'create') {

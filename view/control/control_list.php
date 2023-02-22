@@ -333,7 +333,7 @@ $now      = dol_now();
 $help_url = '';
 $title    = $langs->trans("ControlList");
 
-saturne_header(0,'', $title, $help_url, '', '', '');
+saturne_header(0,'', $title, $help_url);
 if (!empty($fromtype)) {
 	print saturne_get_fiche_head($objectLinked, 'control', $langs->trans("Control"));
 

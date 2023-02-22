@@ -57,7 +57,7 @@ saturne_check_access($user->admin);
 $pageName = "DoliSMQAbout";
 $help_url  = 'FR:Module_DoliSMQ';
 
-saturne_header(0,'', $langs->trans($pageName), $help_url, '', 0, 0);
+saturne_header(0,'', $langs->trans($pageName), $help_url);
 
 // Subheader
 $linkback = '<a href="'.($backtopage ?: DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';

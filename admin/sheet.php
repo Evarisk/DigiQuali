@@ -140,7 +140,7 @@ if ($action == 'generateCategories') {
 $help_url = 'FR:Module_DoliSMQ';
 $title    = $langs->trans("Sheet");
 
-saturne_header(0, '', $title, $help_url, '', 0, 0);
+saturne_header(0, '', $title, $help_url);
 
 // Subheader
 $linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?restore_lastsearch_values=1') . '">' . $langs->trans("BackToModuleList") . '</a>';
