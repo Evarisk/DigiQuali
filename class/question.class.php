@@ -58,7 +58,7 @@ class Question extends CommonObject
 	/**
 	 * @var string String with name of icon for question. Must be the part after the 'object_' into object_question.png
 	 */
-	public $picto = 'question_small@dolismq';
+	public $picto = 'fontawesome_fa-question_fas_#d35968';
 
 	const STATUS_DRAFT     = 0;
 	const STATUS_VALIDATED = 1;

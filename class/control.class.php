@@ -58,7 +58,7 @@ class Control extends CommonObject
 	/**
 	 * @var string String with name of icon for control. Must be the part after the 'object_' into object_control.png
 	 */
-	public $picto = 'control_small@dolismq';
+	public $picto = 'fontawesome_fa-tasks_fas_#d35968';
 
 	public const STATUS_DRAFT     = 0;
 	public const STATUS_VALIDATED = 1;
