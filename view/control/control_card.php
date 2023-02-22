@@ -989,7 +989,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Send email
 			if ($object->status == $object::STATUS_LOCKED) {
-				print dolGetButtonAction('<i class="fas fa-paper-plane"></i>' . ' ' . $langs->trans('SendMail'), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=presend&mode=init&token='.newToken().'#formmailbeforetitle', '', $object->status == $object::STATUS_LOCKED);
+				print dolGetButtonAction('<i class="fas fa-paper-plane"></i>' . ' ' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SendMail')), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=presend&mode=init&token='.newToken().'#formmailbeforetitle', '', $object->status == $object::STATUS_LOCKED);
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans('ControlMustBeLockedToSendEmail')) . '">' . '<i class="fas fa-paper-plane"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SendMail') . ' ') . '</span>';
 			}
