@@ -664,7 +664,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 			print '</td>';
 
-			print '<td class="move-line ui-sortable-handle">';
+			if ($object->status < $object::STATUS_LOCKED) {
+				print '<td class="move-line ui-sortable-handle">';
+			} else {
+				print '<td>';
+			}
 			print '</td>';
 			print '</tr>';
 			// Other attributes
