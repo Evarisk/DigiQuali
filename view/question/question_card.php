@@ -22,7 +22,11 @@
  */
 
 // Load Dolibarr environment
-if (file_exists("../../dolismq.main.inc.php")) $res = @include "../../dolismq.main.inc.php";
+if (file_exists("../../dolismq.main.inc.php")) {
+	$res = @include "../../dolismq.main.inc.php";
+} else {
+	die('Include of DoliSMQ main fails');
+}
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
