@@ -30,7 +30,7 @@
 function sheet_prepare_head(Sheet $object): array
 {
 	// Global variables definitions
-	global $conf, $langs, $db;
+	global $conf, $langs, $db, $user;
 
 	// Load translation files required by the page
 	saturne_load_langs();

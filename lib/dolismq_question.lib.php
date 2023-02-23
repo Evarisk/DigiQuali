@@ -30,7 +30,7 @@
 function question_prepare_head(Question $object): array
 {
 	// Global variables definitions
-	global $conf, $db, $langs;
+	global $conf, $db, $langs, $user;
 
 	// Load translation files required by the page
 	saturne_load_langs();
