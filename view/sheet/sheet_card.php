@@ -543,18 +543,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 
 		if (empty($reshook)) {
-
 			// Back to draft
-			print '<span class="' . (($object->status == 1 && $question->checkQuestionsLocked($questionIds)) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 && $question->checkQuestionsLocked($questionIds)) ? 'actionButtonLock' : '') . '" title="' . (($object->status == 1 && $question->checkQuestionsLocked($questionIds)) ? '' : dol_escape_htmltag($langs->trans("AllQuestionsMustHaveLocked"))) . '">' . $langs->trans("Lock") . '</span>';
+			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1) ? 'actionButtonLock' : '') . '">' . '<i class="fas fa-lock"></i> ' . $langs->trans("Lock") . '</span>';
 			if ($object->status != 2) {
-				print dolGetButtonAction($langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=edit', '', $permissiontoadd);
+				print dolGetButtonAction('<i class="fas fa-edit"></i> ' . $langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=edit', '', $permissiontoadd);
 			}
 
-			print '<span class="butAction" id="actionButtonClone" title="" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=clone' . '">' . $langs->trans("ToClone") . '</span>';
+			print '<span class="butAction" id="actionButtonClone" title="" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=clone' . '">' . '<i class="fas fa-clone"></i> ' . $langs->trans("ToClone") . '</span>';
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
 			if ($object->status != 2) {
-				print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
+				print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 			}
 		}
 		print '</div>'."\n";
