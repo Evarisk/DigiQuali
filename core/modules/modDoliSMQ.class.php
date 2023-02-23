@@ -256,17 +256,17 @@ class modDoliSMQ extends DolibarrModules
 
 		/* CONTROL PERMISSSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('ReadObject',$langs->transnoentities('Controls')); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('ReadObject',$langs->transnoentities('ControlsMin')); // Permission label
 		$this->rights[$r][4] = 'control'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('CreateObject', $langs->transnoentities('Controls')); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('CreateObject', $langs->transnoentities('ControlsMin')); // Permission label
 		$this->rights[$r][4] = 'control'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('DeleteObject', $langs->transnoentities('Controls')); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('DeleteObject', $langs->transnoentities('ControlsMin')); // Permission label
 		$this->rights[$r][4] = 'control'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;

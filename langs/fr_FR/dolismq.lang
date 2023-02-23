@@ -212,7 +212,7 @@ TheSheet = la fiche modèle
 
 # Rights - Droits
 Control = Contrôle
-Controls = contrôles
+ControlsMin = contrôles
 ReadControl = Consulter les contrôles
 CreateControl = Créer/Modifier les contrôles
 DeleteControl = Supprimer les contrôles
