@@ -40,7 +40,8 @@ class modDoliSMQ extends DolibarrModules
 		global $langs, $conf;
 		$this->db = $db;
 
-		$langs->load('dolismq@dolismq');
+		require_once __DIR__ . '/../../../saturne/lib/saturne_functions.lib.php';
+		saturne_load_langs(['dolismq@dolismq']);
 
 		// Id for module (must be unique).
 		$this->numero = 436301;
@@ -243,75 +244,75 @@ class modDoliSMQ extends DolibarrModules
 
 		/* DOLISMQ PERMISSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
-		$this->rights[$r][1] = $langs->trans('LireDoliSMQ');
+		$this->rights[$r][1] = $langs->transnoentities('LireModule', $langs->transnoentities('DoliSMQ'));
 		$this->rights[$r][4] = 'lire';
 		$this->rights[$r][5] = 1;
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
-		$this->rights[$r][1] = $langs->trans('ReadDoliSMQ');
+		$this->rights[$r][1] = $langs->transnoentities('ReadModule', $langs->transnoentities('DoliSMQ'));
 		$this->rights[$r][4] = 'read';
 		$this->rights[$r][5] = 1;
 		$r++;
 
 		/* CONTROL PERMISSSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->trans('ReadControl'); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('ReadObject',$langs->transnoentities('Controls')); // Permission label
 		$this->rights[$r][4] = 'control'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('CreateControl'); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('CreateObject', $langs->transnoentities('Controls')); // Permission label
 		$this->rights[$r][4] = 'control'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->trans('DeleteControl'); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('DeleteObject', $langs->transnoentities('Controls')); // Permission label
 		$this->rights[$r][4] = 'control'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 
 		/* QUESTION PERMISSSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->trans('ReadQuestion'); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('ReadObject',$langs->transnoentities('Questions')); // Permission label
 		$this->rights[$r][4] = 'question'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('CreateQuestion'); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('CreateObject', $langs->transnoentities('Questions')); // Permission label
 		$this->rights[$r][4] = 'question'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->trans('DeleteQuestion'); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('DeleteObject', $langs->transnoentities('Questions')); // Permission label
 		$this->rights[$r][4] = 'question'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 
 		/* SHEET PERMISSSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->trans('ReadSheet'); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('ReadObject',$langs->transnoentities('Sheets')); // Permission label
 		$this->rights[$r][4] = 'sheet'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->trans('CreateSheet'); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('CreateObject', $langs->transnoentities('Sheets')); // Permission label
 		$this->rights[$r][4] = 'sheet'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->trans('DeleteSheet'); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('DeleteObject', $langs->transnoentities('Sheets')); // Permission label
 		$this->rights[$r][4] = 'sheet'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 
 		/* ADMINPAGE PANEL ACCESS PERMISSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
-		$this->rights[$r][1] = $langs->transnoentities('ReadAdminPage');
+		$this->rights[$r][1] = $langs->transnoentities('ReadObject',$langs->transnoentities('AdminPages'));
 		$this->rights[$r][4] = 'adminpage';
 		$this->rights[$r][5] = 'read';
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
-		$this->rights[$r][1] = $langs->trans('ChangeUserController');
+		$this->rights[$r][1] = $langs->transnoentities('ChangeUserController');
 		$this->rights[$r][4] = 'adminpage';
 		$this->rights[$r][5] = 'changeusercontroller';
 

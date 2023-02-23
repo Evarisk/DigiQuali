@@ -40,6 +40,8 @@ DoliSMQConfig = Configuration
 About = À propos
 DoliSMQAbout = À propos de DoliSMQ
 DoliSMQAboutPage = Page à propos de DoliSMQ
+DoliSMQ = DoliSMQ
+AdminPages = pages de configuration
 
 #
 # Page index
@@ -84,6 +86,7 @@ DisplayNumberMediaGalleryDescription = Affiche 8 médias (par défaut) par page 
 #
 
 # Rights - Droits
+Questions = questions
 ReadQuestion = Consulter les questions
 CreateQuestion = Créer/Modifier les questions
 DeleteQuestion = Supprimer les questions
@@ -138,6 +141,8 @@ TheQuestion = la question
 #
 
 # Rights - Droits
+Sheet = Fiche modèle
+Sheets = fiches modèles
 ReadSheet = Consulter les fiches modèles
 CreateSheet = Créer/Modifier les fiches modèles
 DeleteSheet = Supprimer les fiches modèles
@@ -205,6 +210,8 @@ TheSheet = la fiche modèle
 #
 
 # Rights - Droits
+Control = Contrôle
+Controls = contrôles
 ReadControl = Consulter les contrôles
 CreateControl = Créer/Modifier les contrôles
 DeleteControl = Supprimer les contrôles
@@ -251,7 +258,7 @@ ControlManagement = Gestion des contrôles
 ControlData = Données configurables des contrôles
 DisplayMedias = Afficher les médias dans le contrôle
 DisplayMediasDescription = Afficher les médias des questions dans le contrôle
-ChangeUserController = Droit permettant de changer l'utilisateur contrôleur
+ChangeUserController = Changer l'utilisateur contrôleur
 TaskLinked = Tâche contrôlée
 ThirdPartyLinked = Tiers contrôlé
 ContactLinked = Contact/Adresse contrôlée
