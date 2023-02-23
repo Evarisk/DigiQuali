@@ -236,7 +236,7 @@ if (empty($reshook)) {
 			foreach ($types as $type) {
 				$pathToTmpPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/' . $type;
 				$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type);
-				if ( ! empty($photoList)) {
+				if (is_array($photoList) && !empty($photoList)) {
 					foreach ($photoList as $photo) {
 						if ($photo['type'] !== 'dir') {
 							$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object);
@@ -297,6 +297,134 @@ if (empty($reshook)) {
 			}
 		} else {
 			$action = 'create';
+		}
+	}
+
+	// Action to update record
+	if ($action == 'update' && !empty($permissiontoadd)) {
+		foreach ($object->fields as $key => $val) {
+			// Check if field was submited to be edited
+			if ($object->fields[$key]['type'] == 'duration') {
+				if (!GETPOSTISSET($key.'hour') || !GETPOSTISSET($key.'min')) {
+					continue; // The field was not submited to be saved
+				}
+			} elseif ($object->fields[$key]['type'] == 'boolean') {
+				if (!GETPOSTISSET($key)) {
+					$object->$key = 0; // use 0 instead null if the field is defined as not null
+					continue;
+				}
+			} else {
+				if (!GETPOSTISSET($key)) {
+					continue; // The field was not submited to be saved
+				}
+			}
+			// Ignore special fields
+			if (in_array($key, array('rowid', 'entity', 'import_key'))) {
+				continue;
+			}
+			if (in_array($key, array('date_creation', 'tms', 'fk_user_creat', 'fk_user_modif'))) {
+				if (!in_array(abs($val['visible']), array(1, 3, 4))) {
+					continue; // Only 1 and 3 and 4, that are cases to update
+				}
+			}
+
+			// Set value to update
+			if (preg_match('/^(text|html)/', $object->fields[$key]['type'])) {
+				$tmparray = explode(':', $object->fields[$key]['type']);
+				if (!empty($tmparray[1])) {
+					$value = GETPOST($key, $tmparray[1]);
+				} else {
+					$value = GETPOST($key, 'restricthtml');
+				}
+			} elseif ($object->fields[$key]['type'] == 'date') {
+				$value = dol_mktime(12, 0, 0, GETPOST($key.'month', 'int'), GETPOST($key.'day', 'int'), GETPOST($key.'year', 'int')); // for date without hour, we use gmt
+			} elseif ($object->fields[$key]['type'] == 'datetime') {
+				$value = dol_mktime(GETPOST($key.'hour', 'int'), GETPOST($key.'min', 'int'), GETPOST($key.'sec', 'int'), GETPOST($key.'month', 'int'), GETPOST($key.'day', 'int'), GETPOST($key.'year', 'int'), 'tzuserrel');
+			} elseif ($object->fields[$key]['type'] == 'duration') {
+				if (GETPOST($key.'hour', 'int') != '' || GETPOST($key.'min', 'int') != '') {
+					$value = 60 * 60 * GETPOST($key.'hour', 'int') + 60 * GETPOST($key.'min', 'int');
+				} else {
+					$value = '';
+				}
+			} elseif (preg_match('/^(integer|price|real|double)/', $object->fields[$key]['type'])) {
+				$value = price2num(GETPOST($key, 'alphanohtml')); // To fix decimal separator according to lang setup
+			} elseif ($object->fields[$key]['type'] == 'boolean') {
+				$value = ((GETPOST($key, 'aZ09') == 'on' || GETPOST($key, 'aZ09') == '1') ? 1 : 0);
+			} elseif ($object->fields[$key]['type'] == 'reference') {
+				$value = array_keys($object->param_list)[GETPOST($key)].','.GETPOST($key.'2');
+			} else {
+				if ($key == 'lang') {
+					$value = GETPOST($key, 'aZ09');
+				} else {
+					$value = GETPOST($key, 'alphanohtml');
+				}
+			}
+			if (preg_match('/^integer:/i', $object->fields[$key]['type']) && $value == '-1') {
+				$value = ''; // This is an implicit foreign key field
+			}
+			if (!empty($object->fields[$key]['foreignkey']) && $value == '-1') {
+				$value = ''; // This is an explicit foreign key field
+			}
+
+			$object->$key = $value;
+			if ($val['notnull'] > 0 && $object->$key == '' && is_null($val['default'])) {
+				$error++;
+				setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv($val['label'])), null, 'errors');
+			}
+
+			// Validation of fields values
+			if (getDolGlobalInt('MAIN_FEATURES_LEVEL') >= 2 || !empty($conf->global->MAIN_ACTIVATE_VALIDATION_RESULT)) {
+				if (!$error && !empty($val['validate']) && is_callable(array($object, 'validateField'))) {
+					if (!$object->validateField($object->fields, $key, $value)) {
+						$error++;
+					}
+				}
+			}
+
+			if (isModEnabled('categorie')) {
+				$categories = GETPOST('categories', 'array');
+				if (method_exists($object, 'setCategories')) {
+					$object->setCategories($categories);
+				}
+			}
+		}
+
+		// Fill array 'array_options' with data from add form
+		if (!$error) {
+			$ret = $extrafields->setOptionalsFromPost(null, $object, '@GETPOSTISSET');
+			if ($ret < 0) {
+				$error++;
+			}
+		}
+
+		if (!$error) {
+			$action = 'view';
+
+			$types = array('photo_ok', 'photo_ko');
+
+			foreach ($types as $type) {
+				$pathToTmpPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref .'/' . $type;
+				$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/' . $object->ref . '/' . $type);
+
+				if (is_array($photoList) && !empty($photoList)) {
+					foreach ($photoList as $index => $photo) {
+						if ($index == 0 && dol_strlen($object->$type) < 0) {
+							$object->$type = $photo['name'];
+						}
+					}
+				}
+			}
+			$result = $object->update($user);
+
+			$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
+			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
+			if ($urltogo && !$noback) {
+				header("Location: " . $urltogo);
+				exit;
+			}
+
+		} else {
+			$action = 'edit';
 		}
 	}
 
@@ -667,11 +795,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// ------------------------------------------------------------
 	$linkback = '<a href="'.dol_buildpath('/dolismq/view/question/question_list.php', 1).'">'.$langs->trans("BackToList").'</a>';
 
-	$morehtmlref = '<div class="refidno">';
-	dol_strlen($object->label) ? $morehtmlref .= '<span>'. ' - ' .$object->label . '</span>' : '';
-	$morehtmlref .= '</div>';
-
-	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', $morehtmlref);
+	saturne_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref');
 
 	print '<div class="fichecenter">';
 	print '<div class="fichehalfleft">';
@@ -753,16 +877,16 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		if (empty($reshook)) {
 			// Back to draft
-			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1) ? 'actionButtonLock' : '') . '">' . $langs->trans("Lock") . '</span>';
+			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1) ? 'actionButtonLock' : '') . '">' . '<i class="fas fa-lock"></i> ' . $langs->trans("Lock") . '</span>';
 			if ($object->status != 2) {
-				print dolGetButtonAction($langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=edit', '', $permissiontoadd);
+				print dolGetButtonAction('<i class="fas fa-edit"></i> ' . $langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=edit', '', $permissiontoadd);
 			}
 
-			print '<span class="butAction" id="actionButtonClone" title="" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=clone' . '">' . $langs->trans("ToClone") . '</span>';
+			print '<span class="butAction" id="actionButtonClone" title="" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=clone' . '">' . '<i class="fas fa-clone"></i> ' . $langs->trans("ToClone") . '</span>';
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
 			if ($object->status != 2) {
-				print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
+				print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 			}
 		}
 		print '</div>'."\n";

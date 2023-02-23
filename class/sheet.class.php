@@ -58,7 +58,7 @@ class Sheet extends CommonObject
 	/**
 	 * @var string String with name of icon for sheet. Must be the part after the 'object_' into object_sheet.png
 	 */
-	public $picto = 'sheet_small@dolismq';
+	public $picto = 'fontawesome_fa-list_fas_#d35968';
 
 	const STATUS_DRAFT     = 0;
 	const STATUS_VALIDATED = 1;
@@ -74,7 +74,7 @@ class Sheet extends CommonObject
 		'entity'         => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
 		'date_creation'  => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 0,),
 		'tms'            => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
-		'import_key'     => array('type' => 'varchar(14)', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
+		'import_key'     => array('type' => 'varchar(14)', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 0,),
 		'status'         => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>'1', 'arrayofkeyval' => ['0' => 'Draft', '1' => 'Enabled', '2' => 'Locked']),
 		'type'           => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
 		'label'          => array('type' => 'varchar(255)', 'label' => 'Label', 'enabled' => '1', 'position' => 11, 'notnull' => 0, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200', 'help' => "Help text", 'showoncombobox' => '1',),
@@ -458,7 +458,6 @@ class Sheet extends CommonObject
 		$object->status = 1;
 		$objectid = $object->create($user);
 
-
 		//add categories
 		$cat = new Categorie($this->db);
 		$categories = $cat->containing($fromid, 'sheet');
@@ -475,9 +474,9 @@ class Sheet extends CommonObject
 
 		//add objects linked
 		if (is_array($object->linkedObjectsIds['dolismq_question']) && !empty($object->linkedObjectsIds['dolismq_question'])) {
-			foreach ($object->linkedObjectsIds['dolismq_question'] as $questionId => $questionPosition) {
+			foreach ($object->linkedObjectsIds['dolismq_question'] as $questionId) {
 				$question->fetch($questionId);
-				$question->add_object_linked('dolismq_' . $object->element,$objectid);
+				$question->add_object_linked('dolismq_' . $object->element, $objectid);
 			}
 			$object->updateQuestionsPosition($object->linkedObjectsIds['dolismq_question']);
 		}
@@ -608,7 +607,7 @@ class Sheet extends CommonObject
 			}
 
 			// Construct $out and $outarray
-			$out .= '<select id="' . $htmlname . '" class="flat' . ($morecss ? ' ' . $morecss : '') . '"' . ($moreparam ? ' ' . $moreparam : '') . ' name="' . $htmlname . ($multiple ? '[]' : '') . '" ' . ($multiple ? 'multiple' : '') . '>' . "\n";
+			$out .= '<select id="' . $htmlname . '" class="minwidth200 flat' . ($morecss ? ' ' . $morecss : '') . '"' . ($moreparam ? ' ' . $moreparam : '') . ' name="' . $htmlname . ($multiple ? '[]' : '') . '" ' . ($multiple ? 'multiple' : '') . '>' . "\n";
 
 			if ($showempty) {
 				$out .= '<option value="-1">&nbsp;</option>';
@@ -739,19 +738,18 @@ class Sheet extends CommonObject
 				$obj = $this->db->fetch_object($resql);
 				if ($justsource || $justtarget) {
 					if ($justsource) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $i+1] = $obj->fk_target;
+						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $num+1] = $obj->fk_target;
 					} elseif ($justtarget) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $i+1] = $obj->fk_source;
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $num+1] = $obj->fk_source;
 					}
 				} else {
 					if ($obj->fk_source == $sourceid && $obj->sourcetype == $sourcetype) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $i+1] = $obj->fk_target;
+						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $num+1] = $obj->fk_target;
 					}
 					if ($obj->fk_target == $targetid && $obj->targettype == $targettype) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $i+1] = $obj->fk_source;
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $num+1] = $obj->fk_source;
 					}
 				}
-
 				$i++;
 			}
 

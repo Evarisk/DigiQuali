@@ -40,6 +40,8 @@ DoliSMQConfig = Configuration
 About = À propos
 DoliSMQAbout = À propos de DoliSMQ
 DoliSMQAboutPage = Page à propos de DoliSMQ
+DoliSMQ = DoliSMQ
+AdminPages = pages de configuration
 
 #
 # Page index
@@ -84,6 +86,7 @@ DisplayNumberMediaGalleryDescription = Affiche 8 médias (par défaut) par page 
 #
 
 # Rights - Droits
+Questions = questions
 ReadQuestion = Consulter les questions
 CreateQuestion = Créer/Modifier les questions
 DeleteQuestion = Supprimer les questions
@@ -130,7 +133,7 @@ ErrorQuestionUsedInSheet = La question %s ne peut pas être supprimée, elle est
 ErrorNoQuestionSelected = Aucune question sélectionnée
 ConfirmCloneQuestion = Êtes-vous sûr(e) de vouloir cloner cette question ?
 AddQuestionIntoCategory = Assigner cette catégorie à la question
-
+TheQuestion = la question
 
 
 #
@@ -138,6 +141,8 @@ AddQuestionIntoCategory = Assigner cette catégorie à la question
 #
 
 # Rights - Droits
+Sheet = Fiche modèle
+Sheets = fiches modèles
 ReadSheet = Consulter les fiches modèles
 CreateSheet = Créer/Modifier les fiches modèles
 DeleteSheet = Supprimer les fiches modèles
@@ -181,6 +186,7 @@ ErrorMultipleLinkedElement = Erreur la fiche modèle est liée à plusieurs él�
 ErrorSheetUsedInControl = La fiche modèle %s ne peut pas être supprimée, elle est utilisée dans un ou plusieurs contrôles.
 ConfigElementLinked = Vous n'avez pas configuré d'éléments liés, veuillez cliquer ici pour vous rendre sur la page de configuration
 ConfigControl = Page de configuration des contrôles
+ConfigSheet = Page de configuration des fiches modèles
 ConfirmCloneSheet = Êtes-vous sûr(e) de vouloir cloner cette fiche modèle ?
 AddSheetIntoCategory = Assigner cette catégorie à la fiche modèle
 
@@ -197,7 +203,7 @@ Production = Production
 Methods = Méthodes
 Logistics = Logistique
 ComputerScience = Informatique
-
+TheSheet = la fiche modèle
 
 
 #
@@ -205,6 +211,8 @@ ComputerScience = Informatique
 #
 
 # Rights - Droits
+Control = Contrôle
+ControlsMin = contrôles
 ReadControl = Consulter les contrôles
 CreateControl = Créer/Modifier les contrôles
 DeleteControl = Supprimer les contrôles
@@ -251,7 +259,7 @@ ControlManagement = Gestion des contrôles
 ControlData = Données configurables des contrôles
 DisplayMedias = Afficher les médias dans le contrôle
 DisplayMediasDescription = Afficher les médias des questions dans le contrôle
-ChangeUserController = Droit permettant de changer l'utilisateur contrôleur
+ChangeUserController = Changer l'utilisateur contrôleur
 TaskLinked = Tâche contrôlée
 ThirdPartyLinked = Tiers contrôlé
 ContactLinked = Contact/Adresse contrôlée
@@ -288,7 +296,7 @@ AddProductLot = Créer numéro de lot/série
 AddUser = Créer utilisateur
 AddControlIntoCategory = Assigner cette catégorie au contrôle
 ProductOrServiceLinked = Produit ou service contrôlé
-
+TheControl = le contrôle
 
 
 #

@@ -114,7 +114,12 @@ if (empty($reshook)) {
 		$questionId = GETPOST('questionId');
 		if ($questionId > 0) {
 			$question->fetch($questionId);
-			$question->add_object_linked('dolismq_' . $object->element,$id);
+			$test = $question->add_object_linked('dolismq_' . $object->element,$id);
+
+			$questionsLinked = 	$object->fetchQuestionsLinked($id, 'dolismq_' . $object->element);
+			$questionIds     = $object->linkedObjectsIds['dolismq_question'];
+			$object->updateQuestionsPosition($questionIds);
+
 			setEventMessages($langs->trans('addQuestionLink') . ' ' . $question->ref, array());
 
 			header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
@@ -130,6 +135,11 @@ if (empty($reshook)) {
 		$question->fetch($questionId);
 		$question->element = 'dolismq_'.$question->element;
 		$question->deleteObjectLinked($id, 'dolismq_' . $object->element);
+
+		$questionsLinked = 	$object->fetchQuestionsLinked($id, 'dolismq_' . $object->element);
+		$questionIds     = $object->linkedObjectsIds['dolismq_question'];
+		$object->updateQuestionsPosition($questionIds);
+
 		setEventMessages($langs->trans('removeQuestionLink') . ' ' . $question->ref, array());
 
 		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
@@ -322,7 +332,7 @@ if ($action == 'create') {
 	if (empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && empty($conf->global->DOLISMQ_SHEET_LINK_USER) && empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT) && empty($conf->global->DOLISMQ_SHEET_LINK_TASK)) {
 		print '<div class="wpeo-notice notice-info">';
 		print '<div class="notice-content">';
-		print '<div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . '<a href="' .dol_buildpath('/custom/dolismq/admin/control.php', 2).'">' . ' : ' . $langs->trans('ConfigControl') . '</a>';
+		print '<div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . '<a href="' .dol_buildpath('/custom/dolismq/admin/sheet.php', 2).'">' . ' : ' . $langs->trans('ConfigSheet') . '</a>';
 		print '</div>';
 		print '</div>';
 		print '</div>';
@@ -478,12 +488,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$morehtmlref = '<div class="refidno">';
 	$morehtmlref .= '</div>';
 
-	saturne_banner_tab($object);
+	saturne_banner_tab($object,'ref', $linkback);
 
 	print '<div class="fichecenter">';
 	print '<div class="fichehalfleft">';
 	print '<div class="underbanner clearboth"></div>';
 	print '<table class="border centpercent tableforfield">'."\n";
+
+	unset($object->fields['label']);
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
@@ -531,18 +543,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 
 		if (empty($reshook)) {
-
 			// Back to draft
-			print '<span class="' . (($object->status == 1 && $question->checkQuestionsLocked($questionIds)) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1 && $question->checkQuestionsLocked($questionIds)) ? 'actionButtonLock' : '') . '" title="' . (($object->status == 1 && $question->checkQuestionsLocked($questionIds)) ? '' : dol_escape_htmltag($langs->trans("AllQuestionsMustHaveLocked"))) . '">' . $langs->trans("Lock") . '</span>';
+			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1) ? 'actionButtonLock' : '') . '">' . '<i class="fas fa-lock"></i> ' . $langs->trans("Lock") . '</span>';
 			if ($object->status != 2) {
-				print dolGetButtonAction($langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=edit', '', $permissiontoadd);
+				print dolGetButtonAction('<i class="fas fa-edit"></i> ' . $langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=edit', '', $permissiontoadd);
 			}
 
-			print '<span class="butAction" id="actionButtonClone" title="" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=clone' . '">' . $langs->trans("ToClone") . '</span>';
+			print '<span class="butAction" id="actionButtonClone" title="" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=clone' . '">' . '<i class="fas fa-clone"></i> ' . $langs->trans("ToClone") . '</span>';
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
 			if ($object->status != 2) {
-				print dolGetButtonAction($langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
+				print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 			}
 		}
 		print '</div>'."\n";
@@ -664,7 +675,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 			print '</td>';
 
-			print '<td class="move-line ui-sortable-handle">';
+			if ($object->status < $object::STATUS_LOCKED) {
+				print '<td class="move-line ui-sortable-handle">';
+			} else {
+				print '<td>';
+			}
 			print '</td>';
 			print '</tr>';
 			// Other attributes

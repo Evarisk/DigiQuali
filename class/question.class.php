@@ -58,7 +58,7 @@ class Question extends CommonObject
 	/**
 	 * @var string String with name of icon for question. Must be the part after the 'object_' into object_question.png
 	 */
-	public $picto = 'question_small@dolismq';
+	public $picto = 'fontawesome_fa-question_fas_#d35968';
 
 	const STATUS_DRAFT     = 0;
 	const STATUS_VALIDATED = 1;
@@ -69,12 +69,12 @@ class Question extends CommonObject
 	 */
 	public $fields = array(
 		'rowid'                  => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
-		'ref'                    => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
+		'ref'                    => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
 		'ref_ext'                => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "External reference of object"),
 		'entity'                 => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
 		'date_creation'          => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 0,),
 		'tms'                    => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
-		'import_key'             => array('type' => 'varchar(14)', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
+		'import_key'             => array('type' => 'varchar(14)', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 0,),
 		'status'                 => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>'1', 'arrayofkeyval' => ['0' => 'Draft', '1' => 'Enabled', '2' => 'Locked']),
 		'type'                   => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
 		'label'                  => array('type' => 'varchar(255)', 'label' => 'Label', 'enabled' => '1', 'position' => 11, 'notnull' => 0, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200', 'help' => "Help text", 'showoncombobox' => '1',),
@@ -501,6 +501,8 @@ class Question extends CommonObject
 			$object->fetchLines();
 		}
 
+		$oldRef = $object->ref;
+
 		// Create clone
 		$object->context['createfromclone'] = 'createfromclone';
 		$object->ref = $refQuestionMod->getNextValue($object);
@@ -525,6 +527,49 @@ class Question extends CommonObject
 		// End
 		if ( ! $error) {
 			$this->db->commit();
+
+			$dirFiles = $conf->dolismq->multidir_output[$object->entity ?? 1] . '/question/';
+			$oldDirFiles = $dirFiles . $oldRef;
+			$newDirFiles = $dirFiles . $object->ref;
+
+			$photoOkList = dol_dir_list($oldDirFiles . '/photo_ok', 'files');
+			$photoKoList = dol_dir_list($oldDirFiles . '/photo_ko', 'files');
+
+			$photoOkThumbsList = dol_dir_list($oldDirFiles . '/photo_ok/thumbs', 'files');
+			$photoKoThumbsList = dol_dir_list($oldDirFiles . '/photo_ko/thumbs', 'files');
+
+			$photoOkPath = $newDirFiles . '/photo_ok';
+			dol_mkdir($photoOkPath);
+			if (is_array($photoOkList) && !empty($photoOkList)) {
+				foreach ($photoOkList as $photoOk) {
+					copy($photoOk['fullname'], $photoOkPath . '/' . $photoOk['name']);
+				}
+			}
+
+			$photoKoPath = $newDirFiles . '/photo_ko';
+			dol_mkdir($photoKoPath);
+			if (is_array($photoKoList) && !empty($photoKoList)) {
+				foreach ($photoKoList as $photoKo) {
+					copy($photoKo['fullname'], $photoKoPath . '/' . $photoKo['name']);
+				}
+			}
+
+			$photoOkThumbsPath = $newDirFiles . '/photo_ok/thumbs';
+			dol_mkdir($photoOkThumbsPath);
+			if (is_array($photoOkThumbsList) && !empty($photoOkThumbsList)) {
+				foreach ($photoOkThumbsList as $photoOkThumbs) {
+					copy($photoOkThumbs['fullname'], $photoOkThumbsPath . '/' . $photoOkThumbs['name']);
+				}
+			}
+
+			$photoKoThumbsPath = $newDirFiles . '/photo_ok/thumbs';
+			dol_mkdir($photoKoThumbsPath);
+			if (is_array($photoKoThumbsList) && !empty($photoKoThumbsList)) {
+				foreach ($photoKoThumbsList as $photoKoThumbs) {
+					copy($photoKoThumbs['fullname'], $photoKoThumbsPath . '/' . $photoKoThumbs['name']);
+				}
+			}
+
 			return $objectid;
 		} else {
 			$this->db->rollback();

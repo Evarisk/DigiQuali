@@ -334,6 +334,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$userTmp->fetch($object->fk_user_controller);
 
 				// Assert control informations
+
 				$tmparray['SocietyName']      = (!empty($conf->global->MAIN_INFO_SOCIETE_NOM) ? $conf->global->MAIN_INFO_SOCIETE_NOM : $langs->trans('NoData'));
 				$tmparray['ControlDocument']  = (!empty($object->ref) ? $object->ref : $langs->trans('NoData'));
 				$tmparray['ControlerName']    = (!empty($userTmp->id > 0) ? $userTmp->lastname . ' '. $userTmp->firstname : $langs->trans('NoData'));
