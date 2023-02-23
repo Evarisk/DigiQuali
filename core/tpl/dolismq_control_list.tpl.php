@@ -47,8 +47,9 @@ if (is_array($extrafields->attributes[$object->table_element]['label']) && count
 
 foreach($elementElementFields as $genericName => $elementElementName) {
 	if (GETPOST('search_'.$genericName) > 0 || $fromtype == $elementElementName) {
+		$leftJoinSearchTable = $elementElementName . '_elel';
 		$id_to_search = GETPOST('search_'.$genericName) ?: $fromid;
-		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementName .' on ('. $elementElementName .'.fk_source = ' . $id_to_search . ' AND '. $elementElementName .'.sourcetype="'. $elementElementName .'" AND '. $elementElementName .'.targettype = "dolismq_control")';
+		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $leftJoinSearchTable .' on ('. $leftJoinSearchTable .'.fk_source = ' . $id_to_search . ' AND '. $leftJoinSearchTable .'.sourcetype="'. $leftJoinSearchTable .'" AND '. $leftJoinSearchTable .'.targettype = "dolismq_control")';
 	}
 }
 
