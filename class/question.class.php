@@ -69,7 +69,7 @@ class Question extends CommonObject
 	 */
 	public $fields = array(
 		'rowid'                  => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
-		'ref'                    => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
+		'ref'                    => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
 		'ref_ext'                => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "External reference of object"),
 		'entity'                 => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
 		'date_creation'          => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 0,),
@@ -501,6 +501,8 @@ class Question extends CommonObject
 			$object->fetchLines();
 		}
 
+		$oldRef = $object->ref;
+
 		// Create clone
 		$object->context['createfromclone'] = 'createfromclone';
 		$object->ref = $refQuestionMod->getNextValue($object);
@@ -525,6 +527,49 @@ class Question extends CommonObject
 		// End
 		if ( ! $error) {
 			$this->db->commit();
+
+			$dirFiles = $conf->dolismq->multidir_output[$object->entity ?? 1] . '/question/';
+			$oldDirFiles = $dirFiles . $oldRef;
+			$newDirFiles = $dirFiles . $object->ref;
+
+			$photoOkList = dol_dir_list($oldDirFiles . '/photo_ok', 'files');
+			$photoKoList = dol_dir_list($oldDirFiles . '/photo_ko', 'files');
+
+			$photoOkThumbsList = dol_dir_list($oldDirFiles . '/photo_ok/thumbs', 'files');
+			$photoKoThumbsList = dol_dir_list($oldDirFiles . '/photo_ko/thumbs', 'files');
+
+			$photoOkPath = $newDirFiles . '/photo_ok';
+			dol_mkdir($photoOkPath);
+			if (is_array($photoOkList) && !empty($photoOkList)) {
+				foreach ($photoOkList as $photoOk) {
+					copy($photoOk['fullname'], $photoOkPath . '/' . $photoOk['name']);
+				}
+			}
+
+			$photoKoPath = $newDirFiles . '/photo_ko';
+			dol_mkdir($photoKoPath);
+			if (is_array($photoKoList) && !empty($photoKoList)) {
+				foreach ($photoKoList as $photoKo) {
+					copy($photoKo['fullname'], $photoKoPath . '/' . $photoKo['name']);
+				}
+			}
+
+			$photoOkThumbsPath = $newDirFiles . '/photo_ok/thumbs';
+			dol_mkdir($photoOkThumbsPath);
+			if (is_array($photoOkThumbsList) && !empty($photoOkThumbsList)) {
+				foreach ($photoOkThumbsList as $photoOkThumbs) {
+					copy($photoOkThumbs['fullname'], $photoOkThumbsPath . '/' . $photoOkThumbs['name']);
+				}
+			}
+
+			$photoKoThumbsPath = $newDirFiles . '/photo_ok/thumbs';
+			dol_mkdir($photoKoThumbsPath);
+			if (is_array($photoKoThumbsList) && !empty($photoKoThumbsList)) {
+				foreach ($photoKoThumbsList as $photoKoThumbs) {
+					copy($photoKoThumbs['fullname'], $photoKoThumbsPath . '/' . $photoKoThumbs['name']);
+				}
+			}
+
 			return $objectid;
 		} else {
 			$this->db->rollback();
