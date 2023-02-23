@@ -423,10 +423,18 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				// Display public note and picture
 				$tabTop                  += 5;
 				$tmparray['NoteControl']  = $object->note_public;
-				$nophoto                  = '/public/theme/common/nophoto.png';
-				$tmparray['DefaultPhoto'] = DOL_DOCUMENT_ROOT.$nophoto;
 
-				$pdf->Image($tmparray['DefaultPhoto'], $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 40, 50, 0, $tabTop - 60);
+				$filearray = dol_dir_is_emtpy($conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/controlphoto/') ?  dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/controlphoto' . '/thumbs/', "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1) :  dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/controlphoto/' . '/thumbs/', "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
+
+				if (count($filearray)) {
+					$image = array_pop($filearray);
+					$tmparray['DefaultPhoto'] = $image['fullname'];
+				}else {
+					$nophoto = '/public/theme/common/nophoto.png';
+					$tmparray['DefaultPhoto'] = DOL_DOCUMENT_ROOT.$nophoto;
+				}
+
+				$pdf->Image($tmparray['DefaultPhoto'], $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 40, 50, 0, 100);
 
 				if ($pdf->getStringHeight(240, $tmparray['NoteControl']) > 40) {
 					$this->_pagefoot($pdf, $object, $outputlangs, 1);

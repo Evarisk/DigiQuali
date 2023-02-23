@@ -310,7 +310,7 @@ foreach ($types as $type => $documentType) {
 		<?php else : ?>
 			<?php $nophoto = DOL_URL_ROOT . '/public/theme/common/nophoto.png'; ?>
 			<span class="">
-				<img class="" alt="No photo" src="<?php echo $nophoto ?>">
+				<img class="img width=80" alt="No photo" src="<?php echo $nophoto ?>">
 			</span>
 		<?php endif;
 		print '<input class="flat" type="file" name="userfile[]" id="PhotoDefault" />';

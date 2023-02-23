@@ -270,10 +270,10 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$tmparray = array_merge($substitutionarray, $array_object_from_properties, $arraySoc);
 			complete_substitutions_array($tmparray, $outputlangs, $object);
 
-			$filearray = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/controlphoto' . '/thumbs/', "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
+			$filearray = dol_dir_is_emtpy($conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/controlphoto/') ?  dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/controlphoto' . '/thumbs/', "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1) :  dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/controlphoto/' . '/thumbs/', "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
 
 			if (count($filearray)) {
-				$image = array_shift($filearray);
+				$image = array_pop($filearray);
 				$tmparray['photoDefault'] = $image['fullname'];
 			}else {
 				$nophoto = '/public/theme/common/nophoto.png';

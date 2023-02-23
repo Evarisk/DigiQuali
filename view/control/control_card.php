@@ -479,6 +479,37 @@ if (empty($reshook)) {
 		}
 	}
 
+	if ($action == 'save_default_photo') {
+		if (!empty($_FILES)) {
+			if (is_array($_FILES['userfile']['name'])) {
+				$userfiles = $_FILES['userfile']['name'][0];
+			} else {
+				$userfiles = array($_FILES['userfile']['name'][0]);
+			}
+			if (empty($userfiles)) {
+				$error++;
+				setEventMessages($langs->trans('ErrorFieldRequired', $langs->transnoentitiesnoconv('File')), null, 'errors');
+			} else if (!empty($conf->global->MAIN_UPLOAD_DOC)) {
+				if ($_FILES['userfile']['error'][0] == 1 || $_FILES['userfile']['error'][0] == 2) {
+					$error++;
+					setEventMessages($langs->trans('ErrorFileSizeTooLarge'), null, 'errors');
+				}
+				if (empty($error)) {
+					$filedir = $upload_dir .  '/control/'. $object->ref . '/controlphoto/';
+					if (!empty($filedir)) {
+						$result = dol_add_file_process($filedir, 1, 1, 'userfile', '', null, '', 1, $object);
+
+						if ($result > 0) {
+							$imgThumbLarge  = vignette($filedir . '/' . $userfiles, $conf->global->SATURNE_MEDIA_MAX_WIDTH_LARGE, $conf->global->SATURNE_MEDIA_MAX_HEIGHT_LARGE, '_large');
+							$imgThumbMedium = vignette($filedir . '/' . $userfiles, $conf->global->SATURNE_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->SATURNE_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+							$result         = $ecmdir->changeNbOfFiles('+');
+						}
+					}
+				}
+			}
+		}
+	}
+
 	// Actions to send emails
 	$triggersendname = 'CONTROLDOCUMENT_SENTBYMAIL';
 	$autocopy = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
@@ -771,6 +802,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', $morehtmlref);
 
+	print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?action=save_default_photo&id='.$object->id.'" id="save_default_photo" enctype="multipart/form-data">';
+	print '<input type="hidden" name="token" value="' . newToken() . '">';
+	print '<input type="hidden" name="action" value="update">';
+
 	print '<div class="fichecenter controlInfo' . ($conf->browser->layout == 'phone' ? ' hidden' : '') . '">';
 	print '<div class="fichehalfleft">';
 	print '<table class="border centpercent tableforfield">'."\n";
@@ -901,6 +936,32 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		if ($task > 0) {
 			print $task->getNomUrl(1);
 		}
+		print '</td></tr>';
+	}
+
+	if (!empty($conf->global->DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS)) {
+		print '<tr>';
+		print '<td class="titlefield">' . $form->editfieldkey($langs->trans("PhotoDefault"), 'PhotoDefault', '', $object, 0) . '</td>';
+		print '<td>';
+		$filearray = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/controlphoto/', "files", 0, '', '(\.odt|\.zip)', 'date', 'asc', 1);
+
+		if (count($filearray)) : ?>
+			<?php
+			$file       = array_shift($filearray);
+			$photoName  = saturne_get_thumb_name($file['name'], 'small');
+			?>
+			<span class="">
+					<?php print '<img width=80 class="" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode('/controlphoto/thumbs/' . $photoName) . '" >'; ?>
+				</span>
+		<?php else : ?>
+			<?php $nophoto = DOL_URL_ROOT . '/public/theme/common/nophoto.png'; ?>
+			<span class="">
+					<img class="img width=80" alt="No photo" src="<?php echo $nophoto ?>">
+				</span>
+		<?php endif;
+		print '<input class="flat" type="file" name="userfile[]" id="PhotoDefault" />';
+		print '<td> <input type="submit" class="button" name="save_default_photo" value="' . $langs->trans("Save") . '">';
+		print '</div>';
 		print '</td></tr>';
 	}
 
