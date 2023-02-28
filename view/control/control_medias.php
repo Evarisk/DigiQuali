@@ -100,20 +100,6 @@ if ($id > 0 || !empty($ref)) {
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.dol_buildpath('/dolismq/control_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
-
-	$morehtmlref = '<div class="refidno">';
-	// Project
-	if (!empty($conf->projet->enabled)) {
-		$langs->load('projects');
-		if (!empty($object->projectid)) {
-			$project->fetch($object->projectid);
-			$morehtmlref .= $langs->trans('Project') . ' : ' . $project->getNomUrl(1, '', 1);
-		} else {
-			$morehtmlref .= '';
-		}
-	}
-	$morehtmlref .= '</div>';
 
 	saturne_banner_tab($object);
 

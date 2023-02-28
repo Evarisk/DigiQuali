@@ -793,9 +793,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.dol_buildpath('/dolismq/view/question/question_list.php', 1).'">'.$langs->trans("BackToList").'</a>';
 
-	saturne_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref');
+	saturne_banner_tab($object);
 
 	print '<div class="fichecenter">';
 	print '<div class="fichehalfleft">';

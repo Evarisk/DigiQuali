@@ -734,7 +734,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="' .dol_buildpath('/dolismq/view/control/control_list.php', 1) . '">' . $langs->trans('BackToList') . '</a>';
 	$morehtmlref = '<div class="refidno">';
 	// Project
 	if (!empty($conf->projet->enabled)) {
