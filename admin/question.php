@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
+/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,12 @@
  * \brief   DoliSMQ question config page.
  */
 
-// Load Dolibarr environment
-if (file_exists("../dolismq.main.inc.php")) $res = @include "../dolismq.main.inc.php";
+// Load DoliSMQ environment
+if (file_exists('../dolismq.main.inc.php')) {
+	require_once __DIR__ . '/../dolismq.main.inc.php';
+} else {
+	die('Include of dolismq main fails');
+}
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
