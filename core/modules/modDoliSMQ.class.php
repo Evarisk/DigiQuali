@@ -245,12 +245,12 @@ class modDoliSMQ extends DolibarrModules
 
 		/* DOLISMQ PERMISSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
-		$this->rights[$r][1] = $langs->transnoentities('LireModule', $langs->transnoentities('DoliSMQ'));
+		$this->rights[$r][1] = $langs->trans('LireModule', 'DoliSMQ');
 		$this->rights[$r][4] = 'lire';
 		$this->rights[$r][5] = 1;
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
-		$this->rights[$r][1] = $langs->transnoentities('ReadModule', $langs->transnoentities('DoliSMQ'));
+		$this->rights[$r][1] = $langs->trans('ReadModule', 'DoliSMQ');
 		$this->rights[$r][4] = 'read';
 		$this->rights[$r][5] = 1;
 		$r++;
@@ -274,7 +274,7 @@ class modDoliSMQ extends DolibarrModules
 
 		/* QUESTION PERMISSSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('ReadObject',$langs->transnoentities('Questions')); // Permission label
+		$this->rights[$r][1] = $langs->trans('ReadObject',$langs->transnoentities('Questions')); // Permission label
 		$this->rights[$r][4] = 'question'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
@@ -308,7 +308,7 @@ class modDoliSMQ extends DolibarrModules
 
 		/* ADMINPAGE PANEL ACCESS PERMISSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
-		$this->rights[$r][1] = $langs->transnoentities('ReadObject',$langs->transnoentities('AdminPages'));
+		$this->rights[$r][1] = $langs->transnoentities('ReadAdminPage', 'DoliSMQ');
 		$this->rights[$r][4] = 'adminpage';
 		$this->rights[$r][5] = 'read';
 		$r++;

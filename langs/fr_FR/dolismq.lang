@@ -40,8 +40,6 @@ DoliSMQConfig = Configuration
 About = À propos
 DoliSMQAbout = À propos de DoliSMQ
 DoliSMQAboutPage = Page à propos de DoliSMQ
-DoliSMQ = DoliSMQ
-AdminPages = pages de configuration
 
 #
 # Page index
@@ -85,12 +83,6 @@ DisplayNumberMediaGalleryDescription = Affiche 8 médias (par défaut) par page 
 # Questions
 #
 
-# Rights - Droits
-Questions = questions
-ReadQuestion = Consulter les questions
-CreateQuestion = Créer/Modifier les questions
-DeleteQuestion = Supprimer les questions
-
 # Trigger - Déclencheur
 QuestionCreateTrigger = Question créée
 QuestionModifyTrigger = Question modifiée
@@ -102,6 +94,7 @@ DoliSMQQuestionNumberingModule = Modèle de numérotation des questions de DoliS
 DoliSMQQuestionStandardModel = Renvoie le numéro sous la forme QUyymm-nnnn où n est un compteur séquentiel sans rupture et sans remise à 0.
 
 # Data - Donnée
+Questions = questions
 AddQuestion = Ajouter une question
 NewQuestion = Nouvelle question
 ModifyQuestion = Modifier une question
@@ -140,13 +133,6 @@ TheQuestion = la question
 # Sheet
 #
 
-# Rights - Droits
-Sheet = Fiche modèle
-Sheets = fiches modèles
-ReadSheet = Consulter les fiches modèles
-CreateSheet = Créer/Modifier les fiches modèles
-DeleteSheet = Supprimer les fiches modèles
-
 # Trigger - Déclencheur
 SheetCreateTrigger = Fiche modèle créée
 SheetModifyTrigger = Fiche modèle modifiée
@@ -159,6 +145,7 @@ DoliSMQSheetStandardModel = Renvoie le numéro sous la forme MOyymm-nnnn où n e
 
 # Data - Donnée
 Sheet = Fiche modèle
+Sheets = fiches modèles
 AddSheet = Ajouter une fiche modèle
 NewSheet = Nouvelle fiche modèle
 ModifySheet = Modifier une fiche modèle
@@ -210,13 +197,6 @@ TheSheet = la fiche modèle
 # Control
 #
 
-# Rights - Droits
-Control = Contrôle
-ControlsMin = contrôles
-ReadControl = Consulter les contrôles
-CreateControl = Créer/Modifier les contrôles
-DeleteControl = Supprimer les contrôles
-
 # Trigger - Déclencheur
 ControlCreateTrigger = Contrôle créé
 ControlModifyTrigger = Contrôle modifié
@@ -232,6 +212,7 @@ DoliSMQControlStandardModel = Renvoie le numéro sous la forme FCyymm-nnnn où n
 
 # Data - Donnée
 Control = Contrôle
+ControlsMin = contrôles
 AddControl = Ajouter un contrôle
 NewControl = Nouveau contrôle
 ControlList = Liste des contrôles
@@ -318,8 +299,6 @@ AnswerPhoto = Photo
 #
 # ControlDocument - Fiche de Contrôle
 #
-
-# Right - Droit
 
 # Trigger - Déclencheur
 ControlDocumentGeneratedWithDolibarr = Fiche de contrôle générée avec Dolibarr
