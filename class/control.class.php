@@ -289,7 +289,7 @@ class Control extends CommonObject
 			return 0;
 		}
 
-		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'CONTROL_DRAFTED');
+		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'CONTROL_UNVALIDATED');
 	}
 
 	/**
