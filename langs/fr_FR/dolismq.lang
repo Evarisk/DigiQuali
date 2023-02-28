@@ -127,6 +127,8 @@ ErrorNoQuestionSelected = Aucune question sélectionnée
 ConfirmCloneQuestion = Êtes-vous sûr(e) de vouloir cloner cette question ?
 AddQuestionIntoCategory = Assigner cette catégorie à la question
 TheQuestion = la question
+ClonePhotos     = Cloner les photos
+CloneCategories = Cloner les catégories
 
 
 #

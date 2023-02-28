@@ -466,15 +466,16 @@ if (empty($reshook)) {
 
 	// Action clone object
 	if ($action == 'confirm_clone' && $confirm == 'yes') {
-		if ($object->id > 0) {
-			$result = $object->createFromClone($user, $object->id);
-			if ($result > 0) {
-				header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . $result);
-				exit();
-			} else {
-				setEventMessages($object->error, $object->errors, 'errors');
-				$action = '';
-			}
+		$options['label']      = GETPOST('clone_label');
+		$options['photos']     = GETPOST('clone_photos');
+		$options['categories'] = GETPOST('clone_categories');
+		$result = $object->createFromClone($user, $object->id, $options);
+		if ($result > 0) {
+			header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $result);
+			exit;
+		} else {
+			setEventMessages($object->error, $object->errors, 'errors');
+			$action = '';
 		}
 	}
 
@@ -482,7 +483,7 @@ if (empty($reshook)) {
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
 	// Action to set status STATUS_LOCKED
-	if ($action == 'confirm_setLocked') {
+	if ($action == 'confirm_lock') {
 		$object->fetch($id);
 		if ( ! $error) {
 			$result = $object->setLocked($user, false);
@@ -505,8 +506,8 @@ if (empty($reshook)) {
  * View
  */
 
-$title    = $langs->trans("Question");
-$help_url = '';
+$title    = $langs->trans(ucfirst($object->element));
+$help_url = 'FR:Module_DoliSMQ';
 
 saturne_header(1,'', $title, $help_url);
 
@@ -760,46 +761,47 @@ if (($id || $ref) && $action == 'edit') {
 if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
 	$res = $object->fetch_optionals();
 
-	print saturne_get_fiche_head($object, 'questionCard', $langs->trans("Question"));
+	saturne_get_fiche_head($object, 'card', $title);
+	saturne_banner_tab($object);
 
 	$formconfirm = '';
 
-	// Confirmation to delete
-	if ($action == 'delete') {
-		$formconfirm = $form->formconfirm($_SERVER["PHP_SELF"].'?id='.$object->id, $langs->trans('DeleteQuestion'), $langs->trans('ConfirmDeleteObject'), 'confirm_delete', '', 0, 1);
-	}
-
-	// SetLocked confirmation
-	if (($action == 'setLocked' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile)))		// Output when action = clone if jmobile or no js
-		|| ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {							// Always output when not jmobile nor js
-		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockQuestion'), $langs->trans('ConfirmLockQuestion', $object->ref), 'confirm_setLocked', '', 'yes', 'actionButtonLock', 350, 600);
+	// Lock confirmation
+	if (($action == 'lock' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
+		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('LockObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmLockObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_lock', '', 'yes', 'actionButtonLock', 350, 600);
 	}
 
 	// Clone confirmation
-	if (($action == 'clone' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile)))		// Output when action = clone if jmobile or no js
-		|| ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {							// Always output when not jmobile nor js
+	if (($action == 'clone' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
+		// Define confirmation messages
+        $formquestionclone = [
+			['type' => 'text', 'name' => 'clone_label', 'label' => $langs->trans('NewLabelForClone', $langs->transnoentities('The' . ucfirst($object->element))), 'value' => $langs->trans('CopyOf') . ' ' . $object->ref, 'size' => 24],
+			['type' => 'checkbox', 'name' => 'clone_photos', 'label' => $langs->trans('ClonePhotos'), 'value' => 1],
+			['type' => 'checkbox', 'name' => 'clone_categories', 'label' => $langs->trans('CloneCategories'), 'value' => 1],
+		];
+        $formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('CloneObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmCloneObject', $langs->transnoentities('The' . ucfirst($object->element)), $object->ref), 'confirm_clone', $formquestionclone, 'yes', 'actionButtonClone', 350, 600);
+    }
 
-		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('ToClone'), $langs->trans('ConfirmCloneQuestion', $object->ref), 'confirm_clone', '', 'yes', 'actionButtonClone', 350, 600);
+	// Confirmation to delete
+	if ($action == 'delete') {
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('DeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
 	}
 
 	// Call Hook formConfirm
-	$parameters = array('formConfirm' => $formconfirm, 'lineid' => $lineid);
+	$parameters = ['formConfirm' => $formconfirm];
 	$reshook    = $hookmanager->executeHooks('formConfirm', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-	if (empty($reshook)) $formconfirm .= $hookmanager->resPrint;
-	elseif ($reshook > 0) $formconfirm = $hookmanager->resPrint;
+	if (empty($reshook)) {
+		$formconfirm .= $hookmanager->resPrint;
+	} elseif ($reshook > 0) {
+		$formconfirm = $hookmanager->resPrint;
+	}
 
 	// Print form confirm
 	print $formconfirm;
 
-	// Object card
-	// ------------------------------------------------------------
-
-	saturne_banner_tab($object);
-
 	print '<div class="fichecenter">';
 	print '<div class="fichehalfleft">';
-	print '<div class="underbanner clearboth"></div>';
-	print '<table class="border centpercent tableforfield">'."\n";
+	print '<table class="border centpercent tableforfield">';
 
 	//Description -- Description
 	print '<tr><td class="titlefield">';
@@ -867,31 +869,44 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	// Buttons for actions
-	if ($action != 'presend' && $action != 'editline') {
-		print '<div class="tabsAction">'."\n";
-		$parameters = array();
-		$reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-		if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+	print dol_get_fiche_end();
 
-		if (empty($reshook)) {
-			// Back to draft
-			print '<span class="' . (($object->status == 1) ? 'butAction' : 'butActionRefused classfortooltip') . '" id="' . (($object->status == 1) ? 'actionButtonLock' : '') . '">' . '<i class="fas fa-lock"></i> ' . $langs->trans("Lock") . '</span>';
-			if ($object->status != 2) {
-				print dolGetButtonAction('<i class="fas fa-edit"></i> ' . $langs->trans('Modify'), '', 'default', $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=edit', '', $permissiontoadd);
+	// Buttons for actions
+	if ($action != 'presend') {
+		print '<div class="tabsAction">';
+		$parameters = [];
+		$reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
+		if ($reshook < 0) {
+			setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+		}
+
+		if (empty($reshook) && $permissiontoadd) {
+			// Modify
+			if ($object->status != $object::STATUS_LOCKED) {
+				print '<a class="butAction" id="actionButtonEdit" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit' . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</a>';
+			} else {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeDraft', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</span>';
 			}
 
-			print '<span class="butAction" id="actionButtonClone" title="" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=clone' . '">' . '<i class="fas fa-clone"></i> ' . $langs->trans("ToClone") . '</span>';
+			// Lock
+			if ($object->status == $object::STATUS_VALIDATED) {
+				print '<span class="butAction" id="actionButtonLock"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
+			} else {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeValidated', $langs->transnoentities('The' . ucfirst($object->element)))) . '"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
+			}
+
+			// Clone
+			print '<span class="butAction" id="actionButtonClone"><i class="fas fa-clone"></i> ' . $langs->trans('Clone') . '</span>';
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
-			if ($object->status != 2) {
-				print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
+			if ($object->status != $object::STATUS_LOCKED) {
+				print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 			}
 		}
-		print '</div>'."\n";
+		print '</div>';
 	}
 
-	print '<div class="fichehalfright">';
+	print '<div class="fichecenter"><div class="fichehalfright">';
 
 	$maxEvent = 10;
 
@@ -900,10 +915,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// List of actions on element
 	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
 	$formactions = new FormActions($db);
-	$somethingshown = $formactions->showactions($object, $object->element.'@'.$object->module, (is_object($object->thirdparty) ? $object->thirdparty->id : 0), 1, '', $maxEvent, '', $morehtmlcenter);
+	$somethingshown = $formactions->showactions($object, $object->element . '@' . $object->module, '', 1, '', $MAXEVENT, '', $morehtmlcenter);
 
-	print '</div>';
-	print dol_get_fiche_end();
+	print '</div></div>';
 }
 
 // End of page

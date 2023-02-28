@@ -475,102 +475,123 @@ class Question extends CommonObject
 	/**
 	 * Clone an object into another one
 	 *
-	 * @param User $user User that creates
-	 * @param int $fromid Id of object to clone
-	 * @param $options
-	 * @return    mixed                New object created, <0 if KO
+	 * @param  User      $user    User that creates
+	 * @param  int       $fromid  ID of object to clone
+	 * @param  array     $options Options array
+	 * @return int                New object created, <0 if KO
 	 * @throws Exception
 	 */
-	public function createFromClone(User $user, $fromid)
+	public function createFromClone(User $user, int $fromid, array $options): int
 	{
-		global $conf, $langs;
+		dol_syslog(__METHOD__, LOG_DEBUG);
+
+		global $conf;
 		$error = 0;
 
 		$refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($this->db);
 		require_once __DIR__ . '/../core/modules/dolismq/question/mod_question_standard.php';
-
-		dol_syslog(__METHOD__, LOG_DEBUG);
 
 		$object = new self($this->db);
 
 		$this->db->begin();
 
 		// Load source object
-		$result = $object->fetchCommon($fromid);
-		if ($result > 0 && ! empty($object->table_element_line)) {
-			$object->fetchLines();
-		}
+		$object->fetchCommon($fromid);
+
+		// Reset some properties
+		unset($object->id);
+		unset($object->fk_user_creat);
+		unset($object->import_key);
 
 		$oldRef = $object->ref;
 
+		// Clear fields
+		if (property_exists($object, 'ref')) {
+			$object->ref = $refQuestionMod->getNextValue($object);
+		}
+		if (!empty($options['label'])) {
+			if (property_exists($object, 'label')) {
+				$object->label = $options['label'];
+			}
+		}
+		if (property_exists($object, 'date_creation')) {
+			$object->date_creation = dol_now();
+		}
+		if (property_exists($object, 'status')) {
+			$object->status = 1;
+		}
+
 		// Create clone
 		$object->context['createfromclone'] = 'createfromclone';
-		$object->ref = $refQuestionMod->getNextValue($object);
-		$object->status = 1;
-		$objectid                           = $object->create($user);
+		$result                             = $object->create($user);
 
-		$cat = new Categorie($this->db);
-		$categories = $cat->containing($fromid, 'question');
+		if ($result > 0) {
+			if (!empty($options['categories'])) {
+				$cat        = new Categorie($this->db);
+				$categories = $cat->containing($fromid, 'question');
+				if (is_array($categories) && !empty($categories)) {
+					foreach ($categories as $cat) {
+						$categoryIds[] = $cat->id;
+					}
+					$object->fetch($result);
+					$object->setCategories($categoryIds);
+				}
+			}
+			if (!empty($options['photos'])) {
+				$dirFiles = $conf->dolismq->multidir_output[$object->entity ?? 1] . '/question/';
+				$oldDirFiles = $dirFiles . $oldRef;
+				$newDirFiles = $dirFiles . $object->ref;
 
-		if (is_array($categories) && !empty($categories)) {
-			foreach($categories as $cat) {
-				$categoryIds[] = $cat->id;
+				$photoOkList = dol_dir_list($oldDirFiles . '/photo_ok', 'files');
+				$photoKoList = dol_dir_list($oldDirFiles . '/photo_ko', 'files');
+
+				$photoOkThumbsList = dol_dir_list($oldDirFiles . '/photo_ok/thumbs', 'files');
+				$photoKoThumbsList = dol_dir_list($oldDirFiles . '/photo_ko/thumbs', 'files');
+
+				$photoOkPath = $newDirFiles . '/photo_ok';
+				dol_mkdir($photoOkPath);
+				if (is_array($photoOkList) && !empty($photoOkList)) {
+					foreach ($photoOkList as $photoOk) {
+						copy($photoOk['fullname'], $photoOkPath . '/' . $photoOk['name']);
+					}
+				}
+
+				$photoKoPath = $newDirFiles . '/photo_ko';
+				dol_mkdir($photoKoPath);
+				if (is_array($photoKoList) && !empty($photoKoList)) {
+					foreach ($photoKoList as $photoKo) {
+						copy($photoKo['fullname'], $photoKoPath . '/' . $photoKo['name']);
+					}
+				}
+
+				$photoOkThumbsPath = $newDirFiles . '/photo_ok/thumbs';
+				dol_mkdir($photoOkThumbsPath);
+				if (is_array($photoOkThumbsList) && !empty($photoOkThumbsList)) {
+					foreach ($photoOkThumbsList as $photoOkThumbs) {
+						copy($photoOkThumbs['fullname'], $photoOkThumbsPath . '/' . $photoOkThumbs['name']);
+					}
+				}
+
+				$photoKoThumbsPath = $newDirFiles . '/photo_ok/thumbs';
+				dol_mkdir($photoKoThumbsPath);
+				if (is_array($photoKoThumbsList) && !empty($photoKoThumbsList)) {
+					foreach ($photoKoThumbsList as $photoKoThumbs) {
+						copy($photoKoThumbs['fullname'], $photoKoThumbsPath . '/' . $photoKoThumbs['name']);
+					}
+				}
 			}
-			if ($objectid > 0) {
-				$object->fetch($objectid);
-				$object->setCategories($categoryIds);
-			}
+		} else {
+			$error++;
+			$this->error  = $object->error;
+			$this->errors = $object->errors;
 		}
 
 		unset($object->context['createfromclone']);
 
 		// End
-		if ( ! $error) {
+		if (!$error) {
 			$this->db->commit();
-
-			$dirFiles = $conf->dolismq->multidir_output[$object->entity ?? 1] . '/question/';
-			$oldDirFiles = $dirFiles . $oldRef;
-			$newDirFiles = $dirFiles . $object->ref;
-
-			$photoOkList = dol_dir_list($oldDirFiles . '/photo_ok', 'files');
-			$photoKoList = dol_dir_list($oldDirFiles . '/photo_ko', 'files');
-
-			$photoOkThumbsList = dol_dir_list($oldDirFiles . '/photo_ok/thumbs', 'files');
-			$photoKoThumbsList = dol_dir_list($oldDirFiles . '/photo_ko/thumbs', 'files');
-
-			$photoOkPath = $newDirFiles . '/photo_ok';
-			dol_mkdir($photoOkPath);
-			if (is_array($photoOkList) && !empty($photoOkList)) {
-				foreach ($photoOkList as $photoOk) {
-					copy($photoOk['fullname'], $photoOkPath . '/' . $photoOk['name']);
-				}
-			}
-
-			$photoKoPath = $newDirFiles . '/photo_ko';
-			dol_mkdir($photoKoPath);
-			if (is_array($photoKoList) && !empty($photoKoList)) {
-				foreach ($photoKoList as $photoKo) {
-					copy($photoKo['fullname'], $photoKoPath . '/' . $photoKo['name']);
-				}
-			}
-
-			$photoOkThumbsPath = $newDirFiles . '/photo_ok/thumbs';
-			dol_mkdir($photoOkThumbsPath);
-			if (is_array($photoOkThumbsList) && !empty($photoOkThumbsList)) {
-				foreach ($photoOkThumbsList as $photoOkThumbs) {
-					copy($photoOkThumbs['fullname'], $photoOkThumbsPath . '/' . $photoOkThumbs['name']);
-				}
-			}
-
-			$photoKoThumbsPath = $newDirFiles . '/photo_ok/thumbs';
-			dol_mkdir($photoKoThumbsPath);
-			if (is_array($photoKoThumbsList) && !empty($photoKoThumbsList)) {
-				foreach ($photoKoThumbsList as $photoKoThumbs) {
-					copy($photoKoThumbs['fullname'], $photoKoThumbsPath . '/' . $photoKoThumbs['name']);
-				}
-			}
-
-			return $objectid;
+			return $result;
 		} else {
 			$this->db->rollback();
 			return -1;
