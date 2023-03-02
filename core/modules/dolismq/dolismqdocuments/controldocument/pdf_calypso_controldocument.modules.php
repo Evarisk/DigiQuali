@@ -334,28 +334,28 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$userTmp->fetch($object->fk_user_controller);
 
 				// Assert control informations
-				$tmpArray['SocietyName']      = (!empty($conf->global->MAIN_INFO_SOCIETE_NOM) ? $conf->global->MAIN_INFO_SOCIETE_NOM : $langs->trans('NoData'));
-				$tmpArray['ControlDocument']  = (!empty($object->ref) ? $object->ref : $langs->trans('NoData'));
-				$tmpArray['ControlerName']    = (!empty($userTmp->id > 0) ? strtoupper($userTmp->lastname) . ' '. $userTmp->firstname : $langs->trans('NoData'));
-				$tmpArray['ControledProduct'] = (!empty($product->ref) ? $product->ref : $langs->trans('NoData'));
-				$tmpArray['LotNumber']        = (!empty($productlot->batch) ? $productlot->batch : $langs->trans('NoData'));
-				$tmpArray['Sheet']            = (!empty($sheet->ref) ? $sheet->ref . ' ' . $sheet->label : $langs->trans('NoData'));
-				$tmpArray['ControlDate']      = (!empty($object->date_creation) ? dol_print_date($object->date_creation, 'dayhour', 'tzuser') : $langs->trans('NoData'));
-				$tmpArray['User']             = (!empty($userTmp2->id > 0) ? $userTmp2->lastname . ' ' . $userTmp2->firstname : $langs->trans('NoData'));
-				$tmpArray['ThirdParty']       = (!empty($thirdparty->name) ? $thirdparty->name : $langs->trans('NoData'));
-				$tmpArray['Contact']          = (!empty($contact->id > 0) ? $contact->firstname . ' ' . $contact->lastname : $langs->trans('NoData'));
-				$tmpArray['Project']          = (!empty($project->id > 0) ? $project->ref . ' - ' . $project->title : $langs->trans('NoData'));
-				$tmpArray['Task']             = (!empty($task->id > 0) ? $task->ref . ' - ' . $task->label : $langs->trans('NoData'));
+				$tmparray['SocietyName']      = $conf->global->MAIN_INFO_SOCIETE_NOM;
+				$tmparray['ControlDocument']  = $object->ref;
+				$tmparray['ControlerName']    = $userTmp->lastname . ' ' . $userTmp->firstname;
+				$tmparray['ControledProduct'] = $product->ref;
+				$tmparray['LotNumber']        = $productlot->batch;
+				$tmparray['Sheet']            = $sheet->ref . ' ' . $sheet->label;
+				$tmparray['ControlDate']      = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+				$tmparray['User']             = $userTmp2->lastname . ' ' . $userTmp2->firstname;
+				$tmparray['ThirdParty']       = $thirdparty->name;
+				$tmparray['Contact']          = $contact->firstname . ' ' . $contact->lastname;
+				$tmparray['Project']          = $project->ref . ' - ' . $project->title;
+				$tmparray['Task']             = $task->ref . ' - ' . $task->label;
 
 				switch ($object->verdict) {
 					case 1:
-						$tmpArray['Verdict'] = 'OK';
+						$tmparray['Verdict'] = 'OK';
 						break;
 					case 2:
-						$tmpArray['Verdict'] = 'KO';
+						$tmparray['Verdict'] = 'KO';
 						break;
 					default:
-						$tmpArray['Verdict'] = '';
+						$tmparray['Verdict'] = '';
 						break;
 				}
 
@@ -388,10 +388,13 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$tabTopNewpage = (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD) ? 40 : 10);
 
 				// Show control informations
-				foreach($tmpArray as $key => $value) {
+				foreach($tmparray as $key => $value) {
+					if (empty($value) || $value == ' ' || $value == ' - ') {
+						$value = $langs->trans('NoData');
+					}
 					// Limit value to 35 character
-					if (strlen($value) > 35) {
-						$value = substr($value, 0, 32) . '...';
+					if (dol_strlen($value) > 35) {
+						$value = dol_substr($value, 0, 32) . '...';
 					}
 
 					$substitutionarray = pdf_getSubstitutionArray($outputlangs, null, $object);
@@ -401,16 +404,16 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 					// Left key cells must be bold
 					$pdf->SetFont('', 'B', $default_font_size);
-					$pdf->writeHTMLCell(190, 3, $this->posxlabelinfo - 8, $tabTop, dol_htmlentitiesbr($langs->trans($key)), 0, 1);
+					$pdf->writeHTMLCell(35, 3, $this->posxlabelinfo - 8, $tabTop, dol_htmlentitiesbr($langs->trans($key)), 0, 1, false, true, 'C');
 
 					// Last key value should be bigger than the others value
-					if ($key == array_key_last($tmpArray)) {
+					if ($key == array_key_last($tmparray)) {
 						$pdf->SetFont('', 'B', $default_font_size + 5);
 					} else {
 						$pdf->SetFont('', '', $default_font_size);
 						$pdf->line($this->marge_gauche, $tabTop + 6, $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 20, $tabTop + 6);
 					}
-					$pdf->writeHTMLCell(60, 3, $this->posxcontrolinfo - 9, $tabTop, dol_htmlentitiesbr($value), 0, 1);
+					$pdf->writeHTMLCell(60, 3, $this->posxcontrolinfo - 9, $tabTop, dol_htmlentitiesbr($value), 0, 1, false, true, 'C');
 
 					$tabTop += 10;
 				}
@@ -422,13 +425,13 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 				// Display public note and picture
 				$tabTop                  += 5;
-				$tmpArray['NoteControl']  = $object->note_public;
+				$tmparray['NoteControl']  = $object->note_public;
 				$nophoto                  = '/public/theme/common/nophoto.png';
-				$tmpArray['DefaultPhoto'] = DOL_DOCUMENT_ROOT.$nophoto;
+				$tmparray['DefaultPhoto'] = DOL_DOCUMENT_ROOT.$nophoto;
 
-				$pdf->Image($tmpArray['DefaultPhoto'], $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 40, 50, 0, $tabTop - 60);
+				$pdf->Image($tmparray['DefaultPhoto'], $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 40, 50, 0, $tabTop - 60);
 
-				if ($pdf->getStringHeight(240, $tmpArray['NoteControl']) > 40) {
+				if ($pdf->getStringHeight(240, $tmparray['NoteControl']) > 40) {
 					$this->_pagefoot($pdf, $object, $outputlangs, 1);
 					$pdf->AddPage($this->orientation, '', true);
 					$pdf->SetDrawColor(120, 120, 120);
@@ -439,7 +442,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				}
 				$pdf->SetFont('', '', $default_font_size - 1);
 				$pdf->writeHTMLCell(190, 3, $this->marge_gauche, $tabTop, dol_htmlentitiesbr($langs->trans('NoteControl') . ' : '), 0, 1);
-				$pdf->writeHTMLCell(240, 3, $this->posxnote, $tabTop, dol_htmlentitiesbr($tmpArray['NoteControl']), 0, 1);
+				$pdf->writeHTMLCell(240, 3, $this->posxnote, $tabTop, dol_htmlentitiesbr($tmparray['NoteControl']), 0, 1);
 
 				// New page for the incoming table of questions/answer
 				$this->_pagefoot($pdf, $object, $outputlangs, 1);
@@ -616,12 +619,14 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					foreach ($photoArray as $path => $ref) {
 						if (is_readable($path)) {
 							if ($ref != $previousRef) {
-								$pdf->writeHTMLCell(100, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($ref . ' : '), 0, 1, false, true, "L");
+								$pdf->SetFont('', 'B', $default_font_size + 2);
+								$pdf->writeHTMLCell($this->page_largeur - $this->marge_gauche - $this->marge_droite, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($langs->trans('Ref') . ' : ' . $ref), 0, 1, false, true, "C");
 								$curY += 5;
+								$pdf->SetFont('', '', $default_font_size + 2);
 							}
 							$fileInfo = preg_split('/thumbs\//', $path);
 							$name = end($fileInfo);
-							$pdf->writeHTMLCell(180, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($name . ' : '), 0, 1, false, true, "L");
+							$pdf->writeHTMLCell($this->page_largeur - $this->marge_gauche - $this->marge_droite, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($name), 0, 1, false, true, "C");
 							$curY += 10;
 							list($width, $height) = getimagesize($path);
 							$pdf->Image($path, $this->marge_gauche, $curY, 0, 0, '', '', '', false, 300, 'C'); // width=0 (auto)
