@@ -401,7 +401,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 					// Left key cells must be bold
 					$pdf->SetFont('', 'B', $default_font_size);
-					$pdf->writeHTMLCell(190, 3, $this->posxlabelinfo - 8, $tabTop, dol_htmlentitiesbr($langs->trans($key)), 0, 1);
+					$pdf->writeHTMLCell(35, 3, $this->posxlabelinfo - 8, $tabTop, dol_htmlentitiesbr($langs->trans($key)), 0, 1, false, true, 'C');
 
 					// Last key value should be bigger than the others value
 					if ($key == array_key_last($tmparray)) {
@@ -410,7 +410,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 						$pdf->SetFont('', '', $default_font_size);
 						$pdf->line($this->marge_gauche, $tabTop + 6, $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 20, $tabTop + 6);
 					}
-					$pdf->writeHTMLCell(60, 3, $this->posxcontrolinfo - 9, $tabTop, dol_htmlentitiesbr($value), 0, 1);
+					$pdf->writeHTMLCell(60, 3, $this->posxcontrolinfo - 9, $tabTop, dol_htmlentitiesbr($value), 0, 1, false, true, 'C');
 
 					$tabTop += 10;
 				}
