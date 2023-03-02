@@ -3,7 +3,7 @@
 /**
  * @namespace Saturne_Framework_Init
  *
- * @author Evarisk <dev@evarisk.com>
+ * @author Evarisk <technique@evarisk.com>
  * @copyright 2015-2023 Evarisk
  */
 
