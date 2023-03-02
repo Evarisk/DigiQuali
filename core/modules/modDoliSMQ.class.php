@@ -274,7 +274,7 @@ class modDoliSMQ extends DolibarrModules
 
 		/* QUESTION PERMISSSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->trans('ReadObject',$langs->transnoentities('Questions')); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('ReadObject',$langs->transnoentities('Questions')); // Permission label
 		$this->rights[$r][4] = 'question'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
@@ -341,7 +341,7 @@ class modDoliSMQ extends DolibarrModules
 		$this->menu[$r++] = [
 			'fk_menu'  => 'fk_mainmenu=dolismq',
 			'type'     => 'left',
-			'titre'    => $langs->trans('Question'),
+			'titre'    => $langs->transnoentities('Question'),
 			'prefix'   => '<i class="fas fa-question pictofixedwidth"></i>',
 			'mainmenu' => 'dolismq',
 			'leftmenu' => 'dolismq_question',
@@ -372,7 +372,7 @@ class modDoliSMQ extends DolibarrModules
 		$this->menu[$r++] = [
 			'fk_menu'  => 'fk_mainmenu=dolismq',
 			'type'     => 'left',
-			'titre'    => $langs->trans('Sheet'),
+			'titre'    => $langs->transnoentities('Sheet'),
 			'prefix'   => '<i class="fas fa-list pictofixedwidth"></i>',
 			'mainmenu' => 'dolismq',
 			'leftmenu' => 'dolismq_sheet',
@@ -403,7 +403,7 @@ class modDoliSMQ extends DolibarrModules
 		$this->menu[$r++] = [
 			'fk_menu'  => 'fk_mainmenu=dolismq',
 			'type'     => 'left',
-			'titre'    => $langs->trans('Control'),
+			'titre'    => $langs->transnoentities('Control'),
 			'prefix'   => '<i class="fas fa-tasks pictofixedwidth"></i>',
 			'mainmenu' => 'dolismq',
 			'leftmenu' => 'dolismq_control',
