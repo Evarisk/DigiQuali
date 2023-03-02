@@ -616,12 +616,14 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					foreach ($photoArray as $path => $ref) {
 						if (is_readable($path)) {
 							if ($ref != $previousRef) {
-								$pdf->writeHTMLCell(100, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($ref . ' : '), 0, 1, false, true, "L");
+								$pdf->SetFont('', 'B', $default_font_size + 2);
+								$pdf->writeHTMLCell($this->page_largeur - $this->marge_gauche - $this->marge_droite, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($langs->trans('Ref') . ' : ' . $ref), 0, 1, false, true, "C");
 								$curY += 5;
+								$pdf->SetFont('', '', $default_font_size + 2);
 							}
 							$fileInfo = preg_split('/thumbs\//', $path);
 							$name = end($fileInfo);
-							$pdf->writeHTMLCell(180, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($name . ' : '), 0, 1, false, true, "L");
+							$pdf->writeHTMLCell($this->page_largeur - $this->marge_gauche - $this->marge_droite, 3, $this->marge_gauche, $curY, dol_htmlentitiesbr($name), 0, 1, false, true, "C");
 							$curY += 10;
 							list($width, $height) = getimagesize($path);
 							$pdf->Image($path, $this->marge_gauche, $curY, 0, 0, '', '', '', false, 300, 'C'); // width=0 (auto)

@@ -495,7 +495,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 					$fileInfo = preg_split('/thumbs\//', $photoPath);
 					$name     = end($fileInfo);
 
-					$tmparray['answer_ref'] = ($previousRef == $answerRef) ? '' : 'Réf : ' . $answerRef;
+					$tmparray['answer_ref'] = ($previousRef == $answerRef) ? '' : $langs->trans('Ref') . ' : ' . $answerRef;
 					$tmparray['photo_name'] = $name;
 					$tmparray['photo']      = $photoPath;
 
