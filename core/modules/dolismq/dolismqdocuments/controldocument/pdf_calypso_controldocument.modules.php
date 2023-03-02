@@ -334,18 +334,18 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$userTmp->fetch($object->fk_user_controller);
 
 				// Assert control informations
-				$tmparray['SocietyName']      = (!empty($conf->global->MAIN_INFO_SOCIETE_NOM) ? $conf->global->MAIN_INFO_SOCIETE_NOM : $langs->trans('NoData'));
-				$tmparray['ControlDocument']  = (!empty($object->ref) ? $object->ref : $langs->trans('NoData'));
-				$tmparray['ControlerName']    = (!empty($userTmp->id > 0) ? $userTmp->lastname . ' '. $userTmp->firstname : $langs->trans('NoData'));
-				$tmparray['ControledProduct'] = (!empty($product->ref) ? $product->ref : $langs->trans('NoData'));
-				$tmparray['LotNumber']        = (!empty($productlot->batch) ? $productlot->batch : $langs->trans('NoData'));
-				$tmparray['Sheet']            = (!empty($sheet->ref) ? $sheet->ref . ' ' . $sheet->label : $langs->trans('NoData'));
-				$tmparray['ControlDate']      = (!empty($object->date_creation) ? dol_print_date($object->date_creation, 'dayhour', 'tzuser') : $langs->trans('NoData'));
-				$tmparray['User']             = (!empty($userTmp2->id > 0) ? $userTmp2->lastname . ' ' . $userTmp2->firstname : $langs->trans('NoData'));
-				$tmparray['ThirdParty']       = (!empty($thirdparty->name) ? $thirdparty->name : $langs->trans('NoData'));
-				$tmparray['Contact']          = (!empty($contact->id > 0) ? $contact->firstname . ' ' . $contact->lastname : $langs->trans('NoData'));
-				$tmparray['Project']          = (!empty($project->id > 0) ? $project->ref . ' - ' . $project->title : $langs->trans('NoData'));
-				$tmparray['Task']             = (!empty($task->id > 0) ? $task->ref . ' - ' . $task->label : $langs->trans('NoData'));
+				$tmparray['SocietyName']      = $conf->global->MAIN_INFO_SOCIETE_NOM;
+				$tmparray['ControlDocument']  = $object->ref;
+				$tmparray['ControlerName']    = $userTmp->lastname . ' ' . $userTmp->firstname;
+				$tmparray['ControledProduct'] = $product->ref;
+				$tmparray['LotNumber']        = $productlot->batch;
+				$tmparray['Sheet']            = $sheet->ref . ' ' . $sheet->label;
+				$tmparray['ControlDate']      = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+				$tmparray['User']             = $userTmp2->lastname . ' ' . $userTmp2->firstname;
+				$tmparray['ThirdParty']       = $thirdparty->name;
+				$tmparray['Contact']          = $contact->firstname . ' ' . $contact->lastname;
+				$tmparray['Project']          = $project->ref . ' - ' . $project->title;
+				$tmparray['Task']             = $task->ref . ' - ' . $task->label;
 
 				switch ($object->verdict) {
 					case 1:
@@ -389,9 +389,12 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 				// Show control informations
 				foreach($tmparray as $key => $value) {
+					if (empty($value) || $value == ' ' || $value == ' - ') {
+						$value = $langs->trans('NoData');
+					}
 					// Limit value to 35 character
-					if (strlen($value) > 35) {
-						$value = substr($value, 0, 32) . '...';
+					if (dol_strlen($value) > 35) {
+						$value = dol_substr($value, 0, 32) . '...';
 					}
 
 					$substitutionarray = pdf_getSubstitutionArray($outputlangs, null, $object);
