@@ -28,51 +28,44 @@ if (file_exists('../dolismq.main.inc.php')) {
 	die('Include of dolismq main fails');
 }
 
-// Libraries
-require_once DOL_DOCUMENT_ROOT.'/core/lib/admin.lib.php';
-require_once DOL_DOCUMENT_ROOT.'/core/lib/functions2.lib.php';
-
-require_once '../lib/dolismq.lib.php';
-require_once '../core/modules/modDoliSMQ.class.php';
-
 // Global variables definitions
-global $db, $langs, $user;
+global $db, $langs, $moduleName, $moduleNameLowerCase, $user;
+
+// Libraries
+require_once __DIR__ . '/../lib/' . $moduleNameLowerCase . '.lib.php';
+require_once __DIR__ . '/../core/modules/mod' . $moduleName . '.class.php';
 
 // Load translation files required by the page
-saturne_load_langs(['errors', 'admin']);
+saturne_load_langs();
+
+// Initialize technical objects
+$modDoliSMQ = new modDoliSMQ($db);
 
 // Get parameters
 $backtopage = GETPOST('backtopage', 'alpha');
 
-// Initialize objects
-// Technical objets
-$dolismq = new modDoliSMQ($db);
-
-// View objects
-$form = new Form($db);
-
-// Access control
-saturne_check_access($user->admin);
+// Security check - Protection if external user
+$permissiontoread = $user->rights->dolismq->adminpage->read;
+saturne_check_access($permissiontoread);
 
 /*
  * View
  */
 
-$pageName = "DoliSMQAbout";
-$help_url  = 'FR:Module_DoliSMQ';
+$title    = $langs->trans('ModuleAbout', 'DoliSMQ');
+$help_url = 'FR:Module_DoliSMQ';
 
-saturne_header(0,'', $langs->trans($pageName), $help_url);
+saturne_header(0,'', $title, $help_url);
 
 // Subheader
-$linkback = '<a href="'.($backtopage ?: DOL_URL_ROOT.'/admin/modules.php?restore_lastsearch_values=1').'">'.$langs->trans("BackToModuleList").'</a>';
-
-print load_fiche_titre($langs->trans($pageName), $linkback, 'dolismq_color@dolismq');
+$linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?restore_lastsearch_values=1') . '">' . $langs->trans('BackToModuleList') . '</a>';
+print load_fiche_titre($title, $linkback, 'dolismq_color@dolismq');
 
 // Configuration header
 $head = dolismq_admin_prepare_head();
-print dol_get_fiche_head($head, 'about', $langs->trans($pageName), -1, 'dolismq_color@dolismq');
+print dol_get_fiche_head($head, 'about', $title, -1, 'dolismq_color@dolismq');
 
-print $dolismq->getDescLong();
+print $modDoliSMQ->getDescLong();
 
 // Page end
 print dol_get_fiche_end();
