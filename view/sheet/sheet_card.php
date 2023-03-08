@@ -171,7 +171,11 @@ if (empty($reshook)) {
 
 	if ($action == 'moveLine' && $permissiontoadd) {
 		$idsArray = json_decode(file_get_contents('php://input'), true);
-		$object->updateQuestionsPosition($idsArray['order']);
+		if (is_array($idsArray['order']) && !empty($idsArray['order'])) {
+			$ids = array_values($idsArray['order']);
+			$reIndexedIds = array_combine(range(1, count($ids)), array_values($ids));
+		}
+		$object->updateQuestionsPosition($reIndexedIds);
 	}
 
 	// Action to delete
@@ -587,7 +591,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						document.URL = document.URL.split(/\?/)[0]
 						separator = '?'
 					}
-					lineOrder = [];
+					let lineOrder = [];
 					$('.line-row').each(function(  ) {
 						lineOrder.push($(this).attr('id'));
 					});

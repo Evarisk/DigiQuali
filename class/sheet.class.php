@@ -735,24 +735,25 @@ class Sheet extends CommonObject
 			$num = $this->db->num_rows($resql);
 			$i = 0;
 			while ($i < $num) {
+				$maxPosition = $this->getMaxPosition();
 				$obj = $this->db->fetch_object($resql);
+
 				if ($justsource || $justtarget) {
 					if ($justsource) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $num+1] = $obj->fk_target;
+						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: ($maxPosition+1)] = $obj->fk_target;
 					} elseif ($justtarget) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $num+1] = $obj->fk_source;
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: ($maxPosition+1)] = $obj->fk_source;
 					}
 				} else {
 					if ($obj->fk_source == $sourceid && $obj->sourcetype == $sourcetype) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $num+1] = $obj->fk_target;
+						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: ($maxPosition+1)] = $obj->fk_target;
 					}
 					if ($obj->fk_target == $targetid && $obj->targettype == $targettype) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $num+1] = $obj->fk_source;
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: ($maxPosition+1)] = $obj->fk_source;
 					}
 				}
 				$i++;
 			}
-
 			if (!empty($this->linkedObjectsIds)) {
 				$tmparray = $this->linkedObjectsIds;
 				foreach ($tmparray as $objecttype => $objectids) {       // $objecttype is a module name ('facture', 'mymodule', ...) or a module name with a suffix ('project_task', 'mymodule_myobj', ...)
@@ -793,6 +794,23 @@ class Sheet extends CommonObject
 	}
 
 	/**
+	 *	Returns max position of questions in sheet
+	 *
+	 */
+	public function getMaxPosition() {
+		$sql = "SELECT fk_source, sourcetype, targettype, MAX(position) FROM ". MAIN_DB_PREFIX ."element_element WHERE fk_source = " . $this->id . " AND sourcetype = 'dolismq_sheet'";
+		$resql = $this->db->query($sql);
+
+		if ($resql) {
+			$obj = $this->db->fetch_object($resql);
+			$positionField = 'MAX(position)';
+			return $obj->$positionField;
+		} else {
+			return 0;
+		}
+	}
+
+	/**
 	 *	Update questions position in sheet
 	 *
 	 *	@param	array	$idsArray			Array containing position and ids of questions in sheet
@@ -801,7 +819,7 @@ class Sheet extends CommonObject
 	{
 		foreach ($idsArray as $position => $questionId) {
 			$sql = 'UPDATE '. MAIN_DB_PREFIX . 'element_element';
-			$sql .= ' SET position =' . ($position + 1);
+			$sql .= ' SET position =' . $position;
 			$sql .= ' WHERE fk_source = ' . $this->id;
 			$sql .= ' AND sourcetype = "dolismq_sheet"';
 			$sql .= ' AND fk_target =' . $questionId;
