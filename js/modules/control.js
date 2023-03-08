@@ -37,7 +37,6 @@ window.dolismq.control.event = function() {
 	$( document ).on( 'click', '.validateButton', window.dolismq.control.getAnswerCounter);
 	$( document ).on( 'change', '#fk_sheet', window.dolismq.control.showSelectObjectLinked);
 	$( document ).on( 'click', '.toggleControlInfo', window.dolismq.control.toggleControlInfo );
-	//$( document ).on( 'click', '#select_all_answer', window.dolismq.control.selectAllAnswer);
 };
 
 /**
@@ -267,7 +266,7 @@ window.dolismq.control.showSelectObjectLinked = function ( event ) {
 	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&fk_sheet=' + sheetId + '&token=' + token
 	urlToGo += '&fk_project=' + projectId
 	urlToGo += '&fk_user_controller=' + userController
-
+console.log($('.tabBar.tabBarWithBottom tbody'))
 	window.saturne.loader.display($('.tabBar.tabBarWithBottom tbody'))
 	$.ajax({
 		url: urlToGo,

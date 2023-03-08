@@ -541,7 +541,7 @@ if ($action == 'create') {
 	print '<div class="fields-content">';
 
 	//FK Product
-	if ($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT && preg_match('/"product":1/',$sheet->element_linked)) {
+	if ($conf->global->DOLISMQ_SHEET_LINK_PRODUCT && preg_match('/"product":1/',$sheet->element_linked)) {
 		$productPost = GETPOST('fk_product') ?: (GETPOST('fromtype') == 'product' ? GETPOST('fromid') : 0);
 		print '<tr><td class="">' . $langs->trans('ProductOrServiceLinked') . '</td><td>';
 		print img_picto('', 'product', 'class="pictofixedwidth"');
@@ -551,7 +551,7 @@ if ($action == 'create') {
 	}
 
 	//FK PRODUCTLOT
-	if ($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT && preg_match('/"productlot":1/',$sheet->element_linked)) {
+	if ($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT && preg_match('/"productlot":1/',$sheet->element_linked)) {
 		$productLotPost = GETPOST('fk_productlot') ?: (GETPOST('fromtype') == 'productbatch' ? GETPOST('fromid') : 0);
 		print '<tr><td class="">';
 		print $langs->trans('BatchLinked');
@@ -565,7 +565,7 @@ if ($action == 'create') {
 	}
 
 	//FK User
-	if ($conf->global->DOLISMQ_CONTROL_SHOW_USER && preg_match('/"user":1/',$sheet->element_linked)) {
+	if ($conf->global->DOLISMQ_SHEET_LINK_USER && preg_match('/"user":1/',$sheet->element_linked)) {
 		$userPost = GETPOST('fk_user') ?: (GETPOST('fromtype') == 'user' ? GETPOST('fromid') : -1);
 		print '<tr><td class="">' . $langs->trans('UserLinked') . '</td><td>';
 		print img_picto('', 'user', 'class="pictofixedwidth"') . $form->select_dolusers($userPost, 'fk_user', $langs->trans('SelectUser'), null, 0, '', '', '0', 0, 0, '', 0, '', 'maxwidth500 widthcentpercentminusxx');
@@ -574,7 +574,7 @@ if ($action == 'create') {
 	}
 
 	//FK Soc
-	if ($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY && preg_match('/"thirdparty":1/',$sheet->element_linked)) {
+	if ($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY && preg_match('/"thirdparty":1/',$sheet->element_linked)) {
 		$thirdpartyPost = GETPOST('fk_soc') ?: (GETPOST('fromtype') == 'societe' ? GETPOST('fromid') : 0);
 		print '<tr><td class="">' . $langs->trans('ThirdPartyLinked') . '</td><td>';
 		print img_picto('', 'building', 'class="pictofixedwidth"') . $form->select_company($thirdpartyPost, 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'maxwidth500 widthcentpercentminusxx');
@@ -583,7 +583,7 @@ if ($action == 'create') {
 	}
 
 	// FK Contact
-	if ($conf->global->DOLISMQ_CONTROL_SHOW_CONTACT && preg_match('/"contact":1/',$sheet->element_linked)) {
+	if ($conf->global->DOLISMQ_SHEET_LINK_CONTACT && preg_match('/"contact":1/',$sheet->element_linked)) {
 		$contactPost = GETPOST('fk_contact') ?: (GETPOST('fromtype') == 'contact' ? GETPOST('fromid') : 0);
 		print '<tr><td class="">' . $langs->trans('ContactLinked') . '</td><td>';
 		// If no fk_soc, set to -1 to avoid full contacts list
@@ -593,7 +593,7 @@ if ($action == 'create') {
 	}
 
 	//FK Project
-	if ($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT && preg_match('/"project":1/',$sheet->element_linked)) {
+	if ($conf->global->DOLISMQ_SHEET_LINK_PROJECT && preg_match('/"project":1/',$sheet->element_linked)) {
 		$projectPost = GETPOST('fk_project') ?: (GETPOST('fromtype') == 'project' ? GETPOST('fromid') : 0);
 		print '<tr><td class="">' . $langs->trans('ProjectLinked') . '</td><td>';
 		print img_picto('', 'project', 'class="pictofixedwidth"') . $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1), $projectPost, 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'maxwidth500 widthcentpercentminusxx');
@@ -602,7 +602,7 @@ if ($action == 'create') {
 	}
 
 	//FK Task
-	if ($conf->global->DOLISMQ_CONTROL_SHOW_TASK && preg_match('/"task":1/',$sheet->element_linked)) {
+	if ($conf->global->DOLISMQ_SHEET_LINK_TASK && preg_match('/"task":1/',$sheet->element_linked)) {
 		$taskPost = GETPOST('fk_task') ?: (GETPOST('fromtype') == 'project_task' ? GETPOST('fromid') : 0);
 		print '<tr><td class="">' . $langs->trans('TaskLinked');
 		print '</td><td class="task-container">';
