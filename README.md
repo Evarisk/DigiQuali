@@ -13,22 +13,25 @@
 
 ## Liens
 
-- Support & Assistance : [Forum www.dolibarr.fr](https://www.dolibarr.fr) / Par mail à contact@evarisk.com
+- Support & Assistance : [Forum www.dolibarr.fr](https://www.dolibarr.fr) / Par mail à technique@evarisk.com
 - Demo : [Demo Dolismq](https://www.demodoli.digirisk.com) - ID: demo - Password: demo
 - Documentation : [Wiki DoliSMQ](https://wiki.dolibarr.org/index.php/Module_DoliSMQ)
 - Projet Github : [Projet DoliSMQ](https://github.com/Evarisk/dolismq/projects?type=classic)
-- D'autres modules développés par Evarisk disponible sur [Dolistore.com](https://www.dolistore.com)
+- D'autres modules développés par Evarisk disponibles sur [Dolistore.com](https://www.dolistore.com)
 
 ## Fonctionnalités
 
-Contrôle de la qualité de différents éléments :
+Contrôle qualité de différents éléments :
 
-- produit ou service
-- numéro de série/lot
-- projet et tâche
-- tiers
+- Produit/Service
+- Numéro de lots/série
+- Projet
+- Tâche
+- Tiers
+- Utilisateur
+- Contact/Adresse
 
-Génération de rapport de contrôle sur la base des éléments contrôlés
+Génération du rapport de contrôle
 
 ## Traductions
 
