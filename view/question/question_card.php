@@ -408,13 +408,13 @@ if (empty($reshook)) {
 
 				if (is_array($photoList) && !empty($photoList)) {
 					foreach ($photoList as $index => $photo) {
-						if ($index == 0 && dol_strlen($object->$type) < 0) {
+						if ($index == 0 && dol_strlen($object->$type) == 0) {
 							$object->$type = $photo['name'];
+							$object->update($user);
 						}
 					}
 				}
 			}
-			$result = $object->update($user);
 
 			$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
