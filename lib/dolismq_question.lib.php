@@ -41,7 +41,7 @@ function question_prepare_head(Question $object): array
 
 	$head[$h][0] = dol_buildpath('/dolismq/view/question/question_card.php', 1).'?id='.$object->id;
 	$head[$h][1] = '<i class="fas fa-info-circle pictofixedwidth"></i>' . $langs->trans('Card');
-	$head[$h][2] = 'questionCard';
+	$head[$h][2] = 'card';
 	$h++;
 
 
