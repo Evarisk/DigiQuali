@@ -47,9 +47,8 @@ if (is_array($extrafields->attributes[$object->table_element]['label']) && count
 
 foreach($elementElementFields as $genericName => $elementElementName) {
 	if (GETPOST('search_'.$genericName) > 0 || $fromtype == $elementElementName) {
-		$leftJoinSearchTable = $elementElementName . '_elel';
 		$id_to_search = GETPOST('search_'.$genericName) ?: $fromid;
-		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $leftJoinSearchTable .' on ('. $leftJoinSearchTable .'.fk_source = ' . $id_to_search . ' AND '. $leftJoinSearchTable .'.sourcetype="'. $leftJoinSearchTable .'" AND '. $leftJoinSearchTable .'.targettype = "dolismq_control")';
+		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementName .' on ('. $elementElementName .'.fk_source = ' . $id_to_search . ' AND '. $elementElementName .'.sourcetype="'. $elementElementName .'" AND '. $elementElementName .'.targettype = "dolismq_control")';
 	}
 }
 
@@ -291,6 +290,8 @@ print '</tr>'."\n";
 // Fields title label
 // --------------------------------------------------------------------
 print '<tr class="liste_titre">';
+$invertedElementElementFields = array_flip($elementElementFields);
+
 foreach ($object->fields as $key => $val)
 {
 	$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? '' : $val['css']) : $val['csslist']);
@@ -300,7 +301,7 @@ foreach ($object->fields as $key => $val)
 	elseif (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && $val['label'] != 'TechnicalID') $cssforfield .= ($cssforfield ? ' ' : '').'right';
 	if (!empty($arrayfields['t.'.$key]['checked']))
 	{
-		print getTitleFieldOfList($arrayfields['t.'.$key]['label'], 0, $_SERVER['PHP_SELF'], $key, '', $param, ($cssforfield ? 'class="'.$cssforfield.'"' : ''), $sortfield, $sortorder, ($cssforfield ? $cssforfield.' ' : ''))."\n";
+		print getTitleFieldOfList($arrayfields['t.'.$key]['label'], 0, $_SERVER['PHP_SELF'], $key, '', $param, ($cssforfield ? 'class="'.$cssforfield.'"' : ''), $sortfield, $sortorder, ($cssforfield ? $cssforfield.' ' : ''), preg_match('/'. $invertedElementElementFields[$fromtype] .'/',$key))."\n";
 	}
 }
 // Extra fields
