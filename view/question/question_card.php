@@ -407,14 +407,20 @@ if (empty($reshook)) {
 				$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/' . $object->ref . '/' . $type);
 
 				if (is_array($photoList) && !empty($photoList)) {
+					$favoriteExists = 0;
+					foreach ($photoList as $photo) {
+						if ($photo['name'] == $object->$type) {
+							$favoriteExists = 1;
+						}
+					}
 					foreach ($photoList as $index => $photo) {
-						if ($index == 0 && dol_strlen($object->$type) == 0) {
+						if ($index == 0 && (dol_strlen($object->$type) == 0 || !$favoriteExists)) {
 							$object->$type = $photo['name'];
-							$object->update($user);
 						}
 					}
 				}
 			}
+			$object->update($user);
 
 			$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
