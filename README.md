@@ -3,10 +3,10 @@
 ## Informations
 
 - Numéro du module : 436301
-- Version :  1.4.0
-- Dernière mise à jour : 22/11/2022
+- Version :  1.5.0
+- Dernière mise à jour : 14/03/2023
 - Éditeur : [Evarisk](https://www.evarisk.com)
-- Compatibilité : Dolibarr 15.0.0 - 16.0.1
+- Compatibilité : Dolibarr 15.0.0 - 16.0.4
 - Thème : Eldy Menu
 - Licence : GPLv3
 - Disponible sur : Windows - MacOS - Linux
