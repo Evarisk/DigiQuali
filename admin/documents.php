@@ -28,29 +28,29 @@ if (file_exists('../dolismq.main.inc.php')) {
 	die('Include of dolismq main fails');
 }
 
-global $conf, $db, $langs, $user;
-
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
 require_once '../lib/dolismq.lib.php';
 
+// Global variables definitions
+global $conf, $db, $langs, $user;
+
 // Translations
 saturne_load_langs(['admin']);
 
-// Access control
-$permissiontoread = $user->admin;
-saturne_check_access($permissiontoread);
-
-// Parameters
+// Get parameters
 $action     = GETPOST('action', 'alpha');
-$backtopage = GETPOST('backtopage', 'alpha');
 $value      = GETPOST('value', 'alpha');
 $type       = GETPOST('type', 'alpha');
-$const 		= GETPOST('const', 'alpha');
-$label 		= GETPOST('label', 'alpha');
+$const      = GETPOST('const', 'alpha');
+$label      = GETPOST('label', 'alpha');
 $modulepart = GETPOST('modulepart', 'aZ09');	// Used by actions_setmoduleoptions.inc.php
+
+// Access control
+$permissiontoread = $user->rights->dolimeet->adminpage->read;
+saturne_check_access($permissiontoread);
 
 /*
  * Actions
@@ -178,17 +178,18 @@ if ($action == 'setModuleOptions') {
  * View
  */
 
-$help_url = '';
 $title    = $langs->trans('YourDocuments');
+$help_url = 'FR:Module_DoliSMQ';
+
 saturne_header(0,'', $title, $help_url);
 
-$types = array(
+$types = [
 	'ControlDocument' => 'controldocument',
-);
+];
 
-$pictos = array(
-	'ControlDocument' => '<i class="fas fa-tasks"></i> ',
-);
+$pictos = [
+	'ControlDocument' => 'fontawesome_fa-tasks_fas_#d35968'
+];
 
 // Subheader
 $selectorAnchor = '<select onchange="location = this.value;">';
@@ -203,7 +204,7 @@ print load_fiche_titre($title, $selectorAnchor, 'dolismq_color@dolismq');
 $head = dolismq_admin_prepare_head();
 print dol_get_fiche_head($head, 'documents', $title, -1, 'dolismq_color@dolismq');
 
-print load_fiche_titre($langs->trans("DocumentsConfig"), '', '');
+print load_fiche_titre($langs->trans('Configs', $langs->trans('DocumentsMin')), '', '');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
@@ -236,13 +237,13 @@ print '</table>';
 
 foreach ($types as $type => $documentType) {
 
-	print load_fiche_titre($pictos[$type] . $langs->trans($type), '', '', 0, $langs->trans($type));
+	print load_fiche_titre($langs->trans($type), '', $pictos[$type], 0, $langs->trans($type));
 	print '<hr>';
 
 	if ($type == 'ControlDocument') {
 
 		//Control document data
-		print load_fiche_titre($langs->trans("ControlDocumentData"), '', '');
+		print load_fiche_titre($langs->trans('ConfigDatas'), '', '');
 
 		print '<table class="noborder centpercent">';
 		print '<tr class="liste_titre">';
@@ -265,8 +266,7 @@ foreach ($types as $type => $documentType) {
 		print '</table>';
 	}
 
-	$trad = 'DoliSMQ' . $type . 'DocumentNumberingModule';
-	print load_fiche_titre($langs->trans($trad), '', '');
+	print load_fiche_titre($langs->trans('NumberingModule'), '', '');
 
 	print '<table class="noborder centpercent">';
 	print '<tr class="liste_titre">';
@@ -351,8 +351,7 @@ foreach ($types as $type => $documentType) {
 		}
 	}
 
-	$trad = 'DoliSMQTemplateDocument' . $type;
-	print load_fiche_titre($langs->trans($trad), '', '');
+	print load_fiche_titre($langs->trans('DocumentTemplate'), '', '');
 
 	// Defini tableau def des modeles
 	$def = array();

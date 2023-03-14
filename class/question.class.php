@@ -412,30 +412,30 @@ class Question extends CommonObject
 		return $this->LibStatut($this->status, $mode);
 	}
 
-	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
 	 *  Return the status
 	 *
-	 *  @param	int		$status        Id status
-	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
-	 *  @return string 			       Label of status
+	 *  @param  int    $status Id status
+	 *  @param  int    $mode   0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
+	 *  @return string         Label of status
 	 */
-	public function LibStatut($status, $mode = 0)
+	public function LibStatut(int $status, int $mode = 0): string
 	{
-		// phpcs:enable
 		if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
 			global $langs;
-			//$langs->load("dolismq@dolismq");
-			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('Draft');
-			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('Enabled');
-			$this->labelStatus[self::STATUS_LOCKED]         = $langs->trans('Locked');
-			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('Draft');
+			$this->labelStatus[self::STATUS_DRAFT]     = $langs->trans('StatusDraft');
+			$this->labelStatus[self::STATUS_VALIDATED] = $langs->trans('Enabled');
+			$this->labelStatus[self::STATUS_LOCKED]    = $langs->trans('Locked');
+
+			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('StatusDraft');
 			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Enabled');
-			$this->labelStatusShort[self::STATUS_LOCKED]  = $langs->trans('Locked');
+			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->trans('Locked');
 		}
 
 		$statusType = 'status' . $status;
-		if ($status == self::STATUS_LOCKED) $statusType = 'status4';
+		if ($status == self::STATUS_LOCKED) {
+			$statusType = 'status4';
+		}
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}

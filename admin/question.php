@@ -93,14 +93,14 @@ print load_fiche_titre($title, $linkback, 'dolismq_color@dolismq');
 $head = dolismq_admin_prepare_head();
 print dol_get_fiche_head($head, 'question', $title, -1, "dolismq_color@dolismq");
 
-print load_fiche_titre($langs->trans("QuestionManagement"), '', '');
+print load_fiche_titre($langs->trans('Configs', $langs->transnoentities('Questions')), '', '');
 print '<hr>';
 
 /*
  *  Numbering module
  */
 
-print load_fiche_titre($langs->trans("DoliSMQQuestionNumberingModule"), '', '');
+print load_fiche_titre($langs->trans("NumberingModule"), '', '');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';

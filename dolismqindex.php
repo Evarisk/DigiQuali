@@ -63,7 +63,7 @@ if ($action == 'closenotice') {
  */
 
 $help_url = 'FR:Module_DoliSMQ';
-$title    = $langs->trans('DoliSMQArea');
+$title    = $langs->trans('ModuleArea', 'DoliSMQ');
 $morejs   = ['/dolismq/js/dolismq.js'];
 $morecss  = ['/dolismq/css/dolismq.css'];
 
@@ -74,8 +74,8 @@ print load_fiche_titre($title . ' ' . $dolismq->version, '', 'dolismq_color.png@
 if ($conf->global->DOLISMQ_JUST_UPDATED == 1) : ?>
 	<div class="wpeo-notice notice-success">
 		<div class="notice-content">
-			<div class="notice-subtitle"><strong><?php echo $langs->trans("DoliSMQUpdate"); ?></strong>
-				<?php echo $langs->trans('DoliSMQHasBeenUpdatedTo', $dolismq->version) ?>
+			<div class="notice-subtitle"><strong><?php echo $langs->trans("ModuleUpdate"); ?></strong>
+				<?php echo $langs->trans('ModuleHasBeenUpdatedTo', $dolismq->version) ?>
 			</div>
 		</div>
 	</div>
@@ -94,7 +94,7 @@ if ($conf->global->DOLISMQ_SHOW_PATCH_NOTE) : ?>
 	<div class="wpeo-notice notice notice-info">
 		<input type="hidden" name="token" value="<?php echo newToken(); ?>">
 		<div class="notice-content">
-			<div class="notice-title"><?php echo $langs->trans("DoliSMQPatchNote", $dolismq->version); ?>
+			<div class="notice-title"><?php echo $langs->trans("ModulePatchNote", $dolismq->version); ?>
 				<div class="show-patchnote wpeo-button button-square-40 button-blue wpeo-tooltip-event modal-open" aria-label="<?php echo $langs->trans('ShowPatchNote'); ?>">
 					<input hidden class="modal-to-open" value="patch-note">
 					<i class="fas fa-list button-icon"></i>

@@ -98,7 +98,7 @@ print load_fiche_titre($title, $linkback, 'dolismq_color@dolismq');
 $head = dolismq_admin_prepare_head();
 print dol_get_fiche_head($head, 'control', $title, -1, 'dolismq_color@dolismq');
 
-print load_fiche_titre($langs->trans('Controls'), '', '');
+print load_fiche_titre($langs->trans('Configs', $langs->transnoentities('ControlsMin')), '', '');
 print '<hr>';
 
 /*
@@ -274,7 +274,7 @@ if (is_dir($dir)) {
 print '</table>';
 
 //Control data
-print load_fiche_titre($langs->trans('ControlData'), '', '');
+print load_fiche_titre($langs->trans('ConfigData', $langs->transnoentities('ControlsMin')), '', '');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';

@@ -57,7 +57,7 @@ class mod_control_standard
 	{
 		global $langs;
 		$langs->load("dolismq@dolismq");
-		return $langs->trans('DoliSMQControlStandardModel', $this->prefix);
+		return $langs->trans('StandardModel', $this->prefix);
 	}
 
 	/**

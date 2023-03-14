@@ -57,7 +57,7 @@ class mod_question_standard
 	{
 		global $langs;
 		$langs->load("dolismq@dolismq");
-		return $langs->trans('DoliSMQQuestionStandardModel', $this->prefix);
+		return $langs->trans('StandardModel', $this->prefix);
 	}
 
 	/**

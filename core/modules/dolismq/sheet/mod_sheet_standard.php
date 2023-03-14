@@ -57,7 +57,7 @@ class mod_sheet_standard
 	{
 		global $langs;
 		$langs->load("dolismq@dolismq");
-		return $langs->trans('DoliSMQSheetStandardModel', $this->prefix);
+		return $langs->trans('StandardModel', $this->prefix);
 	}
 
 	/**

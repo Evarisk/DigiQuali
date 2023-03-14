@@ -155,14 +155,14 @@ print load_fiche_titre($title, $linkback, 'dolismq_color@dolismq');
 $head = dolismq_admin_prepare_head();
 print dol_get_fiche_head($head, 'sheet', $title, -1, "dolismq_color@dolismq");
 
-print load_fiche_titre($langs->trans("SheetManagement"), '', '');
+print load_fiche_titre($langs->trans('Configs', $langs->transnoentities('Sheets')), '', '');
 print '<hr>';
 
 /*
  *  Numbering module
  */
 
-print load_fiche_titre($langs->trans("DoliSMQSheetNumberingModule"), '', '');
+print load_fiche_titre($langs->trans("NumberingModule"), '', '');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
@@ -247,7 +247,7 @@ if (is_dir($dir)) {
 print '</table>';
 
 //Sheet data
-print load_fiche_titre($langs->trans("SheetData"), '', '');
+print load_fiche_titre($langs->trans("ConfigData", $langs->transnoentities('Sheets')), '', '');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
