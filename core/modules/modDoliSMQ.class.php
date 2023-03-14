@@ -40,8 +40,13 @@ class modDoliSMQ extends DolibarrModules
 		global $langs, $conf;
 		$this->db = $db;
 
-		require_once __DIR__ . '/../../../saturne/lib/saturne_functions.lib.php';
-		saturne_load_langs(['dolismq@dolismq']);
+		if (file_exists(__DIR__ . '/../../../saturne/lib/saturne_functions.lib.php')) {
+			require_once __DIR__ . '/../../../saturne/lib/saturne_functions.lib.php';
+			saturne_load_langs(['dolismq@dolismq']);
+		} else {
+			$this->error++;
+			$this->errors[] = $langs->trans('activateModuleDependNotSatisfied', 'DoliSMQ', 'Saturne');
+		}
 
 		// Id for module (must be unique).
 		$this->numero = 436301;
@@ -444,6 +449,11 @@ class modDoliSMQ extends DolibarrModules
 	{
 		global $conf;
 
+		if ($this->error > 0) {
+			setEventMessages('', $this->errors, 'errors');
+			return -1; // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
+		}
+
 		$sql    = [];
 		$result = $this->_load_tables('/dolismq/sql/');
 
@@ -464,7 +474,9 @@ class modDoliSMQ extends DolibarrModules
 		addDocumentModel('controldocument_odt', 'controldocument', 'ODT templates', 'DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH');
 		addDocumentModel('calypso_controldocument', 'controldocument', 'calypso');
 
-		if ($result < 0) return -1; // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
+		if ($result < 0) {
+			return -1;
+		} // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
 
 		// Permissions
 		$this->remove($options);
