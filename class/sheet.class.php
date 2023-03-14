@@ -817,6 +817,8 @@ class Sheet extends CommonObject
 	 */
 	public function updateQuestionsPosition($idsArray)
 	{
+		$this->db->begin();
+
 		foreach ($idsArray as $position => $questionId) {
 			$sql = 'UPDATE '. MAIN_DB_PREFIX . 'element_element';
 			$sql .= ' SET position =' . $position;
@@ -824,9 +826,17 @@ class Sheet extends CommonObject
 			$sql .= ' AND sourcetype = "dolismq_sheet"';
 			$sql .= ' AND fk_target =' . $questionId;
 			$sql .= ' AND targettype = "dolismq_question"';
-			$this->db->query($sql);
+			$res = $this->db->query($sql);
+
+			if (!$res) {
+				$error++;
+			}
+		}
+		if ($error) {
+			$this->db->rollback();
+		} else {
+			$this->db->commit();
 		}
 	}
-
 }
 
