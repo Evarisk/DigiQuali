@@ -798,12 +798,12 @@ class Sheet extends CommonObject
 	 *
 	 */
 	public function getMaxPosition() {
-		$sql = "SELECT fk_source, sourcetype, targettype, MAX(position) FROM ". MAIN_DB_PREFIX ."element_element WHERE fk_source = " . $this->id . " AND sourcetype = 'dolismq_sheet' GROUP BY rowid";
+		$sql = "SELECT fk_source, sourcetype, targettype, position FROM ". MAIN_DB_PREFIX ."element_element WHERE fk_source = " . $this->id . " AND sourcetype = 'dolismq_sheet' ORDER BY position DESC LIMIT 1";
 		$resql = $this->db->query($sql);
 
 		if ($resql) {
 			$obj = $this->db->fetch_object($resql);
-			$positionField = 'MAX(position)';
+			$positionField = 'position';
 			return $obj->$positionField;
 		} else {
 			return 0;
