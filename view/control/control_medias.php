@@ -96,7 +96,7 @@ if ($id > 0 || !empty($ref)) {
 
 	$head = control_prepare_head($object);
 
-	print saturne_get_fiche_head($object, 'controlMedias', $langs->trans('Medias'));
+	print saturne_get_fiche_head($object, 'medias', $langs->trans('Medias'));
 
 	// Object card
 	// ------------------------------------------------------------

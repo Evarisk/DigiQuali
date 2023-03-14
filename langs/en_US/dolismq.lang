@@ -255,8 +255,6 @@ AddMedia =Add media
 NoMediaLinked =No related media
 ReOpened =Reopen
 ValidatedControl =Valid
-Locked =Locked
-Lock =Lock
 NoData =N / A
 ErrorFileNotFound =No company logo provided
 

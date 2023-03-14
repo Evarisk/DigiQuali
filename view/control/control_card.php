@@ -199,6 +199,20 @@ if (empty($reshook)) {
 		}
 	}
 
+	// Action clone object
+	if ($action == 'confirm_clone' && $confirm == 'yes') {
+		if ($object->id > 0) {
+			$result = $object->createFromClone($user, $object->id);
+			if ($result > 0) {
+				header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . $result);
+				exit();
+			} else {
+				setEventMessages($object->error, $object->errors, 'errors');
+				$action = '';
+			}
+		}
+	}
+
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
@@ -280,20 +294,6 @@ if (empty($reshook)) {
 		setEventMessages($langs->trans('AnswerSaved'), array());
 		header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 		exit;
-	}
-
-	// Action clone object
-	if ($action == 'confirm_clone' && $confirm == 'yes') {
-		if ($object->id > 0) {
-			$result = $object->createFromClone($user, $object->id);
-			if ($result > 0) {
-				header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . $result);
-				exit();
-			} else {
-				setEventMessages($object->error, $object->errors, 'errors');
-				$action = '';
-			}
-		}
 	}
 
 	// Action to build doc
@@ -461,7 +461,7 @@ if (empty($reshook)) {
 	}
 
 	// Action to set status STATUS_LOCKED
-	if ($action == 'confirm_setLocked') {
+	if ($action == 'confirm_lock') {
 		$object->fetch($id);
 		if ( ! $error) {
 			$result = $object->setLocked($user, false);
@@ -490,16 +490,14 @@ if (empty($reshook)) {
  * View
  */
 
-$title         = $langs->trans('Control');
-$title_create  = $langs->trans('NewControl');
-$title_edit    = $langs->trans('ModifyControl');
-$help_url      = '';
+$title    = $langs->trans('Control');
+$help_url = 'FR:Module_DoliSMQ';
 
 saturne_header(1,'', $title, $help_url);
 
 // Part to create
 if ($action == 'create') {
-	print load_fiche_titre($title_create, '', 'object_'.$object->picto);
+	print load_fiche_titre($langs->trans('NewControl'), '', 'object_' . $object->picto);
 
 	print '<form method="POST" id="createControlForm" action="'.$_SERVER['PHP_SELF'].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
@@ -631,14 +629,9 @@ if ($action == 'create') {
 if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
 	$res = $object->fetch_optionals();
 
-	print saturne_get_fiche_head($object, 'controlCard', $langs->trans('Control'));
+	saturne_get_fiche_head($object, 'card', $title);
 
 	$formconfirm = '';
-
-	// Confirmation to delete
-	if ($action == 'delete') {
-		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'].'?id='.$object->id, $langs->trans('DeleteControl'), $langs->trans('ConfirmDeleteObject'), 'confirm_delete', '', 0, 1);
-	}
 
 	if ($action == 'setVerdict') {
 		//Form to close proposal (signed or not)
@@ -702,26 +695,27 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 	// SetReopened confirmation
-	if (($action == 'setReopened' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile)))		// Output when action = clone if jmobile or no js
-		|| ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {							// Always output when not jmobile nor js
+	if (($action == 'setReopened' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile))) || ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
 		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ReOpenControl'), $langs->trans('ConfirmReOpenControl', $object->ref), 'confirm_setReopened', '', 'yes', 'actionButtonReOpen', 350, 600);
 	}
 
 	// SetLocked confirmation
-	if (($action == 'setLocked' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile)))		// Output when action = clone if jmobile or no js
-		|| ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {							// Always output when not jmobile nor js
-		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('LockControl'), $langs->trans('ConfirmLockControl', $object->ref), 'confirm_setLocked', '', 'yes', 'actionButtonLock', 350, 600);
+	if (($action == 'lock' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
+		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmLockObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_lock', '', 'yes', 'actionButtonLock', 350, 600);
 	}
 
 	// Clone confirmation
-	if (($action == 'clone' && (empty($conf->use_javascript_ajax) || ! empty($conf->dol_use_jmobile)))		// Output when action = clone if jmobile or no js
-		|| ( ! empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {							// Always output when not jmobile nor js
+	if (($action == 'clone' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
+		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('CloneObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmCloneObject', $langs->transnoentities('The' . ucfirst($object->element)), $object->ref), 'confirm_clone', '', 'yes', 'actionButtonClone', 350, 600);
+	}
 
-		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('ToClone'), $langs->trans('ConfirmCloneControl', $object->ref), 'confirm_clone', '', 'yes', 'actionButtonClone', 350, 600);
+	// Confirmation to delete
+	if ($action == 'delete') {
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('DeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
 	}
 
 	// Call Hook formConfirm
-	$parameters = array('formConfirm' => $formconfirm, 'lineid' => $lineid);
+	$parameters = ['formConfirm' => $formconfirm];
 	$reshook    = $hookmanager->executeHooks('formConfirm', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
 	if (empty($reshook)) {
 		$formconfirm .= $hookmanager->resPrint;
@@ -963,9 +957,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// ReOpen
 			if ($object->status == $object::STATUS_VALIDATED) {
-				print '<span class="butAction" id="actionButtonReOpen" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setDraft' . '">' . '<i class="fas fa-lock-open"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('ReOpened')) . '</span>';
+				print '<span class="butAction" id="actionButtonReOpen" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setDraft' . '">' . '<i class="fas fa-lock-open"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('ReOpenDoli')) . '</span>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidated')) . '">' . '<i class="fas fa-lock-open"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('ReOpened')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidated')) . '">' . '<i class="fas fa-lock-open"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('ReOpenDoli')) . '</span>';
 			}
 
 			// Set verdict control
