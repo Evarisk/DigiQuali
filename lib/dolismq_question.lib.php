@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,13 @@
  */
 
 /**
- * Prepare array of tabs for Question
+ * Prepare question pages header
  *
- * @param  Question $object		Question
- * @return array				Array of tabs
+ * @param  CommonObject $object Object
+ * @return array                Array of tabs
+ * @throws Exception
  */
-function question_prepare_head(Question $object): array
+function question_prepare_head(CommonObject $object): array
 {
 	// Global variables definitions
 	global $conf, $db, $langs, $user;
@@ -39,11 +40,10 @@ function question_prepare_head(Question $object): array
 	$h = 0;
 	$head = [];
 
-	$head[$h][0] = dol_buildpath('/dolismq/view/question/question_card.php', 1).'?id='.$object->id;
-	$head[$h][1] = '<i class="fas fa-info-circle pictofixedwidth"></i>' . $langs->trans('Card');
+	$head[$h][0] = dol_buildpath('/dolismq/view/question/question_card.php', 1) . '?id=' . $object->id;
+	$head[$h][1] = '<i class="fas fa-info-circle pictofixedwidth"></i>'  . $langs->trans(ucfirst($object->element));
 	$head[$h][2] = 'card';
 	$h++;
-
 
 	if (isset($object->fields['note_public']) || isset($object->fields['note_private'])) {
 		$nbNote = 0;
@@ -64,7 +64,7 @@ function question_prepare_head(Question $object): array
 
 	require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
 	require_once DOL_DOCUMENT_ROOT.'/core/class/link.class.php';
-	$upload_dir = $conf->dolismq->dir_output. '/audit/' .dol_sanitizeFileName($object->ref);
+	$upload_dir = $conf->dolismq->dir_output . '/' . $object->element . '/' . dol_sanitizeFileName($object->ref);
 	$nbFiles = count(dol_dir_list($upload_dir, 'files', 0, '', '(\.meta|_preview.*\.png)$'));
 	$nbLinks = Link::count($db, $object->element, $object->id);
 	$head[$h][0] = dol_buildpath('/saturne/view/saturne_document.php', 1) . '?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element;
@@ -81,14 +81,14 @@ function question_prepare_head(Question $object): array
 		$nbEvent = 0;
 		// Enable caching of session count actioncomm
 		require_once DOL_DOCUMENT_ROOT . '/core/lib/memory.lib.php';
-		$cachekey = 'count_events_session_' . $object->id;
+		$cachekey = 'count_events_' . $object->element . '_' . $object->id;
 		$dataretrieved = dol_getcache($cachekey);
 		if (!is_null($dataretrieved)) {
 			$nbEvent = $dataretrieved;
 		} else {
 			$sql = 'SELECT COUNT(id) as nb';
 			$sql .= ' FROM ' . MAIN_DB_PREFIX . 'actioncomm';
-			$sql .= ' WHERE fk_element = ' . ((int) $object->id);
+			$sql .= ' WHERE fk_element = ' . $object->id;
 			$sql .=  " AND elementtype = '" . $object->element . '@dolismq' . "'";
 			$resql = $db->query($sql);
 			if ($resql) {
@@ -108,7 +108,9 @@ function question_prepare_head(Question $object): array
 	$head[$h][2] = 'agenda';
 	$h++;
 
-	complete_head_from_modules($conf, $langs, $object, $head, $h, 'question@dolismq');
+	complete_head_from_modules($conf, $langs, $object, $head, $h, $object->element . '@dolismq');
+
+	complete_head_from_modules($conf, $langs, $object, $head, $h, $object->element . '@dolismq', 'remove');
 
 	return $head;
 }
