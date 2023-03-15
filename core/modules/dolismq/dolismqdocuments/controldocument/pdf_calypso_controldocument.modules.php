@@ -528,9 +528,8 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					// Fill an array with photo path and ref of the answer for next loop
 					if (is_array($fileList) && !empty($fileList)) {
 						foreach ($fileList as $singleFile) {
-							$file_small = preg_split('/\./', $singleFile['name']);
-							$new_file = $file_small[0] . '_small.' . $file_small[1];
-							$image = $path . '/thumbs/' . $new_file;
+							$fileSmall = saturne_get_thumb_name($singleFile['name']);
+							$image = $path . '/thumbs/' . $fileSmall;
 							$photoArray[$image] = $tmpTableArray['answerRef'];
 						}
 					}
