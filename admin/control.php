@@ -37,7 +37,7 @@ require_once '../lib/dolismq.lib.php';
 global $conf, $db, $langs, $user;
 
 // Load translation files required by the page
-saturne_load_langs();
+saturne_load_langs(['admin']);
 
 // Initialize view objects
 $form = new Form($db);
