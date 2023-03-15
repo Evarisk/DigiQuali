@@ -687,9 +687,6 @@ class Question extends CommonObject
 	 */
 	public function selectQuestionList($selected = '', $htmlname = 'socid', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth100', $moreparam = '', $multiple = false, $alreadyAdded = array())
 	{
-		// phpcs:enable
-		global $conf, $user, $langs;
-
 		$out      = '';
 		$num      = 0;
 		$outarray = array();
@@ -709,15 +706,6 @@ class Question extends CommonObject
 
 		$sql              .= " WHERE s.entity IN (" . getEntity($this->table_element) . ")";
 		if ($filter) $sql .= " AND (" . $filter . ")";
-		if ($moreparam > 0 ) {
-			$children = $this->fetchDigiriskElementFlat($moreparam);
-			if ( ! empty($children) && $children > 0) {
-				foreach ($children as $key => $value) {
-					$sql .= " AND NOT s.rowid =" . $key;
-				}
-			}
-			$sql .= " AND NOT s.rowid =" . $moreparam;
-		}
 
 		$sql .= $this->db->order("rowid", "ASC");
 		$sql .= $this->db->plimit($limit, 0);
