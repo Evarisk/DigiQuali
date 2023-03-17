@@ -443,9 +443,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 								// Fill an array with photo path and ref of the answer for next loop
 								if (is_array($fileList) && !empty($fileList)) {
 									foreach ($fileList as $singleFile) {
-										$fileSmall = preg_split('/\./', $singleFile['name']);
-										$newFile = $fileSmall[0] . '_small.' . $fileSmall[1];
-										$image = $path . '/thumbs/' . $newFile;
+										$fileSmall = saturne_get_thumb_name($singleFile['name']);
+										$image = $path . '/thumbs/' . $fileSmall;
 										$photoArray[$image] = $answerRef;
 									}
 								}
