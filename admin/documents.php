@@ -49,7 +49,7 @@ $label      = GETPOST('label', 'alpha');
 $modulepart = GETPOST('modulepart', 'aZ09');	// Used by actions_setmoduleoptions.inc.php
 
 // Access control
-$permissiontoread = $user->rights->dolimeet->adminpage->read;
+$permissiontoread = $user->rights->dolismq->adminpage->read;
 saturne_check_access($permissiontoread);
 
 /*

@@ -64,7 +64,8 @@ $elementtype = 'dolismq_sheet'; // Must be the $table_element of the class that 
 $error = 0; // Error counter
 
 // Access control
-saturne_check_access($user->admin);
+$permissiontoread = $user->rights->dolismq->adminpage->read;
+saturne_check_access($permissiontoread);
 
 /*
  * Actions

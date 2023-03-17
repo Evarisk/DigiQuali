@@ -60,7 +60,8 @@ $error = 0; // Error counter
 $form = new Form($db);
 
 // Access control
-saturne_check_access($user->admin);
+$permissiontoread = $user->rights->dolismq->adminpage->read;
+saturne_check_access($permissiontoread);
 
 /*
  * Actions
