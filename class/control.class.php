@@ -638,11 +638,11 @@ class Control extends CommonObject
 		if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
 			global $langs;
 			//$langs->load("dolismq@dolismq");
-			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('Draft');
-			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('ValidatedControl');
+			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('StatusDraft');
+			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('Validated');
 			$this->labelStatus[self::STATUS_LOCKED]         = $langs->trans('Locked');
-			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('Draft');
-			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('ValidatedControl');
+			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('StatusDraft');
+			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Validated');
 			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->trans('Locked');
 		}
 

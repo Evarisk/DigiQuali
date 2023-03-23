@@ -119,7 +119,7 @@ if ($id > 0 || !empty($ref)) {
 				print '<span class="question-ref">' . $question->ref . '</span>';
 				print '<div class="table-cell table-full linked-medias answer_photo">';
 				$relativepath = 'dolismq/medias/thumbs';
-				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref, ($conf->global->DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY ? 'large' : 'medium'), '', 0, 0, 0, 200, 200, 0, 0, 0, 'control/' . $object->ref . '/answer_photo/' . $question->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $questionControlDet->answer_photo), 0, 0);
+				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref, ($conf->global->DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY ? 'large' : 'medium'), '', 0, 0, 0, 200, 200, 0, 0, 0, 'control/' . $object->ref . '/answer_photo/' . $question->ref, null, '', 0, 0);
 				print '</div>';
 				print '</div>';
 			}
