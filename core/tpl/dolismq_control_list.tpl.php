@@ -361,7 +361,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			elseif ($key == 'ref') print $object->getNomUrl(1);
 			elseif ($key == 'fk_product') {
 				$object->fetchObjectLinked('', 'product','', 'dolismq_control');
-				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
+				if (!empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
 					$producttmp->fetch(array_shift($object->linkedObjectsIds['product']));
 					if ($producttmp > 0) {
 						print $producttmp->getNomUrl(1);
@@ -370,7 +370,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_lot') {
 				$object->fetchObjectLinked('', 'productbatch','', 'dolismq_control');
-				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
+				if (!empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
 					$productlottmp->fetch(array_shift($object->linkedObjectsIds['productbatch']));
 					if ($productlottmp > 0) {
 						print $productlottmp->getNomUrl(1);
@@ -379,7 +379,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_user') {
 				$object->fetchObjectLinked('', 'user','', 'dolismq_control');
-				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_USER) && (!empty($object->linkedObjectsIds['user']))) {
+				if (!empty($conf->global->DOLISMQ_SHEET_LINK_USER) && (!empty($object->linkedObjectsIds['user']))) {
 					$usertmp->fetch(array_shift($object->linkedObjectsIds['user']));
 					if ($usertmp > 0) {
 						print $usertmp->getNomUrl(1);
@@ -388,7 +388,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_thirdparty') {
 				$object->fetchObjectLinked('', 'societe','', 'dolismq_control');
-				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
+				if (!empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
 					$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
 					if ($thirdparty > 0) {
 						print $thirdparty->getNomUrl(1);
@@ -397,7 +397,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_contact') {
 				$object->fetchObjectLinked('', 'contact','', 'dolismq_control');
-				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_CONTACT) && (!empty($object->linkedObjectsIds['contact']))) {
+				if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && (!empty($object->linkedObjectsIds['contact']))) {
 					$contact->fetch(array_shift($object->linkedObjectsIds['contact']));
 					if ($contact > 0) {
 						print $contact->getNomUrl(1);
@@ -406,7 +406,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_project') {
 				$object->fetchObjectLinked('', 'project','', 'dolismq_control');
-				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT) && (!empty($object->linkedObjectsIds['project']))) {
+				if (!empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT) && (!empty($object->linkedObjectsIds['project']))) {
 					$projecttmp->fetch(array_shift($object->linkedObjectsIds['project']));
 					if ($projecttmp > 0) {
 						print $projecttmp->getNomUrl(1, '', 1);
@@ -415,7 +415,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_task') {
 				$object->fetchObjectLinked('', 'project_task','', 'dolismq_control');
-				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK) && (!empty($object->linkedObjectsIds['project_task']))) {
+				if (!empty($conf->global->DOLISMQ_SHEET_LINK_TASK) && (!empty($object->linkedObjectsIds['project_task']))) {
 					$tasktmp->fetch(array_shift($object->linkedObjectsIds['project_task']));
 					if ($tasktmp > 0) {
 						print $tasktmp->getNomUrl(1, 'withproject');

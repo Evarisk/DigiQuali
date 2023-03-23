@@ -806,7 +806,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	$object->fetchObjectLinked('', '', '', 'dolismq_control');
 
-	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
+	if (!empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
 		//FKProduct -- Produit
 		print '<tr><td class="titlefield">';
 		print $langs->trans('ProductOrService');
@@ -819,7 +819,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<td></tr>';
 	}
 
-	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
+	if (!empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
 		//FKLot -- Numéro de série
 		print '<tr><td class="titlefield">';
 		print $langs->trans('Batch');
@@ -832,7 +832,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_USER) && (!empty($object->linkedObjectsIds['user']))) {
+	if (!empty($conf->global->DOLISMQ_SHEET_LINK_USER) && (!empty($object->linkedObjectsIds['user']))) {
 		//Fk_soc - Tiers lié
 		print '<tr><td class="titlefield">';
 		print $langs->trans('User');
@@ -845,7 +845,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
+	if (!empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
 		//Fk_soc - Tiers lié
 		print '<tr><td class="titlefield">';
 		print $langs->trans('ThirdParty');
@@ -858,7 +858,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_CONTACT) && (!empty($object->linkedObjectsIds['contact']))) {
+	if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && (!empty($object->linkedObjectsIds['contact']))) {
 		//Fk_contact - Contact/adresse
 		print '<tr><td class="titlefield">';
 		print $langs->trans('Contact');
@@ -871,7 +871,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT) && (!empty($object->linkedObjectsIds['project']))) {
+	if (!empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT) && (!empty($object->linkedObjectsIds['project']))) {
 		//Fk_project - Projet lié
 		print '<tr><td class="titlefield">';
 		print $langs->trans('Project');
@@ -884,7 +884,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK) && (!empty($object->linkedObjectsIds['project_task']))) {
+	if (!empty($conf->global->DOLISMQ_SHEET_LINK_TASK) && (!empty($object->linkedObjectsIds['project_task']))) {
 		//Fk_task - Tâche liée
 		print '<tr><td class="titlefield">';
 		print $langs->trans('Task');
