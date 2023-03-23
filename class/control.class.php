@@ -75,7 +75,7 @@ class Control extends CommonObject
 		'date_creation'      => ['type' => 'datetime', 'label' => 'ControlDate', 'enabled' => '1', 'position' => 40, 'positioncard' => 10, 'notnull' => 1, 'visible' => 5],
 		'tms'                => ['type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0],
 		'import_key'         => ['type' => 'varchar(14)', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 0],
-		'status'             => ['type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0', 'arrayofkeyval' => ['0' => 'Draft', '1' => 'ValidatedControl', '2' => 'Locked']],
+		'status'             => ['type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0', 'arrayofkeyval' => ['0' => 'Draft', '1' => 'Validated', '2' => 'Locked']],
 		'note_public'        => ['type' => 'html', 'label' => 'PublicNote', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0],
 		'note_private'       => ['type' => 'html', 'label' => 'PrivateNote', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 0],
 		'type'               => ['type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 100, 'notnull' => 0, 'visible' => 0],
