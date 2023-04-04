@@ -333,7 +333,7 @@ if ($action == 'create') {
 	if (empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && empty($conf->global->DOLISMQ_SHEET_LINK_USER) && empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT) && empty($conf->global->DOLISMQ_SHEET_LINK_TASK)) {
 		print '<div class="wpeo-notice notice-info">';
 		print '<div class="notice-content">';
-		print '<div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . '<a href="' .dol_buildpath('/custom/dolismq/admin/sheet.php', 2).'">' . ' : ' . $langs->trans('ConfigSheet') . '</a>';
+		print '<div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . ' : ' . '<a href="' .dol_buildpath('/custom/dolismq/admin/sheet.php', 2).'">' . $langs->trans('ConfigSheet') . '</a>';
 		print '</div>';
 		print '</div>';
 		print '</div>';
