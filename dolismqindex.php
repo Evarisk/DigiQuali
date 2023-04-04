@@ -24,6 +24,8 @@
 // Load DoliSMQ environment
 if (file_exists('dolismq.main.inc.php')) {
 	require_once __DIR__ . '/dolismq.main.inc.php';
+} elseif (file_exists('../dolismq.main.inc.php')) {
+	require_once __DIR__ . '/../dolismq.main.inc.php';
 } else {
 	die('Include of dolismq main fails');
 }
