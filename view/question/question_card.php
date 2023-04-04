@@ -39,10 +39,10 @@ require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 
-require_once '../../class/question.class.php';
-require_once '../../core/modules/dolismq/question/mod_question_standard.php';
-require_once '../../lib/dolismq_question.lib.php';
-require_once '../../lib/dolismq_function.lib.php';
+require_once __DIR__ . '../../class/question.class.php';
+require_once __DIR__ . '../../core/modules/dolismq/question/mod_question_standard.php';
+require_once __DIR__ . '../../lib/dolismq_question.lib.php';
+require_once __DIR__ . '../../lib/dolismq_function.lib.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user, $langs;

@@ -23,6 +23,7 @@
 
 // Put here all includes required by your class file
 require_once DOL_DOCUMENT_ROOT . '/core/class/commonobject.class.php';
+require_once __DIR__ . '/../core/modules/dolismq/question/mod_question_standard.php';
 
 /**
  * Class for Question
@@ -152,7 +153,7 @@ class Question extends CommonObject
 	{
 		global $conf;
 		$refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($this->db);
-		$this->status = 1;
+		$this->status = $this->status ?: 1;
 		$this->ref = $refQuestionMod->getNextValue($this);
 		return $this->createCommon($user, $notrigger);
 	}

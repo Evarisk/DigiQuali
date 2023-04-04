@@ -228,6 +228,31 @@ QuestionTitle = Titre - Description Question
 AnswerRef = Réf. Réponse
 AnswerComment = Commentaire Réponse
 
+
+#
+# Tools - Outils
+#
+
+# Data - Donnée
+DataMigrationFileToDolibarr = Migration des données d'un fichier vers Dolibarr
+DataMigrationImportTXT = Importation des fichiers TXT vers Dolibarr
+DataMigrationImportTXTDescription = Importation des données des questions et fiches modèle d'un fichier TXT
+DataMigrationImportJSON = Importation des fichiers JSON vers Dolibarr
+DataMigrationImportJSONDescription = Importation des données des questions et fiches modèle d'un fichier JSON
+DataMigrationImportCSV = Importation des fichiers CSV vers Dolibarr
+DataMigrationImportCSVDescription = Importation des données des questions et fiches modèle d'un fichier CSV
+DataMigrationImportZIP = Importation d'une archive ZIP vers Dolibarr
+DataMigrationImportZIPDescription = Importation en masse des données des questions et fiches modèle aux différents formats (TXT, JSON, CSV)
+RequiredFormatStyle = Le format à avoir pour les fichiers est disponible sur la page Github suivante
+ConfigFormatGithub = Page du format des fichiers d'importation
+ErrorFileNotWellFormattedTXT = Le fichier n'est pas au bon format ou est vide. Vous devez joindre un fichier d'import au format .txt
+ErrorFileNotWellFormattedJSON = Le fichier n'est pas au bon format ou est vide. Vous devez joindre un fichier d'import au format .json
+ErrorFileNotWellFormattedCSV = Le fichier n'est pas au bon format ou est vide. Vous devez joindre un fichier d'import au format .csv
+ErrorArchiveNotWellFormattedZIP = L'archive n'est pas pris en charge ou est vide. Vous devez joindre un archive d'import au format .zip
+ErrorFileNotWellFormattedZIP = Un ou plusieurs fichiers de l'archive n'est pas au bon format ou est vide. </br> Les fichiers doivent être au format .txt .json ou .csv
+
+
+
 #
 # Other
 #

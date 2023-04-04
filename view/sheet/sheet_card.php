@@ -38,7 +38,7 @@ require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
 require_once __DIR__ . '/../../lib/dolismq_sheet.lib.php';
 require_once __DIR__ . '/../../core/modules/dolismq/sheet/mod_sheet_standard.php';
-require_once '../../lib/dolismq_function.lib.php';
+require_once __DIR__ . '../../lib/dolismq_function.lib.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user;

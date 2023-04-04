@@ -435,6 +435,21 @@ class modDoliSMQ extends DolibarrModules
 			'target'   => '',
 			'user'     => 0,
 		];
+
+		$this->menu[$r++] = [
+			'fk_menu'  => 'fk_mainmenu=dolismq',
+			'type'     => 'left',
+			'titre'    => '<i class="fas fa-wrench pictofixedwidth" style="padding-right: 4px;"></i>' . $langs->transnoentities('Tools'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq_tools',
+			'url'      => '/dolismq/view/dolismqtools.php.php',
+			'langs'    => 'dolismq@dolismq',
+			'position' => 1000 + $r,
+			'enabled'  => '$conf->dolismq->enabled && $user->rights->dolismq->question->read',
+			'perms'    => '$user->rights->dolismq->question->write',
+			'target'   => '',
+			'user'     => 0,
+		];
 	}
 
 	/**
