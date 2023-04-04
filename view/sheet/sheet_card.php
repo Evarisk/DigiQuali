@@ -701,7 +701,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<input type="hidden" name="id" value="' . $id . '">';
 
 		print '<tr class="add-line"><td class="">';
-		print $question->selectQuestionList(0, 'questionId', 's.status < 3', '1', 0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds);
+		print $question->selectQuestionList(0, 'questionId', 's.status = ' . Question::STATUS_LOCKED, '1', 0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds);
 		print '</td>';
 		print '<td>';
 		print ' &nbsp; <input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
