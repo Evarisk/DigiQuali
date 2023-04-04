@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
+/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,12 +42,12 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 	 */
 	public function __construct($db)
 	{
-		$this->db = $db;
+		parent::__construct($db);
 
 		$this->name        = preg_replace('/^Interface/i', '', get_class($this));
-		$this->family      = "demo";
-		$this->description = "DoliSMQ triggers.";
-		$this->version     = '1.4.0';
+		$this->family      = 'demo';
+		$this->description = 'DoliSMQ triggers.';
+		$this->version     = '1.5.0';
 		$this->picto       = 'dolismq@dolismq';
 	}
 
@@ -56,9 +56,9 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 	 *
 	 * @return string Name of trigger file
 	 */
-	public function getName()
+	public function getName(): string
 	{
-		return $this->name;
+		return parent::getName();
 	}
 
 	/**
@@ -66,189 +66,53 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 	 *
 	 * @return string Description of trigger file
 	 */
-	public function getDesc()
+	public function getDesc(): string
 	{
-		return $this->description;
+		return parent::getDesc();
 	}
 
 	/**
-	 * Function called when a Dolibarrr business event is done.
+	 * Function called when a Dolibarr business event is done.
 	 * All functions "runTrigger" are triggered if file
 	 * is inside directory core/triggers
 	 *
-	 * @param string 		$action 	Event action code
-	 * @param CommonObject 	$object 	Object
-	 * @param User 			$user 		Object user
-	 * @param Translate 	$langs 		Object langs
-	 * @param Conf 			$conf 		Object conf
-	 * @return int              		<0 if KO, 0 if no triggered ran, >0 if OK
+	 * @param  string       $action Event action code
+	 * @param  CommonObject $object Object
+	 * @param  User         $user   Object user
+	 * @param  Translate    $langs  Object langs
+	 * @param  Conf         $conf   Object conf
+	 * @return int                  0 < if KO, 0 if no triggered ran, >0 if OK
+	 * @throws Exception
 	 */
-	public function runTrigger($action, $object, User $user, Translate $langs, Conf $conf)
+	public function runTrigger($action, $object, User $user, Translate $langs, Conf $conf): int
 	{
-		if (empty($conf->dolismq->enabled)) return 0; // If module is not enabled, we do nothing
+		if (!isModEnabled('dolismq')) {
+			return 0; // If module is not enabled, we do nothing
+		}
 
 		// Data and type of action are stored into $object and $action
+		dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . '. id=' . $object->id);
+
+		require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
+		$now = dol_now();
+		$actioncomm = new ActionComm($this->db);
+
+		$actioncomm->elementtype = $object->element . '@dolismq';
+		$actioncomm->type_code   = 'AC_OTH_AUTO';
+		$actioncomm->datep       = $now;
+		$actioncomm->fk_element  = $object->id;
+		$actioncomm->userownerid = $user->id;
+		$actioncomm->percentage  = -1;
 
 		switch ($action) {
 			case 'QUESTION_CREATE' :
-
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
-				$actioncomm->elementtype = 'question@dolismq';
-				$actioncomm->code        = 'AC_QUESTION_CREATE';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('QuestionCreateTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
-				$actioncomm->create($user);
-				break;
-
-			case 'QUESTION_MODIFY' :
-
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
-				$actioncomm->elementtype = 'question@dolismq';
-				$actioncomm->code        = 'AC_QUESTION_MODIFY';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('QuestionModifyTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
-				$actioncomm->create($user);
-				break;
-
-			case 'QUESTION_DELETE' :
-
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
-				$actioncomm->elementtype = 'question@dolismq';
-				$actioncomm->code        = 'AC_QUESTION_DELETE';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('QuestionDeleteTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
-				$actioncomm->create($user);
-				break;
-
-			case 'QUESTION_LOCKED' :
-
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
-				$actioncomm->elementtype = 'question@dolismq';
-				$actioncomm->code        = 'AC_QUESTION_LOCKED';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('QuestionLockedTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
-				$actioncomm->create($user);
-				break;
-
 			case 'SHEET_CREATE' :
-
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
-				$actioncomm->elementtype = 'sheet@dolismq';
-				$actioncomm->code        = 'AC_SHEET_CREATE';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('SheetCreateTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
-				$actioncomm->create($user);
-				break;
-
-			case 'SHEET_MODIFY' :
-
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
-				$actioncomm->elementtype = 'sheet@dolismq';
-				$actioncomm->code        = 'AC_SHEET_MODIFY';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('SheetModifyTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
-				$actioncomm->create($user);
-				break;
-
-			case 'SHEET_DELETE' :
-
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
-				$actioncomm->elementtype = 'sheet@dolismq';
-				$actioncomm->code        = 'AC_SHEET_DELETE';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('SheetDeleteTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
-				$actioncomm->create($user);
-				break;
-
-			case 'SHEET_LOCKED' :
-
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
-				$actioncomm->elementtype = 'sheet@dolismq';
-				$actioncomm->code        = 'AC_SHEET_LOCKED';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('SheetLockedTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
+				$actioncomm->label = $langs->trans('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
 
 			case 'CONTROL_CREATE' :
-
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
 				if (!empty(GETPOST('fk_product')) && GETPOST('fk_product') > 0) {
 					$object->add_object_linked('product', GETPOST('fk_product'));
 				}
@@ -271,137 +135,55 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 					$object->add_object_linked('project_task', GETPOST('fk_task'));
 				}
 
-				$actioncomm->elementtype = 'control@dolismq';
-				$actioncomm->code        = 'AC_CONTROL_CREATE';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('ControlCreateTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
+				$actioncomm->label = $langs->trans('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
 
+			case 'QUESTION_MODIFY' :
+			case 'SHEET_MODIFY' :
 			case 'CONTROL_MODIFY' :
-
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
-				$actioncomm->elementtype = 'control@dolismq';
-				$actioncomm->code        = 'AC_CONTROL_MODIFY';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('ControlModifyTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_MODIFY';
+				$actioncomm->label = $langs->trans('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
 
+			case 'MEETING_DELETE' :
+			case 'SHEET_DELETE' :
 			case 'CONTROL_DELETE' :
-
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
-				$actioncomm->elementtype = 'control@dolismq';
-				$actioncomm->code        = 'AC_CONTROL_DELETE';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('ControlDeleteTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
+				$actioncomm->code  = 'AC_ ' . strtoupper($object->element) . '_DELETE';
+				$actioncomm->label = $langs->trans('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
 
+			case 'QUESTION_VALIDATE' :
+			case 'SHEET_VALIDATE' :
+			case 'CONTROL_VALIDATE' :
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_VALIDATE';
+				$actioncomm->label = $langs->trans('ObjectValidateTrigger', $langs->transnoentities(ucfirst($object->element)));
+				$actioncomm->create($user);
+				break;
+
+			case 'CONTROL_UNVALIDATE' :
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_UNVALIDATE';
+				$actioncomm->label = $langs->trans('ObjectUnValidateTrigger', $langs->transnoentities(ucfirst($object->element)));
+				$actioncomm->create($user);
+				break;
+
+			case 'QUESTION_LOCKED' :
+			case 'SHEET_LOCKED' :
 			case 'CONTROL_LOCKED' :
-
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
-				$actioncomm->elementtype = 'control@dolismq';
-				$actioncomm->code        = 'AC_CONTROL_LOCKED';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('ControlLockedTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_LOCKED';
+				$actioncomm->label = $langs->trans('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
 
-			case 'CONTROL_DRAFTED' :
-
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
-				$actioncomm->elementtype = 'control@dolismq';
-				$actioncomm->code        = 'AC_CONTROL_DRAFTED';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('ControlDraftedTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
+			case 'CONTROL_SENTBYMAIL' :
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_SENTBYMAIL';
+				$actioncomm->label = $langs->trans('ObjectSentByMailTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
-				break;
-
-			case 'CONTROL_VALIDATED' :
-
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
-				$actioncomm->elementtype = 'control@dolismq';
-				$actioncomm->code        = 'AC_CONTROL_VALIDATED';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->trans('ControlValidatedTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
-				$actioncomm->create($user);
-				break;
-
-			case 'CONTROLDOCUMENT_SENTBYMAIL' :
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
-				require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-				$now        = dol_now();
-				$actioncomm = new ActionComm($this->db);
-
-				$actioncomm->elementtype = 'control@dolismq';
-				$actioncomm->code        = 'AC_CONTROLDOCUMENT_SENTBYMAIL';
-				$actioncomm->type_code   = 'AC_OTH_AUTO';
-				$actioncomm->label       = $langs->transnoentities('ControlDocumentSentByMailTrigger');
-				$actioncomm->datep       = $now;
-				$actioncomm->fk_element  = $object->id;
-				$actioncomm->userownerid = $user->id;
-				$actioncomm->percentage  = -1;
-
-				$actioncomm->create($user);
-				break;
-
-			default:
-				dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id);
 				break;
 		}
-
-
 		return 0;
 	}
 }

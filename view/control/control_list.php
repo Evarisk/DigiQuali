@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
+/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,21 +21,12 @@
  *		\brief      List page for control
  */
 
-// Load Dolibarr environment
-$res = 0;
-// Try main.inc.php into web root known defined into CONTEXT_DOCUMENT_ROOT (not always defined)
-if (!$res && !empty($_SERVER["CONTEXT_DOCUMENT_ROOT"])) $res = @include $_SERVER["CONTEXT_DOCUMENT_ROOT"]."/main.inc.php";
-// Try main.inc.php into web root detected using web root calculated from SCRIPT_FILENAME
-$tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME']; $tmp2 = realpath(__FILE__); $i = strlen($tmp) - 1; $j = strlen($tmp2) - 1;
-while ($i > 0 && $j > 0 && isset($tmp[$i]) && isset($tmp2[$j]) && $tmp[$i] == $tmp2[$j]) { $i--; $j--; }
-if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1))."/main.inc.php")) $res = @include substr($tmp, 0, ($i + 1))."/main.inc.php";
-if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php")) $res = @include dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php";
-// Try main.inc.php using relative path
-if (!$res && file_exists("../main.inc.php")) $res = @include "../main.inc.php";
-if ( ! $res && file_exists("../../main.inc.php")) $res       = @include "../../main.inc.php";
-if ( ! $res && file_exists("../../../main.inc.php")) $res    = @include "../../../main.inc.php";
-if ( ! $res && file_exists("../../../../main.inc.php")) $res = @include "../../../../main.inc.php";
-if (!$res) die("Include of main fails");
+// Load DoliSMQ environment
+if (file_exists('../../dolismq.main.inc.php')) {
+	require_once __DIR__ . '/../../dolismq.main.inc.php';
+} else {
+	die('Include of dolismq main fails');
+}
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
@@ -70,7 +61,7 @@ require_once __DIR__ . '/../../class/control.class.php';
 global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
-$langs->loadLangs(array("dolismq@dolismq", "other", "bills", "projects", "orders", "companies", "product", "productbatch", "task"));
+saturne_load_langs(['other', 'bills', 'projects', 'orders', 'companies', 'product', 'productbatch', 'task']);
 
 $action      = GETPOST('action', 'aZ09') ?GETPOST('action', 'aZ09') : 'view'; // The action 'add', 'create', 'edit', 'update', 'view', ...
 $massaction  = GETPOST('massaction', 'alpha'); // The bulk action (combo box choice into lists)
@@ -126,39 +117,30 @@ if (!empty($fromtype)) {
 	switch ($fromtype) {
 		case 'project' :
 			$objectLinked = new Project($db);
-			$prehead = 'project_prepare_head';
 			break;
 		case 'product' :
 			$objectLinked = new Product($db);
-			$prehead = 'product_prepare_head';
 			break;
 		case 'productbatch' :
 			$objectLinked = new Productlot($db);
-			$prehead = 'productlot_prepare_head';
 			break;
 		case 'project_task' :
 			$objectLinked = new Task($db);
-			$prehead = 'task_prepare_head';
 			break;
 		case 'societe' :
 			$objectLinked = new Societe($db);
-			$prehead = 'societe_prepare_head';
 			break;
 		case 'contact' :
 			$objectLinked = new Contact($db);
-			$prehead = 'contact_prepare_head';
 			break;
 		case 'user' :
 			$objectLinked = new User($db);
-			$prehead = 'user_prepare_head';
 			break;
 		case 'fk_sheet' :
 			$objectLinked = new Sheet($db);
-			$prehead = 'sheetPrepareHead';
 			break;
 	}
 	$objectLinked->fetch($fromid);
-	$head = $prehead($objectLinked);
 	$linkedObjectsArray = array('sheet', 'user');
 }
 
@@ -179,7 +161,7 @@ $object->fields['fk_contact']    = $arrayfields['t.fk_contact'];
 $object->fields['fk_project']    = $arrayfields['t.fk_project'];
 $object->fields['fk_task']       = $arrayfields['t.fk_task'];
 
-$element_element_fields = array(
+$elementElementFields = array(
 	'fk_product'    => 'product',
 	'fk_lot'        => 'productbatch',
 	'fk_user'       => 'user',
@@ -190,14 +172,14 @@ $element_element_fields = array(
 );
 
 // Initialize array of search criterias
-$search_all = GETPOST('search_all', 'alphanohtml') ? GETPOST('search_all', 'alphanohtml') : GETPOST('sall', 'alphanohtml');
+$searchAll = GETPOST('search_all', 'alphanohtml') ? GETPOST('search_all', 'alphanohtml') : GETPOST('sall', 'alphanohtml');
 $search = array();
 foreach ($object->fields as $key => $val) {
 	if (GETPOST('search_'.$key, 'alpha') !== '') $search[$key] = GETPOST('search_'.$key, 'alpha');
 }
 
 if(!empty($fromtype)) {
-	$search_key = array_search($fromtype, $element_element_fields);
+	$search_key = array_search($fromtype, $elementElementFields);
 	$search[$search_key] = $fromid;
 	switch ($fromtype) {
 		case 'fk_sheet':
@@ -244,13 +226,7 @@ $permissiontoadd    = $user->rights->dolismq->control->write;
 $permissiontodelete = $user->rights->dolismq->control->delete;
 
 // Security check
-if (empty($conf->dolismq->enabled)) accessforbidden('Module not enabled');
-$socid = 0;
-if ($user->socid > 0) {	// Protection if external user
-	//$socid = $user->socid;
-	accessforbidden();
-}
-if (!$permissiontoread) accessforbidden();
+saturne_check_access($permissiontoread, $object);
 
 /*
  * Actions
@@ -303,7 +279,7 @@ if (empty($reshook)) {
 				if (is_array($objecttmp->linkedObjects) && !empty($objecttmp->linkedObjects)) {
 					foreach($objecttmp->linkedObjects as $linkedObjectType => $linkedObjectArray) {
 						foreach($linkedObjectArray as $linkedObject) {
-							if (method_exists($objecttmp, 'is_erasable') && $objecttmp->is_erasable() <= 0) {
+							if (method_exists($objecttmp, 'isErasable') && $objecttmp->isErasable() <= 0) {
 								$objecttmp->deleteObjectLinked($linkedObject->id, $linkedObjectType);
 							}
 						}
@@ -360,26 +336,20 @@ if (empty($reshook)) {
 $now      = dol_now();
 $help_url = '';
 $title    = $langs->trans("ControlList");
-$morejs   = array("/dolismq/js/dolismq.js");
-$morecss  = array("/dolismq/css/dolismq.css");
 
-llxHeader('', $title, $help_url, '', '', '', $morejs, $morecss);
+saturne_header(0,'', $title, $help_url);
 if (!empty($fromtype)) {
-	print dol_get_fiche_head($head, 'control', $langs->trans("Control"), -1, $objectLinked->picto);
+	print saturne_get_fiche_head($objectLinked, 'control', $langs->trans("Control"));
 
 	$linkback = '<a href="'.DOL_URL_ROOT.'/'.$fromtype.'/list.php?restore_lastsearch_values=1">'.$langs->trans("BackToList").'</a>';
 
-	if ($fromtype == 'fk_sheet') {
-		$objectLinked->picto = 'sheet_small@dolismq';
-	}
-	dol_banner_tab($objectLinked, 'ref', $linkback, 0);
+	saturne_banner_tab($objectLinked, 'ref', '', 0);
 }
 
 if ($fromid) {
 	print '<div class="underbanner clearboth"></div>';
 	print '<div class="fichehalfleft">';
 	print '<br>';
-	//@todo a rework avec des left join
 	$controls = $controlstatic->fetchAll();
 
 	if (is_array($controls) && !empty($controls)) {

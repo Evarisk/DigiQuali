@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
+/* Copyright (C) 2022 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ class Control extends CommonObject
 	/**
 	 * @var string String with name of icon for control. Must be the part after the 'object_' into object_control.png
 	 */
-	public $picto = 'control@dolismq';
+	public $picto = 'fontawesome_fa-tasks_fas_#d35968';
 
 	public const STATUS_DRAFT     = 0;
 	public const STATUS_VALIDATED = 1;
@@ -74,15 +74,15 @@ class Control extends CommonObject
 		'entity'             => ['type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0],
 		'date_creation'      => ['type' => 'datetime', 'label' => 'ControlDate', 'enabled' => '1', 'position' => 40, 'positioncard' => 10, 'notnull' => 1, 'visible' => 5],
 		'tms'                => ['type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0],
-		'import_key'         => ['type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 0],
-		'status'             => ['type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0', 'arrayofkeyval' => ['0' => 'Draft', '1' => 'ValidatedControl', '2' => 'Locked']],
+		'import_key'         => ['type' => 'varchar(14)', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 0],
+		'status'             => ['type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => '0', 'arrayofkeyval' => ['0' => 'Draft', '1' => 'Validated', '2' => 'Locked']],
 		'note_public'        => ['type' => 'html', 'label' => 'PublicNote', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0],
 		'note_private'       => ['type' => 'html', 'label' => 'PrivateNote', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 0],
 		'type'               => ['type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 100, 'notnull' => 0, 'visible' => 0],
 		'verdict'            => ['type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 110,'positioncard' => 20, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => ['0' => '', '1' => 'OK', '2' => 'KO']],
 		'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
 		'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0],
-		'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'FKSheet', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5, 'css' => 'maxwidth500 widthcentpercentminusxx'],
+		'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'SheetLinked', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5, 'css' => 'maxwidth500 widthcentpercentminusxx'],
 		'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1', 'label' => 'FKUserController','positioncard' => 1, 'enabled' => '1', 'position' => 24, 'notnull' => 1, 'visible' => 3, 'css' => 'maxwidth500 widthcentpercentminusxx', 'picto' => 'user', 'foreignkey' => 'user.rowid'],
 		'projectid'         => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project','positioncard' => 2, 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 3, 'css' => 'maxwidth500 widthcentpercentminusxx', 'picto' => 'project', 'foreignkey' => 'projet.rowid']
 	];
@@ -128,7 +128,7 @@ class Control extends CommonObject
 		// Translate some data of arrayofkeyval
 		if (is_object($langs)) {
 			foreach ($this->fields as $key => $val) {
-				if ( ! empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
+				if (is_array($val['arrayofkeyval']) && !empty($val['arrayofkeyval'])) {
 					foreach ($val['arrayofkeyval'] as $key2 => $val2) {
 						$this->fields[$key]['arrayofkeyval'][$key2] = $langs->trans($val2);
 					}
@@ -289,7 +289,7 @@ class Control extends CommonObject
 			return 0;
 		}
 
-		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'CONTROL_DRAFTED');
+		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'CONTROL_UNVALIDATED');
 	}
 
 	/**
@@ -318,16 +318,15 @@ class Control extends CommonObject
 
 		// Define new ref
 		if ((preg_match('/^\(?PROV/i', $this->ref) || empty($this->ref))) { // empty should not happen, but when it occurs, the test save life
-			$num = $this->getNextNumRef();
+			$newref = $this->getNextNumRef();
 		} else {
-			$num = $this->ref;
+			$newref = $this->ref;
 		}
-		$this->newref = $num;
 
-		if (!empty($num)) {
+		if (!empty($newref)) {
 			// Validate
 			$sql = "UPDATE ".MAIN_DB_PREFIX.$this->table_element;
-			$sql .= " SET ref = '".$this->db->escape($num)."',";
+			$sql .= " SET ref = '".$this->db->escape($newref)."',";
 			$sql .= " status = ".self::STATUS_VALIDATED;
 			$sql .= " WHERE rowid = ".($this->id);
 
@@ -350,45 +349,32 @@ class Control extends CommonObject
 		}
 
 		if (!$error) {
-			$this->oldref = $this->ref;
-
 			// Rename directory if dir was a temporary ref
 			if (preg_match('/^\(?PROV/i', $this->ref)) {
 				// Now we rename also files into index
-				$sql = 'UPDATE '.MAIN_DB_PREFIX."ecm_files set filename = CONCAT('".$this->db->escape($this->newref)."', SUBSTR(filename, ".(strlen($this->ref) + 1).")), filepath = 'control/".$this->db->escape($this->newref)."'";
+				$sql = 'UPDATE '.MAIN_DB_PREFIX."ecm_files set filename = CONCAT('".$this->db->escape($newref)."', SUBSTR(filename, ".(strlen($this->ref) + 1).")), filepath = 'control/".$this->db->escape($newref)."'";
 				$sql .= " WHERE filename LIKE '".$this->db->escape($this->ref)."%' AND filepath = 'control/".$this->db->escape($this->ref)."' and entity = ".$conf->entity;
 				$resql = $this->db->query($sql);
 				if (!$resql) {
 					$error++; $this->error = $this->db->lasterror();
 				}
 
-				// We rename directory ($this->ref = old ref, $num = new ref) in order not to lose the attachments
+				// We rename directory ($this->ref = old ref, $newref = new ref) in order not to lose the attachments
 				$oldref = dol_sanitizeFileName($this->ref);
-				$newref = dol_sanitizeFileName($num);
+				$newref = dol_sanitizeFileName($newref);
+
 				$dirsource = $conf->dolismq->dir_output.'/control/'.$oldref;
 				$dirdest = $conf->dolismq->dir_output.'/control/'.$newref;
-				if (!$error && file_exists($dirsource)) {
-					dol_syslog(get_class($this)."::validate() rename dir ".$dirsource." into ".$dirdest);
 
-					if (@rename($dirsource, $dirdest)) {
-						dol_syslog("Rename ok");
-						// Rename docs starting with $oldref with $newref
-						$listoffiles = dol_dir_list($conf->dolismq->dir_output.'/control/'.$newref, 'files', 1, '^'.preg_quote($oldref, '/'));
-						foreach ($listoffiles as $fileentry) {
-							$dirsource = $fileentry['name'];
-							$dirdest = preg_replace('/^'.preg_quote($oldref, '/').'/', $newref, $dirsource);
-							$dirsource = $fileentry['path'].'/'.$dirsource;
-							$dirdest = $fileentry['path'].'/'.$dirdest;
-							@rename($dirsource, $dirdest);
-						}
-					}
+				if (is_dir($dirsource)) {
+					rename($dirsource, $dirdest);
 				}
 			}
 		}
 
 		// Set new ref and current status
 		if (!$error) {
-			$this->ref = $num;
+			$this->ref = $newref;
 			$this->status = self::STATUS_VALIDATED;
 		}
 
@@ -419,8 +405,8 @@ class Control extends CommonObject
 	 *
 	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function is_erasable() {
-		return $this->is_linked_to_other_objects();
+	public function isErasable() {
+		return $this->isLinkedToOtherObjects();
 	}
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
@@ -429,7 +415,7 @@ class Control extends CommonObject
 	 *
 	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function is_linked_to_other_objects() {
+	public function isLinkedToOtherObjects() {
 
 		// Links between objects are stored in table element_element
 		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype';
@@ -557,10 +543,10 @@ class Control extends CommonObject
 	 *  @param  string  $option                     On what the link point to ('nolink', ...)
 	 *  @param  int     $notooltip                  1=Disable tooltip
 	 *  @param  string  $morecss                    Add more css on link
-	 *  @param  int     $save_lastsearch_value      -1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
+	 *  @param  int     $saveLastSearchValue       -1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
 	 *  @return	string                              String with URL
 	 */
-	public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $save_lastsearch_value = -1)
+	public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $saveLastSearchValue = -1)
 	{
 		global $conf, $langs;
 
@@ -579,9 +565,9 @@ class Control extends CommonObject
 
 		if ($option != 'nolink') {
 			// Add param to save lastsearch_values or not
-			$add_save_lastsearch_values                                                                                      = ($save_lastsearch_value == 1 ? 1 : 0);
-			if ($save_lastsearch_value == -1 && preg_match('/list\.php/', $_SERVER['PHP_SELF'])) $add_save_lastsearch_values = 1;
-			if ($add_save_lastsearch_values) $url                                                                           .= '&save_lastsearch_values=1';
+			$addSaveLastSearchValues = ($saveLastSearchValue == 1 ? 1 : 0);
+			if ($saveLastSearchValue == -1 && preg_match('/list\.php/', $_SERVER['PHP_SELF'])) $addSaveLastSearchValues = 1;
+			if ($addSaveLastSearchValues) $url .= '&save_lastsearch_values=1';
 		}
 
 		$linkclose = '';
@@ -634,7 +620,7 @@ class Control extends CommonObject
 	 */
 	public function getLibVerdict($mode = 0)
 	{
-		return $this->LibVerdict($this->verdict, $mode);
+		return $this->libVerdict($this->verdict, $mode);
 	}
 
 
@@ -652,11 +638,11 @@ class Control extends CommonObject
 		if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
 			global $langs;
 			//$langs->load("dolismq@dolismq");
-			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('Draft');
-			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('ValidatedControl');
+			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('StatusDraft');
+			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('Validated');
 			$this->labelStatus[self::STATUS_LOCKED]         = $langs->trans('Locked');
-			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('Draft');
-			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('ValidatedControl');
+			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('StatusDraft');
+			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Validated');
 			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->trans('Locked');
 		}
 
@@ -675,7 +661,7 @@ class Control extends CommonObject
 	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
 	 *  @return string 			       Label of status
 	 */
-	public function LibVerdict($verdict, $mode = 0)
+	public function libVerdict($verdict, $mode = 0)
 	{
 		global $langs;
 
@@ -694,41 +680,27 @@ class Control extends CommonObject
 	/**
 	 *	Load the info information in the object
 	 *
-	 *	@param  int		$id       Id of object
+	 *	@param  int   $id ID of object
 	 *	@return	void
 	 */
-	public function info($id)
+	public function info(int $id): void
 	{
-		$sql    = 'SELECT rowid, date_creation as datec, tms as datem,';
-		$sql   .= ' fk_user_creat, fk_user_modif';
-		$sql   .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
-		$sql   .= ' WHERE t.rowid = ' . $id;
+		$sql = 'SELECT t.rowid, t.date_creation as datec, t.tms as datem,';
+		$sql .= ' t.fk_user_creat, t.fk_user_modif';
+		$sql .= ' FROM '.MAIN_DB_PREFIX.$this->table_element.' as t';
+		$sql .= ' WHERE t.rowid = ' . $id;
+
 		$result = $this->db->query($sql);
 		if ($result) {
 			if ($this->db->num_rows($result)) {
-				$obj      = $this->db->fetch_object($result);
+				$obj = $this->db->fetch_object($result);
+
 				$this->id = $obj->rowid;
-				if ($obj->fk_user_author) {
-					$cuser = new User($this->db);
-					$cuser->fetch($obj->fk_user_author);
-					$this->user_creation = $cuser;
-				}
 
-				if ($obj->fk_user_valid) {
-					$vuser = new User($this->db);
-					$vuser->fetch($obj->fk_user_valid);
-					$this->user_validation = $vuser;
-				}
-
-				if ($obj->fk_user_cloture) {
-					$cluser = new User($this->db);
-					$cluser->fetch($obj->fk_user_cloture);
-					$this->user_cloture = $cluser;
-				}
-
+				$this->user_creation_id = $obj->fk_user_creat;
+				$this->user_modification_id = $obj->fk_user_modif;
 				$this->date_creation     = $this->db->jdate($obj->datec);
-				$this->date_modification = $this->db->jdate($obj->datem);
-				$this->date_validation   = $this->db->jdate($obj->datev);
+				$this->date_modification = empty($obj->datem) ? '' : $this->db->jdate($obj->datem);
 			}
 
 			$this->db->free($result);

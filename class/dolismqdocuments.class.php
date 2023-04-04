@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
+/* Copyright (C) 2022 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -150,9 +150,10 @@ class DoliSMQDocuments extends CommonObject
 	/**
 	 * Create object into database
 	 *
-	 * @param  User $user      User that creates
-	 * @param  bool $notrigger false=launch triggers after, true=disable triggers
-	 * @return int             0 < if KO, ID of created object if OK
+	 * @param  User $user      		User that creates
+	 * @param  bool $notrigger 		false=launch triggers after, true=disable triggers
+	 * @param  object $parentObject linked parent object
+	 * @return int           		0 < if KO, ID of created object if OK
 	 */
 	public function create(User $user, $notrigger = false, $parentObject = 0)
 	{
@@ -172,19 +173,6 @@ class DoliSMQDocuments extends CommonObject
 		$this->element = $this->element . '@dolismq';
 		return $this->createCommon($user, $notrigger);
 	}
-
-//	/**
-//	 * Function for JSON filling before saving in database
-//	 *
-//	 * @param $object
-//	 */
-//	public function DocumentFillJSON($object) {
-//		switch ($object->element) {
-//			case "timesheetdocument":
-//				$this->json = $this->TimeSheetDocumentFillJSON($object);
-//				break;
-//		}
-//	}
 
 	/**
 	 * Load object in memory from the database
@@ -325,7 +313,7 @@ class DoliSMQDocuments extends CommonObject
 	public function generateDocument($modele, $outputlangs, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $moreparams = null)
 	{
 		global $langs;
-		$langs->load("dolismq@dolismq");
+		saturne_load_langs();
 
 		$modelpath = "custom/dolismq/core/modules/dolismq/dolismqdocuments/".$this->element."/";
 

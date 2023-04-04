@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
+/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,38 +21,11 @@
  *  \brief      Tab for medias on Control
  */
 
-// Load Dolibarr environment
-$res = 0;
-// Try main.inc.php into web root known defined into CONTEXT_DOCUMENT_ROOT (not always defined)
-if (!$res && !empty($_SERVER["CONTEXT_DOCUMENT_ROOT"])) {
-	$res = @include $_SERVER["CONTEXT_DOCUMENT_ROOT"]."/main.inc.php";
-}
-// Try main.inc.php into web root detected using web root calculated from SCRIPT_FILENAME
-$tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME']; $tmp2 = realpath(__FILE__); $i = strlen($tmp) - 1; $j = strlen($tmp2) - 1;
-while ($i > 0 && $j > 0 && isset($tmp[$i]) && isset($tmp2[$j]) && $tmp[$i] == $tmp2[$j]) {
-	$i--; $j--;
-}
-if (!$res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1))."/main.inc.php")) {
-	$res = @include substr($tmp, 0, ($i + 1))."/main.inc.php";
-}
-if (!$res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php")) {
-	$res = @include dirname(substr($tmp, 0, ($i + 1)))."/main.inc.php";
-}
-// Try main.inc.php using relative path
-if (!$res && file_exists("../main.inc.php")) {
-	$res = @include "../main.inc.php";
-}
-if (!$res && file_exists("../../main.inc.php")) {
-	$res = @include "../../main.inc.php";
-}
-if (!$res && file_exists("../../../main.inc.php")) {
-	$res = @include "../../../main.inc.php";
-}
-if (!$res && file_exists("../../../../main.inc.php")) {
-	$res = @include "../../../../main.inc.php";
-}
-if (!$res) {
-	die("Include of main fails");
+// Load DoliSMQ environment
+if (file_exists('../../dolismq.main.inc.php')) {
+	require_once __DIR__ . '/../../dolismq.main.inc.php';
+} else {
+	die('Include of dolismq main fails');
 }
 
 // Libraries
@@ -67,7 +40,7 @@ require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 global $conf, $db,$hookmanager, $langs, $user;
 
 // Load translation files required by the page
-$langs->loadLangs(array("dolismq@dolismq", "companies"));
+saturne_load_langs(["companies"]);
 
 // Get parameters
 $id         = GETPOST('id', 'int');
@@ -115,34 +88,20 @@ if (!$permissiontoread) accessforbidden();
 
 $help_url = '';
 $morecss  = array('/dolismq/css/dolismq.css');
-llxHeader('', $langs->trans('Control'), $help_url, '', 0, 0, '', $morecss);
+$morejs  = array('/dolismq/js/dolismq.js');
+saturne_header(0,'', $langs->trans('Control'), $help_url, '', 0, 0, $morejs, $morecss);
 
 if ($id > 0 || !empty($ref)) {
 	$object->fetch_thirdparty();
 
-	$head = controlPrepareHead($object);
+	$head = control_prepare_head($object);
 
-	print dol_get_fiche_head($head, 'controlMedias', $langs->trans('Medias'), -1, $object->picto);
+	print saturne_get_fiche_head($object, 'medias', $langs->trans('Medias'));
 
 	// Object card
 	// ------------------------------------------------------------
-	$linkback = '<a href="'.dol_buildpath('/dolismq/control_list.php', 1).'?restore_lastsearch_values=1'.(!empty($socid) ? '&socid='.$socid : '').'">'.$langs->trans("BackToList").'</a>';
 
-	$morehtmlref = '<div class="refidno">';
-	// Project
-	if (!empty($conf->projet->enabled)) {
-		$langs->load('projects');
-		if (!empty($object->projectid)) {
-			$project->fetch($object->projectid);
-			$morehtmlref .= $langs->trans('Project') . ' : ' . $project->getNomUrl(1, '', 1);
-		} else {
-			$morehtmlref .= '';
-		}
-	}
-	$morehtmlref .= '</div>';
-
-	$object->picto = 'control_small@dolismq';
-	dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref);
+	saturne_banner_tab($object);
 
 	print '<div class="fichecenter control-list-medias">';
 	print '<div class="underbanner clearboth"></div>';
@@ -160,7 +119,7 @@ if ($id > 0 || !empty($ref)) {
 				print '<span class="question-ref">' . $question->ref . '</span>';
 				print '<div class="table-cell table-full linked-medias answer_photo">';
 				$relativepath = 'dolismq/medias/thumbs';
-				print dolismq_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref, ($conf->global->DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY ? 'large' : 'medium'), '', 0, 0, 0, 200, 200, 0, 0, 0, 'control/' . $object->ref . '/answer_photo/' . $question->ref, null, (GETPOST('favorite_answer_photo') ? GETPOST('favorite_answer_photo') : $questionControlDet->answer_photo), 0, 0);
+				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref, ($conf->global->DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY ? 'large' : 'medium'), '', 0, 0, 0, 200, 200, 0, 0, 0, 'control/' . $object->ref . '/answer_photo/' . $question->ref, null, '', 0, 0);
 				print '</div>';
 				print '</div>';
 			}

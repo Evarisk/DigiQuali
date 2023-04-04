@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
+/* Copyright (C) 2022 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ class Sheet extends CommonObject
 	/**
 	 * @var string String with name of icon for sheet. Must be the part after the 'object_' into object_sheet.png
 	 */
-	public $picto = 'sheet@dolismq';
+	public $picto = 'fontawesome_fa-list_fas_#d35968';
 
 	const STATUS_DRAFT     = 0;
 	const STATUS_VALIDATED = 1;
@@ -74,7 +74,7 @@ class Sheet extends CommonObject
 		'entity'         => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
 		'date_creation'  => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 0,),
 		'tms'            => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
-		'import_key'     => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
+		'import_key'     => array('type' => 'varchar(14)', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 0,),
 		'status'         => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>'1', 'arrayofkeyval' => ['0' => 'Draft', '1' => 'Enabled', '2' => 'Locked']),
 		'type'           => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
 		'label'          => array('type' => 'varchar(255)', 'label' => 'Label', 'enabled' => '1', 'position' => 11, 'notnull' => 0, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200', 'help' => "Help text", 'showoncombobox' => '1',),
@@ -121,7 +121,7 @@ class Sheet extends CommonObject
 		// Translate some data of arrayofkeyval
 		if (is_object($langs)) {
 			foreach ($this->fields as $key => $val) {
-				if ( ! empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
+				if (is_array($val['arrayofkeyval']) && !empty($val['arrayofkeyval'])) {
 					foreach ($val['arrayofkeyval'] as $key2 => $val2) {
 						$this->fields[$key]['arrayofkeyval'][$key2] = $langs->trans($val2);
 					}
@@ -290,10 +290,10 @@ class Sheet extends CommonObject
 	 *  @param  string  $option                     On what the link point to ('nolink', ...)
 	 *  @param  int     $notooltip                  1=Disable tooltip
 	 *  @param  string  $morecss                    Add more css on link
-	 *  @param  int     $save_lastsearch_value      -1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
+	 *  @param  int     $saveLastSearchValue       -1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
 	 *  @return	string                              String with URL
 	 */
-	public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $save_lastsearch_value = -1)
+	public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $saveLastSearchValue = -1)
 	{
 		global $conf, $langs, $hookmanager;
 
@@ -314,9 +314,9 @@ class Sheet extends CommonObject
 
 		if ($option != 'nolink') {
 			// Add param to save lastsearch_values or not
-			$add_save_lastsearch_values                                                                                      = ($save_lastsearch_value == 1 ? 1 : 0);
-			if ($save_lastsearch_value == -1 && preg_match('/list\.php/', $_SERVER["PHP_SELF"])) $add_save_lastsearch_values = 1;
-			if ($add_save_lastsearch_values) $url                                                                           .= '&save_lastsearch_values=1';
+			$addSaveLastSearchValues = ($saveLastSearchValue == 1 ? 1 : 0);
+			if ($saveLastSearchValue == -1 && preg_match('/list\.php/', $_SERVER["PHP_SELF"])) $addSaveLastSearchValues = 1;
+			if ($addSaveLastSearchValues) $url .= '&save_lastsearch_values=1';
 		}
 
 		$linkclose = '';
@@ -393,41 +393,27 @@ class Sheet extends CommonObject
 	/**
 	 *	Load the info information in the object
 	 *
-	 *	@param  int		$id       Id of object
+	 *	@param  int   $id ID of object
 	 *	@return	void
 	 */
-	public function info($id)
+	public function info(int $id): void
 	{
-		$sql    = 'SELECT rowid, date_creation as datec, tms as datem,';
-		$sql   .= ' fk_user_creat, fk_user_modif';
-		$sql   .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
-		$sql   .= ' WHERE t.rowid = ' . $id;
+		$sql = 'SELECT t.rowid, t.date_creation as datec, t.tms as datem,';
+		$sql .= ' t.fk_user_creat, t.fk_user_modif';
+		$sql .= ' FROM '.MAIN_DB_PREFIX.$this->table_element.' as t';
+		$sql .= ' WHERE t.rowid = ' . $id;
+
 		$result = $this->db->query($sql);
 		if ($result) {
 			if ($this->db->num_rows($result)) {
-				$obj      = $this->db->fetch_object($result);
+				$obj = $this->db->fetch_object($result);
+
 				$this->id = $obj->rowid;
-				if ($obj->fk_user_author) {
-					$cuser = new User($this->db);
-					$cuser->fetch($obj->fk_user_author);
-					$this->user_creation = $cuser;
-				}
 
-				if ($obj->fk_user_valid) {
-					$vuser = new User($this->db);
-					$vuser->fetch($obj->fk_user_valid);
-					$this->user_validation = $vuser;
-				}
-
-				if ($obj->fk_user_cloture) {
-					$cluser = new User($this->db);
-					$cluser->fetch($obj->fk_user_cloture);
-					$this->user_cloture = $cluser;
-				}
-
+				$this->user_creation_id = $obj->fk_user_creat;
+				$this->user_modification_id = $obj->fk_user_modif;
 				$this->date_creation     = $this->db->jdate($obj->datec);
-				$this->date_modification = $this->db->jdate($obj->datem);
-				$this->date_validation   = $this->db->jdate($obj->datev);
+				$this->date_modification = empty($obj->datem) ? '' : $this->db->jdate($obj->datem);
 			}
 
 			$this->db->free($result);
@@ -435,7 +421,6 @@ class Sheet extends CommonObject
 			dol_print_error($this->db);
 		}
 	}
-
 	/**
 	 * Clone an object into another one
 	 *
@@ -471,8 +456,7 @@ class Sheet extends CommonObject
 		$object->context['createfromclone'] = 'createfromclone';
 		$object->ref = $refSheetMod->getNextValue($object);
 		$object->status = 1;
-		$objectid                           = $object->create($user);
-
+		$objectid = $object->create($user);
 
 		//add categories
 		$cat = new Categorie($this->db);
@@ -490,9 +474,9 @@ class Sheet extends CommonObject
 
 		//add objects linked
 		if (is_array($object->linkedObjectsIds['dolismq_question']) && !empty($object->linkedObjectsIds['dolismq_question'])) {
-			foreach ($object->linkedObjectsIds['dolismq_question'] as $questionId => $questionPosition) {
+			foreach ($object->linkedObjectsIds['dolismq_question'] as $questionId) {
 				$question->fetch($questionId);
-				$question->add_object_linked('dolismq_' . $object->element,$objectid);
+				$question->add_object_linked('dolismq_' . $object->element, $objectid);
 			}
 			$object->updateQuestionsPosition($object->linkedObjectsIds['dolismq_question']);
 		}
@@ -515,7 +499,7 @@ class Sheet extends CommonObject
 	 *
 	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function is_erasable() {
+	public function isErasable() {
 		require_once __DIR__ .'/control.class.php';
 
 		$control = new Control($this->db);
@@ -576,7 +560,7 @@ class Sheet extends CommonObject
 	 * @return       string      HTML string with
 	 * @throws Exception
 	 */
-	public function select_sheet_list($selected = '', $htmlname = 'fk_sheet', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'maxwidth500 widthcentpercentminusxx', $moreparam = '', $multiple = false)
+	public function selectSheetList($selected = '', $htmlname = 'fk_sheet', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'maxwidth500 widthcentpercentminusxx', $moreparam = '', $multiple = false)
 	{
 		// phpcs:enable
 		global $conf, $user, $langs;
@@ -614,7 +598,7 @@ class Sheet extends CommonObject
 		$sql .= $this->db->plimit($limit, 0);
 
 		// Build output string
-		dol_syslog(get_class($this) . "::select_sheet_list", LOG_DEBUG);
+		dol_syslog(get_class($this) . "::selectSheetList", LOG_DEBUG);
 		$resql = $this->db->query($sql);
 		if ($resql) {
 			if ( ! $forcecombo) {
@@ -623,7 +607,7 @@ class Sheet extends CommonObject
 			}
 
 			// Construct $out and $outarray
-			$out .= '<select id="' . $htmlname . '" class="flat' . ($morecss ? ' ' . $morecss : '') . '"' . ($moreparam ? ' ' . $moreparam : '') . ' name="' . $htmlname . ($multiple ? '[]' : '') . '" ' . ($multiple ? 'multiple' : '') . '>' . "\n";
+			$out .= '<select id="' . $htmlname . '" class="minwidth200 flat' . ($morecss ? ' ' . $morecss : '') . '"' . ($moreparam ? ' ' . $moreparam : '') . ' name="' . $htmlname . ($multiple ? '[]' : '') . '" ' . ($multiple ? 'multiple' : '') . '>' . "\n";
 
 			if ($showempty) {
 				$out .= '<option value="-1">&nbsp;</option>';
@@ -751,25 +735,25 @@ class Sheet extends CommonObject
 			$num = $this->db->num_rows($resql);
 			$i = 0;
 			while ($i < $num) {
+				$maxPosition = $this->getMaxPosition();
 				$obj = $this->db->fetch_object($resql);
+
 				if ($justsource || $justtarget) {
 					if ($justsource) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $i+1] = $obj->fk_target;
+						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: ($maxPosition+1)] = $obj->fk_target;
 					} elseif ($justtarget) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $i+1] = $obj->fk_source;
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: ($maxPosition+1)] = $obj->fk_source;
 					}
 				} else {
 					if ($obj->fk_source == $sourceid && $obj->sourcetype == $sourcetype) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: $i+1] = $obj->fk_target;
+						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: ($maxPosition+1)] = $obj->fk_target;
 					}
 					if ($obj->fk_target == $targetid && $obj->targettype == $targettype) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: $i+1] = $obj->fk_source;
+						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: ($maxPosition+1)] = $obj->fk_source;
 					}
 				}
-
 				$i++;
 			}
-
 			if (!empty($this->linkedObjectsIds)) {
 				$tmparray = $this->linkedObjectsIds;
 				foreach ($tmparray as $objecttype => $objectids) {       // $objecttype is a module name ('facture', 'mymodule', ...) or a module name with a suffix ('project_task', 'mymodule_myobj', ...)
@@ -810,22 +794,49 @@ class Sheet extends CommonObject
 	}
 
 	/**
+	 *	Returns max position of questions in sheet
+	 *
+	 */
+	public function getMaxPosition() {
+		$sql = "SELECT fk_source, sourcetype, targettype, position FROM ". MAIN_DB_PREFIX ."element_element WHERE fk_source = " . $this->id . " AND sourcetype = 'dolismq_sheet' ORDER BY position DESC LIMIT 1";
+		$resql = $this->db->query($sql);
+
+		if ($resql) {
+			$obj = $this->db->fetch_object($resql);
+			$positionField = 'position';
+			return $obj->$positionField;
+		} else {
+			return 0;
+		}
+	}
+
+	/**
 	 *	Update questions position in sheet
 	 *
 	 *	@param	array	$idsArray			Array containing position and ids of questions in sheet
 	 */
 	public function updateQuestionsPosition($idsArray)
 	{
+		$this->db->begin();
+
 		foreach ($idsArray as $position => $questionId) {
 			$sql = 'UPDATE '. MAIN_DB_PREFIX . 'element_element';
-			$sql .= ' SET position =' . ($position + 1);
+			$sql .= ' SET position =' . $position;
 			$sql .= ' WHERE fk_source = ' . $this->id;
 			$sql .= ' AND sourcetype = "dolismq_sheet"';
 			$sql .= ' AND fk_target =' . $questionId;
 			$sql .= ' AND targettype = "dolismq_question"';
-			$this->db->query($sql);
+			$res = $this->db->query($sql);
+
+			if (!$res) {
+				$error++;
+			}
+		}
+		if ($error) {
+			$this->db->rollback();
+		} else {
+			$this->db->commit();
 		}
 	}
-
 }
 

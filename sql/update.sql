@@ -1,3 +1,18 @@
+-- Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
+--
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+--
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see https://www.gnu.org/licenses/.
+
 -- 1.1.0
 ALTER TABLE `llx_dolismq_controldet` ADD `answer_photo` TEXT NOT NULL AFTER `answer`;
 
@@ -28,3 +43,21 @@ UPDATE `llx_element_element` SET `sourcetype` = 'dolismq_control' WHERE `sourcet
 UPDATE `llx_element_element` SET `targettype` = 'dolismq_question' WHERE `targettype` = 'question';
 UPDATE `llx_element_element` SET `targettype` = 'dolismq_sheet' WHERE `targettype` = 'sheet';
 UPDATE `llx_element_element` SET `targettype` = 'dolismq_control' WHERE `targettype` = 'control';
+
+-- 1.5.0
+DELETE FROM `llx_document_model` WHERE `nom` =  'calypso';
+ALTER TABLE `llx_dolismq_control` CHANGE `tms` `tms` TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `llx_dolismq_control` CHANGE `status` `status` INT(11) DEFAULT 1 NOT NULL;
+ALTER TABLE `llx_dolismq_control` CHANGE `import_key` `import_key` VARCHAR(14) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `llx_dolismq_controldet` CHANGE `tms` `tms` TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `llx_dolismq_controldet` CHANGE `status` `status` INT(11) DEFAULT 1 NOT NULL;
+ALTER TABLE `llx_dolismq_controldet` CHANGE `import_key` `import_key` VARCHAR(14) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `llx_dolismq_dolismqdocuments` CHANGE `tms` `tms` TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `llx_dolismq_dolismqdocuments` CHANGE `status` `status` INT(11) DEFAULT 1 NOT NULL;
+ALTER TABLE `llx_dolismq_dolismqdocuments` CHANGE `import_key` `import_key` VARCHAR(14) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `llx_dolismq_question` CHANGE `tms` `tms` TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `llx_dolismq_question` CHANGE `status` `status` INT(11) DEFAULT 1 NOT NULL;
+ALTER TABLE `llx_dolismq_question` CHANGE `import_key` `import_key` VARCHAR(14) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+ALTER TABLE `llx_dolismq_sheet` CHANGE `tms` `tms` TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `llx_dolismq_sheet` CHANGE `status` `status` INT(11) DEFAULT 1 NOT NULL;
+ALTER TABLE `llx_dolismq_sheet` CHANGE `import_key` `import_key` VARCHAR(14) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;

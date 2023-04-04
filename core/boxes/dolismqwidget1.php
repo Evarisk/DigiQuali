@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
+/* Copyright (C) 2022 EVARISK <technique@evarisk.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -86,8 +86,11 @@ class dolismqwidget1 extends ModeleBoxes
 	public function __construct(DoliDB $db, $param = '')
 	{
 		global $user, $langs;
+
+		dol_include_once('/saturne/lib/saturne_functions.lib.php');
+
 		// Translations
-		$langs->loadLangs(array("boxes", "dolismq@dolismq"));
+		saturne_load_langs(["boxes"]);
 
 		parent::__construct($db, $param);
 
@@ -167,7 +170,7 @@ class dolismqwidget1 extends ModeleBoxes
 			$boxcontent .= '<script>date = new Date(); date.setTime(date.getTime()+(30*86400000)); document.cookie = "' . $cookie_name . '=' . $filterValue . '; expires= " + date.toGMTString() + "; path=/ "; </script>';
 		}
 
-		if (!empty($controls)) {
+		if (is_array($controls) && !empty($controls)) {
 			foreach ($controls as $control) {
 				if (!empty($control->linkedObjectsIds)) {
 					if (array_key_exists($fromtype, $control->linkedObjectsIds)) {

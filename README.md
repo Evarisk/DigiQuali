@@ -3,32 +3,35 @@
 ## Informations
 
 - Numéro du module : 436301
-- Version :  1.4.0
-- Dernière mise à jour : 22/11/2022
+- Version :  1.5.0
+- Dernière mise à jour : 04/04/2023
 - Éditeur : [Evarisk](https://www.evarisk.com)
-- Compatibilité : Dolibarr 15.0.0 - 16.0.1
+- Compatibilité : Dolibarr 16.0.0 - 16.0.5
 - Thème : Eldy Menu
 - Licence : GPLv3
 - Disponible sur : Windows - MacOS - Linux
 
 ## Liens
 
-- Support & Assistance : [Forum www.dolibarr.fr](https://www.dolibarr.fr) / Par mail à contact@evarisk.com
-- Demo : [Demo Dolismq](https://www.demodoli.digirisk.com) - ID: demo - Password: demo
+- Support & Assistance : [Forum www.dolibarr.fr](https://www.dolibarr.fr) / Par mail à technique@evarisk.com
+- Demo : [Demo DoliSMQ](https://www.demodoli.digirisk.com) - ID: demo - Password: demo
 - Documentation : [Wiki DoliSMQ](https://wiki.dolibarr.org/index.php/Module_DoliSMQ)
 - Projet Github : [Projet DoliSMQ](https://github.com/Evarisk/dolismq/projects?type=classic)
-- D'autres modules développés par Evarisk disponible sur [Dolistore.com](https://www.dolistore.com)
+- D'autres modules développés par Evarisk disponibles sur [Dolistore.com](https://www.dolistore.com)
 
 ## Fonctionnalités
 
-Contrôle de la qualité de différents éléments :
+Contrôle qualité de différents éléments :
 
-- produit ou service
-- numéro de série/lot
-- projet et tâche
-- tiers
+- Produit/Service
+- Numéro de lots/série
+- Projet
+- Tâche
+- Tiers
+- Utilisateur
+- Contact/Adresse
 
-Génération de rapport de contrôle sur la base des éléments contrôlés
+Génération du rapport de contrôle
 
 ## Traductions
 

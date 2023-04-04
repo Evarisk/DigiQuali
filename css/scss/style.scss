@@ -1,9 +1,7 @@
 @import "variable/variable";
-
-@import "element/element";
-@import "module/module";
 @import "page/page";
-@import "modal/modal";
+@import "modules/modules";
+@import "element/element";
 
 .preview-photo {
   z-index: 2100 !important;

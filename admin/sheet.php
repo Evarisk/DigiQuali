@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
+/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,20 +21,12 @@
  * \brief   DoliSMQ sheet config page.
  */
 
-// Load Dolibarr environment
-$res = 0;
-// Try main.inc.php into web root known defined into CONTEXT_DOCUMENT_ROOT (not always defined)
-if ( ! $res && ! empty($_SERVER["CONTEXT_DOCUMENT_ROOT"])) $res = @include $_SERVER["CONTEXT_DOCUMENT_ROOT"] . "/main.inc.php";
-// Try main.inc.php into web root detected using web root calculated from SCRIPT_FILENAME
-$tmp = empty($_SERVER['SCRIPT_FILENAME']) ? '' : $_SERVER['SCRIPT_FILENAME']; $tmp2 = realpath(__FILE__); $i = strlen($tmp) - 1; $j = strlen($tmp2) - 1;
-while ($i > 0 && $j > 0 && isset($tmp[$i]) && isset($tmp2[$j]) && $tmp[$i] == $tmp2[$j]) { $i--; $j--; }
-if ( ! $res && $i > 0 && file_exists(substr($tmp, 0, ($i + 1)) . "/main.inc.php")) $res          = @include substr($tmp, 0, ($i + 1)) . "/main.inc.php";
-if ( ! $res && $i > 0 && file_exists(dirname(substr($tmp, 0, ($i + 1))) . "/main.inc.php")) $res = @include dirname(substr($tmp, 0, ($i + 1))) . "/main.inc.php";
-// Try main.inc.php using relative path
-if ( ! $res && file_exists("../../main.inc.php")) $res       = @include "../../main.inc.php";
-if ( ! $res && file_exists("../../../main.inc.php")) $res    = @include "../../../main.inc.php";
-if ( ! $res && file_exists("../../../../main.inc.php")) $res = @include "../../../../main.inc.php";
-if ( ! $res) die("Include of main fails");
+// Load DoliSMQ environment
+if (file_exists('../dolismq.main.inc.php')) {
+	require_once __DIR__ . '/../dolismq.main.inc.php';
+} else {
+	die('Include of dolismq main fails');
+}
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . "/core/lib/admin.lib.php";
@@ -46,7 +38,7 @@ require_once '../lib/dolismq.lib.php';
 global $conf, $db, $langs, $user;
 
 // Load translation files required by the page
-$langs->loadLangs(array("admin", "dolismq@dolismq", "accountancy"));
+saturne_load_langs(['admin']);
 
 // Get parameters
 $action     = GETPOST('action', 'alpha');
@@ -72,7 +64,8 @@ $elementtype = 'dolismq_sheet'; // Must be the $table_element of the class that 
 $error = 0; // Error counter
 
 // Access control
-if (!$user->admin) accessforbidden();
+$permissiontoread = $user->rights->dolismq->adminpage->read;
+saturne_check_access($permissiontoread);
 
 /*
  * Actions
@@ -151,10 +144,8 @@ if ($action == 'generateCategories') {
 
 $help_url = 'FR:Module_DoliSMQ';
 $title    = $langs->trans("Sheet");
-$morejs   = array("/dolismq/js/dolismq.js");
-$morecss  = array("/dolismq/css/dolismq.css");
 
-llxHeader('', $title, $help_url, '', 0, 0, $morejs, $morecss);
+saturne_header(0, '', $title, $help_url);
 
 // Subheader
 $linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?restore_lastsearch_values=1') . '">' . $langs->trans("BackToModuleList") . '</a>';
@@ -162,17 +153,17 @@ $linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?res
 print load_fiche_titre($title, $linkback, 'dolismq_color@dolismq');
 
 // Configuration header
-$head = dolismqAdminPrepareHead();
+$head = dolismq_admin_prepare_head();
 print dol_get_fiche_head($head, 'sheet', $title, -1, "dolismq_color@dolismq");
 
-print load_fiche_titre($langs->trans("SheetManagement"), '', '');
+print load_fiche_titre($langs->trans('Configs', $langs->transnoentities('Sheets')), '', '');
 print '<hr>';
 
 /*
  *  Numbering module
  */
 
-print load_fiche_titre($langs->trans("DoliSMQSheetNumberingModule"), '', '');
+print load_fiche_titre($langs->trans("NumberingModule"), '', '');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
@@ -257,7 +248,7 @@ if (is_dir($dir)) {
 print '</table>';
 
 //Sheet data
-print load_fiche_titre($langs->trans("SheetData"), '', '');
+print load_fiche_titre($langs->trans("ConfigData", $langs->transnoentities('Sheets')), '', '');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
@@ -277,6 +268,91 @@ print '<td class="center">';
 print ajax_constantonoff('DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT');
 print '</td>';
 print '</tr>';
+
+//Show product conf
+print '<tr><td>';
+print $langs->trans('LinkProduct');
+print "</td><td>";
+print $langs->trans('LinkProductDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_LINK_PRODUCT');
+print '</td>';
+print '</tr>';
+
+//Link productlot conf
+print '<tr><td>';
+print $langs->trans('LinkProductLot');
+print "</td><td>";
+print $langs->trans('LinkProductLotDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_LINK_PRODUCTLOT');
+print '</td>';
+print '</tr>';
+
+//Link user conf
+print '<tr><td>';
+print $langs->trans('LinkUser');
+print "</td><td>";
+print $langs->trans('LinkUserDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_LINK_USER');
+print '</td>';
+print '</tr>';
+
+//Link thirdparty conf
+print '<tr><td>';
+print $langs->trans('LinkThirdParty');
+print "</td><td>";
+print $langs->trans('LinkThirdPartyDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_LINK_THIRDPARTY');
+print '</td>';
+print '</tr>';
+
+//Link contact conf
+print '<tr><td>';
+print $langs->trans('LinkContact');
+print "</td><td>";
+print $langs->trans('LinkContactDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_LINK_CONTACT');
+print '</td>';
+print '</tr>';
+
+//Link project conf
+print '<tr><td>';
+print $langs->trans('LinkProject');
+print "</td><td>";
+print $langs->trans('LinkProjectDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_LINK_PROJECT');
+print '</td>';
+print '</tr>';
+
+//Link task conf
+print '<tr><td>';
+print $langs->trans('LinkTaskDoliSMQ');
+print "</td><td>";
+print $langs->trans('LinkTaskDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHEET_LINK_TASK');
+print '</td>';
+print '</tr>';
+
 print '</table>';
 
 // Generate categories

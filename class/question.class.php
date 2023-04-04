@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
+/* Copyright (C) 2022 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,23 +58,24 @@ class Question extends CommonObject
 	/**
 	 * @var string String with name of icon for question. Must be the part after the 'object_' into object_question.png
 	 */
-	public $picto = 'question@dolismq';
+	public $picto = 'fontawesome_fa-question_fas_#d35968';
 
 	const STATUS_DRAFT     = 0;
 	const STATUS_VALIDATED = 1;
 	const STATUS_LOCKED    = 2;
+	const STATUS_ARCHIVED  = 3;
 
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
 	 */
 	public $fields = array(
 		'rowid'                  => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'css' => 'left', 'comment' => "Id"),
-		'ref'                    => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
+		'ref'                    => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => '1', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "Reference of object"),
 		'ref_ext'                => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => "External reference of object"),
 		'entity'                 => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
 		'date_creation'          => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 0,),
 		'tms'                    => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
-		'import_key'             => array('type' => 'integer', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
+		'import_key'             => array('type' => 'varchar(14)', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 0,),
 		'status'                 => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>'1', 'arrayofkeyval' => ['0' => 'Draft', '1' => 'Enabled', '2' => 'Locked']),
 		'type'                   => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
 		'label'                  => array('type' => 'varchar(255)', 'label' => 'Label', 'enabled' => '1', 'position' => 11, 'notnull' => 0, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200', 'help' => "Help text", 'showoncombobox' => '1',),
@@ -131,7 +132,7 @@ class Question extends CommonObject
 		// Translate some data of arrayofkeyval
 		if (is_object($langs)) {
 			foreach ($this->fields as $key => $val) {
-				if ( ! empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
+				if (is_array($val['arrayofkeyval']) && !empty($val['arrayofkeyval'])) {
 					foreach ($val['arrayofkeyval'] as $key2 => $val2) {
 						$this->fields[$key]['arrayofkeyval'][$key2] = $langs->trans($val2);
 					}
@@ -291,14 +292,26 @@ class Question extends CommonObject
 		return $this->setStatusCommon($user, self::STATUS_LOCKED, $notrigger, 'QUESTION_LOCKED');
 	}
 
+	/**
+	 *	Set archived status
+	 *
+	 *	@param  User $user	    Object user that modify
+	 *  @param  int  $notrigger 1=Does not execute triggers, 0=Execute triggers
+	 *	@return	int			    0 < if KO, >0 if OK
+	 */
+	public function setArchived(User $user, int $notrigger = 0): int
+	{
+		return $this->setStatusCommon($user, self::STATUS_ARCHIVED, $notrigger, 'QUESTION_ARCHIVED');
+	}
+
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
 	 *  Return if a question can be deleted
 	 *
 	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function is_erasable() {
-		return $this->is_linked_to_other_objects();
+	public function isErasable() {
+		return $this->isLinkedToOtherObjects();
 	}
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
@@ -307,7 +320,7 @@ class Question extends CommonObject
 	 *
 	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function is_linked_to_other_objects() {
+	public function isLinkedToOtherObjects() {
 
 		// Links between objects are stored in table element_element
 		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype';
@@ -343,10 +356,10 @@ class Question extends CommonObject
 	 *  @param  string  $option                     On what the link point to ('nolink', ...)
 	 *  @param  int     $notooltip                  1=Disable tooltip
 	 *  @param  string  $morecss                    Add more css on link
-	 *  @param  int     $save_lastsearch_value      -1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
+	 *  @param  int     $saveLastSearchValue      -1=Auto, 0=No save of lastsearch_values when clicking, 1=Save lastsearch_values whenclicking
 	 *  @return	string                              String with URL
 	 */
-	public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $save_lastsearch_value = -1)
+	public function getNomUrl($withpicto = 0, $option = '', $notooltip = 0, $morecss = '', $saveLastSearchValue = -1)
 	{
 		global $conf, $langs;
 
@@ -365,9 +378,9 @@ class Question extends CommonObject
 
 		if ($option != 'nolink') {
 			// Add param to save lastsearch_values or not
-			$add_save_lastsearch_values                                                                                      = ($save_lastsearch_value == 1 ? 1 : 0);
-			if ($save_lastsearch_value == -1 && preg_match('/list\.php/', $_SERVER["PHP_SELF"])) $add_save_lastsearch_values = 1;
-			if ($add_save_lastsearch_values) $url                                                                           .= '&save_lastsearch_values=1';
+			$addSaveLastSearchValues = ($saveLastSearchValue == 1 ? 1 : 0);
+			if ($saveLastSearchValue == -1 && preg_match('/list\.php/', $_SERVER["PHP_SELF"])) $addSaveLastSearchValues = 1;
+			if ($addSaveLastSearchValues) $url .= '&save_lastsearch_values=1';
 		}
 
 		$linkclose = '';
@@ -412,30 +425,35 @@ class Question extends CommonObject
 		return $this->LibStatut($this->status, $mode);
 	}
 
-	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
 	 *  Return the status
 	 *
-	 *  @param	int		$status        Id status
-	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
-	 *  @return string 			       Label of status
+	 *  @param  int    $status Id status
+	 *  @param  int    $mode   0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
+	 *  @return string         Label of status
 	 */
-	public function LibStatut($status, $mode = 0)
+	public function LibStatut(int $status, int $mode = 0): string
 	{
-		// phpcs:enable
 		if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
 			global $langs;
-			//$langs->load("dolismq@dolismq");
-			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('Draft');
-			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('Enabled');
-			$this->labelStatus[self::STATUS_LOCKED]         = $langs->trans('Locked');
-			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('Draft');
-			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Enabled');
-			$this->labelStatusShort[self::STATUS_LOCKED]  = $langs->trans('Locked');
+			$this->labelStatus[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
+			$this->labelStatus[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
+			$this->labelStatus[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
+			$this->labelStatus[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
+
+			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
+			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
+			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
+			$this->labelStatusShort[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
 		}
 
 		$statusType = 'status' . $status;
-		if ($status == self::STATUS_LOCKED) $statusType = 'status4';
+		if ($status == self::STATUS_LOCKED) {
+			$statusType = 'status4';
+		}
+		if ($status == self::STATUS_ARCHIVED) {
+			$statusType = 'status8';
+		}
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}
@@ -443,41 +461,27 @@ class Question extends CommonObject
 	/**
 	 *	Load the info information in the object
 	 *
-	 *	@param  int		$id       Id of object
+	 *	@param  int   $id ID of object
 	 *	@return	void
 	 */
-	public function info($id)
+	public function info(int $id): void
 	{
-		$sql    = 'SELECT rowid, date_creation as datec, tms as datem,';
-		$sql   .= ' fk_user_creat, fk_user_modif';
-		$sql   .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
-		$sql   .= ' WHERE t.rowid = ' . $id;
+		$sql = 'SELECT t.rowid, t.date_creation as datec, t.tms as datem,';
+		$sql .= ' t.fk_user_creat, t.fk_user_modif';
+		$sql .= ' FROM '.MAIN_DB_PREFIX.$this->table_element.' as t';
+		$sql .= ' WHERE t.rowid = ' . $id;
+
 		$result = $this->db->query($sql);
 		if ($result) {
 			if ($this->db->num_rows($result)) {
-				$obj      = $this->db->fetch_object($result);
+				$obj = $this->db->fetch_object($result);
+
 				$this->id = $obj->rowid;
-				if ($obj->fk_user_author) {
-					$cuser = new User($this->db);
-					$cuser->fetch($obj->fk_user_author);
-					$this->user_creation = $cuser;
-				}
 
-				if ($obj->fk_user_valid) {
-					$vuser = new User($this->db);
-					$vuser->fetch($obj->fk_user_valid);
-					$this->user_validation = $vuser;
-				}
-
-				if ($obj->fk_user_cloture) {
-					$cluser = new User($this->db);
-					$cluser->fetch($obj->fk_user_cloture);
-					$this->user_cloture = $cluser;
-				}
-
+				$this->user_creation_id = $obj->fk_user_creat;
+				$this->user_modification_id = $obj->fk_user_modif;
 				$this->date_creation     = $this->db->jdate($obj->datec);
-				$this->date_modification = $this->db->jdate($obj->datem);
-				$this->date_validation   = $this->db->jdate($obj->datev);
+				$this->date_modification = empty($obj->datem) ? '' : $this->db->jdate($obj->datem);
 			}
 
 			$this->db->free($result);
@@ -489,57 +493,123 @@ class Question extends CommonObject
 	/**
 	 * Clone an object into another one
 	 *
-	 * @param User $user User that creates
-	 * @param int $fromid Id of object to clone
-	 * @param $options
-	 * @return    mixed                New object created, <0 if KO
+	 * @param  User      $user    User that creates
+	 * @param  int       $fromid  ID of object to clone
+	 * @param  array     $options Options array
+	 * @return int                New object created, <0 if KO
 	 * @throws Exception
 	 */
-	public function createFromClone(User $user, $fromid)
+	public function createFromClone(User $user, int $fromid, array $options): int
 	{
-		global $conf, $langs;
+		dol_syslog(__METHOD__, LOG_DEBUG);
+
+		global $conf;
 		$error = 0;
 
 		$refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($this->db);
 		require_once __DIR__ . '/../core/modules/dolismq/question/mod_question_standard.php';
-
-		dol_syslog(__METHOD__, LOG_DEBUG);
 
 		$object = new self($this->db);
 
 		$this->db->begin();
 
 		// Load source object
-		$result = $object->fetchCommon($fromid);
-		if ($result > 0 && ! empty($object->table_element_line)) {
-			$object->fetchLines();
+		$object->fetchCommon($fromid);
+
+		// Reset some properties
+		unset($object->id);
+		unset($object->fk_user_creat);
+		unset($object->import_key);
+
+		$oldRef = $object->ref;
+
+		// Clear fields
+		if (property_exists($object, 'ref')) {
+			$object->ref = $refQuestionMod->getNextValue($object);
+		}
+		if (!empty($options['label'])) {
+			if (property_exists($object, 'label')) {
+				$object->label = $options['label'];
+			}
+		}
+		if (property_exists($object, 'date_creation')) {
+			$object->date_creation = dol_now();
+		}
+		if (property_exists($object, 'status')) {
+			$object->status = 1;
 		}
 
 		// Create clone
 		$object->context['createfromclone'] = 'createfromclone';
-		$object->ref = $refQuestionMod->getNextValue($object);
-		$object->status = 1;
-		$objectid                           = $object->create($user);
+		$result                             = $object->create($user);
 
-		$cat = new Categorie($this->db);
-		$categories = $cat->containing($fromid, 'question');
+		if ($result > 0) {
+			if (!empty($options['categories'])) {
+				$cat        = new Categorie($this->db);
+				$categories = $cat->containing($fromid, 'question');
+				if (is_array($categories) && !empty($categories)) {
+					foreach ($categories as $cat) {
+						$categoryIds[] = $cat->id;
+					}
+					$object->fetch($result);
+					$object->setCategories($categoryIds);
+				}
+			}
+			if (!empty($options['photos'])) {
+				$dirFiles = $conf->dolismq->multidir_output[$object->entity ?? 1] . '/question/';
+				$oldDirFiles = $dirFiles . $oldRef;
+				$newDirFiles = $dirFiles . $object->ref;
 
-		if (is_array($categories) && !empty($categories)) {
-			foreach($categories as $cat) {
-				$categoryIds[] = $cat->id;
+				$photoOkList = dol_dir_list($oldDirFiles . '/photo_ok', 'files');
+				$photoKoList = dol_dir_list($oldDirFiles . '/photo_ko', 'files');
+
+				$photoOkThumbsList = dol_dir_list($oldDirFiles . '/photo_ok/thumbs', 'files');
+				$photoKoThumbsList = dol_dir_list($oldDirFiles . '/photo_ko/thumbs', 'files');
+
+				$photoOkPath = $newDirFiles . '/photo_ok';
+				dol_mkdir($photoOkPath);
+				if (is_array($photoOkList) && !empty($photoOkList)) {
+					foreach ($photoOkList as $photoOk) {
+						copy($photoOk['fullname'], $photoOkPath . '/' . $photoOk['name']);
+					}
+				}
+
+				$photoKoPath = $newDirFiles . '/photo_ko';
+				dol_mkdir($photoKoPath);
+				if (is_array($photoKoList) && !empty($photoKoList)) {
+					foreach ($photoKoList as $photoKo) {
+						copy($photoKo['fullname'], $photoKoPath . '/' . $photoKo['name']);
+					}
+				}
+
+				$photoOkThumbsPath = $newDirFiles . '/photo_ok/thumbs';
+				dol_mkdir($photoOkThumbsPath);
+				if (is_array($photoOkThumbsList) && !empty($photoOkThumbsList)) {
+					foreach ($photoOkThumbsList as $photoOkThumbs) {
+						copy($photoOkThumbs['fullname'], $photoOkThumbsPath . '/' . $photoOkThumbs['name']);
+					}
+				}
+
+				$photoKoThumbsPath = $newDirFiles . '/photo_ok/thumbs';
+				dol_mkdir($photoKoThumbsPath);
+				if (is_array($photoKoThumbsList) && !empty($photoKoThumbsList)) {
+					foreach ($photoKoThumbsList as $photoKoThumbs) {
+						copy($photoKoThumbs['fullname'], $photoKoThumbsPath . '/' . $photoKoThumbs['name']);
+					}
+				}
 			}
-			if ($objectid > 0) {
-				$object->fetch($objectid);
-				$object->setCategories($categoryIds);
-			}
+		} else {
+			$error++;
+			$this->error  = $object->error;
+			$this->errors = $object->errors;
 		}
 
 		unset($object->context['createfromclone']);
 
 		// End
-		if ( ! $error) {
+		if (!$error) {
 			$this->db->commit();
-			return $objectid;
+			return $result;
 		} else {
 			$this->db->rollback();
 			return -1;
@@ -564,13 +634,12 @@ class Question extends CommonObject
 	/**
 	 * Check if question locked
 	 *
-	 * @param $fk_object
-	 * @param $object_type
+	 * @param array $questionIds
 	 * @return int
 	 */
 	public function checkQuestionsLocked($questionIds)
 	{
-		if ( ! empty($questionIds) && $questionIds > 0) {
+		if (is_array($questionIds) && !empty($questionIds)) {
 			foreach ($questionIds as $questionId) {
 				$this->fetch($questionId);
 				if ($this->status == 2) {
@@ -580,6 +649,8 @@ class Question extends CommonObject
 				}
 			}
 			return 1;
+		} else {
+			return 0;
 		}
 	}
 
@@ -614,11 +685,8 @@ class Question extends CommonObject
 	 * @return       string      HTML string with
 	 * @throws Exception
 	 */
-	public function select_question_list($selected = '', $htmlname = 'socid', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth100', $moreparam = '', $multiple = false, $alreadyAdded = array())
+	public function selectQuestionList($selected = '', $htmlname = 'socid', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth100', $moreparam = '', $multiple = false, $alreadyAdded = array())
 	{
-		// phpcs:enable
-		global $conf, $user, $langs;
-
 		$out      = '';
 		$num      = 0;
 		$outarray = array();
@@ -638,21 +706,12 @@ class Question extends CommonObject
 
 		$sql              .= " WHERE s.entity IN (" . getEntity($this->table_element) . ")";
 		if ($filter) $sql .= " AND (" . $filter . ")";
-		if ($moreparam > 0 ) {
-			$children = $this->fetchDigiriskElementFlat($moreparam);
-			if ( ! empty($children) && $children > 0) {
-				foreach ($children as $key => $value) {
-					$sql .= " AND NOT s.rowid =" . $key;
-				}
-			}
-			$sql .= " AND NOT s.rowid =" . $moreparam;
-		}
 
 		$sql .= $this->db->order("rowid", "ASC");
 		$sql .= $this->db->plimit($limit, 0);
 
 		// Build output string
-		dol_syslog(get_class($this) . "::select_question_list", LOG_DEBUG);
+		dol_syslog(get_class($this) . "::selectQuestionList", LOG_DEBUG);
 		$resql = $this->db->query($sql);
 		if ($resql) {
 			if ( ! $forcecombo) {

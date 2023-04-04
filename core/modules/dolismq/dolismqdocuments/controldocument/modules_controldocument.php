@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
+/* Copyright (C) 2022 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,6 @@ abstract class ModeleODTControlDocument extends CommonDocGenerator
 	public static function liste_modeles($db, $maxfilenamelength = 0)
 	{
 		require_once __DIR__ . '/../../../../../lib/dolismq_function.lib.php';
-		return doliSMQGetListOfModels($db, 'controldocument', $maxfilenamelength);
+		return saturne_get_list_of_models($db, 'controldocument', $maxfilenamelength);
 	}
 }

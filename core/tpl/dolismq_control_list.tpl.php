@@ -26,7 +26,7 @@ $formproject   = new FormProjets($db);
 $sql = 'SELECT DISTINCT ';
 foreach ($object->fields as $key => $val)
 {
-	if (!array_key_exists($key, $element_element_fields)) {
+	if (!array_key_exists($key, $elementElementFields)) {
 		$sql .= 't.' . $key . ', ';
 	}
 }
@@ -45,15 +45,15 @@ if (!empty($conf->categorie->enabled)) {
 }
 if (is_array($extrafields->attributes[$object->table_element]['label']) && count($extrafields->attributes[$object->table_element]['label'])) $sql .= " LEFT JOIN ".MAIN_DB_PREFIX.$object->table_element."_extrafields as ef on (t.rowid = ef.fk_object)";
 
-foreach($element_element_fields as $generic_name => $element_element_name) {
-	if (GETPOST('search_'.$generic_name) > 0 || $fromtype == $element_element_name) {
-		$id_to_search = GETPOST('search_'.$generic_name) ?: $fromid;
-		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $element_element_name .' on ('. $element_element_name .'.fk_source = ' . $id_to_search . ' AND '. $element_element_name .'.sourcetype="'. $element_element_name .'" AND '. $element_element_name .'.targettype = "dolismq_control")';
+foreach($elementElementFields as $genericName => $elementElementName) {
+	if (GETPOST('search_'.$genericName) > 0 || $fromtype == $elementElementName) {
+		$id_to_search = GETPOST('search_'.$genericName) ?: $fromid;
+		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementName .' on ('. $elementElementName .'.fk_source = ' . $id_to_search . ' AND '. $elementElementName .'.sourcetype="'. $elementElementName .'" AND '. $elementElementName .'.targettype = "dolismq_control")';
 	}
 }
 
-if (array_key_exists($sortfield,$element_element_fields)) {
-	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $element_element_fields[$sortfield] .' on ( '. $element_element_fields[$sortfield] .'.sourcetype="'. $element_element_fields[$sortfield] .'" AND '. $element_element_fields[$sortfield] .'.targettype = "dolismq_control" AND '. $element_element_fields[$sortfield] .'.fk_target = t.rowid)';
+if (array_key_exists($sortfield,$elementElementFields)) {
+	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementFields[$sortfield] .' on ( '. $elementElementFields[$sortfield] .'.sourcetype="'. $elementElementFields[$sortfield] .'" AND '. $elementElementFields[$sortfield] .'.targettype = "dolismq_control" AND '. $elementElementFields[$sortfield] .'.fk_target = t.rowid)';
 }
 
 // Add table from hooks
@@ -63,14 +63,14 @@ $sql .= $hookmanager->resPrint;
 if ($object->ismultientitymanaged == 1) $sql .= " WHERE t.entity IN (".getEntity($object->element).")";
 else $sql .= " WHERE 1 = 1".$sqlfilter;
 
-foreach($element_element_fields as $generic_name => $element_element_name) {
-	if (GETPOST('search_'.$generic_name) > 0 || $fromtype == $element_element_name) {
-		$sql .= ' AND t.rowid = '. $element_element_name .'.fk_target ';
+foreach($elementElementFields as $genericName => $elementElementName) {
+	if (GETPOST('search_'.$genericName) > 0 || $fromtype == $elementElementName) {
+		$sql .= ' AND t.rowid = '. $elementElementName .'.fk_target ';
 	}
 }
 
 foreach ($search as $key => $val) {
-	if (!array_key_exists($key, $element_element_fields)) {
+	if (!array_key_exists($key, $elementElementFields)) {
 		if (array_key_exists($key, $object->fields)) {
 			if ($key == 'status' && $search[$key] == -1) {
 				continue;
@@ -104,7 +104,7 @@ foreach ($search as $key => $val) {
 	}
 }
 
-if ($search_all) $sql .= natural_search(array_keys($fieldstosearchall), $search_all);
+if ($searchAll) $sql .= natural_search(array_keys($fieldstosearchall), $searchAll);
 
 if (!empty($conf->categorie->enabled)) {
 	$sql .= Categorie::getFilterSelectQuery('control', "t.rowid", $search_category_array);
@@ -118,8 +118,8 @@ $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldListWhere', $parameters, $object); // Note that $action and $object may have been modified by hook
 $sql .= $hookmanager->resPrint;
 
-if (array_key_exists($sortfield, $element_element_fields)) {
-	$sql .= ' ORDER BY '. $element_element_fields[$sortfield] .'.fk_source ' . $sortorder;
+if (array_key_exists($sortfield, $elementElementFields)) {
+	$sql .= ' ORDER BY '. $elementElementFields[$sortfield] .'.fk_source ' . $sortorder;
 } else {
 	$sql .= $db->order($sortfield, $sortorder);
 }
@@ -149,7 +149,7 @@ if (is_numeric($nbtotalofrecords) && ($limit > $nbtotalofrecords || empty($limit
 }
 
 // Direct jump if only one record found
-if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $search_all && !$page)
+if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $searchAll && !$page)
 {
 	$obj = $db->fetch_object($resql);
 	$id = $obj->rowid;
@@ -212,10 +212,10 @@ $objecttmp = new Control($db);
 $trackid = 'xxxx'.$object->id;
 include DOL_DOCUMENT_ROOT . '/core/tpl/massactions_pre.tpl.php';
 
-if ($search_all)
+if ($searchAll)
 {
 	foreach ($fieldstosearchall as $key => $val) $fieldstosearchall[$key] = $langs->trans($val);
-	print '<div class="divsearchfieldfilter">'.$langs->trans("FilterOnInto", $search_all).join(', ', $fieldstosearchall).'</div>';
+	print '<div class="divsearchfieldfilter">'.$langs->trans("FilterOnInto", $searchAll).join(', ', $fieldstosearchall).'</div>';
 }
 
 $moreforfilter = '';
@@ -264,7 +264,7 @@ foreach ($object->fields as $key => $val)
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
 		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) print $form->selectarray('search_'.$key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
 		elseif ($key == 'fk_sheet') {
-			print $sheet->select_sheet_list(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : ($search['fk_sheet'] ?: 0), 'search_fk_sheet');
+			print $sheet->selectSheetList(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : ($search['fk_sheet'] ?: 0), 'search_fk_sheet');
 		}
 		elseif (strpos($val['type'], 'integer:') === 0) {
 			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'maxwidth125', 1);
@@ -290,8 +290,12 @@ print '</tr>'."\n";
 // Fields title label
 // --------------------------------------------------------------------
 print '<tr class="liste_titre">';
+$invertedElementElementFields = array_flip($elementElementFields);
+
 foreach ($object->fields as $key => $val)
 {
+	$disableSortField = dol_strlen($fromtype) > 0 ? preg_match('/'. $invertedElementElementFields[$fromtype] .'/',$key) : 0;
+
 	$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? '' : $val['css']) : $val['csslist']);
 	if ($key == 'status') $cssforfield .= ($cssforfield ? ' ' : '').'center';
 	elseif (in_array($val['type'], array('date', 'datetime', 'timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'center';
@@ -299,7 +303,7 @@ foreach ($object->fields as $key => $val)
 	elseif (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && $val['label'] != 'TechnicalID') $cssforfield .= ($cssforfield ? ' ' : '').'right';
 	if (!empty($arrayfields['t.'.$key]['checked']))
 	{
-		print getTitleFieldOfList($arrayfields['t.'.$key]['label'], 0, $_SERVER['PHP_SELF'], $key, '', $param, ($cssforfield ? 'class="'.$cssforfield.'"' : ''), $sortfield, $sortorder, ($cssforfield ? $cssforfield.' ' : ''))."\n";
+		print getTitleFieldOfList($arrayfields['t.'.$key]['label'], 0, $_SERVER['PHP_SELF'], $key, '', $param, ($cssforfield ? 'class="'.$cssforfield.'"' : ''), $sortfield, $sortorder, ($cssforfield ? $cssforfield.' ' : ''), $disableSortField)."\n";
 	}
 }
 // Extra fields
@@ -357,7 +361,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			elseif ($key == 'ref') print $object->getNomUrl(1);
 			elseif ($key == 'fk_product') {
 				$object->fetchObjectLinked('', 'product','', 'dolismq_control');
-				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
+				if (!empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
 					$producttmp->fetch(array_shift($object->linkedObjectsIds['product']));
 					if ($producttmp > 0) {
 						print $producttmp->getNomUrl(1);
@@ -366,7 +370,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_lot') {
 				$object->fetchObjectLinked('', 'productbatch','', 'dolismq_control');
-				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
+				if (!empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
 					$productlottmp->fetch(array_shift($object->linkedObjectsIds['productbatch']));
 					if ($productlottmp > 0) {
 						print $productlottmp->getNomUrl(1);
@@ -375,7 +379,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_user') {
 				$object->fetchObjectLinked('', 'user','', 'dolismq_control');
-				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_USER) && (!empty($object->linkedObjectsIds['user']))) {
+				if (!empty($conf->global->DOLISMQ_SHEET_LINK_USER) && (!empty($object->linkedObjectsIds['user']))) {
 					$usertmp->fetch(array_shift($object->linkedObjectsIds['user']));
 					if ($usertmp > 0) {
 						print $usertmp->getNomUrl(1);
@@ -384,7 +388,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_thirdparty') {
 				$object->fetchObjectLinked('', 'societe','', 'dolismq_control');
-				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
+				if (!empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
 					$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
 					if ($thirdparty > 0) {
 						print $thirdparty->getNomUrl(1);
@@ -393,7 +397,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_contact') {
 				$object->fetchObjectLinked('', 'contact','', 'dolismq_control');
-				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_CONTACT) && (!empty($object->linkedObjectsIds['contact']))) {
+				if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && (!empty($object->linkedObjectsIds['contact']))) {
 					$contact->fetch(array_shift($object->linkedObjectsIds['contact']));
 					if ($contact > 0) {
 						print $contact->getNomUrl(1);
@@ -402,7 +406,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_project') {
 				$object->fetchObjectLinked('', 'project','', 'dolismq_control');
-				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_PROJECT) && (!empty($object->linkedObjectsIds['project']))) {
+				if (!empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT) && (!empty($object->linkedObjectsIds['project']))) {
 					$projecttmp->fetch(array_shift($object->linkedObjectsIds['project']));
 					if ($projecttmp > 0) {
 						print $projecttmp->getNomUrl(1, '', 1);
@@ -411,7 +415,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_task') {
 				$object->fetchObjectLinked('', 'project_task','', 'dolismq_control');
-				if (!empty($conf->global->DOLISMQ_CONTROL_SHOW_TASK) && (!empty($object->linkedObjectsIds['project_task']))) {
+				if (!empty($conf->global->DOLISMQ_SHEET_LINK_TASK) && (!empty($object->linkedObjectsIds['project_task']))) {
 					$tasktmp->fetch(array_shift($object->linkedObjectsIds['project_task']));
 					if ($tasktmp > 0) {
 						print $tasktmp->getNomUrl(1, 'withproject');
@@ -462,7 +466,6 @@ if ($num == 0)
 	print '<tr><td colspan="'.$colspan.'" class="opacitymedium">'.$langs->trans("NoRecordFound").'</td></tr>';
 }
 
-
 $db->free($resql);
 
 $parameters = array('arrayfields'=>$arrayfields, 'sql'=>$sql);
@@ -473,22 +476,3 @@ print '</table>'."\n";
 print '</div>'."\n";
 
 print '</form>'."\n";
-
-if (in_array('builddoc', $arrayofmassactions) && ($nbtotalofrecords === '' || $nbtotalofrecords))
-{
-	$hidegeneratedfilelistifempty = 1;
-	if ($massaction == 'builddoc' || $action == 'remove_file' || $show_files) $hidegeneratedfilelistifempty = 0;
-
-	require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
-	$formfile = new FormFile($db);
-
-	// Show list of available documents
-	$urlsource = $_SERVER['PHP_SELF'].'?sortfield='.$sortfield.'&sortorder='.$sortorder;
-	$urlsource .= str_replace('&amp;', '&', $param);
-
-	$filedir = $diroutputmassaction;
-	$genallowed = $permissiontoread;
-	$delallowed = $permissiontoadd;
-
-	print $formfile->showdocuments('massfilesarea_dolismq', '', $filedir, $urlsource, 0, $delallowed, '', 1, 1, 0, 48, 1, $param, $title, '', '', '', null, $hidegeneratedfilelistifempty);
-}

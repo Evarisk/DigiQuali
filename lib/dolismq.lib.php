@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022 EVARISK <dev@evarisk.com>
+/* Copyright (C) 2022 EVARISK <technique@evarisk.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,13 +26,13 @@
  *
  * @return array
  */
-function dolismqAdminPrepareHead(): array
+function dolismq_admin_prepare_head(): array
 {
 	// Global variables definitions
 	global $conf, $langs;
 
 	// Load translation files required by the page
-	$langs->load('dolismq@dolismq');
+	saturne_load_langs();
 
 	// Initialize values
 	$h = 0;
@@ -53,13 +53,13 @@ function dolismqAdminPrepareHead(): array
 	$head[$h][2] = 'control';
 	$h++;
 
-	$head[$h][0] = dol_buildpath('/dolismq/admin/controldocument.php', 1);
-	$head[$h][1] = '<i class="fas fa-file pictofixedwidth"></i>' . $langs->trans('ControlDocument');
-	$head[$h][2] = 'controldocument';
+	$head[$h][0] = dol_buildpath("/dolismq/admin/documents.php", 1);
+	$head[$h][1] = '<i class="fas fa-file-alt"></i> ' . $langs->trans("YourDocuments");
+	$head[$h][2] = 'documents';
 	$h++;
 
 	$head[$h][0] = dol_buildpath('/dolismq/admin/setup.php', 1);
-	$head[$h][1] = '<i class="fas fa-cog pictofixedwidth"></i>' . $langs->trans('Settings');
+	$head[$h][1] = '<i class="fas fa-cog pictofixedwidth"></i>' . $langs->trans('ModuleSettings');
 	$head[$h][2] = 'settings';
 	$h++;
 

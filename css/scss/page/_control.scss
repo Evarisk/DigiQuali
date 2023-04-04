@@ -67,10 +67,10 @@
       margin: 0 4px;
 
       &.photo-ok {
-        border: 2px solid $color__green;
+        border: 5px solid $color__green;
       }
       &.photo-ko {
-        border: 2px solid $color__red;
+        border: 5px solid $color__red;
       }
     }
 
@@ -147,6 +147,53 @@
         padding: 1em 1.4em;
       }
     }
-
   }
+}
+
+.confirmquestions .tagtr {
+  float: left;
+  width: 25%;
+}
+.confirmquestions .tagtr:first-child {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.confirmquestions .answer {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  margin: 0 4px;
+  text-align: center;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  -webkit-transition: all 0.2s ease-out;
+  transition: all 0.2s ease-out;
+}
+.confirmquestions .answer:hover {
+  cursor: pointer;
+}
+.confirmquestions .answer[value="1"] {
+  color: #47e58e;
+}
+.confirmquestions .answer[value="2"] {
+  color: #e05353;
+}
+.confirmquestions .answer[value="3"] {
+  color: #e9ad4f;
+}
+.confirmquestions .answer[value="4"] {
+  color: rgba(0, 0, 0, 0.7);
+  font-weight: 700;
+}
+
+.confirmquestions input[readonly] {
+  border: 0;
+  width: 100%;
+  pointer-events: none;
+}
+.confirmquestions input[readonly]:hover {
+  cursor: default;
 }
