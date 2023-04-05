@@ -535,15 +535,18 @@ if ($action == 'create') {
 	print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/dolismq/view/sheet/sheet_card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
 	print '</td></tr></thead>';
 
-	print '<tr><td><hr></td><td>';
+	print '</table>';
 	print '<hr>';
 
+	print '<table class="border centpercent tableforfieldcreate control-table">'."\n";
+
+	print '<tr><td>';
 	print '<div class="fields-content">';
 
 	//FK Product
 	if ($conf->global->DOLISMQ_SHEET_LINK_PRODUCT && preg_match('/"product":1/',$sheet->element_linked)) {
 		$productPost = GETPOST('fk_product') ?: (GETPOST('fromtype') == 'product' ? GETPOST('fromid') : 0);
-		print '<tr><td class="">' . $langs->trans('ProductOrServiceLinked') . '</td><td>';
+		print '<tr><td class="titlefieldcreate">' . $langs->trans('ProductOrServiceLinked') . '</td><td>';
 		print img_picto('', 'product', 'class="pictofixedwidth"');
 		$form->select_produits($productPost, 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices', 0, 'maxwidth500 widthcentpercentminusxx');
 		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/product/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProduct') . '"></span></a>';
@@ -553,9 +556,7 @@ if ($action == 'create') {
 	//FK PRODUCTLOT
 	if ($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT && preg_match('/"productlot":1/',$sheet->element_linked)) {
 		$productLotPost = GETPOST('fk_productlot') ?: (GETPOST('fromtype') == 'productbatch' ? GETPOST('fromid') : 0);
-		print '<tr><td class="">';
-		print $langs->trans('BatchLinked');
-		print '</td><td class="lot-container">';
+		print '<tr><td class="titlefieldcreate">' . $langs->trans('BatchLinked') . '</td><td class="lot-container">';
 		print '<span class="lot-content">';
 		dol_strlen(GETPOST('fk_product')) > 0 ? $product->fetch(GETPOST('fk_product')) : 0;
 		print img_picto('', 'lot', 'class="pictofixedwidth"') . dolismq_select_product_lots((!empty(GETPOST('fk_product')) ? GETPOST('fk_product') : 0), $productLotPost, 'fk_productlot', 1, '', '', 0, 'maxwidth500 widthcentpercentminusxx', false, 0, array(), false, '', 'fk_productlot');
@@ -567,7 +568,7 @@ if ($action == 'create') {
 	//FK User
 	if ($conf->global->DOLISMQ_SHEET_LINK_USER && preg_match('/"user":1/',$sheet->element_linked)) {
 		$userPost = GETPOST('fk_user') ?: (GETPOST('fromtype') == 'user' ? GETPOST('fromid') : -1);
-		print '<tr><td class="">' . $langs->trans('UserLinked') . '</td><td>';
+		print '<tr><td class="titlefieldcreate">' . $langs->trans('UserLinked') . '</td><td>';
 		print img_picto('', 'user', 'class="pictofixedwidth"') . $form->select_dolusers($userPost, 'fk_user', $langs->trans('SelectUser'), null, 0, '', '', '0', 0, 0, '', 0, '', 'maxwidth500 widthcentpercentminusxx');
 		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/user/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddUser') . '"></span></a>';
 		print '</td></tr>';
@@ -576,7 +577,7 @@ if ($action == 'create') {
 	//FK Soc
 	if ($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY && preg_match('/"thirdparty":1/',$sheet->element_linked)) {
 		$thirdpartyPost = GETPOST('fk_soc') ?: (GETPOST('fromtype') == 'societe' ? GETPOST('fromid') : 0);
-		print '<tr><td class="">' . $langs->trans('ThirdPartyLinked') . '</td><td>';
+		print '<tr><td class="titlefieldcreate">' . $langs->trans('ThirdPartyLinked') . '</td><td>';
 		print img_picto('', 'building', 'class="pictofixedwidth"') . $form->select_company($thirdpartyPost, 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'maxwidth500 widthcentpercentminusxx');
 		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddThirdParty') . '"></span></a>';
 		print '</td></tr>';
@@ -585,7 +586,7 @@ if ($action == 'create') {
 	// FK Contact
 	if ($conf->global->DOLISMQ_SHEET_LINK_CONTACT && preg_match('/"contact":1/',$sheet->element_linked)) {
 		$contactPost = GETPOST('fk_contact') ?: (GETPOST('fromtype') == 'contact' ? GETPOST('fromid') : 0);
-		print '<tr><td class="">' . $langs->trans('ContactLinked') . '</td><td>';
+		print '<tr><td class="titlefieldcreate">' . $langs->trans('ContactLinked') . '</td><td>';
 		// If no fk_soc, set to -1 to avoid full contacts list
 		print img_picto('', 'address', 'class="pictofixedwidth"') . $form->selectcontacts(((GETPOST('fk_soc') > 0) ? GETPOST('fk_soc') : 0), $contactPost, 'fk_contact', 1, '', '', 0, 'maxwidth500 widthcentpercentminusxx');
 		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/contact/card.php?action=create' . ((GETPOST('fk_soc') > 0) ? '&socid=' . GETPOST('fk_soc') : '') . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddContact') . '"></span></a>';
@@ -595,7 +596,7 @@ if ($action == 'create') {
 	//FK Project
 	if ($conf->global->DOLISMQ_SHEET_LINK_PROJECT && preg_match('/"project":1/',$sheet->element_linked)) {
 		$projectPost = GETPOST('fk_project') ?: (GETPOST('fromtype') == 'project' ? GETPOST('fromid') : 0);
-		print '<tr><td class="">' . $langs->trans('ProjectLinked') . '</td><td>';
+		print '<tr><td class="titlefieldcreate">' . $langs->trans('ProjectLinked') . '</td><td>';
 		print img_picto('', 'project', 'class="pictofixedwidth"') . $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1), $projectPost, 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'maxwidth500 widthcentpercentminusxx');
 		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/projet/card.php?action=create' . ((GETPOST('fk_soc') > 0) ? '&socid=' . GETPOST('fk_soc') : '') . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProject') . '"></span></a>';
 		print '</td></tr>';
@@ -604,7 +605,7 @@ if ($action == 'create') {
 	//FK Task
 	if ($conf->global->DOLISMQ_SHEET_LINK_TASK && preg_match('/"task":1/',$sheet->element_linked)) {
 		$taskPost = GETPOST('fk_task') ?: (GETPOST('fromtype') == 'project_task' ? GETPOST('fromid') : 0);
-		print '<tr><td class="">' . $langs->trans('TaskLinked');
+		print '<tr><td class="titlefieldcreate">' . $langs->trans('TaskLinked');
 		print '</td><td class="task-container">';
 		print '<span class="task-content">';
 		dol_strlen(GETPOST('fk_project')) > 0 ? $project->fetch(GETPOST('fk_project')) : 0;
