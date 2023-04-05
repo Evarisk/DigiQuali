@@ -106,6 +106,14 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 
 		switch ($action) {
 			case 'QUESTION_CREATE' :
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
+
+				$refLabel =  $langs->transnoentities(ucfirst($object->element)) . ' - ' . trim($object->ref, 'QU') . ' - ' . $object->label;
+
+				$actioncomm->label = $langs->trans('ObjectCreateTrigger', $refLabel);
+				$actioncomm->create($user);
+				break;
+
 			case 'SHEET_CREATE' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
 				$actioncomm->label = $langs->trans('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)));
@@ -141,6 +149,14 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				break;
 
 			case 'QUESTION_MODIFY' :
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_MODIFY';
+
+				$refLabel =  $langs->transnoentities(ucfirst($object->element)) . ' - ' . trim($object->ref, 'QU') . ' - ' . $object->label;
+
+				$actioncomm->label = $langs->trans('ObjectModifyTrigger', $refLabel);
+				$actioncomm->create($user);
+				break;
+
 			case 'SHEET_MODIFY' :
 			case 'CONTROL_MODIFY' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_MODIFY';
@@ -171,6 +187,14 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				break;
 
 			case 'QUESTION_LOCKED' :
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_LOCKED';
+
+				$refLabel =  $langs->transnoentities(ucfirst($object->element)) . ' - ' . trim($object->ref, 'QU') . ' - ' . $object->label;
+
+				$actioncomm->label = $langs->trans('ObjectLockedTrigger', $refLabel);
+				$actioncomm->create($user);
+				break;
+
 			case 'SHEET_LOCKED' :
 			case 'CONTROL_LOCKED' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_LOCKED';
