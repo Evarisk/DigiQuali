@@ -327,7 +327,7 @@ if ($action == 'create') {
 	print '<table class="border centpercent tableforfieldcreate sheet-table">'."\n";
 
 	//Label -- Libellé
-	print '<tr><td class="">' . $langs->trans("Label") . '</td><td>';
+	print '<tr><td class="fieldrequired">' . $langs->trans("Label") . '</td><td>';
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="' . GETPOST('label') . '">';
 	print '</td></tr>';
 
@@ -399,7 +399,7 @@ if (($id || $ref) && $action == 'edit') {
 	print '</td></tr>';
 
 	//Label -- Libellé
-	print '<tr><td class="">' . $langs->trans("Label") . '</td><td>';
+	print '<tr><td class="fieldrequired">' . $langs->trans("Label") . '</td><td>';
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="' . $object->label . '">';
 	print '</td></tr>';
 
