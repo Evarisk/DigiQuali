@@ -79,7 +79,7 @@ class Control extends CommonObject
 		'note_public'        => ['type' => 'html', 'label' => 'PublicNote', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0],
 		'note_private'       => ['type' => 'html', 'label' => 'PrivateNote', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 0],
 		'type'               => ['type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 100, 'notnull' => 0, 'visible' => 0],
-		'verdict'            => ['type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 110,'positioncard' => 20, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => ['0' => '', '1' => 'OK', '2' => 'KO']],
+		'verdict'            => ['type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 110,'positioncard' => 20, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => ['0' => 'All', '1' => 'OK', '2' => 'KO', '3' => 'N/A']],
 		'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
 		'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0],
 		'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'SheetLinked', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5, 'css' => 'maxwidth500 widthcentpercentminusxx'],
