@@ -85,7 +85,10 @@ foreach ($search as $key => $val) {
 				}
 				$mode_search = 2;
 			}
-			if ($search[$key] != '') {
+			if ($key == 'verdict' && $search[$key] == 3) {
+				$sql .= ' AND (verdict IS NULL)';
+			}
+			else if ($search[$key] != '') {
 				$sql .= natural_search($key, $search[$key], (($key == 'status') ? 2 : $mode_search));
 			}
 		} else {
@@ -262,7 +265,9 @@ foreach ($object->fields as $key => $val)
 	if (!empty($arrayfields['t.'.$key]['checked']))
 	{
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
-		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) print $form->selectarray('search_'.$key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
+		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
+			print $form->selectarray('search_' . $key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
+		}
 		elseif ($key == 'fk_sheet') {
 			print $sheet->selectSheetList(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : ($search['fk_sheet'] ?: 0), 'search_fk_sheet');
 		}
