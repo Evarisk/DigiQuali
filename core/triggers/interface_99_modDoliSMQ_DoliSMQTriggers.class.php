@@ -202,6 +202,19 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				$actioncomm->create($user);
 				break;
 
+			case 'SHEET_ADDQUESTION':
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_ADDQUESTION';
+				$actioncomm->label = $langs->trans('ObjectAddQuestionTrigger');
+				$actioncomm->create($user);
+				break;
+
+
+			case 'CONTROL_VERDICT' :
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_VERDICT';
+				$actioncomm->label = $langs->trans('ObjectSetVerdictTrigger', $object->fields['verdict']['arrayofkeyval'][$object->verdict]);
+				$actioncomm->create($user);
+				break;
+
 			case 'CONTROL_SENTBYMAIL' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_SENTBYMAIL';
 				$actioncomm->label = $langs->trans('ObjectSentByMailTrigger', $langs->transnoentities(ucfirst($object->element)));

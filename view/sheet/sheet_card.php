@@ -116,11 +116,12 @@ if (empty($reshook)) {
 		$questionId = GETPOST('questionId');
 		if ($questionId > 0) {
 			$question->fetch($questionId);
-			$test = $question->add_object_linked('dolismq_' . $object->element,$id);
+			$question->add_object_linked('dolismq_' . $object->element,$id);
 
 			$questionsLinked = 	$object->fetchQuestionsLinked($id, 'dolismq_' . $object->element);
 			$questionIds     = $object->linkedObjectsIds['dolismq_question'];
 			$object->updateQuestionsPosition($questionIds);
+			$object->call_trigger('SHEET_ADDQUESTION', $user);
 
 			setEventMessages($langs->trans('addQuestionLink') . ' ' . $question->ref, array());
 

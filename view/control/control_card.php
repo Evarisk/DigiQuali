@@ -369,9 +369,10 @@ if (empty($reshook)) {
 		if ( ! $error) {
 			$object->verdict = GETPOST('verdict', 'int');
 			$object->note_public = GETPOST('noteControl');
-			$result = $object->update($user);
+			$result = $object->update($user, true);
 			if ($result > 0) {
 				// Set verdict Control
+				$object->call_trigger('CONTROL_VERDICT', $user);
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header('Location: ' . $urltogo);
