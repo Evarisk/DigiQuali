@@ -289,7 +289,7 @@ class Control extends CommonObject
 			return 0;
 		}
 
-		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'CONTROL_UNVALIDATED');
+		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'CONTROL_UNVALIDATE');
 	}
 
 	/**
@@ -340,7 +340,7 @@ class Control extends CommonObject
 
 			if (!$error && !$notrigger) {
 				// Call trigger
-				$result = $this->call_trigger('CONTROL_VALIDATED', $user);
+				$result = $this->call_trigger('CONTROL_VALIDATE', $user);
 				if ($result < 0) {
 					$error++;
 				}
