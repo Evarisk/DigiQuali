@@ -108,7 +108,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'QUESTION_CREATE' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
 
-				$refLabel =  $langs->transnoentities(ucfirst($object->element)) . ' - ' . trim($object->ref, 'QU') . ' - ' . $object->label;
+				$refLabel =  $langs->transnoentities(ucfirst($object->element)) . ' ' . $object->ref . ' - ' . $object->label;
 
 				$actioncomm->label = $langs->trans('ObjectCreateTrigger', $refLabel);
 				$actioncomm->create($user);
@@ -151,7 +151,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'QUESTION_MODIFY' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_MODIFY';
 
-				$refLabel =  $langs->transnoentities(ucfirst($object->element)) . ' - ' . trim($object->ref, 'QU') . ' - ' . $object->label;
+				$refLabel =  $langs->transnoentities(ucfirst($object->element)) . ' ' . $object->ref . ' - ' . $object->label;
 
 				$actioncomm->label = $langs->trans('ObjectModifyTrigger', $refLabel);
 				$actioncomm->create($user);
@@ -189,7 +189,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'QUESTION_LOCKED' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_LOCKED';
 
-				$refLabel =  $langs->transnoentities(ucfirst($object->element)) . ' - ' . trim($object->ref, 'QU') . ' - ' . $object->label;
+				$refLabel =  $langs->transnoentities(ucfirst($object->element)) . ' ' . $object->ref . ' - ' . $object->label;
 
 				$actioncomm->label = $langs->trans('ObjectLockedTrigger', $refLabel);
 				$actioncomm->create($user);
