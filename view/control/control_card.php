@@ -83,13 +83,16 @@ $sheet            = new Sheet($db);
 $question         = new Question($db);
 $usertmp          = new User($db);
 $product          = new Product($db);
+$productLinked    = new Product($db);
 $project          = new Project($db);
+$projectLinked    = new Project($db);
 $task             = new Task($db);
 $thirdparty       = new Societe($db);
 $contact          = new Contact($db);
+$societeLinked    = new Societe($db);
 $productlot       = new Productlot($db);
 $extrafields      = new ExtraFields($db);
-$ecmfile 		  = new EcmFiles($db);
+$ecmfile          = new EcmFiles($db);
 $ecmdir           = new EcmDirectory($db);
 $category         = new Categorie($db);
 $refControlMod    = new $conf->global->DOLISMQ_CONTROL_ADDON($db);
@@ -831,6 +834,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
 		if ($productlot > 0) {
 			print $productlot->getNomUrl(1);
+			$productLinked->fetch($productlot->fk_product);
+		}
+		if ($productLinked > 0) {
+			print ' - ' . $productLinked->getNomUrl(1);
 		}
 		print '</td></tr>';
 	}
@@ -870,6 +877,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$contact->fetch(array_shift($object->linkedObjectsIds['contact']));
 		if ($contact > 0) {
 			print $contact->getNomUrl(1);
+			$societeLinked->fetch($contact->fk_soc);
+		}
+		if ($societeLinked > 0) {
+			print ' - ' . $societeLinked->getNomUrl(1);
 		}
 		print '</td></tr>';
 	}
@@ -896,6 +907,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$task->fetch(array_shift($object->linkedObjectsIds['project_task']));
 		if ($task > 0) {
 			print $task->getNomUrl(1);
+			$projectLinked->fetch($task->fk_project);
+		}
+		if ($projectLinked > 0) {
+			print ' - ' . $projectLinked->getNomUrl(1);
 		}
 		print '</td></tr>';
 	}
