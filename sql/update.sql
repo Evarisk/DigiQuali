@@ -61,3 +61,7 @@ ALTER TABLE `llx_dolismq_question` CHANGE `import_key` `import_key` VARCHAR(14) 
 ALTER TABLE `llx_dolismq_sheet` CHANGE `tms` `tms` TIMESTAMP on update CURRENT_TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE `llx_dolismq_sheet` CHANGE `status` `status` INT(11) DEFAULT 1 NOT NULL;
 ALTER TABLE `llx_dolismq_sheet` CHANGE `import_key` `import_key` VARCHAR(14) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL;
+
+-- 1.6.0
+ALTER TABLE `llx_dolismq_question` CHANGE `label` `label` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL NOT NULL;
+ALTER TABLE `llx_dolismq_sheet` CHANGE `label` `label` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL NOT NULL;
