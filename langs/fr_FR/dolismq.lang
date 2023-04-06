@@ -193,6 +193,7 @@ AddUser = Créer utilisateur
 AddControlIntoCategory = Assigner cette catégorie au contrôle
 ProductOrServiceLinked = Produit ou service contrôlé
 CanSetVerdict = Définir le verdict du contrôle
+NoVerdict = Pas de verdict
 
 
 #
