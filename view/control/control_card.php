@@ -448,7 +448,7 @@ if (empty($reshook)) {
 			$result = $object->setDraft($user, false);
 			if ($result > 0) {
 				$object->verdict = null;
-				$result = $object->update($user);
+				$result = $object->update($user, true);
 				// Set reopened OK
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation

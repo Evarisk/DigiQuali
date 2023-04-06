@@ -174,13 +174,13 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 
 			case 'QUESTION_VALIDATE' :
 			case 'SHEET_VALIDATE' :
-			case 'CONTROL_VALIDATE' :
+			case 'CONTROL_VALIDATED' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_VALIDATE';
 				$actioncomm->label = $langs->trans('ObjectValidateTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
 
-			case 'CONTROL_UNVALIDATE' :
+			case 'CONTROL_UNVALIDATED' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_UNVALIDATE';
 				$actioncomm->label = $langs->trans('ObjectUnValidateTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
