@@ -220,6 +220,12 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				$actioncomm->label = $langs->trans('ObjectSentByMailTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
+
+			case 'CONTROL_SAVEANSWER' :
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . 'SAVEANSWER';
+				$actioncomm->label = $langs->trans('AnswerSaveTrigger');
+				$actioncomm->create($user);
+				break;
 		}
 		return 0;
 	}

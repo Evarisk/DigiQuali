@@ -293,6 +293,7 @@ if (empty($reshook)) {
 			}
 		}
 
+		$object->call_trigger('CONTROL_SAVEANSWER', $user);
 		setEventMessages($langs->trans('AnswerSaved'), array());
 		header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 		exit;
