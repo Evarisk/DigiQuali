@@ -178,6 +178,7 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_SHEET_LINK_CONTACT', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DOLISMQ_SHEET_LINK_PROJECT', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DOLISMQ_SHEET_LINK_TASK', 'integer', 0, '', 0, 'current'],
+			$i++ => ['DOLISMQ_SHEET_DEFAULT_TAG', 'integer', 0, '', 0, 'current'],
 
 			// CONST QUESTION
 			$i++ => ['DOLISMQ_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'],
