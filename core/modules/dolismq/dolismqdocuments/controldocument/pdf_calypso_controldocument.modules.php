@@ -393,8 +393,8 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 						$value = $langs->trans('NoData');
 					}
 					// Limit value to 35 character
-					if (dol_strlen($value) > 35) {
-						$value = dol_substr($value, 0, 32) . '...';
+					if (dol_strlen($value) > 34) {
+						$value = dol_substr($value, 0, 31) . '...';
 					}
 
 					$substitutionarray = pdf_getSubstitutionArray($outputlangs, null, $object);
@@ -413,7 +413,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 						$pdf->SetFont('', '', $default_font_size);
 						$pdf->line($this->marge_gauche, $tabTop + 6, $this->marge_gauche + $this->posxcontrolinfo + $this->posxlabelinfo + 20, $tabTop + 6);
 					}
-					$pdf->writeHTMLCell(60, 3, $this->posxcontrolinfo - 9, $tabTop, dol_htmlentitiesbr($value), 0, 1, false, true, 'C');
+					$pdf->writeHTMLCell(62, 3, $this->posxcontrolinfo - 10, $tabTop, dol_htmlentitiesbr($value), 0, 1, false, true, 'C');
 
 					$tabTop += 10;
 				}
@@ -488,15 +488,15 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					$tmpTableArray = array();
 
 					// Question informations
-					$tmpTableArray['questionRef']  = $question->ref;
+					$tmpTableArray['questionRef']   = $question->ref;
 					$tmpTableArray['questionLabel'] = $langs->trans('Title') . ' : ' . $question->label;
-					$tmpTableArray['questionDesc'] = $langs->trans('Description') . ' : ' . $question->description;
+					$tmpTableArray['questionDesc']  = $langs->trans('Description') . ' : ' . $question->description;
 
 					// Answer informations
 					$result = $controldet->fetchFromParentWithQuestion($object->id, $question->id);
 					if ($result > 0 && is_array($result)) {
 						$answer = array_shift($result);
-						$tmpTableArray['answerRef'] = $answer->ref;
+						$tmpTableArray['answerRef']     = $answer->ref;
 						$tmpTableArray['answerComment'] = (empty($answer->comment) ? 'NoData' :  $langs->trans('Comment') . ' : ' . $answer->comment);
 						$answerResult = $answer->answer;
 
@@ -518,9 +518,9 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 								break;
 						}
 					} else {
-						$tmpTableArray['answerRef'] = 'NoData';
+						$tmpTableArray['answerRef']     = 'NoData';
 						$tmpTableArray['answerComment'] = 'NoData';
-						$tmpTableArray['answerLabel'] = 'NoData';
+						$tmpTableArray['answerLabel']   = 'NoData';
 					}
 
 					$path     = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $tmpTableArray['questionRef'];
@@ -535,13 +535,15 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					}
 
 					$pdf->startTransaction();
-
-					$addY = (strlen($tmpTableArray['questionDesc']) >= strlen($tmpTableArray['answerComment'])) ? $pdf->getStringHeight(55, $tmpTableArray['questionDesc']) : $pdf->getStringHeight(105, $tmpTableArray['answerComment']);
+					$addY = (strlen($tmpTableArray['questionDesc']) >= strlen($tmpTableArray['answerComment'])) ? $pdf->getStringHeight(50, $tmpTableArray['questionDesc']) : $pdf->getStringHeight(100, $tmpTableArray['answerComment']);
 					if ($addY < 20) {
 						$addY += 10;
 					}
-					$pageBreak = ($curY + $addY >= $this->page_hauteur - $this->marge_basse) ? True : False;
 
+					$pageBreak = ($curY + $addY >= $this->page_hauteur - $this->marge_basse) ? True : False;
+					if ($pageBreak == False) {
+						$pdf->line($this->marge_gauche, $curY - 2, $this->page_largeur - $this->marge_gauche, $curY - 2);
+					}
 					// If we are at the end of the page, create a new page a create a new top table
 					if ($pageBreak == True) {
 						if ($pageNbr == 2) {
@@ -592,11 +594,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					$pdf->SetFont('', 'B', $default_font_size);
 					$pdf->writeHTMLCell(25, 3, $curX, $curY + ($addY / 2) - 4, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerLabel'])), 0, 1, false, true, "C");
 
-					// Draw line if no page break (else line is drawn by table)
-					$curY += $addY;
-					if ($pageBreak == False) {
-						$pdf->line($this->marge_gauche, $curY, $this->page_largeur - $this->marge_gauche, $curY);
-					}
+					$curY      += $addY;
 					$curY      += 2;
 					$tabHeight += $addY + 2;
 				}
