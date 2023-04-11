@@ -471,13 +471,13 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 					// Draw informations of the header table
 					$pdf->writeHTMLCell(20, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("QuestionRef")), 0, 1, false, true, "C");
-					$curX += 30;
+					$curX += 32;
 					$pdf->writeHTMLCell(40, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("QuestionTitle")), 0, 1, false, true, "C");
 					$curX += 58;
 					$pdf->writeHTMLCell(20, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("AnswerRef")), 0, 1, false, true, "C");
-					$curX += 55;
+					$curX += 60;
 					$pdf->writeHTMLCell(40, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("AnswerComment")), 0, 1, false, true, "C");
-					$curX += 90;
+					$curX += 78;
 					$pdf->writeHTMLCell(40, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("Status")), 0, 1, false, true, "C");
 					$curY += $tableHeaderHeight + 2;
 
