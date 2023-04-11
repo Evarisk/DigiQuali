@@ -572,7 +572,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 						$curX = $this->marge_gauche + 4;
 
 						// Question ref
-						$pdf->writeHTMLCell(40, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionRef'])), 0, 1, false, true, "L");
+						$pdf->writeHTMLCell(40, 3, $curX, $curY + ($addY / 2) - 4, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionRef'])), 0, 1, false, true, "L");
 						$curX += 28;
 
 						// Question label
@@ -581,11 +581,11 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 						// Question description
 						$pdf->writeHTMLCell(55, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionDesc'])), 0, 1, false, true, "L");
-						$curX += 60;
+						$curX += 61;
 						$curY -= 8;
 
 						// Answer ref
-						$pdf->writeHTMLCell(40, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerRef'])), 0, 1, false, true, "L");
+						$pdf->writeHTMLCell(40, 3, $curX, $curY + ($addY / 2) - 4, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerRef'])), 0, 1, false, true, "L");
 						$curX += 30;
 
 						// Answer comment
