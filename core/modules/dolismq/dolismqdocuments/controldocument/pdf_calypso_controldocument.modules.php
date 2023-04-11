@@ -461,7 +461,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 					$iniY              = 45;
 					$curY              = $iniY + 10;
-					$curX              = $this->marge_gauche + 7;
+					$curX              = $this->marge_gauche + 6;
 					$tableHeaderHeight = $this->marge_haute * 1.5;
 
 					// Draw the first rect at the top of table corresponding to cell informations
@@ -470,13 +470,13 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 					// Draw informations of the header table
 					$pdf->writeHTMLCell(20, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("QuestionRef")), 0, 1, false, true, "C");
-					$curX += 40;
+					$curX += 30;
 					$pdf->writeHTMLCell(40, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("QuestionTitle")), 0, 1, false, true, "C");
 					$curX += 58;
 					$pdf->writeHTMLCell(20, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("AnswerRef")), 0, 1, false, true, "C");
-					$curX += 65;
+					$curX += 55;
 					$pdf->writeHTMLCell(40, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("AnswerComment")), 0, 1, false, true, "C");
-					$curX += 72;
+					$curX += 90;
 					$pdf->writeHTMLCell(40, 3, $curX, $curY + 2, dol_htmlentitiesbr($langs->trans("Status")), 0, 1, false, true, "C");
 					$curY += $tableHeaderHeight + 2;
 
@@ -548,7 +548,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 						// If we are at the end of the page, create a new page a create a new top table
 						if ($pageBreak == True) {
 							if ($pageNbr == 2) {
-								$this->_tableau($pdf, $tableHeaderHeight + $iniY + 10, $tabHeight, 2, $outputlangs);
+								$this->_tableau($pdf, $tableHeaderHeight + $iniY + 10, $this->page_hauteur - $tabTopNewpage - $this->marge_basse - $iniY + 10, 2, $outputlangs);
 							}
 
 							$this->_pagefoot($pdf, $object, $outputlangs, 1);
@@ -568,11 +568,11 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 						}
 						$pdf->SetFont('', '', $default_font_size - 1);
 						$pdf->SetTextColor(0, 0, 0);
-						$curX = $this->marge_gauche + 5;
+						$curX = $this->marge_gauche + 4;
 
 						// Question ref
 						$pdf->writeHTMLCell(40, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionRef'])), 0, 1, false, true, "L");
-						$curX += 33;
+						$curX += 28;
 
 						// Question label
 						$pdf->writeHTMLCell(55, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionLabel'])), 0, 1, false, true, "L");
@@ -580,16 +580,16 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 						// Question description
 						$pdf->writeHTMLCell(55, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionDesc'])), 0, 1, false, true, "L");
-						$curX += 65;
+						$curX += 60;
 						$curY -= 8;
 
 						// Answer ref
 						$pdf->writeHTMLCell(40, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerRef'])), 0, 1, false, true, "L");
-						$curX += 35;
+						$curX += 30;
 
 						// Answer comment
 						$pdf->writeHTMLCell(105, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerComment'])), 0, 1, false, true, "L");
-						$curX += 110;
+						$curX += 120;
 
 						// Status
 						$pdf->SetFont('', 'B', $default_font_size);
@@ -700,7 +700,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 	{
 		$pdf->SetDrawColor(128, 128, 128);
 
-		// Draw rect of all tab (title + lines). Rect takes a length in 3rd parameter
+		// Draw rect of the table
 		$pdf->Rect($this->marge_gauche, $tabTop, $this->page_largeur - $this->marge_gauche - $this->marge_droite, $tabHeight);
 
 		if ($pageNbr == 2) {
@@ -710,13 +710,13 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 			$curY = $this->page_hauteur - $this->marge_basse - 5;
 		}
 
-		// Line takes a position y in 3rd parameter
+		// Column lines
 		$curX = $this->marge_gauche;
-		$curX += 35;
+		$curX += 30;
 		$pdf->line($curX, $tabTop, $curX, $curY);
 		$curX += 60;
 		$pdf->line($curX, $tabTop, $curX, $curY);
-		$curX += 40;
+		$curX += 30;
 		$pdf->line($curX, $tabTop, $curX, $curY);
 		$curX += 110;
 		$pdf->line($curX, $tabTop, $curX, $curY);
