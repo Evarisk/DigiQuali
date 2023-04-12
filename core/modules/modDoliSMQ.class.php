@@ -192,6 +192,7 @@ class modDoliSMQ extends DolibarrModules
 			// CONST CONTROL
 			$i++ => ['DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
+			$i++ => ['PRODUCT_LOT_ENABLE_QUALITY_CONTROL', 'integer', 1, '', 0, 'current'],
 
 			//CONST CONTROL DOCUMENT
 			$i++ => ['DOLISMQ_CONTROLDOCUMENT_ADDON', 'chaine', 'mod_controldocument_standard', '', 0, 'current'],
