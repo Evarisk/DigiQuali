@@ -234,9 +234,11 @@ AddEquipmentLink = Moyen de contrôle ajouté :
 UnlinkEquipmentLink = Moyen de contrôle retiré :
 SelectControlEquipment = Sélectionner un moyen de contrôle
 ErrorNoEquipmentSelected = Aucun moyen de contrôle sélectionné
-LockControlOutdatedEquipment = Verrouiller le contrôle si la DLUO/DMD est dépassée
-LockControlOutdatedEquipmentDescription = Le contrôle sera verouillé si la DLUO/DMD d'un ou plusieurs moyens de contrôle est dépassée
-ControlEquipmentOutdated = La DLUO/DMD d'un ou plusieurs moyens de contrôle est dépassée
+OptimalExpirationDate = DLUO/DDM
+OptimalExpirationDateDescription = Date Limite d'Utilisation Optimale / Date de Durabilité Minimale
+LockControlOutdatedEquipment = Verrouiller le contrôle si la DLUO/DDM est dépassée
+LockControlOutdatedEquipmentDescription = Le contrôle sera verouillé si la DLUO/DDM d'un ou plusieurs moyens de contrôle est dépassée
+ControlEquipmentOutdated = La DLUO/DDM d'un ou plusieurs moyens de contrôle est dépassée
 GoToWorkingHours = Aller sur la page des moyens de contrôle
 
 #

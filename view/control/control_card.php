@@ -733,7 +733,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				if ($equipmentControl->status == 0) continue;
 				$equipment->fetch($equipmentControl->fk_product);
 				$creationDate = strtotime($equipment->date_creation);
-				if (dol_time_plus_duree($creationDate, $equipment->lifetime, 'd') <= dol_now()) {
+				if (!empty($equipment->lifetime) && dol_time_plus_duree($creationDate, $equipment->lifetime, 'd') <= dol_now()) {
 					$equipmentOutdated = true;
 					break;
 				}
