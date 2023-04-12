@@ -331,6 +331,12 @@ if ($action == 'create') {
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="' . GETPOST('label') . '">';
 	print '</td></tr>';
 
+	// Description -- Description
+	print '<tr><td class=""><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
+	$doleditor = new DolEditor('description', '', '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
+	$doleditor->Create();
+	print '</td></tr>';
+
 	//FK Element
 	if (empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && empty($conf->global->DOLISMQ_SHEET_LINK_USER) && empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT) && empty($conf->global->DOLISMQ_SHEET_LINK_TASK)) {
 		print '<div class="wpeo-notice notice-info">';
@@ -401,6 +407,12 @@ if (($id || $ref) && $action == 'edit') {
 	//Label -- Libellé
 	print '<tr><td class="fieldrequired">' . $langs->trans("Label") . '</td><td>';
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="' . $object->label . '">';
+	print '</td></tr>';
+
+	// Description -- Description
+	print '<tr><td class=""><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
+	$doleditor = new DolEditor('description', $object->description, '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
+	$doleditor->Create();
 	print '</td></tr>';
 
 	//FK Element
