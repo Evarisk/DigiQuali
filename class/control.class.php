@@ -1268,6 +1268,9 @@ class ControlEquipment extends CommonObjectLine
 	 */
 	public $table_element = 'dolismq_control_equipment';
 
+	public const STATUS_DELETED = 0;
+	public const STATUS_ENABLED = 1;
+
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
 	 */

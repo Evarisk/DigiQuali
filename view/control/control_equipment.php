@@ -18,7 +18,7 @@
 /**
  *  \file       view/control/control_equipment.php
  *  \ingroup    dolismq
- *  \brief      Tab for medias on Control
+ *  \brief      Tab for equipment on Control
  */
 
 // Load DoliSMQ environment
@@ -35,7 +35,6 @@ require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../lib/dolismq_control.lib.php';
-require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 require_once __DIR__ . '/../../core/modules/dolismq/controlequipment/mod_control_equipment_standard.php';
 require_once __DIR__ . '/../../../saturne/lib/object.lib.php';
 
@@ -43,7 +42,7 @@ require_once __DIR__ . '/../../../saturne/lib/object.lib.php';
 global $conf, $db,$hookmanager, $langs, $user;
 
 // Load translation files required by the page
-saturne_load_langs(["productbatch"]);
+saturne_load_langs(['productbatch']);
 
 // Get parameters
 $id         = GETPOST('id', 'int');
@@ -52,88 +51,83 @@ $action     = GETPOST('action', 'aZ09');
 $cancel     = GETPOST('cancel', 'aZ09');
 $backtopage = GETPOST('backtopage', 'alpha');
 
-// Initialize technical objectsp
+// Initialize technical objects
 $object                 = new Control($db);
-$extrafields            = new ExtraFields($db);
 $controlEquipment       = new ControlEquipment($db);
 $equipment              = new Product($db);
 $refControlEquipmentMod = new $conf->global->DOLISMQ_CONTROL_EQUIPMENT_ADDON($db);
 
-// View objects
+// Initialize view objects
 $form = new Form($db);
 
 $hookmanager->initHooks(array('controlequipment', 'globalcard')); // Note that conf->hooks_modules contains array
 
-// Fetch optionals attributes and labels
-$extrafields->fetch_name_optionals_label($object->table_element);
-
 // Load object
-include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once  // Must be include, not include_once. Include fetch and fetch_thirdparty but not fetch_optionals
-if ($id > 0 || !empty($ref)) {
-	$upload_dir = $conf->dolismq->multidir_output[$object->entity]."/".$object->id;
-}
+include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php';
 
 $permissiontoread   = $user->rights->dolismq->control->read;
-$permissiontoadd    = $user->rights->dolismq->control->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
+$permissiontoadd    = $user->rights->dolismq->control->write;
 $permissiontodelete = $user->rights->dolismq->control->delete || ($permissiontoadd && isset($object->status));
-$upload_dir = $conf->dolismq->multidir_output[$conf->entity];
 
 // Security check (enable the most restrictive one)
-if ($user->socid > 0) accessforbidden();
-if ($user->socid > 0) $socid = $user->socid;
-if (empty($conf->dolismq->enabled)) accessforbidden();
-if (!$permissiontoread) accessforbidden();
+saturne_check_access($permissiontoread, $object);
 
 /*
  * Action
  */
 
+$parameters = [];
+$reshook    = $hookmanager->executeHooks('doActions', $parameters, $object, $action);
+if ($reshook < 0) {
+	setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+}
+
 if (empty($reshook)) {
-// Action to add or link equipment to control
+	// Action to add or link equipment to control
 	if ($action == 'add_equipment' && $permissiontoadd) {
 		$equipmentId = GETPOST('equipmentId');
 
 		if ($equipmentId > 0) {
-			$equipmentsControl = $controlEquipment->fetchFromParent($object->id);
-
 			$equipment->fetch($equipmentId);
 
-			$controlEquipment->ref = $refControlEquipmentMod->getNextValue($controlEquipment);
+			$controlEquipment->ref        = $refControlEquipmentMod->getNextValue($controlEquipment);
 			$controlEquipment->fk_product = $equipment->id;
 			$controlEquipment->fk_control = $object->id;
 
 			$result = $controlEquipment->insert($user);
 			if ($result > 0) {
-				setEventMessages($langs->trans('AddEquipmentLink') . ' ' . $controlEquipment->ref, array());
+				setEventMessages($langs->trans('AddEquipmentLink') . ' ' . $controlEquipment->ref, []);
 			} else {
-				setEventMessages($langs->trans('ErrorEquipmentLink'), null, 'errors');
+				setEventMessages($langs->trans('ErrorEquipmentLink'), [], 'errors');
 			}
-			header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
+			header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . $id);
 			exit;
 		} else {
-			setEventMessages($langs->trans('ErrorNoEquipmentSelected'), null, 'errors');
+			setEventMessages($langs->trans('ErrorNoEquipmentSelected'), [], 'errors');
 		}
 	}
 
-// Action to unlink equipment from control
+	// Action to unlink equipment from control
 	if ($action == 'unlink_equipment' && $permissiontodelete) {
 		$equipmentId = GETPOST('equipmentId');
 
 		if ($equipmentId > 0) {
 			$equipmentsControl = $controlEquipment->fetchFromParent($object->id);
 
-			foreach ($equipmentsControl as $equipmentControl) {
-				if ($equipmentId == $equipmentControl->fk_product && $equipmentControl->status != 0) {
-					$result = $equipmentControl->delete($user);
-					break;
+			if (is_array($equipmentsControl) && !empty($equipmentsControl)) {
+				foreach ($equipmentsControl as $equipmentControl) {
+					if ($equipmentId == $equipmentControl->fk_product && $equipmentControl->status != $equipmentControl::STATUS_DELETED) {
+						$result = $equipmentControl->delete($user);
+						break;
+					}
 				}
 			}
 
 			if ($result > 0) {
-				setEventMessages($langs->trans('UnlinkEquipmentLink') . ' ' . $equipmentControl->ref, array());
+				setEventMessages($langs->trans('UnlinkEquipmentLink') . ' ' . $equipmentControl->ref, []);
 			}
 		} else {
-			setEventMessages($langs->trans('ErrorNoEquipmentSelected'), null, 'errors');
+			setEventMessages($langs->trans('ErrorNoEquipmentSelected'), [], 'errors');
 		}
 	}
 }
@@ -185,7 +179,8 @@ if ($id > 0 || !empty($ref)) {
 	print '<thead><tr class="liste_titre">';
 	print '<td>' . $langs->trans('Ref') . '</td>';
 	print '<td>' . $langs->trans('Label') . '</td>';
-	print '<td>' . $langs->trans('EatByDate') . '</td>';
+	print '<td>' . $langs->trans('OptimalExpirationDate');
+	print $form->textwithpicto('', $langs->trans('OptimalExpirationDateDescription')) . '</td>';
 	print '<td class="center">' . $langs->trans('Action') . '</td>';
 	print '<td> </td>';
 	print '</tr></thead>';
@@ -206,12 +201,13 @@ if ($id > 0 || !empty($ref)) {
 			print '</td>';
 
 			print '<td>';
-			print $item->lifetime ? $item->lifetime . ' ' . $langs->trans("Days") : $langs->trans('NoData');
+			$creationDate = strtotime($item->date_creation);
+			print $item->lifetime ? dol_print_date(dol_time_plus_duree($creationDate, $item->lifetime, 'd'), 'day') : $langs->trans('NoData');
 			print '</td>';
 
 			print '<td class="center">';
 			if ($object->status != 2) {
-				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=unlink_equipment&equipmentId=' . $equipmentId . '">';
+				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&action=unlink_equipment&equipmentId=' . $equipmentId . '">';
 				print img_delete();
 				print '</a>';
 			}
@@ -219,8 +215,6 @@ if ($id > 0 || !empty($ref)) {
 			print '<td>';
 			print '</td>';
 			print '</tr>';
-			// Other attributes
-			include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php';
 		}
 		print '</tr></tbody>';
 	}
@@ -230,15 +224,15 @@ if ($id > 0 || !empty($ref)) {
 		print '<input type="hidden" name="token" value="' . newToken() . '">';
 		print '<input type="hidden" name="action" value="add_equipment">';
 		print '<input type="hidden" name="id" value="' . $id . '">';
-		print '<tr class="add-line"><td class="">';
-		print $form->selectarray('equipmentId', $selectArray, 'ifone', $langs->trans('SelectControlEquipment'));
-		print '</td>';
-		print '<td>';
-		print ' &nbsp; <input type="submit" id ="add_equipment" class="button" name="add_equipment" value="' . $langs->trans("Add") . '">';
+		print '<tr><td>';
+		print $form->selectarray('equipmentId', $selectArray, '', $langs->transnoentities('SelectControlEquipment'));
 		print '</td>';
 		print '<td>';
 		print '</td>';
 		print '<td>';
+		print '</td>';
+		print '<td class="center">';
+		print '<input type="submit" id ="add_equipment" class="button" name="add_equipment" value="' . $langs->trans('Add') . '">';
 		print '</td>';
 		print '<td>';
 		print '</td>';
