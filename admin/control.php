@@ -308,6 +308,18 @@ print '<td class="center">';
 print ajax_constantonoff('DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY');
 print '</td>';
 print '</tr>';
+
+//Lock control if DMD/DLUO outdated
+print '<tr><td>';
+print $langs->trans('LockControlOutdatedEquipment');
+print '</td><td>';
+print $langs->trans('LockControlOutdatedEquipmentDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT');
+print '</td>';
+print '</tr>';
 print '</table>';
 
 //Extrafields control management

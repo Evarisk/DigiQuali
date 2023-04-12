@@ -206,7 +206,7 @@ if ($id > 0 || !empty($ref)) {
 			print '</td>';
 
 			print '<td>';
-			print $item->lifetime ? convertSecondToTime($item->lifetime, 'allwithouthour') : $langs->trans('NoData');
+			print $item->lifetime ? $item->lifetime . ' ' . $langs->trans("Days") : $langs->trans('NoData');
 			print '</td>';
 
 			print '<td class="center">';
