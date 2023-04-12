@@ -358,9 +358,8 @@ if ($fromid) {
 		foreach ($controls as $control) {
 			if (!empty($control->linkedObjectsIds)) {
 				if (array_key_exists($fromtype, $control->linkedObjectsIds)) {
-					$test = array_values($control->linkedObjectsIds[$fromtype]);
-					if ($test[0] == $fromid) {
-						$sheet->fetch($control->fk_sheet);
+					$linkedObjectsIds = array_values($control->linkedObjectsIds[$fromtype]);
+					if (in_array($fromid, $linkedObjectsIds)) {
 						$categories = $categorystatic->getListForItem($control->id, $control->element);
 						if (is_array($categories) && !empty($categories)) {
 							foreach ($categories as $category) {
