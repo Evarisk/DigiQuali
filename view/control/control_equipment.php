@@ -39,12 +39,11 @@ require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 require_once __DIR__ . '/../../core/modules/dolismq/controlequipment/mod_control_equipment_standard.php';
 require_once __DIR__ . '/../../../saturne/lib/object.lib.php';
 
-
 // Global variables definitions
 global $conf, $db,$hookmanager, $langs, $user;
 
 // Load translation files required by the page
-saturne_load_langs(["companies"]);
+saturne_load_langs(["productbatch"]);
 
 // Get parameters
 $id         = GETPOST('id', 'int');
@@ -77,7 +76,6 @@ if ($id > 0 || !empty($ref)) {
 $permissiontoread   = $user->rights->dolismq->control->read;
 $permissiontoadd    = $user->rights->dolismq->control->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 $permissiontodelete = $user->rights->dolismq->control->delete || ($permissiontoadd && isset($object->status));
-$permissionnote     = $user->rights->dolismq->control->write; // Used by the include of actions_setnotes.inc.php
 $upload_dir = $conf->dolismq->multidir_output[$conf->entity];
 
 // Security check (enable the most restrictive one)
@@ -118,7 +116,7 @@ if (empty($reshook)) {
 	}
 
 // Action to unlink equipment from control
-	if ($action == 'unlink_equipment') {
+	if ($action == 'unlink_equipment' && $permissiontodelete) {
 		$equipmentId = GETPOST('equipmentId');
 
 		if ($equipmentId > 0) {
@@ -151,7 +149,7 @@ saturne_header(0,'', $langs->trans('Control'), $help_url, '', 0, 0, $morejs, $mo
 
 if ($id > 0 || !empty($ref)) {
 	// CONTROL EQUIPMENT LINES
-	print saturne_get_fiche_head($object, 'equipment', $langs->trans('Medias'));
+	print saturne_get_fiche_head($object, 'equipment', $langs->trans('Equipment'));
 	saturne_banner_tab($object);
 
 	$products     = saturne_fetch_all_object_type('Product');
@@ -187,6 +185,7 @@ if ($id > 0 || !empty($ref)) {
 	print '<thead><tr class="liste_titre">';
 	print '<td>' . $langs->trans('Ref') . '</td>';
 	print '<td>' . $langs->trans('Label') . '</td>';
+	print '<td>' . $langs->trans('EatByDate') . '</td>';
 	print '<td class="center">' . $langs->trans('Action') . '</td>';
 	print '<td> </td>';
 	print '</tr></thead>';
@@ -204,6 +203,10 @@ if ($id > 0 || !empty($ref)) {
 
 			print '<td>';
 			print $item->label;
+			print '</td>';
+
+			print '<td>';
+			print $item->lifetime ? convertSecondToTime($item->lifetime, 'allwithouthour') : $langs->trans('NoData');
 			print '</td>';
 
 			print '<td class="center">';
@@ -232,6 +235,8 @@ if ($id > 0 || !empty($ref)) {
 		print '</td>';
 		print '<td>';
 		print ' &nbsp; <input type="submit" id ="add_equipment" class="button" name="add_equipment" value="' . $langs->trans("Add") . '">';
+		print '</td>';
+		print '<td>';
 		print '</td>';
 		print '<td>';
 		print '</td>';

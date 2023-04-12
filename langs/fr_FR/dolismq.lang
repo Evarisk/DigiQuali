@@ -240,6 +240,7 @@ ControlEquipment = Moyens de contrôle
 ControlEquipmentList = Liste des moyens de contrôle utilisés
 AddEquipmentLink = Moyen de contrôle ajouté :
 UnlinkEquipmentLink = Moyen de contrôle retiré :
+ErrorNoEquipmentSelected = Aucun moyen de contrôle sélectionné
 
 #
 # ControlDet
