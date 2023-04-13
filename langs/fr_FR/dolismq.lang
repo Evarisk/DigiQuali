@@ -239,7 +239,8 @@ OptimalExpirationDateDescription = Date Limite d'Utilisation Optimale / Date de 
 LockControlOutdatedEquipment = Verrouiller le contrôle si la DLUO/DDM est dépassée
 LockControlOutdatedEquipmentDescription = Le contrôle sera verouillé si la DLUO/DDM d'un ou plusieurs moyens de contrôle est dépassée
 ControlEquipmentOutdated = La DLUO/DDM d'un ou plusieurs moyens de contrôle est dépassée
-GoToWorkingHours = Aller sur la page des moyens de contrôle
+GoToEquipmentHours = Aller sur la page des moyens de contrôle
+ExpiredSince = Expiré depuis
 
 #
 # ControlDet

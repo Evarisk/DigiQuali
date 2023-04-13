@@ -1078,7 +1078,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			<div class="notice-content">
 				<div class="notice-title"><?php echo $langs->trans('ControlEquipmentOutdated') ?></div>
 			</div>
-			<a class="butAction" style="width = 100%;margin-right:0" target="_blank" href="<?php echo DOL_URL_ROOT . '/custom/dolismq/view/control/control_equipment.php?id=' . $object->id?>"><?php echo $langs->trans("GoToWorkingHours", $usertmp->getFullName($langs)) ?></a>
+			<a class="butAction" style="width = 100%;margin-right:0" target="_blank" href="<?php echo DOL_URL_ROOT . '/custom/dolismq/view/control/control_equipment.php?id=' . $object->id?>"><?php echo $langs->trans("GoToEquipmentHours", $usertmp->getFullName($langs)) ?></a>
 		</div>
 	<?php }
 

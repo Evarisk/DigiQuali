@@ -201,9 +201,20 @@ if ($id > 0 || !empty($ref)) {
 			print '</td>';
 
 			print '<td>';
-			$creationDate = strtotime($item->date_creation);
-			print $item->lifetime ? dol_print_date(dol_time_plus_duree($creationDate, $item->lifetime, 'd'), 'day') : $langs->trans('NoData');
-			print '</td>';
+			$creationDate   = strtotime($item->date_creation);
+			$expirationDate = dol_time_plus_duree($creationDate, $item->lifetime, 'd');
+			$remainingDay   = convertSecondToTime($expirationDate - dol_now(), 'allwithouthour')?: $langs->trans('ExpiredSince') . ' ' . convertSecondToTime(dol_now() - $expirationDate, 'allwithouthour');
+
+			if (empty($item->lifetime) || $expirationDate <= dol_now()) {
+				print '<span style="color:red">';
+			} else if (!empty($item->lifetime) && $expirationDate <= dol_now() + 2592000) {
+				print '<span style="color:orange">';
+			} else {
+				print '<span style="color:green">';
+			}
+
+			print  $item->lifetime ? dol_print_date($expirationDate, 'day') . ' - ' . $remainingDay : $langs->trans('NoData');
+			print '</span> </td>';
 
 			print '<td class="center">';
 			if ($object->status != 2) {
