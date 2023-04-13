@@ -978,7 +978,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Lock
 			if ($object->status == $object::STATUS_VALIDATED && $object->verdict != null) {
-				print '<span class="butAction" id="actionButtonLock">' . '<i class="fas fa-lock"></i>' . ($conf->browser->layout == 'phone' ? '' : $langs->trans('Lock')) . '</span>';
+				print '<span class="butAction" id="actionButtonLock">' . '<i class="fas fa-lock"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Lock')) . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToLock')) . '">' . '<i class="fas fa-lock"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Lock')) . '</span>';
 			}
