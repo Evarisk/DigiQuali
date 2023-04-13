@@ -186,30 +186,14 @@ if (empty($reshook)) {
 			dol_print_error('', 'Error, object must be fetched before being deleted');
 			exit;
 		}
-		$categories = $object->getCategoriesCommon('sheet');
 
-		if (is_array($categories) && !empty($categories)) {
-			foreach ($categories as $cat_id) {
-
-				$category = new Categorie($db);
-				$category->fetch($cat_id);
-				$category->del_type($object, 'sheet');
-			}
+		if (method_exists($object, 'isErasable') && $object->isErasable() <= 0) {
+			$langs->load("errors");
+			$object->errors = $langs->trans('ErrorQuestionUsedInSheet',$object->ref);
+			$result = 0;
+		} else {
+			$result = $object->delete($user);
 		}
-
-		$object->fetchObjectLinked($id, 'dolismq_' . $object->element);
-		$object->element = 'dolismq_' . $object->element;
-
-		if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
-			foreach($object->linkedObjects as $linkedObjectType => $linkedObjectArray) {
-				foreach($linkedObjectArray as $linkedObject) {
-					if (method_exists($object, 'isErasable') && $object->isErasable() > 0) {
-						$object->deleteObjectLinked('','',$linkedObject->id, $linkedObjectType);
-					}
-				}
-			}
-		}
-		$result = $object->delete($user);
 
 		if ($result > 0) {
 			// Delete OK
@@ -469,7 +453,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Confirmation to delete
 	if ($action == 'delete') {
-		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('DeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('Delete') . ' ' . $langs->transnoentities('The' . ucfirst($object->element)), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
 	}
 
 	// Call Hook formConfirm
@@ -560,9 +544,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '<span class="butAction" id="actionButtonClone"><i class="fas fa-clone"></i> ' . $langs->trans('Clone') . '</span>';
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
-			if ($object->status != $object::STATUS_LOCKED) {
-				print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
-			}
+			print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 		}
 		print '</div>';
 	}

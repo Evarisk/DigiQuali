@@ -187,28 +187,6 @@ if (empty($reshook)) {
 					continue;
 				}
 
-				$categories = $objecttmp->getCategoriesCommon('sheet');
-
-				if (is_array($categories) && !empty($categories)) {
-					foreach ($categories as $cat_id) {
-
-						$category = new Categorie($db);
-						$category->fetch($cat_id);
-						$category->del_type($objecttmp, 'sheet');
-					}
-				}
-				$objecttmp->fetchObjectLinked($toselectid,'dolismq_' . $object->element);
-				$objecttmp->element = 'dolismq_' . $objecttmp->element;
-
-				if (is_array($objecttmp->linkedObjects) && !empty($objecttmp->linkedObjects)) {
-					foreach($objecttmp->linkedObjects as $linkedObjectType => $linkedObjectArray) {
-						foreach($linkedObjectArray as $linkedObject) {
-							if (method_exists($objecttmp, 'isErasable') && $objecttmp->isErasable() > 0) {
-								$objecttmp->deleteObjectLinked($linkedObject->id, $linkedObjectType);
-							}
-						}
-					}
-				}
 				$result = $objecttmp->delete($user);
 
 				if (empty($result)) { // if delete returns 0, there is at least one object linked
@@ -282,6 +260,8 @@ $reshook = $hookmanager->executeHooks('printFieldListFrom', $parameters, $object
 $sql .= $hookmanager->resPrint;
 if ($object->ismultientitymanaged == 1) $sql .= " WHERE t.entity IN (".getEntity($object->element).")";
 else $sql .= " WHERE 1 = 1";
+$sql .= ' AND status > -1';
+
 foreach ($search as $key => $val) {
 	if ($key == 'status' && $search[$key] == -1) continue;
 	$mode_search = (($object->isInt($object->fields[$key]) || $object->isFloat($object->fields[$key])) ? 1 : 0);
