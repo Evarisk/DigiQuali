@@ -45,6 +45,8 @@ saturne_load_langs(['admin']);
 $action     = GETPOST('action', 'alpha');
 $backtopage = GETPOST('backtopage', 'alpha');
 
+$form       = new Form($db);
+
 // Security check - Protection if external user
 $permissiontoread = $user->rights->dolismq->adminpage->read;
 saturne_check_access($permissiontoread);
@@ -53,26 +55,33 @@ saturne_check_access($permissiontoread);
  */
 
 if ($action == 'setMediaInfos') {
-	$mediaMaxWidthMedium       = GETPOST('MediaMaxWidthMedium', 'alpha');
-	$mediaMaxHeightMedium      = GETPOST('MediaMaxHeightMedium', 'alpha');
-	$mediaMaxWidthLarge        = GETPOST('MediaMaxWidthLarge', 'alpha');
-	$mediaMaxHeightLarge       = GETPOST('MediaMaxHeightLarge', 'alpha');
-	$displayNumberMediaGallery = GETPOST('DisplayNumberMediaGallery', 'alpha');
+	$error = 0;
+	$mediasMax['DOLISMQ_MEDIA_MAX_WIDTH_MINI']         = GETPOST('MediaMaxWidthMini', 'alpha');
+	$mediasMax['DOLISMQ_MEDIA_MAX_HEIGHT_MINI']        = GETPOST('MediaMaxHeightMini', 'alpha');
+	$mediasMax['DOLISMQ_MEDIA_MAX_WIDTH_SMALL']        = GETPOST('MediaMaxWidthSmall', 'alpha');
+	$mediasMax['DOLISMQ_MEDIA_MAX_HEIGHT_SMALL']       = GETPOST('MediaMaxHeightSmall', 'alpha');
+	$mediasMax['DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM']       = GETPOST('MediaMaxWidthMedium', 'alpha');
+	$mediasMax['DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM']      = GETPOST('MediaMaxHeightMedium', 'alpha');
+	$mediasMax['DOLISMQ_MEDIA_MAX_WIDTH_LARGE']        = GETPOST('MediaMaxWidthLarge', 'alpha');
+	$mediasMax['DOLISMQ_MEDIA_MAX_HEIGHT_LARGE']       = GETPOST('MediaMaxHeightLarge', 'alpha');
+	$mediasMax['DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY'] = GETPOST('DisplayNumberMediaGallery', 'alpha');
 
-	if (!empty($mediaMaxWidthMedium) || $mediaMaxWidthMedium === '0') {
-		dolibarr_set_const($db, 'DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM', $mediaMaxWidthMedium, 'integer', 0, '', $conf->entity);
+	foreach($mediasMax as $key => $valueMax) {
+		if (empty($valueMax)) {
+			setEventMessages('MediaDimensionEmptyError', [], 'errors');
+			$error++;
+			break;
+		} else if ($valueMax < 0) {
+			setEventMessages('MediaDimensionNegativeError', [], 'errors');
+			$error++;
+			break;
+		} else {
+			dolibarr_set_const($db, $key, $valueMax, 'integer', 0, '', $conf->entity);
+		}
 	}
-	if (!empty($mediaMaxHeightMedium) || $mediaMaxHeightMedium === '0') {
-		dolibarr_set_const($db, 'DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM', $mediaMaxHeightMedium, 'integer', 0, '', $conf->entity);
-	}
-	if (!empty($mediaMaxWidthLarge) || $mediaMaxWidthLarge === '0') {
-		dolibarr_set_const($db, 'DOLISMQ_MEDIA_MAX_WIDTH_LARGE', $mediaMaxWidthLarge, 'integer', 0, '', $conf->entity);
-	}
-	if (!empty($mediaMaxHeightLarge) || $mediaMaxHeightLarge === '0') {
-		dolibarr_set_const($db, 'DOLISMQ_MEDIA_MAX_HEIGHT_LARGE', $mediaMaxHeightLarge, 'integer', 0, '', $conf->entity);
-	}
-	if (!empty($displayNumberMediaGallery) || $displayNumberMediaGallery === '0') {
-		dolibarr_set_const($db, 'DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY', $displayNumberMediaGallery, 'integer', 0, '', $conf->entity);
+
+	if (empty($error)) {
+		setEventMessages('MediaDimensionSetWithSuccess', []);
 	}
 }
 
@@ -123,40 +132,56 @@ print '<tr class="liste_titre">';
 print '<td>' . $langs->trans('Name') . '</td>';
 print '<td>' . $langs->trans('Description') . '</td>';
 print '<td>' . $langs->trans('Value') . '</td>';
-print '<td>' . $langs->trans('Action') . '</td>';
 print '</tr>';
+
+print '<tr class="oddeven"><td><label for="MediaMaxWidthMini">' . $langs->trans('MediaMaxWidthMini') . '</label></td>';
+print '<td>' . $langs->trans('MediaMaxWidthMiniDescription') . '</td>';
+print '<td><input type="number" name="MediaMaxWidthMini" value="' . $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI . '"></td>';
+print '</td></tr>';
+
+print '<tr class="oddeven"><td><label for="MediaMaxHeightMini">' . $langs->trans('MediaMaxHeightMini') . '</label></td>';
+print '<td>' . $langs->trans('MediaMaxHeightMiniDescription') . '</td>';
+print '<td><input type="number" name="MediaMaxHeightMini" value="' . $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI . '"></td>';
+print '</td></tr>';
+
+print '<tr class="oddeven"><td><label for="MediaMaxWidthSmall">' . $langs->trans('MediaMaxWidthSmall') . '</label></td>';
+print '<td>' . $langs->trans('MediaMaxWidthSmallDescription') . '</td>';
+print '<td><input type="number" name="MediaMaxWidthSmall" value="' . $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL . '"></td>';
+print '</td></tr>';
+
+print '<tr class="oddeven"><td><label for="MediaMaxHeightSmall">' . $langs->trans('MediaMaxHeightSmall') . '</label></td>';
+print '<td>' . $langs->trans('MediaMaxHeightSmallDescription') . '</td>';
+print '<td><input type="number" name="MediaMaxHeightSmall" value="' . $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL . '"></td>';
+print '</td></tr>';
 
 print '<tr class="oddeven"><td><label for="MediaMaxWidthMedium">' . $langs->trans('MediaMaxWidthMedium') . '</label></td>';
 print '<td>' . $langs->trans('MediaMaxWidthMediumDescription') . '</td>';
 print '<td><input type="number" name="MediaMaxWidthMedium" value="' . $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM . '"></td>';
-print '<td><input type="submit" class="button" name="save" value="' . $langs->trans('Save') . '">';
 print '</td></tr>';
 
 print '<tr class="oddeven"><td><label for="MediaMaxHeightMedium">' . $langs->trans('MediaMaxHeightMedium') . '</label></td>';
 print '<td>' . $langs->trans('MediaMaxHeightMediumDescription') . '</td>';
 print '<td><input type="number" name="MediaMaxHeightMedium" value="' . $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM . '"></td>';
-print '<td><input type="submit" class="button" name="save" value="' . $langs->trans('Save') . '">';
 print '</td></tr>';
 
 print '<tr class="oddeven"><td><label for="MediaMaxWidthLarge">' . $langs->trans('MediaMaxWidthLarge') . '</label></td>';
 print '<td>' . $langs->trans('MediaMaxWidthLargeDescription') . '</td>';
 print '<td><input type="number" name="MediaMaxWidthLarge" value="' . $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE . '"></td>';
-print '<td><input type="submit" class="button" name="save" value="' . $langs->trans('Save') . '">';
 print '</td></tr>';
 
 print '<tr class="oddeven"><td><label for="MediaMaxHeightLarge">' . $langs->trans('MediaMaxHeightLarge') . '</label></td>';
 print '<td>' . $langs->trans('MediaMaxHeightLargeDescription') . '</td>';
 print '<td><input type="number" name="MediaMaxHeightLarge" value="' . $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE . '"></td>';
-print '<td><input type="submit" class="button" name="save" value="' . $langs->trans('Save') . '">';
 print '</td></tr>';
 
 print '<tr class="oddeven"><td><label for="DisplayNumberMediaGallery">' . $langs->trans('DisplayNumberMediaGallery') . '</label></td>';
 print '<td>' . $langs->trans('DisplayNumberMediaGalleryDescription') . '</td>';
 print '<td><input type="number" name="DisplayNumberMediaGallery" value="' . $conf->global->DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY . '"></td>';
-print '<td><input type="submit" class="button" name="save" value="' . $langs->trans('Save') . '">';
 print '</td></tr>';
 
 print '</table>';
+
+print $form->buttonsSaveCancel('Save', '');
 
 // Page end
 print dol_get_fiche_end();
