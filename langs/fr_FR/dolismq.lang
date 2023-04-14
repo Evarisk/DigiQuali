@@ -241,6 +241,7 @@ LockControlOutdatedEquipmentDescription = Le contrôle sera verouillé si la DLU
 ControlEquipmentOutdated = La DLUO/DDM d'un ou plusieurs moyens de contrôle est dépassée
 GoToEquipmentHours = Aller sur la page des moyens de contrôle
 ExpiredSince = Expiré depuis
+RemainingDays = Jours avant expiration
 
 #
 # ControlDet
