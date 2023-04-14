@@ -159,7 +159,7 @@ if ($id > 0 || !empty($ref)) {
 		foreach ($equipmentsControl as $equipmentControl) {
 			if ($equipmentControl->status == 0) continue;
 			$equipment->fetch($equipmentControl->fk_product);
-			$equipmentIds[$equipment->id] = $equipment->label;
+			$equipmentIds[$equipment->id] = $equipmentControl->ref;
 		}
 	}
 	$selectArray = array_diff($productsData, $equipmentIds);
@@ -178,20 +178,26 @@ if ($id > 0 || !empty($ref)) {
 	// Lines
 	print '<thead><tr class="liste_titre">';
 	print '<td>' . $langs->trans('Ref') . '</td>';
+	print '<td>' . $langs->trans('ProductRef') . '</td>';
 	print '<td>' . $langs->trans('Label') . '</td>';
-	print '<td>' . $langs->trans('OptimalExpirationDate');
+	print '<td class="center">' . $langs->trans('OptimalExpirationDate');
 	print $form->textwithpicto('', $langs->trans('OptimalExpirationDateDescription')) . '</td>';
+	print '<td class="center">' . $langs->trans('RemainingDays') . '</td>';
 	print '<td class="center">' . $langs->trans('Action') . '</td>';
 	print '<td> </td>';
 	print '</tr></thead>';
 
 	if (is_array($equipmentIds) && !empty($equipmentIds)) {
 		print '<tbody><tr>';
-		foreach ($equipmentIds as $equipmentId => $label) {
+		foreach ($equipmentIds as $equipmentId => $ref) {
 			$item = $equipment;
 			$item->fetch($equipmentId);
 
 			print '<tr id="'. $item->id .'" class="line-row oddeven">';
+			print '<td>';
+			print $ref;
+			print '</td>';
+
 			print '<td>';
 			print $item->getNomUrl(1);
 			print '</td>';
@@ -200,12 +206,14 @@ if ($id > 0 || !empty($ref)) {
 			print $item->label;
 			print '</td>';
 
-			print '<td>';
+			print '<td class="center">';
 			$creationDate   = strtotime($item->date_creation);
 			$expirationDate = dol_time_plus_duree($creationDate, $item->lifetime, 'd');
-			$remainingDay   = convertSecondToTime($expirationDate - dol_now(), 'allwithouthour')?: $langs->trans('ExpiredSince') . ' ' . convertSecondToTime(dol_now() - $expirationDate, 'allwithouthour');
+			print  $item->lifetime ? dol_print_date($expirationDate, 'day') : $langs->trans('NoData');
+			print '</td>';
 
-			print  $item->lifetime ? dol_print_date($expirationDate, 'day') . ' - ' : $langs->trans('NoData');
+			print '<td class="center">';
+			$remainingDay   = convertSecondToTime($expirationDate - dol_now(), 'allwithouthour')?: '- ' . convertSecondToTime(dol_now() - $expirationDate, 'allwithouthour');
 			if (empty($item->lifetime) || $expirationDate <= dol_now()) {
 				print '<span style="color:red">';
 			} else if (!empty($item->lifetime) && $expirationDate <= dol_now() + 2592000) {
@@ -213,7 +221,7 @@ if ($id > 0 || !empty($ref)) {
 			} else {
 				print '<span style="color:green">';
 			}
-			print  $item->lifetime ? $remainingDay : '';
+			print  $item->lifetime ? $remainingDay : $langs->trans('NoData');
 			print '</span> </td>';
 
 			print '<td class="center">';
@@ -237,6 +245,10 @@ if ($id > 0 || !empty($ref)) {
 		print '<input type="hidden" name="id" value="' . $id . '">';
 		print '<tr><td>';
 		print $form->selectarray('equipmentId', $selectArray, '', $langs->transnoentities('SelectControlEquipment'));
+		print '</td>';
+		print '<td>';
+		print '</td>';
+		print '<td>';
 		print '</td>';
 		print '<td>';
 		print '</td>';
