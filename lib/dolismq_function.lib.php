@@ -61,6 +61,7 @@ function dolismq_select_product_lots($productid = -1, $selected = '', $htmlname 
 	if ( ! is_object($hookmanager)) {
 		include_once DOL_DOCUMENT_ROOT . '/core/class/hookmanager.class.php';
 		$hookmanager = new HookManager($db);
+		$hookmanager->initHooks(['globalcard']);
 	}
 
 	// We search third parties
@@ -119,6 +120,10 @@ function dolismq_select_product_lots($productid = -1, $selected = '', $htmlname 
 			$out        .= '</option>';
 		}
 
+		if ($htmlname != 'none' && ! $options_only) {
+			$out .= '</select>';
+		}
+
 		$parameters = array(
 			'socid' => $productid,
 			'htmlname' => $htmlname,
@@ -128,10 +133,11 @@ function dolismq_select_product_lots($productid = -1, $selected = '', $htmlname 
 			'showsoc' => $showsoc,
 		);
 
-		//$reshook = $hookmanager->executeHooks('afterSelectContactOptions', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
+		$reshook = $hookmanager->executeHooks('modifyProductlotSelector', $parameters);
 
-		if ($htmlname != 'none' && ! $options_only) {
-			$out .= '</select>';
+		if ($reshook < 0) {
+			dol_print_error($db, $hookmanager->error, $hookmanager->errors);
+			return -1;
 		}
 
 		return $out;
