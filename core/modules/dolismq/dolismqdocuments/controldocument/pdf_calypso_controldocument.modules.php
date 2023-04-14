@@ -393,7 +393,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					if (empty($value) || $value == ' ' || $value == ' - ') {
 						$value = $langs->trans('NoData');
 					}
-					// Limit value to 35 character
+					// Limit value to 35 characters
 					if (dol_strlen($value) > 34) {
 						$value = dol_substr($value, 0, 31) . '...';
 					}
@@ -448,7 +448,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 
 				//Fetch and count the number of questions
 				$object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet');
-				if (!empty($object->linkedObjects['dolismq_question'])) {
+				if (is_array($object->linkedObjects['dolismq_question']) && !empty($object->linkedObjects['dolismq_question'])) {
 					// New page for the incoming table of questions/answer
 					$pdf->AddPage($this->orientation, '', true);
 					$pageNbr++;
