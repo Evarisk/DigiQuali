@@ -946,7 +946,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		if (empty($reshook)) {
 			// Save question answer
 			if ($object->status == $object::STATUS_DRAFT) {
-				print '<button type="submit" id="saveButton" class="saveButton butActionRefused">' . '<i class="fas fa-save"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Save')) . '</button>';
+				print '<span class="butActionRefused" id="saveButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=save' . '">' . '<i class="fas fa-lock-open"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Save')) . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . '<i class="fas fa-save"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Save')) . '</span>';
 			}
