@@ -1,4 +1,4 @@
--- Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
+-- Copyright (C) 2021-2023 EVARISK <technique@evarisk.com>
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -13,18 +13,12 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see https://www.gnu.org/licenses/.
 
-CREATE TABLE llx_dolismq_answer(
-	rowid         integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	ref           varchar(128) DEFAULT '(PROV)' NOT NULL,
-	ref_ext       varchar(128),
-	entity        integer DEFAULT 1 NOT NULL,
-	date_creation datetime NOT NULL,
-    tms           timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    import_key    varchar(14),
-    status        integer DEFAULT 1 NOT NULL,
-	value         text,
-	fk_user_creat integer NOT NULL,
-	fk_user_modif integer,
-    fk_question   integer NOT NULL,
-    position      integer
+CREATE TABLE llx_c_question_type(
+	rowid       integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	entity      integer default 1,
+	ref         varchar(128),
+    label       varchar(255),
+    code        varchar(255),
+	description text,
+	active      tinyint(4) DEFAULT 0
 ) ENGINE=innodb;
