@@ -40,7 +40,9 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 
 require_once '../../class/question.class.php';
+require_once '../../class/answer.class.php';
 require_once '../../core/modules/dolismq/question/mod_question_standard.php';
+require_once '../../core/modules/dolismq/answer/mod_answer_standard.php';
 require_once '../../lib/dolismq_question.lib.php';
 require_once '../../lib/dolismq_function.lib.php';
 
@@ -64,6 +66,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Initialize objects
 // Technical objets
 $object         = new Question($db);
+$answer         = new Answer($db);
 $extrafields    = new ExtraFields($db);
 $refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($db);
 
@@ -487,6 +490,23 @@ if (empty($reshook)) {
 		}
 	}
 
+	if ($action == 'addAnswer') {
+		$answerValue = GETPOST('answerValue');
+
+		$answer->value = $answerValue;
+		$answer->fk_question = $id;
+		$answer->create($user);
+	}
+
+	if ($action == 'moveLine' && $permissiontoadd) {
+		$idsArray = json_decode(file_get_contents('php://input'), true);
+		if (is_array($idsArray['order']) && !empty($idsArray['order'])) {
+			$ids = array_values($idsArray['order']);
+			$reIndexedIds = array_combine(range(1, count($ids)), array_values($ids));
+		}
+		$object->updateAnswersPosition($reIndexedIds);
+	}
+
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
@@ -561,6 +581,11 @@ if ($action == 'create') {
 	print '<tr><td class=""><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
 	$doleditor = new DolEditor('description', '', '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
+	print '</td></tr>';
+
+	// Type -- Type
+	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
+	print saturne_select_dictionary('type','c_question_type', 'label');
 	print '</td></tr>';
 
 	// EnterComment -- Saisir les commentaires
@@ -677,9 +702,15 @@ if (($id || $ref) && $action == 'edit') {
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="'.$object->label.'">';
 	print '</td></tr>';
 
+	//Description -- Description
 	print '<tr><td><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
 	$doleditor = new DolEditor('description', $object->description, '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
+	print '</td></tr>';
+
+	// Type -- Type
+	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
+	print saturne_select_dictionary('type','c_question_type', 'label', 'label', $object->type);
 	print '</td></tr>';
 
 	// EnterComment -- Saisir les commentaires
@@ -838,6 +869,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print $object->description;
 	print '</td></tr>';
 
+	// Type -- Type
+	print '<tr><td class="titlefield">';
+	print $langs->trans("QuestionType");
+	print '</td>';
+	print '<td>';
+	print $object->type;
+	print '</td></tr>';
+
 	// EnterComment -- Saisir les commentaires
 	print '<tr><td class="titlefield">';
 	print $langs->trans("EnterComment");
@@ -895,6 +934,155 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '</div>';
 
 	print '<div class="clearboth"></div>';
+
+	if ($object->type == $langs->trans('MultipleChoices') || $object->type == $langs->trans('UniqueChoice')) {
+
+		// QUESTIONS LINES
+		print '<div class="div-table-responsive-no-min">';
+		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+		print '<input type="hidden" name="token" value="' . newToken() . '">';
+		print '<input type="hidden" name="action" value="addAnswer">';
+		print '<input type="hidden" name="id" value="' . $id . '">';
+		print load_fiche_titre($langs->trans("AnswersList"), '', '');
+		print '<table id="tablelines" class="centpercent noborder noshadow">';
+
+		global $forceall, $forcetoshowtitlelines;
+
+		if (empty($forceall)) $forceall = 0;
+
+		// Define colspan for the button 'Add'
+		$colspan = 3;
+		?>
+		<script>
+			$(document).ready(function(){
+				$(".move-line").css("background-image",'url(<?php echo DOL_URL_ROOT.'/theme/'.$conf->theme.'/img/grip.png'; ?>)');
+				$(".move-line").css("background-repeat","no-repeat");
+				$(".move-line").css("background-position","center center");
+				$('#tablelines tbody').sortable({
+					handle: '.move-line',
+					connectWith:'#tablelines tbody .line-row',
+					tolerance:'intersect',
+					over:function(event,ui){
+					},
+					stop: function(event, ui) {
+						let token = $('.fiche').find('input[name="token"]').val();
+
+						let separator = '&'
+						if (document.URL.match(/action=/)) {
+							document.URL = document.URL.split(/\?/)[0]
+							separator = '?'
+						}
+						let lineOrder = [];
+						$('.line-row').each(function(  ) {
+							lineOrder.push($(this).attr('id'));
+						});
+						$.ajax({
+							url: document.URL + separator + "action=moveLine&token=" + token,
+							type: "POST",
+							data: JSON.stringify({
+								order: lineOrder
+							}),
+							processData: false,
+							contentType: false,
+							success: function ( resp ) {
+							}
+						});
+					}
+				});
+
+			});
+		</script>
+		<?php
+		// Lines
+		print '<thead><tr class="liste_titre">';
+		print '<td>' . $langs->trans('Ref') . '</td>';
+		print '<td>' . $langs->trans('Value') . '</td>';
+		print '<td>' . $langs->trans('Photo') . '</td>';
+		print '<td class="center">' . $langs->trans('Action') . '</td>';
+		print '<td class="center"></td>';
+		print '</tr></thead>';
+
+		$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $object->id]);
+
+		if (is_array($answerList) && !empty($answerList)) {
+			foreach($answerList as $answerSingle) {
+				print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
+				print '<td>';
+				print $answerSingle->getNomUrl(1);
+				print '</td>';
+
+				print '<td>';
+				print $answerSingle->value;
+				print '</td>';
+
+				print '<td>';
+				if (dol_strlen($answerSingle->photo)) {
+					$urladvanced               = getAdvancedPreviewUrl('dolismq', $answerSingle->element . '/' . $answerSingle->ref . '/photo_ok/' . $answerSingle->photo_ok, 0, 'entity=' . $conf->entity);
+					if ($urladvanced) print '<a href="' . $urladvanced . '">';
+					print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($answerSingle->element . '/' . $answerSingle->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $answerSingle->photo_ok)) . '" >';
+					print '</a>';
+				} else {
+					print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+				}
+				print '</td>';
+
+				print '<td class="center">';
+				if ($object->status != 2) {
+					print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=unlinkQuestion&questionId=' . $answerSingle->id . '">';
+					print img_delete();
+					print '</a>';
+				}
+				print '</td>';
+
+				if ($object->status < $object::STATUS_LOCKED) {
+					print '<td class="move-line ui-sortable-handle">';
+				} else {
+					print '<td>';
+				}
+				print '</td>';
+				print '</tr>';
+			}
+		}
+
+		print '<tr>';
+
+		print '<td>-</td>';
+		print '<td><input name="answerValue" value=""></td>';
+
+//	// Photo -- Photo
+		print '<td class="linked-medias  linked-medias-list">';
+//	?>
+		<!--	<input hidden multiple class="fast-upload" id="fast-upload-photo" type="file" name="userfile[]" capture="environment" accept="image/*">-->
+		<!--	<label for="fast-upload-photo-ok">-->
+		<!--		<div class="wpeo-button button-square-50">-->
+		<!--			<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>-->
+		<!--		</div>-->
+		<!--	</label>-->
+		<!--	<input type="hidden" class="favorite-photo" id="photo" name="photo" value=""/>-->
+		<!--	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">-->
+		<!--		<input type="hidden" class="modal-to-open" value="media_gallery"/>-->
+		<!--		<input type="hidden" class="from-type" value="answer"/>-->
+		<!--		<input type="hidden" class="from-subtype" value="photo"/>-->
+		<!--		<input type="hidden" class="from-subdir" value="photo"/>-->
+		<!--		<input type="hidden" class="from-id" value="--><?php //echo $object->id ?><!--"/>-->
+		<!--		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>-->
+		<!--	</div>-->
+		<!--	--><?php
+//	$relativepath = 'dolismq/medias/thumbs';
+//	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/answer/tmp/AN0/photo', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/tmp/AN0/photo', $answer, 'photo', 1, $permissiontodelete);
+		print '</td>';
+
+		print '<td class="center">';
+		print '<input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
+		print '</td>';
+
+		print '</tr>';
+
+		print '</table>';
+		print '</form>';
+		print '</div>';
+
+	}
 
 	print dol_get_fiche_end();
 
