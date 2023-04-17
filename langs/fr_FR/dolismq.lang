@@ -193,7 +193,7 @@ AddUser = Créer utilisateur
 AddControlIntoCategory = Assigner cette catégorie au contrôle
 ProductOrServiceLinked = Produit ou service contrôlé
 NoVerdict = Pas de verdict
-
+DefaultPhoto = Photo par défaut
 
 #
 # ControlDet

@@ -481,34 +481,6 @@ if (empty($reshook)) {
 		}
 	}
 
-	// Action to update record
-	if ($action == 'update' && !empty($permissiontoadd)) {
-		$pathToTmpPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/controldocument/'. $object->ref .'/photo_default';
-		$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/controldocument/' . $object->ref . '/photo_default');
-
-		if (is_array($photoList) && !empty($photoList)) {
-			$favoriteExists = 0;
-			foreach ($photoList as $photo) {
-				if ($photo['name'] == $object->$type) {
-					$favoriteExists = 1;
-				}
-			}
-			foreach ($photoList as $index => $photo) {
-				if ($index == 0 && (dol_strlen($object->$type) == 0 || !$favoriteExists)) {
-					$object->$type = $photo['name'];
-				}
-			}
-		}
-		$object->update($user);
-
-		$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
-		$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
-		if ($urltogo) {
-			header("Location: " . $urltogo);
-			exit;
-		}
-	}
-
 	// Actions to send emails
 	$triggersendname = 'CONTROL_SENTBYMAIL';
 	$autocopy        = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
@@ -928,14 +900,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?action=update_photo&id='.$object->id.'" id="updatePhoto" enctype="multipart/form-data">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
-	print '<input type="hidden" name="action" value="update">';
-	print '<input type="hidden" name="id" value="'.$object->id.'">';
-	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
-	if ($backtopageforcancel) print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
+	print '<input type="hidden" name="action" value="update_photo">';
 
-	print '<tr class="linked-medias photo_default hidden"><td class=""><label for="photo_default">' . $langs->trans("DefaultPhoto") . '</label></td><td class="linked-medias-list">'; ?>
+	print '<tr class="linked-medias photo_default question-table"><td class=""><label for="photo_default">' . $langs->trans("DefaultPhoto") . '</label></td><td class="linked-medias-list">'; ?>
 	<input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
 	<label for="fast-upload-photo-default">
 		<div class="wpeo-button button-square-50">
@@ -945,16 +914,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	<input type="hidden" class="favorite-photo" id="photo_default" name="photo_default" value="<?php echo GETPOST('favorite_photo_default') ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
 		<input type="hidden" class="modal-to-open" value="media_gallery"/>
-		<input type="hidden" class="from-type" value="question"/>
-		<input type="hidden" class="from-subtype" value="photo_ok"/>
-		<input type="hidden" class="from-subdir" value="photo_ok"/>
-		<input type="hidden" class="from-id" value="<?php echo 0 ?>"/>
+		<input type="hidden" class="from-type" value="control"/>
+		<input type="hidden" class="from-subtype" value="photo_default"/>
+		<input type="hidden" class="from-subdir" value="photo_default"/>
+		<input type="hidden" class="from-id" value="<?php echo $object->id?>"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
 	$relativepath = 'dolismq/medias/thumbs';
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/controldocument/tmp/FC0/photo_default', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'controldocument/tmp/FC0/photo_default', $object, 'photo_default', 1, $permissiontodelete);
+	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photo_default/', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photo_default/', $object, 'photo_default', 1, $permissiontodelete);
 	print '</td></tr>';
+	print '</form>';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	if ($permissiontoadd > 0 && $object->status < 1) {
