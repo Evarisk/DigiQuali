@@ -481,6 +481,14 @@ if (empty($reshook)) {
 		}
 	}
 
+	if ($action == 'add_favorite_photo') {
+		$data          = json_decode(file_get_contents('php://input'), true);
+		$filename      = $data['filename'];
+		$object->photo = $filename;
+
+		$object->update($user);
+	}
+
 	// Actions to send emails
 	$triggersendname = 'CONTROL_SENTBYMAIL';
 	$autocopy        = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
@@ -765,7 +773,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 	$morehtmlref .= '</div>';
 
-	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', $morehtmlref);
+	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', $morehtmlref, empty($object->photo) ? false : true);
 
 	print '<div class="fichecenter controlInfo' . ($conf->browser->layout == 'phone' ? ' hidden' : '') . '">';
 	print '<div class="fichehalfleft">';
@@ -900,31 +908,27 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
-	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?action=update_photo&id='.$object->id.'" id="updatePhoto" enctype="multipart/form-data">';
-	print '<input type="hidden" name="token" value="'.newToken().'">';
-	print '<input type="hidden" name="action" value="update_photo">';
-
-	print '<tr class="linked-medias photo_default question-table"><td class=""><label for="photo_default">' . $langs->trans("DefaultPhoto") . '</label></td><td class="linked-medias-list">'; ?>
-	<input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
-	<label for="fast-upload-photo-default">
-		<div class="wpeo-button button-square-50">
-			<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
+	print '<tr class="linked-medias photos question-table"><td class=""><label for="photos">' . $langs->trans("Photo") . '</label></td><td class="linked-medias-list">';
+	if ($object->status != Control::STATUS_LOCKED) { ?>
+		<input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
+		<label for="fast-upload-photo-default">
+			<div class="wpeo-button button-square-50">
+				<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
+			</div>
+		</label>
+		<input type="hidden" class="favorite-photo" id="photos" name="photos" value="<?php echo $object->photo ?>"/>
+		<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
+			<input type="hidden" class="modal-to-open" value="media_gallery"/>
+			<input type="hidden" class="from-type" value="control"/>
+			<input type="hidden" class="from-subtype" value="photos"/>
+			<input type="hidden" class="from-subdir" value="photos"/>
+			<input type="hidden" class="from-id" value="<?php echo $object->id?>"/>
+			<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 		</div>
-	</label>
-	<input type="hidden" class="favorite-photo" id="photo_default" name="photo_default" value="<?php echo GETPOST('favorite_photo_default') ?>"/>
-	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-		<input type="hidden" class="modal-to-open" value="media_gallery"/>
-		<input type="hidden" class="from-type" value="control"/>
-		<input type="hidden" class="from-subtype" value="photo_default"/>
-		<input type="hidden" class="from-subdir" value="photo_default"/>
-		<input type="hidden" class="from-id" value="<?php echo $object->id?>"/>
-		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
-	</div>
-	<?php
+	<?php }
 	$relativepath = 'dolismq/medias/thumbs';
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photo_default/', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photo_default/', $object, 'photo_default', 1, $permissiontodelete);
+	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/', 'small', 5, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
 	print '</td></tr>';
-	print '</form>';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	if ($permissiontoadd > 0 && $object->status < 1) {
