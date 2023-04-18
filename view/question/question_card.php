@@ -203,6 +203,8 @@ if (empty($reshook)) {
 			if ( ! $error) {
 				$generatethumbs = 1;
 				dol_add_file_process($upload_dir, 0, 1, 'userfile', '', null, '', $generatethumbs);
+				$imgThumbMedium = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+				$imgThumbLarge  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
 			}
 			$error = 0;
 		}
@@ -228,6 +230,8 @@ if (empty($reshook)) {
 			if ( ! $error) {
 				$generatethumbs = 1;
 				dol_add_file_process($upload_dir, 0, 1, 'userfile2', '', null, '', $generatethumbs);
+				$imgThumbMedium = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+				$imgThumbLarge  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
 			}
 			$error = 0;
 		}
