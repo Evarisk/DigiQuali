@@ -16,4 +16,5 @@
 ALTER TABLE llx_dolismq_sheet ADD INDEX idx_dolismq_sheet_rowid (rowid);
 ALTER TABLE llx_dolismq_sheet ADD INDEX idx_dolismq_sheet_ref (ref);
 ALTER TABLE llx_dolismq_sheet ADD INDEX idx_dolismq_sheet_status (status);
+ALTER TABLE llx_dolismq_sheet ADD UNIQUE INDEX uk_dolismq_sheet_ref (ref, entity);
 ALTER TABLE llx_dolismq_sheet ADD CONSTRAINT llx_dolismq_sheet_fk_user_creat FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid);
