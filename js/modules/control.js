@@ -29,6 +29,7 @@ window.dolismq.control.init = function() {
  */
 window.dolismq.control.event = function() {
 	$( document ).on( 'click', '.answer:not(.disable)', window.dolismq.control.selectAnswer );
+	$( document ).on( 'input', '.input-answer:not(.disable)', window.dolismq.control.selectAnswer );
 	$( document ).on( 'keyup', '.question-comment', window.dolismq.control.writeComment );
 	$( document ).on( 'keyup', '.question-comment', window.dolismq.control.showCommentUnsaved );
 	$( document ).on( 'change', '#fk_product', window.dolismq.control.reloadProductLot );
@@ -49,16 +50,10 @@ window.dolismq.control.event = function() {
  * @return {void}
  */
 window.dolismq.control.selectAnswer = function ( event ) {
+	let answerValue = $(this).hasClass('answer') ? $(this).attr('value') : $(this).val()
 	$(this).closest('.table-cell').find('span').removeClass( 'active' );
 	$(this).closest('span').addClass( 'active' );
-	$(this).closest('.table-cell').find('.question-answer').val($(this).attr('value'))
-
-	let postName = $(this).closest('.table-cell').find('.question-answer').attr('name')
-	let postValue = $(this).closest('.table-cell').find('.question-answer').val()
-	//let actualSavePost = $(this).closest('.tabBar').find('.saveButton').attr('href')
-	let actualValidatePost = $(this).closest('.tabBar').find('.validateButton').attr('href')
-	//$(this).closest('.tabBar').find('.saveButton').attr('href', actualSavePost + '&' + postName + '=' + postValue)
-	$(this).closest('.tabBar').find('.validateButton').attr('href', actualValidatePost + '&' + postName + '=' + postValue)
+	$(this).closest('.answer-cell').find('.question-answer').val(answerValue)
 	window.dolismq.control.updateButtonsStatus()
 };
 

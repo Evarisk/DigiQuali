@@ -935,9 +935,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	if ($object->type == $langs->trans('MultipleChoices') || $object->type == $langs->trans('UniqueChoice')) {
+	if ($object->type == $langs->transnoentities('MultipleChoices') || $object->type == $langs->transnoentities('UniqueChoice')) {
 
-		// QUESTIONS LINES
+		// ANSWERS LINES
 		print '<div class="div-table-responsive-no-min">';
 		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
 		print '<input type="hidden" name="token" value="' . newToken() . '">';
@@ -1082,6 +1082,40 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</form>';
 		print '</div>';
 
+//	} else if ($object->type == $langs->transnoentities('OkKo') || $object->type == $langs->transnoentities('OkKoToFixNonApplicable')) {
+//
+//		// ANSWERS LINES
+//		print '<div class="div-table-responsive-no-min">';
+//		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+//		print '<input type="hidden" name="token" value="' . newToken() . '">';
+//		print '<input type="hidden" name="action" value="addAnswer">';
+//		print '<input type="hidden" name="id" value="' . $id . '">';
+//		print load_fiche_titre($langs->trans("AnswersList"), '', '');
+//		print '<table id="tablelines" class="centpercent noborder noshadow">';
+//
+//		global $forceall, $forcetoshowtitlelines;
+//
+//		if (empty($forceall)) $forceall = 0;
+//
+//		// Lines
+//		print '<thead><tr class="liste_titre">';
+//		print '<td>' . $langs->trans('Ref') . '</td>';
+//		print '<td>' . $langs->trans('Value') . '</td>';
+//		print '<td>' . $langs->trans('Photo') . '</td>';
+//		print '<td class="center">' . $langs->trans('Action') . '</td>';
+//		print '<td class="center"></td>';
+//		print '</tr></thead>';
+//
+//		print '<tr>';
+//		print '<td></td>';
+//		print '<td></td>';
+//		print '<td></td>';
+//
+//
+//		print '</tr>';
+//		print '</table>';
+//		print '</form>';
+//		print '</div>';
 	}
 
 	print dol_get_fiche_end();
