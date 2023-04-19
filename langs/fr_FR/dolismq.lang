@@ -195,6 +195,7 @@ ProductOrServiceLinked = Produit ou service contrôlé
 NoVerdict = Pas de verdict
 ControlsRepartition = Répartition des contrôles par verdict
 ControlsTagsRepartition = Répartition des contrôles par verdict par catégories
+ControlsByFiscalYear = Rapport des contrôles sur l'exercice fiscal
 
 
 
