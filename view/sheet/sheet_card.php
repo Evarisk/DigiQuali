@@ -263,6 +263,25 @@ if (empty($reshook)) {
 			}
 		}
 	}
+
+    // Action to set status STATUS_ARCHIVED.
+    if ($action == 'confirm_archive' && $permissiontoadd) {
+        $object->fetch($id);
+        if (!$error) {
+            $result = $object->setArchived($user);
+            if ($result > 0) {
+                // Set Archived OK.
+                $urltogo = str_replace('__ID__', $result, $backtopage);
+                $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
+                header('Location: ' . $urltogo);
+                exit;
+            } elseif (!empty($object->errors)) { // Set Archived KO.
+                setEventMessages('', $object->errors, 'errors');
+            } else {
+                setEventMessages($object->error, [], 'errors');
+            }
+        }
+    }
 }
 
 /*
@@ -543,7 +562,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		if (empty($reshook) && $permissiontoadd) {
 			// Modify
-			if ($object->status != $object::STATUS_LOCKED) {
+			if ($object->status == $object::STATUS_VALIDATED) {
 				print '<a class="butAction" id="actionButtonEdit" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit' . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</a>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeDraft', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</span>';
@@ -558,6 +577,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Clone
 			print '<span class="butAction" id="actionButtonClone"><i class="fas fa-clone"></i> ' . $langs->trans('Clone') . '</span>';
+
+            // Archive
+            if ($object->status == $object::STATUS_LOCKED) {
+                print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=confirm_archive&token=' . newToken() . '"><i class="fas fa-archive"></i> ' . $langs->trans('Archive') . '</a>';
+            } else {
+                print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLockedToArchive', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-archive"></i> ' . $langs->trans('Archive') . '</span>';
+            }
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
 			if ($object->status != $object::STATUS_LOCKED) {
@@ -696,7 +722,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</tr></tbody>';
 	}
 
-	if ($object->status != 2) {
+	if ($object->status < $object::STATUS_LOCKED) {
 		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
 		print '<input type="hidden" name="token" value="' . newToken() . '">';
 		print '<input type="hidden" name="action" value="addQuestion">';
