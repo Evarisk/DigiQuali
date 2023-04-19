@@ -63,6 +63,7 @@ class Control extends CommonObject
 	public const STATUS_DRAFT     = 0;
 	public const STATUS_VALIDATED = 1;
 	public const STATUS_LOCKED    = 2;
+    public const STATUS_ARCHIVED  = 3;
 
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
@@ -399,6 +400,18 @@ class Control extends CommonObject
 		return $this->setStatusCommon($user, self::STATUS_LOCKED, $notrigger, 'CONTROL_LOCKED');
 	}
 
+    /**
+     * Set archived status.
+     *
+     * @param  User $user       Object user that modify.
+     * @param  int  $notrigger  1 = Does not execute triggers, 0 = Execute triggers.
+     * @return int              0 < if KO, >0 if OK.
+     */
+    public function setArchived(User $user, int $notrigger = 0): int
+    {
+        return $this->setStatusCommon($user, self::STATUS_ARCHIVED, $notrigger, 'CONTROL_ARCHIVED');
+    }
+
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
 	 *  Return if a control can be deleted
@@ -624,31 +637,38 @@ class Control extends CommonObject
 	}
 
 
-	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *  Return the status
+	 * Return the status
 	 *
-	 *  @param	int		$status        Id status
-	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
-	 *  @return string 			       Label of status
+	 * @param  int  $status        Id status
+	 * @param  int   $mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
+	 * @return string         Label of status
 	 */
-	public function LibStatut($status, $mode = 0)
+    public function LibStatut(int $status, int $mode = 0): string
 	{
-		// phpcs:enable
 		if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
 			global $langs;
-			//$langs->load("dolismq@dolismq");
-			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('StatusDraft');
-			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('Validated');
-			$this->labelStatus[self::STATUS_LOCKED]         = $langs->trans('Locked');
-			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('StatusDraft');
-			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Validated');
-			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->trans('Locked');
+			$this->labelStatus[self::STATUS_DRAFT]          = $langs->transnoentitiesnoconv('StatusDraft');
+			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->transnoentitiesnoconv('Validated');
+			$this->labelStatus[self::STATUS_LOCKED]         = $langs->transnoentitiesnoconv('Locked');
+            $this->labelStatus[self::STATUS_ARCHIVED]       = $langs->transnoentitiesnoconv('Archived');
+
+			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
+			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Validated');
+			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
+            $this->labelStatusShort[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
 		}
 
 		$statusType = 'status' . $status;
-		if ($status == self::STATUS_VALIDATED) $statusType = 'status4';
-		if ($status == self::STATUS_LOCKED) $statusType = 'status6';
+		if ($status == self::STATUS_VALIDATED) {
+            $statusType = 'status4';
+        }
+		if ($status == self::STATUS_LOCKED) {
+            $statusType = 'status6';
+        }
+        if ($status == self::STATUS_ARCHIVED) {
+            $statusType = 'status8';
+        }
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}

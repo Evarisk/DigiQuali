@@ -481,6 +481,25 @@ if (empty($reshook)) {
 		}
 	}
 
+    // Action to set status STATUS_ARCHIVED.
+    if ($action == 'confirm_archive' && $permissiontoadd) {
+        $object->fetch($id);
+        if (!$error) {
+            $result = $object->setArchived($user);
+            if ($result > 0) {
+                // Set Archived OK.
+                $urltogo = str_replace('__ID__', $result, $backtopage);
+                $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
+                header('Location: ' . $urltogo);
+                exit;
+            } elseif (!empty($object->errors)) { // Set Archived KO.
+                setEventMessages('', $object->errors, 'errors');
+            } else {
+                setEventMessages($object->error, [], 'errors');
+            }
+        }
+    }
+
 	// Actions to send emails
 	$triggersendname = 'CONTROL_SENTBYMAIL';
 	$autocopy        = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
@@ -989,6 +1008,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans('ControlMustBeLockedToSendEmail')) . '">' . '<i class="fas fa-paper-plane"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SendMail') . ' ') . '</span>';
 			}
+
+            // Archive
+            if ($object->status == $object::STATUS_LOCKED) {
+                print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=confirm_archive&token=' . newToken() . '"><i class="fas fa-archive"></i> ' . $langs->trans('Archive') . '</a>';
+            } else {
+                print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLockedToArchive', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-archive"></i> ' . $langs->trans('Archive') . '</span>';
+            }
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
 			print dolGetButtonAction('<i class="fas fa-trash"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Delete')), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
