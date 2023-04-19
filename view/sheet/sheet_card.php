@@ -542,6 +542,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		if (empty($reshook) && $permissiontoadd) {
+			// Create control
+			if ($object->status == $object::STATUS_LOCKED) {
+				print '<a class="butAction" id="actionButtonCreateControl" href="' . dol_buildpath('/custom/dolismq/view/control/control_card.php?action=create&fk_sheet=' . $object->id, 1) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('CreateControl') . '</a>';
+			} else {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLocked', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('AddControl') . '</span>';
+			}
+
 			// Modify
 			if ($object->status != $object::STATUS_LOCKED) {
 				print '<a class="butAction" id="actionButtonEdit" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit' . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</a>';

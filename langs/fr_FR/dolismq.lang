@@ -128,6 +128,7 @@ ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
 Control = Contrôle
 ControlsMin = contrôles
 TheControl = le contrôle
+CreateControl = Créer un contrôle
 AddControl = Ajouter un contrôle
 NewControl = Nouveau contrôle
 ControlList = Liste des contrôles
