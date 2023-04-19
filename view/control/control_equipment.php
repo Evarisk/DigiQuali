@@ -146,26 +146,24 @@ if ($id > 0 || !empty($ref)) {
 	print saturne_get_fiche_head($object, 'equipment', $langs->trans('Equipment'));
 	saturne_banner_tab($object);
 
-	$products     = saturne_fetch_all_object_type('Product');
-	$productsData = [];
-	if (is_array($products) && !empty($products)) {
-		foreach ($products as $key => $value) {
-			$productsData[$value->id]= $value->label;
-		}
-	}
 	$equipmentIds      = [];
 	$equipmentsControl = $controlEquipment->fetchFromParent($object->id);
 	if (is_array($equipmentsControl) && !empty ($equipmentsControl)) {
 		foreach ($equipmentsControl as $equipmentControl) {
 			if ($equipmentControl->status == 0) continue;
 			$equipment->fetch($equipmentControl->fk_product);
+			$excludeFilter .= $equipmentControl->fk_product . ',';
 			$equipmentIds[$equipment->id] = $equipmentControl->ref;
 		}
 	}
-	$selectArray = array_diff($productsData, $equipmentIds);
 
-	if (is_array($equipmentIds) && !empty($equipmentIds)) {
-		ksort($equipmentIds);
+	$excludeFilter = !empty($excludeFilter) ? substr($excludeFilter, 0, -1) : 0;
+	$products      = saturne_fetch_all_object_type('Product', '', '', 0, 0, ['customsql' => '`rowid` NOT IN (' . $excludeFilter . ')']);
+	$productsData  = [];
+	if (is_array($products) && !empty($products)) {
+		foreach ($products as $key => $value) {
+			$productsData[$value->id] = $value->label;
+		}
 	}
 
 	print '<div class="div-table-responsive-no-min">';
@@ -244,7 +242,7 @@ if ($id > 0 || !empty($ref)) {
 		print '<input type="hidden" name="action" value="add_equipment">';
 		print '<input type="hidden" name="id" value="' . $id . '">';
 		print '<tr><td>';
-		print $form->selectarray('equipmentId', $selectArray, '', $langs->transnoentities('SelectControlEquipment'));
+		print $form->selectarray('equipmentId', $productsData, '', $langs->transnoentities('SelectControlEquipment'));
 		print '</td>';
 		print '<td>';
 		print '</td>';
