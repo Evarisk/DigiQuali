@@ -702,7 +702,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
 			print '<td class="center">';
-			if ($object->status != 2) {
+			if ($object->status < $object::STATUS_LOCKED) {
 				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=unlinkQuestion&questionId=' . $item->id . '">';
 				print img_delete();
 				print '</a>';
