@@ -23,8 +23,8 @@ CREATE TABLE llx_dolismq_answer(
     import_key    varchar(14),
     status        integer DEFAULT 1 NOT NULL,
 	value         text,
-	fk_user_creat integer NOT NULL,
-	fk_user_modif integer,
+    position      integer,
     fk_question   integer NOT NULL,
-    position      integer
+    fk_user_creat integer NOT NULL,
+	fk_user_modif integer
 ) ENGINE=innodb;
