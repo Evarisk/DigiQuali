@@ -52,19 +52,29 @@ window.dolismq.control.event = function() {
 window.dolismq.control.selectAnswer = function ( event ) {
 	let answerValue = $(this).hasClass('answer') ? $(this).attr('value') : $(this).val()
 	let answer = '';
-	if ($(this).hasClass('multiple-answers')) {
-		$(this).closest('span').toggleClass( 'active' );
-		let selectedValues = []
-		$('.multiple-answers.active').each(function() {
-			selectedValues.push($(this).attr('value'))
-		})
-		answer = selectedValues
-	} else {
-		$(this).closest('.table-cell').find('span').removeClass( 'active' );
-		$(this).closest('span').addClass( 'active' );
-		answer = answerValue
+	if ($(this).closest('.table-cell').hasClass('select-answer')) {
+		if ($(this).hasClass('multiple-answers')) {
+			$(this).closest('span').toggleClass( 'active' );
+			let selectedValues = []
+			$('.multiple-answers.active').each(function() {
+				selectedValues.push($(this).attr('value'))
+			})
+			answer = selectedValues
+		} else {
+			$(this).closest('.table-cell').find('.answer.active').css( 'background-color', '#fff' );
+
+			$(this).closest('.table-cell').find('span').removeClass( 'active' );
+			$(this).closest('span').addClass( 'active' );
+			answer = answerValue
+		}
+		if ($(this).hasClass('active')) {
+			let answerColor = $(this).closest('.answer-cell').find('.answer-color-' + $(this).attr('value')).val()
+			$(this).attr('style', $(this).attr('style') + ' background:'+answerColor+';')
+		} else {
+			$(this).attr('style', $(this).attr('style') + ' background:#fff;')
+		}
+		$(this).closest('.answer-cell').find('.question-answer').val(answer)
 	}
-	$(this).closest('.answer-cell').find('.question-answer').val(answer)
 
 	window.dolismq.control.updateButtonsStatus()
 };

@@ -74,6 +74,8 @@ UniqueChoice                  = Choix unique
 Range                         = Valeur numérique
 OkKo                          = Sélecteur OK/KO
 OkKoToFixNonApplicable        = Sélecteur OK/KO/NA/A réparer
+ToFix                         = A réparer
+NonApplicable                 = NA
 Answer                        = Réponse
 
 #

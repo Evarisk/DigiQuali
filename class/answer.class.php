@@ -48,12 +48,12 @@ class Answer extends CommonObject
 	 * @var int  Does this object support multicompany module ?
 	 * 0=No test on entity, 1=Test with field entity, 'field@table'=Test with link by field@table
 	 */
-	public $ismultientitymanaged = 1;
+	public int $ismultientitymanaged = 1;
 
 	/**
 	 * @var int  Does object support extrafields ? 0=No, 1=Yes
 	 */
-	public $isextrafieldmanaged = 1;
+	public $isextrafieldmanaged = 0;
 
 	/**
 	 * @var string String with name of icon for answer. Must be the part after the 'object_' into object_answer.png
@@ -78,10 +78,11 @@ class Answer extends CommonObject
 		'import_key' => array('type' => 'varchar(14)', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 0,),
 		'status' => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' => '1', 'arrayofkeyval' => ['0' => 'Draft', '1' => 'Enabled', '2' => 'Locked']),
 		'value' => array('type' => 'text', 'label' => 'Label', 'enabled' => '1', 'position' => 80, 'notnull' => 1, 'visible' => 1, 'index' => 1),
+		'fk_question' => array('type' => 'integer', 'label' => 'FkQuestion', 'enabled' => '1', 'position' => 90, 'notnull' => 1, 'visible' => 0,),
+		'position' => array('type' => 'integer', 'label' => 'Position', 'enabled' => '1', 'position' => 100, 'notnull' => 1, 'visible' => 0,),
+		'color' => array('type' => 'chaine', 'label' => 'Color', 'enabled' => '1', 'position' => 100, 'notnull' => 1, 'visible' => 0,),
 		'fk_user_creat' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',),
 		'fk_user_modif' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
-		'fk_question' => array('type' => 'integer', 'label' => 'FkQuestion', 'enabled' => '1', 'position' => 150, 'notnull' => 1, 'visible' => 0,),
-		'position' => array('type' => 'integer', 'label' => 'Position', 'enabled' => '1', 'position' => 150, 'notnull' => 1, 'visible' => 0,),
 	);
 
 	public $rowid;
@@ -93,10 +94,11 @@ class Answer extends CommonObject
 	public $import_key;
 	public $status;
 	public $value;
+	public $position;
+	public $color;
+	public $fk_question;
 	public $fk_user_creat;
 	public $fk_user_modif;
-	public $fk_question;
-	public $position;
 
 	/**
 	 * Constructor

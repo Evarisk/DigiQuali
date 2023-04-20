@@ -287,6 +287,36 @@ if (empty($reshook)) {
 				// Category association
 				$categories = GETPOST('categories', 'array');
 				$object->setCategories($categories);
+
+				if ($object->type == $langs->transnoentities('OkKo') || $object->type == $langs->transnoentities('OkKoToFixNonApplicable')) {
+					$answer->fk_question = $result;
+					$answer->value = $langs->trans('Ok');
+					$answer->color = '#47e58e';
+
+					$answer->create($user);
+
+					$answer->fk_question = $result;
+					$answer->value = $langs->trans('Ko');
+					$answer->color = '#e05353';
+
+					$answer->create($user);
+				}
+
+				if ($object->type == $langs->transnoentities('OkKoToFixNonApplicable')) {
+					$answer->fk_question = $result;
+					$answer->value = $langs->trans('ToFix');
+					$answer->color = '#e9ad4f';
+
+					$answer->create($user);
+
+					$answer->fk_question = $result;
+					$answer->value = $langs->trans('NonApplicable');
+					$answer->color = '#2b2b2b';
+
+					$answer->create($user);
+				}
+
+
 				$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header("Location: ".$urltogo);
@@ -492,10 +522,31 @@ if (empty($reshook)) {
 
 	if ($action == 'addAnswer') {
 		$answerValue = GETPOST('answerValue');
+		$answerColor = GETPOST('answerColor');
 
 		$answer->value = $answerValue;
+		$answer->color = $answerColor;
 		$answer->fk_question = $id;
 		$answer->create($user);
+	}
+
+	if ($action == 'updateAnswer') {
+		$answerValue = GETPOST('answerValue');
+		$answerColor = GETPOST('answerColor');
+		$answerId    = GETPOST('answerId');
+
+		$answer->fetch($answerId);
+
+		$answer->value = $answerValue;
+		$answer->color = $answerColor;
+		$answer->update($user);
+	}
+
+	if ($action == 'deleteAnswer') {
+		$answerId = GETPOST('answerId');
+
+		$answer->fetch($answerId);
+		$answer->delete($user);
 	}
 
 	if ($action == 'moveLine' && $permissiontoadd) {
@@ -935,14 +986,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	if ($object->type == $langs->transnoentities('MultipleChoices') || $object->type == $langs->transnoentities('UniqueChoice')) {
+	if ($object->type == $langs->transnoentities('MultipleChoices') || $object->type == $langs->transnoentities('UniqueChoice') || $object->type == $langs->transnoentities('OkKo') || $object->type == $langs->transnoentities('OkKoToFixNonApplicable')) {
 
 		// ANSWERS LINES
 		print '<div class="div-table-responsive-no-min">';
-		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
-		print '<input type="hidden" name="token" value="' . newToken() . '">';
-		print '<input type="hidden" name="action" value="addAnswer">';
-		print '<input type="hidden" name="id" value="' . $id . '">';
 		print load_fiche_titre($langs->trans("AnswersList"), '', '');
 		print '<table id="tablelines" class="centpercent noborder noshadow">';
 
@@ -998,6 +1045,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<td>' . $langs->trans('Ref') . '</td>';
 		print '<td>' . $langs->trans('Value') . '</td>';
 		print '<td>' . $langs->trans('Photo') . '</td>';
+		print '<td>' . $langs->trans('Color') . '</td>';
 		print '<td class="center">' . $langs->trans('Action') . '</td>';
 		print '<td class="center"></td>';
 		print '</tr></thead>';
@@ -1006,43 +1054,102 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		if (is_array($answerList) && !empty($answerList)) {
 			foreach($answerList as $answerSingle) {
-				print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
-				print '<td>';
-				print $answerSingle->getNomUrl(1);
-				print '</td>';
+				if ($action == 'editAnswer' && GETPOST('answerId') == $answerSingle->id) {
+					//EDIT LINE
+					print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '">';
+					print '<input type="hidden" name="token" value="' . newToken() . '">';
+					print '<input type="hidden" name="action" value="updateAnswer">';
+					print '<input type="hidden" name="answerId" value="' . $answerSingle->id . '">';
 
-				print '<td>';
-				print $answerSingle->value;
-				print '</td>';
-
-				print '<td>';
-				if (dol_strlen($answerSingle->photo)) {
-					$urladvanced               = getAdvancedPreviewUrl('dolismq', $answerSingle->element . '/' . $answerSingle->ref . '/photo_ok/' . $answerSingle->photo_ok, 0, 'entity=' . $conf->entity);
-					if ($urladvanced) print '<a href="' . $urladvanced . '">';
-					print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($answerSingle->element . '/' . $answerSingle->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $answerSingle->photo_ok)) . '" >';
-					print '</a>';
-				} else {
-					print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
-				}
-				print '</td>';
-
-				print '<td class="center">';
-				if ($object->status != 2) {
-					print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=unlinkQuestion&questionId=' . $answerSingle->id . '">';
-					print img_delete();
-					print '</a>';
-				}
-				print '</td>';
-
-				if ($object->status < $object::STATUS_LOCKED) {
-					print '<td class="move-line ui-sortable-handle">';
-				} else {
+					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
 					print '<td>';
+					print $answerSingle->getNomUrl(1);
+					print '</td>';
+
+					print '<td>';
+					print '<input name="answerValue" value="'. $answerSingle->value .'">';
+					print '</td>';
+
+					print '<td>';
+	//				if (dol_strlen($answerSingle->photo)) {
+	//					$urladvanced               = getAdvancedPreviewUrl('dolismq', $answerSingle->element . '/' . $answerSingle->ref . '/photo_ok/' . $answerSingle->photo_ok, 0, 'entity=' . $conf->entity);
+	//					if ($urladvanced) print '<a href="' . $urladvanced . '">';
+	//					print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($answerSingle->element . '/' . $answerSingle->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $answerSingle->photo_ok)) . '" >';
+	//					print '</a>';
+	//				} else {
+	//					print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+	//				}
+					print '</td>';
+
+					print '<td>';
+					print '<input type="color" name="answerColor" value="' . $answerSingle->color . '">';
+					print '</td>';
+
+					print '<td class="center">';
+					print '<input type="submit" class="button" value="' . $langs->trans('Save') . '" name="updateAnswer" id="updateAnswer">';
+					print '</td>';
+
+					if ($object->status < $object::STATUS_LOCKED) {
+						print '<td class="move-line ui-sortable-handle">';
+					} else {
+						print '<td>';
+					}
+					print '</td>';
+					print '</tr>';
+					print '</form>';
+				} else {
+					//SHOW LINE
+					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
+					print '<td>';
+					print $answerSingle->getNomUrl(1);
+					print '</td>';
+
+					print '<td>';
+					print $answerSingle->value;
+					print '</td>';
+
+					print '<td>';
+//				if (dol_strlen($answerSingle->photo)) {
+//					$urladvanced               = getAdvancedPreviewUrl('dolismq', $answerSingle->element . '/' . $answerSingle->ref . '/photo_ok/' . $answerSingle->photo_ok, 0, 'entity=' . $conf->entity);
+//					if ($urladvanced) print '<a href="' . $urladvanced . '">';
+//					print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($answerSingle->element . '/' . $answerSingle->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $answerSingle->photo_ok)) . '" >';
+//					print '</a>';
+//				} else {
+//					print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+//				}
+					print '</td>';
+
+					print '<td>';
+					print '<input '. ($action == 'editAnswer' && GETPOST('answerId') == $answerSingle->id ? '' : 'disabled') .' type="color" value="' . $answerSingle->color . '">';
+					print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=editAnswer&answerId=' . $answerSingle->id . '">';
+					print img_edit();
+					print '</a>';
+
+					print '</td>';
+
+					print '<td class="center">';
+					if ($object->status != 2) {
+						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=deleteAnswer&answerId=' . $answerSingle->id . '&token='. newToken() .'">';
+						print img_delete();
+						print '</a>';
+					}
+					print '</td>';
+
+					if ($object->status < $object::STATUS_LOCKED) {
+						print '<td class="move-line ui-sortable-handle">';
+					} else {
+						print '<td>';
+					}
+					print '</td>';
+					print '</tr>';
 				}
-				print '</td>';
-				print '</tr>';
 			}
 		}
+
+		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+		print '<input type="hidden" name="token" value="' . newToken() . '">';
+		print '<input type="hidden" name="action" value="addAnswer">';
+		print '<input type="hidden" name="id" value="' . $id . '">';
 
 		print '<tr>';
 
@@ -1071,6 +1178,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 //	$relativepath = 'dolismq/medias/thumbs';
 //	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/answer/tmp/AN0/photo', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/tmp/AN0/photo', $answer, 'photo', 1, $permissiontodelete);
 		print '</td>';
+		?>
+		<td>
+			<input type="color" name="answerColor" class="new-answer-color" value="">
+		</td>
+		<script>
+			var randomColor = Math.floor(Math.random()*16777215).toString(16);
+			$('.new-answer-color').val('#' + randomColor)
+		</script>
+		<?php
 
 		print '<td class="center">';
 		print '<input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';

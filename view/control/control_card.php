@@ -1108,7 +1108,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					<?php if ($item->type == $langs->transnoentities('MultipleChoices')) :
 						$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $item->id]);
 						?>
-						<div class="table-cell answer-cell table-250 <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+						<div class="table-cell select-answer answer-cell table-250 <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<?php
 							if (preg_match('/,/', $questionAnswer)) {
 								$questionAnswers = preg_split('/,/', $questionAnswer);
@@ -1119,75 +1119,47 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 							if (is_array($answerList) && !empty($answerList)) {
 								foreach($answerList as $answerLinked) {
-									print '<span style="border: 2px" class="answer multiple-answers ' . ($object->status > 0 ? 'disable' : '') . ' ' . (in_array($answerLinked->position, $questionAnswers) ? 'active' : '') . '" value="'. $answerLinked->position .'">';
-									print $answerLinked->value;
+									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
+									print '<span style="'. (in_array($answerLinked->position, $questionAnswers) ? 'background:'. $answerLinked->color .'' : '') .'; color:'. $answerLinked->color .';" class="answer multiple-answers ' . ($object->status > 0 ? 'disable' : '') . ' ' . (in_array($answerLinked->position, $questionAnswers) ? 'active' : '') . '" value="'. $answerLinked->position .'">';
+									if (dol_strlen($answerLinked->photo) > 0) {
+										print $answerLinked->photo;
+									} else {
+										print $answerLinked->value;
+									}
 									print '</span>';
 								}
 							}
 							?>
 						</div>
-					<?php elseif ($item->type == $langs->transnoentities('UniqueChoice')) :
+					<?php elseif ($item->type == $langs->transnoentities('UniqueChoice') || $item->type == $langs->transnoentities('OkKo') || $item->type == $langs->transnoentities('OkKoToFixNonApplicable')) :
 						$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $item->id]);
 						?>
-						<div class="table-cell answer-cell table-250 <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+						<div class="table-cell select-answer answer-cell table-250 <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<?php
+							print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 							if (is_array($answerList) && !empty($answerList)) {
 								foreach($answerList as $answerLinked) {
-									print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
-									print '<span style="border: 2px" class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $answerLinked->position .'">';
-									print $answerLinked->value;
+									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
+									print '<span style="'. ($questionAnswer == $answerLinked->position ? 'background:'. $answerLinked->color .'' : '') .'; color:'. $answerLinked->color .';" class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $answerLinked->position .'">';
+									if (dol_strlen($answerLinked->photo) > 0) {
+										print $answerLinked->photo;
+									} else {
+										print $answerLinked->value;
+									}
 									print '</span>';
 								}
 							}
-							?>
-						</div>
-					<?php elseif ($item->type == $langs->transnoentities('OkKo')) :
-						?>
-						<div class="table-cell answer-cell table-250 <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-							<?php
-							print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
-							print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == 1 ? 'active' : '') . '" value="1">';
-							print '<i class="fas fa-check"></i>';
-							print '</span>';
-
-							print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == 2 ? 'active' : '') . '" value="2">';
-							print '<i class="fas fa-times"></i>';
-							print '</span>';
-							?>
-						</div>
-					<?php elseif ($item->type == $langs->transnoentities('OkKoToFixNonApplicable')) :
-						?>
-						<!-- Réponses -->
-						<div class="table-cell answer-cell table-250 <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-							<?php
-							print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
-							print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == 1 ? 'active' : '') . '" value="1">';
-							print '<i class="fas fa-check"></i>';
-							print '</span>';
-
-							print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == 2 ? 'active' : '') . '" value="2">';
-							print '<i class="fas fa-times"></i>';
-							print '</span>';
-
-							print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == 3 ? 'active' : '') . '" value="3">';
-							print '<i class="fas fa-tools"></i>';
-							print '</span>';
-
-							print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == 4 ? 'active' : '') . '" value="4">';
-							print 'N/A';
-							print '</span>';
 							?>
 						</div>
 					<?php elseif ($item->type == $langs->transnoentities('Text')) : ?>
 						<div class="table-cell answer-cell table-flex <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<div class="table-row">
 								<?php
-								print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 								print '<span class="table-cell" value="">';
 								print $langs->trans('Answer') . ' : ';
 								print '</span>';
 								print '<span class="table-cell" value="">';
-								print '<input class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+								print '<input  name="answer'. $item->id .'" id="answer'. $item->id .'" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
 								print '</span>';
 								?>
 							</div>
@@ -1196,12 +1168,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						<div class="table-cell answer-cell table-flex <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<div class="table-row">
 								<?php
-								print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 								print '<span class="table-cell" value="">';
 								print $langs->transnoentities('Answer') . ' : ';
 								print '</span>';
 								print '<span class="table-cell" value="">';
-								print '<input type="number" min="0" max="100" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+								print '<input name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" min="0" max="100" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
 								print '</span>';
 								?>
 							</div>
@@ -1210,12 +1181,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						<div class="table-cell answer-cell table-flex <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<div class="table-row">
 								<?php
-								print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 								print '<span class="table-cell" value="">';
 								print $langs->transnoentities('Answer') . ' : ';
 								print '</span>';
 								print '<span class="table-cell" value="">';
-								print '<input type="number" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+								print '<input name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
 								print '</span>';
 								?>
 							</div>
