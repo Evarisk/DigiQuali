@@ -147,6 +147,12 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
                     $object->add_object_linked('ticket', GETPOST('fk_ticket'));
                 }
 
+                // Load Saturne libraries.
+                require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
+
+                $signatory = new SaturneSignature($this->db, 'dolismq');
+                $signatory->setSignatory($object->id, $object->element, 'user', [$object->fk_user_controller], 'Attendant', 1);
+
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
 				$actioncomm->label = $langs->trans('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
