@@ -78,9 +78,10 @@ class Answer extends CommonObject
 		'import_key' => array('type' => 'varchar(14)', 'label' => 'ImportKey', 'enabled' => '1', 'position' => 60, 'notnull' => 0, 'visible' => 0,),
 		'status' => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' => '1', 'arrayofkeyval' => ['0' => 'Draft', '1' => 'Enabled', '2' => 'Locked']),
 		'value' => array('type' => 'text', 'label' => 'Label', 'enabled' => '1', 'position' => 80, 'notnull' => 1, 'visible' => 1, 'index' => 1),
-		'fk_question' => array('type' => 'integer', 'label' => 'FkQuestion', 'enabled' => '1', 'position' => 90, 'notnull' => 1, 'visible' => 0,),
-		'position' => array('type' => 'integer', 'label' => 'Position', 'enabled' => '1', 'position' => 100, 'notnull' => 1, 'visible' => 0,),
+		'position' => array('type' => 'integer', 'label' => 'Position', 'enabled' => '1', 'position' => 90, 'notnull' => 1, 'visible' => 0,),
 		'color' => array('type' => 'chaine', 'label' => 'Color', 'enabled' => '1', 'position' => 100, 'notnull' => 1, 'visible' => 0,),
+		'pictogram' => array('type' => 'integer', 'label' => 'Pictogram', 'enabled' => '1', 'position' => 110, 'notnull' => 0, 'visible' => 1,),
+		'fk_question' => array('type' => 'integer', 'label' => 'FkQuestion', 'enabled' => '1', 'position' => 120, 'notnull' => 1, 'visible' => 0,),
 		'fk_user_creat' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',),
 		'fk_user_modif' => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
 	);
@@ -96,6 +97,7 @@ class Answer extends CommonObject
 	public $value;
 	public $position;
 	public $color;
+	public $pictogram;
 	public $fk_question;
 	public $fk_user_creat;
 	public $fk_user_modif;
@@ -232,8 +234,8 @@ class Answer extends CommonObject
 			$num = $this->db->num_rows($resql);
 			$i = 0;
 			while ($i < ($limit ? min($limit, $num) : $num)) {
-				$obj = $this->db->fetch_object($resql);
 
+				$obj = $this->db->fetch_object($resql);
 				$record = new self($this->db);
 				$record->setVarsFromFetchObj($obj);
 

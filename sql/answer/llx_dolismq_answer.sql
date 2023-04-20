@@ -24,6 +24,7 @@ CREATE TABLE llx_dolismq_answer(
     status        integer DEFAULT 1 NOT NULL,
 	value         text,
     position      integer,
+    pictogram     integer,
     color         varchar(255),
     fk_question   integer NOT NULL,
     fk_user_creat integer NOT NULL,
