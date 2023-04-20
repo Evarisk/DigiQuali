@@ -270,10 +270,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$tmparray = array_merge($substitutionarray, $array_object_from_properties, $arraySoc);
 			complete_substitutions_array($tmparray, $outputlangs, $object);
 
-			$filearray = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/' . $object->element_type . '/' . $object->ref . '/thumbs/', "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
-			if (count($filearray)) {
-				$image = array_shift($filearray);
-				$tmparray['photoDefault'] = $image['fullname'];
+			if (!empty($object->photo)) {
+				$tmparray['photoDefault'] = $object->photo;
 			}else {
 				$nophoto = '/public/theme/common/nophoto.png';
 				$tmparray['photoDefault'] = DOL_DOCUMENT_ROOT.$nophoto;
@@ -317,19 +315,29 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$sheet->fetch($object->fk_sheet);
 			$usertmp->fetch($object->fk_user_controller);
 
-			$tmparray['mycompany_name']   = $conf->global->MAIN_INFO_SOCIETE_NOM;
-			$tmparray['control_ref']      = $object->ref;
-			$tmparray['nom']              = $usertmp->lastname . ' '. $usertmp->firstname;
-			$tmparray['product_ref']      = $product->ref;
-			$tmparray['lot_ref']          = $productlot->batch;
-			$tmparray['sheet_ref']        = $sheet->ref;
-			$tmparray['sheet_label']      = $sheet->label;
-			$tmparray['control_date']     = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
-			$tmparray['user_label']       = (!empty($usertmp2->id > 0) ? $usertmp2->lastname . ' ' . $usertmp2->firstname : '');
-			$tmparray['thirdparty_label'] = $thirdparty->name;
-			$tmparray['contact_label']    = (!empty($contact->id > 0) ? $contact->firstname . ' ' . $contact->lastname : '');
-			$tmparray['project_label']    = (!empty($project->id > 0) ? $project->ref . ' - ' . $project->title : '');
-			$tmparray['task_label']       = (!empty($task->id > 0) ? $task->ref . ' - ' . $task->label : '');
+			$tmparray['mycompany_name']       = $conf->global->MAIN_INFO_SOCIETE_NOM;
+			$tmparray['adress']               = (!empty($conf->global->MAIN_INFO_SOCIETE_ADRESS) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_ADRESS : ' ');
+			$tmparray['website']              = (!empty($conf->global->MAIN_INFO_SOCIETE_WEBSITE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_WEBSITE : ' ');
+			$tmparray['mail']                 = (!empty($conf->global->MAIN_INFO_SOCIETE_MAIL) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_MAIL : ' ');
+			$tmparray['phone']                = (!empty($conf->global->MAIN_INFO_SOCIETE_PHONE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_PHONE : ' ');
+			$tmparray['control_ref']          = $object->ref;
+			$tmparray['nom']                  = $usertmp->lastname . ' '. $usertmp->firstname;
+			$tmparray['product_ref']          = (!empty($product->ref) ? $product->ref : '');
+			$tmparray['lot_ref']              = (!empty($productlot->batch) ? $productlot->batch : '');
+			$tmparray['sheet_ref']            = (!empty($sheet->ref) ? $sheet->ref : ' ');
+			$tmparray['sheet_label']          = (!empty($sheet->label) ? $sheet->label : ' ');
+			$tmparray['control_date']         = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+			$tmparray['controller_signature'] = ''; // TODO ADD CONTROLLER SIGNATURE
+			$tmparray['user_label']           = (!empty($usertmp2->id) ? $usertmp2->lastname . ' ' . $usertmp2->firstname : ' ');
+			$tmparray['thirdparty_label']     = (!empty($thirdparty->name) ? $thirdparty->name : ' ');
+			$tmparray['contact_label']        = (!empty($contact->id) ? $contact->firstname . ' ' . $contact->lastname : ' ');
+			$tmparray['project_label']        = (!empty($project->id) ? $project->ref . ' - ' . $project->title : '');
+			$tmparray['task_label']           = (!empty($task->id) ? $task->ref . ' - ' . $task->label : ' ');
+			$tmparray['attendant_number']     = ''; // TODO ADD ATTENDANT NUMBER
+			$tmparray['attendant_lastname']   = ''; // TODO ADD ATTENDANT LASTNAME
+			$tmparray['attendant_firstname']  = ''; // TODO ADD ATTENDANT FIRSTNAME
+			$tmparray['attendant_attendance'] = ''; // TODO ADD ATTENDANT ATTENDANCE
+			$tmparray['attendant_signature']  = ''; // TODO ADD ATTENDANT SIGNATURE
 
 			switch ($object->verdict) {
 				case 1:
@@ -488,7 +496,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			}
 
 			// Loop on previous photos array
-			if (is_array($photoArray) && !empty($photoArray)) {
+			if (!empty($photo) && is_array($photoArray) && !empty($photoArray)) {
 				$photoLines = $odfHandler->setSegment('photos');
 				foreach ($photoArray as $photoPath => $answerRef) {
 					$fileInfo = preg_split('/thumbs\//', $photoPath);
