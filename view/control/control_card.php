@@ -54,6 +54,7 @@ require_once __DIR__ . '/../../class/question.class.php';
 require_once __DIR__ . '/../../class/answer.class.php';
 require_once __DIR__ . '/../../class/dolismqdocuments/controldocument.class.php';
 require_once __DIR__ . '/../../lib/dolismq_control.lib.php';
+require_once __DIR__ . '/../../lib/dolismq_answer.lib.php';
 require_once __DIR__ . '/../../core/modules/dolismq/control/mod_control_standard.php';
 require_once __DIR__ . '/../../core/modules/dolismq/controldet/mod_controldet_standard.php';
 require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
@@ -1105,6 +1106,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						?>
 					</div>
 					<?php endif; ?>
+					<?php
+					$pictosArray = get_answer_pictos_array();
+					?>
 					<?php if ($item->type == $langs->transnoentities('MultipleChoices')) :
 						$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $item->id]);
 						?>
@@ -1121,8 +1125,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								foreach($answerList as $answerLinked) {
 									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
 									print '<span style="'. (in_array($answerLinked->position, $questionAnswers) ? 'background:'. $answerLinked->color .'' : '') .'; color:'. $answerLinked->color .';" class="answer multiple-answers ' . ($object->status > 0 ? 'disable' : '') . ' ' . (in_array($answerLinked->position, $questionAnswers) ? 'active' : '') . '" value="'. $answerLinked->position .'">';
-									if (dol_strlen($answerLinked->photo) > 0) {
-										print $answerLinked->photo;
+									if ($answerLinked->pictogram >= 0) {
+										print $pictosArray[$answerLinked->pictogram]['picto_source'];
 									} else {
 										print $answerLinked->value;
 									}
@@ -1141,8 +1145,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								foreach($answerList as $answerLinked) {
 									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
 									print '<span style="'. ($questionAnswer == $answerLinked->position ? 'background:'. $answerLinked->color .'' : '') .'; color:'. $answerLinked->color .';" class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $answerLinked->position .'">';
-									if (dol_strlen($answerLinked->photo) > 0) {
-										print $answerLinked->photo;
+									if ($answerLinked->pictogram >= 0) {
+										print $pictosArray[$answerLinked->pictogram]['picto_source'];
 									} else {
 										print $answerLinked->value;
 									}

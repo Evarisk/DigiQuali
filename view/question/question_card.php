@@ -44,6 +44,7 @@ require_once '../../class/answer.class.php';
 require_once '../../core/modules/dolismq/question/mod_question_standard.php';
 require_once '../../core/modules/dolismq/answer/mod_answer_standard.php';
 require_once '../../lib/dolismq_question.lib.php';
+require_once '../../lib/dolismq_answer.lib.php';
 require_once '../../lib/dolismq_function.lib.php';
 
 // Global variables definitions
@@ -523,9 +524,11 @@ if (empty($reshook)) {
 	if ($action == 'addAnswer') {
 		$answerValue = GETPOST('answerValue');
 		$answerColor = GETPOST('answerColor');
+		$answerPicto = GETPOST('answerPicto');
 
-		$answer->value = $answerValue;
-		$answer->color = $answerColor;
+		$answer->value       = $answerValue;
+		$answer->color       = $answerColor;
+		$answer->pictogram   = $answerPicto;
 		$answer->fk_question = $id;
 		$answer->create($user);
 	}
@@ -533,12 +536,15 @@ if (empty($reshook)) {
 	if ($action == 'updateAnswer') {
 		$answerValue = GETPOST('answerValue');
 		$answerColor = GETPOST('answerColor');
+		$answerPicto = GETPOST('answerPicto');
 		$answerId    = GETPOST('answerId');
 
 		$answer->fetch($answerId);
 
-		$answer->value = $answerValue;
-		$answer->color = $answerColor;
+		$answer->value     = $answerValue;
+		$answer->color     = $answerColor;
+		$answer->pictogram = $answerPicto;
+
 		$answer->update($user);
 	}
 
@@ -988,6 +994,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	if ($object->type == $langs->transnoentities('MultipleChoices') || $object->type == $langs->transnoentities('UniqueChoice') || $object->type == $langs->transnoentities('OkKo') || $object->type == $langs->transnoentities('OkKoToFixNonApplicable')) {
 
+		$pictosArray = get_answer_pictos_array();
+
 		// ANSWERS LINES
 		print '<div class="div-table-responsive-no-min">';
 		print load_fiche_titre($langs->trans("AnswersList"), '', '');
@@ -1044,7 +1052,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<thead><tr class="liste_titre">';
 		print '<td>' . $langs->trans('Ref') . '</td>';
 		print '<td>' . $langs->trans('Value') . '</td>';
-		print '<td>' . $langs->trans('Photo') . '</td>';
+		print '<td>' . $langs->trans('Picto') . '</td>';
 		print '<td>' . $langs->trans('Color') . '</td>';
 		print '<td class="center">' . $langs->trans('Action') . '</td>';
 		print '<td class="center"></td>';
@@ -1070,15 +1078,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print '<input name="answerValue" value="'. $answerSingle->value .'">';
 					print '</td>';
 
+					// Pictogram -- Pictogram
 					print '<td>';
-	//				if (dol_strlen($answerSingle->photo)) {
-	//					$urladvanced               = getAdvancedPreviewUrl('dolismq', $answerSingle->element . '/' . $answerSingle->ref . '/photo_ok/' . $answerSingle->photo_ok, 0, 'entity=' . $conf->entity);
-	//					if ($urladvanced) print '<a href="' . $urladvanced . '">';
-	//					print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($answerSingle->element . '/' . $answerSingle->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $answerSingle->photo_ok)) . '" >';
-	//					print '</a>';
-	//				} else {
-	//					print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
-	//				}
+					print answer_pictos_dropdown($answerSingle->pictogram);
 					print '</td>';
 
 					print '<td>';
@@ -1109,26 +1111,20 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print '</td>';
 
 					print '<td>';
-//				if (dol_strlen($answerSingle->photo)) {
-//					$urladvanced               = getAdvancedPreviewUrl('dolismq', $answerSingle->element . '/' . $answerSingle->ref . '/photo_ok/' . $answerSingle->photo_ok, 0, 'entity=' . $conf->entity);
-//					if ($urladvanced) print '<a href="' . $urladvanced . '">';
-//					print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($answerSingle->element . '/' . $answerSingle->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $answerSingle->photo_ok)) . '" >';
-//					print '</a>';
-//				} else {
-//					print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
-//				}
+					print $pictosArray[$answerSingle->pictogram]['picto_source'];
 					print '</td>';
 
 					print '<td>';
 					print '<input '. ($action == 'editAnswer' && GETPOST('answerId') == $answerSingle->id ? '' : 'disabled') .' type="color" value="' . $answerSingle->color . '">';
-					print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=editAnswer&answerId=' . $answerSingle->id . '">';
-					print img_edit();
-					print '</a>';
 
 					print '</td>';
 
 					print '<td class="center">';
 					if ($object->status != 2) {
+						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=editAnswer&answerId=' . $answerSingle->id . '">';
+						print img_edit();
+						print '</a>';
+
 						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=deleteAnswer&answerId=' . $answerSingle->id . '&token='. newToken() .'">';
 						print img_delete();
 						print '</a>';
@@ -1156,29 +1152,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<td>-</td>';
 		print '<td><input name="answerValue" value=""></td>';
 
-//	// Photo -- Photo
-		print '<td class="linked-medias  linked-medias-list">';
-//	?>
-		<!--	<input hidden multiple class="fast-upload" id="fast-upload-photo" type="file" name="userfile[]" capture="environment" accept="image/*">-->
-		<!--	<label for="fast-upload-photo-ok">-->
-		<!--		<div class="wpeo-button button-square-50">-->
-		<!--			<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>-->
-		<!--		</div>-->
-		<!--	</label>-->
-		<!--	<input type="hidden" class="favorite-photo" id="photo" name="photo" value=""/>-->
-		<!--	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">-->
-		<!--		<input type="hidden" class="modal-to-open" value="media_gallery"/>-->
-		<!--		<input type="hidden" class="from-type" value="answer"/>-->
-		<!--		<input type="hidden" class="from-subtype" value="photo"/>-->
-		<!--		<input type="hidden" class="from-subdir" value="photo"/>-->
-		<!--		<input type="hidden" class="from-id" value="--><?php //echo $object->id ?><!--"/>-->
-		<!--		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>-->
-		<!--	</div>-->
-		<!--	--><?php
-//	$relativepath = 'dolismq/medias/thumbs';
-//	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/answer/tmp/AN0/photo', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/tmp/AN0/photo', $answer, 'photo', 1, $permissiontodelete);
+		// Pictogram -- Pictogram
+		print '<td>';
+		print answer_pictos_dropdown();
 		print '</td>';
 		?>
+
 		<td>
 			<input type="color" name="answerColor" class="new-answer-color" value="">
 		</td>
@@ -1197,43 +1176,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</table>';
 		print '</form>';
 		print '</div>';
-
-//	} else if ($object->type == $langs->transnoentities('OkKo') || $object->type == $langs->transnoentities('OkKoToFixNonApplicable')) {
-//
-//		// ANSWERS LINES
-//		print '<div class="div-table-responsive-no-min">';
-//		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
-//		print '<input type="hidden" name="token" value="' . newToken() . '">';
-//		print '<input type="hidden" name="action" value="addAnswer">';
-//		print '<input type="hidden" name="id" value="' . $id . '">';
-//		print load_fiche_titre($langs->trans("AnswersList"), '', '');
-//		print '<table id="tablelines" class="centpercent noborder noshadow">';
-//
-//		global $forceall, $forcetoshowtitlelines;
-//
-//		if (empty($forceall)) $forceall = 0;
-//
-//		// Lines
-//		print '<thead><tr class="liste_titre">';
-//		print '<td>' . $langs->trans('Ref') . '</td>';
-//		print '<td>' . $langs->trans('Value') . '</td>';
-//		print '<td>' . $langs->trans('Photo') . '</td>';
-//		print '<td class="center">' . $langs->trans('Action') . '</td>';
-//		print '<td class="center"></td>';
-//		print '</tr></thead>';
-//
-//		print '<tr>';
-//		print '<td></td>';
-//		print '<td></td>';
-//		print '<td></td>';
-//
-//
-//		print '</tr>';
-//		print '</table>';
-//		print '</form>';
-//		print '</div>';
 	}
-
 	print dol_get_fiche_end();
 
 	// Buttons for actions
