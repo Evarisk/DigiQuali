@@ -65,3 +65,8 @@ ALTER TABLE `llx_dolismq_sheet` CHANGE `import_key` `import_key` VARCHAR(14) CHA
 -- 1.6.0
 ALTER TABLE `llx_dolismq_question` CHANGE `label` `label` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL NOT NULL;
 ALTER TABLE `llx_dolismq_sheet` CHANGE `label` `label` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL NOT NULL;
+
+ALTER TABLE `llx_dolismq_question` ADD UNIQUE INDEX uk_dolismq_question_ref (ref, entity);
+ALTER TABLE `llx_dolismq_sheet` ADD UNIQUE INDEX uk_dolismq_sheet_ref (ref, entity);
+ALTER TABLE `llx_dolismq_control` ADD UNIQUE INDEX uk_dolismq_control_ref (ref, entity);
+ALTER TABLE `llx_dolismq_controldet` ADD UNIQUE INDEX uk_dolismq_controldet_ref (ref, entity);
