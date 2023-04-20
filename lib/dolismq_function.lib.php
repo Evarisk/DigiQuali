@@ -125,7 +125,7 @@ function dolismq_select_product_lots($productid = -1, $selected = '', $htmlname 
 		}
 
 		$parameters = array(
-			'socid' => $productid,
+			'productid' => $productid,
 			'htmlname' => $htmlname,
 			'resql' => $resql,
 			'out' => &$out,
