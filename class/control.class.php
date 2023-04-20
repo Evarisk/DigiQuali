@@ -874,6 +874,7 @@ class Control extends CommonObject
                     $arrayNbControlByVerdict[$control->verdict]++;
                 }
             }
+            ksort($arrayNbControlByVerdict);
         }
 
         $array['data'] = $arrayNbControlByVerdict;
