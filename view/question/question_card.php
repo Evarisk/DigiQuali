@@ -646,7 +646,7 @@ if ($action == 'create') {
 
 	// Type -- Type
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'label');
+	print saturne_select_dictionary('type','c_question_type', 'label', 'label', $langs->transnoentities('OkKoToFixNonApplicable'));
 	print '</td></tr>';
 
 	// EnterComment -- Saisir les commentaires
