@@ -51,9 +51,21 @@ window.dolismq.control.event = function() {
  */
 window.dolismq.control.selectAnswer = function ( event ) {
 	let answerValue = $(this).hasClass('answer') ? $(this).attr('value') : $(this).val()
-	$(this).closest('.table-cell').find('span').removeClass( 'active' );
-	$(this).closest('span').addClass( 'active' );
-	$(this).closest('.answer-cell').find('.question-answer').val(answerValue)
+	let answer = '';
+	if ($(this).hasClass('multiple-answers')) {
+		$(this).closest('span').toggleClass( 'active' );
+		let selectedValues = []
+		$('.multiple-answers.active').each(function() {
+			selectedValues.push($(this).attr('value'))
+		})
+		answer = selectedValues
+	} else {
+		$(this).closest('.table-cell').find('span').removeClass( 'active' );
+		$(this).closest('span').addClass( 'active' );
+		answer = answerValue
+	}
+	$(this).closest('.answer-cell').find('.question-answer').val(answer)
+
 	window.dolismq.control.updateButtonsStatus()
 };
 

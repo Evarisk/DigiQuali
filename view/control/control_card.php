@@ -1110,10 +1110,16 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						?>
 						<div class="table-cell answer-cell table-250 <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<?php
+							if (preg_match('/,/', $questionAnswer)) {
+								$questionAnswers = preg_split('/,/', $questionAnswer);
+							} else {
+								$questionAnswers = [$questionAnswer];
+							}
+
+							print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 							if (is_array($answerList) && !empty($answerList)) {
 								foreach($answerList as $answerLinked) {
-									print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
-									print '<span style="border: 2px" class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $answerLinked->position .'">';
+									print '<span style="border: 2px" class="answer multiple-answers ' . ($object->status > 0 ? 'disable' : '') . ' ' . (in_array($answerLinked->position, $questionAnswers) ? 'active' : '') . '" value="'. $answerLinked->position .'">';
 									print $answerLinked->value;
 									print '</span>';
 								}
