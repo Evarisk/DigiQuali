@@ -202,7 +202,9 @@ if (empty($reshook)) {
 
 			if ( ! $error) {
 				$generatethumbs = 1;
-				dol_add_file_process($upload_dir, 0, 1, 'userfile', '', null, '', $generatethumbs);
+				dol_add_file_process($upload_dir, 0, 1, 'userfile', '', null, '', 0);
+				$imgThumbMini   = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
+				$imgThumbSmall  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
 				$imgThumbMedium = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
 				$imgThumbLarge  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
 			}
@@ -229,7 +231,9 @@ if (empty($reshook)) {
 
 			if ( ! $error) {
 				$generatethumbs = 1;
-				dol_add_file_process($upload_dir, 0, 1, 'userfile2', '', null, '', $generatethumbs);
+				dol_add_file_process($upload_dir, 0, 1, 'userfile2', '', null, '', 0);
+				$imgThumbMini   = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
+				$imgThumbSmall  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
 				$imgThumbMedium = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
 				$imgThumbLarge  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
 			}
@@ -256,20 +260,16 @@ if (empty($reshook)) {
 
 							copy($photo['fullname'], $pathToQuestionPhotoType . '/' . $photo['name']);
 
-							global $maxwidthmini, $maxheightmini, $maxwidthsmall,$maxheightsmall ;
 							$destfull = $pathToQuestionPhotoType . '/' . $photo['name'];
 
 							if (empty($object->$type)) {
 								$object->$type = $photo['name'];
 							}
 
-							// Create thumbs
-							// We can't use $object->addThumbs here because there is no $object known
-							// Used on logon for example
-							$imgThumbSmall = vignette($destfull, $maxwidthsmall, $maxheightsmall, '_small', 50, "thumbs");
-							// Create mini thumbs for image (Ratio is near 16/9)
-							// Used on menu or for setup page for example
-							$imgThumbMini = vignette($destfull, $maxwidthmini, $maxheightmini, '_mini', 50, "thumbs");
+							$imgThumbMini   = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
+							$imgThumbSmall  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
+							$imgThumbMedium = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+							$imgThumbLarge  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
 							unlink($photo['fullname']);
 						}
 					}
