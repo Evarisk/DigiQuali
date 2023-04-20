@@ -368,7 +368,7 @@ if (empty($reshook)) {
 		$object->fetch($id);
 		if ( ! $error) {
 			$object->verdict = GETPOST('verdict', 'int');
-			$object->note_public .= GETPOST('noteControl') . chr(0x0A);
+			$object->note_public .= (!empty($object->note_public) ? chr(0x0A) : '') . GETPOST('noteControl');
 			$result = $object->update($user);
 			if ($result > 0) {
 				// Set verdict Control
