@@ -291,28 +291,32 @@ if (empty($reshook)) {
 
 				if ($object->type == $langs->transnoentities('OkKo') || $object->type == $langs->transnoentities('OkKoToFixNonApplicable')) {
 					$answer->fk_question = $result;
-					$answer->value = $langs->trans('Ok');
-					$answer->color = '#47e58e';
+					$answer->value       = $langs->trans('Ok');
+					$answer->pictogram   = 1;
+					$answer->color       = '#47e58e';
 
 					$answer->create($user);
 
 					$answer->fk_question = $result;
-					$answer->value = $langs->trans('Ko');
-					$answer->color = '#e05353';
+					$answer->value       = $langs->trans('Ko');
+					$answer->pictogram   = 2;
+					$answer->color       = '#e05353';
 
 					$answer->create($user);
 				}
 
 				if ($object->type == $langs->transnoentities('OkKoToFixNonApplicable')) {
 					$answer->fk_question = $result;
-					$answer->value = $langs->trans('ToFix');
-					$answer->color = '#e9ad4f';
+					$answer->value       = $langs->trans('ToFix');
+					$answer->pictogram   = 3;
+					$answer->color       = '#e9ad4f';
 
 					$answer->create($user);
 
 					$answer->fk_question = $result;
-					$answer->value = $langs->trans('NonApplicable');
-					$answer->color = '#2b2b2b';
+					$answer->value       = $langs->trans('NonApplicable');
+					$answer->pictogram   = 4;
+					$answer->color       = '#2b2b2b';
 
 					$answer->create($user);
 				}
