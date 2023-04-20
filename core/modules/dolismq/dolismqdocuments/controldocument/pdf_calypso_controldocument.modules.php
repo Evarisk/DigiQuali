@@ -299,6 +299,8 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$productlot  = new Productlot($this->db);
 				$controldet  = new ControlLine($this->db);
 				$sheet       = new Sheet($this->db);
+				$question    = new Question($this->db);
+				$answer      = new Answer($this->db);
 				$userTmp     = new User($this->db);
 				$userTmp2    = new User($this->db);
 				$thirdparty  = new Societe($this->db);
@@ -495,26 +497,38 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 					// Answer informations
 					$result = $controldet->fetchFromParentWithQuestion($object->id, $question->id);
 					if ($result > 0 && is_array($result)) {
-						$answer = array_shift($result);
-						$tmpTableArray['answerRef'] = $answer->ref;
-						$tmpTableArray['answerComment'] = (empty($answer->comment) ? 'NoData' :  $langs->trans('Comment') . ' : ' . $answer->comment);
-						$answerResult = $answer->answer;
+						$questionAnswerLine = array_shift($result);
+						$tmpTableArray['answerRef'] = $questionAnswerLine->ref;
+						$tmpTableArray['answerComment'] = (empty($questionAnswerLine->comment) ? 'NoData' :  $langs->trans('Comment') . ' : ' . $questionAnswerLine->comment);
 
-						switch ($answerResult) {
-							case 1:
-								$tmpTableArray['answerLabel'] = $langs->trans('OK');
+						$answerResult = $questionAnswerLine->answer;
+
+						$question->fetch($questionAnswerLine->fk_question);
+						$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $questionAnswerLine->fk_question]);
+
+						if (is_array($answerList) && !empty($answerList)) {
+							foreach($answerList as $answerSingle) {
+								$answersArray[$answerSingle->position] = $answerSingle->value;
+							}
+						}
+
+						switch ($question->type) {
+							case $langs->transnoentities('OkKo') :
+							case $langs->transnoentities('OkKoToFixNonApplicable') :
+							case $langs->transnoentities('UniqueChoice') :
+								$tmpTableArray['answerLabel'] = $answersArray[$answerResult];
 								break;
-							case 2:
-								$tmpTableArray['answerLabel'] = $langs->trans('KO');
+							case $langs->transnoentities('Text') :
+							case $langs->transnoentities('Percentage') :
+							case $langs->transnoentities('Range') :
+								$tmpTableArray['answerLabel'] = $answerResult;
 								break;
-							case 3:
-								$tmpTableArray['answerLabel'] = $langs->trans('Repair');
-								break;
-							case 4:
-								$tmpTableArray['answerLabel'] = $langs->trans('NotApplicable');
-								break;
-							default:
-								$tmpTableArray['answerLabel'] = ' ';
+							case $langs->transnoentities('MultipleChoices') :
+								$answers = preg_split('/,/', $answerResult);
+								foreach ($answers as $answerId) {
+									$tmpTableArray['answerLabel'] .= $answersArray[$answerId] . ', ';
+								}
+								$tmpTableArray['answerLabel'] = rtrim($tmpTableArray['answerLabel'], ', ');
 								break;
 						}
 					} else {
