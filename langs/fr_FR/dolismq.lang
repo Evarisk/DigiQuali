@@ -77,6 +77,9 @@ OkKoToFixNonApplicable        = Sélecteur OK/KO/NA/A réparer
 ToFix                         = A réparer
 NonApplicable                 = NA
 Answer                        = Réponse
+AnswerCreated                 = Réponse créée
+AnswerUpdated                 = Réponse mise à jour
+AnswerDeleted                 = Réponse supprimée
 
 #
 # Sheet

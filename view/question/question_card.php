@@ -534,7 +534,11 @@ if (empty($reshook)) {
 		$answer->color       = $answerColor;
 		$answer->pictogram   = $answerPicto;
 		$answer->fk_question = $id;
-		$answer->create($user);
+
+		$result = $answer->create($user);
+		if ($result > 0) {
+			setEventMessages($langs->trans("AnswerCreated"), null, 'mesgs');
+		}
 	}
 
 	if ($action == 'updateAnswer') {
@@ -549,14 +553,21 @@ if (empty($reshook)) {
 		$answer->color     = $answerColor;
 		$answer->pictogram = $answerPicto;
 
-		$answer->update($user);
+		$result = $answer->update($user);
+		if ($result > 0) {
+			setEventMessages($langs->trans("AnswerUpdated"), null, 'mesgs');
+		}
 	}
 
 	if ($action == 'deleteAnswer') {
 		$answerId = GETPOST('answerId');
 
 		$answer->fetch($answerId);
-		$answer->delete($user);
+		$result = $answer->delete($user);
+
+		if ($result > 0) {
+			setEventMessages($langs->trans("AnswerDeleted"), null, 'mesgs');
+		}
 	}
 
 	if ($action == 'moveLine' && $permissiontoadd) {

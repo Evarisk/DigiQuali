@@ -34,7 +34,7 @@ function answer_pictos_dropdown($selected = -1): string
 	$pictosArray = get_answer_pictos_array();
 
 	$out = '<div class="wpeo-dropdown dropdown-large dropdown-grid answer-picto padding">';
-	$out .= '<input class="input-hidden-picto" type="hidden" name="answerPicto" value="undefined" />
+	$out .= '<input class="input-hidden-picto" type="hidden" name="answerPicto" value="'. ($selected >=0 ? $selected : 'undefined') .'" />
 			<div class="dropdown-toggle dropdown-add-button button-picto">';
 	if ($selected >= 0) {
 		$out .= '<span class="wpeo-button button-square-50 button-grey">';
