@@ -44,7 +44,7 @@ require_once '../../lib/dolismq_function.lib.php';
 global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
-saturne_load_langs(["other", "product"]);
+saturne_load_langs(["other", "product", 'bills', 'orders']);
 
 // Get parameters
 $id                  = GETPOST('id', 'int');
@@ -308,6 +308,26 @@ $elementArray = array(
 		'langs' => 'Task',
 		'picto' => 'projecttask'
 	),
+    'invoice' => array(
+        'conf' => $conf->global->DOLISMQ_SHEET_LINK_INVOICE,
+        'langs' => 'Invoice',
+        'picto' => 'bill'
+    ),
+    'order' => array(
+        'conf' => $conf->global->DOLISMQ_SHEET_LINK_ORDER,
+        'langs' => 'Order',
+        'picto' => 'order'
+    ),
+    'contract' => array(
+        'conf' => $conf->global->DOLISMQ_SHEET_LINK_CONTRACT,
+        'langs' => 'Contract',
+        'picto' => 'contract'
+    ),
+    'ticket' => array(
+        'conf' => $conf->global->DOLISMQ_SHEET_LINK_TICKET,
+        'langs' => 'Ticket',
+        'picto' => 'ticket'
+    ),
 );
 
 saturne_header(0,'', $title, $help_url);
@@ -332,7 +352,10 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	//FK Element
-	if (empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && empty($conf->global->DOLISMQ_SHEET_LINK_USER) && empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT) && empty($conf->global->DOLISMQ_SHEET_LINK_TASK)) {
+	if (empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && empty($conf->global->DOLISMQ_SHEET_LINK_USER)
+        && empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT)
+        && empty($conf->global->DOLISMQ_SHEET_LINK_TASK) && empty($conf->global->DOLISMQ_SHEET_LINK_INVOICE) && empty($conf->global->DOLISMQ_SHEET_LINK_ORDER)
+        && empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && empty($conf->global->DOLISMQ_SHEET_LINK_TICKET)) {
 		print '<div class="wpeo-notice notice-info">';
 		print '<div class="notice-content">';
 		print '<div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . ' : ' . '<a href="' .dol_buildpath('/custom/dolismq/admin/sheet.php', 2).'">' . $langs->trans('ConfigSheet') . '</a>';

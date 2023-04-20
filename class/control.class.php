@@ -521,6 +521,25 @@ class Control extends CommonObject
 					$object->add_object_linked($societe->element, $societe->id);
 				}
 			}
+            if (!empty($object->linkedObjects['invoice'])) {
+                foreach ($object->linkedObjects['invoice'] as $invoice) {
+                    $object->add_object_linked($invoice->element, $invoice->id);
+                }
+            }
+            if (!empty($object->linkedObjects['order'])) {
+                foreach ($object->linkedObjects['order'] as $order) {
+                    $object->add_object_linked($order->element, $order->id);
+                }
+            }if (!empty($object->linkedObjects['contract'])) {
+                foreach ($object->linkedObjects['contract'] as $contract) {
+                    $object->add_object_linked($contract->element, $contract->id);
+                }
+            }
+            if (!empty($object->linkedObjects['ticket'])) {
+                foreach ($object->linkedObjects['ticket'] as $ticket) {
+                    $object->add_object_linked($ticket->element, $ticket->id);
+                }
+            }
 		}
 
 		unset($object->context['createfromclone']);

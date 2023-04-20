@@ -45,8 +45,15 @@ require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmdirectory.class.php';
 require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
+require_once DOL_DOCUMENT_ROOT . '/compta/facture/class/facture.class.php';
+require_once DOL_DOCUMENT_ROOT . '/commande/class/commande.class.php';
+require_once DOL_DOCUMENT_ROOT . '/contrat/class/contrat.class.php';
+require_once DOL_DOCUMENT_ROOT . '/ticket/class/ticket.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+
+// Load Saturne libraries.
+require_once __DIR__ . '/../../../saturne/lib/object.lib.php';
 
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
@@ -61,7 +68,7 @@ require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
-saturne_load_langs(['other']);
+saturne_load_langs(['other', 'bills', 'orders']);
 
 // Get parameters
 $id                  = GETPOST('id', 'int');
@@ -88,6 +95,10 @@ $task             = new Task($db);
 $thirdparty       = new Societe($db);
 $contact          = new Contact($db);
 $productlot       = new Productlot($db);
+$invoice          = new Facture($db);
+$order            = new Commande($db);
+$contract         = new Contrat($db);
+$ticket           = new Ticket($db);
 $extrafields      = new ExtraFields($db);
 $ecmfile 		  = new EcmFiles($db);
 $ecmdir           = new EcmDirectory($db);
@@ -616,6 +627,70 @@ if ($action == 'create') {
 	}
 	print '</div>';
 
+    // FK Invoice.
+    if ($conf->global->DOLISMQ_SHEET_LINK_INVOICE && preg_match('/"invoice":1/', $sheet->element_linked)) {
+        $invoicePost = GETPOST('fk_invoice') ?: (GETPOST('fromtype') == 'invoice' ? GETPOST('fromid') : -1);
+        print '<tr><td class="titlefieldcreate">' . $langs->trans('InvoiceLinked') . '</td><td>';
+        print img_picto('', 'bill', 'class="pictofixedwidth"');
+        $invoices = saturne_fetch_all_object_type('Facture');
+        if (is_array($invoices) && !empty($invoices)) {
+            foreach ($invoices as $invoice) {
+                $arrayInvoices[$invoice->id] = $invoice->ref;
+            }
+        }
+        print Form::selectarray('fk_invoice', $arrayInvoices, $invoicePost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+        print '</td></tr>';
+    }
+    print '</div>';
+
+    // FK Order.
+    if ($conf->global->DOLISMQ_SHEET_LINK_ORDER && preg_match('/"order":1/', $sheet->element_linked)) {
+        $orderPost = GETPOST('fk_order') ?: (GETPOST('fromtype') == 'order' ? GETPOST('fromid') : -1);
+        print '<tr><td class="titlefieldcreate">' . $langs->trans('OrderLinked') . '</td><td>';
+        print img_picto('', 'order', 'class="pictofixedwidth"');
+        $orders = saturne_fetch_all_object_type('Commande');
+        if (is_array($orders) && !empty($orders)) {
+            foreach ($orders as $order) {
+                $arrayOrders[$order->id] = $order->ref;
+            }
+        }
+        print Form::selectarray('fk_order', $arrayOrders, $orderPost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+        print '</td></tr>';
+    }
+    print '</div>';
+
+    // FK Contract.
+    if ($conf->global->DOLISMQ_SHEET_LINK_CONTRACT && preg_match('/"contract":1/', $sheet->element_linked)) {
+        $contractPost = GETPOST('fk_contract') ?: (GETPOST('fromtype') == 'contract' ? GETPOST('fromid') : -1);
+        print '<tr><td class="titlefieldcreate">' . $langs->trans('ContractLinked') . '</td><td>';
+        print img_picto('', 'contract', 'class="pictofixedwidth"');
+        $contracts = saturne_fetch_all_object_type('Contrat');
+        if (is_array($contracts) && !empty($contracts)) {
+            foreach ($contracts as $contract) {
+                $arrayContracts[$contract->id] = $contract->ref;
+            }
+        }
+        print Form::selectarray('fk_contract', $arrayContracts, $contractPost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+        print '</td></tr>';
+    }
+    print '</div>';
+
+    // FK Ticket.
+    if ($conf->global->DOLISMQ_SHEET_LINK_TICKET && preg_match('/"ticket":1/', $sheet->element_linked)) {
+        $ticketPost = GETPOST('fk_ticket') ?: (GETPOST('fromtype') == 'ticket' ? GETPOST('fromid') : -1);
+        print '<tr><td class="titlefieldcreate">' . $langs->trans('TicketLinked') . '</td><td>';
+        print img_picto('', 'ticket', 'class="pictofixedwidth"');
+        $tickets = saturne_fetch_all_object_type('Ticket');
+        if (is_array($tickets) && !empty($tickets)) {
+            foreach ($tickets as $ticket) {
+                $arrayTickets[$ticket->id] = $ticket->ref;
+            }
+        }
+        print Form::selectarray('fk_ticket', $arrayTickets, $ticketPost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+        print '</td></tr>';
+    }
+    print '</div>';
+
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
 
@@ -899,6 +974,58 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 		print '</td></tr>';
 	}
+
+    if (!empty($conf->global->DOLISMQ_SHEET_LINK_INVOICE) && (!empty($object->linkedObjectsIds['facture']))) {
+        //Fk_invoice - Facture liée
+        print '<tr><td class="titlefield">';
+        print $langs->trans('Invoice');
+        print '</td>';
+        print '<td>';
+        $invoice->fetch(array_shift($object->linkedObjectsIds['facture']));
+        if ($invoice > 0) {
+            print $invoice->getNomUrl(1);
+        }
+        print '</td></tr>';
+    }
+
+    if (!empty($conf->global->DOLISMQ_SHEET_LINK_ORDER) && (!empty($object->linkedObjectsIds['commande']))) {
+        //Fk_order - Commande liée
+        print '<tr><td class="titlefield">';
+        print $langs->trans('Order');
+        print '</td>';
+        print '<td>';
+        $order->fetch(array_shift($object->linkedObjectsIds['commande']));
+        if ($order > 0) {
+            print $order->getNomUrl(1);
+        }
+        print '</td></tr>';
+    }
+
+    if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && (!empty($object->linkedObjectsIds['contract']))) {
+        //Fk_contract - Contrat lié
+        print '<tr><td class="titlefield">';
+        print $langs->trans('Contract');
+        print '</td>';
+        print '<td>';
+        $contract->fetch(array_shift($object->linkedObjectsIds['contract']));
+        if ($contract > 0) {
+            print $contract->getNomUrl(1);
+        }
+        print '</td></tr>';
+    }
+
+    if (!empty($conf->global->DOLISMQ_SHEET_LINK_TICKET) && (!empty($object->linkedObjectsIds['ticket']))) {
+        //Fk_ticket - Ticket lié
+        print '<tr><td class="titlefield">';
+        print $langs->trans('Ticket');
+        print '</td>';
+        print '<td>';
+        $ticket->fetch(array_shift($object->linkedObjectsIds['ticket']));
+        if ($ticket > 0) {
+            print $ticket->getNomUrl(1);
+        }
+        print '</td></tr>';
+    }
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	if ($permissiontoadd > 0 && $object->status < 1) {
