@@ -640,37 +640,37 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$formconfirm = '';
 
 	if ($action == 'setVerdict') {
-		//Form to close proposal (signed or not)
-		$answersArray = $controldet->fetchFromParent($object->id);
-		$answerOK = 0;
-		$answerKO = 0;
-		$answerRepair = 0;
-		$answerNotApplicable = 0;
-		if (is_array($answersArray) && !empty($answersArray)) {
-			foreach ($answersArray as $questionAnswer){
-				switch ($questionAnswer->answer){
-					case 1:
-						$answerOK++;
-						break;
-					case 2:
-						$answerKO++;
-						break;
-					case 3:
-						$answerRepair++;
-						break;
-					case 4:
-						$answerNotApplicable++;
-						break;
-				}
-			}
-		}
+//		//Form to close proposal (signed or not)
+//		$answersArray = $controldet->fetchFromParent($object->id);
+//		$answerOK = 0;
+//		$answerKO = 0;
+//		$answerRepair = 0;
+//		$answerNotApplicable = 0;
+//		if (is_array($answersArray) && !empty($answersArray)) {
+//			foreach ($answersArray as $questionAnswer){
+//				switch ($questionAnswer->answer){
+//					case 1:
+//						$answerOK++;
+//						break;
+//					case 2:
+//						$answerKO++;
+//						break;
+//					case 3:
+//						$answerRepair++;
+//						break;
+//					case 4:
+//						$answerNotApplicable++;
+//						break;
+//				}
+//			}
+//		}
 
 		$formquestion = array(
 			array('type' => 'select', 'name' => 'verdict', 'label' => '<span class="fieldrequired">' . $langs->trans('VerdictControl') . '</span>', 'values' => array('1' => 'OK', '2' => 'KO'), 'select_show_empty' => 0),
-			array('type' => 'text', 'name' => 'OK', 'label' => '<span class="answer" value="1" style="pointer-events: none"><i class="fas fa-check"></i></span>', 'value' => $answerOK, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'KO', 'label' => '<span class="answer" value="2" style="pointer-events: none"><i class="fas fa-times"></i></span>', 'value' => $answerKO, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'Repair', 'label' => '<span class="answer" value="3" style="pointer-events: none"><i class="fas fa-tools"></i></span>', 'value' => $answerRepair, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'NotApplicable', 'label' => '<span class="answer" value="4" style="pointer-events: none">N/A</span>', 'value' => $answerNotApplicable, 'moreattr' => 'readonly'),
+//			array('type' => 'text', 'name' => 'OK', 'label' => '<span class="answer" value="1" style="pointer-events: none"><i class="fas fa-check"></i></span>', 'value' => $answerOK, 'moreattr' => 'readonly'),
+//			array('type' => 'text', 'name' => 'KO', 'label' => '<span class="answer" value="2" style="pointer-events: none"><i class="fas fa-times"></i></span>', 'value' => $answerKO, 'moreattr' => 'readonly'),
+//			array('type' => 'text', 'name' => 'Repair', 'label' => '<span class="answer" value="3" style="pointer-events: none"><i class="fas fa-tools"></i></span>', 'value' => $answerRepair, 'moreattr' => 'readonly'),
+//			array('type' => 'text', 'name' => 'NotApplicable', 'label' => '<span class="answer" value="4" style="pointer-events: none">N/A</span>', 'value' => $answerNotApplicable, 'moreattr' => 'readonly'),
 			array('type' => 'text', 'name' => 'noteControl', 'label' => '<div class="note-control" style="margin-top: 20px;">' . $langs->trans('NoteControl') . '</div>'),
 		);
 
@@ -689,7 +689,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$questionCounter = 0;
 		}
 
-		$answerCounter = $_COOKIE['answerCounter'];
+		$object->fetchLines();
+		if (is_array($object->lines) && !empty($object->lines)) {
+			foreach($object->lines as $objectLine) {
+				if (dol_strlen($objectLine->answer) > 0) {
+					$answerCounter++;
+				}
+			}
+		}
 
 		$questionConfirmInfo =  img_help('', '') . ' ' . $langs->trans('YouAnswered') . ' ' . $answerCounter . ' ' . $langs->trans('question(s)')  . ' ' . $langs->trans('On') . ' ' . $questionCounter . '.';
 		if ($questionCounter - $answerCounter != 0) {
@@ -910,19 +917,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php'; ?>
-
-	<script type="text/javascript">
-		$(function () {
-			let answerCounter = 0
-			jQuery("#tablelines").children().each(function() {
-				if ($(this).find(".answer.active").length > 0) {
-					answerCounter += 1;
-				}
-			})
-
-			jQuery('.answerCounter').text(answerCounter)
-		})
-	</script>
 	<?php
 
 	print '</table>';
@@ -1015,7 +1009,16 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$questionCounter = 0;
 	}
 
-	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter"></span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . $questionCounter;
+	$object->fetchLines();
+	if (is_array($object->lines) && !empty($object->lines)) {
+		foreach($object->lines as $objectLine) {
+			if (dol_strlen($objectLine->answer) > 0) {
+				$answerCounter++;
+			}
+		}
+	}
+
+	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter">'. $answerCounter .'</span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . $questionCounter;
 
 	print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', ''); ?>
 
@@ -1125,7 +1128,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								foreach($answerList as $answerLinked) {
 									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
 									print '<span style="'. (in_array($answerLinked->position, $questionAnswers) ? 'background:'. $answerLinked->color .'' : '') .'; color:'. $answerLinked->color .';" class="answer multiple-answers ' . ($object->status > 0 ? 'disable' : '') . ' ' . (in_array($answerLinked->position, $questionAnswers) ? 'active' : '') . '" value="'. $answerLinked->position .'">';
-									if ($answerLinked->pictogram >= 0) {
+									if ($answerLinked->pictogram > 0) {
 										print $pictosArray[$answerLinked->pictogram]['picto_source'];
 									} else {
 										print $answerLinked->value;
@@ -1145,7 +1148,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								foreach($answerList as $answerLinked) {
 									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
 									print '<span style="'. ($questionAnswer == $answerLinked->position ? 'background:'. $answerLinked->color .'' : '') .'; color:'. $answerLinked->color .';" class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $answerLinked->position .'">';
-									if ($answerLinked->pictogram >= 0) {
+									if ($answerLinked->pictogram > 0) {
 										print $pictosArray[$answerLinked->pictogram]['picto_source'];
 									} else {
 										print $answerLinked->value;
