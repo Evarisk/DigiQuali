@@ -212,11 +212,9 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 
 			$date = dol_print_date(dol_now(),'dayxcard');
 			if (preg_match('/_photo/', $filename)) {
-				$photo = '_photo';
-			} else {
-				$photo = '';
+				$isPhotoDocument = true;
 			}
-			$filename = $objectref . '_' . $date . $photo . '.odt';
+			$filename = $objectref . '_' . $date . ($isPhotoDocument ? '_photo' : '') . '.odt';
 			$filename = str_replace(' ', '_', $filename);
 			$filename = dol_sanitizeFileName($filename);
 
@@ -496,7 +494,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			}
 
 			// Loop on previous photos array
-			if (!empty($photo) && is_array($photoArray) && !empty($photoArray)) {
+			if ($isPhotoDocument && is_array($photoArray) && !empty($photoArray)) {
 				$photoLines = $odfHandler->setSegment('photos');
 				foreach ($photoArray as $photoPath => $answerRef) {
 					$fileInfo = preg_split('/thumbs\//', $photoPath);
