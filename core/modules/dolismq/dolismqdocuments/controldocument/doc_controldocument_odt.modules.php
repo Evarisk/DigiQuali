@@ -320,17 +320,17 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 			$tmparray['phone']                = (!empty($conf->global->MAIN_INFO_SOCIETE_PHONE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_PHONE : ' ');
 			$tmparray['control_ref']          = $object->ref;
 			$tmparray['nom']                  = $usertmp->lastname . ' '. $usertmp->firstname;
-			$tmparray['product_ref']          = (!empty($product->ref) ? $product->ref : '');
-			$tmparray['lot_ref']              = (!empty($productlot->batch) ? $productlot->batch : '');
+			$tmparray['object_label_ref']    .= (!empty($product->ref) ? $langs->trans('Product') . ' : ' . $product->ref . chr(0x0A) : '');
+			$tmparray['object_label_ref']    .= (!empty($usertmp2->id) ? $langs->trans('User') . ' : ' . $usertmp2->lastname . ' ' . $usertmp2->firstname . chr(0x0A) : '');
+			$tmparray['object_label_ref']    .= (!empty($thirdparty->name) ? $langs->trans('ThirdParty') . ' : ' . $thirdparty->name . chr(0x0A) : '');
+			$tmparray['object_label_ref']    .= (!empty($task->id) ? $langs->trans('Task') . ' : ' . $task->ref . ' - ' . $task->label . chr(0x0A) : '');
+			$tmparray['object_label_ref']    .= (!empty($contact->id) ? $langs->trans('Contact') . ' : ' . $contact->firstname . ' ' . $contact->lastname . chr(0x0A) : '');
+			$tmparray['object_label_ref']     = rtrim($tmparray['object_label_ref'], chr(0x0A)) ;
 			$tmparray['sheet_ref']            = (!empty($sheet->ref) ? $sheet->ref : ' ');
 			$tmparray['sheet_label']          = (!empty($sheet->label) ? $sheet->label : ' ');
 			$tmparray['control_date']         = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
 			$tmparray['controller_signature'] = ''; // TODO ADD CONTROLLER SIGNATURE
-			$tmparray['user_label']           = (!empty($usertmp2->id) ? $usertmp2->lastname . ' ' . $usertmp2->firstname : ' ');
-			$tmparray['thirdparty_label']     = (!empty($thirdparty->name) ? $thirdparty->name : ' ');
-			$tmparray['contact_label']        = (!empty($contact->id) ? $contact->firstname . ' ' . $contact->lastname : ' ');
 			$tmparray['project_label']        = (!empty($project->id) ? $project->ref . ' - ' . $project->title : '');
-			$tmparray['task_label']           = (!empty($task->id) ? $task->ref . ' - ' . $task->label : ' ');
 			$tmparray['attendant_number']     = ''; // TODO ADD ATTENDANT NUMBER
 			$tmparray['attendant_lastname']   = ''; // TODO ADD ATTENDANT LASTNAME
 			$tmparray['attendant_firstname']  = ''; // TODO ADD ATTENDANT FIRSTNAME
@@ -525,6 +525,19 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 					}
 					$photoLines->merge();
 				}
+				$odfHandler->mergeSegment($photoLines);
+			} else if ($isPhotoDocument) {
+				$photoLines = $odfHandler->setSegment('photos');
+				try {
+					$photoLines->setVars('answer_ref', ' ', true, 'UTF-8');
+					$photoLines->setVars('photo_name', ' ', true, 'UTF-8');
+					$photoLines->setVars('photo', ' ', true, 'UTF-8');
+				} catch (OdfException $e) {
+					dol_syslog($e->getMessage());
+				} catch (SegmentException $e) {
+					dol_syslog($e->getMessage());
+				}
+				$photoLines->merge();
 				$odfHandler->mergeSegment($photoLines);
 			}
 
