@@ -6,6 +6,10 @@ require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
 require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
 require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
+require_once DOL_DOCUMENT_ROOT . '/compta/facture/class/facture.class.php';
+require_once DOL_DOCUMENT_ROOT . '/commande/class/commande.class.php';
+require_once DOL_DOCUMENT_ROOT . '/contrat/class/contrat.class.php';
+require_once DOL_DOCUMENT_ROOT . '/ticket/class/ticket.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 
 require_once __DIR__.'/../../class/sheet.class.php';
@@ -17,6 +21,10 @@ $sheet         = new Sheet($db);
 $usertmp       = new User($db);
 $projecttmp    = new Project($db);
 $tasktmp       = new Task($db);
+$invoicetmp    = new Facture($db);
+$ordertmp      = new Commande($db);
+$contracttmp   = new Contrat($db);
+$tickettmp     = new Ticket($db);
 $thirdparty    = new Societe($db);
 $contact       = new Contact($db);
 $formproject   = new FormProjets($db);
@@ -428,6 +436,42 @@ while ($i < ($limit ? min($num, $limit) : $num))
 					}
 				}
 			}
+            elseif ($key == 'fk_invoice') {
+                $object->fetchObjectLinked('', 'facture','', 'dolismq_control');
+                if (!empty($conf->global->DOLISMQ_SHEET_LINK_INVOICE) && (!empty($object->linkedObjectsIds['facture']))) {
+                    $invoicetmp->fetch(array_shift($object->linkedObjectsIds['facture']));
+                    if ($invoicetmp > 0) {
+                        print $invoicetmp->getNomUrl(1);
+                    }
+                }
+            }
+            elseif ($key == 'fk_order') {
+                $object->fetchObjectLinked('', 'commande','', 'dolismq_control');
+                if (!empty($conf->global->DOLISMQ_SHEET_LINK_ORDER) && (!empty($object->linkedObjectsIds['commande']))) {
+                    $ordertmp->fetch(array_shift($object->linkedObjectsIds['commande']));
+                    if ($ordertmp > 0) {
+                        print $ordertmp->getNomUrl(1);
+                    }
+                }
+            }
+            elseif ($key == 'fk_contract') {
+                $object->fetchObjectLinked('', 'contract','', 'dolismq_control');
+                if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && (!empty($object->linkedObjectsIds['contract']))) {
+                    $contracttmp->fetch(array_shift($object->linkedObjectsIds['contract']));
+                    if ($contracttmp > 0) {
+                        print $contracttmp->getNomUrl(1);
+                    }
+                }
+            }
+            elseif ($key == 'fk_ticket') {
+                $object->fetchObjectLinked('', 'ticket','', 'dolismq_control');
+                if (!empty($conf->global->DOLISMQ_SHEET_LINK_TICKET) && (!empty($object->linkedObjectsIds['ticket']))) {
+                    $tickettmp->fetch(array_shift($object->linkedObjectsIds['ticket']));
+                    if ($tickettmp > 0) {
+                        print $tickettmp->getNomUrl(1);
+                    }
+                }
+            }
 			elseif ($key == 'fk_sheet') {
 				$sheet->fetch($object->fk_sheet);
 				print $sheet->getNomUrl(1);

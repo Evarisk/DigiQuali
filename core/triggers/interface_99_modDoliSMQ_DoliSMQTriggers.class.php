@@ -134,6 +134,18 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				if (!empty(GETPOST('fk_task')) && GETPOST('fk_task') > 0) {
 					$object->add_object_linked('project_task', GETPOST('fk_task'));
 				}
+                if (!empty(GETPOST('fk_invoice')) && GETPOST('fk_invoice') > 0) {
+                    $object->add_object_linked('invoice', GETPOST('fk_invoice'));
+                }
+                if (!empty(GETPOST('fk_order')) && GETPOST('fk_order') > 0) {
+                    $object->add_object_linked('order', GETPOST('fk_order'));
+                }
+                if (!empty(GETPOST('fk_contract')) && GETPOST('fk_contract') > 0) {
+                    $object->add_object_linked('contract', GETPOST('fk_contract'));
+                }
+                if (!empty(GETPOST('fk_ticket')) && GETPOST('fk_ticket') > 0) {
+                    $object->add_object_linked('ticket', GETPOST('fk_ticket'));
+                }
 
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
 				$actioncomm->label = $langs->trans('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)));

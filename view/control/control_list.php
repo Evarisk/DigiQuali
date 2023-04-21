@@ -141,6 +141,18 @@ if (!empty($fromtype)) {
 		case 'fk_sheet' :
 			$objectLinked = new Sheet($db);
 			break;
+        case 'invoice' :
+            $objectLinked = new Facture($db);
+            break;
+        case 'order' :
+            $objectLinked = new Commande($db);
+            break;
+        case 'contract' :
+            $objectLinked = new Contrat($db);
+            break;
+        case 'ticket' :
+            $objectLinked = new Ticket($db);
+            break;
 	}
 	$objectLinked->fetch($fromid);
 	$linkedObjectsArray = array('sheet', 'user');
@@ -154,6 +166,10 @@ $arrayfields['t.fk_thirdparty'] = array('type' => 'integer:Societe:societe/class
 $arrayfields['t.fk_contact']    = array('type' => 'integer:Contact:contact/class/contact.class.php', 'label' => 'Contact', 'enabled' => '1', 'position' => 26, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'contact.rowid', 'checked' => 1);
 $arrayfields['t.fk_project']    = array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'Projet', 'enabled' => '1', 'position' => 27, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'project.rowid', 'checked' => 1);
 $arrayfields['t.fk_task']       = array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'Task', 'enabled' => '1', 'position' => 28, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'task.rowid', 'checked' => 1);
+$arrayfields['t.fk_invoice']    = array('type' => 'integer:Facture:compta/facture/class/facture.class.php', 'label' => 'Invoice', 'enabled' => '1', 'position' => 29, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'facture.rowid', 'checked' => 1);
+$arrayfields['t.fk_order']      = array('type' => 'integer:Commande:commande/class/commande.class.php', 'label' => 'Order', 'enabled' => '1', 'position' => 30, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'commande.rowid', 'checked' => 1);
+$arrayfields['t.fk_contract']   = array('type' => 'integer:Contrat:contrat/class/contrat.class.php', 'label' => 'Contract', 'enabled' => '1', 'position' => 31, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'contrat.rowid', 'checked' => 1);
+$arrayfields['t.fk_ticket']     = array('type' => 'integer:Ticket:ticket/class/ticket.class.php', 'label' => 'Ticket', 'enabled' => '1', 'position' => 32, 'notnull' => 0, 'visible' => 5, 'foreignkey' => 'ticket.rowid', 'checked' => 1);
 
 $object->fields['fk_product']    = $arrayfields['t.fk_product'];
 $object->fields['fk_lot']        = $arrayfields['t.fk_lot'];
@@ -162,6 +178,10 @@ $object->fields['fk_thirdparty'] = $arrayfields['t.fk_thirdparty'];
 $object->fields['fk_contact']    = $arrayfields['t.fk_contact'];
 $object->fields['fk_project']    = $arrayfields['t.fk_project'];
 $object->fields['fk_task']       = $arrayfields['t.fk_task'];
+$object->fields['fk_invoice']    = $arrayfields['t.fk_invoice'];
+$object->fields['fk_order']      = $arrayfields['t.fk_order'];
+$object->fields['fk_contract']   = $arrayfields['t.fk_contract'];
+$object->fields['fk_ticket']     = $arrayfields['t.fk_ticket'];
 
 $elementElementFields = array(
 	'fk_product'    => 'product',
@@ -170,7 +190,11 @@ $elementElementFields = array(
 	'fk_thirdparty' => 'societe',
 	'fk_contact'    => 'contact',
 	'fk_project'    => 'project',
-	'fk_task'       => 'project_task'
+	'fk_task'       => 'project_task',
+	'fk_invoice'    => 'facture',
+	'fk_order'      => 'commande',
+	'fk_contract'   => 'contrat',
+	'fk_ticket'     => 'ticket',
 );
 
 // Initialize array of search criterias
