@@ -251,3 +251,6 @@ CloseModal = Fermer
 PhotoWellSent = La photo a été ajoutée à la bibliothèque de médias
 PhotoNotSent = La photo ne s'est pas correctement envoyée
 DisplayMoreInfo = Afficher plus d'informations
+MediaDimensionSetWithSuccess = Dimensions des médias modifiées avec succès
+MediaDimensionNegativeError = Les valeurs des dimensions ne peuvent être négatives
+MediaDimensionEmptyError = Les valeurs des dimensions ne peuvent pas être vides
