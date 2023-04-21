@@ -200,23 +200,11 @@ if (empty($reshook)) {
 		foreach ($toselect as $toselectid) {
 			$result = $objecttmp->fetch($toselectid);
 			if ($result > 0) {
-
 				if (method_exists($objecttmp, 'isErasable') && $objecttmp->isErasable() <= 0) {
 					$langs->load("errors");
 					$nbignored++;
 					$TMsg[] = '<div class="error">'.$langs->trans('ErrorQuestionUsedInSheet',$objecttmp->ref).'</div><br>';
 					continue;
-				}
-
-				$categories = $objecttmp->getCategoriesCommon('question');
-
-				if (is_array($categories) && !empty($categories)) {
-					foreach ($categories as $cat_id) {
-
-						$category = new Categorie($db);
-						$category->fetch($cat_id);
-						$category->del_type($objecttmp, 'question');
-					}
 				}
 
 				$result = $objecttmp->delete($user);
@@ -255,10 +243,7 @@ if (empty($reshook)) {
 		} else {
 			$db->rollback();
 		}
-
-		//var_dump($listofobjectthirdparties);exit;
 	}
-//	include DOL_DOCUMENT_ROOT.'/core/actions_massactions.inc.php';
 }
 
 /*
@@ -295,6 +280,8 @@ $reshook = $hookmanager->executeHooks('printFieldListFrom', $parameters, $object
 $sql .= $hookmanager->resPrint;
 if ($object->ismultientitymanaged == 1) $sql .= " WHERE t.entity IN (".getEntity($object->element).")";
 else $sql .= " WHERE 1 = 1";
+$sql .= ' AND status > -1';
+
 foreach ($search as $key => $val) {
 	if ($key == 'status' && $search[$key] == -1) continue;
 	$mode_search = (($object->isInt($object->fields[$key]) || $object->isFloat($object->fields[$key])) ? 1 : 0);

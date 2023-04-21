@@ -119,6 +119,7 @@ window.dolismq.control.showCommentUnsaved = function ( event ) {
 window.dolismq.control.updateButtonsStatus = function (  ) {
 	$('#saveButton').removeClass('butActionRefused')
 	$('#saveButton').addClass('butAction')
+	$('#saveButton').attr('onclick','$("#saveControl").submit()');
 
 	$('#validateButton').removeClass('butAction')
 	$('#validateButton').addClass('butActionRefused')

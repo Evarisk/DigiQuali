@@ -60,6 +60,7 @@ class Control extends CommonObject
 	 */
 	public $picto = 'fontawesome_fa-tasks_fas_#d35968';
 
+	public const STATUS_DELETED   = -1;
 	public const STATUS_DRAFT     = 0;
 	public const STATUS_VALIDATED = 1;
 	public const STATUS_LOCKED    = 2;
@@ -274,7 +275,8 @@ class Control extends CommonObject
 	 */
 	public function delete(User $user, $notrigger = false)
 	{
-		return $this->deleteCommon($user, $notrigger);
+		$this->status = $this::STATUS_DELETED;
+		return $this->update($user, $notrigger);
 	}
 
 	/**
@@ -643,14 +645,17 @@ class Control extends CommonObject
 			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('StatusDraft');
 			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('Validated');
 			$this->labelStatus[self::STATUS_LOCKED]         = $langs->trans('Locked');
+			$this->labelStatus[self::STATUS_DELETED]        = $langs->trans('Deleted');
 			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('StatusDraft');
 			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Validated');
 			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->trans('Locked');
+			$this->labelStatusShort[self::STATUS_DELETED]   = $langs->trans('Deleted');
 		}
 
 		$statusType = 'status' . $status;
 		if ($status == self::STATUS_VALIDATED) $statusType = 'status4';
 		if ($status == self::STATUS_LOCKED) $statusType = 'status6';
+		if ($status == self::STATUS_DELETED) $statusType = 'status9';
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}
