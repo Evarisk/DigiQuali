@@ -474,6 +474,25 @@ if (empty($reshook)) {
 		}
 	}
 
+  // Action to set status STATUS_ARCHIVED.
+  if ($action == 'confirm_archive' && $permissiontoadd) {
+    $object->fetch($id);
+    if (!$error) {
+      $result = $object->setArchived($user);
+      if ($result > 0) {
+        // Set Archived OK.
+        $urltogo = str_replace('__ID__', $result, $backtopage);
+        $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
+        header('Location: ' . $urltogo);
+        exit;
+      } elseif (!empty($object->errors)) { // Set Archived KO.
+        setEventMessages('', $object->errors, 'errors');
+      } else {
+        setEventMessages($object->error, [], 'errors');
+      }
+    }
+  }
+    
 	if ($action == 'add_favorite_photo') {
 		$data          = json_decode(file_get_contents('php://input'), true);
 		$filename      = $data['filename'];
@@ -1132,6 +1151,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans('ControlMustBeLockedToSendEmail')) . '">' . $displayButton . '</span>';
 			}
+
+            // Archive
+            if ($object->status == $object::STATUS_LOCKED) {
+                print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=confirm_archive&token=' . newToken() . '"><i class="fas fa-archive"></i> ' . $langs->trans('Archive') . '</a>';
+            } else {
+                print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLockedToArchive', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-archive"></i> ' . $langs->trans('Archive') . '</span>';
+            }
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
 			$displayButton = $onPhone ? '<i class="fas fa-trash fa-2x"></i>' : '<i class="fas fa-trash"></i>' . ' ' . $langs->trans('Delete');
