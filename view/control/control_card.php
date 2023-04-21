@@ -729,11 +729,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Print form confirm
 	print $formconfirm;
 
-    $morehtmlref = '';
     if ($conf->browser->layout == 'phone') {
         $morehtmlref = '<br><i class="toggleControlInfo far fa-caret-square-down"></i>' . ' ' . $langs->trans('DisplayMoreInfo');
+    } else {
+        $morehtmlref = '';
     }
-    $morehtmlref .= '</div>';
 
     saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', $morehtmlref);
 
