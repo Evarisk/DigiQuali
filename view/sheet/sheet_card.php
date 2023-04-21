@@ -44,7 +44,7 @@ require_once '../../lib/dolismq_function.lib.php';
 global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
-saturne_load_langs(["other", "product"]);
+saturne_load_langs(["other", "product", 'bills', 'orders']);
 
 // Get parameters
 $id                  = GETPOST('id', 'int');
@@ -186,30 +186,14 @@ if (empty($reshook)) {
 			dol_print_error('', 'Error, object must be fetched before being deleted');
 			exit;
 		}
-		$categories = $object->getCategoriesCommon('sheet');
 
-		if (is_array($categories) && !empty($categories)) {
-			foreach ($categories as $cat_id) {
-
-				$category = new Categorie($db);
-				$category->fetch($cat_id);
-				$category->del_type($object, 'sheet');
-			}
+		if (method_exists($object, 'isErasable') && $object->isErasable() <= 0) {
+			$langs->load("errors");
+			$object->errors = $langs->trans('ErrorQuestionUsedInSheet',$object->ref);
+			$result = 0;
+		} else {
+			$result = $object->delete($user);
 		}
-
-		$object->fetchObjectLinked($id, 'dolismq_' . $object->element);
-		$object->element = 'dolismq_' . $object->element;
-
-		if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
-			foreach($object->linkedObjects as $linkedObjectType => $linkedObjectArray) {
-				foreach($linkedObjectArray as $linkedObject) {
-					if (method_exists($object, 'isErasable') && $object->isErasable() > 0) {
-						$object->deleteObjectLinked('','',$linkedObject->id, $linkedObjectType);
-					}
-				}
-			}
-		}
-		$result = $object->delete($user);
 
 		if ($result > 0) {
 			// Delete OK
@@ -327,6 +311,26 @@ $elementArray = array(
 		'langs' => 'Task',
 		'picto' => 'projecttask'
 	),
+    'invoice' => array(
+        'conf' => $conf->global->DOLISMQ_SHEET_LINK_INVOICE,
+        'langs' => 'Invoice',
+        'picto' => 'bill'
+    ),
+    'order' => array(
+        'conf' => $conf->global->DOLISMQ_SHEET_LINK_ORDER,
+        'langs' => 'Order',
+        'picto' => 'order'
+    ),
+    'contract' => array(
+        'conf' => $conf->global->DOLISMQ_SHEET_LINK_CONTRACT,
+        'langs' => 'Contract',
+        'picto' => 'contract'
+    ),
+    'ticket' => array(
+        'conf' => $conf->global->DOLISMQ_SHEET_LINK_TICKET,
+        'langs' => 'Ticket',
+        'picto' => 'ticket'
+    ),
 );
 
 saturne_header(0,'', $title, $help_url);
@@ -351,10 +355,13 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	//FK Element
-	if (empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && empty($conf->global->DOLISMQ_SHEET_LINK_USER) && empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT) && empty($conf->global->DOLISMQ_SHEET_LINK_TASK)) {
-		print '<div class="wpeo-notice notice-info">';
+	if (empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && empty($conf->global->DOLISMQ_SHEET_LINK_USER)
+        && empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT)
+        && empty($conf->global->DOLISMQ_SHEET_LINK_TASK) && empty($conf->global->DOLISMQ_SHEET_LINK_INVOICE) && empty($conf->global->DOLISMQ_SHEET_LINK_ORDER)
+        && empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && empty($conf->global->DOLISMQ_SHEET_LINK_TICKET)) {
+		print '<div class="wpeo-notice notice-warning notice-red">';
 		print '<div class="notice-content">';
-		print '<div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . ' : ' . '<a href="' .dol_buildpath('/custom/dolismq/admin/sheet.php', 2).'">' . $langs->trans('ConfigSheet') . '</a>';
+		print '<a href="' . dol_buildpath('/custom/dolismq/admin/sheet.php', 2) . '">' . '<b><div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . ' : ' . $langs->trans('ConfigSheet') . '</b></a>';
 		print '</div>';
 		print '</div>';
 		print '</div>';
@@ -488,7 +495,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Confirmation to delete
 	if ($action == 'delete') {
-		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('DeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('Delete') . ' ' . $langs->transnoentities('The' . ucfirst($object->element)), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
 	}
 
 	// Call Hook formConfirm
@@ -561,6 +568,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		if (empty($reshook) && $permissiontoadd) {
+			// Create control
+			if ($object->status == $object::STATUS_LOCKED) {
+				print '<a class="butAction" id="actionButtonCreateControl" href="' . dol_buildpath('/custom/dolismq/view/control/control_card.php?action=create&fk_sheet=' . $object->id, 1) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('CreateControl') . '</a>';
+			} else {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLocked', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('AddControl') . '</span>';
+			}
+
 			// Modify
 			if ($object->status == $object::STATUS_VALIDATED) {
 				print '<a class="butAction" id="actionButtonEdit" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit' . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</a>';
@@ -586,9 +600,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             }
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
-			if ($object->status != $object::STATUS_LOCKED) {
-				print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
-			}
+			print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 		}
 		print '</div>';
 	}

@@ -16,4 +16,5 @@
 ALTER TABLE llx_dolismq_question ADD INDEX idx_dolismq_question_rowid (rowid);
 ALTER TABLE llx_dolismq_question ADD INDEX idx_dolismq_question_ref (ref);
 ALTER TABLE llx_dolismq_question ADD INDEX idx_dolismq_question_status (status);
+ALTER TABLE llx_dolismq_question ADD UNIQUE INDEX uk_dolismq_question_ref (ref, entity);
 ALTER TABLE llx_dolismq_question ADD CONSTRAINT llx_dolismq_question_fk_user_creat FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid);
