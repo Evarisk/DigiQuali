@@ -77,7 +77,9 @@ OkKoToFixNonApplicable        = Sélecteur OK/KO/NA/A réparer
 ToFix                         = A réparer
 NonApplicable                 = NA
 Answer                        = Réponse
-AnswerCreated                 = Réponse créée
+EmptyValue                    = La valeur de la réponse est vide
+ErrorCreateAnswer             = Une erreur est survenue lors de la création de la réponse
+AnswerCreated                 = La réponse a été créée avec succès
 AnswerUpdated                 = Réponse mise à jour
 AnswerDeleted                 = Réponse supprimée
 

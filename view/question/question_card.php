@@ -530,14 +530,20 @@ if (empty($reshook)) {
 		$answerColor = GETPOST('answerColor');
 		$answerPicto = GETPOST('answerPicto');
 
-		$answer->value       = $answerValue;
-		$answer->color       = $answerColor;
-		$answer->pictogram   = $answerPicto;
-		$answer->fk_question = $id;
+		if (empty($answerValue)) {
+			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
+		} else {
+			$answer->value = $answerValue;
+			$answer->color = $answerColor;
+			$answer->pictogram = $answerPicto;
+			$answer->fk_question = $id;
 
-		$result = $answer->create($user);
-		if ($result > 0) {
-			setEventMessages($langs->trans("AnswerCreated"), null, 'mesgs');
+			$result = $answer->create($user);
+			if ($result > 0) {
+				setEventMessages($langs->trans('AnswerCreated'), []);
+			} else {
+				setEventMessages($langs->trans('ErrorCreateAnswer'), [], 'errors');
+			}
 		}
 	}
 
