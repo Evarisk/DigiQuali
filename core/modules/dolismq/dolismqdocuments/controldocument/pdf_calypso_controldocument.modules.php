@@ -530,7 +530,7 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 						// Fill an array with photo path and ref of the answer for next loop
 						if (is_array($fileList) && !empty($fileList)) {
 							foreach ($fileList as $singleFile) {
-								$fileSmall = saturne_get_thumb_name($singleFile['name']);
+							  $fileSmall = saturne_get_thumb_name($singleFile['name'], $conf->global->DOLISMQ_DOCUMENT_MEDIA_VIGNETTE_USED);
 								$image = $path . '/thumbs/' . $fileSmall;
 								$photoArray[$image] = $tmpTableArray['answerRef'];
 							}
