@@ -158,27 +158,6 @@ if (empty($reshook)) {
 		$result = $objecttmp->fetch($id);
 
 		if ($result > 0) {
-			$categories = $objecttmp->getCategoriesCommon('control');
-			if (is_array($categories) && !empty($categories)) {
-				foreach ($categories as $categoryId) {
-					$category = new Categorie($db);
-					$category->fetch($categoryId);
-					$category->del_type($objecttmp, 'control');
-				}
-			}
-
-			$objecttmp->fetchObjectLinked('','',$id, 'dolismq_' . $object->element);
-			$objecttmp->element = 'dolismq_' . $objecttmp->element;
-			if (is_array($objecttmp->linkedObjects) && !empty($objecttmp->linkedObjects)) {
-				foreach($objecttmp->linkedObjects as $linkedObjectType => $linkedObjectArray) {
-					foreach($linkedObjectArray as $linkedObject) {
-						if (method_exists($objecttmp, 'isErasable') && $objecttmp->isErasable() <= 0) {
-							$objecttmp->deleteObjectLinked($linkedObject->id, $linkedObjectType);
-						}
-					}
-				}
-			}
-
 			$result = $objecttmp->delete($user);
 
 			if ($result > 0) {
@@ -371,7 +350,7 @@ if (empty($reshook)) {
 		$object->fetch($id);
 		if ( ! $error) {
 			$object->verdict = GETPOST('verdict', 'int');
-			$object->note_public = GETPOST('noteControl');
+			$object->note_public .= (!empty($object->note_public) ? chr(0x0A) : '') . GETPOST('noteControl');
 			$result = $object->update($user);
 			if ($result > 0) {
 				// Set verdict Control
@@ -484,6 +463,14 @@ if (empty($reshook)) {
 		}
 	}
 
+	if ($action == 'add_favorite_photo') {
+		$data          = json_decode(file_get_contents('php://input'), true);
+		$filename      = $data['filename'];
+		$object->photo = $filename;
+
+		$object->update($user);
+	}
+
 	// Actions to send emails
 	$triggersendname = 'CONTROL_SENTBYMAIL';
 	$autocopy        = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
@@ -535,7 +522,7 @@ if ($action == 'create') {
 	//FK SHEET
 	print '<tr><td class="fieldrequired">' . $langs->trans('SheetLinked') . '</td><td>';
 	print img_picto('', 'list', 'class="pictofixedwidth"') . $sheet->selectSheetList(GETPOST('fk_sheet')?: $sheet->id);
-	print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/dolismq/view/sheet/sheet_card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
+	print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/dolismq/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
 	print '</td></tr></thead>';
 
 	print '</table>';
@@ -724,7 +711,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Confirmation to delete
 	if ($action == 'delete') {
-		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('DeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('Delete') . ' ' . $langs->transnoentities('The' . ucfirst($object->element)), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
 	}
 
 	// Call Hook formConfirm
@@ -771,13 +758,16 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 	}
 	if ($conf->browser->layout == 'phone') {
+		$onPhone = 1;
 		$morehtmlref .= '<br><i class="toggleControlInfo far fa-caret-square-down"></i>' . ' ' . $langs->trans('DisplayMoreInfo');
+	} else {
+		$onPhone = 0;
 	}
 	$morehtmlref .= '</div>';
 
-	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', $morehtmlref);
+	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', $morehtmlref, empty($object->photo) ? false : true);
 
-	print '<div class="fichecenter controlInfo' . ($conf->browser->layout == 'phone' ? ' hidden' : '') . '">';
+	print '<div class="fichecenter controlInfo' . ($onPhone ? ' hidden' : '') . '">';
 	print '<div class="fichehalfleft">';
 	print '<table class="border centpercent tableforfield">'."\n";
 
@@ -910,6 +900,28 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
+	print '<tr class="linked-medias photos question-table"><td class=""><label for="photos">' . $langs->trans("Photo") . '</label></td><td class="linked-medias-list">';
+	if ($object->status != Control::STATUS_LOCKED) { ?>
+		<input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
+		<label for="fast-upload-photo-default">
+			<div class="wpeo-button button-square-50">
+				<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
+			</div>
+		</label>
+		<input type="hidden" class="favorite-photo" id="photos" name="photos" value="<?php echo $object->photo ?>"/>
+		<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
+			<input type="hidden" class="modal-to-open" value="media_gallery"/>
+			<input type="hidden" class="from-type" value="control"/>
+			<input type="hidden" class="from-subtype" value="photos"/>
+			<input type="hidden" class="from-subdir" value="photos"/>
+			<input type="hidden" class="from-id" value="<?php echo $object->id?>"/>
+			<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
+		</div>
+	<?php }
+	$relativepath = 'dolismq/medias/thumbs';
+	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/', 'small', 5, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
+	print '</td></tr>';
+
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	if ($permissiontoadd > 0 && $object->status < 1) {
 		$user->rights->control = new stdClass();
@@ -938,57 +950,65 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 		}
 
-		print '<span class="butAction" id="actionButtonClone" title="" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=clone' . '">' . '<i class="fas fa-clone"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('ToClone')) . '</span>';
+		$displayButton = $onPhone ? '<i class="fas fa-clone fa-2x"></i>' : '<i class="fas fa-clone"></i>' . ' ' . $langs->trans('ToClone');
+		print '<span class="butAction" id="actionButtonClone" title="" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=clone' . '">' . $displayButton . '</span>';
 
 		if (empty($reshook)) {
 			// Save question answer
+			$displayButton = $onPhone ? '<i class="fas fa-save fa-2x"></i>' : '<i class="fas fa-save"></i>' . ' ' . $langs->trans('Save');
 			if ($object->status == $object::STATUS_DRAFT) {
-				print '<button type="submit" id="saveButton" class="saveButton butActionRefused">' . '<i class="fas fa-save"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Save')) . '</button>';
+				print '<span class="butActionRefused" id="saveButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=save' . '">' . $displayButton . '</span>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . '<i class="fas fa-save"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Save')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $displayButton . '</span>';
 			}
 
 			// Validate
+			$displayButton = $onPhone ? '<i class="fas fa-check fa-2x"></i>' : '<i class="fas fa-check"></i>' . ' ' . $langs->trans('Validate');
 			if ($object->status == $object::STATUS_DRAFT) {
-				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . '<i class="fas fa-check"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Validate')) . '</a>';
+				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . $displayButton . '</a>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . '<i class="fas fa-check"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Validate')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $displayButton . '</span>';
 			}
 
 			// ReOpen
+			$displayButton = $onPhone ? '<i class="fas fa-lock-open fa-2x"></i>' : '<i class="fas fa-lock-open"></i>' . ' ' . $langs->trans('ReOpenDoli');
 			if ($object->status == $object::STATUS_VALIDATED) {
-				print '<span class="butAction" id="actionButtonReOpen" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setDraft' . '">' . '<i class="fas fa-lock-open"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('ReOpenDoli')) . '</span>';
+				print '<span class="butAction" id="actionButtonReOpen" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setDraft' . '">' . $displayButton . '</span>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidated')) . '">' . '<i class="fas fa-lock-open"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('ReOpenDoli')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidated')) . '">' . $displayButton . '</span>';
 			}
 
 			// Set verdict control
+			$displayButton = $onPhone ? '<i class="fas fa-check-circle fa-2x"></i>' : '<i class="fas fa-check-circle"></i>' . ' ' . $langs->trans('SetOK/KO');
 			if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null) {
 				if ($permissiontoadd) {
-					print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setVerdict&token=' . newToken() . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</a>';
+					print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setVerdict&token=' . newToken() . '">' . $displayButton . '</a>';
 				}
 			} elseif ($object->status == $object::STATUS_DRAFT) {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . $displayButton . '</span>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . $displayButton . '</span>';
 			}
 
 			// Lock
+			$displayButton = $onPhone ? '<i class="fas fa-lock fa-2x"></i>' : '<i class="fas fa-lock"></i>' . ' ' . $langs->trans('Lock');
 			if ($object->status == $object::STATUS_VALIDATED && $object->verdict != null) {
-				print '<span class="butAction" id="actionButtonLock">' . '<i class="fas fa-lock"></i>' . ($conf->browser->layout == 'phone' ? '' : $langs->trans('Lock')) . '</span>';
+				print '<span class="butAction" id="actionButtonLock">' . $displayButton . '</span>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToLock')) . '">' . '<i class="fas fa-lock"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Lock')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToLock')) . '">' . $displayButton . '</span>';
 			}
 
 			// Send email
+			$displayButton = $onPhone ? '<i class="fas fa-paper-plane fa-2x"></i>' : '<i class="fas fa-paper-plane"></i>' . ' ' . $langs->trans('SendMail') . ' ';
 			if ($object->status == $object::STATUS_LOCKED) {
-				print dolGetButtonAction('<i class="fas fa-paper-plane"></i>' . ' ' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SendMail')), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=presend&mode=init&token='.newToken().'#formmailbeforetitle', '', $object->status == $object::STATUS_LOCKED);
+				print dolGetButtonAction($displayButton, '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=presend&mode=init&token='.newToken().'#formmailbeforetitle', '', $object->status == $object::STATUS_LOCKED);
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans('ControlMustBeLockedToSendEmail')) . '">' . '<i class="fas fa-paper-plane"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SendMail') . ' ') . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans('ControlMustBeLockedToSendEmail')) . '">' . $displayButton . '</span>';
 			}
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
-			print dolGetButtonAction('<i class="fas fa-trash"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Delete')), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
+			$displayButton = $onPhone ? '<i class="fas fa-trash fa-2x"></i>' : '<i class="fas fa-trash"></i>' . ' ' . $langs->trans('Delete');
+			print dolGetButtonAction($displayButton, '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 		}
 		print '</div>';
 	}

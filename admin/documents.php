@@ -50,6 +50,9 @@ $const      = GETPOST('const', 'alpha');
 $label      = GETPOST('label', 'alpha');
 $modulepart = GETPOST('modulepart', 'aZ09');	// Used by actions_setmoduleoptions.inc.php
 
+$form         = new Form($db);
+$vignetteType = array('1' => 'Mini', '2' => 'Small', '3' => 'Medium', '4' => 'Large');
+
 // Access control
 $permissiontoread = $user->rights->dolismq->adminpage->read;
 saturne_check_access($permissiontoread);
@@ -176,6 +179,17 @@ if ($action == 'setModuleOptions') {
 	}
 }
 
+if ($action == 'setMediaDocument') {
+	$vignetteId = GETPOST('MediaSizeDocument', 'alpha');
+	$result     = dolibarr_set_const($db, 'DOLISMQ_DOCUMENT_MEDIA_VIGNETTE_USED', lcfirst($vignetteType[$vignetteId]), 'chaine', 0, '', $conf->entity);
+
+	if ($result > 0) {
+		setEventMessages($langs->trans('MediaDocumentSizeSetWithSuccess'), null);
+	} else {
+		setEventMessages($langs->trans('MediaDocumentSizeSetWithFailure'), null, 'errors');
+	}
+}
+
 /*
  * View
  */
@@ -266,6 +280,27 @@ foreach ($types as $type => $documentType) {
 		print '</td>';
 		print '</tr>';
 		print '</table>';
+
+		print load_fiche_titre($langs->trans('ConfigDatasInDoc'), '', '');
+
+		print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '" name="social_form">';
+		print '<input type="hidden" name="token" value="' . newToken() . '">';
+		print '<input type="hidden" name="action" value="setMediaDocument">';
+		print '<table class="noborder centpercent editmode">';
+		print '<tr class="liste_titre">';
+		print '<td>' . $langs->trans('Name') . '</td>';
+		print '<td>' . $langs->trans('Description') . '</td>';
+		print '<td>' . $langs->trans('Value') . '</td>';
+		print '<td>' . $langs->trans('Action') . '</td>';
+		print '</tr>';
+
+		$vignetteKey = array_search(ucfirst($conf->global->DOLISMQ_DOCUMENT_MEDIA_VIGNETTE_USED),$vignetteType);
+		print '<tr class="oddeven"><td><label for="MediaSizeDocument">' . $langs->trans('MediaSizeDocument') . '</label></td>';
+		print '<td>' . $langs->trans('MediaSizeDocumentDescription') . '</td>';
+		print '<td>' . $form->selectarray('MediaSizeDocument', $vignetteType, $vignetteKey, 0, 0, 0, '', 1) . '</td>';
+		print '<td><input type="submit" class="button" name="save" value="' . $langs->trans('Save') . '">';
+		print '</td></tr></form>';
+
 	}
 
 	print load_fiche_titre($langs->trans('NumberingModule'), '', '');

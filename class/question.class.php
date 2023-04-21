@@ -60,6 +60,7 @@ class Question extends CommonObject
 	 */
 	public $picto = 'fontawesome_fa-question_fas_#d35968';
 
+	const STATUS_DELETED   = -1;
 	const STATUS_DRAFT     = 0;
 	const STATUS_VALIDATED = 1;
 	const STATUS_LOCKED    = 2;
@@ -277,7 +278,8 @@ class Question extends CommonObject
 	 */
 	public function delete(User $user, $notrigger = false)
 	{
-		return $this->deleteCommon($user, $notrigger);
+		$this->status = $this::STATUS_DELETED;
+		return $this->update($user, $notrigger);
 	}
 
 	/**
@@ -440,11 +442,13 @@ class Question extends CommonObject
 			$this->labelStatus[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
 			$this->labelStatus[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
 			$this->labelStatus[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
+			$this->labelStatus[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
 
 			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
 			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
 			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
 			$this->labelStatusShort[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
+			$this->labelStatusShort[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
 		}
 
 		$statusType = 'status' . $status;
@@ -453,6 +457,9 @@ class Question extends CommonObject
 		}
 		if ($status == self::STATUS_ARCHIVED) {
 			$statusType = 'status8';
+		}
+		if ($status == self::STATUS_DELETED) {
+			$statusType = 'status9';
 		}
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
