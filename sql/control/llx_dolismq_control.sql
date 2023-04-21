@@ -26,6 +26,7 @@ CREATE TABLE llx_dolismq_control(
 	note_private       text,
 	type               varchar(128),
 	verdict            smallint,
+	photo              text,
 	fk_user_creat      integer NOT NULL,
 	fk_user_modif      integer,
 	fk_sheet           integer NOT NULL,
