@@ -60,9 +60,11 @@ class Control extends CommonObject
 	 */
 	public $picto = 'fontawesome_fa-tasks_fas_#d35968';
 
+	public const STATUS_DELETED   = -1;
 	public const STATUS_DRAFT     = 0;
 	public const STATUS_VALIDATED = 1;
 	public const STATUS_LOCKED    = 2;
+    public const STATUS_ARCHIVED  = 3;
 
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
@@ -80,6 +82,7 @@ class Control extends CommonObject
 		'note_private'       => ['type' => 'html', 'label' => 'PrivateNote', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 0],
 		'type'               => ['type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 100, 'notnull' => 0, 'visible' => 0],
 		'verdict'            => ['type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 110,'positioncard' => 20, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => ['0' => 'All', '1' => 'OK', '2' => 'KO', '3' => 'NoVerdict']],
+		'photo'              => ['type' => 'text', 'label' => 'Photo', 'enabled' => '1', 'position' => 120, 'notnull' => 0, 'visible' => 0],
 		'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
 		'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0],
 		'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'SheetLinked', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5, 'css' => 'maxwidth500 widthcentpercentminusxx'],
@@ -97,6 +100,7 @@ class Control extends CommonObject
 	public $status;
 	public $type;
 	public $verdict;
+	public $photo;
 	public $label;
 	public $fk_user_creat;
 	public $fk_user_modif;
@@ -272,7 +276,8 @@ class Control extends CommonObject
 	 */
 	public function delete(User $user, $notrigger = false)
 	{
-		return $this->deleteCommon($user, $notrigger);
+		$this->status = $this::STATUS_DELETED;
+		return $this->update($user, $notrigger);
 	}
 
 	/**
@@ -399,6 +404,18 @@ class Control extends CommonObject
 		return $this->setStatusCommon($user, self::STATUS_LOCKED, $notrigger, 'CONTROL_LOCKED');
 	}
 
+    /**
+     * Set archived status.
+     *
+     * @param  User $user       Object user that modify.
+     * @param  int  $notrigger  1 = Does not execute triggers, 0 = Execute triggers.
+     * @return int              0 < if KO, >0 if OK.
+     */
+    public function setArchived(User $user, int $notrigger = 0): int
+    {
+        return $this->setStatusCommon($user, self::STATUS_ARCHIVED, $notrigger, 'CONTROL_ARCHIVED');
+    }
+
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
 	 *  Return if a control can be deleted
@@ -521,6 +538,25 @@ class Control extends CommonObject
 					$object->add_object_linked($societe->element, $societe->id);
 				}
 			}
+            if (!empty($object->linkedObjects['invoice'])) {
+                foreach ($object->linkedObjects['invoice'] as $invoice) {
+                    $object->add_object_linked($invoice->element, $invoice->id);
+                }
+            }
+            if (!empty($object->linkedObjects['order'])) {
+                foreach ($object->linkedObjects['order'] as $order) {
+                    $object->add_object_linked($order->element, $order->id);
+                }
+            }if (!empty($object->linkedObjects['contract'])) {
+                foreach ($object->linkedObjects['contract'] as $contract) {
+                    $object->add_object_linked($contract->element, $contract->id);
+                }
+            }
+            if (!empty($object->linkedObjects['ticket'])) {
+                foreach ($object->linkedObjects['ticket'] as $ticket) {
+                    $object->add_object_linked($ticket->element, $ticket->id);
+                }
+            }
 		}
 
 		unset($object->context['createfromclone']);
@@ -624,31 +660,44 @@ class Control extends CommonObject
 	}
 
 
-	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *  Return the status
+	 * Return the status
 	 *
-	 *  @param	int		$status        Id status
-	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
-	 *  @return string 			       Label of status
+	 * @param  int  $status        Id status
+	 * @param  int   $mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
+	 * @return string         Label of status
 	 */
-	public function LibStatut($status, $mode = 0)
+    public function LibStatut(int $status, int $mode = 0): string
 	{
-		// phpcs:enable
 		if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
 			global $langs;
-			//$langs->load("dolismq@dolismq");
-			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('StatusDraft');
-			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('Validated');
-			$this->labelStatus[self::STATUS_LOCKED]         = $langs->trans('Locked');
-			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('StatusDraft');
-			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Validated');
-			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->trans('Locked');
+
+			$this->labelStatus[self::STATUS_DRAFT]          = $langs->transnoentitiesnoconv('StatusDraft');
+			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->transnoentitiesnoconv('Validated');
+			$this->labelStatus[self::STATUS_LOCKED]         = $langs->transnoentitiesnoconv('Locked');
+      $this->labelStatus[self::STATUS_ARCHIVED]       = $langs->transnoentitiesnoconv('Archived');
+			$this->labelStatus[self::STATUS_DELETED]        = $langs->transnoentitiesnoconv('Deleted');
+      
+			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
+			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Validated');
+			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
+      $this->labelStatusShort[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
+			$this->labelStatusShort[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
 		}
 
 		$statusType = 'status' . $status;
-		if ($status == self::STATUS_VALIDATED) $statusType = 'status4';
-		if ($status == self::STATUS_LOCKED) $statusType = 'status6';
+    if ($status == self::STATUS_VALIDATED) {
+      $statusType = 'status4';
+    }
+		if ($status == self::STATUS_LOCKED) {
+      $statusType = 'status6';
+    }
+    if ($status == self::STATUS_ARCHIVED) {
+       $statusType = 'status8';
+    }
+    if ($status == self::STATUS_DELETED) {
+       $statusType = 'status9';
+    }
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}
@@ -920,7 +969,7 @@ class ControlLine extends CommonObjectLine
 	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
 	{
 		global $db;
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answser_photo, t.comment, t.fk_question, t.fk_control ';
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 
