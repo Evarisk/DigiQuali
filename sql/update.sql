@@ -64,4 +64,6 @@ ALTER TABLE `llx_dolismq_sheet` CHANGE `import_key` `import_key` VARCHAR(14) CHA
 
 -- 1.6.0
 ALTER TABLE `llx_dolismq_question` CHANGE `label` `label` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL NOT NULL;
+ALTER TABLE `llx_dolismq_question` CHANGE `type` `type` varchar(128) NOT NULL;
 ALTER TABLE `llx_dolismq_sheet` CHANGE `label` `label` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL NOT NULL;
+ALTER TABLE `llx_dolismq_control` ADD `photo` TEXT NULL AFTER `verdict`;

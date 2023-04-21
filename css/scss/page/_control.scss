@@ -96,38 +96,8 @@
       &:hover {
         cursor: pointer;
       }
-
-      &[value="1"] {
-        color: $color__green;
-
-        &.active {
-          background: $color__green;
-        }
-      }
-      &[value="2"] {
-        color: $color__red;
-
-        &.active {
-          background: $color__red;
-        }
-      }
-      &[value="3"] {
-        color: $color__yellow;
-
-        &.active {
-          background: $color__yellow;
-        }
-      }
-      &[value="4"] {
-        color: rgba(0,0,0,0.7);
-        font-weight: 700;
-
-        &.active {
-          background: rgba(0,0,0,0.7);
-        }
-      }
       &.active {
-        color: #fff;
+        color: #fff !important;
         //border-color: $color__secondary;
         //box-shadow: 0 0 0 2px $color__secondary;
       }

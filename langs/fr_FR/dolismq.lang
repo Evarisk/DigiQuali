@@ -66,7 +66,22 @@ ErrorNoQuestionSelected       = Aucune question sélectionnée
 AddQuestionIntoCategory       = Assigner cette catégorie à la question
 ClonePhotos                   = Cloner les photos
 CloneCategories               = Cloner les catégories
-
+QuestionType                  = Type de question
+AnswersList                   = Liste des réponses possibles
+MultipleChoices               = Choix multiples
+Text                          = Texte
+UniqueChoice                  = Choix unique
+Range                         = Valeur numérique
+OkKo                          = Sélecteur OK/KO
+OkKoToFixNonApplicable        = Sélecteur OK/KO/NA/A réparer
+ToFix                         = A réparer
+NonApplicable                 = NA
+Answer                        = Réponse
+EmptyValue                    = La valeur de la réponse est vide
+ErrorCreateAnswer             = Une erreur est survenue lors de la création de la réponse
+AnswerCreated                 = La réponse a été créée avec succès
+AnswerUpdated                 = Réponse mise à jour
+AnswerDeleted                 = Réponse supprimée
 
 #
 # Sheet
@@ -128,6 +143,7 @@ ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
 Control = Contrôle
 ControlsMin = contrôles
 TheControl = le contrôle
+CreateControl = Créer un contrôle
 AddControl = Ajouter un contrôle
 NewControl = Nouveau contrôle
 ControlList = Liste des contrôles
@@ -204,8 +220,12 @@ AddProductLot = Créer numéro de lot/série
 AddUser = Créer utilisateur
 AddControlIntoCategory = Assigner cette catégorie au contrôle
 ProductOrServiceLinked = Produit ou service contrôlé
+ConfigDatasInDoc = Configuration des médias dans les documents
+MediaSizeDocument = Taille des média
+MediaSizeDocumentDescription = Sélection de la taille des médias dans les documents
+MediaDocumentSizeSetWithSuccess = La taille des médias dans les documents a été modifiée avec succès
+MediaDocumentSizeSetWithFailure = Une erreur est survenue lors de la modification de la taille des médias dans les documents
 NoVerdict = Pas de verdict
-
 
 #
 # ControlDet
@@ -258,3 +278,6 @@ CloseModal = Fermer
 PhotoWellSent = La photo a été ajoutée à la bibliothèque de médias
 PhotoNotSent = La photo ne s'est pas correctement envoyée
 DisplayMoreInfo = Afficher plus d'informations
+MediaDimensionSetWithSuccess = Dimensions des médias modifiées avec succès
+MediaDimensionNegativeError = Les valeurs des dimensions ne peuvent être négatives
+MediaDimensionEmptyError = Les valeurs des dimensions ne peuvent pas être vides

@@ -60,6 +60,7 @@ class Control extends CommonObject
 	 */
 	public $picto = 'fontawesome_fa-tasks_fas_#d35968';
 
+	public const STATUS_DELETED   = -1;
 	public const STATUS_DRAFT     = 0;
 	public const STATUS_VALIDATED = 1;
 	public const STATUS_LOCKED    = 2;
@@ -80,6 +81,7 @@ class Control extends CommonObject
 		'note_private'       => ['type' => 'html', 'label' => 'PrivateNote', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 0],
 		'type'               => ['type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 100, 'notnull' => 0, 'visible' => 0],
 		'verdict'            => ['type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 110,'positioncard' => 20, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => ['0' => 'All', '1' => 'OK', '2' => 'KO', '3' => 'NoVerdict']],
+		'photo'              => ['type' => 'text', 'label' => 'Photo', 'enabled' => '1', 'position' => 120, 'notnull' => 0, 'visible' => 0],
 		'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
 		'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0],
 		'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'SheetLinked', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5, 'css' => 'maxwidth500 widthcentpercentminusxx'],
@@ -97,6 +99,7 @@ class Control extends CommonObject
 	public $status;
 	public $type;
 	public $verdict;
+	public $photo;
 	public $label;
 	public $fk_user_creat;
 	public $fk_user_modif;
@@ -272,7 +275,8 @@ class Control extends CommonObject
 	 */
 	public function delete(User $user, $notrigger = false)
 	{
-		return $this->deleteCommon($user, $notrigger);
+		$this->status = $this::STATUS_DELETED;
+		return $this->update($user, $notrigger);
 	}
 
 	/**
@@ -660,14 +664,17 @@ class Control extends CommonObject
 			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('StatusDraft');
 			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('Validated');
 			$this->labelStatus[self::STATUS_LOCKED]         = $langs->trans('Locked');
+			$this->labelStatus[self::STATUS_DELETED]        = $langs->trans('Deleted');
 			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('StatusDraft');
 			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Validated');
 			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->trans('Locked');
+			$this->labelStatusShort[self::STATUS_DELETED]   = $langs->trans('Deleted');
 		}
 
 		$statusType = 'status' . $status;
 		if ($status == self::STATUS_VALIDATED) $statusType = 'status4';
 		if ($status == self::STATUS_LOCKED) $statusType = 'status6';
+		if ($status == self::STATUS_DELETED) $statusType = 'status9';
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}
@@ -939,7 +946,7 @@ class ControlLine extends CommonObjectLine
 	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
 	{
 		global $db;
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answser_photo, t.comment, t.fk_question, t.fk_control ';
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 
