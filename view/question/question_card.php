@@ -201,8 +201,11 @@ if (empty($reshook)) {
 			}
 
 			if ( ! $error) {
-				$generatethumbs = 1;
-				dol_add_file_process($upload_dir, 0, 1, 'userfile', '', null, '', $generatethumbs);
+				dol_add_file_process($upload_dir, 0, 1, 'userfile', '', null, '', 0);
+				$imgThumbMini   = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
+				$imgThumbSmall  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
+				$imgThumbMedium = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+				$imgThumbLarge  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
 			}
 			$error = 0;
 		}
@@ -226,8 +229,11 @@ if (empty($reshook)) {
 			}
 
 			if ( ! $error) {
-				$generatethumbs = 1;
-				dol_add_file_process($upload_dir, 0, 1, 'userfile2', '', null, '', $generatethumbs);
+				dol_add_file_process($upload_dir, 0, 1, 'userfile2', '', null, '', 0);
+				$imgThumbMini   = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
+				$imgThumbSmall  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
+				$imgThumbMedium = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+				$imgThumbLarge  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
 			}
 			$error = 0;
 		}
@@ -252,20 +258,16 @@ if (empty($reshook)) {
 
 							copy($photo['fullname'], $pathToQuestionPhotoType . '/' . $photo['name']);
 
-							global $maxwidthmini, $maxheightmini, $maxwidthsmall,$maxheightsmall ;
 							$destfull = $pathToQuestionPhotoType . '/' . $photo['name'];
 
 							if (empty($object->$type)) {
 								$object->$type = $photo['name'];
 							}
 
-							// Create thumbs
-							// We can't use $object->addThumbs here because there is no $object known
-							// Used on logon for example
-							$imgThumbSmall = vignette($destfull, $maxwidthsmall, $maxheightsmall, '_small', 50, "thumbs");
-							// Create mini thumbs for image (Ratio is near 16/9)
-							// Used on menu or for setup page for example
-							$imgThumbMini = vignette($destfull, $maxwidthmini, $maxheightmini, '_mini', 50, "thumbs");
+							$imgThumbMini   = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
+							$imgThumbSmall  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
+							$imgThumbMedium = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+							$imgThumbLarge  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
 							unlink($photo['fullname']);
 						}
 					}
@@ -442,18 +444,14 @@ if (empty($reshook)) {
 			dol_print_error('', 'Error, object must be fetched before being deleted');
 			exit;
 		}
-		$categories = $object->getCategoriesCommon('question');
 
-		if (is_array($categories) && !empty($categories)) {
-			foreach ($categories as $cat_id) {
-
-				$category = new Categorie($db);
-				$category->fetch($cat_id);
-				$category->del_type($object, 'question');
-			}
+		if (method_exists($object, 'isErasable') && $object->isErasable() <= 0) {
+			$langs->load("errors");
+			$object->errors = $langs->trans('ErrorQuestionUsedInSheet',$object->ref);
+			$result = 0;
+		} else {
+			$result = $object->delete($user);
 		}
-
-		$result = $object->delete($user);
 
 		if ($result > 0) {
 			// Delete OK
@@ -811,7 +809,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Confirmation to delete
 	if ($action == 'delete') {
-		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('DeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('Delete') . ' ' . $langs->transnoentities('The'  . ucfirst($object->element)), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
 	}
 
 	// Call Hook formConfirm
@@ -933,9 +931,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '<span class="butAction" id="actionButtonClone"><i class="fas fa-clone"></i> ' . $langs->trans('Clone') . '</span>';
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
-			if ($object->status != $object::STATUS_LOCKED) {
-				print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
-			}
+			print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 		}
 		print '</div>';
 	}

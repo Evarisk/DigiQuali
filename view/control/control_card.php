@@ -155,27 +155,6 @@ if (empty($reshook)) {
 		$result = $objecttmp->fetch($id);
 
 		if ($result > 0) {
-			$categories = $objecttmp->getCategoriesCommon('control');
-			if (is_array($categories) && !empty($categories)) {
-				foreach ($categories as $categoryId) {
-					$category = new Categorie($db);
-					$category->fetch($categoryId);
-					$category->del_type($objecttmp, 'control');
-				}
-			}
-
-			$objecttmp->fetchObjectLinked('','',$id, 'dolismq_' . $object->element);
-			$objecttmp->element = 'dolismq_' . $objecttmp->element;
-			if (is_array($objecttmp->linkedObjects) && !empty($objecttmp->linkedObjects)) {
-				foreach($objecttmp->linkedObjects as $linkedObjectType => $linkedObjectArray) {
-					foreach($linkedObjectArray as $linkedObject) {
-						if (method_exists($objecttmp, 'isErasable') && $objecttmp->isErasable() <= 0) {
-							$objecttmp->deleteObjectLinked($linkedObject->id, $linkedObjectType);
-						}
-					}
-				}
-			}
-
 			$result = $objecttmp->delete($user);
 
 			if ($result > 0) {
@@ -481,6 +460,14 @@ if (empty($reshook)) {
 		}
 	}
 
+	if ($action == 'add_favorite_photo') {
+		$data          = json_decode(file_get_contents('php://input'), true);
+		$filename      = $data['filename'];
+		$object->photo = $filename;
+
+		$object->update($user);
+	}
+
 	// Actions to send emails
 	$triggersendname = 'CONTROL_SENTBYMAIL';
 	$autocopy        = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
@@ -532,7 +519,7 @@ if ($action == 'create') {
 	//FK SHEET
 	print '<tr><td class="fieldrequired">' . $langs->trans('SheetLinked') . '</td><td>';
 	print img_picto('', 'list', 'class="pictofixedwidth"') . $sheet->selectSheetList(GETPOST('fk_sheet')?: $sheet->id);
-	print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/dolismq/view/sheet/sheet_card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
+	print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/dolismq/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
 	print '</td></tr></thead>';
 
 	print '</table>';
@@ -714,7 +701,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Confirmation to delete
 	if ($action == 'delete') {
-		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('DeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('Delete') . ' ' . $langs->transnoentities('The' . ucfirst($object->element)), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
 	}
 
 	// Call Hook formConfirm
@@ -768,7 +755,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 	$morehtmlref .= '</div>';
 
-	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', $morehtmlref);
+	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', $morehtmlref, empty($object->photo) ? false : true);
 
 	print '<div class="fichecenter controlInfo' . ($onPhone ? ' hidden' : '') . '">';
 	print '<div class="fichehalfleft">';
@@ -903,6 +890,28 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
+	print '<tr class="linked-medias photos question-table"><td class=""><label for="photos">' . $langs->trans("Photo") . '</label></td><td class="linked-medias-list">';
+	if ($object->status != Control::STATUS_LOCKED) { ?>
+		<input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
+		<label for="fast-upload-photo-default">
+			<div class="wpeo-button button-square-50">
+				<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
+			</div>
+		</label>
+		<input type="hidden" class="favorite-photo" id="photos" name="photos" value="<?php echo $object->photo ?>"/>
+		<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
+			<input type="hidden" class="modal-to-open" value="media_gallery"/>
+			<input type="hidden" class="from-type" value="control"/>
+			<input type="hidden" class="from-subtype" value="photos"/>
+			<input type="hidden" class="from-subdir" value="photos"/>
+			<input type="hidden" class="from-id" value="<?php echo $object->id?>"/>
+			<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
+		</div>
+	<?php }
+	$relativepath = 'dolismq/medias/thumbs';
+	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/', 'small', 5, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
+	print '</td></tr>';
+
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	if ($permissiontoadd > 0 && $object->status < 1) {
 		$user->rights->control = new stdClass();
@@ -951,7 +960,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			// Save question answer
 			$displayButton = $onPhone ? '<i class="fas fa-save fa-2x"></i>' : '<i class="fas fa-save"></i>' . ' ' . $langs->trans('Save');
 			if ($object->status == $object::STATUS_DRAFT) {
-				print '<button type="submit" id="saveButton" class="saveButton butActionRefused">' . $displayButton . '</button>';
+				print '<span class="butActionRefused" id="saveButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=save' . '">' . $displayButton . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $displayButton . '</span>';
 			}

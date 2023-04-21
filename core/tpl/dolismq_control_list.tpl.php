@@ -62,6 +62,7 @@ $reshook = $hookmanager->executeHooks('printFieldListFrom', $parameters, $object
 $sql .= $hookmanager->resPrint;
 if ($object->ismultientitymanaged == 1) $sql .= " WHERE t.entity IN (".getEntity($object->element).")";
 else $sql .= " WHERE 1 = 1".$sqlfilter;
+$sql .= ' AND status > -1';
 
 foreach($elementElementFields as $genericName => $elementElementName) {
 	if (GETPOST('search_'.$genericName) > 0 || $fromtype == $elementElementName) {

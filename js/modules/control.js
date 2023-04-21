@@ -37,6 +37,7 @@ window.dolismq.control.event = function() {
 	$( document ).on( 'click', '.validateButton', window.dolismq.control.getAnswerCounter);
 	$( document ).on( 'change', '#fk_sheet', window.dolismq.control.showSelectObjectLinked);
 	$( document ).on( 'click', '.toggleControlInfo', window.dolismq.control.toggleControlInfo );
+	$( document ).on( 'click', '.control.media-gallery-favorite, .control.media-gallery-unlink', window.dolismq.control.refreshFavoritePhoto );
 };
 
 /**
@@ -118,6 +119,7 @@ window.dolismq.control.showCommentUnsaved = function ( event ) {
 window.dolismq.control.updateButtonsStatus = function (  ) {
 	$('#saveButton').removeClass('butActionRefused')
 	$('#saveButton').addClass('butAction')
+	$('#saveButton').attr('onclick','$("#saveControl").submit()');
 
 	$('#validateButton').removeClass('butAction')
 	$('#validateButton').addClass('butActionRefused')
@@ -301,3 +303,31 @@ window.dolismq.control.toggleControlInfo = function ( event ) {
 	}
 }
 
+/**
+ * Dynamically add default photo on control to favorite and refresh banner tab
+ *
+ * @since   1.6.0
+ * @version 1.6.0
+ *
+ * @return {void}
+ */
+window.dolismq.control.refreshFavoritePhoto = function () {
+	let filename  = $(this).closest('.media-gallery-favorite').find('.filename').attr('value');
+	let token     = window.saturne.toolbox.getToken();
+	let bannerTab = $(this).closest('.tabBar').find('.arearef');
+	let mediaList = $(this).closest('.linked-medias-list');
+
+	jQuery.ajax({
+		url: document.URL + "&action=add_favorite_photo&token=" + token,
+		type: "POST",
+		data: JSON.stringify({
+			filename: filename,
+		}),
+		processData: false,
+		success: function (resp) {
+			bannerTab.replaceWith($(resp).find('.arearef'));
+			mediaList.replaceWith($(resp).find('.linked-medias-list'));
+		},
+		error: function () {}
+	});
+}
