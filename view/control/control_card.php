@@ -51,8 +51,10 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
+require_once __DIR__ . '/../../class/answer.class.php';
 require_once __DIR__ . '/../../class/dolismqdocuments/controldocument.class.php';
 require_once __DIR__ . '/../../lib/dolismq_control.lib.php';
+require_once __DIR__ . '/../../lib/dolismq_answer.lib.php';
 require_once __DIR__ . '/../../core/modules/dolismq/control/mod_control_standard.php';
 require_once __DIR__ . '/../../core/modules/dolismq/controldet/mod_controldet_standard.php';
 require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
@@ -81,6 +83,7 @@ $controldet       = new ControlLine($db);
 $controldocument  = new ControlDocument($db);
 $sheet            = new Sheet($db);
 $question         = new Question($db);
+$answer           = new Answer($db);
 $usertmp          = new User($db);
 $product          = new Product($db);
 $project          = new Project($db);
@@ -225,10 +228,10 @@ if (empty($reshook)) {
 			if ($result > 0 && is_array($result)) {
 				$controldettmp = array_shift($result);
 				//sauvegarder réponse
-				$answer = GETPOST('answer'.$questionId);
+				$questionAnswer = GETPOST('answer'.$questionId);
 
-				if ($answer > 0) {
-					$controldettmp->answer = $answer;
+				if (!empty($questionAnswer)) {
+					$controldettmp->answer = $questionAnswer;
 				}
 
 				//sauvegarder commentaire
@@ -249,10 +252,10 @@ if (empty($reshook)) {
 				$controldettmp->fk_question = $questionId;
 
 				//sauvegarder réponse
-				$answer = GETPOST('answer'.$questionId);
+				$questionAnswer = GETPOST('answer'.$questionId);
 
-				if ($answer > 0) {
-					$controldettmp->answer = $answer;
+				if (!empty($questionAnswer)) {
+					$controldettmp->answer = $questionAnswer;
 				} else {
 					$controldettmp->answer = '';
 				}
@@ -379,9 +382,9 @@ if (empty($reshook)) {
 					$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
 
 					//sauvegarder réponse
-					$answer = GETPOST('answer'.$questionId);
-					if ($answer > 0) {
-						$controldettmp->answer = $answer;
+					$questionAnswer = GETPOST('answer'.$questionId);
+					if (!empty($questionAnswer)) {
+						$controldettmp->answer = $questionAnswer;
 					}
 
 					//sauvegarder commentaire
@@ -624,37 +627,37 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$formconfirm = '';
 
 	if ($action == 'setVerdict') {
-		//Form to close proposal (signed or not)
-		$answersArray = $controldet->fetchFromParent($object->id);
-		$answerOK = 0;
-		$answerKO = 0;
-		$answerRepair = 0;
-		$answerNotApplicable = 0;
-		if (is_array($answersArray) && !empty($answersArray)) {
-			foreach ($answersArray as $answer){
-				switch ($answer->answer){
-					case 1:
-						$answerOK++;
-						break;
-					case 2:
-						$answerKO++;
-						break;
-					case 3:
-						$answerRepair++;
-						break;
-					case 4:
-						$answerNotApplicable++;
-						break;
-				}
-			}
-		}
+//		//Form to close proposal (signed or not)
+//		$answersArray = $controldet->fetchFromParent($object->id);
+//		$answerOK = 0;
+//		$answerKO = 0;
+//		$answerRepair = 0;
+//		$answerNotApplicable = 0;
+//		if (is_array($answersArray) && !empty($answersArray)) {
+//			foreach ($answersArray as $questionAnswer){
+//				switch ($questionAnswer->answer){
+//					case 1:
+//						$answerOK++;
+//						break;
+//					case 2:
+//						$answerKO++;
+//						break;
+//					case 3:
+//						$answerRepair++;
+//						break;
+//					case 4:
+//						$answerNotApplicable++;
+//						break;
+//				}
+//			}
+//		}
 
 		$formquestion = array(
 			array('type' => 'select', 'name' => 'verdict', 'label' => '<span class="fieldrequired">' . $langs->trans('VerdictControl') . '</span>', 'values' => array('1' => 'OK', '2' => 'KO'), 'select_show_empty' => 0),
-			array('type' => 'text', 'name' => 'OK', 'label' => '<span class="answer" value="1" style="pointer-events: none"><i class="fas fa-check"></i></span>', 'value' => $answerOK, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'KO', 'label' => '<span class="answer" value="2" style="pointer-events: none"><i class="fas fa-times"></i></span>', 'value' => $answerKO, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'Repair', 'label' => '<span class="answer" value="3" style="pointer-events: none"><i class="fas fa-tools"></i></span>', 'value' => $answerRepair, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'NotApplicable', 'label' => '<span class="answer" value="4" style="pointer-events: none">N/A</span>', 'value' => $answerNotApplicable, 'moreattr' => 'readonly'),
+//			array('type' => 'text', 'name' => 'OK', 'label' => '<span class="answer" value="1" style="pointer-events: none"><i class="fas fa-check"></i></span>', 'value' => $answerOK, 'moreattr' => 'readonly'),
+//			array('type' => 'text', 'name' => 'KO', 'label' => '<span class="answer" value="2" style="pointer-events: none"><i class="fas fa-times"></i></span>', 'value' => $answerKO, 'moreattr' => 'readonly'),
+//			array('type' => 'text', 'name' => 'Repair', 'label' => '<span class="answer" value="3" style="pointer-events: none"><i class="fas fa-tools"></i></span>', 'value' => $answerRepair, 'moreattr' => 'readonly'),
+//			array('type' => 'text', 'name' => 'NotApplicable', 'label' => '<span class="answer" value="4" style="pointer-events: none">N/A</span>', 'value' => $answerNotApplicable, 'moreattr' => 'readonly'),
 			array('type' => 'text', 'name' => 'noteControl', 'label' => '<div class="note-control" style="margin-top: 20px;">' . $langs->trans('NoteControl') . '</div>'),
 		);
 
@@ -673,7 +676,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$questionCounter = 0;
 		}
 
-		$answerCounter = $_COOKIE['answerCounter'];
+		$object->fetchLines();
+		if (is_array($object->lines) && !empty($object->lines)) {
+			foreach($object->lines as $objectLine) {
+				if (dol_strlen($objectLine->answer) > 0) {
+					$answerCounter++;
+				}
+			}
+		}
 
 		$questionConfirmInfo =  img_help('', '') . ' ' . $langs->trans('YouAnswered') . ' ' . $answerCounter . ' ' . $langs->trans('question(s)')  . ' ' . $langs->trans('On') . ' ' . $questionCounter . '.';
 		if ($questionCounter - $answerCounter != 0) {
@@ -919,19 +929,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php'; ?>
-
-	<script type="text/javascript">
-		$(function () {
-			let answerCounter = 0
-			jQuery("#tablelines").children().each(function() {
-				if ($(this).find(".answer.active").length > 0) {
-					answerCounter += 1;
-				}
-			})
-
-			jQuery('.answerCounter').text(answerCounter)
-		})
-	</script>
 	<?php
 
 	print '</table>';
@@ -1032,7 +1029,16 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$questionCounter = 0;
 	}
 
-	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter"></span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . $questionCounter;
+	$object->fetchLines();
+	if (is_array($object->lines) && !empty($object->lines)) {
+		foreach($object->lines as $objectLine) {
+			if (dol_strlen($objectLine->answer) > 0) {
+				$answerCounter++;
+			}
+		}
+	}
+
+	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter">'. $answerCounter .'</span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . $questionCounter;
 
 	print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', ''); ?>
 
@@ -1049,14 +1055,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if (is_array($questionIds) && !empty($questionIds)) {
 		foreach ($questionIds as $questionId) {
 			$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
-			$answer = 0;
+			$questionAnswer = 0;
 			$comment = '';
 			if ($result > 0 && is_array($result)) {
 				$itemControlDet = array_shift($result);
-				$answer = $itemControlDet->answer;
+				$questionAnswer = $itemControlDet->answer;
 				$comment = $itemControlDet->comment;
 			}
-			$answer = GETPOST('answer'.$questionId) ?: $answer;
 			$item = $question;
 			$item->fetch($questionId);
 			?>
@@ -1124,28 +1129,96 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						?>
 					</div>
 					<?php endif; ?>
-					<!-- Réponses -->
-					<div class="table-cell table-250 <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-						<?php
-						print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" value="1">';
-						print '<i class="fas fa-check"></i>';
-						print '</span>';
-
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 2 ? 'active' : '') . '" value="2">';
-						print '<i class="fas fa-times"></i>';
-						print '</span>';
-
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 3 ? 'active' : '') . '" value="3">';
-						print '<i class="fas fa-tools"></i>';
-						print '</span>';
-
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 4 ? 'active' : '') . '" value="4">';
-						print 'N/A';
-						print '</span>';
+					<?php
+					$pictosArray = get_answer_pictos_array();
+					?>
+					<?php if ($item->type == $langs->transnoentities('MultipleChoices')) :
+						$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $item->id]);
 						?>
+						<div class="table-cell select-answer answer-cell table-250 <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+							<?php
+							if (preg_match('/,/', $questionAnswer)) {
+								$questionAnswers = preg_split('/,/', $questionAnswer);
+							} else {
+								$questionAnswers = [$questionAnswer];
+							}
+
+							print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
+							if (is_array($answerList) && !empty($answerList)) {
+								foreach($answerList as $answerLinked) {
+									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
+									print '<span style="'. (in_array($answerLinked->position, $questionAnswers) ? 'background:'. $answerLinked->color .'' : '') .'; color:'. $answerLinked->color .';" class="answer multiple-answers ' . ($object->status > 0 ? 'disable' : '') . ' ' . (in_array($answerLinked->position, $questionAnswers) ? 'active' : '') . '" value="'. $answerLinked->position .'">';
+									if ($answerLinked->pictogram > 0) {
+										print $pictosArray[$answerLinked->pictogram]['picto_source'];
+									} else {
+										print $answerLinked->value;
+									}
+									print '</span>';
+								}
+							}
+							?>
+						</div>
+					<?php elseif ($item->type == $langs->transnoentities('UniqueChoice') || $item->type == $langs->transnoentities('OkKo') || $item->type == $langs->transnoentities('OkKoToFixNonApplicable')) :
+						$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $item->id]);
+						?>
+						<div class="table-cell select-answer answer-cell table-250 <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+							<?php
+							print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
+							if (is_array($answerList) && !empty($answerList)) {
+								foreach($answerList as $answerLinked) {
+									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
+									print '<span style="'. ($questionAnswer == $answerLinked->position ? 'background:'. $answerLinked->color .'' : '') .'; color:'. $answerLinked->color .';" class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $answerLinked->position .'">';
+									if ($answerLinked->pictogram > 0) {
+										print $pictosArray[$answerLinked->pictogram]['picto_source'];
+									} else {
+										print $answerLinked->value;
+									}
+									print '</span>';
+								}
+							}
+							?>
+						</div>
+					<?php elseif ($item->type == $langs->transnoentities('Text')) : ?>
+						<div class="table-cell answer-cell table-flex <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+							<div class="table-row">
+								<?php
+								print '<span class="table-cell" value="">';
+								print $langs->trans('Answer') . ' : ';
+								print '</span>';
+								print '<span class="table-cell" value="">';
+								print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+								print '</span>';
+								?>
+							</div>
+						</div>
+					<?php elseif ($item->type == $langs->transnoentities('Percentage')) : ?>
+						<div class="table-cell answer-cell table-flex <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+							<div class="table-row">
+								<?php
+								print '<span class="table-cell" value="">';
+								print $langs->transnoentities('Answer') . ' : ';
+								print '</span>';
+								print '<span class="table-cell" value="">';
+								print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" min="0" max="100" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+								print '</span>';
+								?>
+							</div>
+						</div>
+					<?php elseif ($item->type == $langs->transnoentities('Range')) : ?>
+						<div class="table-cell answer-cell table-flex <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+							<div class="table-row">
+								<?php
+								print '<span class="table-cell" value="">';
+								print $langs->transnoentities('Answer') . ' : ';
+								print '</span>';
+								print '<span class="table-cell" value="">';
+								print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+								print '</span>';
+								?>
+							</div>
+						</div>
+					<?php endif; ?>
 					</div>
-				</div>
 			</div>
 			<?php
 		}

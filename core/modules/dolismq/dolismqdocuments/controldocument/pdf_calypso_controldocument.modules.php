@@ -300,6 +300,8 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 				$productlot  = new Productlot($this->db);
 				$controldet  = new ControlLine($this->db);
 				$sheet       = new Sheet($this->db);
+				$question    = new Question($this->db);
+				$answer      = new Answer($this->db);
 				$userTmp     = new User($this->db);
 				$userTmp2    = new User($this->db);
 				$thirdparty  = new Societe($this->db);
@@ -493,113 +495,124 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 						$tmpTableArray['questionRef']   = $question->ref;
 						$tmpTableArray['questionLabel'] = $langs->trans('Title') . ' : ' . $question->label;
 						$tmpTableArray['questionDesc']  = $langs->trans('Description') . ' : ' . $question->description;
+					// Answer informations
+					$result = $controldet->fetchFromParentWithQuestion($object->id, $question->id);
+					if ($result > 0 && is_array($result)) {
+						$questionAnswerLine = array_shift($result);
+						$tmpTableArray['answerRef'] = $questionAnswerLine->ref;
+						$tmpTableArray['answerComment'] = (empty($questionAnswerLine->comment) ? 'NoData' : $langs->trans('Comment') . ' : ' . $questionAnswerLine->comment);
 
-						// Answer informations
-						$result = $controldet->fetchFromParentWithQuestion($object->id, $question->id);
-						if ($result > 0 && is_array($result)) {
-							$answer = array_shift($result);
-							$tmpTableArray['answerRef']     = $answer->ref;
-							$tmpTableArray['answerComment'] = (empty($answer->comment) ? 'NoData' :  $langs->trans('Comment') . ' : ' . $answer->comment);
-							$answerResult = $answer->answer;
+						$answerResult = $questionAnswerLine->answer;
 
-							switch ($answerResult) {
-								case 1:
-									$tmpTableArray['answerLabel'] = $langs->trans('OK');
-									break;
-								case 2:
-									$tmpTableArray['answerLabel'] = $langs->trans('KO');
-									break;
-								case 3:
-									$tmpTableArray['answerLabel'] = $langs->trans('Repair');
-									break;
-								case 4:
-									$tmpTableArray['answerLabel'] = $langs->trans('NotApplicable');
-									break;
-								default:
-									$tmpTableArray['answerLabel'] = ' ';
-									break;
-							}
-						} else {
-							$tmpTableArray['answerRef']     = 'NoData';
-							$tmpTableArray['answerComment'] = 'NoData';
-							$tmpTableArray['answerLabel']   = 'NoData';
-						}
+						$question->fetch($questionAnswerLine->fk_question);
+						$answerList = $answer->fetchAll('ASC', 'position', '', '', ['fk_question' => $questionAnswerLine->fk_question]);
 
-						$path     = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $tmpTableArray['questionRef'];
-						$fileList = dol_dir_list($path, 'files');
-						// Fill an array with photo path and ref of the answer for next loop
-						if (is_array($fileList) && !empty($fileList)) {
-							foreach ($fileList as $singleFile) {
-							  $fileSmall = saturne_get_thumb_name($singleFile['name'], $conf->global->DOLISMQ_DOCUMENT_MEDIA_VIGNETTE_USED);
-								$image = $path . '/thumbs/' . $fileSmall;
-								$photoArray[$image] = $tmpTableArray['answerRef'];
+						if (is_array($answerList) && !empty($answerList)) {
+							foreach ($answerList as $answerSingle) {
+								$answersArray[$answerSingle->position] = $answerSingle->value;
 							}
 						}
 
-						$pdf->startTransaction();
-						$addY = (strlen($tmpTableArray['questionDesc']) >= strlen($tmpTableArray['answerComment'])) ? $pdf->getStringHeight(50, $tmpTableArray['questionDesc']) : $pdf->getStringHeight(100, $tmpTableArray['answerComment']);
-						if ($addY < 20) {
-							$addY += 10;
+						switch ($question->type) {
+							case $langs->transnoentities('OkKo') :
+							case $langs->transnoentities('OkKoToFixNonApplicable') :
+							case $langs->transnoentities('UniqueChoice') :
+								$tmpTableArray['answerLabel'] = $answersArray[$answerResult];
+								break;
+							case $langs->transnoentities('Text') :
+							case $langs->transnoentities('Percentage') :
+							case $langs->transnoentities('Range') :
+								$tmpTableArray['answerLabel'] = $answerResult;
+								break;
+							case $langs->transnoentities('MultipleChoices') :
+								$answers = preg_split('/,/', $answerResult);
+								foreach ($answers as $answerId) {
+									$tmpTableArray['answerLabel'] .= $answersArray[$answerId] . ', ';
+								}
+								$tmpTableArray['answerLabel'] = rtrim($tmpTableArray['answerLabel'], ', ');
+								break;
 						}
-
-						$pageBreak = ($curY + $addY >= $this->page_hauteur - $this->marge_basse) ? True : False;
-						if ($pageBreak == False) {
-							$pdf->line($this->marge_gauche, $curY - 2, $this->page_largeur - $this->marge_gauche, $curY - 2);
-						}
-						// If we are at the end of the page, create a new page a create a new top table
-						if ($pageBreak == True) {
-							if ($pageNbr == 2) {
-								$this->_tableau($pdf, $tableHeaderHeight + $iniY + 10, $this->page_hauteur - $tabTopNewpage - $this->marge_basse - $iniY + 10, 2, $outputlangs);
-							}
-
-							$this->_pagefoot($pdf, $object, $outputlangs, 1);
-							$pdf->AddPage($this->orientation, '', true);
-							$pageNbr++;
-							$pdf->SetDrawColor(120, 120, 120);
-							if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
-								$this->_pagehead($pdf, $object, 1, $outputlangs);
-							}
-							if ($pageNbr > 2) {
-								$this->_tableau($pdf, $tabTopNewpage - 5, $this->page_hauteur - $tabTopNewpage - $this->marge_basse, 0, $outputlangs);
-							}
-
-							$curY      = $tabTopNewpage - 3;
-							$tabHeight = 0;
-							$pageBreak = false;
-						}
-						$pdf->SetFont('', '', $default_font_size - 1);
-						$pdf->SetTextColor(0, 0, 0);
-						$curX = $this->marge_gauche + 4;
-
-						// Question ref
-						$pdf->writeHTMLCell(40, 3, $curX, $curY + ($addY / 2) - 4, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionRef'])), 0, 1, false, true, "L");
-						$curX += 28;
-
-						// Question label
-						$pdf->writeHTMLCell(55, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionLabel'])), 0, 1, false, true, "L");
-						$curY += 8;
-
-						// Question description
-						$pdf->writeHTMLCell(55, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionDesc'])), 0, 1, false, true, "L");
-						$curX += 61;
-						$curY -= 8;
-
-						// Answer ref
-						$pdf->writeHTMLCell(40, 3, $curX, $curY + ($addY / 2) - 4, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerRef'])), 0, 1, false, true, "L");
-						$curX += 30;
-
-						// Answer comment
-						$pdf->writeHTMLCell(105, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerComment'])), 0, 1, false, true, "L");
-						$curX += 120;
-
-						// Status
-						$pdf->SetFont('', 'B', $default_font_size);
-						$pdf->writeHTMLCell(25, 3, $curX, $curY + ($addY / 2) - 4, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerLabel'])), 0, 1, false, true, "C");
-
-						$curY      += $addY;
-						$curY      += 2;
-						$tabHeight += $addY + 2;
+					}  else {
+						$tmpTableArray['answerRef']     = 'NoData';
+						$tmpTableArray['answerComment'] = 'NoData';
+						$tmpTableArray['answerLabel']   = 'NoData';
 					}
+
+					$path     = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $tmpTableArray['questionRef'];
+					$fileList = dol_dir_list($path, 'files');
+					// Fill an array with photo path and ref of the answer for next loop
+					if (is_array($fileList) && !empty($fileList)) {
+						foreach ($fileList as $singleFile) {
+						  $fileSmall = saturne_get_thumb_name($singleFile['name'], $conf->global->DOLISMQ_DOCUMENT_MEDIA_VIGNETTE_USED);
+							$image = $path . '/thumbs/' . $fileSmall;
+							$photoArray[$image] = $tmpTableArray['answerRef'];
+						}
+					}
+
+					$pdf->startTransaction();
+					$addY = (strlen($tmpTableArray['questionDesc']) >= strlen($tmpTableArray['answerComment'])) ? $pdf->getStringHeight(50, $tmpTableArray['questionDesc']) : $pdf->getStringHeight(100, $tmpTableArray['answerComment']);
+					if ($addY < 20) {
+						$addY += 10;
+					}
+
+					$pageBreak = ($curY + $addY >= $this->page_hauteur - $this->marge_basse) ? True : False;
+					if ($pageBreak == False) {
+						$pdf->line($this->marge_gauche, $curY - 2, $this->page_largeur - $this->marge_gauche, $curY - 2);
+					}
+					// If we are at the end of the page, create a new page a create a new top table
+					if ($pageBreak == True) {
+						if ($pageNbr == 2) {
+							$this->_tableau($pdf, $tableHeaderHeight + $iniY + 10, $this->page_hauteur - $tabTopNewpage - $this->marge_basse - $iniY + 10, 2, $outputlangs);
+						}
+
+						$this->_pagefoot($pdf, $object, $outputlangs, 1);
+						$pdf->AddPage($this->orientation, '', true);
+						$pageNbr++;
+						$pdf->SetDrawColor(120, 120, 120);
+						if (empty($conf->global->MAIN_PDF_DONOTREPEAT_HEAD)) {
+							$this->_pagehead($pdf, $object, 1, $outputlangs);
+						}
+						if ($pageNbr > 2) {
+							$this->_tableau($pdf, $tabTopNewpage - 5, $this->page_hauteur - $tabTopNewpage - $this->marge_basse, 0, $outputlangs);
+						}
+
+						$curY      = $tabTopNewpage - 3;
+						$tabHeight = 0;
+						$pageBreak = false;
+					}
+					$pdf->SetFont('', '', $default_font_size - 1);
+					$pdf->SetTextColor(0, 0, 0);
+					$curX = $this->marge_gauche + 4;
+
+					// Question ref
+					$pdf->writeHTMLCell(40, 3, $curX, $curY + ($addY / 2) - 4, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionRef'])), 0, 1, false, true, "L");
+					$curX += 28;
+
+					// Question label
+					$pdf->writeHTMLCell(55, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionLabel'])), 0, 1, false, true, "L");
+					$curY += 8;
+
+					// Question description
+					$pdf->writeHTMLCell(55, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['questionDesc'])), 0, 1, false, true, "L");
+					$curX += 61;
+					$curY -= 8;
+
+					// Answer ref
+					$pdf->writeHTMLCell(40, 3, $curX, $curY + ($addY / 2) - 4, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerRef'])), 0, 1, false, true, "L");
+					$curX += 30;
+
+					// Answer comment
+					$pdf->writeHTMLCell(105, 3, $curX, $curY, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerComment'])), 0, 1, false, true, "L");
+					$curX += 120;
+
+					// Status
+					$pdf->SetFont('', 'B', $default_font_size);
+					$pdf->writeHTMLCell(25, 3, $curX, $curY + ($addY / 2) - 4, dol_htmlentitiesbr($langs->trans($tmpTableArray['answerLabel'])), 0, 1, false, true, "C");
+
+					$curY      += $addY;
+					$curY      += 2;
+					$tabHeight += $addY + 2;
+
 					if ($pageNbr == 2) {
 						$this->_tableau($pdf, $tableHeaderHeight + $iniY + 10, $this->page_hauteur - $tableHeaderHeight - $tabTopNewpage - $iniY + 10, 2, $outputlangs);
 					}

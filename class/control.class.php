@@ -927,7 +927,7 @@ class ControlLine extends CommonObjectLine
 	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
 	{
 		global $db;
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answser_photo, t.comment, t.fk_question, t.fk_control ';
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 

@@ -40,8 +40,11 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 
 require_once '../../class/question.class.php';
+require_once '../../class/answer.class.php';
 require_once '../../core/modules/dolismq/question/mod_question_standard.php';
+require_once '../../core/modules/dolismq/answer/mod_answer_standard.php';
 require_once '../../lib/dolismq_question.lib.php';
+require_once '../../lib/dolismq_answer.lib.php';
 require_once '../../lib/dolismq_function.lib.php';
 
 // Global variables definitions
@@ -64,6 +67,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Initialize objects
 // Technical objets
 $object         = new Question($db);
+$answer         = new Answer($db);
 $extrafields    = new ExtraFields($db);
 $refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($db);
 
@@ -286,6 +290,40 @@ if (empty($reshook)) {
 				// Category association
 				$categories = GETPOST('categories', 'array');
 				$object->setCategories($categories);
+
+				if ($object->type == $langs->transnoentities('OkKo') || $object->type == $langs->transnoentities('OkKoToFixNonApplicable')) {
+					$answer->fk_question = $result;
+					$answer->value       = $langs->transnoentities('OK');
+					$answer->pictogram   = 1;
+					$answer->color       = '#47e58e';
+
+					$answer->create($user);
+
+					$answer->fk_question = $result;
+					$answer->value       = $langs->transnoentities('KO');
+					$answer->pictogram   = 2;
+					$answer->color       = '#e05353';
+
+					$answer->create($user);
+				}
+
+				if ($object->type == $langs->transnoentities('OkKoToFixNonApplicable')) {
+					$answer->fk_question = $result;
+					$answer->value       = $langs->transnoentities('ToFix');
+					$answer->pictogram   = 3;
+					$answer->color       = '#e9ad4f';
+
+					$answer->create($user);
+
+					$answer->fk_question = $result;
+					$answer->value       = $langs->transnoentities('NonApplicable');
+					$answer->pictogram   = 4;
+					$answer->color       = '#2b2b2b';
+
+					$answer->create($user);
+				}
+
+
 				$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header("Location: ".$urltogo);
@@ -485,6 +523,66 @@ if (empty($reshook)) {
 		}
 	}
 
+	if ($action == 'addAnswer') {
+		$answerValue = GETPOST('answerValue');
+		$answerColor = GETPOST('answerColor');
+		$answerPicto = GETPOST('answerPicto');
+
+		if (empty($answerValue)) {
+			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
+		} else {
+			$answer->value = $answerValue;
+			$answer->color = $answerColor;
+			$answer->pictogram = $answerPicto;
+			$answer->fk_question = $id;
+
+			$result = $answer->create($user);
+			if ($result > 0) {
+				setEventMessages($langs->trans('AnswerCreated'), []);
+			} else {
+				setEventMessages($langs->trans('ErrorCreateAnswer'), [], 'errors');
+			}
+		}
+	}
+
+	if ($action == 'updateAnswer') {
+		$answerValue = GETPOST('answerValue');
+		$answerColor = GETPOST('answerColor');
+		$answerPicto = GETPOST('answerPicto');
+		$answerId    = GETPOST('answerId');
+
+		$answer->fetch($answerId);
+
+		$answer->value     = $answerValue;
+		$answer->color     = $answerColor;
+		$answer->pictogram = $answerPicto;
+
+		$result = $answer->update($user);
+		if ($result > 0) {
+			setEventMessages($langs->trans("AnswerUpdated"), null, 'mesgs');
+		}
+	}
+
+	if ($action == 'deleteAnswer') {
+		$answerId = GETPOST('answerId');
+
+		$answer->fetch($answerId);
+		$result = $answer->delete($user);
+
+		if ($result > 0) {
+			setEventMessages($langs->trans("AnswerDeleted"), null, 'mesgs');
+		}
+	}
+
+	if ($action == 'moveLine' && $permissiontoadd) {
+		$idsArray = json_decode(file_get_contents('php://input'), true);
+		if (is_array($idsArray['order']) && !empty($idsArray['order'])) {
+			$ids = array_values($idsArray['order']);
+			$reIndexedIds = array_combine(range(1, count($ids)), array_values($ids));
+		}
+		$object->updateAnswersPosition($reIndexedIds);
+	}
+
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
@@ -559,6 +657,11 @@ if ($action == 'create') {
 	print '<tr><td class=""><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
 	$doleditor = new DolEditor('description', '', '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
+	print '</td></tr>';
+
+	// Type -- Type
+	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
+	print saturne_select_dictionary('type','c_question_type', 'label', 'label', GETPOST('type') ?: $langs->transnoentities('OkKoToFixNonApplicable'));
 	print '</td></tr>';
 
 	// EnterComment -- Saisir les commentaires
@@ -675,9 +778,15 @@ if (($id || $ref) && $action == 'edit') {
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="'.$object->label.'">';
 	print '</td></tr>';
 
+	//Description -- Description
 	print '<tr><td><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
 	$doleditor = new DolEditor('description', $object->description, '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
+	print '</td></tr>';
+
+	// Type -- Type
+	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
+	print saturne_select_dictionary('type','c_question_type', 'label', 'label', $object->type);
 	print '</td></tr>';
 
 	// EnterComment -- Saisir les commentaires
@@ -836,6 +945,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print $object->description;
 	print '</td></tr>';
 
+	// Type -- Type
+	print '<tr><td class="titlefield">';
+	print $langs->trans("QuestionType");
+	print '</td>';
+	print '<td>';
+	print $object->type;
+	print '</td></tr>';
+
 	// EnterComment -- Saisir les commentaires
 	print '<tr><td class="titlefield">';
 	print $langs->trans("EnterComment");
@@ -894,6 +1011,191 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
+	if ($object->type == $langs->transnoentities('MultipleChoices') || $object->type == $langs->transnoentities('UniqueChoice') || $object->type == $langs->transnoentities('OkKo') || $object->type == $langs->transnoentities('OkKoToFixNonApplicable')) {
+
+		$pictosArray = get_answer_pictos_array();
+
+		// ANSWERS LINES
+		print '<div class="div-table-responsive-no-min">';
+		print load_fiche_titre($langs->trans("AnswersList"), '', '');
+		print '<table id="tablelines" class="centpercent noborder noshadow">';
+
+		global $forceall, $forcetoshowtitlelines;
+
+		if (empty($forceall)) $forceall = 0;
+
+		// Define colspan for the button 'Add'
+		$colspan = 3;
+		?>
+		<script>
+			$(document).ready(function(){
+				$(".move-line").css("background-image",'url(<?php echo DOL_URL_ROOT.'/theme/'.$conf->theme.'/img/grip.png'; ?>)');
+				$(".move-line").css("background-repeat","no-repeat");
+				$(".move-line").css("background-position","center center");
+				$('#tablelines tbody').sortable({
+					handle: '.move-line',
+					connectWith:'#tablelines tbody .line-row',
+					tolerance:'intersect',
+					over:function(event,ui){
+					},
+					stop: function(event, ui) {
+						let token = $('.fiche').find('input[name="token"]').val();
+
+						let separator = '&'
+						if (document.URL.match(/action=/)) {
+							document.URL = document.URL.split(/\?/)[0]
+							separator = '?'
+						}
+						let lineOrder = [];
+						$('.line-row').each(function(  ) {
+							lineOrder.push($(this).attr('id'));
+						});
+						$.ajax({
+							url: document.URL + separator + "action=moveLine&token=" + token,
+							type: "POST",
+							data: JSON.stringify({
+								order: lineOrder
+							}),
+							processData: false,
+							contentType: false,
+							success: function ( resp ) {
+							}
+						});
+					}
+				});
+
+			});
+		</script>
+		<?php
+		// Lines
+		print '<thead><tr class="liste_titre">';
+		print '<td>' . $langs->trans('Ref') . '</td>';
+		print '<td>' . $langs->trans('Value') . '</td>';
+		print '<td>' . $langs->trans('Picto') . '</td>';
+		print '<td>' . $langs->trans('Color') . '</td>';
+		print '<td class="center">' . $langs->trans('Action') . '</td>';
+		print '<td class="center"></td>';
+		print '</tr></thead>';
+
+		$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $object->id]);
+
+		if (is_array($answerList) && !empty($answerList)) {
+			foreach($answerList as $answerSingle) {
+				if ($action == 'editAnswer' && GETPOST('answerId') == $answerSingle->id) {
+					//EDIT LINE
+					print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '">';
+					print '<input type="hidden" name="token" value="' . newToken() . '">';
+					print '<input type="hidden" name="action" value="updateAnswer">';
+					print '<input type="hidden" name="answerId" value="' . $answerSingle->id . '">';
+
+					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
+					print '<td>';
+					print $answerSingle->getNomUrl(1);
+					print '</td>';
+
+					print '<td>';
+					print '<input name="answerValue" value="'. $answerSingle->value .'">';
+					print '</td>';
+
+					// Pictogram -- Pictogram
+					print '<td>';
+					print answer_pictos_dropdown($answerSingle->pictogram);
+					print '</td>';
+
+					print '<td>';
+					print '<input type="color" name="answerColor" value="' . $answerSingle->color . '">';
+					print '</td>';
+
+					print '<td class="center">';
+					print '<input type="submit" class="button" value="' . $langs->trans('Save') . '" name="updateAnswer" id="updateAnswer">';
+					print '</td>';
+
+					if ($object->status < $object::STATUS_LOCKED) {
+						print '<td class="move-line ui-sortable-handle">';
+					} else {
+						print '<td>';
+					}
+					print '</td>';
+					print '</tr>';
+					print '</form>';
+				} else {
+					//SHOW LINE
+					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
+					print '<td>';
+					print $answerSingle->getNomUrl(1);
+					print '</td>';
+
+					print '<td>';
+					print $answerSingle->value;
+					print '</td>';
+
+					print '<td>';
+					print $pictosArray[$answerSingle->pictogram]['picto_source'];
+					print '</td>';
+
+					print '<td>';
+					print '<input '. ($action == 'editAnswer' && GETPOST('answerId') == $answerSingle->id ? '' : 'disabled') .' type="color" value="' . $answerSingle->color . '">';
+
+					print '</td>';
+
+					print '<td class="center">';
+					if ($object->status != 2) {
+						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=editAnswer&answerId=' . $answerSingle->id . '">';
+						print img_edit();
+						print '</a>';
+
+						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=deleteAnswer&answerId=' . $answerSingle->id . '&token='. newToken() .'">';
+						print img_delete();
+						print '</a>';
+					}
+					print '</td>';
+
+					if ($object->status < $object::STATUS_LOCKED) {
+						print '<td class="move-line ui-sortable-handle">';
+					} else {
+						print '<td>';
+					}
+					print '</td>';
+					print '</tr>';
+				}
+			}
+		}
+
+		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+		print '<input type="hidden" name="token" value="' . newToken() . '">';
+		print '<input type="hidden" name="action" value="addAnswer">';
+		print '<input type="hidden" name="id" value="' . $id . '">';
+
+		print '<tr>';
+
+		print '<td>-</td>';
+		print '<td><input name="answerValue" value=""></td>';
+
+		// Pictogram -- Pictogram
+		print '<td>';
+		print answer_pictos_dropdown();
+		print '</td>';
+		?>
+
+		<td>
+			<input type="color" name="answerColor" class="new-answer-color" value="">
+		</td>
+		<script>
+			var randomColor = Math.floor(Math.random()*16777215).toString(16);
+			$('.new-answer-color').val('#' + randomColor)
+		</script>
+		<?php
+
+		print '<td class="center">';
+		print '<input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
+		print '</td>';
+
+		print '</tr>';
+
+		print '</table>';
+		print '</form>';
+		print '</div>';
+	}
 	print dol_get_fiche_end();
 
 	// Buttons for actions

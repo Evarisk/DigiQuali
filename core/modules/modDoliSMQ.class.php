@@ -182,6 +182,9 @@ class modDoliSMQ extends DolibarrModules
 			// CONST QUESTION
 			$i++ => ['DOLISMQ_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'],
 
+			// CONST ANSWER
+			$i++ => ['DOLISMQ_ANSWER_ADDON', 'chaine', 'mod_answer_standard', '', 0, 'current'],
+
 			// CONST CONTROL
 			$i++ => ['DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
