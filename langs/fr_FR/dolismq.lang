@@ -79,9 +79,11 @@ NonApplicable                 = NA
 Answer                        = Réponse
 EmptyValue                    = La valeur de la réponse est vide
 ErrorCreateAnswer             = Une erreur est survenue lors de la création de la réponse
+ErrorUpdateAnswer             = Une erreur est survenue lors de l'édition de la réponse
+ErrorDeleteAnswer             = Une erreur est survenue lors de la suppression de la réponse
 AnswerCreated                 = La réponse a été créée avec succès
-AnswerUpdated                 = Réponse mise à jour
-AnswerDeleted                 = Réponse supprimée
+AnswerUpdated                 = La réponse a été mise à jour avec succès
+AnswerDeleted                 = La réponse a été supprimée avec succès
 
 #
 # Sheet

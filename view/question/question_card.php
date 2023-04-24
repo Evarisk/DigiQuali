@@ -552,14 +552,19 @@ if (empty($reshook)) {
 		$answerId    = GETPOST('answerId');
 
 		$answer->fetch($answerId);
+		if (empty($answerValue)) {
+			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
+		} else {
+			$answer->value = $answerValue;
+			$answer->color = $answerColor;
+			$answer->pictogram = $answerPicto;
 
-		$answer->value     = $answerValue;
-		$answer->color     = $answerColor;
-		$answer->pictogram = $answerPicto;
-
-		$result = $answer->update($user);
-		if ($result > 0) {
-			setEventMessages($langs->trans("AnswerUpdated"), null, 'mesgs');
+			$result = $answer->update($user);
+			if ($result > 0) {
+				setEventMessages($langs->trans("AnswerUpdated"), [], 'mesgs');
+			} else {
+				setEventMessages($langs->trans('ErrorUpdateAnswer'), [], 'errors');
+			}
 		}
 	}
 
@@ -570,7 +575,9 @@ if (empty($reshook)) {
 		$result = $answer->delete($user);
 
 		if ($result > 0) {
-			setEventMessages($langs->trans("AnswerDeleted"), null, 'mesgs');
+			setEventMessages($langs->trans("AnswerDeleted"), [], 'mesgs');
+		} else {
+			setEventMessages($langs->trans('ErrorDeleteAnswer'), [], 'errors');
 		}
 	}
 
