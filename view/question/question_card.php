@@ -1139,7 +1139,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print '</td>';
 
 					print '<td class="center">';
-					if ($object->status != 2) {
+					if ($object->status < Question::STATUS_LOCKED) {
 						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=editAnswer&answerId=' . $answerSingle->id . '">';
 						print img_edit();
 						print '</a>';
@@ -1147,12 +1147,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=deleteAnswer&answerId=' . $answerSingle->id . '&token='. newToken() .'">';
 						print img_delete();
 						print '</a>';
-					}
-					print '</td>';
-
-					if ($object->status < $object::STATUS_LOCKED) {
+						print '</td>';
 						print '<td class="move-line ui-sortable-handle">';
 					} else {
+						print '</td>';
 						print '<td>';
 					}
 					print '</td>';
@@ -1161,40 +1159,44 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 		}
 
-		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
-		print '<input type="hidden" name="token" value="' . newToken() . '">';
-		print '<input type="hidden" name="action" value="addAnswer">';
-		print '<input type="hidden" name="id" value="' . $id . '">';
+		if ($object->status < QUESTION::STATUS_LOCKED) {
+			print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+			print '<input type="hidden" name="token" value="' . newToken() . '">';
+			print '<input type="hidden" name="action" value="addAnswer">';
+			print '<input type="hidden" name="id" value="' . $id . '">';
 
-		print '<tr>';
+			print '<tr>';
 
-		print '<td>-</td>';
-		print '<td><input name="answerValue" value=""></td>';
+			print '<td>-</td>';
+			print '<td><input name="answerValue" value=""></td>';
 
-		// Pictogram -- Pictogram
-		print '<td>';
-		print answer_pictos_dropdown();
-		print '</td>';
-		?>
+			// Pictogram -- Pictogram
+			print '<td>';
+			print answer_pictos_dropdown();
+			print '</td>';
+			?>
 
-		<td>
-			<input type="color" name="answerColor" class="new-answer-color" value="">
-		</td>
-		<script>
-			var randomColor = Math.floor(Math.random()*16777215).toString(16);
-			$('.new-answer-color').val('#' + randomColor)
-		</script>
-		<?php
+			<td>
+				<input type="color" name="answerColor" class="new-answer-color" value="">
+			</td>
+			<script>
+				var randomColor = Math.floor(Math.random()*16777215).toString(16);
+				$('.new-answer-color').val('#' + randomColor)
+			</script>
+			<?php
 
-		print '<td class="center">';
-		print '<input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
-		print '</td>';
 
-		print '</tr>';
+			print '<td class="center">';
+			print '<input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
+			print '</td>';
+			print '<td>';
+			print '</td>';
+			print '</tr>';
 
-		print '</table>';
-		print '</form>';
-		print '</div>';
+			print '</table>';
+			print '</form>';
+			print '</div>';
+		}
 	}
 	print dol_get_fiche_end();
 
