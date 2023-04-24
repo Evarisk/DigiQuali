@@ -40,5 +40,7 @@ function control_prepare_head(CommonObject $object): array
     $head[1][1] = '<i class="fas fa-file-image pictofixedwidth"></i>' . $langs->trans('Medias');
     $head[1][2] = 'medias';
 
-    return saturne_object_prepare_head($object, $head, [], true);
+    $moreparam['attendantTableMode'] = 'simple';
+
+    return saturne_object_prepare_head($object, $head, $moreparam, true);
 }
