@@ -250,8 +250,55 @@ class modDoliSMQ extends DolibarrModules
 		$this->tabs[] = ['data' => 'contract:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=contract'];
 		$this->tabs[] = ['data' => 'ticket:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=ticket'];
 
-		// Dictionaries
-		$this->dictionaries = [];
+        // Dictionaries.
+        $this->dictionaries = [
+            'langs' => 'dolismq@dolismq',
+            // List of tables we want to see into dictonnary editor.
+            'tabname' => [
+                MAIN_DB_PREFIX . 'c_question_type',
+                MAIN_DB_PREFIX . 'c_control_attendants_role'
+            ],
+            // Label of tables.
+            'tablib' => [
+                'Question',
+                'Control'
+            ],
+            // Request to select fields.
+            'tabsql' => [
+                'SELECT f.rowid as rowid, f.ref, f.label, f.description, f.position, f.active  FROM ' . MAIN_DB_PREFIX . 'c_question_type as f',
+                'SELECT f.rowid as rowid, f.ref, f.label, f.description, f.position, f.active FROM ' . MAIN_DB_PREFIX . 'c_control_attendants_role as f'
+            ],
+            // Sort order.
+            'tabsqlsort' => [
+                'label ASC',
+                'label ASC'
+            ],
+            // List of fields (result of select to show dictionary).
+            'tabfield' => [
+                'ref,label,description,position',
+                'ref,label,description,position'
+            ],
+            // List of fields (list of fields to edit a record).
+            'tabfieldvalue' => [
+                'ref,label,description,position',
+                'ref,label,description,position'
+            ],
+            // List of fields (list of fields for insert).
+            'tabfieldinsert' => [
+                'ref,label,description,position',
+                'ref,label,description,position'
+            ],
+            // Name of columns with primary key (try to always name it 'rowid').
+            'tabrowid' => [
+                'rowid',
+                'rowid'
+            ],
+            // Condition to show each dictionary.
+            'tabcond' => [
+                $conf->dolismq->enabled,
+                $conf->dolismq->enabled
+            ]
+        ];
 
 		// Boxes/Widgets
 		// Add here list of php file(s) stored in dolismq/core/boxes that contains a class to show a widget.
