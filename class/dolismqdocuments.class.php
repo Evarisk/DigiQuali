@@ -317,7 +317,7 @@ class DoliSMQDocuments extends CommonObject
 
 		$modelpath = "custom/dolismq/core/modules/dolismq/dolismqdocuments/".$this->element."/";
 
-		$result = $this->commonGenerateDocument($modelpath, $modele, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams['object']);
+		$result = $this->commonGenerateDocument($modelpath, $modele, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
 
 		$this->call_trigger(strtoupper($this->type).'_GENERATE', $moreparams['user']);
 
