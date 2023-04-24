@@ -108,7 +108,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'QUESTION_CREATE' :
 			case 'SHEET_CREATE' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
-				$actioncomm->label = $langs->trans('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)));
+				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
 
@@ -151,10 +151,10 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
                 require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
 
                 $signatory = new SaturneSignature($this->db, 'dolismq');
-                $signatory->setSignatory($object->id, $object->element, 'user', [$object->fk_user_controller], 'Attendant', 1);
+                $signatory->setSignatory($object->id, $object->element, 'user', [$object->fk_user_controller], 'Controller', 1);
 
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
-				$actioncomm->label = $langs->trans('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)));
+				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
 
@@ -162,7 +162,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'SHEET_MODIFY' :
 			case 'CONTROL_MODIFY' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_MODIFY';
-				$actioncomm->label = $langs->trans('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element)));
+				$actioncomm->label = $langs->transnoentities('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
 
@@ -170,7 +170,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'SHEET_DELETE' :
 			case 'CONTROL_DELETE' :
 				$actioncomm->code  = 'AC_ ' . strtoupper($object->element) . '_DELETE';
-				$actioncomm->label = $langs->trans('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element)));
+				$actioncomm->label = $langs->transnoentities('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
 
@@ -178,13 +178,13 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'SHEET_VALIDATE' :
 			case 'CONTROL_VALIDATE' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_VALIDATE';
-				$actioncomm->label = $langs->trans('ObjectValidateTrigger', $langs->transnoentities(ucfirst($object->element)));
+				$actioncomm->label = $langs->transnoentities('ObjectValidateTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
 
 			case 'CONTROL_UNVALIDATE' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_UNVALIDATE';
-				$actioncomm->label = $langs->trans('ObjectUnValidateTrigger', $langs->transnoentities(ucfirst($object->element)));
+				$actioncomm->label = $langs->transnoentities('ObjectUnValidateTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
 
@@ -192,13 +192,13 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'SHEET_LOCKED' :
 			case 'CONTROL_LOCKED' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_LOCKED';
-				$actioncomm->label = $langs->trans('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)));
+				$actioncomm->label = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
 
 			case 'CONTROL_SENTBYMAIL' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_SENTBYMAIL';
-				$actioncomm->label = $langs->trans('ObjectSentByMailTrigger', $langs->transnoentities(ucfirst($object->element)));
+				$actioncomm->label = $langs->transnoentities('ObjectSentByMailTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
 		}
