@@ -43,6 +43,11 @@ function dolismq_admin_prepare_head(): array
 	$head[$h][2] = 'question';
 	$h++;
 
+	$head[$h][0] = dol_buildpath('/saturne/admin/object.php', 1) . '?module_name=DoliSMQ&object_type=answer';
+	$head[$h][1] = '<i class="fas fa-arrow-right pictofixedwidth"></i>' . $langs->trans('Answer');
+	$head[$h][2] = 'answer';
+	$h++;
+
 	$head[$h][0] = dol_buildpath('/dolismq/admin/sheet.php', 1);
 	$head[$h][1] = '<i class="fas fa-list pictofixedwidth"></i>' . $langs->trans('Sheet');
 	$head[$h][2] = 'sheet';
