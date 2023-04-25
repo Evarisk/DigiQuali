@@ -1018,7 +1018,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     }
 
 	print '<tr class="linked-medias photos question-table"><td class=""><label for="photos">' . $langs->trans("Photo") . '</label></td><td class="linked-medias-list">';
-	if ($object->status != Control::STATUS_LOCKED) { ?>
+    $pathPhotos = $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/';
+    $fileArray  = dol_dir_list($pathPhotos);
+	if ($object->status != Control::STATUS_LOCKED && count($fileArray) <= 5) { ?>
 		<input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
 		<label for="fast-upload-photo-default">
 			<div class="wpeo-button button-square-50">
@@ -1036,7 +1038,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		</div>
 	<?php }
 	$relativepath = 'dolismq/medias/thumbs';
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/', 'small', 5, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
+	print saturne_show_medias_linked('dolismq', $pathPhotos, 'small', 5, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
 	print '</td></tr>';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
