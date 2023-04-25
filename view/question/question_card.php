@@ -660,15 +660,15 @@ if ($action == 'create') {
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="'.GETPOST('label').'">';
 	print '</td></tr>';
 
+	// Type -- Type
+	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
+	print saturne_select_dictionary('type','c_question_type', 'label', 'label', GETPOST('type') ?: $langs->transnoentities('OkKoToFixNonApplicable'));
+	print '</td></tr>';
+
 	// Description -- Description
 	print '<tr><td class=""><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
 	$doleditor = new DolEditor('description', '', '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
-	print '</td></tr>';
-
-	// Type -- Type
-	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'label', 'label', GETPOST('type') ?: $langs->transnoentities('OkKoToFixNonApplicable'));
 	print '</td></tr>';
 
 	// EnterComment -- Saisir les commentaires
@@ -785,15 +785,15 @@ if (($id || $ref) && $action == 'edit') {
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="'.$object->label.'">';
 	print '</td></tr>';
 
+	// Type -- Type
+	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
+	print saturne_select_dictionary('type','c_question_type', 'label', 'label', $object->type);
+	print '</td></tr>';
+
 	//Description -- Description
 	print '<tr><td><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
 	$doleditor = new DolEditor('description', $object->description, '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
-	print '</td></tr>';
-
-	// Type -- Type
-	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'label', 'label', $object->type);
 	print '</td></tr>';
 
 	// EnterComment -- Saisir les commentaires
