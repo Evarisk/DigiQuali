@@ -112,6 +112,14 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				$actioncomm->create($user);
 				break;
 
+			case 'ANSWER_CREATE' :
+				$actioncomm->elementtype = 'question@dolismq';
+				$actioncomm->fk_element  = $object->fk_question;
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
+				$actioncomm->label = $langs->trans('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)));
+				$actioncomm->create($user);
+				break;
+
 			case 'CONTROL_CREATE' :
 				if (!empty(GETPOST('fk_product')) && GETPOST('fk_product') > 0) {
 					$object->add_object_linked('product', GETPOST('fk_product'));
@@ -160,10 +168,26 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				$actioncomm->create($user);
 				break;
 
-			case 'MEETING_DELETE' :
+			case 'ANSWER_MODIFY' :
+				$actioncomm->elementtype = 'question@dolismq';
+				$actioncomm->fk_element  = $object->fk_question;
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_MODIFY';
+				$actioncomm->label = $langs->trans('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element)));
+				$actioncomm->create($user);
+				break;
+
+			case 'QUESTION_DELETE' :
 			case 'SHEET_DELETE' :
 			case 'CONTROL_DELETE' :
 				$actioncomm->code  = 'AC_ ' . strtoupper($object->element) . '_DELETE';
+				$actioncomm->label = $langs->trans('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element)));
+				$actioncomm->create($user);
+				break;
+
+			case 'ANSWER_DELETE' :
+				$actioncomm->elementtype = 'question@dolismq';
+				$actioncomm->fk_element  = $object->fk_question;
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_DELETE';
 				$actioncomm->label = $langs->trans('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element)));
 				$actioncomm->create($user);
 				break;
