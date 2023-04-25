@@ -13,12 +13,12 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see https://www.gnu.org/licenses/.
 
-CREATE TABLE llx_c_question_type(
-	rowid       integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	entity      integer default 1,
-	ref         varchar(128),
+CREATE TABLE llx_c_control_attendants_role(
+    rowid       integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    entity      integer default 1,
+    ref         varchar(128),
     label       varchar(255),
-	description text,
-	active      tinyint(4) DEFAULT 1,
+    description text,
+    active      tinyint(4) DEFAULT 1,
     position    integer DEFAULT 0
 ) ENGINE=innodb;
