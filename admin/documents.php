@@ -214,7 +214,7 @@ foreach ($types as $type => $documentType) {
 }
 $selectorAnchor .= '</select>';
 
-print load_fiche_titre($title, $selectorAnchor, 'dolismq_color@dolismq');
+print load_fiche_titre($title, $selectorAnchor, 'title_setup');
 
 // Configuration header
 $head = dolismq_admin_prepare_head();
