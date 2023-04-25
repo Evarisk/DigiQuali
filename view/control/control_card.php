@@ -820,44 +820,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Print form confirm
 	print $formconfirm;
 
-	// Object card
-	// ------------------------------------------------------------
-	$morehtmlref = '<div class="refidno">';
-	// Project
-	if (!empty($conf->projet->enabled)) {
-		$langs->load('projects');
-		$morehtmlref .= $langs->trans('Project') . ' ';
-		if ($user->rights->projet->creer) {
-			if ($action != 'classify' && $object->status < $object::STATUS_LOCKED) {
-				$morehtmlref .= '<a class="editfielda" href="' . $_SERVER['PHP_SELF'] . '?action=classify&token=' . newToken() . '&id=' . $object->id .'">' . img_edit($langs->transnoentitiesnoconv('SetProject')) . '</a>';
-			}
-			$morehtmlref .= ' : ';
-			if ($action == 'classify') {
-				$morehtmlref .= '<form method="post" action="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '">';
-				$morehtmlref .= '<input type="hidden" name="action" value="classin">';
-				$morehtmlref .= '<input type="hidden" name="token" value="'.newToken().'">';
-				$morehtmlref .= $formproject->select_projects(0, $object->projectid, 'projectid', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'maxwidth500');
-				$morehtmlref .= '<input type="submit" class="button valignmiddle" value="' . $langs->trans("Modify") . '">';
-				$morehtmlref .= '</form>';
-			} else {
-				$morehtmlref .= $form->form_project($_SERVER['PHP_SELF'] . '?id=' .$object->id, 0, $object->projectid, 'none', 0, 0, 0, 1);
-			}
-		} else {
-			if (!empty($object->projectid)) {
-				$project->fetch($object->projectid);
-				$morehtmlref .= $project->getNomUrl(1, '', 1);
-			} else {
-				$morehtmlref .= '';
-			}
-		}
-	}
-	if ($conf->browser->layout == 'phone') {
-		$onPhone = 1;
-		$morehtmlref .= '<br><i class="toggleControlInfo far fa-caret-square-down"></i>' . ' ' . $langs->trans('DisplayMoreInfo');
-	} else {
-		$onPhone = 0;
-	}
-	$morehtmlref .= '</div>';
+  if ($conf->browser->layout == 'phone') {
+      $onPhone = 1;
+      $morehtmlref = '<br><i class="toggleControlInfo far fa-caret-square-down"></i>' . ' ' . $langs->trans('DisplayMoreInfo');
+  } else {
+      $onPhone = 0;
+      $morehtmlref = '';
+  }
 
 	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', $morehtmlref, empty($object->photo) ? false : true);
 
