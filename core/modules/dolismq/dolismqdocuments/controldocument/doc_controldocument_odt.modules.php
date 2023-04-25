@@ -343,9 +343,9 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                     $order->fetch(array_shift($object->linkedObjectsIds['commande']));
                     $tmparray['object_label_ref'] .= (!empty($order->id) ? $langs->transnoentities('Order') . ' : ' . $order->ref . chr(0x0A) : '');
                 }
-                if (!empty($object->linkedObjectsIds['contract'])) {
+                if (!empty($object->linkedObjectsIds['contrat'])) {
                     $contract = new Contrat($this->db);
-                    $contract->fetch(array_shift($object->linkedObjectsIds['contract']));
+                    $contract->fetch(array_shift($object->linkedObjectsIds['contrat']));
                     $tmparray['object_label_ref'] .= (!empty($contract->id) ? $langs->transnoentities('Contract') . ' : ' . $contract->ref . chr(0x0A) : '');
                 }
                 if (!empty($object->linkedObjectsIds['ticket'])) {

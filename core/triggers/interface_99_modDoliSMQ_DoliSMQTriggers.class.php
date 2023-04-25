@@ -149,7 +149,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
                     $object->add_object_linked('order', GETPOST('fk_order'));
                 }
                 if (!empty(GETPOST('fk_contract')) && GETPOST('fk_contract') > 0) {
-                    $object->add_object_linked('contract', GETPOST('fk_contract'));
+                    $object->add_object_linked('contrat', GETPOST('fk_contract'));
                 }
                 if (!empty(GETPOST('fk_ticket')) && GETPOST('fk_ticket') > 0) {
                     $object->add_object_linked('ticket', GETPOST('fk_ticket'));

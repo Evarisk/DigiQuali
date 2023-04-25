@@ -488,14 +488,16 @@ class Control extends CommonObject
 
 		// Create clone
 		$object->fetchObjectLinked('','',$object->id, 'dolismq_' . $object->element);
+
 		$object->context['createfromclone'] = 'createfromclone';
-		$object->ref = '';
-		$object->status = 0;
-		$object->verdict = null;
+
+		$object->ref         = '';
+		$object->photo       = '';
+		$object->status      = 0;
+		$object->verdict     = null;
 		$object->note_public = null;
+
 		$objectid = $object->create($user);
-
-
 
 		//add categories
 		$cat = new Categorie($this->db);
@@ -528,9 +530,14 @@ class Control extends CommonObject
 					$object->add_object_linked($product->element, $product->id);
 				}
 			}
-			if (!empty($object->linkedObjects['productbatch'])) {
-				foreach ($object->linkedObjects['productbatch'] as $productbatch) {
-					$object->add_object_linked($productbatch->element, $productbatch->id);
+			if (!empty($object->linkedObjectsIds['productbatch'])) {
+				$productlot = new Productlot($this->db);
+				$productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
+				$object->add_object_linked('productbatch', $productlot->id);
+			}
+			if (!empty($object->linkedObjects['user'])) {
+				foreach ($object->linkedObjects['user'] as $usertmp) {
+					$object->add_object_linked($usertmp->element, $usertmp->id);
 				}
 			}
 			if (!empty($object->linkedObjects['societe'])) {
@@ -538,17 +545,22 @@ class Control extends CommonObject
 					$object->add_object_linked($societe->element, $societe->id);
 				}
 			}
-            if (!empty($object->linkedObjects['invoice'])) {
-                foreach ($object->linkedObjects['invoice'] as $invoice) {
+			if (!empty($object->linkedObjects['contact'])) {
+				foreach ($object->linkedObjects['contact'] as $contact) {
+					$object->add_object_linked($contact->element, $contact->id);
+				}
+			}
+            if (!empty($object->linkedObjects['facture'])) {
+                foreach ($object->linkedObjects['facture'] as $invoice) {
                     $object->add_object_linked($invoice->element, $invoice->id);
                 }
             }
-            if (!empty($object->linkedObjects['order'])) {
-                foreach ($object->linkedObjects['order'] as $order) {
+            if (!empty($object->linkedObjects['commande'])) {
+                foreach ($object->linkedObjects['commande'] as $order) {
                     $object->add_object_linked($order->element, $order->id);
                 }
-            }if (!empty($object->linkedObjects['contract'])) {
-                foreach ($object->linkedObjects['contract'] as $contract) {
+            }if (!empty($object->linkedObjects['contrat'])) {
+                foreach ($object->linkedObjects['contrat'] as $contract) {
                     $object->add_object_linked($contract->element, $contract->id);
                 }
             }
@@ -677,7 +689,7 @@ class Control extends CommonObject
 			$this->labelStatus[self::STATUS_LOCKED]         = $langs->transnoentitiesnoconv('Locked');
       $this->labelStatus[self::STATUS_ARCHIVED]       = $langs->transnoentitiesnoconv('Archived');
 			$this->labelStatus[self::STATUS_DELETED]        = $langs->transnoentitiesnoconv('Deleted');
-      
+
 			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
 			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Validated');
 			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');

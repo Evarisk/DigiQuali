@@ -455,9 +455,9 @@ while ($i < ($limit ? min($num, $limit) : $num))
                 }
             }
             elseif ($key == 'fk_contract') {
-                $object->fetchObjectLinked('', 'contract','', 'dolismq_control');
-                if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && (!empty($object->linkedObjectsIds['contract']))) {
-                    $contracttmp->fetch(array_shift($object->linkedObjectsIds['contract']));
+                $object->fetchObjectLinked('', 'contrat','', 'dolismq_control');
+                if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && (!empty($object->linkedObjectsIds['contrat']))) {
+                    $contracttmp->fetch(array_shift($object->linkedObjectsIds['contrat']));
                     if ($contracttmp > 0) {
                         print $contracttmp->getNomUrl(1);
                     }
