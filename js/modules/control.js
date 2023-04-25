@@ -333,9 +333,15 @@ window.dolismq.control.refreshFavoritePhoto = function () {
 	let token     = window.saturne.toolbox.getToken();
 	let bannerTab = $(this).closest('.tabBar').find('.arearef');
 	let mediaList = $(this).closest('.linked-medias-list');
+	let url;
+	if ($(this).is('.control.media-gallery-favorite')) {
+		url = document.URL + "&action=add_favorite_photo&token=" + token;
+	} else {
+		url = document.URL + "&token=" + token;
+	}
 
 	jQuery.ajax({
-		url: document.URL + "&action=add_favorite_photo&token=" + token,
+		url: url,
 		type: "POST",
 		data: JSON.stringify({
 			filename: filename,
