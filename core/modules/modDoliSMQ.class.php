@@ -119,7 +119,8 @@ class modDoliSMQ extends DolibarrModules
 			'hooks' => [
 				'category',
 				'categoryindex',
-				'mainloginpage'
+				'mainloginpage',
+                'controlcard'
 			],
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,

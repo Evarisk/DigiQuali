@@ -822,15 +822,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Print form confirm
 	print $formconfirm;
 
-  if ($conf->browser->layout == 'phone') {
-      $onPhone = 1;
-      $morehtmlref = '<br><i class="toggleControlInfo far fa-caret-square-down"></i>' . ' ' . $langs->trans('DisplayMoreInfo');
-  } else {
-      $onPhone = 0;
-      $morehtmlref = '';
-  }
+    if ($conf->browser->layout == 'phone') {
+        $onPhone = 1;
+    } else {
+        $onPhone = 0;
+    }
 
-	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', $morehtmlref, empty($object->photo) ? false : true);
+	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', '', empty($object->photo) ? false : true);
 
 	print '<div class="fichecenter controlInfo' . ($onPhone ? ' hidden' : '') . '">';
 	print '<div class="fichehalfleft">';
@@ -1236,7 +1234,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					</div>
 					<?php endif; ?>
 				</div>
-				<div class="table-row">
+				<div class="table-row <?php echo ($onPhone ? 'center' : ''); ?>">
 					<!-- Galerie -->
 					<?php if ($item->authorize_answer_photo > 0) : ?>
 						<div class="table-cell table-full linked-medias answer_photo_<?php echo $item->id ?>">
@@ -1268,7 +1266,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					<?php if ($item->type == $langs->transnoentities('MultipleChoices')) :
 						$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $item->id]);
 						?>
-						<div class="table-cell select-answer answer-cell table-250 <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+						<div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<?php
 							if (preg_match('/,/', $questionAnswer)) {
 								$questionAnswers = preg_split('/,/', $questionAnswer);
@@ -1280,7 +1278,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							if (is_array($answerList) && !empty($answerList)) {
 								foreach($answerList as $answerLinked) {
 									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
-									print '<span style="'. (in_array($answerLinked->position, $questionAnswers) ? 'background:'. $answerLinked->color .'' : '') .'; color:'. $answerLinked->color .';" class="answer multiple-answers ' . ($object->status > 0 ? 'disable' : '') . ' ' . (in_array($answerLinked->position, $questionAnswers) ? 'active' : '') . '" value="'. $answerLinked->position .'">';
+									print '<span style="'. (in_array($answerLinked->position, $questionAnswers) ? 'background:'. $answerLinked->color .'' : '') .'; color:'. $answerLinked->color .';" class="answer multiple-answers square ' . ($object->status > 0 ? 'disable' : '') . ' ' . (in_array($answerLinked->position, $questionAnswers) ? 'active' : '') . '" value="'. $answerLinked->position .'">';
 									if ($answerLinked->pictogram > 0) {
 										print $pictosArray[$answerLinked->pictogram]['picto_source'];
 									} else {
@@ -1294,7 +1292,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					<?php elseif ($item->type == $langs->transnoentities('UniqueChoice') || $item->type == $langs->transnoentities('OkKo') || $item->type == $langs->transnoentities('OkKoToFixNonApplicable')) :
 						$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $item->id]);
 						?>
-						<div class="table-cell select-answer answer-cell table-250 <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+						<div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<?php
 							print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
 							if (is_array($answerList) && !empty($answerList)) {
@@ -1312,7 +1310,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							?>
 						</div>
 					<?php elseif ($item->type == $langs->transnoentities('Text')) : ?>
-						<div class="table-cell answer-cell table-flex <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+						<div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<div class="table-row">
 								<?php
 								print '<span class="table-cell" value="">';
@@ -1325,7 +1323,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							</div>
 						</div>
 					<?php elseif ($item->type == $langs->transnoentities('Percentage')) : ?>
-						<div class="table-cell answer-cell table-flex <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+						<div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<div class="table-row">
 								<?php
 								print '<span class="table-cell" value="">';
@@ -1338,7 +1336,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							</div>
 						</div>
 					<?php elseif ($item->type == $langs->transnoentities('Range')) : ?>
-						<div class="table-cell answer-cell table-flex <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+						<div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<div class="table-row">
 								<?php
 								print '<span class="table-cell" value="">';

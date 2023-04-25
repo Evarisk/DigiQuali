@@ -304,4 +304,29 @@ class ActionsDolismq
 			return -1;
 		}
 	}
+
+    /**
+     *  Overloading the saturneBannerTab function : replacing the parent's function with the one below.
+     *
+     * @param  array        $parameters Hook metadatas (context, etc...).
+     * @param  CommonObject $object     Current object.
+     * @return int                      0 < on error, 0 on success, 1 to replace standard code.
+     */
+    public function saturneBannerTab(array $parameters, CommonObject $object): int
+    {
+        global $conf, $langs;
+
+        // Do something only for the current context.
+        if (preg_match('/controlcard/', $parameters['context'])) {
+            if ($conf->browser->layout == 'phone') {
+                $morehtmlref = '<i class="toggleControlInfo far fa-caret-square-down"></i>' . ' ' . $langs->trans('DisplayMoreInfo');
+            } else {
+                $morehtmlref = '';
+            }
+
+            $this->resprints = $morehtmlref;
+        }
+
+        return 0; // or return 1 to replace standard code.
+    }
 }
