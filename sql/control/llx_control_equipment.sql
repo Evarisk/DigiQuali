@@ -16,10 +16,12 @@
 CREATE TABLE llx_dolismq_control_equipment(
     rowid         integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
     ref           varchar(128) NOT NULL,
+    ref_ext       varchar(128),
     entity        integer DEFAULT 1 NOT NULL,
     date_creation datetime NOT NULL,
     tms           timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     status        integer DEFAULT 1 NOT NULL,
+    json          text,
     fk_product    integer NOT NULL,
     fk_control    integer NOT NULL
 ) ENGINE=innodb;

@@ -40,11 +40,11 @@ function control_prepare_head(CommonObject $object): array
     $head[1][1] = '<i class="fas fa-file-image pictofixedwidth"></i>' . $langs->trans('Medias');
     $head[1][2] = 'medias';
 
-    $moreparam['attendantTableMode'] = 'simple';
+	$head[2][0] = dol_buildpath('/dolismq/view/control/control_equipment.php', 1) . '?id=' . $object->id;
+	$head[2][1] = '<i class="fas fa-toolbox pictofixedwidth"></i>' . $langs->trans('ControlEquipment');
+	$head[2][2] = 'equipment';
 
-	$head[$h][0] = dol_buildpath('/dolismq/view/control/control_equipment.php', 1) . '?id=' . $object->id;
-	$head[$h][1] = '<i class="fas fa-toolbox pictofixedwidth"></i>' . $langs->trans('ControlEquipment');
-	$head[$h][2] = 'equipment';
+    $moreparam['attendantTableMode'] = 'simple';
 
     return saturne_object_prepare_head($object, $head, $moreparam, true);
 }

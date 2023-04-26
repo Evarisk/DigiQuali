@@ -675,13 +675,13 @@ class Control extends CommonObject
 			$this->labelStatus[self::STATUS_DRAFT]          = $langs->transnoentitiesnoconv('StatusDraft');
 			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->transnoentitiesnoconv('Validated');
 			$this->labelStatus[self::STATUS_LOCKED]         = $langs->transnoentitiesnoconv('Locked');
-      $this->labelStatus[self::STATUS_ARCHIVED]       = $langs->transnoentitiesnoconv('Archived');
+      		$this->labelStatus[self::STATUS_ARCHIVED]       = $langs->transnoentitiesnoconv('Archived');
 			$this->labelStatus[self::STATUS_DELETED]        = $langs->transnoentitiesnoconv('Deleted');
-      
+
 			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
 			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Validated');
 			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
-      $this->labelStatusShort[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
+      		$this->labelStatusShort[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
 			$this->labelStatusShort[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
 		}
 
@@ -1269,22 +1269,26 @@ class ControlEquipment extends CommonObjectLine
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
 	 */
-	public $fields = array(
-		'rowid'         => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'comment' => 'Id'),
-		'ref'           => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 1, 'noteditable' => '1', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => 'Reference of object'),
-		'entity'        => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0,),
-		'date_creation' => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
-		'tms'           => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 40, 'notnull' => 0, 'visible' => 0,),
-		'status'        => array('type' => 'status', 'label' => 'Status', 'enabled' => '1', 'position' => 50, 'notnull' => 1, 'visible' => 0,),
-		'fk_product'    => array('type' => 'integer', 'label' => 'FkProduct', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
-		'fk_control'    => array('type' => 'integer', 'label' => 'FkControl', 'enabled' => '1', 'position' => 70, 'notnull' => 0, 'visible' => 0,),
-	);
+	public $fields = [
+		'rowid'         => ['type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'comment' => 'Id'],
+		'ref'           => ['type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 1, 'noteditable' => '1', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => 'Reference of object'],
+		'ref_ext'       => ['type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 0, 'visible' => 0],
+		'entity'        => ['type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0],
+		'date_creation' => ['type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0],
+		'tms'           => ['type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 40, 'notnull' => 0, 'visible' => 0],
+		'status'        => ['type' => 'status', 'label' => 'Status', 'enabled' => '1', 'position' => 50, 'notnull' => 1, 'visible' => 0],
+		'json'          => ['type' => 'text', 'label' => 'JSON', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0],
+		'fk_product'    => ['type' => 'integer', 'label' => 'FkProduct', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 0],
+		'fk_control'    => ['type' => 'integer', 'label' => 'FkControl', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0],
+	];
 
 	public $ref;
+	public $ref_ext;
 	public $entity;
-	public $status;
 	public $date_creation;
 	public $tms;
+	public $status;
+	public $json;
 	public $fk_product;
 	public $fk_control;
 
@@ -1393,7 +1397,7 @@ class ControlEquipment extends CommonObjectLine
 	public function fetchFromParent($control_id, $limit = 0)
 	{
 		global $db;
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.fk_product, t.fk_control ';
+		$sql  = 'SELECT  t.rowid, t.ref, t.ref_ext, t.date_creation, t.tms, t.status, t.json, t.fk_product, t.fk_control ';
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_control_equipment as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 		$sql .= ' AND fk_control = ' . $control_id;
@@ -1411,8 +1415,11 @@ class ControlEquipment extends CommonObjectLine
 
 				$record->id            = $obj->rowid;
 				$record->ref           = $obj->ref;
-				$record->status        = $obj->status;
+				$record->ref_ext       = $obj->ref_ext;
 				$record->date_creation = $obj->date_creation;
+				$record->tms           = $obj->tms;
+				$record->status        = $obj->status;
+				$record->json          = $obj->json;
 				$record->fk_product    = $obj->fk_product;
 				$record->fk_control    = $obj->fk_control;
 
@@ -1447,13 +1454,16 @@ class ControlEquipment extends CommonObjectLine
 
 		// Insertion dans base de la ligne
 		$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . 'dolismq_control_equipment';
-		$sql .= ' ( ref, entity, status, date_creation, fk_product, fk_control';
+		$sql .= ' ( ref, ref_ext, entity, date_creation, tms, status, json, fk_product, fk_control';
 		$sql .= ')';
 		$sql .= ' VALUES (';
 		$sql .= "'" . $db->escape($this->ref) . "'" . ', ';
+		$sql .= "' '" . ', ';
 		$sql .= $conf->entity . ', ';
-		$sql .= 1 . ', ';
 		$sql .= "'" . $db->escape($db->idate($now)) . "'" . ', ';
+		$sql .= "'" . $db->escape($db->idate($now)) . "'" . ', ';
+		$sql .= 1 . ', ';
+		$sql .= "'" . $this->json . "'" . ', ';
 		$sql .= $this->fk_product . ', ';
 		$sql .= $this->fk_control;
 		$sql .= ')';
