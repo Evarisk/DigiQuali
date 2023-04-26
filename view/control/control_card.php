@@ -581,7 +581,11 @@ if ($action == 'create') {
         print '<tr><td class="titlefieldcreate">' . $langs->trans('BatchLinked') . '</td><td class="lot-container">';
         print '<span class="lot-content">';
         print img_picto('', 'lot', 'class="pictofixedwidth"');
-        $filter = ['customsql' => 'fk_product = ' . (dol_strlen(GETPOST('fk_product')) > 0 ? GETPOST('fk_product') : 0)];
+        if (preg_match('/"product":1/', $sheet->element_linked)) {
+            $filter = ['customsql' => 'fk_product = ' . (dol_strlen(GETPOST('fk_product')) > 0 ? GETPOST('fk_product') : 0)];
+        } else {
+            $filter = [];
+        }
         $productlots = saturne_fetch_all_object_type('Productlot', '', '', 0, 0, $filter);
         if (is_array($productlots) && !empty($productlots)) {
             $showEmpty = '1';
