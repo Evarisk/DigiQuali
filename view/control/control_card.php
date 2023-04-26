@@ -521,22 +521,6 @@ if (empty($reshook)) {
 		$object->update($user, true);
 	}
 
-    if ($subaction == 'unlinkFile') {
-        $data     = json_decode(file_get_contents('php://input'), true);
-        $fileName = $data['filename'];
-        if ($object->photo == $fileName) {
-            $pathPhotos = $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/';
-            $fileArray  = dol_dir_list($pathPhotos, 'files', 0, '', $fileName);
-            if (count($fileArray) > 0) {
-                $firstFileName = array_shift($fileArray);
-                $object->photo = $firstFileName['name'];
-            } else {
-                $object->photo = '';
-            }
-            $object->update($user, true);
-        }
-    }
-
 	// Actions to send emails
 	$triggersendname = 'CONTROL_SENTBYMAIL';
 	$autocopy        = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
@@ -1051,26 +1035,28 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print '</td></tr>';
     }
 
-	print '<tr class="linked-medias photos question-table"><td class=""><label for="photos">' . $langs->trans("Photo") . '</label></td><td class="linked-medias-list">';
+	print '<tr class="linked-medias photo question-table"><td class=""><label for="photos">' . $langs->trans("Photo") . '</label></td><td class="linked-medias-list">';
     $pathPhotos = $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/';
     $fileArray  = dol_dir_list($pathPhotos, 'files');
-	if ($object->status != Control::STATUS_LOCKED && count($fileArray) < 5) { ?>
+	?>
+	<span class="add-medias" <?php echo ($object->status != Control::STATUS_LOCKED && count($fileArray) < 5) ? '' : 'style="display:none"' ?>>
 		<input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
 		<label for="fast-upload-photo-default">
 			<div class="wpeo-button button-square-50">
 				<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
 			</div>
 		</label>
-		<input type="hidden" class="favorite-photo" id="photos" name="photos" value="<?php echo $object->photo ?>"/>
+		<input type="hidden" class="favorite-photo" id="photo" name="photo" value="<?php echo $object->photo ?>"/>
 		<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
 			<input type="hidden" class="modal-to-open" value="media_gallery"/>
 			<input type="hidden" class="from-type" value="control"/>
-			<input type="hidden" class="from-subtype" value="photos"/>
+			<input type="hidden" class="from-subtype" value="photo"/>
 			<input type="hidden" class="from-subdir" value="photos"/>
 			<input type="hidden" class="from-id" value="<?php echo $object->id?>"/>
 			<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 		</div>
-	<?php }
+	</span>
+	<?php
 	$relativepath = 'dolismq/medias/thumbs';
 	print saturne_show_medias_linked('dolismq', $pathPhotos, 'small', 5, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
 	print '</td></tr>';

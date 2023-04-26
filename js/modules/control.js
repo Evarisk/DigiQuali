@@ -38,7 +38,7 @@ window.dolismq.control.event = function() {
 	$( document ).on( 'click', '.validateButton', window.dolismq.control.getAnswerCounter);
 	$( document ).on( 'change', '#fk_sheet', window.dolismq.control.showSelectObjectLinked);
 	$( document ).on( 'click', '.toggleControlInfo', window.dolismq.control.toggleControlInfo );
-	$( document ).on( 'click', '.control.media-gallery-favorite, .control.media-gallery-unlink', window.dolismq.control.refreshFavoritePhoto );
+	$( document ).on( 'click', '.control.media-gallery-favorite', window.dolismq.control.refreshFavoritePhoto );
 };
 
 /**
