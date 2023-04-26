@@ -351,6 +351,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 
 	// Store properties in $object
 	$object->setVarsFromFetchObj($obj);
+	$object->fetchObjectLinked('', '','', 'dolismq_control');
 
 	// Show here line of result
 	print '<tr class="oddeven">';
@@ -374,7 +375,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'ref') print $object->getNomUrl(1);
 			elseif ($key == 'fk_product') {
-				$object->fetchObjectLinked('', 'product','', 'dolismq_control');
 				if (!empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
 					$producttmp->fetch(array_shift($object->linkedObjectsIds['product']));
 					if ($producttmp > 0) {
@@ -383,7 +383,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
 				}
 			}
 			elseif ($key == 'fk_lot') {
-				$object->fetchObjectLinked('', 'productbatch','', 'dolismq_control');
 				if (!empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
 					$productlottmp->fetch(array_shift($object->linkedObjectsIds['productbatch']));
 					if ($productlottmp > 0) {
@@ -392,7 +391,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
 				}
 			}
 			elseif ($key == 'fk_user') {
-				$object->fetchObjectLinked('', 'user','', 'dolismq_control');
 				if (!empty($conf->global->DOLISMQ_SHEET_LINK_USER) && (!empty($object->linkedObjectsIds['user']))) {
 					$usertmp->fetch(array_shift($object->linkedObjectsIds['user']));
 					if ($usertmp > 0) {
@@ -401,7 +399,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
 				}
 			}
 			elseif ($key == 'fk_thirdparty') {
-				$object->fetchObjectLinked('', 'societe','', 'dolismq_control');
 				if (!empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
 					$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
 					if ($thirdparty > 0) {
@@ -410,7 +407,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
 				}
 			}
 			elseif ($key == 'fk_contact') {
-				$object->fetchObjectLinked('', 'contact','', 'dolismq_control');
 				if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && (!empty($object->linkedObjectsIds['contact']))) {
 					$contact->fetch(array_shift($object->linkedObjectsIds['contact']));
 					if ($contact > 0) {
@@ -419,7 +415,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
 				}
 			}
 			elseif ($key == 'fk_project') {
-				$object->fetchObjectLinked('', 'project','', 'dolismq_control');
 				if (!empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT) && (!empty($object->linkedObjectsIds['project']))) {
 					$projecttmp->fetch(array_shift($object->linkedObjectsIds['project']));
 					if ($projecttmp > 0) {
@@ -428,7 +423,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
 				}
 			}
 			elseif ($key == 'fk_task') {
-				$object->fetchObjectLinked('', 'project_task','', 'dolismq_control');
 				if (!empty($conf->global->DOLISMQ_SHEET_LINK_TASK) && (!empty($object->linkedObjectsIds['project_task']))) {
 					$tasktmp->fetch(array_shift($object->linkedObjectsIds['project_task']));
 					if ($tasktmp > 0) {
@@ -437,7 +431,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
 				}
 			}
             elseif ($key == 'fk_invoice') {
-                $object->fetchObjectLinked('', 'facture','', 'dolismq_control');
                 if (!empty($conf->global->DOLISMQ_SHEET_LINK_INVOICE) && (!empty($object->linkedObjectsIds['facture']))) {
                     $invoicetmp->fetch(array_shift($object->linkedObjectsIds['facture']));
                     if ($invoicetmp > 0) {
@@ -446,7 +439,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
                 }
             }
             elseif ($key == 'fk_order') {
-                $object->fetchObjectLinked('', 'commande','', 'dolismq_control');
                 if (!empty($conf->global->DOLISMQ_SHEET_LINK_ORDER) && (!empty($object->linkedObjectsIds['commande']))) {
                     $ordertmp->fetch(array_shift($object->linkedObjectsIds['commande']));
                     if ($ordertmp > 0) {
@@ -455,7 +447,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
                 }
             }
             elseif ($key == 'fk_contract') {
-                $object->fetchObjectLinked('', 'contrat','', 'dolismq_control');
                 if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && (!empty($object->linkedObjectsIds['contrat']))) {
                     $contracttmp->fetch(array_shift($object->linkedObjectsIds['contrat']));
                     if ($contracttmp > 0) {
@@ -464,7 +455,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
                 }
             }
             elseif ($key == 'fk_ticket') {
-                $object->fetchObjectLinked('', 'ticket','', 'dolismq_control');
                 if (!empty($conf->global->DOLISMQ_SHEET_LINK_TICKET) && (!empty($object->linkedObjectsIds['ticket']))) {
                     $tickettmp->fetch(array_shift($object->linkedObjectsIds['ticket']));
                     if ($tickettmp > 0) {
