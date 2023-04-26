@@ -640,7 +640,7 @@ if ($action == 'create') {
 
     // FK Invoice.
     if ($conf->global->DOLISMQ_SHEET_LINK_INVOICE && preg_match('/"invoice":1/', $sheet->element_linked)) {
-        $invoicePost = GETPOST('fk_invoice') ?: (GETPOST('fromtype') == 'invoice' ? GETPOST('fromid') : -1);
+        $invoicePost = GETPOST('fk_invoice') ?: (GETPOST('fromtype') == 'facture' ? GETPOST('fromid') : -1);
         print '<tr><td class="titlefieldcreate">' . $langs->trans('InvoiceLinked') . '</td><td>';
         print img_picto('', 'bill', 'class="pictofixedwidth"');
         $invoices = saturne_fetch_all_object_type('Facture');
@@ -656,7 +656,7 @@ if ($action == 'create') {
 
     // FK Order.
     if ($conf->global->DOLISMQ_SHEET_LINK_ORDER && preg_match('/"order":1/', $sheet->element_linked)) {
-        $orderPost = GETPOST('fk_order') ?: (GETPOST('fromtype') == 'order' ? GETPOST('fromid') : -1);
+        $orderPost = GETPOST('fk_order') ?: (GETPOST('fromtype') == 'commande' ? GETPOST('fromid') : -1);
         print '<tr><td class="titlefieldcreate">' . $langs->trans('OrderLinked') . '</td><td>';
         print img_picto('', 'order', 'class="pictofixedwidth"');
         $orders = saturne_fetch_all_object_type('Commande');
@@ -672,7 +672,7 @@ if ($action == 'create') {
 
     // FK Contract.
     if ($conf->global->DOLISMQ_SHEET_LINK_CONTRACT && preg_match('/"contract":1/', $sheet->element_linked)) {
-        $contractPost = GETPOST('fk_contract') ?: (GETPOST('fromtype') == 'contract' ? GETPOST('fromid') : -1);
+        $contractPost = GETPOST('fk_contract') ?: (GETPOST('fromtype') == 'contrat' ? GETPOST('fromid') : -1);
         print '<tr><td class="titlefieldcreate">' . $langs->trans('ContractLinked') . '</td><td>';
         print img_picto('', 'contract', 'class="pictofixedwidth"');
         $contracts = saturne_fetch_all_object_type('Contrat');
@@ -991,13 +991,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print '</td></tr>';
     }
 
-    if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && (!empty($object->linkedObjectsIds['contract']))) {
+    if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && (!empty($object->linkedObjectsIds['contrat']))) {
         //Fk_contract - Contrat lié
         print '<tr><td class="titlefield">';
         print $langs->trans('Contract');
         print '</td>';
         print '<td>';
-        $contract->fetch(array_shift($object->linkedObjectsIds['contract']));
+        $contract->fetch(array_shift($object->linkedObjectsIds['contrat']));
         if ($contract > 0) {
             print $contract->getNomUrl(1);
         }

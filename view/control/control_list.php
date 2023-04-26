@@ -42,6 +42,10 @@ require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 require_once DOL_DOCUMENT_ROOT.'/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
 require_once DOL_DOCUMENT_ROOT.'/projet/class/task.class.php';
+require_once DOL_DOCUMENT_ROOT . '/compta/facture/class/facture.class.php';
+require_once DOL_DOCUMENT_ROOT . '/commande/class/commande.class.php';
+require_once DOL_DOCUMENT_ROOT . '/contrat/class/contrat.class.php';
+require_once DOL_DOCUMENT_ROOT . '/ticket/class/ticket.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcategory.class.php';
 require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
 
@@ -50,6 +54,10 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/contact.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/project.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/product.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/usergroups.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/invoice.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/order.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/contract.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/ticket.lib.php';
 
 // load dolismq libraries
 require_once __DIR__ . '/../../lib/dolismq_sheet.lib.php';
@@ -63,7 +71,7 @@ require_once __DIR__ . '/../../class/control.class.php';
 global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
-saturne_load_langs(['other', 'bills', 'projects', 'orders', 'companies', 'product', 'productbatch', 'task']);
+saturne_load_langs(['other', 'bills', 'projects', 'orders', 'companies', 'product', 'productbatch', 'task', 'contracts']);
 
 $action      = GETPOST('action', 'aZ09') ?GETPOST('action', 'aZ09') : 'view'; // The action 'add', 'create', 'edit', 'update', 'view', ...
 $massaction  = GETPOST('massaction', 'alpha'); // The bulk action (combo box choice into lists)
@@ -141,14 +149,15 @@ if (!empty($fromtype)) {
 		case 'fk_sheet' :
 			$objectLinked = new Sheet($db);
 			break;
-        case 'invoice' :
+        case 'facture' :
             $objectLinked = new Facture($db);
             break;
-        case 'order' :
+        case 'commande' :
             $objectLinked = new Commande($db);
             break;
-        case 'contract' :
+        case 'contrat' :
             $objectLinked = new Contrat($db);
+			$objectLinked->element = 'contract';
             break;
         case 'ticket' :
             $objectLinked = new Ticket($db);
