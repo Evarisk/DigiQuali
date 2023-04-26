@@ -198,8 +198,10 @@ if (empty($reshook)) {
 
 	// Action clone object
 	if ($action == 'confirm_clone' && $confirm == 'yes') {
+        $options['attendants'] = GETPOST('clone_attendants');
+        $options['photos']     = GETPOST('clone_photos');
 		if ($object->id > 0) {
-			$result = $object->createFromClone($user, $object->id);
+			$result = $object->createFromClone($user, $object->id, $options);
 			if ($result > 0) {
 				header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . $result);
 				exit();
@@ -802,7 +804,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Clone confirmation
 	if (($action == 'clone' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
-		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('CloneObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmCloneObject', $langs->transnoentities('The' . ucfirst($object->element)), $object->ref), 'confirm_clone', '', 'yes', 'actionButtonClone', 350, 600);
+        // Define confirmation messages.
+        $formquestionclone = [
+            ['type' => 'radio', 'name' => 'clone_attendants', 'label' => $langs->trans('CloneAttendants'), 'values' => [0 => $langs->trans('Yes'), 1 => $langs->trans('No')], 'default' => 0],
+            ['type' => 'radio', 'name' => 'clone_photos', 'label' => $langs->trans('ClonePhotos'), 'values' => [0 => $langs->trans('Yes'), 1 => $langs->trans('No')], 'default' => 0]
+        ];
+
+		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('CloneObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmCloneObject', $langs->transnoentities('The' . ucfirst($object->element)), $object->ref), 'confirm_clone', $formquestionclone, 'yes', 'actionButtonClone', 350, 600);
 	}
 
 	// Confirmation to delete
@@ -1066,7 +1074,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		$displayButton = $onPhone ? '<i class="fas fa-clone fa-2x"></i>' : '<i class="fas fa-clone"></i>' . ' ' . $langs->trans('ToClone');
-		print '<span class="butAction" id="actionButtonClone" title="" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=clone' . '">' . $displayButton . '</span>';
+		print '<span class="butAction" id="actionButtonClone">' . $displayButton . '</span>';
 
 		if (empty($reshook)) {
 			// Save question answer
