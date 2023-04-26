@@ -93,6 +93,17 @@
       border: 1px solid rgba(0,0,0,0.4);
       transition: all 0.2s ease-out;
 
+      @media ( max-width: $media__small ) {
+        width: 80px;
+        height: 80px;
+        line-height: 80px;
+        font-size: 30px;
+      }
+
+      &.square {
+        border-radius: 10%;
+      }
+
       &:hover {
         cursor: pointer;
       }
