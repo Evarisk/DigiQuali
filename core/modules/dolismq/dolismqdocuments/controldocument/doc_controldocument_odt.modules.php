@@ -26,12 +26,20 @@
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 
+require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
+require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
+require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
+
 // Load Saturne libraries.
 require_once __DIR__ . '/../../../../../../saturne/class/saturnesignature.class.php';
 
 // Load DoliSMQ libraries.
 require_once __DIR__ . '/modules_controldocument.php';
 require_once __DIR__ . '/mod_controldocument_standard.php';
+
+require_once __DIR__ . '/../../../../../class/question.class.php';
+require_once __DIR__ . '/../../../../../class/sheet.class.php';
+require_once __DIR__ . '/../../../../../class/answer.class.php';
 
 /**
  * Class to build documents using ODF templates generator.
@@ -149,17 +157,17 @@ class doc_controldocument_odt extends ModeleODTControlDocument
     /**
      * Function to build a document on disk using the generic odt module.
      *
-     * @param  ControlDocument $objectDocument  Object source to build document.
-     * @param  Translate       $outputlangs     Lang output object.
-     * @param  string          $srctemplatepath Full path of source filename for generator using a template file.
-     * @param  int             $hidedetails     Do not show line details.
-     * @param  int             $hidedesc        Do not show desc.
-     * @param  int             $hideref         Do not show ref.
-     * @param  array           $moreparam       More param (Object/user/etc).
-     * @return int                              1 if OK, <=0 if KO.
+     * @param  SaturneDocuments $objectDocument  Object source to build document.
+     * @param  Translate        $outputlangs     Lang output object.
+     * @param  string           $srctemplatepath Full path of source filename for generator using a template file.
+     * @param  int              $hidedetails     Do not show line details.
+     * @param  int              $hidedesc        Do not show desc.
+     * @param  int              $hideref         Do not show ref.
+     * @param  array            $moreparam       More param (Object/user/etc).
+     * @return int                               1 if OK, <=0 if KO.
      * @throws Exception
      */
-    public function write_file(ControlDocument $objectDocument, Translate $outputlangs, string $srctemplatepath, int $hidedetails = 0, int $hidedesc = 0, int $hideref = 0, array $moreparam)
+    public function write_file(SaturneDocuments $objectDocument, Translate $outputlangs, string $srctemplatepath, int $hidedetails = 0, int $hidedesc = 0, int $hideref = 0, array $moreparam)
     {
         global $action, $conf, $hookmanager, $langs, $mysoc;
 
@@ -182,7 +190,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
         }
 
         $outputlangs->charset_output = 'UTF-8';
-        $outputlangs->loadLangs(['main', 'dict', 'companies', 'dolismq@dolismq', 'products', 'projects']);
+        $outputlangs->loadLangs(['main', 'dict', 'companies', 'dolismq@dolismq', 'products', 'projects', 'bills', 'orders', 'contracts']);
 
         if ($conf->dolismq->dir_output) {
             $refModName          = new $conf->global->DOLISMQ_CONTROLDOCUMENT_ADDON($this->db);
@@ -525,7 +533,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                                                 $attendance = $langs->transnoentities('Present');
                                                 break;
                                         }
-                                        $tmparray['attendant_role']           = $objectSignatory->role;
+                                        $tmparray['attendant_role']           = $langs->transnoentities($objectSignatory->role);
                                         $tmparray['attendant_signature_date'] = dol_print_date($objectSignatory->signature_date, 'dayhour', 'tzuser');
                                         $tmparray['attendant_attendance']     = $attendance;
                                         if (dol_strlen($objectSignatory->signature) > 0 && $objectSignatory->signature != $langs->transnoentities('FileGenerated')) {

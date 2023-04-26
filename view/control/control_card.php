@@ -55,6 +55,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 // Load Saturne libraries.
 require_once __DIR__ . '/../../../saturne/lib/object.lib.php';
 require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
+require_once __DIR__ . '/../../../saturne/class/saturnedocuments.class.php';
 
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
@@ -88,7 +89,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Technical objets
 $object           = new Control($db);
 $controldet       = new ControlLine($db);
-$controldocument  = new ControlDocument($db);
+$document         = new SaturneDocuments($db, 'dolismq', 'control');
 $signatory        = new SaturneSignature($db, 'dolismq');
 $sheet            = new Sheet($db);
 $question         = new Question($db);
@@ -293,44 +294,71 @@ if (empty($reshook)) {
 		exit;
 	}
 
-	// Action to build doc
-	if ($action == 'builddoc' && $permissiontoadd) {
-		$outputlangs = $langs;
-		$newlang     = '';
+    // Action to build doc.
+    if (($action == 'builddoc' || GETPOST('forcebuilddoc')) && $permissiontoadd) {
+        $outputlangs = $langs;
+        $newlang = '';
 
-		if ($conf->global->MAIN_MULTILANGS && empty($newlang) && GETPOST('lang_id', 'aZ09')) $newlang = GETPOST('lang_id', 'aZ09');
-		if ( ! empty($newlang)) {
-			$outputlangs = new Translate("", $conf);
-			$outputlangs->setDefaultLang($newlang);
-		}
+        if ($conf->global->MAIN_MULTILANGS && empty($newlang) && GETPOST('lang_id', 'aZ09')) {
+            $newlang = GETPOST('lang_id', 'aZ09');
+        }
+        if (!empty($newlang)) {
+            $outputlangs = new Translate('', $conf);
+            $outputlangs->setDefaultLang($newlang);
+        }
 
-		// To be sure vars is defined
-		if (empty($hidedetails)) $hidedetails = 0;
-		if (empty($hidedesc)) $hidedesc       = 0;
-		if (empty($hideref)) $hideref         = 0;
-		if (empty($moreparams)) $moreparams   = null;
+        // To be sure vars is defined.
+        if (empty($hidedetails)){
+            $hidedetails = 0;
+        }
+        if (empty($hidedesc)) {
+            $hidedesc = 0;
+        }
+        if (empty($hideref)) {
+            $hideref = 0;
+        }
+        if (empty($moreparams)) {
+            $moreparams = [];
+        }
 
-		$model = GETPOST('model', 'alpha');
+        if (GETPOST('forcebuilddoc')) {
+            $model  = '';
+            $modellist = saturne_get_list_of_models($db, $object->element . 'document');
+            if (!empty($modellist)) {
+                asort($modellist);
+                $modellist = array_filter($modellist, 'saturne_remove_index');
+                if (is_array($modellist)) {
+                    $models = array_keys($modellist);
+                }
+            }
+        } else {
+            $model = GETPOST('model', 'alpha');
+        }
 
-		$moreparams['object'] = $object;
-		$moreparams['user']   = $user;
+        $moreparams['object'] = $object;
+        $moreparams['user']   = $user;
 
-		$result = $controldocument->generateDocument($model, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
-		if ($result <= 0) {
-			setEventMessages($controldocument->error, $controldocument->errors, 'errors');
-			$action = '';
-		} else {
-			if (empty($donotredirect)) {
-				$documentUrl = DOL_URL_ROOT . '/document.php';
-				setEventMessages($langs->trans("FileGenerated") . ' - ' . '<a href=' . $documentUrl . '?modulepart=' . $moduleNameLowerCase . '&amp;file=' . urlencode('controldocument/' . $object->ref . '/' . $controldocument->last_main_doc) . '&entity='. $conf->entity .'"' . '>' . $controldocument->last_main_doc, null);
-				$urltoredirect = $_SERVER['REQUEST_URI'];
-				$urltoredirect = preg_replace('/#builddoc$/', '', $urltoredirect);
-				$urltoredirect = preg_replace('/action=builddoc&?/', '', $urltoredirect); // To avoid infinite loop
-				header('Location: ' . $urltoredirect . '#builddoc');
-				exit;
-			}
-		}
-	}
+        if ($object->status < $object::STATUS_LOCKED) {
+            $moreparams['specimen'] = 1;
+            $moreparams['zone']     = 'private';
+        } else {
+            $moreparams['specimen'] = 0;
+        }
+
+        $result = $document->generateDocument((!empty($models) ? $models[0] : $model), $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
+        if ($result <= 0) {
+            setEventMessages($document->error, $document->errors, 'errors');
+            $action = '';
+        } elseif (empty($donotredirect)) {
+            setEventMessages($langs->trans('FileGenerated') . ' - ' . '<a href=' . DOL_URL_ROOT . '/document.php?modulepart=dolismq&file=' . urlencode('controldocument/' . $object->ref . '/' . $document->last_main_doc) . '&entity=' . $conf->entity . '"' . '>' . $document->last_main_doc, []);
+            $urltoredirect = $_SERVER['REQUEST_URI'];
+            $urltoredirect = preg_replace('/#builddoc$/', '', $urltoredirect);
+            $urltoredirect = preg_replace('/action=builddoc&?/', '', $urltoredirect); // To avoid infinite loop
+            $urltoredirect = preg_replace('/forcebuilddoc=1&?/', '', $urltoredirect); // To avoid infinite loop
+            header('Location: ' . $urltoredirect . '#builddoc');
+            exit;
+        }
+    }
 
 	// Action to generate pdf from odt file
 	include_once DOL_DOCUMENT_ROOT . '/custom/saturne/core/tpl/documents/saturne_manual_pdf_generation_action.tpl.php';
