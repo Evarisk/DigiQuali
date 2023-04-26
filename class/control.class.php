@@ -860,6 +860,194 @@ class Control extends CommonObject
 			return "";
 		}
 	}
+
+    /**
+     * Load dashboard info.
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function load_dashboard(): array
+    {
+        $getNbControlsTagsByVerdict = $this->getNbControlsTagsByVerdict();
+        $getNbControlsByVerdict     = $this->getNbControlsByVerdict();
+        $getNbControlsByMonth       = $this->getNbControlsByMonth();
+
+        $array['graphs'] = [$getNbControlsTagsByVerdict, $getNbControlsByVerdict, $getNbControlsByMonth];
+
+        return $array;
+    }
+
+    /**
+     * Get controls by verdict.
+     *
+     * @return array     Graph datas (label/color/type/title/data etc..).
+     * @throws Exception
+     */
+    public function getNbControlsByVerdict(): array
+    {
+        global $langs;
+
+        // Graph Title parameters.
+        $array['title'] = $langs->transnoentities('ControlsRepartition');
+        $array['picto'] = $this->picto;
+
+        // Graph parameters.
+        $array['width']   = 800;
+        $array['height']  = 400;
+        $array['type']    = 'pie';
+        $array['dataset'] = 1;
+
+        $array['labels'] = [
+            0 => [
+                'label' => $langs->transnoentities('NoVerdict'),
+                'color' => '#999999'
+            ],
+            1 => [
+                'label' => $langs->transnoentities('OK'),
+                'color' => '#47e58e'
+            ],
+            2 => [
+                'label' => $langs->transnoentities('KO'),
+                'color' => '#e05353'
+            ],
+        ];
+
+        $arrayNbControlByVerdict = [];
+        $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'status >= 1']);
+        if (is_array($controls) && !empty($controls)) {
+            foreach ($controls as $control) {
+                if (empty($control->verdict)) {
+                    $arrayNbControlByVerdict[0]++;
+                } else {
+                    $arrayNbControlByVerdict[$control->verdict]++;
+                }
+            }
+            ksort($arrayNbControlByVerdict);
+        }
+
+        $array['data'] = $arrayNbControlByVerdict;
+
+        return $array;
+    }
+
+    /**
+     * Get controls with tags by verdict.
+     *
+     * @return array     Graph datas (label/color/type/title/data etc..).
+     * @throws Exception
+     */
+    public function getNbControlsTagsByVerdict(): array
+    {
+        global $db, $langs;
+
+        require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
+
+        $category = new Categorie($db);
+
+        // Graph Title parameters.
+        $array['title'] = $langs->transnoentities('ControlsTagsRepartition');
+        $array['picto'] = $this->picto;
+
+        // Graph parameters.
+        $array['width']   = 800;
+        $array['height']  = 400;
+        $array['type']    = 'bar';
+        $array['dataset'] = 3;
+
+        $array['labels'] = [
+            0 => [
+                'label' => $langs->transnoentities('NoVerdict'),
+                'color' => '#999999'
+            ],
+            1 => [
+                'label' => $langs->transnoentities('OK'),
+                'color' => '#47e58e'
+            ],
+            2 => [
+                'label' => $langs->transnoentities('KO'),
+                'color' => '#e05353'
+            ]
+        ];
+
+        $categories = $category->get_all_categories('control');
+        if (is_array($categories) && !empty($categories)) {
+            foreach ($categories as $category) {
+                $arrayNbControlByVerdict = [];
+                $controls = $category->getObjectsInCateg('control');
+                if (is_array($controls) && !empty($controls)) {
+                    foreach ($controls as $control) {
+                        if (empty($control->verdict)) {
+                            $arrayNbControlByVerdict[0]++;
+                        } else {
+                            $arrayNbControlByVerdict[$control->verdict]++;
+                        }
+                    }
+                    $array['data'][] = [$category->label, $arrayNbControlByVerdict[0],  $arrayNbControlByVerdict[1], $arrayNbControlByVerdict[2]];
+                }
+            }
+        }
+
+        return $array;
+    }
+
+    /**
+     * Get controls by month.
+     *
+     * @return array     Graph datas (label/color/type/title/data etc..).
+     * @throws Exception
+     */
+    public function getNbControlsByMonth(): array
+    {
+        global $conf, $langs;
+
+        $startMonth  = $conf->global->SOCIETE_FISCAL_MONTH_START;
+        $currentYear = date('Y', dol_now());
+        $years       = [0 => $currentYear - 2, 1 => $currentYear - 1, 2 => $currentYear];
+
+        // Graph Title parameters.
+        $array['title'] = $langs->transnoentities('ControlsByFiscalYear');
+        $array['picto'] = $this->picto;
+
+        // Graph parameters.
+        $array['width']   = 800;
+        $array['height']  = 400;
+        $array['type']    = 'bars';
+        $array['dataset'] = 3;
+
+        $array['labels'] = [
+            0 => [
+                'label' => $langs->trans("$years[0]"),
+                'color' => '#9567AA'
+            ],
+            1 => [
+                'label' => $langs->trans("$years[1]"),
+                'color' => '#4F9EBE'
+            ],
+            2 => [
+                'label' => $langs->trans("$years[2]"),
+                'color' => '#FAC461'
+            ]
+        ];
+
+        $arrayNbControls = [];
+        for ($i = 1; $i < 13; $i++) {
+            foreach ($years as $key => $year) {
+                $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'MONTH (t.date_creation) = ' . $i . ' AND YEAR (t.date_creation) = ' . $year]);
+                if (is_array($controls) && !empty($controls)) {
+                    $arrayNbControls[$key][$i] = count($controls);
+                }
+            }
+
+            $month    = $langs->transnoentitiesnoconv('MonthShort'.sprintf('%02d', $i));
+            $arrayKey = $i - $startMonth;
+            $arrayKey = $arrayKey >= 0 ? $arrayKey : $arrayKey + 12;
+            $array['data'][$arrayKey] = [$month, $arrayNbControls[0][$i], $arrayNbControls[1][$i], $arrayNbControls[2][$i]];
+        }
+        ksort($array['data']);
+
+        return $array;
+    }
 }
 
 class ControlLine extends CommonObjectLine
