@@ -162,7 +162,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
     public function write_file(ControlDocument $objectDocument, Translate $outputlangs, string $srctemplatepath, int $hidedetails = 0, int $hidedesc = 0, int $hideref = 0, array $moreparam)
     {
         global $action, $conf, $hookmanager, $langs, $mysoc;
-        
+
         $object = $moreparam['object'];
 
         if (empty($srctemplatepath)) {
@@ -182,13 +182,13 @@ class doc_controldocument_odt extends ModeleODTControlDocument
         }
 
         $outputlangs->charset_output = 'UTF-8';
-        $outputlangs->loadLangs(['main', 'dict', 'companies', 'dolismq@dolismq']);
+        $outputlangs->loadLangs(['main', 'dict', 'companies', 'dolismq@dolismq', 'products', 'projects']);
 
         if ($conf->dolismq->dir_output) {
-            $refModName = new $conf->global->DOLISMQ_CONTROLDOCUMENT_ADDON($this->db);
-            $objectDocumentRef = $refModName->getNextValue($objectDocument);
+            $refModName          = new $conf->global->DOLISMQ_CONTROLDOCUMENT_ADDON($this->db);
+            $objectDocumentRef   = $refModName->getNextValue($objectDocument);
             $objectDocument->ref = $objectDocumentRef;
-            $objectDocumentID = $objectDocument->create($moreparam['user'], true, $object);
+            $objectDocumentID    = $objectDocument->create($moreparam['user'], true, $object);
 
             $objectDocument->fetch($objectDocumentID);
 
@@ -280,7 +280,10 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                 complete_substitutions_array($tmparray, $outputlangs, $object);
 
                 if (!empty($object->photo)) {
-                    $tmparray['photoDefault'] = $object->photo;
+                    $path      = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/photos';
+                    $fileSmall = saturne_get_thumb_name($object->photo);
+                    $image     = $path . '/thumbs/' . $fileSmall;
+                    $tmparray['photoDefault'] = $image;
                 } else {
                     $noPhoto                  = '/public/theme/common/nophoto.png';
                     $tmparray['photoDefault'] = DOL_DOCUMENT_ROOT . $noPhoto;
@@ -289,6 +292,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                 $controldet = new ControlLine($this->db);
                 $question   = new Question($this->db);
                 $sheet      = new Sheet($this->db);
+                $answer     = new Answer($this->db);
                 $signatory  = new SaturneSignature($this->db);
                 $usertmp    = new User($this->db);
                 $projecttmp = new Project($this->db);
@@ -306,7 +310,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                 if (!empty($object->linkedObjectsIds['productbatch'])) {
                     $productlot = new Productlot($this->db);
                     $productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
-                    $tmparray['object_label_ref'] .= (!empty($productlot->ref) ? $langs->transnoentities('Batch') . ' : ' . $productlot->ref . chr(0x0A) : '');
+                    $tmparray['object_label_ref'] .= (!empty($productlot->batch) ? $langs->transnoentities('Batch') . ' : ' . $productlot->batch . chr(0x0A) : '');
                 }
                 if (!empty($object->linkedObjectsIds['user'])) {
                     $usertmp2 = new User($this->db);
@@ -602,46 +606,62 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                             $questionIds = $object->linkedObjectsIds;
                             if (is_array($questionIds['dolismq_question']) && !empty($questionIds['dolismq_question'])) {
                                 foreach ($questionIds['dolismq_question'] as $questionId) {
-                                    $item = $question;
-                                    $item->fetch($questionId);
+                                    $question->fetch($questionId);
 
-                                    $result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
+                                    $controldets = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
 
-                                    $tmparray['ref']         = $item->ref;
-                                    $tmparray['label']       = $item->label;
-                                    $tmparray['description'] = $item->description;
+                                    $tmparray['ref']         = $question->ref;
+                                    $tmparray['label']       = $question->label;
+                                    $tmparray['description'] = $question->description;
 
-                                    if ($result > 0 && is_array($result)) {
-                                        $itemControlDet         = array_shift($result);
-                                        $tmparray['ref_answer'] = $itemControlDet->ref;
-                                        $tmparray['comment']    = dol_htmlentitiesbr_decode(strip_tags($itemControlDet->comment, '<br>'));
+                                    if (is_array($controldets) && !empty($controldets)) {
+                                        $questionAnswerLine     = array_shift($controldets);
+                                        $tmparray['ref_answer'] = $questionAnswerLine->ref;
+                                        $tmparray['comment']    = dol_htmlentitiesbr_decode(strip_tags($questionAnswerLine->comment, '<br>'));
 
-                                        switch ($itemControlDet->answer) {
-                                            case 1:
-                                                $tmparray['answer'] = $langs->trans('OK');
+                                        $answerResult = $questionAnswerLine->answer;
+
+                                        $question->fetch($questionAnswerLine->fk_question);
+                                        $answerList = $answer->fetchAll('ASC', 'position', '', '', ['fk_question' => $questionAnswerLine->fk_question]);
+
+                                        $answersArray = [];
+                                        if (is_array($answerList) && !empty($answerList)) {
+                                            foreach ($answerList as $answerSingle) {
+                                                $answersArray[$answerSingle->position] = $answerSingle->value;
+                                            }
+                                        }
+
+                                        switch ($question->type) {
+                                            case $langs->transnoentities('OkKo') :
+                                            case $langs->transnoentities('OkKoToFixNonApplicable') :
+                                            case $langs->transnoentities('UniqueChoice') :
+                                                $tmparray['answer'] = $answersArray[$answerResult];
                                                 break;
-                                            case 2:
-                                                $tmparray['answer'] = $langs->trans('KO');
+                                            case $langs->transnoentities('Text') :
+                                            case $langs->transnoentities('Range') :
+                                                $tmparray['answer'] = $answerResult;
                                                 break;
-                                            case 3:
-                                                $tmparray['answer'] = $langs->trans('Repair');
+                                            case $langs->transnoentities('Percentage') :
+                                                $tmparray['answer'] = $answerResult . ' %';
                                                 break;
-                                            case 4:
-                                                $tmparray['answer'] = $langs->trans('NotApplicable');
-                                                break;
-                                            default:
-                                                $tmparray['answer'] = ' ';
+                                            case $langs->transnoentities('MultipleChoices') :
+                                                $answers = preg_split('/,/', $answerResult);
+                                                $tmparray['answer'] = '';
+                                                foreach ($answers as $answerId) {
+                                                    $tmparray['answer'] .= $answersArray[$answerId] . ', ';
+                                                }
+                                                $tmparray['answer'] = rtrim($tmparray['answer'], ', ');
                                                 break;
                                         }
 
-                                        $path     = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $item->ref;
+                                        $path     = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
                                         $fileList = dol_dir_list($path, 'files');
                                         // Fill an array with photo path and ref of the answer for next loop.
                                         if (is_array($fileList) && !empty($fileList)) {
                                             foreach ($fileList as $singleFile) {
                                                 $fileSmall          = saturne_get_thumb_name($singleFile['name']);
                                                 $image              = $path . '/thumbs/' . $fileSmall;
-                                                $photoArray[$image] = $itemControlDet->ref;
+                                                $photoArray[$image] = $questionAnswerLine->ref;
                                             }
                                         }
                                     }
@@ -649,9 +669,9 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                                     unset($tmparray['object_fields']);
                                     unset($tmparray['object_array_options']);
 
-                                    complete_substitutions_array($tmparray, $outputlangs, $object, $item, 'completesubstitutionarray_lines');
+                                    complete_substitutions_array($tmparray, $outputlangs, $object, $question, 'completesubstitutionarray_lines');
                                     // Call the ODTSubstitutionLine hook.
-                                    $parameters = ['odfHandler' => &$odfHandler, 'file' => $file, 'object' => $object, 'outputlangs' => $outputlangs, 'substitutionarray' => &$tmparray, 'line' => $item];
+                                    $parameters = ['odfHandler' => &$odfHandler, 'file' => $file, 'object' => $object, 'outputlangs' => $outputlangs, 'substitutionarray' => &$tmparray, 'line' => $question];
                                     $hookmanager->executeHooks('ODTSubstitutionLine', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks.
                                     foreach ($tmparray as $key => $val) {
                                         try {
