@@ -159,7 +159,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
      * @return int                              1 if OK, <=0 if KO.
      * @throws Exception
      */
-    public function write_file(ControlDocument $objectDocument, Translate $outputlangs, string $srctemplatepath, int $hidedetails = 0, int $hidedesc = 0, int $hideref = 0, array $moreparam)
+    public function write_file(ControlDocument $objectDocument, Translate $outputlangs, string $srctemplatepath, int $hidedetails = 0, int $hidedesc = 0, int $hideref = 0, array $moreparam = [])
     {
         global $action, $conf, $hookmanager, $langs, $mysoc;
 
@@ -208,7 +208,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 
             if (file_exists($dir)) {
                 $newFile     = basename($srctemplatepath);
-                $newFileTmp  = preg_replace('/\.od(t|s)/i', '', $newFile);
+                $newFileTmp  = preg_replace('/\.od[ts]/i', '', $newFile);
                 $newFileTmp  = preg_replace('/template_/i', '', $newFileTmp);
                 $societyName = preg_replace('/\./', '_', $conf->global->MAIN_INFO_SOCIETE_NOM);
 
@@ -305,57 +305,57 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                 if (!empty($object->linkedObjectsIds['product'])) {
                     $product = new Product($this->db);
                     $product->fetch(array_shift($object->linkedObjectsIds['product']));
-                    $tmparray['object_label_ref'] .= (!empty($product->ref) ? $langs->transnoentities('Product') . ' : ' . $product->ref . chr(0x0A) : '');
+                    $tmparray['object_label_ref'] .= (!empty($product->ref) ? '<b>' . $langs->transnoentities('Product') . ' : ' . '<b>' . $product->ref . chr(0x0A) : '');
                 }
                 if (!empty($object->linkedObjectsIds['productbatch'])) {
                     $productlot = new Productlot($this->db);
                     $productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
-                    $tmparray['object_label_ref'] .= (!empty($productlot->batch) ? $langs->transnoentities('Batch') . ' : ' . $productlot->batch . chr(0x0A) : '');
+                    $tmparray['object_label_ref'] .= (!empty($productlot->batch) ? '<b>' . $langs->transnoentities('Batch') . '</b>' . ' : ' . $productlot->batch . chr(0x0A) : '');
                 }
                 if (!empty($object->linkedObjectsIds['user'])) {
                     $usertmp2 = new User($this->db);
                     $usertmp2->fetch(array_shift($object->linkedObjectsIds['user']));
-                    $tmparray['object_label_ref'] .= (!empty($usertmp2->id) ? $langs->transnoentities('User') . ' : ' . strtoupper($usertmp2->lastname) . ' ' . $usertmp2->firstname . chr(0x0A) : '');
+                    $tmparray['object_label_ref'] .= (!empty($usertmp2->id) ? '<b>' . $langs->transnoentities('User') . ' : ' . '</b>' . strtoupper($usertmp2->lastname) . ' ' . $usertmp2->firstname . chr(0x0A) : '');
                 }
                 if (!empty($object->linkedObjectsIds['societe'])) {
                     $thirdparty = new Societe($this->db);
                     $thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
-                    $tmparray['object_label_ref'] .= (!empty($thirdparty->name) ? $langs->transnoentities('ThirdParty') . ' : ' . $thirdparty->name . chr(0x0A) : '');
+                    $tmparray['object_label_ref'] .= (!empty($thirdparty->name) ? '<b>' . $langs->transnoentities('ThirdParty') . ' : ' . '</b>' . $thirdparty->name . chr(0x0A) : '');
                 }
                 if (!empty($object->linkedObjectsIds['contact'])) {
                     $contact = new Contact($this->db);
                     $contact->fetch(array_shift($object->linkedObjectsIds['contact']));
-                    $tmparray['object_label_ref'] .= (!empty($contact->id) ? $langs->transnoentities('Contact') . ' : ' . strtoupper($contact->lastname) . ' ' . $contact->firstname . chr(0x0A) : '');
+                    $tmparray['object_label_ref'] .= (!empty($contact->id) ? '<b>' . $langs->transnoentities('Contact') . ' : ' . '</b>' . strtoupper($contact->lastname) . ' ' . $contact->firstname . chr(0x0A) : '');
                 }
                 if (!empty($object->linkedObjectsIds['project'])) {
                     $project = new Project($this->db);
                     $project->fetch(array_shift($object->linkedObjectsIds['project']));
-                    $tmparray['object_label_ref'] .= (!empty($project->ref) ? $langs->transnoentities('Project') . ' : ' . $project->ref . ' - ' . $project->title . chr(0x0A) : '');
+                    $tmparray['object_label_ref'] .= (!empty($project->ref) ? '<b>' . $langs->transnoentities('Project') . ' : ' . '</b>' . $project->ref . ' - ' . $project->title . chr(0x0A) : '');
                 }
                 if (!empty($object->linkedObjectsIds['project_task'])) {
                     $task = new Task($this->db);
                     $task->fetch(array_shift($object->linkedObjectsIds['project_task']));
-                    $tmparray['object_label_ref'] .= (!empty($task->id) ? $langs->transnoentities('Task') . ' : ' . $task->ref . ' - ' . $task->label . chr(0x0A) : '');
+                    $tmparray['object_label_ref'] .= (!empty($task->id) ? '<b>' . $langs->transnoentities('Task') . ' : ' . '</b>' . $task->ref . ' - ' . $task->label . chr(0x0A) : '');
                 }
                 if (!empty($object->linkedObjectsIds['facture'])) {
                     $invoice = new Facture($this->db);
                     $invoice->fetch(array_shift($object->linkedObjectsIds['facture']));
-                    $tmparray['object_label_ref'] .= (!empty($invoice->id) ? $langs->transnoentities('Bill') . ' : ' . $invoice->ref . chr(0x0A) : '');
+                    $tmparray['object_label_ref'] .= (!empty($invoice->id) ? '<b>' . $langs->transnoentities('Bill') . ' : ' . '</b>' . $invoice->ref . chr(0x0A) : '');
                 }
                 if (!empty($object->linkedObjectsIds['commande'])) {
                     $order = new Commande($this->db);
                     $order->fetch(array_shift($object->linkedObjectsIds['commande']));
-                    $tmparray['object_label_ref'] .= (!empty($order->id) ? $langs->transnoentities('Order') . ' : ' . $order->ref . chr(0x0A) : '');
+                    $tmparray['object_label_ref'] .= (!empty($order->id) ? '<b>' . $langs->transnoentities('Order') . ' : ' . '</b>' . $order->ref . chr(0x0A) : '');
                 }
                 if (!empty($object->linkedObjectsIds['contrat'])) {
                     $contract = new Contrat($this->db);
                     $contract->fetch(array_shift($object->linkedObjectsIds['contrat']));
-                    $tmparray['object_label_ref'] .= (!empty($contract->id) ? $langs->transnoentities('Contract') . ' : ' . $contract->ref . chr(0x0A) : '');
+                    $tmparray['object_label_ref'] .= (!empty($contract->id) ? '<b>' . $langs->transnoentities('Contract') . ' : ' . '</b>' . $contract->ref . chr(0x0A) : '');
                 }
                 if (!empty($object->linkedObjectsIds['ticket'])) {
                     $ticket = new Ticket($this->db);
                     $ticket->fetch(array_shift($object->linkedObjectsIds['ticket']));
-                    $tmparray['object_label_ref'] .= (!empty($ticket->id) ? $langs->transnoentities('Ticket') . ' : ' . $ticket->ref . chr(0x0A) : '');
+                    $tmparray['object_label_ref'] .= (!empty($ticket->id) ? '<b>' . $langs->transnoentities('Ticket') . ' : ' . '</b>' . $ticket->ref . chr(0x0A) : '');
                 }
 
                 $tmparray['control_ref']      = $object->ref;
