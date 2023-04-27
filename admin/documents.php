@@ -194,7 +194,7 @@ if ($action == 'setMediaDocument') {
  * View
  */
 
-$title    = $langs->trans('YourDocuments');
+$title    = $langs->trans('ModuleSetup', $moduleName);
 $help_url = 'FR:Module_DoliSMQ';
 
 saturne_header(0,'', $title, $help_url);
@@ -259,7 +259,7 @@ foreach ($types as $type => $documentType) {
 	if ($type == 'ControlDocument') {
 
 		//Control document data
-		print load_fiche_titre($langs->trans('ConfigDatas'), '', '');
+		print load_fiche_titre($langs->trans('Config'), '', '');
 
 		print '<table class="noborder centpercent">';
 		print '<tr class="liste_titre">';

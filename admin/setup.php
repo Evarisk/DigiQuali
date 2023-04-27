@@ -89,7 +89,7 @@ if ($action == 'setMediaInfos') {
  * View
  */
 
-$title    = $langs->trans('ModuleSetup', 'DoliSMQ');
+$title    = $langs->trans('ModuleSetup', $moduleName);
 $help_url = 'FR:Module_DoliSMQ';
 
 saturne_header(0,'', $title);
