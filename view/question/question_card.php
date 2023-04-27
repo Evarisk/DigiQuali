@@ -566,6 +566,7 @@ if (empty($reshook)) {
 				setEventMessages($langs->trans('ErrorUpdateAnswer'), [], 'errors');
 			}
 		}
+		$_POST['answerPicto'] = '';
 	}
 
 	if ($action == 'deleteAnswer') {
@@ -1023,7 +1024,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$pictosArray = get_answer_pictos_array();
 
 		// ANSWERS LINES
-		print '<div class="div-table-responsive-no-min">';
+		print '<div class="div-table-responsive-no-min wpeo-table">';
 		print load_fiche_titre($langs->trans("AnswersList"), '', '');
 		print '<table id="tablelines" class="centpercent noborder noshadow">';
 
@@ -1140,9 +1141,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print $pictosArray[$answerSingle->pictogram]['picto_source'];
 					print '</td>';
 
-					print '<td>';
-					print '<input '. ($action == 'editAnswer' && GETPOST('answerId') == $answerSingle->id ? '' : 'disabled') .' type="color" value="' . $answerSingle->color . '">';
-
+					print '<td class="table-cell">';
+					print '<span style="background:'. $answerSingle->color .'; color:'. $answerSingle->color .';" class="answer multiple-answers square disable active">';
+					print $pictosArray[$answerSingle->pictogram]['picto_source'];
+					print '</span>';
 					print '</td>';
 
 					print '<td class="center">';
@@ -1179,12 +1181,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Pictogram -- Pictogram
 			print '<td>';
-			print answer_pictos_dropdown();
+			print answer_pictos_dropdown(GETPOST('answerPicto') ?: -1);
 			print '</td>';
 			?>
 
 			<td>
-				<input type="color" name="answerColor" class="new-answer-color" value="">
+				<input type="color" name="answerColor" class="new-answer-color" value="<?php echo GETPOST('answerColor'); ?>">
 			</td>
 			<script>
 				var randomColor = Math.floor(Math.random()*16777215).toString(16);
@@ -1194,7 +1196,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 
 			print '<td class="center">';
-			print '<input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
+			print '<input type="submit" class="button" value="' . $langs->trans("Add") . '">';
 			print '</td>';
 			print '<td>';
 			print '</td>';
