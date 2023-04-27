@@ -536,6 +536,7 @@ $title    = $langs->trans('Control');
 $help_url = 'FR:Module_DoliSMQ';
 
 saturne_header(1,'', $title, $help_url);
+$object->fetch(GETPOST('id'));
 
 // Part to create
 if ($action == 'create') {
