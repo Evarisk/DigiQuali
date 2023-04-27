@@ -957,7 +957,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print $langs->trans("QuestionType");
 	print '</td>';
 	print '<td>';
-	print $object->type;
+	print $langs->transnoentities($object->type);
 	print '</td></tr>';
 
 	// EnterComment -- Saisir les commentaires
