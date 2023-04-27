@@ -514,17 +514,17 @@ class pdf_calypso_controldocument extends ModeleODTControlDocument
 						}
 
 						switch ($question->type) {
-							case $langs->transnoentities('OkKo') :
-							case $langs->transnoentities('OkKoToFixNonApplicable') :
-							case $langs->transnoentities('UniqueChoice') :
+							case 'OkKo' :
+							case 'OkKoToFixNonApplicable' :
+							case 'UniqueChoice' :
 								$tmpTableArray['answerLabel'] = $answersArray[$answerResult];
 								break;
-							case $langs->transnoentities('Text') :
-							case $langs->transnoentities('Percentage') :
-							case $langs->transnoentities('Range') :
+							case 'Text' :
+							case 'Percentage' :
+							case 'Range' :
 								$tmpTableArray['answerLabel'] = $answerResult;
 								break;
-							case $langs->transnoentities('MultipleChoices') :
+							case 'MultipleChoices' :
 								$answers = preg_split('/,/', $answerResult);
 								foreach ($answers as $answerId) {
 									$tmpTableArray['answerLabel'] .= $answersArray[$answerId] . ', ';

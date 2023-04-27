@@ -291,7 +291,7 @@ if (empty($reshook)) {
 				$categories = GETPOST('categories', 'array');
 				$object->setCategories($categories);
 
-				if ($object->type == $langs->transnoentities('OkKo') || $object->type == $langs->transnoentities('OkKoToFixNonApplicable')) {
+				if ($object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
 					$answer->fk_question = $result;
 					$answer->value       = $langs->transnoentities('OK');
 					$answer->pictogram   = 1;
@@ -307,7 +307,7 @@ if (empty($reshook)) {
 					$answer->create($user);
 				}
 
-				if ($object->type == $langs->transnoentities('OkKoToFixNonApplicable')) {
+				if ($object->type == 'OkKoToFixNonApplicable') {
 					$answer->fk_question = $result;
 					$answer->value       = $langs->transnoentities('ToFix');
 					$answer->pictogram   = 3;
@@ -957,7 +957,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print $langs->trans("QuestionType");
 	print '</td>';
 	print '<td>';
-	print $object->type;
+	print $langs->transnoentities($object->type);
 	print '</td></tr>';
 
 	// EnterComment -- Saisir les commentaires
@@ -1018,7 +1018,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	if ($object->type == $langs->transnoentities('MultipleChoices') || $object->type == $langs->transnoentities('UniqueChoice') || $object->type == $langs->transnoentities('OkKo') || $object->type == $langs->transnoentities('OkKoToFixNonApplicable')) {
+	if ($object->type == 'MultipleChoices' || $object->type == 'UniqueChoice' || $object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
 
 		$pictosArray = get_answer_pictos_array();
 

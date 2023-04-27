@@ -632,19 +632,19 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                                         }
 
                                         switch ($question->type) {
-                                            case $langs->transnoentities('OkKo') :
-                                            case $langs->transnoentities('OkKoToFixNonApplicable') :
-                                            case $langs->transnoentities('UniqueChoice') :
+                                            case 'OkKo' :
+                                            case 'OkKoToFixNonApplicable' :
+                                            case 'UniqueChoice' :
                                                 $tmparray['answer'] = $answersArray[$answerResult];
                                                 break;
-                                            case $langs->transnoentities('Text') :
-                                            case $langs->transnoentities('Range') :
+                                            case 'Text' :
+                                            case 'Range' :
                                                 $tmparray['answer'] = $answerResult;
                                                 break;
-                                            case $langs->transnoentities('Percentage') :
+                                            case 'Percentage' :
                                                 $tmparray['answer'] = $answerResult . ' %';
                                                 break;
-                                            case $langs->transnoentities('MultipleChoices') :
+                                            case 'MultipleChoices' :
                                                 $answers = preg_split('/,/', $answerResult);
                                                 $tmparray['answer'] = '';
                                                 foreach ($answers as $answerId) {
