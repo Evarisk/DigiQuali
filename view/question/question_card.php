@@ -787,7 +787,7 @@ if (($id || $ref) && $action == 'edit') {
 
 	// Type -- Type
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'label', 'label', $object->type);
+	print saturne_select_dictionary('type','c_question_type', 'label', 'label', $langs->transnoentities($object->type));
 	print '</td></tr>';
 
 	//Description -- Description
