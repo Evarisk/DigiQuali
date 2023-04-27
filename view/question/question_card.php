@@ -1023,7 +1023,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$pictosArray = get_answer_pictos_array();
 
 		// ANSWERS LINES
-		print '<div class="div-table-responsive-no-min">';
+		print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
 		print load_fiche_titre($langs->trans("AnswersList"), '', '');
 		print '<table id="tablelines" class="centpercent noborder noshadow">';
 
@@ -1078,7 +1078,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<thead><tr class="liste_titre">';
 		print '<td>' . $langs->trans('Ref') . '</td>';
 		print '<td>' . $langs->trans('Value') . '</td>';
-		print '<td>' . $langs->trans('Picto') . '</td>';
+		print '<td class="center">' . $langs->trans('Picto') . '</td>';
 		print '<td>' . $langs->trans('Color') . '</td>';
 		print '<td class="center">' . $langs->trans('Action') . '</td>';
 		print '<td class="center"></td>';
@@ -1105,7 +1105,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print '</td>';
 
 					// Pictogram -- Pictogram
-					print '<td>';
+					print '<td class="center">';
 					print answer_pictos_dropdown($answerSingle->pictogram);
 					print '</td>';
 
@@ -1136,7 +1136,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print $answerSingle->value;
 					print '</td>';
 
-					print '<td>';
+					print '<td class="center">';
 					print $pictosArray[$answerSingle->pictogram]['picto_source'];
 					print '</td>';
 
@@ -1147,13 +1147,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 					print '<td class="center">';
 					if ($object->status < Question::STATUS_LOCKED) {
+						print '<div class="wpeo-button button-grey">';
 						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=editAnswer&answerId=' . $answerSingle->id . '">';
 						print img_edit();
 						print '</a>';
+						print '</div>';
 
+						print '<div class="wpeo-button button-grey" style="margin-left: 10px">';
 						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=deleteAnswer&answerId=' . $answerSingle->id . '&token='. newToken() .'">';
 						print img_delete();
 						print '</a>';
+						print '</div>';
 						print '</td>';
 						print '<td class="move-line ui-sortable-handle">';
 					} else {
@@ -1178,7 +1182,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '<td><input name="answerValue" value=""></td>';
 
 			// Pictogram -- Pictogram
-			print '<td>';
+			print '<td class="center">';
 			print answer_pictos_dropdown();
 			print '</td>';
 			?>
