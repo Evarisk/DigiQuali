@@ -537,7 +537,6 @@ class modDoliSMQ extends DolibarrModules
 		delDocumentModel('calypso_controldocument', 'controldocument');
 
 		addDocumentModel('controldocument_odt', 'controldocument', 'ODT templates', 'DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH');
-		addDocumentModel('calypso_controldocument', 'controldocument', 'calypso');
 
 		if ($result < 0) {
 			return -1;
