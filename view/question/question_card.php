@@ -1026,7 +1026,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<div class="div-table-responsive-no-min">';
 		print load_fiche_titre($langs->trans("AnswersList"), '', '');
 		print '<table id="tablelines" class="centpercent noborder noshadow">';
-
 		global $forceall, $forcetoshowtitlelines;
 
 		if (empty($forceall)) $forceall = 0;
@@ -1039,38 +1038,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				$(".move-line").css("background-image",'url(<?php echo DOL_URL_ROOT.'/theme/'.$conf->theme.'/img/grip.png'; ?>)');
 				$(".move-line").css("background-repeat","no-repeat");
 				$(".move-line").css("background-position","center center");
-				$('#tablelines tbody').sortable({
-					handle: '.move-line',
-					connectWith:'#tablelines tbody .line-row',
-					tolerance:'intersect',
-					over:function(event,ui){
-					},
-					stop: function(event, ui) {
-						let token = $('.fiche').find('input[name="token"]').val();
-
-						let separator = '&'
-						if (document.URL.match(/action=/)) {
-							document.URL = document.URL.split(/\?/)[0]
-							separator = '?'
-						}
-						let lineOrder = [];
-						$('.line-row').each(function(  ) {
-							lineOrder.push($(this).attr('id'));
-						});
-						$.ajax({
-							url: document.URL + separator + "action=moveLine&token=" + token,
-							type: "POST",
-							data: JSON.stringify({
-								order: lineOrder
-							}),
-							processData: false,
-							contentType: false,
-							success: function ( resp ) {
-							}
-						});
-					}
-				});
-
 			});
 		</script>
 		<?php
