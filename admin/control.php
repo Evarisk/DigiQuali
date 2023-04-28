@@ -107,7 +107,7 @@ print '<hr>';
  *  Numbering module
  */
 
-print load_fiche_titre($langs->trans('NumberingModule'), '', '');
+print load_fiche_titre($langs->transnoentities('NumberingModule', $langs->transnoentities('OfControl')), '', '');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
@@ -191,7 +191,7 @@ if (is_dir($dir)) {
 
 print '</table>';
 
-print load_fiche_titre($langs->trans('NumberingModule'), '', '');
+print load_fiche_titre($langs->transnoentities('NumberingModuleDet', $langs->transnoentities('OfAnswer')), '', '');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
