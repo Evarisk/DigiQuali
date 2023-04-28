@@ -476,31 +476,49 @@ if (empty($reshook)) {
 		}
 	}
 
-  // Action to set status STATUS_ARCHIVED.
-  if ($action == 'confirm_archive' && $permissiontoadd) {
-    $object->fetch($id);
-    if (!$error) {
-      $result = $object->setArchived($user);
-      if ($result > 0) {
-        // Set Archived OK.
-        $urltogo = str_replace('__ID__', $result, $backtopage);
-        $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
-        header('Location: ' . $urltogo);
-        exit;
-      } elseif (!empty($object->errors)) { // Set Archived KO.
-        setEventMessages('', $object->errors, 'errors');
-      } else {
-        setEventMessages($object->error, [], 'errors');
-      }
+    if ($subaction == 'addFiles') {
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        $fileNames = $data['filenames'];
+        $objectID  = $data['objectId'];
+
+        $object->fetch($objectID);
+
+        if (preg_match('/vVv/', $fileNames)) {
+            $fileNames = preg_split('/vVv/', $fileNames);
+            $firstFileName = array_shift($fileNames);
+            if (empty($object->photo)) {
+                $object->photo = $firstFileName;
+                $object->update($user, true);
+            }
+        }
     }
-  }
+
+  // Action to set status STATUS_ARCHIVED.
+	if ($action == 'confirm_archive' && $permissiontoadd) {
+		$object->fetch($id);
+		if (!$error) {
+			$result = $object->setArchived($user);
+			if ($result > 0) {
+				// Set Archived OK.
+				$urltogo = str_replace('__ID__', $result, $backtopage);
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
+				header('Location: ' . $urltogo);
+				exit;
+			} elseif (!empty($object->errors)) { // Set Archived KO.
+				setEventMessages('', $object->errors, 'errors');
+			} else {
+				setEventMessages($object->error, [], 'errors');
+			}
+		}
+	}
 
 	if ($action == 'add_favorite_photo') {
 		$data          = json_decode(file_get_contents('php://input'), true);
-		$filename      = $data['filename'];
-		$object->photo = $filename;
+		$fileName      = $data['filename'];
+		$object->photo = $fileName;
 
-		$object->update($user);
+		$object->update($user, true);
 	}
 
 	// Actions to send emails
@@ -518,6 +536,7 @@ $title    = $langs->trans('Control');
 $help_url = 'FR:Module_DoliSMQ';
 
 saturne_header(1,'', $title, $help_url);
+$object->fetch(GETPOST('id'));
 
 // Part to create
 if ($action == 'create') {
@@ -575,17 +594,31 @@ if ($action == 'create') {
 		print '</td></tr>';
 	}
 
-	//FK PRODUCTLOT
-	if ($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT && preg_match('/"productlot":1/',$sheet->element_linked)) {
-		$productLotPost = GETPOST('fk_productlot') ?: (GETPOST('fromtype') == 'productbatch' ? GETPOST('fromid') : 0);
-		print '<tr><td class="titlefieldcreate">' . $langs->trans('BatchLinked') . '</td><td class="lot-container">';
-		print '<span class="lot-content">';
-		dol_strlen(GETPOST('fk_product')) > 0 ? $product->fetch(GETPOST('fk_product')) : 0;
-		print img_picto('', 'lot', 'class="pictofixedwidth"') . dolismq_select_product_lots((!empty(GETPOST('fk_product')) ? GETPOST('fk_product') : 0), $productLotPost, 'fk_productlot', 1, '', '', 0, 'maxwidth500 widthcentpercentminusxx', false, 0, array(), false, '', 'fk_productlot');
-		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/product/stock/productlot_card.php?action=create' . ((GETPOST('fk_product') > 0) ? '&fk_product=' . GETPOST('fk_product') : '') . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProductLot') . '"></span></a>';
-		print '</span>';
-		print '</td></tr>';
-	}
+     // FK Productlot.
+    if ($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT && preg_match('/"productlot":1/', $sheet->element_linked)) {
+        $productLotPost = GETPOST('fk_productlot') ?: (GETPOST('fromtype') == 'productbatch' ? GETPOST('fromid') : -1);
+        print '<tr><td class="titlefieldcreate">' . $langs->trans('BatchLinked') . '</td><td class="lot-container">';
+        print '<span class="lot-content">';
+        print img_picto('', 'lot', 'class="pictofixedwidth"');
+        if (preg_match('/"product":1/', $sheet->element_linked)) {
+            $filter = ['customsql' => 'fk_product = ' . (dol_strlen(GETPOST('fk_product')) > 0 ? GETPOST('fk_product') : 0)];
+        } else {
+            $filter = [];
+        }
+        $productlots = saturne_fetch_all_object_type('Productlot', '', '', 0, 0, $filter);
+        if (is_array($productlots) && !empty($productlots)) {
+            $showEmpty = '1';
+            foreach ($productlots as $productlot) {
+                $arrayProductLots[$productlot->id] = $productlot->batch;
+            }
+        } else {
+            $showEmpty = $langs->transnoentities('NoLotForThisProduct');
+        }
+        print Form::selectarray('fk_productlot', $arrayProductLots, $productLotPost, $showEmpty, 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+        print '</span>';
+        print '</td></tr>';
+    }
+    print '</div>';
 
 	//FK User
 	if ($conf->global->DOLISMQ_SHEET_LINK_USER && preg_match('/"user":1/',$sheet->element_linked)) {
@@ -781,7 +814,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 		}
 
-		$questionConfirmInfo =  img_help('', '') . ' ' . $langs->trans('YouAnswered') . ' ' . $answerCounter . ' ' . $langs->trans('question(s)')  . ' ' . $langs->trans('On') . ' ' . $questionCounter . '.';
+		$questionConfirmInfo = $langs->trans('YouAnswered') . ' ' . $answerCounter . ' ' . $langs->trans('question(s)')  . ' ' . $langs->trans('On') . ' ' . $questionCounter . '.';
 		if ($questionCounter - $answerCounter != 0) {
 			$questionConfirmInfo .= '<br><b>' . $langs->trans('BewareQuestionsAnswered', $questionCounter - $answerCounter) . '</b>';
 		}
@@ -1015,26 +1048,30 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print '</td></tr>';
     }
 
-	print '<tr class="linked-medias photos question-table"><td class=""><label for="photos">' . $langs->trans("Photo") . '</label></td><td class="linked-medias-list">';
-	if ($object->status != Control::STATUS_LOCKED) { ?>
+	print '<tr class="linked-medias photo question-table"><td class=""><label for="photos">' . $langs->trans("Photo") . '</label></td><td class="linked-medias-list">';
+    $pathPhotos = $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/';
+    $fileArray  = dol_dir_list($pathPhotos, 'files');
+	?>
+	<span class="add-medias" <?php echo ($object->status != Control::STATUS_LOCKED && count($fileArray) < 5) ? '' : 'style="display:none"' ?>>
 		<input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
 		<label for="fast-upload-photo-default">
 			<div class="wpeo-button button-square-50">
 				<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
 			</div>
 		</label>
-		<input type="hidden" class="favorite-photo" id="photos" name="photos" value="<?php echo $object->photo ?>"/>
+		<input type="hidden" class="favorite-photo" id="photo" name="photo" value="<?php echo $object->photo ?>"/>
 		<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
 			<input type="hidden" class="modal-to-open" value="media_gallery"/>
 			<input type="hidden" class="from-type" value="control"/>
-			<input type="hidden" class="from-subtype" value="photos"/>
+			<input type="hidden" class="from-subtype" value="photo"/>
 			<input type="hidden" class="from-subdir" value="photos"/>
 			<input type="hidden" class="from-id" value="<?php echo $object->id?>"/>
 			<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 		</div>
-	<?php }
+	</span>
+	<?php
 	$relativepath = 'dolismq/medias/thumbs';
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/', 'small', 5, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
+	print saturne_show_medias_linked('dolismq', $pathPhotos, 'small', 5, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
 	print '</td></tr>';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.

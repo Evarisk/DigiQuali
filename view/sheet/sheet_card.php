@@ -622,38 +622,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$(".move-line").css("background-image",'url(<?php echo DOL_URL_ROOT.'/theme/'.$conf->theme.'/img/grip.png'; ?>)');
 			$(".move-line").css("background-repeat","no-repeat");
 			$(".move-line").css("background-position","center center");
-			$('#tablelines tbody').sortable({
-				handle: '.move-line',
-				connectWith:'#tablelines tbody .line-row',
-				tolerance:'intersect',
-				over:function(event,ui){
-				},
-				stop: function(event, ui) {
-					let token = $('.fiche').find('input[name="token"]').val();
-
-					let separator = '&'
-					if (document.URL.match(/action=/)) {
-						document.URL = document.URL.split(/\?/)[0]
-						separator = '?'
-					}
-					let lineOrder = [];
-					$('.line-row').each(function(  ) {
-						lineOrder.push($(this).attr('id'));
-					});
-					$.ajax({
-						url: document.URL + separator + "action=moveLine&token=" + token,
-						type: "POST",
-						data: JSON.stringify({
-							order: lineOrder
-						}),
-						processData: false,
-						contentType: false,
-						success: function ( resp ) {
-						}
-					});
-				}
-			});
-
 		});
 	</script>
 	<?php
@@ -662,6 +630,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>' . $langs->trans('Ref') . '</td>';
 	print '<td>' . $langs->trans('Label') . '</td>';
 	print '<td>' . $langs->trans('Description') . '</td>';
+	print '<td>' . $langs->trans('QuestionType') . '</td>';
 	print '<td>' . $langs->trans('PhotoOk') . '</td>';
 	print '<td>' . $langs->trans('PhotoKo') . '</td>';
 	print '<td>' . $langs->trans('Status') . '</td>';
@@ -686,6 +655,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			print '<td>';
 			print $item->description;
+			print '</td>';
+
+			print '<td>';
+			print $langs->transnoentities($item->type);
 			print '</td>';
 
 			print '<td>';
@@ -745,6 +718,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td>';
 		print '<td>';
 		print ' &nbsp; <input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
+		print '</td>';
+		print '<td>';
 		print '</td>';
 		print '<td>';
 		print '</td>';
