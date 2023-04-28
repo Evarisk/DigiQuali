@@ -1024,7 +1024,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$pictosArray = get_answer_pictos_array();
 
 		// ANSWERS LINES
-		print '<div class="div-table-responsive-no-min wpeo-table">';
+		print '<div class="div-table-responsive-no-min">';
 		print load_fiche_titre($langs->trans("AnswersList"), '', '');
 		print '<table id="tablelines" class="centpercent noborder noshadow">';
 
@@ -1080,7 +1080,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<td>' . $langs->trans('Ref') . '</td>';
 		print '<td>' . $langs->trans('Value') . '</td>';
 		print '<td>' . $langs->trans('Picto') . '</td>';
-		print '<td>' . $langs->trans('Color') . '</td>';
+		print '<td class="center">' . $langs->trans('Color') . '</td>';
 		print '<td class="center">' . $langs->trans('Action') . '</td>';
 		print '<td class="center"></td>';
 		print '</tr></thead>';
@@ -1110,7 +1110,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print answer_pictos_dropdown($answerSingle->pictogram);
 					print '</td>';
 
-					print '<td>';
+					print '<td class="center">';
 					print '<input type="color" name="answerColor" value="' . $answerSingle->color . '">';
 					print '</td>';
 
@@ -1141,9 +1141,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print $pictosArray[$answerSingle->pictogram]['picto_source'];
 					print '</td>';
 
-					print '<td class="table-cell">';
-					print '<span style="background:'. $answerSingle->color .'; color:'. $answerSingle->color .';" class="answer multiple-answers square disable active">';
-					print $pictosArray[$answerSingle->pictogram]['picto_source'];
+					print '<td class="center">';
+					print '<span class="color-circle" style="background:'. $answerSingle->color .'; color:'. $answerSingle->color .';">';
 					print '</span>';
 					print '</td>';
 
@@ -1185,7 +1184,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 			?>
 
-			<td>
+			<td class="center">
 				<input type="color" name="answerColor" class="new-answer-color" value="<?php echo GETPOST('answerColor'); ?>">
 			</td>
 			<script>
