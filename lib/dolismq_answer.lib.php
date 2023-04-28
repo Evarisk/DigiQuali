@@ -48,7 +48,9 @@ function answer_pictos_dropdown($selected = -1): string
 	if ( ! empty($pictosArray) ) {
 		foreach ($pictosArray as $picto) {
 			$out .= '<li class="item dropdown-item wpeo-tooltip-event" data-is-preset="" data-id="'. $picto['position'] .'" aria-label="'. $picto['name'].'">';
+			$out .= '<div class="wpeo-button button-grey">';
 			$out .= $picto['picto_source'];
+			$out .= '</div>';
 			$out .= '</li>';
 		}
 	}
@@ -71,8 +73,8 @@ function get_answer_pictos_array(): array
 	$pictosArray = [
 		[
 			'name' => $langs->transnoentities('None'),
-			'picto_source' => '',
-			'position' => 0
+			'picto_source' => $langs->transnoentities('None'),
+			'position' => 0,
 		],
 		[
 			'name' => $langs->transnoentities('Ok'),
