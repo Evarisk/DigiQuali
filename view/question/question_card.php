@@ -566,6 +566,7 @@ if (empty($reshook)) {
 				setEventMessages($langs->trans('ErrorUpdateAnswer'), [], 'errors');
 			}
 		}
+		$_POST['answerPicto'] = '';
 	}
 
 	if ($action == 'deleteAnswer') {
@@ -1045,8 +1046,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<thead><tr class="liste_titre">';
 		print '<td>' . $langs->trans('Ref') . '</td>';
 		print '<td>' . $langs->trans('Value') . '</td>';
-		print '<td class="center">' . $langs->trans('Picto') . '</td>';
-		print '<td>' . $langs->trans('Color') . '</td>';
+    print '<td class="center">' . $langs->trans('Picto') . '</td>';
+		print '<td class="center">' . $langs->trans('Color') . '</td>';
 		print '<td class="center">' . $langs->trans('Action') . '</td>';
 		print '<td class="center"></td>';
 		print '</tr></thead>';
@@ -1076,7 +1077,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print answer_pictos_dropdown($answerSingle->pictogram);
 					print '</td>';
 
-					print '<td>';
+					print '<td class="center">';
 					print '<input type="color" name="answerColor" value="' . $answerSingle->color . '">';
 					print '</td>';
 
@@ -1107,9 +1108,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print $pictosArray[$answerSingle->pictogram]['picto_source'];
 					print '</td>';
 
-					print '<td>';
-					print '<input '. ($action == 'editAnswer' && GETPOST('answerId') == $answerSingle->id ? '' : 'disabled') .' type="color" value="' . $answerSingle->color . '">';
-
+					print '<td class="center">';
+					print '<span class="color-circle" style="background:'. $answerSingle->color .'; color:'. $answerSingle->color .';">';
+					print '</span>';
 					print '</td>';
 
 					print '<td class="center">';
@@ -1150,12 +1151,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Pictogram -- Pictogram
 			print '<td class="center">';
-			print answer_pictos_dropdown();
+			print answer_pictos_dropdown(GETPOST('answerPicto') ?: -1);
 			print '</td>';
 			?>
 
-			<td>
-				<input type="color" name="answerColor" class="new-answer-color" value="">
+			<td class="center">
+				<input type="color" name="answerColor" class="new-answer-color" value="<?php echo GETPOST('answerColor'); ?>">
 			</td>
 			<script>
 				var randomColor = Math.floor(Math.random()*16777215).toString(16);
@@ -1165,7 +1166,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 
 			print '<td class="center">';
-			print '<input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
+			print '<input type="submit" class="button" value="' . $langs->trans("Add") . '">';
 			print '</td>';
 			print '<td>';
 			print '</td>';

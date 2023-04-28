@@ -1301,7 +1301,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					<?php
 					$pictosArray = get_answer_pictos_array();
 					?>
-					<?php if ($item->type == $langs->transnoentities('MultipleChoices')) :
+					<?php if ($item->type == 'MultipleChoices') :
 						$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $item->id]);
 						?>
 						<div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
@@ -1327,7 +1327,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							}
 							?>
 						</div>
-					<?php elseif ($item->type == $langs->transnoentities('UniqueChoice') || $item->type == $langs->transnoentities('OkKo') || $item->type == $langs->transnoentities('OkKoToFixNonApplicable')) :
+					<?php elseif ($item->type == 'UniqueChoice' || $item->type == 'OkKo' || $item->type == 'OkKoToFixNonApplicable') :
 						$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $item->id]);
 						?>
 						<div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
@@ -1347,7 +1347,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							}
 							?>
 						</div>
-					<?php elseif ($item->type == $langs->transnoentities('Text')) : ?>
+					<?php elseif ($item->type == 'Text') : ?>
 						<div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<div class="table-row">
 								<?php
@@ -1360,7 +1360,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								?>
 							</div>
 						</div>
-					<?php elseif ($item->type == $langs->transnoentities('Percentage')) : ?>
+					<?php elseif ($item->type == 'Percentage') : ?>
 						<div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<div class="table-row">
 								<?php
@@ -1373,7 +1373,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								?>
 							</div>
 						</div>
-					<?php elseif ($item->type == $langs->transnoentities('Range')) : ?>
+					<?php elseif ($item->type == 'Range') : ?>
 						<div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<div class="table-row">
 								<?php
