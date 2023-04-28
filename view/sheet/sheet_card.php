@@ -652,7 +652,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
 			print '<td>';
-			print $langs->trans($item->type);
+			print $langs->transnoentities($item->type);
 			print '</td>';
 
 			print '<td>';
