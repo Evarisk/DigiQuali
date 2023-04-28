@@ -806,8 +806,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if (($action == 'clone' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
         // Define confirmation messages.
         $formquestionclone = [
-            ['type' => 'radio', 'name' => 'clone_attendants', 'label' => $langs->trans('CloneAttendants'), 'values' => [0 => $langs->trans('Yes'), 1 => $langs->trans('No')], 'default' => 0],
-            ['type' => 'radio', 'name' => 'clone_photos', 'label' => $langs->trans('ClonePhotos'), 'values' => [0 => $langs->trans('Yes'), 1 => $langs->trans('No')], 'default' => 0]
+            ['type' => 'checkbox', 'name' => 'clone_attendants', 'label' => $langs->trans('CloneAttendants'), 'value' => 1],
+            ['type' => 'checkbox', 'name' => 'clone_photos', 'label' => $langs->trans('ClonePhotos'), 'value' => 1]
         ];
 
 		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('CloneObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmCloneObject', $langs->transnoentities('The' . ucfirst($object->element)), $object->ref), 'confirm_clone', $formquestionclone, 'yes', 'actionButtonClone', 350, 600);

@@ -506,10 +506,7 @@ class Control extends CommonObject
         if (property_exists($object, 'verdict')) {
             $object->verdict = 0;
         }
-        if (property_exists($object, 'note_public')) {
-            $object->note_public = '';
-        }
-        if ($options['photos'] == 1) {
+        if (empty($options['photos'])) {
             $object->photo = '';
         }
 
@@ -594,7 +591,7 @@ class Control extends CommonObject
 
             // Add Attendants.
             $signatory = new SaturneSignature($this->db);
-            if ($options['attendants'] == 0) {
+            if (!empty($options['attendants'])) {
                 // Load signatory from source object.
                 $signatories = $signatory->fetchSignatory('', $fromID, $this->element);
                 if (is_array($signatories) && !empty($signatories)) {
@@ -609,7 +606,7 @@ class Control extends CommonObject
             }
 
             // Add Photos.
-            if ($options['photos'] == 0) {
+            if (!empty($options['photos'])) {
                 $dir  = $conf->dolismq->multidir_output[$conf->entity] . '/control';
                 $path = $dir . '/' . $objectRef . '/photos';
                 dol_mkdir($dir . '/' . $objectFromClone->ref . '/photos');
