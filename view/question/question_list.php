@@ -521,7 +521,7 @@ while ($i < ($limit ? min($num, $limit) : $num)) {
 			print '<td'.($cssforfield ? ' class="'.$cssforfield.'"' : '').'>';
 			if ($key == 'status') print $object->getLibStatut(5);
 			elseif ($key == 'ref') print $object->getNomUrl(1);
-			else print $object->showOutputField($val, $key, $object->$key, '');
+			else print $object->showOutputField($val, $key, $object->$key ? $langs->trans($object->$key) : $object->$key, '');
 			print '</td>';
 			if (!$i) $totalarray['nbfield']++;
 			if (!empty($val['isameasure']))
