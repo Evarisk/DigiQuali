@@ -214,7 +214,8 @@ class dolismqwidget1 extends ModeleBoxes
 									$boxContents[$category['label']][$sheet->id][$control->id][1] = array(
 										0 => array(
 											'td' => '',
-											'text' => $control->getNomUrl(0) . ' - ' . $sheet->getNomUrl(0)
+											'text' => $control->getNomUrl(1) . ' - ' . $sheet->getNomUrl(1),
+											'asis' => 1
 										),
 										1 => array(
 											'td' => 'class="right"',

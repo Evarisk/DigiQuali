@@ -54,14 +54,14 @@ saturne_check_access($permissiontoread);
  * View
  */
 
-$title    = $langs->trans('ModuleAbout', 'DoliSMQ');
+$title    = $langs->trans('ModuleSetup', $moduleName);
 $help_url = 'FR:Module_DoliSMQ';
 
 saturne_header(0,'', $title, $help_url);
 
 // Subheader
 $linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?restore_lastsearch_values=1') . '">' . $langs->trans('BackToModuleList') . '</a>';
-print load_fiche_titre($title, $linkback, 'dolismq_color@dolismq');
+print load_fiche_titre($title, $linkback, 'title_setup');
 
 // Configuration header
 $head = dolismq_admin_prepare_head();

@@ -87,21 +87,18 @@ if ($action == 'setmodControlDet') {
  * View
  */
 
-$title   = $langs->trans('Control');
+$title   = $langs->trans('ModuleSetup', $moduleName);
 $helpUrl = 'FR:Module_DoliSMQ';
 
 saturne_header(0,'', $title, $helpUrl);
 
 // Subheader
 $linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?restore_lastsearch_values=1') . '">' . $langs->trans('BackToModuleList') . '</a>';
-print load_fiche_titre($title, $linkback, 'dolismq_color@dolismq');
+print load_fiche_titre($title, $linkback, 'title_setup');
 
 // Configuration header
 $head = dolismq_admin_prepare_head();
 print dol_get_fiche_head($head, 'control', $title, -1, 'dolismq_color@dolismq');
-
-print load_fiche_titre($langs->trans('Configs', $langs->transnoentities('ControlsMin')), '', '');
-print '<hr>';
 
 /*
  *  Numbering module
