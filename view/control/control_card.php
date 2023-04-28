@@ -575,17 +575,31 @@ if ($action == 'create') {
 		print '</td></tr>';
 	}
 
-	//FK PRODUCTLOT
-	if ($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT && preg_match('/"productlot":1/',$sheet->element_linked)) {
-		$productLotPost = GETPOST('fk_productlot') ?: (GETPOST('fromtype') == 'productbatch' ? GETPOST('fromid') : 0);
-		print '<tr><td class="titlefieldcreate">' . $langs->trans('BatchLinked') . '</td><td class="lot-container">';
-		print '<span class="lot-content">';
-		dol_strlen(GETPOST('fk_product')) > 0 ? $product->fetch(GETPOST('fk_product')) : 0;
-		print img_picto('', 'lot', 'class="pictofixedwidth"') . dolismq_select_product_lots((!empty(GETPOST('fk_product')) ? GETPOST('fk_product') : 0), $productLotPost, 'fk_productlot', 1, '', '', 0, 'maxwidth500 widthcentpercentminusxx', false, 0, array(), false, '', 'fk_productlot');
-		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/product/stock/productlot_card.php?action=create' . ((GETPOST('fk_product') > 0) ? '&fk_product=' . GETPOST('fk_product') : '') . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProductLot') . '"></span></a>';
-		print '</span>';
-		print '</td></tr>';
-	}
+     // FK Productlot.
+    if ($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT && preg_match('/"productlot":1/', $sheet->element_linked)) {
+        $productLotPost = GETPOST('fk_productlot') ?: (GETPOST('fromtype') == 'productbatch' ? GETPOST('fromid') : -1);
+        print '<tr><td class="titlefieldcreate">' . $langs->trans('BatchLinked') . '</td><td class="lot-container">';
+        print '<span class="lot-content">';
+        print img_picto('', 'lot', 'class="pictofixedwidth"');
+        if (preg_match('/"product":1/', $sheet->element_linked)) {
+            $filter = ['customsql' => 'fk_product = ' . (dol_strlen(GETPOST('fk_product')) > 0 ? GETPOST('fk_product') : 0)];
+        } else {
+            $filter = [];
+        }
+        $productlots = saturne_fetch_all_object_type('Productlot', '', '', 0, 0, $filter);
+        if (is_array($productlots) && !empty($productlots)) {
+            $showEmpty = '1';
+            foreach ($productlots as $productlot) {
+                $arrayProductLots[$productlot->id] = $productlot->batch;
+            }
+        } else {
+            $showEmpty = $langs->transnoentities('NoLotForThisProduct');
+        }
+        print Form::selectarray('fk_productlot', $arrayProductLots, $productLotPost, $showEmpty, 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+        print '</span>';
+        print '</td></tr>';
+    }
+    print '</div>';
 
 	//FK User
 	if ($conf->global->DOLISMQ_SHEET_LINK_USER && preg_match('/"user":1/',$sheet->element_linked)) {
