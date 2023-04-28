@@ -138,8 +138,7 @@ if ($action == 'generateCategories') {
 /*
  * View
  */
-
-$title    = $langs->trans(ucfirst($object->element));
+$title    = $langs->trans('ModuleSetup', $moduleName);
 $help_url = 'FR:Module_DoliSMQ';
 
 saturne_header(0,'', $title, $help_url);
@@ -151,9 +150,6 @@ print load_fiche_titre($title, $linkback, 'title_setup');
 // Configuration header.
 $head = dolismq_admin_prepare_head();
 print dol_get_fiche_head($head, $object->element, $title, -1, 'dolismq_color@dolismq');
-
-print load_fiche_titre($title, '', 'object_' . $object->picto);
-print '<hr>';
 
 require_once __DIR__ . '/../../saturne/core/tpl/admin/object/object_numbering_module_view.tpl.php';
 

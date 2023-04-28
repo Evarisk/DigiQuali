@@ -54,7 +54,7 @@ saturne_check_access($permissiontoread);
  * View
  */
 
-$title    = $langs->trans('ModuleAbout', 'DoliSMQ');
+$title    = $langs->trans('ModuleSetup', $moduleName);
 $help_url = 'FR:Module_DoliSMQ';
 
 saturne_header(0,'', $title, $help_url);
