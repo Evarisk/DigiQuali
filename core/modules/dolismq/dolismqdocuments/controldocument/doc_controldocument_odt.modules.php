@@ -125,8 +125,8 @@ class doc_controldocument_odt extends SaturneDocumentModel
                     if (!empty($signatoriesArray) && is_array($signatoriesArray)) {
                         $tempDir = $conf->$moduleNameLowerCase->multidir_output[$object->entity ?? 1] . '/temp/';
                         foreach ($signatoriesArray as $objectSignatory) {
-                            $tmparray['controller_firstname']      = $objectSignatory->firstname;
-							$tmparray['controller_lastname']       = strtoupper($objectSignatory->lastname);
+                            $tmpArray['controller_firstname']      = $objectSignatory->firstname;
+                            $tmpArray['controller_lastname']       = strtoupper($objectSignatory->lastname);
                             $tmpArray['controller_signature_date'] = dol_print_date($objectSignatory->signature_date, 'dayhour', 'tzuser');
                             if (dol_strlen($objectSignatory->signature) > 0 && $objectSignatory->signature != $langs->transnoentities('FileGenerated')) {
                                 if ($moreParam['specimen'] == 0 || ($moreParam['specimen'] == 1 && $conf->global->DOLISMQ_SHOW_SIGNATURE_SPECIMEN == 1)) {
@@ -145,8 +145,8 @@ class doc_controldocument_odt extends SaturneDocumentModel
                             dol_delete_file($tempDir . 'signature' . $objectSignatory->id . '.png');
                         }
                     } else {
-                        $tmparray['controller_firstname']      = '';
-						$tmparray['controller_lastname']       = '';
+                        $tmpArray['controller_firstname']      = '';
+                        $tmpArray['controller_lastname']       = '';
                         $tmpArray['controller_signature_date'] = '';
                         $tmpArray['controller_signature']      = '';
                         $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
@@ -318,7 +318,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
             $tmpArray['photoDefault'] = DOL_DOCUMENT_ROOT . $noPhoto;
         }
 
-        $outputLangs->loadLangs(['products']);
+        $outputLangs->loadLangs(['products', 'bills', 'orders', 'contracts', 'projects']);
 
         $sheet      = new Sheet($this->db);
         $usertmp    = new User($this->db);
