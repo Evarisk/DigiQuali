@@ -25,6 +25,7 @@
 // Load Dolibarr libraries.
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 
 require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
@@ -204,7 +205,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 
             $dir = $conf->dolismq->multidir_output[$object->entity ?? 1] . '/' . $object->element . 'document/' . $object->ref;
             if ($moreparam['specimen'] == 1 && $moreparam['zone'] == 'public') {
-                $dir .= '/specimen';
+                $dir .= '/public_specimen';
             }
 
             if (!file_exists($dir)) {
