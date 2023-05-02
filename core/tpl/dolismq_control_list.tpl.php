@@ -13,7 +13,6 @@ require_once DOL_DOCUMENT_ROOT . '/ticket/class/ticket.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 
 require_once __DIR__.'/../../class/sheet.class.php';
-require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 
 $producttmp    = new Product($db);
 $productlottmp = new Productlot($db);

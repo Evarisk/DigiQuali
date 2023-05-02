@@ -66,7 +66,6 @@ require_once __DIR__ . '/../../lib/dolismq_control.lib.php';
 require_once __DIR__ . '/../../lib/dolismq_answer.lib.php';
 require_once __DIR__ . '/../../core/modules/dolismq/control/mod_control_standard.php';
 require_once __DIR__ . '/../../core/modules/dolismq/controldet/mod_controldet_standard.php';
-require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user;
