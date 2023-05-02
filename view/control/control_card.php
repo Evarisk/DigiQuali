@@ -835,6 +835,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		$object->fetchLines();
+		$answerCounter = 0;
 		if (is_array($object->lines) && !empty($object->lines)) {
 			foreach($object->lines as $objectLine) {
 				if (dol_strlen($objectLine->answer) > 0) {
@@ -1233,8 +1234,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 	$object->fetchLines();
+	$answerCounter = 0;
 	if (is_array($object->lines) && !empty($object->lines)) {
-		$answerCounter = 0;
 		foreach($object->lines as $objectLine) {
 			if (dol_strlen($objectLine->answer) > 0) {
 				$answerCounter++;
