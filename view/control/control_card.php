@@ -1052,7 +1052,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     $pathPhotos = $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/';
     $fileArray  = dol_dir_list($pathPhotos, 'files');
 	?>
-	<span class="add-medias" <?php echo ($object->status != Control::STATUS_LOCKED && count($fileArray) < 5) ? '' : 'style="display:none"' ?>>
+	<span class="add-medias" <?php echo ($object->status != Control::STATUS_LOCKED) ? '' : 'style="display:none"' ?>>
 		<input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
 		<label for="fast-upload-photo-default">
 			<div class="wpeo-button button-square-50">
