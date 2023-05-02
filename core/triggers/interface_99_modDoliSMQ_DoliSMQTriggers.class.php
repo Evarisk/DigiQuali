@@ -154,7 +154,48 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
 				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
-				$actioncomm->create($user);
+				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)));
+                $actioncommID = $actioncomm->create($user);
+
+                $object->fetchObjectLinked('', '', '', 'dolismq_control');
+                foreach ($object->linkedObjectsIds as $key => $linkedObjects) {
+                    // Special case
+                    if ($key == 'productbatch') {
+                        $linkedObject = new Productlot($this->db);
+                        $linkedObject->fetch(array_shift($object->linkedObjectsIds['productbatch']));
+                    } elseif (!empty($object->linkedObjects[$key])) {
+                        $linkedObject = array_values($object->linkedObjects[$key])[0];
+                    }
+                    $qcFrequencyArray[$key] = $linkedObject->array_options['options_qc_frequency'];
+                }
+                
+                // Create reminders.
+                if ($actioncommID > 0 && getDolGlobalInt('DOLISMQ_CONTROL_REMINDER_ENABLED') && (getDolGlobalString('AGENDA_REMINDER_BROWSER') || getDolGlobalString('AGENDA_REMINDER_EMAIL'))) {
+                    require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
+
+                    $actionCommReminder = new ActionCommReminder($this->db);
+
+                    $actionCommReminder->status        = $actionCommReminder::STATUS_TODO;
+                    $actionCommReminder->fk_actioncomm = $actioncommID;
+                    $actionCommReminder->fk_user       = $user->id;
+
+                    $reminderArray = explode(',' , getDolGlobalString('DOLISMQ_CONTROL_REMINDER_FREQUENCY'));
+                    foreach ($qcFrequencyArray as $qcFrequency) {
+                        $dateReminder = dol_time_plus_duree(dol_now('tzuser'), $qcFrequency, 'd');
+                        foreach ($reminderArray as $reminder) {
+                            $dateReminder = dol_time_plus_duree($dateReminder, -$reminder, 'd');
+
+                            $actionCommReminder->dateremind  = $dateReminder;
+                            $actionCommReminder->offsetvalue = $reminder;
+                            $actionCommReminder->offsetunit  = 'd';
+                            $actionCommReminder->typeremind  = getDolGlobalString('DOLISMQ_CONTROL_REMINDER_TYPE');
+                            $actionCommReminder->create($user);
+                        }
+                    }
+                    exit;
+                    $actioncomm->percentage = 0;
+                    $actioncomm->update($user);
+                }
 				break;
 
 			case 'QUESTION_MODIFY' :
