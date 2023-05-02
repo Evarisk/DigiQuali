@@ -928,7 +928,7 @@ class Control extends CommonObject
         ];
 
         $arrayNbControlByVerdict = [];
-        $controls = $this->fetchAll();
+        $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 't.status >= 0']);
         if (is_array($controls) && !empty($controls)) {
             foreach ($controls as $control) {
                 if (empty($control->verdict)) {
@@ -988,7 +988,7 @@ class Control extends CommonObject
         if (is_array($categories) && !empty($categories)) {
             foreach ($categories as $category) {
                 $arrayNbControlByVerdict = [];
-                $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'cp.fk_categorie = ' . $category->id], 'AND', true);
+                $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'cp.fk_categorie = ' . $category->id . ' AND t.status >= 0'], 'AND', true);
                 if (is_array($controls) && !empty($controls)) {
                     foreach ($controls as $control) {
                         if (empty($control->verdict)) {
@@ -1047,7 +1047,7 @@ class Control extends CommonObject
         $arrayNbControls = [];
         for ($i = 1; $i < 13; $i++) {
             foreach ($years as $key => $year) {
-                $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'MONTH (t.date_creation) = ' . $i . ' AND YEAR (t.date_creation) = ' . $year]);
+                $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'MONTH (t.date_creation) = ' . $i . ' AND YEAR (t.date_creation) = ' . $year . ' AND t.status >= 0']);
                 if (is_array($controls) && !empty($controls)) {
                     $arrayNbControls[$key][$i] = count($controls);
                 }
