@@ -104,7 +104,7 @@ print dol_get_fiche_head($head, 'control', $title, -1, 'dolismq_color@dolismq');
  *  Numbering module
  */
 
-print load_fiche_titre($langs->trans('NumberingModule'), '', '');
+print load_fiche_titre($langs->transnoentities('NumberingModule', $langs->transnoentities('OfControl')), '', '');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
@@ -188,7 +188,66 @@ if (is_dir($dir)) {
 
 print '</table>';
 
-print load_fiche_titre($langs->trans('NumberingModule'), '', '');
+//Control data
+print load_fiche_titre($langs->trans('ConfigData', $langs->transnoentities('ControlsMin')), '', '');
+
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans('Name') . '</td>';
+print '<td>' . $langs->trans('Description') . '</td>';
+print '<td class="center">' . $langs->trans('Status') . '</td>';
+print '</tr>';
+
+//Display medias conf
+print '<tr><td>';
+print $langs->trans('DisplayMedias');
+print '</td><td>';
+print $langs->trans('DisplayMediasDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_DISPLAY_MEDIAS');
+print '</td>';
+print '</tr>';
+
+//Use large size media in gallery
+print '<tr><td>';
+print $langs->trans('UseLargeSizeMedia');
+print '</td><td>';
+print $langs->trans('UseLargeSizeMediaDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY');
+print '</td>';
+print '</tr>';
+print '</table>';
+
+//Extrafields control management
+print load_fiche_titre($langs->trans('ExtrafieldsControlManagement'), '', '');
+
+require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_view.tpl.php';
+
+// Buttons
+if ($action != 'create' && $action != 'edit') {
+	print '<div class="tabsAction">';
+	print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER['PHP_SELF'].'?action=create">'.$langs->trans('NewAttribute').'</a></div>';
+	print '</div>';
+}
+
+// Creation of an optional field
+if ($action == 'create') {
+	print load_fiche_titre($langs->trans('NewAttribute'));
+	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_add.tpl.php';
+}
+
+// Edition of an optional field
+if ($action == 'edit' && !empty($attrname)) {
+	print load_fiche_titre($langs->trans('FieldEdition', $attrname));
+	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_edit.tpl.php';
+}
+
+print load_fiche_titre($langs->transnoentities('NumberingModuleDet'), '', '');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
@@ -271,65 +330,6 @@ if (is_dir($dir)) {
 }
 
 print '</table>';
-
-//Control data
-print load_fiche_titre($langs->trans('ConfigData', $langs->transnoentities('ControlsMin')), '', '');
-
-print '<table class="noborder centpercent">';
-print '<tr class="liste_titre">';
-print '<td>' . $langs->trans('Name') . '</td>';
-print '<td>' . $langs->trans('Description') . '</td>';
-print '<td class="center">' . $langs->trans('Status') . '</td>';
-print '</tr>';
-
-//Display medias conf
-print '<tr><td>';
-print $langs->trans('DisplayMedias');
-print '</td><td>';
-print $langs->trans('DisplayMediasDescription');
-print '</td>';
-
-print '<td class="center">';
-print ajax_constantonoff('DOLISMQ_CONTROL_DISPLAY_MEDIAS');
-print '</td>';
-print '</tr>';
-
-//Use large size media in gallery
-print '<tr><td>';
-print $langs->trans('UseLargeSizeMedia');
-print '</td><td>';
-print $langs->trans('UseLargeSizeMediaDescription');
-print '</td>';
-
-print '<td class="center">';
-print ajax_constantonoff('DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY');
-print '</td>';
-print '</tr>';
-print '</table>';
-
-//Extrafields control management
-print load_fiche_titre($langs->trans('ExtrafieldsControlManagement'), '', '');
-
-require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_view.tpl.php';
-
-// Buttons
-if ($action != 'create' && $action != 'edit') {
-	print '<div class="tabsAction">';
-	print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER['PHP_SELF'].'?action=create">'.$langs->trans('NewAttribute').'</a></div>';
-	print '</div>';
-}
-
-// Creation of an optional field
-if ($action == 'create') {
-	print load_fiche_titre($langs->trans('NewAttribute'));
-	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_add.tpl.php';
-}
-
-// Edition of an optional field
-if ($action == 'edit' && !empty($attrname)) {
-	print load_fiche_titre($langs->trans('FieldEdition', $attrname));
-	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_edit.tpl.php';
-}
 
 // Page end
 print dol_get_fiche_end();
