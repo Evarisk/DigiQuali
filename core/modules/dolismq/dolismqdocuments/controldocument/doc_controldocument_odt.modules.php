@@ -307,7 +307,7 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                     $product = new Product($this->db);
                     $product->fetch(array_shift($object->linkedObjectsIds['product']));
 					$tmparray['object_type'] = $langs->transnoentities('Product') . ' : ';
-					$tmparray['object_label_ref'] .= (!empty($product->ref) ? dol_escape_htmltag('</b>') . $product->ref . chr(0x0A) : '');
+					$tmparray['object_label_ref'] .= (!empty($product->ref) ? $product->ref . chr(0x0A) : '');
                 }
                 if (!empty($object->linkedObjectsIds['productbatch'])) {
                     $productlot = new Productlot($this->db);
@@ -436,7 +436,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                             $signatoriesArray = $signatory->fetchSignatory('Controller', $object->id, $object->element);
                             if (!empty($signatoriesArray) && is_array($signatoriesArray)) {
                                 foreach ($signatoriesArray as $objectSignatory) {
-                                    $tmparray['controller_fullname'] = strtoupper($objectSignatory->lastname) . ' ' . $objectSignatory->firstname;
+                                    $tmparray['controller_firstname'] = strtoupper($objectSignatory->firstname);
+									$tmparray['controller_lastname']  = strtoupper($objectSignatory->lastname);
                                     switch ($objectSignatory->attendance) {
                                         case 1:
                                             $attendance = $langs->trans('Delay');
@@ -486,10 +487,11 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                                     dol_delete_file($tempDir . 'signature' . $objectSignatory->id . '.png');
                                 }
                             } else {
-                                $tmparray['controller_fullname'] = '';
+								$tmparray['controller_firstname']      = '';
+								$tmparray['controller_lastname']       = '';
                                 $tmparray['controller_signature_date'] = '';
-                                $tmparray['controller_attendance'] = '';
-                                $tmparray['controller_signature'] = '';
+                                $tmparray['controller_attendance']     = '';
+                                $tmparray['controller_signature']      = '';
                                 foreach ($tmparray as $key => $val) {
                                     try {
                                         if (empty($val)) {
@@ -664,6 +666,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                                                 }
                                                 $tmparray['answer'] = rtrim($tmparray['answer'], ', ');
                                                 break;
+											default:
+												$tmparray['answer'] = '';
                                         }
 
                                         $path     = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
