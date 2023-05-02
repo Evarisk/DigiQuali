@@ -190,15 +190,18 @@ class Control extends CommonObject
 	 * @param  string      $filtermode   Filter mode (AND or OR)
 	 * @return array|int                 int <0 if KO, array of pages if OK
 	 */
-	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
+	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND', $fetchCategories = false)
 	{
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
 		$records = array();
 
 		$sql                                                                              = 'SELECT ';
-		$sql                                                                             .= $this->getFieldList();
+		$sql                                                                             .= $this->getFieldList('t');
 		$sql                                                                             .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
+        if (isModEnabled('categorie') && $fetchCategories) {
+            $sql .= Categorie::getFilterJoinQuery('control', 't.rowid');
+        }
 		if (isset($this->ismultientitymanaged) && $this->ismultientitymanaged == 1) $sql .= ' WHERE t.entity IN (' . getEntity($this->table_element) . ')';
 		else $sql                                                                        .= ' WHERE 1 = 1';
 		// Manage filter
@@ -238,7 +241,6 @@ class Control extends CommonObject
 
 				$record = new self($this->db);
 				$record->setVarsFromFetchObj($obj);
-				$record->fetchObjectLinked('', 'product', '', 'dolismq_control');
 
 				$records[$record->id] = $record;
 
@@ -926,7 +928,7 @@ class Control extends CommonObject
         ];
 
         $arrayNbControlByVerdict = [];
-        $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'status >= 1']);
+        $controls = $this->fetchAll();
         if (is_array($controls) && !empty($controls)) {
             foreach ($controls as $control) {
                 if (empty($control->verdict)) {
@@ -986,7 +988,7 @@ class Control extends CommonObject
         if (is_array($categories) && !empty($categories)) {
             foreach ($categories as $category) {
                 $arrayNbControlByVerdict = [];
-                $controls = $category->getObjectsInCateg('control');
+                $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'cp.fk_categorie = ' . $category->id], 'AND', true);
                 if (is_array($controls) && !empty($controls)) {
                     foreach ($controls as $control) {
                         if (empty($control->verdict)) {
