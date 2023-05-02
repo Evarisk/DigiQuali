@@ -45,7 +45,6 @@ require_once '../../core/modules/dolismq/question/mod_question_standard.php';
 require_once '../../core/modules/dolismq/answer/mod_answer_standard.php';
 require_once '../../lib/dolismq_question.lib.php';
 require_once '../../lib/dolismq_answer.lib.php';
-require_once '../../lib/dolismq_function.lib.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user, $langs;

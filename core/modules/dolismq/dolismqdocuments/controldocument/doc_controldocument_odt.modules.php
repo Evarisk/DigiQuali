@@ -33,9 +33,9 @@ require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
 
 // Load Saturne libraries.
 require_once __DIR__ . '/../../../../../../saturne/class/saturnesignature.class.php';
+require_once __DIR__ . '/../../../../../../saturne/core/modules/saturne/modules_saturne.php';
 
 // Load DoliSMQ libraries.
-require_once __DIR__ . '/modules_controldocument.php';
 require_once __DIR__ . '/mod_controldocument_standard.php';
 
 require_once __DIR__ . '/../../../../../class/question.class.php';
