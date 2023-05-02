@@ -195,6 +195,11 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
 
+            // CONST DOLISMQ DOCUMENTS
+            $i++ => ['DOLISMQ_AUTOMATIC_PDF_GENERATION', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_MANUAL_PDF_GENERATION', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_SHOW_SIGNATURE_SPECIMEN', 'integer', 0, '', 0, 'current'],
+
 			//CONST CONTROL DOCUMENT
 			$i++ => ['DOLISMQ_CONTROLDOCUMENT_ADDON', 'chaine', 'mod_controldocument_standard', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH', 'chaine', 'DOL_DOCUMENT_ROOT/custom/dolismq/documents/doctemplates/controldocument/', '', 0, 'current'],

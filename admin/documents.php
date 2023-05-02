@@ -249,6 +249,17 @@ print ajax_constantonoff('DOLISMQ_MANUAL_PDF_GENERATION');
 print '</td>';
 print '</tr>';
 
+// Show signature specimen
+print '<tr class="oddeven"><td>';
+print  $langs->trans('ShowSignatureSpecimen');
+print '</td><td>';
+print $langs->trans('ShowSignatureSpecimenDescription');
+print '</td>';
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_SHOW_SIGNATURE_SPECIMEN');
+print '</td>';
+print '</tr>';
+
 print '</table>';
 
 foreach ($types as $type => $documentType) {
