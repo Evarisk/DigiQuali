@@ -461,127 +461,172 @@ class Control extends CommonObject
 		}
 	}
 
-	/**
-	 * Clone an object into another one
-	 *
-	 * @param User $user User that creates
-	 * @param int $fromid Id of object to clone
-	 * @param $options
-	 * @return    mixed                New object created, <0 if KO
-	 * @throws Exception
-	 */
-	public function createFromClone(User $user, $fromid)
-	{
-		global $conf, $langs;
-		$error = 0;
+    /**
+     * Clone an object into another one.
+     *
+     * @param  User      $user    User that creates
+     * @param  int       $fromID  ID of object to clone.
+     * @param  array     $options Options array.
+     * @return int                New object created, <0 if KO.
+     * @throws Exception
+     */
+    public function createFromClone(User $user, int $fromID, array $options): int
+    {
+        global $conf;
 
-		dol_syslog(__METHOD__, LOG_DEBUG);
+        dol_syslog(__METHOD__, LOG_DEBUG);
 
-		$object = new self($this->db);
-		$this->db->begin();
+        $error = 0;
 
-		// Load source object
-		$result = $object->fetchCommon($fromid);
-		if ($result > 0 && ! empty($object->table_element_line)) {
-			$object->fetchLines();
-		}
+        $object = new self($this->db);
+        $this->db->begin();
 
-		// Create clone
-		$object->fetchObjectLinked('','',$object->id, 'dolismq_' . $object->element);
+        // Load source object.
+        $result = $object->fetchCommon($fromID);
+        if ($result > 0 && ! empty($object->table_element_line)) {
+            $object->fetchLines();
+        }
 
-		$object->context['createfromclone'] = 'createfromclone';
+        $objectRef = $object->ref;
 
-		$object->ref         = '';
-		$object->photo       = '';
-		$object->status      = 0;
-		$object->verdict     = null;
-		$object->note_public = null;
+        // Reset some properties.
+        unset($object->fk_user_creat);
+        unset($object->import_key);
 
-		$objectid = $object->create($user);
+        // Clear fields.
+        if (property_exists($object, 'ref')) {
+            $object->ref = '';
+        }
+        if (property_exists($object, 'date_creation')) {
+            $object->date_creation = dol_now();
+        }
+        if (property_exists($object, 'status')) {
+            $object->status = 0;
+        }
+        if (property_exists($object, 'verdict')) {
+            $object->verdict = 0;
+        }
+        if (empty($options['photos'])) {
+            $object->photo = '';
+        }
 
-		//add categories
-		$cat = new Categorie($this->db);
-		$categories = $cat->containing($fromid, 'control');
+        $object->context = 'createfromclone';
 
-		if (is_array($categories) && !empty($categories)) {
-			foreach($categories as $cat) {
-				$categoryIds[] = $cat->id;
-			}
-			if ($objectid > 0) {
-				$object->fetch($objectid);
-				$object->setCategories($categoryIds);
-			}
-		}
+        $object->fetchObjectLinked('','', $object->id, 'dolismq_' . $object->element);
 
-		//add objects linked
-		if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
-			if (!empty($object->linkedObjects['project'])) {
-				foreach ($object->linkedObjects['project'] as $project) {
-					$object->add_object_linked($project->element, $project->id);
-				}
-			}
-			if (!empty($object->linkedObjects['project_task'])) {
-				foreach ($object->linkedObjects['project_task'] as $project_task) {
-					$object->add_object_linked($project_task->element, $project_task->id);
-				}
-			}
-			if (!empty($object->linkedObjects['product'])) {
-				foreach ($object->linkedObjects['product'] as $product) {
-					$object->add_object_linked($product->element, $product->id);
-				}
-			}
-			if (!empty($object->linkedObjectsIds['productbatch'])) {
-				$productlot = new Productlot($this->db);
-				$productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
-				$object->add_object_linked('productbatch', $productlot->id);
-			}
-			if (!empty($object->linkedObjects['user'])) {
-				foreach ($object->linkedObjects['user'] as $usertmp) {
-					$object->add_object_linked($usertmp->element, $usertmp->id);
-				}
-			}
-			if (!empty($object->linkedObjects['societe'])) {
-				foreach ($object->linkedObjects['societe'] as $societe) {
-					$object->add_object_linked($societe->element, $societe->id);
-				}
-			}
-			if (!empty($object->linkedObjects['contact'])) {
-				foreach ($object->linkedObjects['contact'] as $contact) {
-					$object->add_object_linked($contact->element, $contact->id);
-				}
-			}
-            if (!empty($object->linkedObjects['facture'])) {
-                foreach ($object->linkedObjects['facture'] as $invoice) {
-                    $object->add_object_linked($invoice->element, $invoice->id);
+        $controlID = $object->create($user);
+
+        if ($controlID > 0) {
+            $objectFromClone = new self($this->db);
+            $objectFromClone->fetch($controlID);
+
+            // Categories.
+            $cat = new Categorie($this->db);
+            $categories = $cat->containing($fromID, 'control');
+            if (is_array($categories) && !empty($categories)) {
+                foreach($categories as $cat) {
+                    $categoryIds[] = $cat->id;
+                }
+                $object->setCategories($categoryIds);
+            }
+
+            // Add objects linked.
+            if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
+                if (!empty($object->linkedObjects['project'])) {
+                    foreach ($object->linkedObjects['project'] as $project) {
+                        $objectFromClone->add_object_linked($project->element, $project->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['project_task'])) {
+                    foreach ($object->linkedObjects['project_task'] as $project_task) {
+                        $objectFromClone->add_object_linked($project_task->element, $project_task->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['product'])) {
+                    foreach ($object->linkedObjects['product'] as $product) {
+                        $objectFromClone->add_object_linked($product->element, $product->id);
+                    }
+                }
+                if (!empty($object->linkedObjectsIds['productbatch'])) {
+                    $productlot = new Productlot($this->db);
+                    $productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
+                    $objectFromClone->add_object_linked('productbatch', $productlot->id);
+                }
+                if (!empty($object->linkedObjects['user'])) {
+                    foreach ($object->linkedObjects['user'] as $usertmp) {
+                        $objectFromClone->add_object_linked($usertmp->element, $usertmp->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['societe'])) {
+                    foreach ($object->linkedObjects['societe'] as $societe) {
+                        $objectFromClone->add_object_linked($societe->element, $societe->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['contact'])) {
+                    foreach ($object->linkedObjects['contact'] as $contact) {
+                        $objectFromClone->add_object_linked($contact->element, $contact->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['facture'])) {
+                    foreach ($object->linkedObjects['facture'] as $invoice) {
+                        $objectFromClone->add_object_linked($invoice->element, $invoice->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['commande'])) {
+                    foreach ($object->linkedObjects['commande'] as $order) {
+                        $objectFromClone->add_object_linked($order->element, $order->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['contrat'])) {
+                    foreach ($object->linkedObjects['contrat'] as $contract) {
+                        $objectFromClone->add_object_linked($contract->element, $contract->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['ticket'])) {
+                    foreach ($object->linkedObjects['ticket'] as $ticket) {
+                        $objectFromClone->add_object_linked($ticket->element, $ticket->id);
+                    }
                 }
             }
-            if (!empty($object->linkedObjects['commande'])) {
-                foreach ($object->linkedObjects['commande'] as $order) {
-                    $object->add_object_linked($order->element, $order->id);
-                }
-            }if (!empty($object->linkedObjects['contrat'])) {
-                foreach ($object->linkedObjects['contrat'] as $contract) {
-                    $object->add_object_linked($contract->element, $contract->id);
-                }
-            }
-            if (!empty($object->linkedObjects['ticket'])) {
-                foreach ($object->linkedObjects['ticket'] as $ticket) {
-                    $object->add_object_linked($ticket->element, $ticket->id);
-                }
-            }
-		}
 
-		unset($object->context['createfromclone']);
+            // Add Attendants.
+            $signatory = new SaturneSignature($this->db);
+            if (!empty($options['attendants'])) {
+                // Load signatory from source object.
+                $signatories = $signatory->fetchSignatory('', $fromID, $this->element);
+                if (is_array($signatories) && !empty($signatories)) {
+                    foreach ($signatories as $arrayRole) {
+                        foreach ($arrayRole as $signatoryRole) {
+                            $signatory->createFromClone($user, $signatoryRole->id, $controlID);
+                        }
+                    }
+                }
+            } else {
+                $signatory->setSignatory($objectFromClone->id, $this->element, 'user', [$objectFromClone->fk_user_controller], 'Controller', 1);
+            }
 
-		// End
-		if ( ! $error) {
-			$this->db->commit();
-			return $objectid;
-		} else {
-			$this->db->rollback();
-			return -1;
-		}
-	}
+            // Add Photos.
+            if (!empty($options['photos'])) {
+                $dir  = $conf->dolismq->multidir_output[$conf->entity] . '/control';
+                $path = $dir . '/' . $objectRef . '/photos';
+                dol_mkdir($dir . '/' . $objectFromClone->ref . '/photos');
+                dolCopyDir($path,$dir . '/' . $objectFromClone->ref . '/photos', 0, 1);
+            }
+        } else {
+            $error++;
+            $this->error  = $object->error;
+            $this->errors = $object->errors;
+        }
+
+        // End.
+        if (!$error) {
+            $this->db->commit();
+            return $controlID;
+        } else {
+            $this->db->rollback();
+            return -1;
+        }
+    }
 
 
 	/**
