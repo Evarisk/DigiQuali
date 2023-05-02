@@ -36,7 +36,7 @@ require_once __DIR__ . '/mod_controldocument_standard.php';
 /**
  * Class to build documents using ODF templates generator.
  */
-class doc_controldocument_odt extends ModeleDocSaturne
+class doc_controldocument_odt extends SaturneDocumentModel
 {
     /**
      * @var array Minimum version of PHP required by module.
@@ -156,6 +156,7 @@ class doc_controldocument_odt extends ModeleDocSaturne
                 }
             }
 
+            $moreParam['excludeAttendantsRole'] = ['Controller'];
             $this->setAttendantsSegment($odfHandler, $outputLangs, $moreParam);
 
             // Get questions.
@@ -316,6 +317,7 @@ class doc_controldocument_odt extends ModeleDocSaturne
             $tmpArray['photoDefault'] = DOL_DOCUMENT_ROOT . $noPhoto;
         }
 
+        $outputLangs->loadLangs(['products']);
 
         $sheet      = new Sheet($this->db);
         $usertmp    = new User($this->db);
