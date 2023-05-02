@@ -1071,7 +1071,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	</span>
 	<?php
 	$relativepath = 'dolismq/medias/thumbs';
-	print saturne_show_medias_linked('dolismq', $pathPhotos, 'small', 5, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
+	print saturne_show_medias_linked('dolismq', $pathPhotos, 'small', 0, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
 	print '</td></tr>';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
