@@ -445,21 +445,9 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                             $signatoriesArray = $signatory->fetchSignatory('Controller', $object->id, $object->element);
                             if (!empty($signatoriesArray) && is_array($signatoriesArray)) {
                                 foreach ($signatoriesArray as $objectSignatory) {
-                                    $tmparray['controller_firstname'] = strtoupper($objectSignatory->firstname);
+                                    $tmparray['controller_firstname'] = $objectSignatory->firstname;
 									$tmparray['controller_lastname']  = strtoupper($objectSignatory->lastname);
-                                    switch ($objectSignatory->attendance) {
-                                        case 1:
-                                            $attendance = $langs->trans('Delay');
-                                            break;
-                                        case 2:
-                                            $attendance = $langs->trans('Absent');
-                                            break;
-                                        default:
-                                            $attendance = $langs->transnoentities('Present');
-                                            break;
-                                    }
                                     $tmparray['controller_signature_date'] = dol_print_date($objectSignatory->signature_date, 'dayhour', 'tzuser');
-                                    $tmparray['controller_attendance'] = $attendance;
                                     if (dol_strlen($objectSignatory->signature) > 0 && $objectSignatory->signature != $langs->transnoentities('FileGenerated')) {
                                         if ($moreparam['specimen'] == 0 || ($moreparam['specimen'] == 1 && $conf->global->DOLISMQ_SHOW_SIGNATURE_SPECIMEN == 1)) {
                                             $encodedImage = explode(',', $objectSignatory->signature)[1];
@@ -499,7 +487,6 @@ class doc_controldocument_odt extends ModeleODTControlDocument
 								$tmparray['controller_firstname']      = '';
 								$tmparray['controller_lastname']       = '';
                                 $tmparray['controller_signature_date'] = '';
-                                $tmparray['controller_attendance']     = '';
                                 $tmparray['controller_signature']      = '';
                                 foreach ($tmparray as $key => $val) {
                                     try {
@@ -537,20 +524,8 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                                     if ($objectSignatory->role != 'Controller') {
                                         $tmparray['attendant_lastname']  = strtoupper($objectSignatory->lastname);
                                         $tmparray['attendant_firstname'] = $objectSignatory->firstname;
-                                        switch ($objectSignatory->attendance) {
-                                            case 1:
-                                                $attendance = $langs->trans('Delay');
-                                                break;
-                                            case 2:
-                                                $attendance = $langs->trans('Absent');
-                                                break;
-                                            default:
-                                                $attendance = $langs->transnoentities('Present');
-                                                break;
-                                        }
                                         $tmparray['attendant_role']           = $langs->transnoentities($objectSignatory->role);
                                         $tmparray['attendant_signature_date'] = dol_print_date($objectSignatory->signature_date, 'dayhour', 'tzuser');
-                                        $tmparray['attendant_attendance']     = $attendance;
                                         if (dol_strlen($objectSignatory->signature) > 0 && $objectSignatory->signature != $langs->transnoentities('FileGenerated')) {
                                             if ($moreparam['specimen'] == 0 || ($moreparam['specimen'] == 1 && $conf->global->DOLISMQ_SHOW_SIGNATURE_SPECIMEN == 1)) {
                                                 $encodedImage = explode(',', $objectSignatory->signature)[1];
@@ -592,7 +567,6 @@ class doc_controldocument_odt extends ModeleODTControlDocument
                                 $tmparray['attendant_firstname']      = '';
                                 $tmparray['attendant_role']           = '';
                                 $tmparray['attendant_signature_date'] = '';
-                                $tmparray['attendant_attendance']     = '';
                                 $tmparray['attendant_signature']      = '';
                                 foreach ($tmparray as $key => $val) {
                                     try {
