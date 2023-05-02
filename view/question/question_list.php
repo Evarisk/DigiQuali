@@ -508,25 +508,42 @@ while ($i < ($limit ? min($num, $limit) : $num)) {
 	print '<tr class="oddeven">';
 	foreach ($object->fields as $key => $val) {
 		$cssforfield = (empty($val['css']) ? '' : $val['css']);
-		if (in_array($val['type'], array('date', 'datetime', 'timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'center';
-		elseif ($key == 'status') $cssforfield .= ($cssforfield ? ' ' : '').'center';
+		if (in_array($val['type'], ['date', 'datetime', 'timestamp'])) {
+			$cssforfield .= ($cssforfield ? ' ' : '').'center';
+		} else if ($key == 'status') {
+			$cssforfield .= ($cssforfield ? ' ' : '').'center';
+		}
 
-		if (in_array($val['type'], array('timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'nowrap';
-		elseif ($key == 'ref') $cssforfield .= ($cssforfield ? ' ' : '').'nowrap';
+		if (in_array($val['type'], ['timestamp'])) {
+			$cssforfield .= ($cssforfield ? ' ' : '') . 'nowrap';
+		} else if ($key == 'ref') {
+			$cssforfield .= ($cssforfield ? ' ' : '') . 'nowrap';
+		}
 
-		if (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && !in_array($key, array('rowid', 'status'))) $cssforfield .= ($cssforfield ? ' ' : '').'right';
+		if (in_array($val['type'], ['double(24,8)', 'double(6,3)', 'integer', 'real', 'price']) && !in_array($key, ['rowid', 'status'])) {
+			$cssforfield .= ($cssforfield ? ' ' : '').'right';
+		}
 		//if (in_array($key, array('fk_soc', 'fk_user', 'fk_warehouse'))) $cssforfield = 'tdoverflowmax100';
 
 		if (!empty($arrayfields['t.'.$key]['checked'])) {
 			print '<td'.($cssforfield ? ' class="'.$cssforfield.'"' : '').'>';
-			if ($key == 'status') print $object->getLibStatut(5);
-			elseif ($key == 'ref') print $object->getNomUrl(1);
-			else print $object->showOutputField($val, $key, $object->$key ? $langs->trans($object->$key) : $object->$key, '');
+			if ($key == 'status') {
+				print $object->getLibStatut(5);
+			} else if ($key == 'ref') {
+				print $object->getNomUrl(1);
+			} else if ($key == 'type') {
+				print $object->showOutputField($val, $key, $langs->trans($object->$key), '');
+			} else {
+				print $object->showOutputField($val, $key, $object->$key, '');
+			}
 			print '</td>';
-			if (!$i) $totalarray['nbfield']++;
-			if (!empty($val['isameasure']))
-			{
-				if (!$i) $totalarray['pos'][$totalarray['nbfield']] = 't.'.$key;
+			if (!$i) {
+				$totalarray['nbfield']++;
+			}
+			if (!empty($val['isameasure'])) {
+				if (!$i) {
+					$totalarray['pos'][$totalarray['nbfield']] = 't.' . $key;
+				}
 				$totalarray['val']['t.'.$key] += $object->$key;
 			}
 		}
