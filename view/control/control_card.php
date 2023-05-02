@@ -55,6 +55,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 // Load Saturne libraries.
 require_once __DIR__ . '/../../../saturne/lib/object.lib.php';
 require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
+require_once __DIR__ . '/../../../saturne/class/saturnedocuments.class.php';
 
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
@@ -88,7 +89,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Technical objets
 $object           = new Control($db);
 $controldet       = new ControlLine($db);
-$controldocument  = new ControlDocument($db);
+$controldocument  = new SaturneDocuments($db, 'dolismq', 'control');
 $signatory        = new SaturneSignature($db, 'dolismq');
 $sheet            = new Sheet($db);
 $question         = new Question($db);
