@@ -125,20 +125,9 @@ class doc_controldocument_odt extends SaturneDocumentModel
                     if (!empty($signatoriesArray) && is_array($signatoriesArray)) {
                         $tempDir = $conf->$moduleNameLowerCase->multidir_output[$object->entity ?? 1] . '/temp/';
                         foreach ($signatoriesArray as $objectSignatory) {
-                            $tmpArray['controller_fullname'] = strtoupper($objectSignatory->lastname) . ' ' . $objectSignatory->firstname;
-                            switch ($objectSignatory->attendance) {
-                                case 1:
-                                    $attendance = $outputLangs->trans('Delay');
-                                    break;
-                                case 2:
-                                    $attendance = $outputLangs->trans('Absent');
-                                    break;
-                                default:
-                                    $attendance = $outputLangs->transnoentities('Present');
-                                    break;
-                            }
+                            $tmparray['controller_firstname']      = $objectSignatory->firstname;
+							$tmparray['controller_lastname']       = strtoupper($objectSignatory->lastname);
                             $tmpArray['controller_signature_date'] = dol_print_date($objectSignatory->signature_date, 'dayhour', 'tzuser');
-                            $tmpArray['controller_attendance'] = $attendance;
                             if (dol_strlen($objectSignatory->signature) > 0 && $objectSignatory->signature != $langs->transnoentities('FileGenerated')) {
                                 if ($moreParam['specimen'] == 0 || ($moreParam['specimen'] == 1 && $conf->global->DOLISMQ_SHOW_SIGNATURE_SPECIMEN == 1)) {
                                     $encodedImage = explode(',', $objectSignatory->signature)[1];
@@ -150,14 +139,15 @@ class doc_controldocument_odt extends SaturneDocumentModel
                                 }
                             } else {
                                 $tmpArray['controller_signature'] = '';
+
                             }
                             $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
                             dol_delete_file($tempDir . 'signature' . $objectSignatory->id . '.png');
                         }
                     } else {
-                        $tmpArray['controller_fullname']       = '';
+                        $tmparray['controller_firstname']      = '';
+						$tmparray['controller_lastname']       = '';
                         $tmpArray['controller_signature_date'] = '';
-                        $tmpArray['controller_attendance']     = '';
                         $tmpArray['controller_signature']      = '';
                         $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
                     }
@@ -235,6 +225,8 @@ class doc_controldocument_odt extends SaturneDocumentModel
                                         }
                                         $tmpArray['answer'] = rtrim($tmpArray['answer'], ', ');
                                         break;
+                                    default:
+										$tmparray['answer'] = '';
                                 }
 
                                 $path     = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
