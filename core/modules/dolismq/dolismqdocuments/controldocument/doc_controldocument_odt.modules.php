@@ -145,7 +145,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
                             dol_delete_file($tempDir . 'signature' . $objectSignatory->id . '.png');
                         }
                     } else {
-                        $tmparray['controller_firstname']      = '';
+                        $tmpArray['controller_firstname']      = '';
                         $tmpArray['controller_lastname']       = '';
                         $tmpArray['controller_signature_date'] = '';
                         $tmpArray['controller_signature']      = '';
