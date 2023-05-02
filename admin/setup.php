@@ -85,6 +85,16 @@ if ($action == 'setMediaInfos') {
 	}
 }
 
+if ($action == 'update') {
+    $reminderFrequency = GETPOST('ControlReminderFrequency');
+    $reminderType      = GETPOST('ControlReminderType');
+    
+    dolibarr_set_const($db, 'DOLISMQ_CONTROL_REMINDER_FREQUENCY', $reminderFrequency, 'chaine', 0, '', $conf->entity);
+    dolibarr_set_const($db, 'DOLISMQ_CONTROL_REMINDER_TYPE', $reminderType, 'chaine', 0, '', $conf->entity);
+
+    setEventMessage('SavedConfig');
+}
+
 /*
  * View
  */
@@ -191,8 +201,55 @@ print '<td><input type="number" name="DisplayNumberMediaGallery" value="' . $con
 print '</td></tr>';
 
 print '</table>';
-
 print $form->buttonsSaveCancel('Save', '');
+print '</form>';
+
+print load_fiche_titre($langs->trans('TEST'), '', '');
+
+print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '">';
+print '<input type="hidden" name="token" value="' . newToken() . '">';
+print '<input type="hidden" name="action" value="update">';
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans('Name') . '</td>';
+print '<td>' . $langs->trans('Description') . '</td>';
+print '<td class="center">' . $langs->trans('Value') . '</td>';
+print '</tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('ControlReminderEnabled');
+print '</td><td>';
+print $langs->trans('ControlReminderEnabledDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_REMINDER_ENABLED');
+print '</td></tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('ControlReminderFrequency');
+print '</td><td>';
+print $langs->trans('ControlReminderFrequencyDescription');
+print '</td>';
+
+print '<td class="center">';
+print '<input type="text" name="ControlReminderFrequency" value="' . $conf->global->DOLISMQ_CONTROL_REMINDER_FREQUENCY . '">';
+print '</td></tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('ControlReminderType');
+print '</td><td>';
+print $langs->trans('ControlReminderTypeDescription');
+print '</td>';
+
+print '<td class="center">';
+$controlReminderType = ['browser' => 'Browser', 'email' => 'Email', 'sms' => 'SMS'];
+print Form::selectarray('ControlReminderType', $controlReminderType, (!empty($conf->global->DOLISMQ_CONTROL_REMINDER_TYPE) ? $conf->global->DOLISMQ_CONTROL_REMINDER_TYPE : $controlReminderType[0]), 0, 0, 0, '', 1);
+print '</td></tr>';
+
+print '</table>';
+print '<div class="tabsAction"><input type="submit" class="butAction" name="save" value="' . $langs->trans('Save') . '"></div>';
+print '</form>';
 
 // Page end
 print dol_get_fiche_end();
