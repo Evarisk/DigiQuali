@@ -15,19 +15,12 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 require_once __DIR__.'/../../class/sheet.class.php';
 require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 
-$producttmp    = new Product($db);
-$productlottmp = new Productlot($db);
 $sheet         = new Sheet($db);
 $usertmp       = new User($db);
-$projecttmp    = new Project($db);
-$tasktmp       = new Task($db);
-$invoicetmp    = new Facture($db);
-$ordertmp      = new Commande($db);
-$contracttmp   = new Contrat($db);
-$tickettmp     = new Ticket($db);
 $thirdparty    = new Societe($db);
 $contact       = new Contact($db);
 $formproject   = new FormProjets($db);
+$productlottmp = new Productlot($db);
 
 // Build and execute select
 // --------------------------------------------------------------------
@@ -384,7 +377,8 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'fk_lot') {
 				if (!empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
-					$productlottmp = array_shift($object->linkedObjects['productbatch']);
+					$productbatchId = array_shift($object->linkedObjectsIds['productbatch']);
+					$productlottmp->fetch($productbatchId);
 					if ($productlottmp > 0) {
 						print $productlottmp->getNomUrl(1);
 					}
