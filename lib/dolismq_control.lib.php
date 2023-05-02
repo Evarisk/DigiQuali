@@ -18,10 +18,10 @@
 /**
  * \file    lib/dolismq_control.lib.php
  * \ingroup dolismq
- * \brief   Library files with common functions for Control
+ * \brief   Library files with common functions for Control.
  */
 
-// Load Saturne Libraries.
+// Load Saturne libraries.
 require_once __DIR__ . '/../../saturne/lib/object.lib.php';
 
 /**
@@ -40,7 +40,7 @@ function control_prepare_head(CommonObject $object): array
     $head[1][1] = '<i class="fas fa-file-image pictofixedwidth"></i>' . $langs->trans('Medias');
     $head[1][2] = 'medias';
 
-    $moreparam['attendantTableMode'] = 'simple';
+    $moreParams['attendantTableMode'] = 'simple';
 
-    return saturne_object_prepare_head($object, $head, $moreparam, true);
+    return saturne_object_prepare_head($object, $head, $moreParams, true);
 }

@@ -58,8 +58,8 @@ function dolismq_admin_prepare_head(): array
 	$head[$h][2] = 'control';
 	$h++;
 
-	$head[$h][0] = dol_buildpath("/dolismq/admin/documents.php", 1);
-	$head[$h][1] = '<i class="fas fa-file-alt"></i> ' . $langs->trans("YourDocuments");
+	$head[$h][0] = dol_buildpath('/saturne/admin/documents.php?module_name=DoliSMQ', 1);
+	$head[$h][1] = '<i class="fas fa-file-alt"></i> ' . $langs->trans('YourDocuments');
 	$head[$h][2] = 'documents';
 	$h++;
 
@@ -68,7 +68,7 @@ function dolismq_admin_prepare_head(): array
 	$head[$h][2] = 'settings';
 	$h++;
 
-	$head[$h][0] = dol_buildpath('/dolismq/admin/about.php', 1);
+	$head[$h][0] = dol_buildpath('/saturne/admin/about.php?module_name=DoliSMQ', 1);
 	$head[$h][1] = '<i class="fab fa-readme pictofixedwidth"></i>' . $langs->trans('About');
 	$head[$h][2] = 'about';
 	$h++;
