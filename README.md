@@ -4,7 +4,7 @@
 
 - Numéro du module : 436301
 - Version :  1.6.0
-- Dernière mise à jour : 04/04/2023
+- Dernière mise à jour : 03/05/2023
 - Éditeur : [Evarisk](https://www.evarisk.com)
 - Compatibilité : Dolibarr 16.0.0 - 17.0.1
 - Saturne Framework : 1.1.0
