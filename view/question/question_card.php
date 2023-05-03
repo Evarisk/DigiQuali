@@ -538,6 +538,10 @@ if (empty($reshook)) {
 			$result = $answer->create($user);
 			if ($result > 0) {
 				setEventMessages($langs->trans('AnswerCreated'), []);
+				$urltogo = str_replace('__ID__', $result, $backtopage);
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+				$urltogo .= '#answerAnchor';
+				header('Location: ' . $urltogo);
 			} else {
 				setEventMessages($langs->trans('ErrorCreateAnswer'), [], 'errors');
 			}
@@ -560,6 +564,10 @@ if (empty($reshook)) {
 
 			$result = $answer->update($user);
 			if ($result > 0) {
+				$urltogo = str_replace('__ID__', $result, $backtopage);
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+				$urltogo .= '#answerAnchor';
+				header('Location: ' . $urltogo);
 				setEventMessages($langs->trans("AnswerUpdated"), [], 'mesgs');
 			} else {
 				setEventMessages($langs->trans('ErrorUpdateAnswer'), [], 'errors');
@@ -1064,7 +1072,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		// ANSWERS LINES
 		print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
-		print load_fiche_titre($langs->trans("AnswersList"), '', '');
+		print load_fiche_titre($langs->trans("AnswersList"), '', '', 0, 'answerAnchor');
 		print '<table id="tablelines" class="centpercent noborder noshadow">';
 		global $forceall, $forcetoshowtitlelines;
 
@@ -1154,7 +1162,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 					print '<td class="center">';
 					if ($object->status < Question::STATUS_LOCKED) {
-						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=editAnswer&answerId=' . $answerSingle->id . '">';
+						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=editAnswer&answerId=' . $answerSingle->id . '#answerAnchor">';
 						print '<div class="wpeo-button button-grey">';
 						print img_edit();
 						print '</div>';
