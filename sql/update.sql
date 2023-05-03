@@ -72,9 +72,3 @@ ALTER TABLE `llx_dolismq_sheet` ADD UNIQUE INDEX uk_dolismq_sheet_ref (ref, enti
 ALTER TABLE `llx_dolismq_control` ADD UNIQUE INDEX uk_dolismq_control_ref (ref, entity);
 ALTER TABLE `llx_dolismq_controldet` ADD UNIQUE INDEX uk_dolismq_controldet_ref (ref, entity);
 ALTER TABLE `llx_dolismq_control` ADD `photo` TEXT NULL AFTER `verdict`;
-ALTER TABLE `llx_dolismq_dolismqdocuments` ADD module_name VARCHAR(128) NULL AFTER type;
-UPDATE `llx_dolismq_dolismqdocuments` SET module_name = 'dolismq';
-INSERT INTO `llx_saturne_object_documents` (ref, ref_ext, entity, date_creation, tms, import_key, status, type, module_name, json, model_pdf, model_odt, last_main_doc, parent_type, parent_id, fk_user_creat)
-SELECT ref, ref_ext, entity, date_creation, tms, import_key, status, type, module_name, json, model_pdf, model_odt, last_main_doc, parent_type, parent_id, fk_user_creat FROM `llx_dolismq_dolismqdocuments`;
-DROP TABLE `llx_dolismq_dolismqdocuments`;
-DROP TABLE `llx_dolismq_dolismqdocuments_extrafields`;
