@@ -68,7 +68,7 @@ function dolismq_admin_prepare_head(): array
 	$head[$h][2] = 'settings';
 	$h++;
 
-	$head[$h][0] = dol_buildpath('/dolismq/admin/about.php', 1);
+	$head[$h][0] = dol_buildpath('/saturne/admin/about.php?module_name=DoliSMQ', 1);
 	$head[$h][1] = '<i class="fab fa-readme pictofixedwidth"></i>' . $langs->trans('About');
 	$head[$h][2] = 'about';
 	$h++;
