@@ -532,10 +532,11 @@ if (empty($reshook)) {
 		$answerPicto = GETPOST('answerPicto');
 
 		if (empty($answerValue)) {
+			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
 			$urltogo = str_replace('__ID__', $result, $backtopage);
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-			header('Location: ' . $urltogo . '#answerList');
-			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
+			header('Location: ' . $urltogo . '&answerValue='. $answerValue .'&answerPicto='. $answerPicto .'#answerList');
+			exit;
 		} else {
 			$answer->value = $answerValue;
 			$answer->color = $answerColor;
@@ -544,14 +545,15 @@ if (empty($reshook)) {
 
 			$result = $answer->create($user);
 
-			$urltogo = str_replace('__ID__', $result, $backtopage);
-			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-			header('Location: ' . $urltogo . '#answerList');
 			if ($result > 0) {
 				setEventMessages($langs->trans('AnswerCreated'), []);
 			} else {
 				setEventMessages($langs->trans('ErrorCreateAnswer'), [], 'errors');
 			}
+			$urltogo = str_replace('__ID__', $result, $backtopage);
+			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+			header('Location: ' . $urltogo . '#answerList');
+			exit;
 		}
 	}
 
@@ -563,10 +565,11 @@ if (empty($reshook)) {
 
 		$answer->fetch($answerId);
 		if (empty($answerValue)) {
+			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
 			$urltogo = str_replace('__ID__', $result, $backtopage);
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-			header('Location: ' . $urltogo . '#answerList');
-			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
+			header('Location: ' . $urltogo . '&action=editAnswer&answerId='. $answerId .'&answerValue='. $answerValue .'&answerPicto='. $answerPicto . '#answerList');
+			exit;
 		} else {
 			$answer->value = $answerValue;
 			$answer->color = $answerColor;
@@ -574,16 +577,16 @@ if (empty($reshook)) {
 
 			$result = $answer->update($user);
 
-			$urltogo = str_replace('__ID__', $result, $backtopage);
-			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-			header('Location: ' . $urltogo . '#answerList');
 			if ($result > 0) {
 				setEventMessages($langs->trans("AnswerUpdated"), [], 'mesgs');
 			} else {
 				setEventMessages($langs->trans('ErrorUpdateAnswer'), [], 'errors');
 			}
+			$urltogo = str_replace('__ID__', $result, $backtopage);
+			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+			header('Location: ' . $urltogo . '#answerList');
+			exit;
 		}
-		$_POST['answerPicto'] = '';
 	}
 
 	if ($action == 'deleteAnswer') {
@@ -1129,12 +1132,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print '</td>';
 
 					print '<td>';
-					print '<input name="answerValue" value="'. $answerSingle->value .'">';
+					print '<input name="answerValue" value="'. (GETPOST('answerValue') ?: $answerSingle->value) .'">';
 					print '</td>';
 
 					// Pictogram -- Pictogram
 					print '<td class="center">';
-					print answer_pictos_dropdown($answerSingle->pictogram);
+					print answer_pictos_dropdown(GETPOST('answerPicto') ?: $answerSingle->pictogram);
 					print '</td>';
 
 					print '<td class="center">';
