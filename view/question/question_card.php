@@ -1016,6 +1016,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '</div>';
 	print '</div>';
 
+	print '<div class="clearboth"></div>';
+
 	// Buttons for actions
 	if ($action != 'presend') {
 		print '<div class="tabsAction">';
@@ -1055,8 +1057,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 		print '</div>';
 	}
-
-	print '<div class="clearboth"></div>';
 
 	if ($object->type == 'MultipleChoices' || $object->type == 'UniqueChoice' || $object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
 
