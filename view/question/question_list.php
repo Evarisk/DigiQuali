@@ -572,9 +572,6 @@ while ($i < ($limit ? min($num, $limit) : $num)) {
 	$i++;
 }
 
-// Show total line
-include DOL_DOCUMENT_ROOT.'/core/tpl/list_print_total.tpl.php';
-
 // If no record found
 if ($num == 0) {
 	$colspan = 1;

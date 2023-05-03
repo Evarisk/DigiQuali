@@ -532,10 +532,11 @@ if (empty($reshook)) {
 		$answerPicto = GETPOST('answerPicto');
 
 		if (empty($answerValue)) {
+			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
 			$urltogo = str_replace('__ID__', $result, $backtopage);
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-			header('Location: ' . $urltogo . '#answerList');
-			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
+			header('Location: ' . $urltogo . '&answerValue='. $answerValue .'&answerPicto='. $answerPicto .'#answerList');
+			exit;
 		} else {
 			$answer->value = $answerValue;
 			$answer->color = $answerColor;
@@ -543,19 +544,19 @@ if (empty($reshook)) {
 			$answer->fk_question = $id;
 
 			$result = $answer->create($user);
-
-			$urltogo = str_replace('__ID__', $result, $backtopage);
-			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-			header('Location: ' . $urltogo . '#answerList');
 			if ($result > 0) {
 				setEventMessages($langs->trans('AnswerCreated'), []);
 			} else {
 				setEventMessages($langs->trans('ErrorCreateAnswer'), [], 'errors');
 			}
+			$urltogo = str_replace('__ID__', $result, $backtopage);
+			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+			header('Location: ' . $urltogo . '#answerList');
+			exit;
 		}
 	}
 
-	if ($action == 'updateAnswer' && !$cancel) {
+	if ($action == 'updateAnswer') {
 		$answerValue = GETPOST('answerValue');
 		$answerColor = GETPOST('answerColor');
 		$answerPicto = GETPOST('answerPicto');
@@ -563,27 +564,27 @@ if (empty($reshook)) {
 
 		$answer->fetch($answerId);
 		if (empty($answerValue)) {
+			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
 			$urltogo = str_replace('__ID__', $result, $backtopage);
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-			header('Location: ' . $urltogo . '#answerList');
-			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
+			header('Location: ' . $urltogo . '&action=editAnswer&answerId='. $answerId .'&answerValue='. $answerValue .'&answerPicto='. $answerPicto . '#answerList');
+			exit;
 		} else {
 			$answer->value = $answerValue;
 			$answer->color = $answerColor;
 			$answer->pictogram = $answerPicto;
 
 			$result = $answer->update($user);
-
-			$urltogo = str_replace('__ID__', $result, $backtopage);
-			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-			header('Location: ' . $urltogo . '#answerList');
 			if ($result > 0) {
 				setEventMessages($langs->trans("AnswerUpdated"), [], 'mesgs');
 			} else {
 				setEventMessages($langs->trans('ErrorUpdateAnswer'), [], 'errors');
 			}
+			$urltogo = str_replace('__ID__', $result, $backtopage);
+			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+			header('Location: ' . $urltogo . '#answerList');
+			exit;
 		}
-		$_POST['answerPicto'] = '';
 	}
 
 	if ($action == 'deleteAnswer') {
@@ -592,14 +593,15 @@ if (empty($reshook)) {
 		$answer->fetch($answerId);
 		$result = $answer->delete($user);
 
-		$urltogo = str_replace('__ID__', $result, $backtopage);
-		$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-		header('Location: ' . $urltogo . '#answerList');
-		if ($result > 0) {
+	  if ($result > 0) {
 			setEventMessages($langs->trans("AnswerDeleted"), [], 'mesgs');
 		} else {
 			setEventMessages($langs->trans('ErrorDeleteAnswer'), [], 'errors');
 		}
+		$urltogo = str_replace('__ID__', $result, $backtopage);
+		$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+		header('Location: ' . $urltogo . '#answerList');
+	  exit;
 	}
 
 	if ($action == 'moveLine' && $permissiontoadd) {
@@ -1039,53 +1041,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	// Buttons for actions
-	if ($action != 'presend') {
-		print '<div class="tabsAction">';
-		$parameters = [];
-		$reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
-		if ($reshook < 0) {
-			setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
-		}
-
-		if (empty($reshook) && $permissiontoadd) {
-			// Modify
-			if ($object->status == $object::STATUS_VALIDATED) {
-				print '<a class="butAction" id="actionButtonEdit" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit' . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</a>';
-			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeDraft', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</span>';
-			}
-
-			// Lock
-			if ($object->status == $object::STATUS_VALIDATED) {
-				print '<span class="butAction" id="actionButtonLock"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
-			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeValidated', $langs->transnoentities('The' . ucfirst($object->element)))) . '"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
-			}
-
-			// Archive
-			if ($object->status == $object::STATUS_LOCKED) {
-				print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=confirm_archive&token=' . newToken() . '"><i class="fas fa-archive"></i> ' . $langs->trans('Archive') . '</a>';
-			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLockedToArchive', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-archive"></i> ' . $langs->trans('Archive') . '</span>';
-			}
-
-			// Clone
-			print '<span class="butAction" id="actionButtonClone"><i class="fas fa-clone"></i> ' . $langs->trans('Clone') . '</span>';
-
-			// Delete (need delete permission, or if draft, just need create/modify permission)
-			print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
-		}
-		print '</div>';
-	}
-
 	if ($object->type == 'MultipleChoices' || $object->type == 'UniqueChoice' || $object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
 
 		$pictosArray = get_answer_pictos_array();
 
 		// ANSWERS LINES
 		print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
-		print load_fiche_titre($langs->trans("AnswersList"), '', '', 0, 'answerList');
+		print load_fiche_titre($langs->trans("AnswersList"), '', '');
 		print '<table id="tablelines" class="centpercent noborder noshadow">';
 		global $forceall, $forcetoshowtitlelines;
 
@@ -1106,7 +1068,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<thead><tr class="liste_titre">';
 		print '<td>' . $langs->trans('Ref') . '</td>';
 		print '<td>' . $langs->trans('Value') . '</td>';
-		print '<td class="center">' . $langs->trans('Picto') . '</td>';
+    print '<td class="center">' . $langs->trans('Picto') . '</td>';
 		print '<td class="center">' . $langs->trans('Color') . '</td>';
 		print '<td class="center">' . $langs->trans('Action') . '</td>';
 		print '<td class="center"></td>';
@@ -1125,16 +1087,16 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
 					print '<td>';
-					print $answerSingle->getNomUrl(1);
+					print img_picto('', $answerSingle->picto) . ' ' . $answerSingle->ref;
 					print '</td>';
 
 					print '<td>';
-					print '<input name="answerValue" value="'. $answerSingle->value .'">';
+					print '<input name="answerValue" value="'. (GETPOST('answerValue') ?: $answerSingle->value) .'">';
 					print '</td>';
 
 					// Pictogram -- Pictogram
 					print '<td class="center">';
-					print answer_pictos_dropdown($answerSingle->pictogram);
+					print answer_pictos_dropdown(GETPOST('answerPicto') ?: $answerSingle->pictogram);
 					print '</td>';
 
 					print '<td class="center">';
@@ -1142,7 +1104,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					print '</td>';
 
 					print '<td class="center">';
-					print $form->buttonsSaveCancel();
+					print '<input type="submit" class="button" value="' . $langs->trans('Save') . '" name="updateAnswer" id="updateAnswer">';
 					print '</td>';
 
 					if ($object->status < $object::STATUS_LOCKED) {
@@ -1157,7 +1119,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					//SHOW LINE
 					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
 					print '<td>';
-					print $answerSingle->getNomUrl(1);
+					print img_picto('', $answerSingle->picto) . ' ' . $answerSingle->ref;
 					print '</td>';
 
 					print '<td>';
@@ -1175,17 +1137,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 					print '<td class="center">';
 					if ($object->status < Question::STATUS_LOCKED) {
-						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=editAnswer&answerId=' . $answerSingle->id . '#answerList">';
 						print '<div class="wpeo-button button-grey">';
+						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=editAnswer&answerId=' . $answerSingle->id . '">';
 						print img_edit();
-						print '</div>';
 						print '</a>';
+						print '</div>';
 
-						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=deleteAnswer&answerId=' . $answerSingle->id . '&token='. newToken() .'">';
 						print '<div class="wpeo-button button-grey" style="margin-left: 10px">';
+						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=deleteAnswer&answerId=' . $answerSingle->id . '&token='. newToken() .'">';
 						print img_delete();
-						print '</div>';
 						print '</a>';
+						print '</div>';
 						print '</td>';
 						print '<td class="move-line ui-sortable-handle">';
 					} else {
@@ -1238,6 +1200,46 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 	}
 	print dol_get_fiche_end();
+
+	// Buttons for actions
+	if ($action != 'presend') {
+		print '<div class="tabsAction">';
+		$parameters = [];
+		$reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action); // Note that $action and $object may have been modified by hook
+		if ($reshook < 0) {
+			setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+		}
+
+		if (empty($reshook) && $permissiontoadd) {
+			// Modify
+			if ($object->status == $object::STATUS_VALIDATED) {
+				print '<a class="butAction" id="actionButtonEdit" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit' . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</a>';
+			} else {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeDraft', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</span>';
+			}
+
+			// Lock
+			if ($object->status == $object::STATUS_VALIDATED) {
+				print '<span class="butAction" id="actionButtonLock"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
+			} else {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeValidated', $langs->transnoentities('The' . ucfirst($object->element)))) . '"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
+			}
+
+			// Archive
+			if ($object->status == $object::STATUS_LOCKED) {
+				print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=confirm_archive&token=' . newToken() . '"><i class="fas fa-archive"></i> ' . $langs->trans('Archive') . '</a>';
+			} else {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLockedToArchive', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-archive"></i> ' . $langs->trans('Archive') . '</span>';
+			}
+
+			// Clone
+			print '<span class="butAction" id="actionButtonClone"><i class="fas fa-clone"></i> ' . $langs->trans('Clone') . '</span>';
+
+			// Delete (need delete permission, or if draft, just need create/modify permission)
+			print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
+		}
+		print '</div>';
+	}
 
 	print '<div class="fichecenter"><div class="fichehalfright">';
 
