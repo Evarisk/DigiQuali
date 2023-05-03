@@ -115,7 +115,7 @@ if (empty($reshook)) {
 	if (empty($backtopage) || ($cancel && empty($id))) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) $backtopage = $backurlforlist;
-			else $backtopage = dol_buildpath('/dolismq/view/question/question_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
+			else $backtopage = dol_buildpath('/dolismq/view/question/question_card.php', 1).'?id='.($id > 0 ? $id . "#answerList" : '__ID__');
 		}
 	}
 
@@ -528,6 +528,9 @@ if (empty($reshook)) {
 		$answerPicto = GETPOST('answerPicto');
 
 		if (empty($answerValue)) {
+			$urltogo = str_replace('__ID__', $result, $backtopage);
+			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+			header('Location: ' . $urltogo);
 			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
 		} else {
 			$answer->value = $answerValue;
@@ -536,12 +539,12 @@ if (empty($reshook)) {
 			$answer->fk_question = $id;
 
 			$result = $answer->create($user);
+
+			$urltogo = str_replace('__ID__', $result, $backtopage);
+			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+			header('Location: ' . $urltogo);
 			if ($result > 0) {
 				setEventMessages($langs->trans('AnswerCreated'), []);
-				$urltogo = str_replace('__ID__', $result, $backtopage);
-				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-				$urltogo .= '#answerAnchor';
-				header('Location: ' . $urltogo);
 			} else {
 				setEventMessages($langs->trans('ErrorCreateAnswer'), [], 'errors');
 			}
@@ -563,11 +566,11 @@ if (empty($reshook)) {
 			$answer->pictogram = $answerPicto;
 
 			$result = $answer->update($user);
+
+			$urltogo = str_replace('__ID__', $result, $backtopage);
+			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+			header('Location: ' . $urltogo);
 			if ($result > 0) {
-				$urltogo = str_replace('__ID__', $result, $backtopage);
-				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-				$urltogo .= '#answerAnchor';
-				header('Location: ' . $urltogo);
 				setEventMessages($langs->trans("AnswerUpdated"), [], 'mesgs');
 			} else {
 				setEventMessages($langs->trans('ErrorUpdateAnswer'), [], 'errors');
@@ -582,6 +585,9 @@ if (empty($reshook)) {
 		$answer->fetch($answerId);
 		$result = $answer->delete($user);
 
+		$urltogo = str_replace('__ID__', $result, $backtopage);
+		$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+		header('Location: ' . $urltogo);
 		if ($result > 0) {
 			setEventMessages($langs->trans("AnswerDeleted"), [], 'mesgs');
 		} else {
@@ -1072,7 +1078,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		// ANSWERS LINES
 		print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
-		print load_fiche_titre($langs->trans("AnswersList"), '', '', 0, 'answerAnchor');
+		print load_fiche_titre($langs->trans("AnswersList"), '', '', 0, 'answerList');
 		print '<table id="tablelines" class="centpercent noborder noshadow">';
 		global $forceall, $forcetoshowtitlelines;
 
@@ -1162,17 +1168,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 					print '<td class="center">';
 					if ($object->status < Question::STATUS_LOCKED) {
-						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=editAnswer&answerId=' . $answerSingle->id . '#answerAnchor">';
+						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=editAnswer&answerId=' . $answerSingle->id . '#answerList">';
 						print '<div class="wpeo-button button-grey">';
 						print img_edit();
 						print '</div>';
 						print '</a>';
 
-						print '<div class="wpeo-button button-grey" style="margin-left: 10px">';
 						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=deleteAnswer&answerId=' . $answerSingle->id . '&token='. newToken() .'">';
+						print '<div class="wpeo-button button-grey" style="margin-left: 10px">';
 						print img_delete();
-						print '</a>';
 						print '</div>';
+						print '</a>';
 						print '</td>';
 						print '<td class="move-line ui-sortable-handle">';
 					} else {
