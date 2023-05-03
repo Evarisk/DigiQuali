@@ -115,8 +115,12 @@ if (empty($reshook)) {
 	if (empty($backtopage) || ($cancel && empty($id))) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) $backtopage = $backurlforlist;
-			else $backtopage = dol_buildpath('/dolismq/view/question/question_card.php', 1).'?id='.($id > 0 ? $id . "#answerList" : '__ID__');
+			else $backtopage = dol_buildpath('/dolismq/view/question/question_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
 		}
+	}
+
+	if ($cancel && $action != 'update') {
+		$backtopage .= '#answerList';
 	}
 
 	if ($action == 'add' && !empty($permissiontoadd)) {
@@ -530,7 +534,7 @@ if (empty($reshook)) {
 		if (empty($answerValue)) {
 			$urltogo = str_replace('__ID__', $result, $backtopage);
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-			header('Location: ' . $urltogo);
+			header('Location: ' . $urltogo . '#answerList');
 			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
 		} else {
 			$answer->value = $answerValue;
@@ -542,7 +546,7 @@ if (empty($reshook)) {
 
 			$urltogo = str_replace('__ID__', $result, $backtopage);
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-			header('Location: ' . $urltogo);
+			header('Location: ' . $urltogo . '#answerList');
 			if ($result > 0) {
 				setEventMessages($langs->trans('AnswerCreated'), []);
 			} else {
@@ -561,7 +565,7 @@ if (empty($reshook)) {
 		if (empty($answerValue)) {
 			$urltogo = str_replace('__ID__', $result, $backtopage);
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-			header('Location: ' . $urltogo);
+			header('Location: ' . $urltogo . '#answerList');
 			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
 		} else {
 			$answer->value = $answerValue;
@@ -572,7 +576,7 @@ if (empty($reshook)) {
 
 			$urltogo = str_replace('__ID__', $result, $backtopage);
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-			header('Location: ' . $urltogo);
+			header('Location: ' . $urltogo . '#answerList');
 			if ($result > 0) {
 				setEventMessages($langs->trans("AnswerUpdated"), [], 'mesgs');
 			} else {
@@ -590,7 +594,7 @@ if (empty($reshook)) {
 
 		$urltogo = str_replace('__ID__', $result, $backtopage);
 		$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-		header('Location: ' . $urltogo);
+		header('Location: ' . $urltogo . '#answerList');
 		if ($result > 0) {
 			setEventMessages($langs->trans("AnswerDeleted"), [], 'mesgs');
 		} else {
