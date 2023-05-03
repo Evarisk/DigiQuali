@@ -6,7 +6,7 @@
 - Version :  1.5.0
 - Dernière mise à jour : 04/04/2023
 - Éditeur : [Evarisk](https://www.evarisk.com)
-- Compatibilité : Dolibarr 16.0.0 - 16.0.5
+- Compatibilité : Dolibarr 16.0.0 - 17.0.1
 - Thème : Eldy Menu
 - Licence : GPLv3
 - Disponible sur : Windows - MacOS - Linux
