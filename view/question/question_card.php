@@ -559,6 +559,9 @@ if (empty($reshook)) {
 
 		$answer->fetch($answerId);
 		if (empty($answerValue)) {
+			$urltogo = str_replace('__ID__', $result, $backtopage);
+			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+			header('Location: ' . $urltogo);
 			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
 		} else {
 			$answer->value = $answerValue;
