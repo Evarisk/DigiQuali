@@ -1064,7 +1064,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
 					print '<td>';
-					print $answerSingle->getNomUrl(1);
+					print img_picto('', $answerSingle->picto) . ' ' . $answerSingle->ref;
 					print '</td>';
 
 					print '<td>';
@@ -1096,7 +1096,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					//SHOW LINE
 					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
 					print '<td>';
-					print $answerSingle->getNomUrl(1);
+					print img_picto('', $answerSingle->picto) . ' ' . $answerSingle->ref;
 					print '</td>';
 
 					print '<td>';
