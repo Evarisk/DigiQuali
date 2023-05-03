@@ -226,7 +226,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
                                         $tmpArray['answer'] = rtrim($tmpArray['answer'], ', ');
                                         break;
                                     default:
-										$tmparray['answer'] = '';
+                                        $tmpArray['answer'] = '';
                                 }
 
                                 $path     = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;

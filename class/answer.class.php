@@ -503,7 +503,7 @@ class Answer extends CommonObject
 
 
 	/**
-	 *	Returns max position of questions in sheet
+	 *	Returns max position of answers in question
 	 *
 	 */
 	public function getMaxPosition() {
