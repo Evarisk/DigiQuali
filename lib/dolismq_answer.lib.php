@@ -45,6 +45,7 @@ function answer_pictos_dropdown($selected = -1): string
 	}
 	$out .= '</div>';
 	$out .= '<ul class="dropdown-content wpeo-gridlayout grid-5 grid-gap-0">';
+	$out .= '<input class="picto-search" id="pictoSearch">';
 	if ( ! empty($pictosArray) ) {
 		foreach ($pictosArray as $picto) {
 			$out .= '<li class="item dropdown-item wpeo-tooltip-event" data-is-preset="" data-id="'. $picto['position'] .'" aria-label="'. $picto['name'].'">';
@@ -78,8 +79,8 @@ function get_answer_pictos_array(): array
 			$pictoInfos = pathinfo($fontAwesomePicto['name']);
 			$pictoName  = $pictoInfos['filename'];
 
-			$pictosArray[] = [
-				'name' => ucfirst($pictoName),
+			$pictosArray[$pictoName] = [
+				'name' => $pictoName,
 				'picto_source' => '<i class="fas fa-'. $pictoName .'"></i>',
 				'position' => $position,
 			];

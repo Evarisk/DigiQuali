@@ -32,6 +32,7 @@ window.dolismq.question.event = function() {
 	$( document ).on( 'click', '.ui-dialog-titlebar-close', window.dolismq.question.closePreviewPhoto );
 	$( document ).on( 'click', '#show_photo', window.dolismq.question.showPhoto );
 	$( document ).on( 'click', '.answer-picto .item, .wpeo-table .item', window.dolismq.question.selectAnswerPicto );
+	$( document ).on( 'input', '#pictoSearch', window.dolismq.question.searchPicto );
 };
 
 /**
@@ -85,7 +86,7 @@ window.dolismq.question.showPhoto = function() {
 };
 
 /**
- * Lors du clic sur un picto de réponse, remplace le contenu du toggle et met l'image du picto sélectionné.
+ * Lors de la recherche dans la liste des pictogrammes, filtre dynamiquement la liste des pictos affichés
  *
  * @since   1.0.0
  * @version 1.0.0
@@ -99,4 +100,22 @@ window.dolismq.question.selectAnswerPicto = function( event ) {
 	element.find('.dropdown-toggle span').hide();
 	element.find('.dropdown-toggle.button-picto').html($(this).closest('.wpeo-tooltip-event').html());
 	element.find('.input-hidden-picto').val($(this).data('id'));
+};
+
+/**
+ * Lors du clic sur un picto de réponse, remplace le contenu du toggle et met l'image du picto sélectionné.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @param  {MouseEvent} event [description]
+ * @return {void}
+ */
+window.dolismq.question.searchPicto = function( event ) {
+	let searchQuery = $(this).val()
+	let pictos = $(this).closest('.wpeo-dropdown').find('.item.dropdown-item')
+
+	pictos.each(function(  ) {
+		$( this ).data('label').match(searchQuery) ? $(this).show() : $(this).hide()
+	});
 };
