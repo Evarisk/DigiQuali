@@ -214,6 +214,7 @@ class modDoliSMQ extends DolibarrModules
 
 			// CONST CONTROL LINE
 			$i++ => ['DOLISMQ_CONTROLDET_ADDON', 'chaine', 'mod_controldet_standard', '', 0, 'current'],
+			$i++ => ['DOLISMQ_CONTROL_EQUIPMENT_ADDON', 'chaine', 'mod_control_equipment_standard', '', 0, 'current'],
 
 			// CONST MODULE
 			$i++ => ['DOLISMQ_VERSION','chaine', $this->version, '', 0, 'current'],

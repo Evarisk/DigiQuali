@@ -43,5 +43,9 @@ function control_prepare_head(Control $object): array
     $moreParams['documentType']       = 'ControlDocument';
     $moreParams['attendantTableMode'] = 'simple';
 
-    return saturne_object_prepare_head($object, $head, $moreParams, true);
+	$head[$h][0] = dol_buildpath('/dolismq/view/control/control_equipment.php', 1) . '?id=' . $object->id;
+	$head[$h][1] = '<i class="fas fa-toolbox pictofixedwidth"></i>' . $langs->trans('ControlEquipment');
+	$head[$h][2] = 'equipment';
+
+    return saturne_object_prepare_head($object, $head, $moreparam, true);
 }

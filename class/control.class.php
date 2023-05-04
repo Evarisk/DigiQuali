@@ -1256,3 +1256,254 @@ class ControlLine extends CommonObjectLine
 	}
 }
 
+class ControlEquipment extends CommonObjectLine
+{
+	/**
+	 * @var string ID to identify managed object
+	 */
+	public $element = 'control_equipment';
+
+	/**
+	 * @var string Name of table without prefix where object is stored
+	 */
+	public $table_element = 'dolismq_control_equipment';
+
+	/**
+	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
+	 */
+	public $fields = array(
+		'rowid'         => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'comment' => 'Id'),
+		'ref'           => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 1, 'noteditable' => '1', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => 'Reference of object'),
+		'entity'        => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0,),
+		'date_creation' => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
+		'tms'           => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 40, 'notnull' => 0, 'visible' => 0,),
+		'status'        => array('type' => 'status', 'label' => 'Status', 'enabled' => '1', 'position' => 50, 'notnull' => 1, 'visible' => 0,),
+		'fk_product'    => array('type' => 'integer', 'label' => 'FkProduct', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0,),
+		'fk_control'    => array('type' => 'integer', 'label' => 'FkControl', 'enabled' => '1', 'position' => 70, 'notnull' => 0, 'visible' => 0,),
+	);
+
+	public $ref;
+	public $entity;
+	public $status;
+	public $date_creation;
+	public $tms;
+	public $fk_product;
+	public $fk_control;
+
+	/**
+	 * Constructor
+	 *
+	 * @param DoliDb $db Database handler
+	 */
+	public function   __construct(DoliDB $db)
+	{
+		global $conf;
+
+		$this->db = $db;
+
+		if (empty($conf->global->MAIN_SHOW_TECHNICAL_ID) && isset($this->fields['rowid'])) $this->fields['rowid']['visible'] = 0;
+		if (empty($conf->multicompany->enabled) && isset($this->fields['entity'])) $this->fields['entity']['enabled'] = 0;
+	}
+
+	/**
+	 * Load control equipment from database
+	 *
+	 * @param  int  $rowid id of invoice line to get
+	 * @return int         <0 if KO, >0 if OK
+	 */
+	public function fetch($rowid, $ref = 'NULL')
+	{
+		global $db;
+
+		$sql  = 'SELECT  t.rowid, t.ref, t.status, t.date_creation, t.fk_product, t.fk_control ';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_control_equipment as t';
+		$sql .= ' WHERE t.rowid = ' . $rowid;
+		$sql .= ' AND t.entity IN (' . getEntity($this->table_element) . ')';
+
+		$result = $db->query($sql);
+		if ($result) {
+			$objp = $db->fetch_object($result);
+
+			$this->id         = $objp->rowid;
+			$this->ref        = $objp->ref;
+			$this->status     = $objp->status;
+			$this->status     = $objp->date_creation;
+			$this->fk_product = $objp->fk_product;
+			$this->fk_control = $objp->fk_control;
+
+			$db->free($result);
+
+			return $this->id;
+		} else {
+			$this->error = $db->lasterror();
+			return -1;
+		}
+	}
+
+	/**
+	 *  Load all control equipment from database
+	 *
+	 * @param  int        $limit limit of object fetch
+	 * @return array|int         <0 if KO, >0 if OK
+	 */
+	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
+	{
+		global $db;
+		$sql  = 'SELECT  t.rowid, t.ref, t.status, t.date_creation, t.fk_product, t.fk_control ';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_control_equipment as t';
+		$sql .= ' WHERE t.entity IN (' . getEntity($this->table_element) . ')';
+
+		$result = $db->query($sql);
+
+		if ($result) {
+			$num = $db->num_rows($result);
+
+			$i = 0;
+			while ($i < ($limit ? min($limit, $num) : $num)) {
+				$obj = $db->fetch_object($result);
+
+				$record = new self($db);
+
+				$record->id            = $obj->rowid;
+				$record->ref           = $obj->ref;
+				$record->status        = $obj->status;
+				$record->date_creation = $obj->date_creation;
+				$record->fk_product    = $obj->fk_product;
+				$record->fk_control    = $obj->fk_control;
+
+				$records[$record->id] = $record;
+
+				$i++;
+			}
+
+			$db->free($result);
+
+			return $records;
+		} else {
+			$this->error = $db->lasterror();
+			return -1;
+		}
+	}
+
+	/**
+	 *    Load control line from database and from parent
+	 *
+	 * @param  int       $control_id id of parent control equipment to fetch
+	 * @param  int       $limit      limit of object to fetch
+	 * @return array|int             <0 if KO, >0 if OK
+	 */
+	public function fetchFromParent($control_id, $limit = 0)
+	{
+		global $db;
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.fk_product, t.fk_control ';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_control_equipment as t';
+		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
+		$sql .= ' AND fk_control = ' . $control_id;
+
+		$result = $db->query($sql);
+
+		if ($result) {
+			$num = $db->num_rows($result);
+
+			$i = 0;
+			while ($i < ($limit ? min($limit, $num) : $num)) {
+				$obj = $db->fetch_object($result);
+
+				$record = new self($db);
+
+				$record->id            = $obj->rowid;
+				$record->ref           = $obj->ref;
+				$record->status        = $obj->status;
+				$record->date_creation = $obj->date_creation;
+				$record->fk_product    = $obj->fk_product;
+				$record->fk_control    = $obj->fk_control;
+
+				$records[$record->id] = $record;
+
+				$i++;
+			}
+
+			$db->free($result);
+
+			return $records;
+		} else {
+			$this->error = $db->lasterror();
+			return -1;
+		}
+	}
+
+	/**
+	 *    Insert line into database
+	 *
+	 * @param  User $user
+	 * @param  bool $notrigger 1 no triggers
+	 * @return int             <0 if KO, >0 if OK
+	 * @throws Exception
+	 */
+	public function insert(User $user, $notrigger = false)
+	{
+		global $db, $conf, $user;
+
+		$db->begin();
+		$now = dol_now();
+
+		// Insertion dans base de la ligne
+		$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . 'dolismq_control_equipment';
+		$sql .= ' ( ref, entity, status, date_creation, fk_product, fk_control';
+		$sql .= ')';
+		$sql .= ' VALUES (';
+		$sql .= "'" . $db->escape($this->ref) . "'" . ', ';
+		$sql .= $conf->entity . ', ';
+		$sql .= 1 . ', ';
+		$sql .= "'" . $db->escape($db->idate($now)) . "'" . ', ';
+		$sql .= $this->fk_product . ', ';
+		$sql .= $this->fk_control;
+		$sql .= ')';
+
+		dol_syslog(get_class($this) . '::insert', LOG_DEBUG);
+		$resql = $db->query($sql);
+
+		if ($resql) {
+			$this->id    = $db->last_insert_id(MAIN_DB_PREFIX . 'control_equipment');
+			$this->rowid = $this->id; // For backward compatibility
+
+			$db->commit();
+			// Triggers
+			if ( ! $notrigger) {
+				// Call triggers
+				$this->call_trigger(strtoupper(get_class($this)) . '_CREATE', $user);
+				// End call triggers
+			}
+			return $this->id;
+		} else {
+			$this->error = $db->lasterror();
+			$db->rollback();
+			return -2;
+		}
+	}
+
+	/**
+	 * Update object into database
+	 *
+	 * @param  User $user      User that modifies
+	 * @param  bool $notrigger false=launch triggers after, true=disable triggers
+	 * @return int             <0 if KO, >0 if OK
+	 */
+	public function update(User $user, $notrigger = false)
+	{
+		return $this->updateCommon($user, $notrigger);
+	}
+
+	/**
+	 * Delete object in database
+	 *
+	 * @param User $user       User that deletes
+	 * @param bool $notrigger  false=launch triggers after, true=disable triggers
+	 * @return int             <0 if KO, >0 if OK
+	 */
+	public function delete(User $user, $notrigger = false)
+	{
+		$this->status = 0;
+		return $this->update($user, $notrigger);
+	}
+}
