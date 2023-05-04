@@ -297,14 +297,14 @@ if (empty($reshook)) {
 				if ($object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
 					$answer->fk_question = $result;
 					$answer->value       = $langs->transnoentities('OK');
-					$answer->pictogram   = 1;
+					$answer->pictogram   = 'check';
 					$answer->color       = '#47e58e';
 
 					$answer->create($user);
 
 					$answer->fk_question = $result;
 					$answer->value       = $langs->transnoentities('KO');
-					$answer->pictogram   = 2;
+					$answer->pictogram   = 'times';
 					$answer->color       = '#e05353';
 
 					$answer->create($user);
@@ -313,14 +313,14 @@ if (empty($reshook)) {
 				if ($object->type == 'OkKoToFixNonApplicable') {
 					$answer->fk_question = $result;
 					$answer->value       = $langs->transnoentities('ToFix');
-					$answer->pictogram   = 3;
+					$answer->pictogram   = 'tools';
 					$answer->color       = '#e9ad4f';
 
 					$answer->create($user);
 
 					$answer->fk_question = $result;
 					$answer->value       = $langs->transnoentities('NonApplicable');
-					$answer->pictogram   = 4;
+					$answer->pictogram   = 'N/A';
 					$answer->color       = '#2b2b2b';
 
 					$answer->create($user);
@@ -1214,7 +1214,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Pictogram -- Pictogram
 			print '<td class="center">';
-			print answer_pictos_dropdown(GETPOST('answerPicto') ?: -1);
+			print answer_pictos_dropdown(GETPOST('answerPicto') ?: '');
 			print '</td>';
 			?>
 
