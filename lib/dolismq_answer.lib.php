@@ -45,6 +45,7 @@ function answer_pictos_dropdown($selected = -1): string
 	}
 	$out .= '</div>';
 	$out .= '<ul class="dropdown-content wpeo-gridlayout grid-5 grid-gap-0">';
+	$out .= '<input class="picto-search" id="pictoSearch">';
 	if ( ! empty($pictosArray) ) {
 		foreach ($pictosArray as $picto) {
 			$out .= '<li class="item dropdown-item wpeo-tooltip-event" data-is-preset="" data-id="'. $picto['position'] .'" aria-label="'. $picto['name'].'">';
@@ -70,33 +71,51 @@ function get_answer_pictos_array(): array
 {
 	global $langs;
 
-	$pictosArray = [
-		[
-			'name' => $langs->transnoentities('None'),
-			'picto_source' => $langs->transnoentities('None'),
-			'position' => 0,
-		],
-		[
-			'name' => $langs->transnoentities('Ok'),
-			'picto_source' => '<i class="fas fa-check"></i>',
-			'position' => 1
-		],
-		[
-			'name' => $langs->transnoentities('Ko'),
-			'picto_source' => '<i class="fas fa-times"></i>',
-			'position' => 2
-		],
-		[
-			'name' => $langs->transnoentities('ToFix'),
-			'picto_source' => '<i class="fas fa-tools"></i>',
-			'position' => 3
-		],
-		[
-			'name' => $langs->transnoentities('NonApplicable'),
-			'picto_source' => 'N/A',
-			'position' => 4
-		],
-	];
+	$fontAwesomePictosList = dol_dir_list(DOL_DOCUMENT_ROOT . '\theme\common\fontawesome-5\svgs\solid');
+
+	$position = 0;
+	if (is_array($fontAwesomePictosList) && !empty($fontAwesomePictosList)) {
+		foreach($fontAwesomePictosList as $fontAwesomePicto) {
+			$pictoInfos = pathinfo($fontAwesomePicto['name']);
+			$pictoName  = $pictoInfos['filename'];
+
+			$pictosArray[$pictoName] = [
+				'name' => $pictoName,
+				'picto_source' => '<i class="fas fa-'. $pictoName .'"></i>',
+				'position' => $position,
+			];
+
+			$position++;
+		}
+	}
+//
+//	$pictosArray = [
+//		[
+//			'name' => $langs->transnoentities('None'),
+//			'picto_source' => $langs->transnoentities('None'),
+//			'position' => 0,
+//		],
+//		[
+//			'name' => $langs->transnoentities('Ok'),
+//			'picto_source' => '<i class="fas fa-check"></i>',
+//			'position' => 1
+//		],
+//		[
+//			'name' => $langs->transnoentities('Ko'),
+//			'picto_source' => '<i class="fas fa-times"></i>',
+//			'position' => 2
+//		],
+//		[
+//			'name' => $langs->transnoentities('ToFix'),
+//			'picto_source' => '<i class="fas fa-tools"></i>',
+//			'position' => 3
+//		],
+//		[
+//			'name' => $langs->transnoentities('NonApplicable'),
+//			'picto_source' => 'N/A',
+//			'position' => 4
+//		],
+//	];
 	return $pictosArray;
 }
 
