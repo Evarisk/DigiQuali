@@ -94,6 +94,11 @@ if (empty($reshook)) {
 			$controlEquipment->fk_product = $equipment->id;
 			$controlEquipment->fk_control = $object->id;
 
+			$jsonArray['lifetime']     = $equipment->lifetime;
+			$jsonArray['qc_frenquecy'] = $equipment->qc_frequency;
+
+			$controlEquipment->json    = json_encode($jsonArray);
+
 			$result = $controlEquipment->insert($user);
 			if ($result > 0) {
 				setEventMessages($langs->trans('AddEquipmentLink') . ' ' . $controlEquipment->ref, []);
@@ -114,6 +119,7 @@ if (empty($reshook)) {
 		if ($equipmentId > 0) {
 			$equipmentsControl = $controlEquipment->fetchFromParent($object->id);
 
+			$result = 0;
 			if (is_array($equipmentsControl) && !empty($equipmentsControl)) {
 				foreach ($equipmentsControl as $equipmentControl) {
 					if ($equipmentId == $equipmentControl->fk_product && $equipmentControl->status != $equipmentControl::STATUS_DELETED) {
@@ -153,7 +159,16 @@ if ($id > 0 || !empty($ref)) {
 			if ($equipmentControl->status == 0) continue;
 			$equipment->fetch($equipmentControl->fk_product);
 			$excludeFilter .= $equipmentControl->fk_product . ',';
-			$equipmentIds[$equipment->id] = $equipmentControl->ref;
+
+			$equipmentIds[$equipmentControl->id]['id'] = $equipment->id;
+			$equipmentIds[$equipmentControl->id]['ref'] = $equipmentControl->ref;
+
+			$jsonArray            = json_decode($equipmentControl->json);
+			$equipmentLifetime    = $jsonArray->lifetime;
+			$equipmentQcFrequency = $jsonArray->qc_frenquecy;
+
+			$equipmentIds[$equipmentControl->id]['lifetime']     = $equipmentLifetime;
+			$equipmentIds[$equipmentControl->id]['qc_frequency'] = $equipmentQcFrequency;
 		}
 	}
 
@@ -187,13 +202,13 @@ if ($id > 0 || !empty($ref)) {
 
 	if (is_array($equipmentIds) && !empty($equipmentIds)) {
 		print '<tbody><tr>';
-		foreach ($equipmentIds as $equipmentId => $ref) {
+		foreach ($equipmentIds as $equipmentId) {
 			$item = $equipment;
-			$item->fetch($equipmentId);
+			$item->fetch($equipmentId['id']);
 
 			print '<tr id="'. $item->id .'" class="line-row oddeven">';
 			print '<td>';
-			print $ref;
+			print $equipmentId['ref'];
 			print '</td>';
 
 			print '<td>';
@@ -206,7 +221,7 @@ if ($id > 0 || !empty($ref)) {
 
 			print '<td class="center">';
 			$creationDate   = strtotime($item->date_creation);
-			$expirationDate = dol_time_plus_duree($creationDate, $item->lifetime, 'd');
+			$expirationDate = dol_time_plus_duree($creationDate, $equipmentId['lifetime'], 'd');
 			print  $item->lifetime ? dol_print_date($expirationDate, 'day') : $langs->trans('NoData');
 			print '</td>';
 
