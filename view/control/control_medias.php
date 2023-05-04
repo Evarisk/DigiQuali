@@ -36,7 +36,6 @@ require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
 require_once __DIR__ . '/../../lib/dolismq_control.lib.php';
-require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 
 // Global variables definitions
 global $conf, $db,$hookmanager, $langs, $user;

@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2021-2023 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,36 +16,45 @@
  */
 
 /**
- * \file    class/dolismqdocuments/controldocument.class.php
+ * \file    class/dolismqdashboard.class.php
  * \ingroup dolismq
- * \brief   This file is a class file for ControlDocument.
+ * \brief   Class file for manage DolismqDashboard.
  */
-
-// Load Saturne libraries.
-require_once __DIR__ . '/../../../saturne/class/saturnedocuments.class.php';
 
 /**
- * Class for ControlDocument.
+ * Class for DolismqDashboard.
  */
-class ControlDocument extends SaturneDocuments
+class DolismqDashboard
 {
     /**
-     * @var string Module name.
+     * @var DoliDB Database handler.
      */
-    public string $module = 'dolismq';
-
-    /**
-     * @var string Element type of object.
-     */
-    public $element = 'controldocument';
+    public DoliDB $db;
 
     /**
      * Constructor.
      *
-     * @param DoliDb $db Database handler.
+     * @param DoliDB $db Database handler.
      */
     public function __construct(DoliDB $db)
     {
-        parent::__construct($db, $this->module, $this->element);
+        $this->db = $db;
+    }
+
+    /**
+     * Load dashboard info.
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function load_dashboard(): array
+    {
+        require_once __DIR__ . '/control.class.php';
+
+        $control = new Control($this->db);
+
+        $array['control'] = $control->load_dashboard();
+
+        return $array;
     }
 }

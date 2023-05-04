@@ -45,23 +45,32 @@ require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmdirectory.class.php';
 require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
+require_once DOL_DOCUMENT_ROOT . '/compta/facture/class/facture.class.php';
+require_once DOL_DOCUMENT_ROOT . '/commande/class/commande.class.php';
+require_once DOL_DOCUMENT_ROOT . '/contrat/class/contrat.class.php';
+require_once DOL_DOCUMENT_ROOT . '/ticket/class/ticket.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+
+// Load Saturne libraries.
+require_once __DIR__ . '/../../../saturne/lib/object.lib.php';
+require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
 
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
+require_once __DIR__ . '/../../class/answer.class.php';
 require_once __DIR__ . '/../../class/dolismqdocuments/controldocument.class.php';
 require_once __DIR__ . '/../../lib/dolismq_control.lib.php';
+require_once __DIR__ . '/../../lib/dolismq_answer.lib.php';
 require_once __DIR__ . '/../../core/modules/dolismq/control/mod_control_standard.php';
 require_once __DIR__ . '/../../core/modules/dolismq/controldet/mod_controldet_standard.php';
-require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
-saturne_load_langs(['other']);
+saturne_load_langs(['other', 'bills', 'orders']);
 
 // Get parameters
 $id                  = GETPOST('id', 'int');
@@ -78,9 +87,11 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Technical objets
 $object           = new Control($db);
 $controldet       = new ControlLine($db);
-$controldocument  = new ControlDocument($db);
+$document         = new ControlDocument($db);
+$signatory        = new SaturneSignature($db, 'dolismq');
 $sheet            = new Sheet($db);
 $question         = new Question($db);
+$answer           = new Answer($db);
 $usertmp          = new User($db);
 $product          = new Product($db);
 $project          = new Project($db);
@@ -88,6 +99,10 @@ $task             = new Task($db);
 $thirdparty       = new Societe($db);
 $contact          = new Contact($db);
 $productlot       = new Productlot($db);
+$invoice          = new Facture($db);
+$order            = new Commande($db);
+$contract         = new Contrat($db);
+$ticket           = new Ticket($db);
 $extrafields      = new ExtraFields($db);
 $ecmfile 		  = new EcmFiles($db);
 $ecmdir           = new EcmDirectory($db);
@@ -155,27 +170,6 @@ if (empty($reshook)) {
 		$result = $objecttmp->fetch($id);
 
 		if ($result > 0) {
-			$categories = $objecttmp->getCategoriesCommon('control');
-			if (is_array($categories) && !empty($categories)) {
-				foreach ($categories as $categoryId) {
-					$category = new Categorie($db);
-					$category->fetch($categoryId);
-					$category->del_type($objecttmp, 'control');
-				}
-			}
-
-			$objecttmp->fetchObjectLinked('','',$id, 'dolismq_' . $object->element);
-			$objecttmp->element = 'dolismq_' . $objecttmp->element;
-			if (is_array($objecttmp->linkedObjects) && !empty($objecttmp->linkedObjects)) {
-				foreach($objecttmp->linkedObjects as $linkedObjectType => $linkedObjectArray) {
-					foreach($linkedObjectArray as $linkedObject) {
-						if (method_exists($objecttmp, 'isErasable') && $objecttmp->isErasable() <= 0) {
-							$objecttmp->deleteObjectLinked($linkedObject->id, $linkedObjectType);
-						}
-					}
-				}
-			}
-
 			$result = $objecttmp->delete($user);
 
 			if ($result > 0) {
@@ -203,8 +197,10 @@ if (empty($reshook)) {
 
 	// Action clone object
 	if ($action == 'confirm_clone' && $confirm == 'yes') {
+        $options['attendants'] = GETPOST('clone_attendants');
+        $options['photos']     = GETPOST('clone_photos');
 		if ($object->id > 0) {
-			$result = $object->createFromClone($user, $object->id);
+			$result = $object->createFromClone($user, $object->id, $options);
 			if ($result > 0) {
 				header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . $result);
 				exit();
@@ -246,10 +242,10 @@ if (empty($reshook)) {
 			if ($result > 0 && is_array($result)) {
 				$controldettmp = array_shift($result);
 				//sauvegarder réponse
-				$answer = GETPOST('answer'.$questionId);
+				$questionAnswer = GETPOST('answer'.$questionId);
 
-				if ($answer > 0) {
-					$controldettmp->answer = $answer;
+				if (!empty($questionAnswer)) {
+					$controldettmp->answer = $questionAnswer;
 				}
 
 				//sauvegarder commentaire
@@ -270,10 +266,10 @@ if (empty($reshook)) {
 				$controldettmp->fk_question = $questionId;
 
 				//sauvegarder réponse
-				$answer = GETPOST('answer'.$questionId);
+				$questionAnswer = GETPOST('answer'.$questionId);
 
-				if ($answer > 0) {
-					$controldettmp->answer = $answer;
+				if (!empty($questionAnswer)) {
+					$controldettmp->answer = $questionAnswer;
 				} else {
 					$controldettmp->answer = '';
 				}
@@ -299,44 +295,71 @@ if (empty($reshook)) {
 		exit;
 	}
 
-	// Action to build doc
-	if ($action == 'builddoc' && $permissiontoadd) {
-		$outputlangs = $langs;
-		$newlang     = '';
+    // Action to build doc.
+    if (($action == 'builddoc' || GETPOST('forcebuilddoc')) && $permissiontoadd) {
+        $outputlangs = $langs;
+        $newlang = '';
 
-		if ($conf->global->MAIN_MULTILANGS && empty($newlang) && GETPOST('lang_id', 'aZ09')) $newlang = GETPOST('lang_id', 'aZ09');
-		if ( ! empty($newlang)) {
-			$outputlangs = new Translate("", $conf);
-			$outputlangs->setDefaultLang($newlang);
-		}
+        if ($conf->global->MAIN_MULTILANGS && empty($newlang) && GETPOST('lang_id', 'aZ09')) {
+            $newlang = GETPOST('lang_id', 'aZ09');
+        }
+        if (!empty($newlang)) {
+            $outputlangs = new Translate('', $conf);
+            $outputlangs->setDefaultLang($newlang);
+        }
 
-		// To be sure vars is defined
-		if (empty($hidedetails)) $hidedetails = 0;
-		if (empty($hidedesc)) $hidedesc       = 0;
-		if (empty($hideref)) $hideref         = 0;
-		if (empty($moreparams)) $moreparams   = null;
+        // To be sure vars is defined.
+        if (empty($hidedetails)){
+            $hidedetails = 0;
+        }
+        if (empty($hidedesc)) {
+            $hidedesc = 0;
+        }
+        if (empty($hideref)) {
+            $hideref = 0;
+        }
+        if (empty($moreparams)) {
+            $moreparams = [];
+        }
 
-		$model = GETPOST('model', 'alpha');
+        if (GETPOST('forcebuilddoc')) {
+            $model  = '';
+            $modellist = saturne_get_list_of_models($db, $object->element . 'document');
+            if (!empty($modellist)) {
+                asort($modellist);
+                $modellist = array_filter($modellist, 'saturne_remove_index');
+                if (is_array($modellist)) {
+                    $models = array_keys($modellist);
+                }
+            }
+        } else {
+            $model = GETPOST('model', 'alpha');
+        }
 
-		$moreparams['object'] = $object;
-		$moreparams['user']   = $user;
+        $moreparams['object'] = $object;
+        $moreparams['user']   = $user;
 
-		$result = $controldocument->generateDocument($model, $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
-		if ($result <= 0) {
-			setEventMessages($controldocument->error, $controldocument->errors, 'errors');
-			$action = '';
-		} else {
-			if (empty($donotredirect)) {
-				$documentUrl = DOL_URL_ROOT . '/document.php';
-				setEventMessages($langs->trans("FileGenerated") . ' - ' . '<a href=' . $documentUrl . '?modulepart=' . $moduleNameLowerCase . '&amp;file=' . urlencode('controldocument/' . $object->ref . '/' . $controldocument->last_main_doc) . '&entity='. $conf->entity .'"' . '>' . $controldocument->last_main_doc, null);
-				$urltoredirect = $_SERVER['REQUEST_URI'];
-				$urltoredirect = preg_replace('/#builddoc$/', '', $urltoredirect);
-				$urltoredirect = preg_replace('/action=builddoc&?/', '', $urltoredirect); // To avoid infinite loop
-				header('Location: ' . $urltoredirect . '#builddoc');
-				exit;
-			}
-		}
-	}
+        if ($object->status < $object::STATUS_LOCKED) {
+            $moreparams['specimen'] = 1;
+            $moreparams['zone']     = 'private';
+        } else {
+            $moreparams['specimen'] = 0;
+        }
+
+        $result = $document->generateDocument((!empty($models) ? $models[0] : $model), $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
+        if ($result <= 0) {
+            setEventMessages($document->error, $document->errors, 'errors');
+            $action = '';
+        } elseif (empty($donotredirect)) {
+            setEventMessages($langs->trans('FileGenerated') . ' - ' . '<a href=' . DOL_URL_ROOT . '/document.php?modulepart=dolismq&file=' . urlencode('controldocument/' . $object->ref . '/' . $document->last_main_doc) . '&entity=' . $conf->entity . '"' . '>' . $document->last_main_doc, []);
+            $urltoredirect = $_SERVER['REQUEST_URI'];
+            $urltoredirect = preg_replace('/#builddoc$/', '', $urltoredirect);
+            $urltoredirect = preg_replace('/action=builddoc&?/', '', $urltoredirect); // To avoid infinite loop
+            $urltoredirect = preg_replace('/forcebuilddoc=1&?/', '', $urltoredirect); // To avoid infinite loop
+            header('Location: ' . $urltoredirect . '#builddoc');
+            exit;
+        }
+    }
 
 	// Action to generate pdf from odt file
 	include_once DOL_DOCUMENT_ROOT . '/custom/saturne/core/tpl/documents/saturne_manual_pdf_generation_action.tpl.php';
@@ -369,7 +392,7 @@ if (empty($reshook)) {
 		$object->fetch($id);
 		if ( ! $error) {
 			$object->verdict = GETPOST('verdict', 'int');
-			$object->note_public = GETPOST('noteControl');
+			$object->note_public .= (!empty($object->note_public) ? chr(0x0A) : '') . GETPOST('noteControl');
 			$result = $object->update($user, true);
 			if ($result > 0) {
 				// Set verdict Control
@@ -402,9 +425,9 @@ if (empty($reshook)) {
 					$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
 
 					//sauvegarder réponse
-					$answer = GETPOST('answer'.$questionId);
-					if ($answer > 0) {
-						$controldettmp->answer = $answer;
+					$questionAnswer = GETPOST('answer'.$questionId);
+					if (!empty($questionAnswer)) {
+						$controldettmp->answer = $questionAnswer;
 					}
 
 					//sauvegarder commentaire
@@ -483,6 +506,52 @@ if (empty($reshook)) {
 		}
 	}
 
+	// Action to set status STATUS_ARCHIVED.
+	if ($action == 'confirm_archive' && $permissiontoadd) {
+	$object->fetch($id);
+	if (!$error) {
+	$result = $object->setArchived($user);
+	if ($result > 0) {
+	// Set Archived OK.
+	$urltogo = str_replace('__ID__', $result, $backtopage);
+	$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
+	header('Location: ' . $urltogo);
+	exit;
+	} elseif (!empty($object->errors)) { // Set Archived KO.
+	setEventMessages('', $object->errors, 'errors');
+	} else {
+	setEventMessages($object->error, [], 'errors');
+	}
+	}
+	}
+
+  // Action to set status STATUS_ARCHIVED.
+	if ($action == 'confirm_archive' && $permissiontoadd) {
+		$object->fetch($id);
+		if (!$error) {
+			$result = $object->setArchived($user);
+			if ($result > 0) {
+				// Set Archived OK.
+				$urltogo = str_replace('__ID__', $result, $backtopage);
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
+				header('Location: ' . $urltogo);
+				exit;
+			} elseif (!empty($object->errors)) { // Set Archived KO.
+				setEventMessages('', $object->errors, 'errors');
+			} else {
+				setEventMessages($object->error, [], 'errors');
+			}
+		}
+	}
+
+	if ($action == 'add_favorite_photo') {
+		$data          = json_decode(file_get_contents('php://input'), true);
+		$fileName      = $data['filename'];
+		$object->photo = $fileName;
+
+		$object->update($user, true);
+	}
+
 	// Actions to send emails
 	$triggersendname = 'CONTROL_SENTBYMAIL';
 	$autocopy        = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
@@ -498,6 +567,7 @@ $title    = $langs->trans('Control');
 $help_url = 'FR:Module_DoliSMQ';
 
 saturne_header(1,'', $title, $help_url);
+$object->fetch(GETPOST('id'));
 
 // Part to create
 if ($action == 'create') {
@@ -534,7 +604,7 @@ if ($action == 'create') {
 	//FK SHEET
 	print '<tr><td class="fieldrequired">' . $langs->trans('SheetLinked') . '</td><td>';
 	print img_picto('', 'list', 'class="pictofixedwidth"') . $sheet->selectSheetList(GETPOST('fk_sheet')?: $sheet->id);
-	print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/dolismq/view/sheet/sheet_card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
+	print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/dolismq/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
 	print '</td></tr></thead>';
 
 	print '</table>';
@@ -555,17 +625,31 @@ if ($action == 'create') {
 		print '</td></tr>';
 	}
 
-	//FK PRODUCTLOT
-	if ($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT && preg_match('/"productlot":1/',$sheet->element_linked)) {
-		$productLotPost = GETPOST('fk_productlot') ?: (GETPOST('fromtype') == 'productbatch' ? GETPOST('fromid') : 0);
-		print '<tr><td class="titlefieldcreate">' . $langs->trans('BatchLinked') . '</td><td class="lot-container">';
-		print '<span class="lot-content">';
-		dol_strlen(GETPOST('fk_product')) > 0 ? $product->fetch(GETPOST('fk_product')) : 0;
-		print img_picto('', 'lot', 'class="pictofixedwidth"') . dolismq_select_product_lots((!empty(GETPOST('fk_product')) ? GETPOST('fk_product') : 0), $productLotPost, 'fk_productlot', 1, '', '', 0, 'maxwidth500 widthcentpercentminusxx', false, 0, array(), false, '', 'fk_productlot');
-		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/product/stock/productlot_card.php?action=create' . ((GETPOST('fk_product') > 0) ? '&fk_product=' . GETPOST('fk_product') : '') . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProductLot') . '"></span></a>';
-		print '</span>';
-		print '</td></tr>';
-	}
+     // FK Productlot.
+    if ($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT && preg_match('/"productlot":1/', $sheet->element_linked)) {
+        $productLotPost = GETPOST('fk_productlot') ?: (GETPOST('fromtype') == 'productbatch' ? GETPOST('fromid') : -1);
+        print '<tr><td class="titlefieldcreate">' . $langs->trans('BatchLinked') . '</td><td class="lot-container">';
+        print '<span class="lot-content">';
+        print img_picto('', 'lot', 'class="pictofixedwidth"');
+        if (preg_match('/"product":1/', $sheet->element_linked)) {
+            $filter = ['customsql' => 'fk_product = ' . (dol_strlen(GETPOST('fk_product')) > 0 ? GETPOST('fk_product') : 0)];
+        } else {
+            $filter = [];
+        }
+        $productlots = saturne_fetch_all_object_type('Productlot', '', '', 0, 0, $filter);
+        if (is_array($productlots) && !empty($productlots)) {
+            $showEmpty = '1';
+            foreach ($productlots as $productlot) {
+                $arrayProductLots[$productlot->id] = $productlot->batch;
+            }
+        } else {
+            $showEmpty = $langs->transnoentities('NoLotForThisProduct');
+        }
+        print Form::selectarray('fk_productlot', $arrayProductLots, $productLotPost, $showEmpty, 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+        print '</span>';
+        print '</td></tr>';
+    }
+    print '</div>';
 
 	//FK User
 	if ($conf->global->DOLISMQ_SHEET_LINK_USER && preg_match('/"user":1/',$sheet->element_linked)) {
@@ -618,6 +702,70 @@ if ($action == 'create') {
 	}
 	print '</div>';
 
+    // FK Invoice.
+    if ($conf->global->DOLISMQ_SHEET_LINK_INVOICE && preg_match('/"invoice":1/', $sheet->element_linked)) {
+        $invoicePost = GETPOST('fk_invoice') ?: (GETPOST('fromtype') == 'facture' ? GETPOST('fromid') : -1);
+        print '<tr><td class="titlefieldcreate">' . $langs->trans('InvoiceLinked') . '</td><td>';
+        print img_picto('', 'bill', 'class="pictofixedwidth"');
+        $invoices = saturne_fetch_all_object_type('Facture');
+        if (is_array($invoices) && !empty($invoices)) {
+            foreach ($invoices as $invoice) {
+                $arrayInvoices[$invoice->id] = $invoice->ref;
+            }
+        }
+        print Form::selectarray('fk_invoice', $arrayInvoices, $invoicePost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+        print '</td></tr>';
+    }
+    print '</div>';
+
+    // FK Order.
+    if ($conf->global->DOLISMQ_SHEET_LINK_ORDER && preg_match('/"order":1/', $sheet->element_linked)) {
+        $orderPost = GETPOST('fk_order') ?: (GETPOST('fromtype') == 'commande' ? GETPOST('fromid') : -1);
+        print '<tr><td class="titlefieldcreate">' . $langs->trans('OrderLinked') . '</td><td>';
+        print img_picto('', 'order', 'class="pictofixedwidth"');
+        $orders = saturne_fetch_all_object_type('Commande');
+        if (is_array($orders) && !empty($orders)) {
+            foreach ($orders as $order) {
+                $arrayOrders[$order->id] = $order->ref;
+            }
+        }
+        print Form::selectarray('fk_order', $arrayOrders, $orderPost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+        print '</td></tr>';
+    }
+    print '</div>';
+
+    // FK Contract.
+    if ($conf->global->DOLISMQ_SHEET_LINK_CONTRACT && preg_match('/"contract":1/', $sheet->element_linked)) {
+        $contractPost = GETPOST('fk_contract') ?: (GETPOST('fromtype') == 'contrat' ? GETPOST('fromid') : -1);
+        print '<tr><td class="titlefieldcreate">' . $langs->trans('ContractLinked') . '</td><td>';
+        print img_picto('', 'contract', 'class="pictofixedwidth"');
+        $contracts = saturne_fetch_all_object_type('Contrat');
+        if (is_array($contracts) && !empty($contracts)) {
+            foreach ($contracts as $contract) {
+                $arrayContracts[$contract->id] = $contract->ref;
+            }
+        }
+        print Form::selectarray('fk_contract', $arrayContracts, $contractPost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+        print '</td></tr>';
+    }
+    print '</div>';
+
+    // FK Ticket.
+    if ($conf->global->DOLISMQ_SHEET_LINK_TICKET && preg_match('/"ticket":1/', $sheet->element_linked)) {
+        $ticketPost = GETPOST('fk_ticket') ?: (GETPOST('fromtype') == 'ticket' ? GETPOST('fromid') : -1);
+        print '<tr><td class="titlefieldcreate">' . $langs->trans('TicketLinked') . '</td><td>';
+        print img_picto('', 'ticket', 'class="pictofixedwidth"');
+        $tickets = saturne_fetch_all_object_type('Ticket');
+        if (is_array($tickets) && !empty($tickets)) {
+            foreach ($tickets as $ticket) {
+                $arrayTickets[$ticket->id] = $ticket->ref;
+            }
+        }
+        print Form::selectarray('fk_ticket', $arrayTickets, $ticketPost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+        print '</td></tr>';
+    }
+    print '</div>';
+
 	// Other attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
 
@@ -639,37 +787,37 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$formconfirm = '';
 
 	if ($action == 'setVerdict') {
-		//Form to close proposal (signed or not)
-		$answersArray = $controldet->fetchFromParent($object->id);
-		$answerOK = 0;
-		$answerKO = 0;
-		$answerRepair = 0;
-		$answerNotApplicable = 0;
-		if (is_array($answersArray) && !empty($answersArray)) {
-			foreach ($answersArray as $answer){
-				switch ($answer->answer){
-					case 1:
-						$answerOK++;
-						break;
-					case 2:
-						$answerKO++;
-						break;
-					case 3:
-						$answerRepair++;
-						break;
-					case 4:
-						$answerNotApplicable++;
-						break;
-				}
-			}
-		}
+//		//Form to close proposal (signed or not)
+//		$answersArray = $controldet->fetchFromParent($object->id);
+//		$answerOK = 0;
+//		$answerKO = 0;
+//		$answerRepair = 0;
+//		$answerNotApplicable = 0;
+//		if (is_array($answersArray) && !empty($answersArray)) {
+//			foreach ($answersArray as $questionAnswer){
+//				switch ($questionAnswer->answer){
+//					case 1:
+//						$answerOK++;
+//						break;
+//					case 2:
+//						$answerKO++;
+//						break;
+//					case 3:
+//						$answerRepair++;
+//						break;
+//					case 4:
+//						$answerNotApplicable++;
+//						break;
+//				}
+//			}
+//		}
 
 		$formquestion = array(
 			array('type' => 'select', 'name' => 'verdict', 'label' => '<span class="fieldrequired">' . $langs->trans('VerdictControl') . '</span>', 'values' => array('1' => 'OK', '2' => 'KO'), 'select_show_empty' => 0),
-			array('type' => 'text', 'name' => 'OK', 'label' => '<span class="answer" value="1" style="pointer-events: none"><i class="fas fa-check"></i></span>', 'value' => $answerOK, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'KO', 'label' => '<span class="answer" value="2" style="pointer-events: none"><i class="fas fa-times"></i></span>', 'value' => $answerKO, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'Repair', 'label' => '<span class="answer" value="3" style="pointer-events: none"><i class="fas fa-tools"></i></span>', 'value' => $answerRepair, 'moreattr' => 'readonly'),
-			array('type' => 'text', 'name' => 'NotApplicable', 'label' => '<span class="answer" value="4" style="pointer-events: none">N/A</span>', 'value' => $answerNotApplicable, 'moreattr' => 'readonly'),
+//			array('type' => 'text', 'name' => 'OK', 'label' => '<span class="answer" value="1" style="pointer-events: none"><i class="fas fa-check"></i></span>', 'value' => $answerOK, 'moreattr' => 'readonly'),
+//			array('type' => 'text', 'name' => 'KO', 'label' => '<span class="answer" value="2" style="pointer-events: none"><i class="fas fa-times"></i></span>', 'value' => $answerKO, 'moreattr' => 'readonly'),
+//			array('type' => 'text', 'name' => 'Repair', 'label' => '<span class="answer" value="3" style="pointer-events: none"><i class="fas fa-tools"></i></span>', 'value' => $answerRepair, 'moreattr' => 'readonly'),
+//			array('type' => 'text', 'name' => 'NotApplicable', 'label' => '<span class="answer" value="4" style="pointer-events: none">N/A</span>', 'value' => $answerNotApplicable, 'moreattr' => 'readonly'),
 			array('type' => 'text', 'name' => 'noteControl', 'label' => '<div class="note-control" style="margin-top: 20px;">' . $langs->trans('NoteControl') . '</div>'),
 		);
 
@@ -688,9 +836,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$questionCounter = 0;
 		}
 
-		$answerCounter = $_COOKIE['answerCounter'];
+		$object->fetchLines();
+		$answerCounter = 0;
+		if (is_array($object->lines) && !empty($object->lines)) {
+			foreach($object->lines as $objectLine) {
+				if (dol_strlen($objectLine->answer) > 0) {
+					$answerCounter++;
+				}
+			}
+		}
 
-		$questionConfirmInfo =  img_help('', '') . ' ' . $langs->trans('YouAnswered') . ' ' . $answerCounter . ' ' . $langs->trans('question(s)')  . ' ' . $langs->trans('On') . ' ' . $questionCounter . '.';
+		$questionConfirmInfo = $langs->trans('YouAnswered') . ' ' . $answerCounter . ' ' . $langs->trans('question(s)')  . ' ' . $langs->trans('On') . ' ' . $questionCounter . '.';
 		if ($questionCounter - $answerCounter != 0) {
 			$questionConfirmInfo .= '<br><b>' . $langs->trans('BewareQuestionsAnswered', $questionCounter - $answerCounter) . '</b>';
 		}
@@ -711,12 +867,18 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Clone confirmation
 	if (($action == 'clone' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
-		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('CloneObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmCloneObject', $langs->transnoentities('The' . ucfirst($object->element)), $object->ref), 'confirm_clone', '', 'yes', 'actionButtonClone', 350, 600);
+        // Define confirmation messages.
+        $formquestionclone = [
+            ['type' => 'checkbox', 'name' => 'clone_attendants', 'label' => $langs->trans('CloneAttendants'), 'value' => 1],
+            ['type' => 'checkbox', 'name' => 'clone_photos', 'label' => $langs->trans('ClonePhotos'), 'value' => 1]
+        ];
+
+		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('CloneObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmCloneObject', $langs->transnoentities('The' . ucfirst($object->element)), $object->ref), 'confirm_clone', $formquestionclone, 'yes', 'actionButtonClone', 350, 600);
 	}
 
 	// Confirmation to delete
 	if ($action == 'delete') {
-		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('DeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('Delete') . ' ' . $langs->transnoentities('The' . ucfirst($object->element)), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
 	}
 
 	// Call Hook formConfirm
@@ -731,45 +893,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Print form confirm
 	print $formconfirm;
 
-	// Object card
-	// ------------------------------------------------------------
-	$morehtmlref = '<div class="refidno">';
-	// Project
-	if (!empty($conf->projet->enabled)) {
-		$langs->load('projects');
-		$morehtmlref .= $langs->trans('Project') . ' ';
-		if ($user->rights->projet->creer) {
-			if ($action != 'classify' && $object->status < $object::STATUS_LOCKED) {
-				$morehtmlref .= '<a class="editfielda" href="' . $_SERVER['PHP_SELF'] . '?action=classify&token=' . newToken() . '&id=' . $object->id .'">' . img_edit($langs->transnoentitiesnoconv('SetProject')) . '</a>';
-			}
-			$morehtmlref .= ' : ';
-			if ($action == 'classify') {
-				$morehtmlref .= '<form method="post" action="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '">';
-				$morehtmlref .= '<input type="hidden" name="action" value="classin">';
-				$morehtmlref .= '<input type="hidden" name="token" value="'.newToken().'">';
-				$morehtmlref .= $formproject->select_projects(0, $object->projectid, 'projectid', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'maxwidth500');
-				$morehtmlref .= '<input type="submit" class="button valignmiddle" value="' . $langs->trans("Modify") . '">';
-				$morehtmlref .= '</form>';
-			} else {
-				$morehtmlref .= $form->form_project($_SERVER['PHP_SELF'] . '?id=' .$object->id, 0, $object->projectid, 'none', 0, 0, 0, 1);
-			}
-		} else {
-			if (!empty($object->projectid)) {
-				$project->fetch($object->projectid);
-				$morehtmlref .= $project->getNomUrl(1, '', 1);
-			} else {
-				$morehtmlref .= '';
-			}
-		}
-	}
-	if ($conf->browser->layout == 'phone') {
-		$morehtmlref .= '<br><i class="toggleControlInfo far fa-caret-square-down"></i>' . ' ' . $langs->trans('DisplayMoreInfo');
-	}
-	$morehtmlref .= '</div>';
+    if ($conf->browser->layout == 'phone') {
+        $onPhone = 1;
+    } else {
+        $onPhone = 0;
+    }
 
-	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', $morehtmlref);
+	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', '', empty($object->photo) ? false : true);
 
-	print '<div class="fichecenter controlInfo' . ($conf->browser->layout == 'phone' ? ' hidden' : '') . '">';
+	print '<div class="fichecenter controlInfo' . ($onPhone ? ' hidden' : '') . '">';
 	print '<div class="fichehalfleft">';
 	print '<table class="border centpercent tableforfield">'."\n";
 
@@ -902,6 +1034,84 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td></tr>';
 	}
 
+    if (!empty($conf->global->DOLISMQ_SHEET_LINK_INVOICE) && (!empty($object->linkedObjectsIds['facture']))) {
+        //Fk_invoice - Facture liée
+        print '<tr><td class="titlefield">';
+        print $langs->trans('Invoice');
+        print '</td>';
+        print '<td>';
+        $invoice->fetch(array_shift($object->linkedObjectsIds['facture']));
+        if ($invoice > 0) {
+            print $invoice->getNomUrl(1);
+        }
+        print '</td></tr>';
+    }
+
+    if (!empty($conf->global->DOLISMQ_SHEET_LINK_ORDER) && (!empty($object->linkedObjectsIds['commande']))) {
+        //Fk_order - Commande liée
+        print '<tr><td class="titlefield">';
+        print $langs->trans('Order');
+        print '</td>';
+        print '<td>';
+        $order->fetch(array_shift($object->linkedObjectsIds['commande']));
+        if ($order > 0) {
+            print $order->getNomUrl(1);
+        }
+        print '</td></tr>';
+    }
+
+    if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && (!empty($object->linkedObjectsIds['contrat']))) {
+        //Fk_contract - Contrat lié
+        print '<tr><td class="titlefield">';
+        print $langs->trans('Contract');
+        print '</td>';
+        print '<td>';
+        $contract->fetch(array_shift($object->linkedObjectsIds['contrat']));
+        if ($contract > 0) {
+            print $contract->getNomUrl(1);
+        }
+        print '</td></tr>';
+    }
+
+    if (!empty($conf->global->DOLISMQ_SHEET_LINK_TICKET) && (!empty($object->linkedObjectsIds['ticket']))) {
+        //Fk_ticket - Ticket lié
+        print '<tr><td class="titlefield">';
+        print $langs->trans('Ticket');
+        print '</td>';
+        print '<td>';
+        $ticket->fetch(array_shift($object->linkedObjectsIds['ticket']));
+        if ($ticket > 0) {
+            print $ticket->getNomUrl(1);
+        }
+        print '</td></tr>';
+    }
+
+	print '<tr class="linked-medias photo question-table"><td class=""><label for="photos">' . $langs->trans("Photo") . '</label></td><td class="linked-medias-list">';
+    $pathPhotos = $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/';
+    $fileArray  = dol_dir_list($pathPhotos, 'files');
+	?>
+	<span class="add-medias" <?php echo ($object->status != Control::STATUS_LOCKED) ? '' : 'style="display:none"' ?>>
+		<input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
+		<label for="fast-upload-photo-default">
+			<div class="wpeo-button button-square-50">
+				<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
+			</div>
+		</label>
+		<input type="hidden" class="favorite-photo" id="photo" name="photo" value="<?php echo $object->photo ?>"/>
+		<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
+			<input type="hidden" class="modal-to-open" value="media_gallery"/>
+			<input type="hidden" class="from-type" value="control"/>
+			<input type="hidden" class="from-subtype" value="photo"/>
+			<input type="hidden" class="from-subdir" value="photos"/>
+			<input type="hidden" class="from-id" value="<?php echo $object->id?>"/>
+			<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
+		</div>
+	</span>
+	<?php
+	$relativepath = 'dolismq/medias/thumbs';
+	print saturne_show_medias_linked('dolismq', $pathPhotos, 'small', 0, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
+	print '</td></tr>';
+
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	if ($permissiontoadd > 0 && $object->status < 1) {
 		$user->rights->control = new stdClass();
@@ -909,19 +1119,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php'; ?>
-
-	<script type="text/javascript">
-		$(function () {
-			let answerCounter = 0
-			jQuery("#tablelines").children().each(function() {
-				if ($(this).find(".answer.active").length > 0) {
-					answerCounter += 1;
-				}
-			})
-
-			jQuery('.answerCounter').text(answerCounter)
-		})
-	</script>
 	<?php
 
 	print '</table>';
@@ -943,57 +1140,81 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 		}
 
-		print '<span class="butAction" id="actionButtonClone" title="" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=clone' . '">' . '<i class="fas fa-clone"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('ToClone')) . '</span>';
+		$displayButton = $onPhone ? '<i class="fas fa-clone fa-2x"></i>' : '<i class="fas fa-clone"></i>' . ' ' . $langs->trans('ToClone');
+		print '<span class="butAction" id="actionButtonClone">' . $displayButton . '</span>';
 
 		if (empty($reshook)) {
 			// Save question answer
+			$displayButton = $onPhone ? '<i class="fas fa-save fa-2x"></i>' : '<i class="fas fa-save"></i>' . ' ' . $langs->trans('Save');
 			if ($object->status == $object::STATUS_DRAFT) {
-				print '<button type="submit" id="saveButton" class="saveButton butActionRefused">' . '<i class="fas fa-save"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Save')) . '</button>';
+				print '<span class="butActionRefused" id="saveButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=save' . '">' . $displayButton . '</span>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . '<i class="fas fa-save"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Save')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $displayButton . '</span>';
 			}
 
 			// Validate
+			$displayButton = $onPhone ? '<i class="fas fa-check fa-2x"></i>' : '<i class="fas fa-check"></i>' . ' ' . $langs->trans('Validate');
 			if ($object->status == $object::STATUS_DRAFT) {
-				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . '<i class="fas fa-check"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Validate')) . '</a>';
+				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . $displayButton . '</a>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . '<i class="fas fa-check"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Validate')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $displayButton . '</span>';
 			}
 
 			// ReOpen
+			$displayButton = $onPhone ? '<i class="fas fa-lock-open fa-2x"></i>' : '<i class="fas fa-lock-open"></i>' . ' ' . $langs->trans('ReOpenDoli');
 			if ($object->status == $object::STATUS_VALIDATED) {
-				print '<span class="butAction" id="actionButtonReOpen" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setDraft' . '">' . '<i class="fas fa-lock-open"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('ReOpenDoli')) . '</span>';
+				print '<span class="butAction" id="actionButtonReOpen" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setDraft' . '">' . $displayButton . '</span>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidated')) . '">' . '<i class="fas fa-lock-open"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('ReOpenDoli')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidated')) . '">' . $displayButton . '</span>';
 			}
 
 			// Set verdict control
+			$displayButton = $onPhone ? '<i class="far fa-check-circle fa-2x"></i>' : '<i class="far fa-check-circle"></i>' . ' ' . $langs->trans('SetOK/KO');
 			if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null) {
 				if ($permissiontoadd) {
-					print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setVerdict&token=' . newToken() . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</a>';
+					print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setVerdict&token=' . newToken() . '">' . $displayButton . '</a>';
 				}
 			} elseif ($object->status == $object::STATUS_DRAFT) {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . $displayButton . '</span>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . $displayButton . '</span>';
 			}
 
+            // Sign
+            $displayButton = $onPhone ? '<i class="fas fa-signature fa-2x"></i>' : '<i class="fas fa-signature"></i>' . ' ' . $langs->trans('Sign');
+            if ($object->status == $object::STATUS_VALIDATED && !$signatory->checkSignatoriesSignatures($object->id, $object->element)) {
+                print '<a class="butAction" id="actionButtonSign" href="' . dol_buildpath('/custom/saturne/view/saturne_attendants.php?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element . '&document_type=ControlDocument&attendant_table_mode=simple', 3) . '">' . $displayButton . '</a>';
+            } else {
+                print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeValidatedToSign', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '">' . $displayButton . '</span>';
+            }
+
 			// Lock
-			if ($object->status == $object::STATUS_VALIDATED && $object->verdict != null) {
-				print '<span class="butAction" id="actionButtonLock">' . '<i class="fas fa-lock"></i>' . ($conf->browser->layout == 'phone' ? '' : $langs->trans('Lock')) . '</span>';
+			$displayButton = $onPhone ? '<i class="fas fa-lock fa-2x"></i>' : '<i class="fas fa-lock"></i>' . ' ' . $langs->trans('Lock');
+			if ($object->status == $object::STATUS_VALIDATED && $object->verdict != null && $signatory->checkSignatoriesSignatures($object->id, $object->element)) {
+				print '<span class="butAction" id="actionButtonLock">' . $displayButton . '</span>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToLock')) . '">' . '<i class="fas fa-lock"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Lock')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToLock')) . '">' . $displayButton . '</span>';
 			}
 
 			// Send email
+			$displayButton = $onPhone ? '<i class="fas fa-paper-plane fa-2x"></i>' : '<i class="fas fa-paper-plane"></i>' . ' ' . $langs->trans('SendMail') . ' ';
 			if ($object->status == $object::STATUS_LOCKED) {
-				print dolGetButtonAction('<i class="fas fa-paper-plane"></i>' . ' ' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SendMail')), '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=presend&mode=init&token='.newToken().'#formmailbeforetitle', '', $object->status == $object::STATUS_LOCKED);
+				print dolGetButtonAction($displayButton, '', 'default', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=presend&mode=init&token='.newToken().'#formmailbeforetitle', '', $object->status == $object::STATUS_LOCKED);
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans('ControlMustBeLockedToSendEmail')) . '">' . '<i class="fas fa-paper-plane"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SendMail') . ' ') . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="'.dol_escape_htmltag($langs->trans('ControlMustBeLockedToSendEmail')) . '">' . $displayButton . '</span>';
 			}
 
+            // Archive
+			$displayButton = $onPhone ?  '<i class="fas fa-archive fa-2x"></i>' : '<i class="fas fa-archive"></i>' . ' ' . $langs->trans('Archive');
+            if ($object->status == $object::STATUS_LOCKED) {
+                print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=confirm_archive&token=' . newToken() . '">' . $displayButton . '</a>';
+            } else {
+                print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLockedToArchive', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '">' . $displayButton . '</span>';
+            }
+
 			// Delete (need delete permission, or if draft, just need create/modify permission)
-			print dolGetButtonAction('<i class="fas fa-trash"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('Delete')), '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
+			$displayButton = $onPhone ? '<i class="fas fa-trash fa-2x"></i>' : '<i class="fas fa-trash"></i>' . ' ' . $langs->trans('Delete');
+			print dolGetButtonAction($displayButton, '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 		}
 		print '</div>';
 	}
@@ -1014,7 +1235,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$questionCounter = 0;
 	}
 
-	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter"></span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . $questionCounter;
+	$object->fetchLines();
+	$answerCounter = 0;
+	if (is_array($object->lines) && !empty($object->lines)) {
+		foreach($object->lines as $objectLine) {
+			if (dol_strlen($objectLine->answer) > 0) {
+				$answerCounter++;
+			}
+		}
+	}
+
+	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter">'. $answerCounter .'</span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . $questionCounter;
 
 	print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', ''); ?>
 
@@ -1031,14 +1262,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if (is_array($questionIds) && !empty($questionIds)) {
 		foreach ($questionIds as $questionId) {
 			$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
-			$answer = 0;
+			$questionAnswer = 0;
 			$comment = '';
 			if ($result > 0 && is_array($result)) {
 				$itemControlDet = array_shift($result);
-				$answer = $itemControlDet->answer;
+				$questionAnswer = $itemControlDet->answer;
 				$comment = $itemControlDet->comment;
 			}
-			$answer = GETPOST('answer'.$questionId) ?: $answer;
 			$item = $question;
 			$item->fetch($questionId);
 			?>
@@ -1080,7 +1310,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					</div>
 					<?php endif; ?>
 				</div>
-				<div class="table-row">
+				<div class="table-row <?php echo ($onPhone ? 'center' : ''); ?>">
 					<!-- Galerie -->
 					<?php if ($item->authorize_answer_photo > 0) : ?>
 						<div class="table-cell table-full linked-medias answer_photo_<?php echo $item->id ?>">
@@ -1106,28 +1336,96 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 						?>
 					</div>
 					<?php endif; ?>
-					<!-- Réponses -->
-					<div class="table-cell table-250 <?php echo ($item->authorize_answer_photo == 0) ? 'table-end' : '' ?> <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-						<?php
-						print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 1 ? 'active' : '') . '" value="1">';
-						print '<i class="fas fa-check"></i>';
-						print '</span>';
-
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 2 ? 'active' : '') . '" value="2">';
-						print '<i class="fas fa-times"></i>';
-						print '</span>';
-
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 3 ? 'active' : '') . '" value="3">';
-						print '<i class="fas fa-tools"></i>';
-						print '</span>';
-
-						print '<span class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($answer == 4 ? 'active' : '') . '" value="4">';
-						print 'N/A';
-						print '</span>';
+					<?php
+					$pictosArray = get_answer_pictos_array();
+					?>
+					<?php if ($item->type == 'MultipleChoices') :
+						$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $item->id]);
 						?>
+						<div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+							<?php
+							if (preg_match('/,/', $questionAnswer)) {
+								$questionAnswers = preg_split('/,/', $questionAnswer);
+							} else {
+								$questionAnswers = [$questionAnswer];
+							}
+
+							print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
+							if (is_array($answerList) && !empty($answerList)) {
+								foreach($answerList as $answerLinked) {
+									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
+									print '<span style="'. (in_array($answerLinked->position, $questionAnswers) ? 'background:'. $answerLinked->color .'' : '') .'; color:'. $answerLinked->color .';" class="answer multiple-answers square ' . ($object->status > 0 ? 'disable' : '') . ' ' . (in_array($answerLinked->position, $questionAnswers) ? 'active' : '') . '" value="'. $answerLinked->position .'">';
+									if ($answerLinked->pictogram > 0) {
+										print $pictosArray[$answerLinked->pictogram]['picto_source'];
+									} else {
+										print $answerLinked->value;
+									}
+									print '</span>';
+								}
+							}
+							?>
+						</div>
+					<?php elseif ($item->type == 'UniqueChoice' || $item->type == 'OkKo' || $item->type == 'OkKoToFixNonApplicable') :
+						$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $item->id]);
+						?>
+						<div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+							<?php
+							print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
+							if (is_array($answerList) && !empty($answerList)) {
+								foreach($answerList as $answerLinked) {
+									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
+									print '<span style="'. ($questionAnswer == $answerLinked->position ? 'background:'. $answerLinked->color .'' : '') .'; color:'. $answerLinked->color .';" class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $answerLinked->position .'">';
+									if ($answerLinked->pictogram > 0) {
+										print $pictosArray[$answerLinked->pictogram]['picto_source'];
+									} else {
+										print $answerLinked->value;
+									}
+									print '</span>';
+								}
+							}
+							?>
+						</div>
+					<?php elseif ($item->type == 'Text') : ?>
+						<div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+							<div class="table-row">
+								<?php
+								print '<span class="table-cell" value="">';
+								print $langs->trans('Answer') . ' : ';
+								print '</span>';
+								print '<span class="table-cell" value="">';
+								print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+								print '</span>';
+								?>
+							</div>
+						</div>
+					<?php elseif ($item->type == 'Percentage') : ?>
+						<div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+							<div class="table-row">
+								<?php
+								print '<span class="table-cell" value="">';
+								print $langs->transnoentities('Answer') . ' : ';
+								print '</span>';
+								print '<span class="table-cell" value="">';
+								print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" min="0" max="100" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+								print '</span>';
+								?>
+							</div>
+						</div>
+					<?php elseif ($item->type == 'Range') : ?>
+						<div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+							<div class="table-row">
+								<?php
+								print '<span class="table-cell" value="">';
+								print $langs->transnoentities('Answer') . ' : ';
+								print '</span>';
+								print '<span class="table-cell" value="">';
+								print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+								print '</span>';
+								?>
+							</div>
+						</div>
+					<?php endif; ?>
 					</div>
-				</div>
 			</div>
 			<?php
 		}
