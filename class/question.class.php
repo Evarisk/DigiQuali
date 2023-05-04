@@ -84,6 +84,7 @@ class Question extends CommonObject
 		'show_photo'             => array('type' => 'boolean', 'label' => 'ShowPhoto', 'enabled' => '1', 'position' => 105, 'notnull' => 0, 'visible' => 0,),
 		'authorize_answer_photo' => array('type' => 'boolean', 'label' => 'AuthorizeAnswerPhoto', 'enabled' => '1', 'position' => 106, 'notnull' => 0, 'visible' => 0,),
 		'enter_comment'          => array('type' => 'boolean', 'label' => 'EnterComment', 'enabled' => '1', 'position' => 107, 'notnull' => 0, 'visible' => 0,),
+        'mandatory'              => array('type' => 'boolean', 'label' => 'EnterComment', 'enabled' => '1', 'position' => 108, 'notnull' => 0, 'visible' => 0,),
 		'photo_ok'               => array('type' => 'text', 'label' => 'PhotoOK', 'enabled' => '1', 'position' => 110, 'notnull' => 0, 'visible' => 3,),
 		'photo_ko'               => array('type' => 'text', 'label' => 'PhotoKO', 'enabled' => '1', 'position' => 120, 'notnull' => 0, 'visible' => 3,),
 		'fk_user_creat'          => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',),
@@ -104,6 +105,7 @@ class Question extends CommonObject
 	public $show_photo;
 	public $authorize_answer_photo;
 	public $enter_comment;
+    public $mandatory;
 	public $photo_ok;
 	public $photo_ko;
 	public $fk_user_creat;

@@ -1123,6 +1123,32 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '</div>';
 	print '</div>';
 
+    $controldet = new ControlLine($db);
+
+    $sheet->fetch($object->fk_sheet);
+    $sheet->fetchQuestionsLinked($object->fk_sheet, 'dolismq_' . $sheet->element);
+
+    $questionIds         = $sheet->linkedObjectsIds['dolismq_question'];
+    $cantValidateControl = 0;
+
+    foreach($questionIds as $questionId) {
+        $controldettmp  = $controldet;
+        $resultQuestion = $question->fetch($questionId);
+        $resultAnswer   = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
+        if ($resultAnswer > 0 && is_array($resultAnswer)) {
+            $itemControlDet = array_shift($resultAnswer);
+        } else {
+            $itemControlDet = $controldettmp;
+        }
+
+        if ($resultQuestion > 0 && !empty($question->mandatory)) {
+            if (empty($itemControlDet->comment) && empty($itemControlDet->answer)) {
+                $cantValidateControl++;
+            }
+        }
+    }
+
+
 	print '<div class="clearboth"></div>';
 
 	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?action=save&id='.$object->id.'" id="saveControl" enctype="multipart/form-data">';
@@ -1152,9 +1178,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Validate
 			$displayButton = $onPhone ? '<i class="fas fa-check fa-2x"></i>' : '<i class="fas fa-check"></i>' . ' ' . $langs->trans('Validate');
-			if ($object->status == $object::STATUS_DRAFT) {
+			if ($object->status == $object::STATUS_DRAFT && empty($cantValidateControl)) {
 				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . $displayButton . '</a>';
-			} else {
+			} else if ($cantValidateControl > 0) {
+                print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('QuestionMustBeAnswered')) . '">' . $displayButton . '</span>';
+            } else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $displayButton . '</span>';
 			}
 
@@ -1258,8 +1286,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Lines
 	if (is_array($questionIds) && !empty($questionIds)) {
-		foreach ($questionIds as $questionId) {
-			$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
+        foreach ($questionIds as $questionId) {
+            $result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
 			$questionAnswer = 0;
 			$comment = '';
 			if ($result > 0 && is_array($result)) {
@@ -1269,7 +1297,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 			$item = $question;
 			$item->fetch($questionId);
-			?>
+            ?>
 			<div class="wpeo-table table-flex table-3 table-id-<?php echo $item->id ?>">
 				<div class="table-row">
 					<!-- Contenu et commentaire -->

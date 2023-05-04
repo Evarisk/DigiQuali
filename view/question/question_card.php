@@ -713,6 +713,12 @@ if ($action == 'create') {
 	print $form->textwithpicto('', $langs->trans('ShowPhotoTooltip'));
 	print '</td></tr>';
 
+    // Mandatory -- Rendre obligatoire
+    print '<tr><td class="minwidth400">' . $langs->trans("Mandatory") . '</td><td>';
+    print '<input type="checkbox" id="mandatory" name="mandatory"' . (GETPOST('mandatory') ? ' checked=""' : '') . '>';
+    print $form->textwithpicto('', $langs->trans('MandatoryTooltip'));
+    print '</td></tr>';
+
 	// Photo OK -- Photo OK
 	print '<tr class="linked-medias photo_ok hidden" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td class="linked-medias-list">'; ?>
 	<input hidden multiple class="fast-upload" id="fast-upload-photo-ok" type="file" name="userfile[]" capture="environment" accept="image/*">
@@ -846,6 +852,12 @@ if (($id || $ref) && $action == 'edit') {
 	print '<input type="checkbox" id="show_photo" name="show_photo"' . ($object->show_photo ? ' checked=""' : '') . '"> ';
 	print $form->textwithpicto('', $langs->trans('ShowPhotoTooltip'));
 	print '</td></tr>';
+
+    // Mandatory -- Rendre obligatoire
+    print '<tr><td class="minwidth400">' . $langs->trans("Mandatory") . '</td><td>';
+    print '<input type="checkbox" id="mandatory" name="mandatory"' . (GETPOST('mandatory') ? ' checked=""' : '') . '>';
+    print $form->textwithpicto('', $langs->trans('MandatoryTooltip'));
+    print '</td></tr>';
 
 	// Photo OK -- Photo OK
 	print '<tr class="' . ($object->show_photo ? ' linked-medias photo_ok' : ' linked-medias photo_ok hidden' ) . '" style="' . ($object->show_photo ? ' ' : ' display:none') . '"><td><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td class="linked-medias-list">'; ?>
@@ -1007,6 +1019,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>';
 	print '<input type="checkbox" id="show_photo" name="show_photo"' . ($object->show_photo ? ' checked=""' : '') . '" disabled> ';
 	print '</td></tr>';
+
+    // AuthorizeAnswerPhoto -- Utiliser les réponses de photos
+    print '<tr><td class="titlefield">';
+    print $langs->trans("Mandatory");
+    print '</td>';
+    print '<td>';
+    print '<input type="checkbox" id="mandatory" name="mandatory"' . ($object->mandatory ? ' checked=""' : '') . '" disabled> ';
+    print '</td></tr>';
 
 	if ($object->show_photo > 0) {
 		//Photo OK -- Photo OK
