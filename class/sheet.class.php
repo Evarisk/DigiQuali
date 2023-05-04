@@ -61,9 +61,11 @@ class Sheet extends CommonObject
 	 */
 	public $picto = 'fontawesome_fa-list_fas_#d35968';
 
+	const STATUS_DELETED   = -1;
 	const STATUS_DRAFT     = 0;
 	const STATUS_VALIDATED = 1;
 	const STATUS_LOCKED    = 2;
+    const STATUS_ARCHIVED  = 3;
 
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
@@ -79,6 +81,7 @@ class Sheet extends CommonObject
 		'status'         => array('type' => 'smallint', 'label' => 'Status', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>'1', 'arrayofkeyval' => ['0' => 'Draft', '1' => 'Enabled', '2' => 'Locked']),
 		'type'           => array('type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0,),
 		'label'          => array('type' => 'varchar(255)', 'label' => 'Label', 'enabled' => '1', 'position' => 11, 'notnull' => 1, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200', 'help' => "Help text", 'showoncombobox' => '1',),
+		'description'    => array('type' => 'html', 'label' => 'Description', 'enabled' => '1', 'position' => 15, 'notnull' => 0, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200'),
 		'element_linked' => array('type' => 'text', 'label' => 'ElementLinked', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 0,),
 		'fk_user_creat'  => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',),
 		'fk_user_modif'  => array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,),
@@ -94,6 +97,7 @@ class Sheet extends CommonObject
 	public $status;
 	public $type;
 	public $label;
+	public $description;
 	public $element_linked;
 	public $fk_user_creat;
 	public $fk_user_modif;
@@ -269,7 +273,8 @@ class Sheet extends CommonObject
 	 */
 	public function delete(User $user, $notrigger = false)
 	{
-		return $this->deleteCommon($user, $notrigger);
+		$this->status = $this::STATUS_DELETED;
+		return $this->update($user, $notrigger);
 	}
 
 	/**
@@ -283,6 +288,18 @@ class Sheet extends CommonObject
 	{
 		return $this->setStatusCommon($user, self::STATUS_LOCKED, $notrigger, 'SHEET_LOCKED');
 	}
+
+    /**
+     * Set archived status.
+     *
+     * @param  User $user       Object user that modify.
+     * @param  int  $notrigger  1 = Does not execute triggers, 0 = Execute triggers.
+     * @return int              0 < if KO, >0 if OK.
+     */
+    public function setArchived(User $user, int $notrigger = 0): int
+    {
+        return $this->setStatusCommon($user, self::STATUS_ARCHIVED, $notrigger, 'SHEET_ARCHIVED');
+    }
 
 	/**
 	 *  Return a link to the object card (with optionaly the picto)
@@ -362,34 +379,44 @@ class Sheet extends CommonObject
 		return $this->LibStatut($this->status, $mode);
 	}
 
-	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
-	/**
-	 *  Return the status
-	 *
-	 *  @param	int		$status        Id status
-	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
-	 *  @return string 			       Label of status
-	 */
-	public function LibStatut($status, $mode = 0)
-	{
-		// phpcs:enable
-		if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
-			global $langs;
-			//$langs->load("dolismq@dolismq");
-			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('Draft');
-			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('Enabled');
-			$this->labelStatus[self::STATUS_LOCKED]       = $langs->trans('Locked');
-			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('Draft');
-			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Enabled');
-			$this->labelStatusShort[self::STATUS_LOCKED]  = $langs->trans('Locked');
-		}
+    /**
+     *  Return the status.
+     *
+     * @param  int    $status ID status.
+     * @param  int    $mode   0 = long label, 1 = short label, 2 = Picto + short label, 3 = Picto, 4 = Picto + long label, 5 = Short label + Picto, 6 = Long label + Picto.
+     * @return string         Label of status.
+     */
+    public function LibStatut(int $status, int $mode = 0): string
+    {
+        if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
+            global $langs;
+            $this->labelStatus[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
+            $this->labelStatus[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
+            $this->labelStatus[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
+            $this->labelStatus[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
+			      $this->labelStatus[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
 
-		$statusType = 'status' . $status;
-		//if ($status == self::STATUS_VALIDATED) $statusType = 'status1';
-		if ($status == self::STATUS_LOCKED) $statusType = 'status4';
+            $this->labelStatusShort[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
+            $this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
+            $this->labelStatusShort[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
+            $this->labelStatusShort[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
+			      $this->labelStatusShort[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
+            
+        }
 
-		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
-	}
+        $statusType = 'status' . $status;
+        if ($status == self::STATUS_LOCKED) {
+            $statusType = 'status4';
+        }
+        if ($status == self::STATUS_ARCHIVED) {
+            $statusType = 'status8';
+        }
+        if ($status == self::STATUS_DELETED) {
+            $statusType = 'status9';
+        }
+
+        return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
+    }
 
 	/**
 	 *	Load the info information in the object
