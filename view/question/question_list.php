@@ -200,23 +200,11 @@ if (empty($reshook)) {
 		foreach ($toselect as $toselectid) {
 			$result = $objecttmp->fetch($toselectid);
 			if ($result > 0) {
-
 				if (method_exists($objecttmp, 'isErasable') && $objecttmp->isErasable() <= 0) {
 					$langs->load("errors");
 					$nbignored++;
 					$TMsg[] = '<div class="error">'.$langs->trans('ErrorQuestionUsedInSheet',$objecttmp->ref).'</div><br>';
 					continue;
-				}
-
-				$categories = $objecttmp->getCategoriesCommon('question');
-
-				if (is_array($categories) && !empty($categories)) {
-					foreach ($categories as $cat_id) {
-
-						$category = new Categorie($db);
-						$category->fetch($cat_id);
-						$category->del_type($objecttmp, 'question');
-					}
 				}
 
 				$result = $objecttmp->delete($user);
@@ -255,10 +243,7 @@ if (empty($reshook)) {
 		} else {
 			$db->rollback();
 		}
-
-		//var_dump($listofobjectthirdparties);exit;
 	}
-//	include DOL_DOCUMENT_ROOT.'/core/actions_massactions.inc.php';
 }
 
 /*
@@ -295,6 +280,8 @@ $reshook = $hookmanager->executeHooks('printFieldListFrom', $parameters, $object
 $sql .= $hookmanager->resPrint;
 if ($object->ismultientitymanaged == 1) $sql .= " WHERE t.entity IN (".getEntity($object->element).")";
 else $sql .= " WHERE 1 = 1";
+$sql .= ' AND status > -1';
+
 foreach ($search as $key => $val) {
 	if ($key == 'status' && $search[$key] == -1) continue;
 	$mode_search = (($object->isInt($object->fields[$key]) || $object->isFloat($object->fields[$key])) ? 1 : 0);
@@ -521,25 +508,42 @@ while ($i < ($limit ? min($num, $limit) : $num)) {
 	print '<tr class="oddeven">';
 	foreach ($object->fields as $key => $val) {
 		$cssforfield = (empty($val['css']) ? '' : $val['css']);
-		if (in_array($val['type'], array('date', 'datetime', 'timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'center';
-		elseif ($key == 'status') $cssforfield .= ($cssforfield ? ' ' : '').'center';
+		if (in_array($val['type'], ['date', 'datetime', 'timestamp'])) {
+			$cssforfield .= ($cssforfield ? ' ' : '').'center';
+		} else if ($key == 'status') {
+			$cssforfield .= ($cssforfield ? ' ' : '').'center';
+		}
 
-		if (in_array($val['type'], array('timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'nowrap';
-		elseif ($key == 'ref') $cssforfield .= ($cssforfield ? ' ' : '').'nowrap';
+		if (in_array($val['type'], ['timestamp'])) {
+			$cssforfield .= ($cssforfield ? ' ' : '') . 'nowrap';
+		} else if ($key == 'ref') {
+			$cssforfield .= ($cssforfield ? ' ' : '') . 'nowrap';
+		}
 
-		if (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && !in_array($key, array('rowid', 'status'))) $cssforfield .= ($cssforfield ? ' ' : '').'right';
+		if (in_array($val['type'], ['double(24,8)', 'double(6,3)', 'integer', 'real', 'price']) && !in_array($key, ['rowid', 'status'])) {
+			$cssforfield .= ($cssforfield ? ' ' : '').'right';
+		}
 		//if (in_array($key, array('fk_soc', 'fk_user', 'fk_warehouse'))) $cssforfield = 'tdoverflowmax100';
 
 		if (!empty($arrayfields['t.'.$key]['checked'])) {
 			print '<td'.($cssforfield ? ' class="'.$cssforfield.'"' : '').'>';
-			if ($key == 'status') print $object->getLibStatut(5);
-			elseif ($key == 'ref') print $object->getNomUrl(1);
-			else print $object->showOutputField($val, $key, $object->$key, '');
+			if ($key == 'status') {
+				print $object->getLibStatut(5);
+			} else if ($key == 'ref') {
+				print $object->getNomUrl(1);
+			} else if ($key == 'type') {
+				print $object->showOutputField($val, $key, $langs->trans($object->$key), '');
+			} else {
+				print $object->showOutputField($val, $key, $object->$key, '');
+			}
 			print '</td>';
-			if (!$i) $totalarray['nbfield']++;
-			if (!empty($val['isameasure']))
-			{
-				if (!$i) $totalarray['pos'][$totalarray['nbfield']] = 't.'.$key;
+			if (!$i) {
+				$totalarray['nbfield']++;
+			}
+			if (!empty($val['isameasure'])) {
+				if (!$i) {
+					$totalarray['pos'][$totalarray['nbfield']] = 't.' . $key;
+				}
 				$totalarray['val']['t.'.$key] += $object->$key;
 			}
 		}
@@ -567,9 +571,6 @@ while ($i < ($limit ? min($num, $limit) : $num)) {
 
 	$i++;
 }
-
-// Show total line
-include DOL_DOCUMENT_ROOT.'/core/tpl/list_print_total.tpl.php';
 
 // If no record found
 if ($num == 0) {

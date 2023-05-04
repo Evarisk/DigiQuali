@@ -24,6 +24,7 @@ CREATE TABLE llx_dolismq_sheet(
     status         integer DEFAULT 1 NOT NULL,
 	type           varchar(128),
 	label          varchar(255) NOT NULL,
+    description    text,
     element_linked text,
 	fk_user_creat  integer NOT NULL,
 	fk_user_modif  integer

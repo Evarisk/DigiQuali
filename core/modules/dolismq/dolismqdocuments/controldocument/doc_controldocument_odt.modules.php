@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,561 +17,371 @@
  */
 
 /**
- *	\file       core/modules/dolismq/dolismqdocumets/controldocument/doc_controldocument_odt.modules.php
- *	\ingroup    dolismq
- *	\brief      File of class to build ODT documents for dolismq
+ * \file    core/modules/dolismq/dolismqdocuments/controldocument/doc_controldocument_odt.modules.php
+ * \ingroup dolismq
+ * \brief   File of class to build ODT control document.
  */
 
+// Load Dolibarr libraries.
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
-require_once DOL_DOCUMENT_ROOT . '/core/lib/doc.lib.php';
-require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
-require_once DOL_DOCUMENT_ROOT . '/core/lib/functions.lib.php';
 
-require_once __DIR__ . '/modules_controldocument.php';
+require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
+require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
+require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
+
+// Load Saturne libraries.
+require_once __DIR__ . '/../../../../../../saturne/class/saturnesignature.class.php';
+require_once __DIR__ . '/../../../../../../saturne/core/modules/saturne/modules_saturne.php';
+
+// Load DoliSMQ libraries.
 require_once __DIR__ . '/mod_controldocument_standard.php';
+
+require_once __DIR__ . '/../../../../../class/question.class.php';
+require_once __DIR__ . '/../../../../../class/sheet.class.php';
+require_once __DIR__ . '/../../../../../class/answer.class.php';
+
 /**
- *	Class to build documents using ODF templates generator
+ * Class to build documents using ODF templates generator.
  */
-class doc_controldocument_odt extends ModeleODTControlDocument
+class doc_controldocument_odt extends SaturneDocumentModel
 {
-	/**
-	 * Issuer
-	 * @var Societe
-	 */
-	public $emetteur;
-
-	/**
-	 * @var array Minimum version of PHP required by module.
-	 * e.g.: PHP ≥ 5.5 = array(5, 5)
-	 */
-	public $phpmin = array(5, 5);
-
-	/**
-	 * @var string Dolibarr version of the loaded document
-	 */
-	public $version = 'dolibarr';
-
-	/**
-	 *	Constructor
-	 *
-	 *  @param		DoliDB		$db      Database handler
-	 */
-	public function __construct($db)
-	{
-		global $langs, $mysoc;
-
-		// Load translation files required by the page
-		saturne_load_langs(["main", "companies"]);
-
-		$this->db = $db;
-		$this->name = $langs->trans('ODTDefaultTemplateName');
-		$this->description = $langs->trans("DocumentModelOdt");
-		$this->scandir = 'DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH'; // Name of constant that is used to save list of directories to scan
-
-		// Page size for A4 format
-		$this->type = 'odt';
-		$this->page_largeur = 0;
-		$this->page_hauteur = 0;
-		$this->format = array($this->page_largeur, $this->page_hauteur);
-		$this->marge_gauche = 0;
-		$this->marge_droite = 0;
-		$this->marge_haute = 0;
-		$this->marge_basse = 0;
-
-		// Recupere emetteur
-		$this->emetteur = $mysoc;
-		if (!$this->emetteur->country_code) $this->emetteur->country_code = substr($langs->defaultlang, -2); // By default if not defined
-	}
-
-	/**
-	 *	Return description of a module
-	 *
-	 *	@param	Translate	$langs      Lang object to use for output
-	 *	@return string       			Description
-	 */
-	public function info($langs)
-	{
-		global $conf, $langs;
-
-		// Load translation files required by the page
-		saturne_load_langs(["errors", "companies"]);
-
-		$texte = $this->description.".<br>\n";
-		$texte .= '<form action="'.$_SERVER["PHP_SELF"].'" method="POST">';
-		$texte .= '<input type="hidden" name="token" value="'.newToken().'">';
-		$texte .= '<input type="hidden" name="action" value="setModuleOptions">';
-		$texte .= '<input type="hidden" name="param1" value="DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH">';
-		$texte .= '<table class="nobordernopadding" width="100%">';
-
-		// List of directories area
-		$texte .= '<tr><td>';
-		$texttitle = $langs->trans("ListOfDirectories");
-		$listofdir = explode(',', preg_replace('/[\r\n]+/', ',', trim($conf->global->DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH)));
-		$listoffiles = array();
-		foreach ($listofdir as $key=>$tmpdir)
-		{
-			$tmpdir = trim($tmpdir);
-			$tmpdir = preg_replace('/DOL_DATA_ROOT/', DOL_DATA_ROOT, $tmpdir);
-			$tmpdir = preg_replace('/DOL_DOCUMENT_ROOT/', DOL_DOCUMENT_ROOT, $tmpdir);
-			if (!$tmpdir) {
-				unset($listofdir[$key]); continue;
-			}
-			if (!is_dir($tmpdir)) $texttitle .= img_warning($langs->trans("ErrorDirNotFound", $tmpdir), 0);
-			else
-			{
-				$tmpfiles = dol_dir_list($tmpdir, 'files', 0, '\.(ods|odt)');
-				if (count($tmpfiles)) $listoffiles = array_merge($listoffiles, $tmpfiles);
-			}
-		}
-
-		// Scan directories
-		$nbofiles = count($listoffiles);
-		if (!empty($conf->global->DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH))
-		{
-			$texte .= $langs->trans("DoliSMQNumberOfModelFilesFound").': <b>';
-			$texte .= count($listoffiles);
-			$texte .= '</b>';
-		}
-
-		if ($nbofiles)
-		{
-			$texte .= '<div id="div_'.get_class($this).'" class="hidden">';
-			foreach ($listoffiles as $file)
-			{
-				$texte .= $file['name'].'<br>';
-			}
-			$texte .= '</div>';
-		}
-
-		$texte .= '</td>';
-		$texte .= '</table>';
-		$texte .= '</form>';
-
-		return $texte;
-	}
-
-	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
-	/**
-	 *  Function to build a document on disk using the generic odt module.
-	 *
-	 *	@param		ControlDocument	$objectDocument	Object source to build document
-	 *	@param		Translate	$outputlangs		Lang output object
-	 * 	@param		string		$srctemplatepath	Full path of source filename for generator using a template file
-	 *  @param		int			$hidedetails		Do not show line details
-	 *  @param		int			$hidedesc			Do not show desc
-	 *  @param		int			$hideref			Do not show ref
-	 *  @param		Object		$object				Object to retrieve info from
-	 *	@return		int         					1 if OK, <=0 if KO
-	 */
-	public function write_file($objectDocument, $outputlangs, $srctemplatepath, $hidedetails = 0, $hidedesc = 0, $hideref = 0, $object)
-	{
-		global $action, $conf, $hookmanager, $langs, $mysoc, $user;
-
-		if (empty($srctemplatepath)) {
-			dol_syslog("doc_controldocument_odt::write_file parameter srctemplatepath empty", LOG_WARNING);
-			return -1;
-		}
-
-		// Add odtgeneration hook
-		if (!is_object($hookmanager)) {
-			include_once DOL_DOCUMENT_ROOT . '/core/class/hookmanager.class.php';
-			$hookmanager = new HookManager($this->db);
-		}
-
-		$hookmanager->initHooks(array('odtgeneration'));
-
-		if (!is_object($outputlangs)) {
-			$outputlangs = $langs;
-		}
-
-		$outputlangs->charset_output = 'UTF-8';
-		$outputlangs->loadLangs(array("main", "dict", "companies", "dolismq@dolismq"));
-
-		$refModName          = new $conf->global->DOLISMQ_CONTROLDOCUMENT_ADDON($this->db);
-		$objectDocumentRef   = $refModName->getNextValue($objectDocument);
-		$objectDocument->ref = $objectDocumentRef;
-		$objectDocumentID    = $objectDocument->create($user, true, $object);
-
-		$objectDocument->fetch($objectDocumentID);
-
-		$objectref = dol_sanitizeFileName($objectDocument->ref);
-		$dir = $conf->dolismq->multidir_output[isset($object->entity) ? $object->entity : 1] . '/controldocument/'. $object->ref;
-
-		if (!file_exists($dir)) {
-			if (dol_mkdir($dir) < 0) {
-				$this->error = $langs->transnoentities("ErrorCanNotCreateDir", $dir);
-				return -1;
-			}
-		}
-
-		if (file_exists($dir)) {
-			$filename = preg_split('/controldocument\//' , $srctemplatepath);
-			$filename = preg_replace('/template_/','', $filename[1]);
-
-			$date = dol_print_date(dol_now(),'dayxcard');
-			if (preg_match('/_photo/', $filename)) {
-				$photo = '_photo';
-			} else {
-				$photo = '';
-			}
-			$filename = $objectref . '_' . $date . $photo . '.odt';
-			$filename = str_replace(' ', '_', $filename);
-			$filename = dol_sanitizeFileName($filename);
-
-			$objectDocument->last_main_doc = $filename;
-
-			$sql = "UPDATE ".MAIN_DB_PREFIX."dolismq_dolismqdocuments";
-			$sql .= " SET last_main_doc =" .(!empty($filename) ? "'".$this->db->escape($filename)."'" : 'null');
-			$sql .= " WHERE rowid = ".$objectDocument->id;
-
-			dol_syslog("admin.lib::Insert last main doc", LOG_DEBUG);
-			$this->db->query($sql);
-
-			$file = $dir.'/'.$filename;
-
-			dol_mkdir($conf->dolismq->dir_temp);
-
-			// Make substitution
-			$substitutionarray = array();
-			complete_substitutions_array($substitutionarray, $langs, $object);
-			// Call the ODTSubstitution hook
-			$parameters = array('file'=>$file, 'object'=>$object, 'outputlangs'=>$outputlangs, 'substitutionarray'=>&$substitutionarray);
-			$reshook = $hookmanager->executeHooks('ODTSubstitution', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
-
-			// Open and load template
-			require_once ODTPHP_PATH.'odf.php';
-			try {
-				$odfHandler = new odf(
-					$srctemplatepath,
-					array(
-						'PATH_TO_TMP'	  => $conf->dolismq->dir_temp,
-						'ZIP_PROXY'		  => 'PclZipProxy', // PhpZipProxy or PclZipProxy. Got "bad compression method" error when using PhpZipProxy.
-						'DELIMITER_LEFT'  => '{',
-						'DELIMITER_RIGHT' => '}'
-					)
-				);
-			}
-			catch (Exception $e)
-			{
-				$this->error = $e->getMessage();
-				dol_syslog($e->getMessage(), LOG_INFO);
-				return -1;
-			}
-
-			//Define substitution array
-			$substitutionarray = getCommonSubstitutionArray($outputlangs, 0, null, $object);
-			$array_object_from_properties = $this->get_substitutionarray_each_var_object($object, $outputlangs);
-			//$array_object = $this->get_substitutionarray_object($object, $outputlangs);
-			$arraySoc = $this->get_substitutionarray_mysoc($mysoc, $outputlangs);
-			$arraySoc['mycompany_logo'] = preg_replace('/_small/', '_mini', $arraySoc['mycompany_logo']);
-
-			$tmparray = array_merge($substitutionarray, $array_object_from_properties, $arraySoc);
-			complete_substitutions_array($tmparray, $outputlangs, $object);
-
-			$filearray = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/' . $object->element_type . '/' . $object->ref . '/thumbs/', "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
-			if (count($filearray)) {
-				$image = array_shift($filearray);
-				$tmparray['photoDefault'] = $image['fullname'];
-			}else {
-				$nophoto = '/public/theme/common/nophoto.png';
-				$tmparray['photoDefault'] = DOL_DOCUMENT_ROOT.$nophoto;
-			}
-
-			$product    = new Product($this->db);
-			$productlot = new Productlot($this->db);
-			$controldet = new ControlLine($this->db);
-			$question   = new Question($this->db);
-			$sheet      = new Sheet($this->db);
-			$usertmp    = new User($this->db);
-			$usertmp2   = new User($this->db);
-			$thirdparty = new Societe($this->db);
-			$contact    = new Contact($this->db);
-			$project    = new Project($this->db);
-			$task		= new Task($this->db);
-
-			$object->fetchObjectLinked('', '', '', 'dolismq_control');
-			if (!empty($object->linkedObjectsIds['product'])) {
-				$product->fetch(array_shift($object->linkedObjectsIds['product']));
-			}
-			if (!empty($object->linkedObjectsIds['productbatch'])) {
-				$productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
-			}
-			if (!empty($object->linkedObjectsIds['user'])) {
-				$usertmp2->fetch(array_shift($object->linkedObjectsIds['user']));
-			}
-			if (!empty($object->linkedObjectsIds['societe'])) {
-				$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
-			}
-			if (!empty($object->linkedObjectsIds['contact'])) {
-				$contact->fetch(array_shift($object->linkedObjectsIds['contact']));
-			}
-			if (!empty($object->linkedObjectsIds['project'])) {
-				$project->fetch(array_shift($object->linkedObjectsIds['project']));
-			}
-			if (!empty($object->linkedObjectsIds['project_task'])) {
-				$task->fetch(array_shift($object->linkedObjectsIds['project_task']));
-			}
-
-			$sheet->fetch($object->fk_sheet);
-			$usertmp->fetch($object->fk_user_controller);
-
-			$tmparray['mycompany_name']   = $conf->global->MAIN_INFO_SOCIETE_NOM;
-			$tmparray['control_ref']      = $object->ref;
-			$tmparray['nom']              = $usertmp->lastname . ' '. $usertmp->firstname;
-			$tmparray['product_ref']      = $product->ref;
-			$tmparray['lot_ref']          = $productlot->batch;
-			$tmparray['sheet_ref']        = $sheet->ref;
-			$tmparray['sheet_label']      = $sheet->label;
-			$tmparray['control_date']     = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
-			$tmparray['user_label']       = (!empty($usertmp2->id > 0) ? $usertmp2->lastname . ' ' . $usertmp2->firstname : '');
-			$tmparray['thirdparty_label'] = $thirdparty->name;
-			$tmparray['contact_label']    = (!empty($contact->id > 0) ? $contact->firstname . ' ' . $contact->lastname : '');
-			$tmparray['project_label']    = (!empty($project->id > 0) ? $project->ref . ' - ' . $project->title : '');
-			$tmparray['task_label']       = (!empty($task->id > 0) ? $task->ref . ' - ' . $task->label : '');
-
-			switch ($object->verdict) {
-				case 1:
-					$tmparray['verdict'] = 'OK';
-					break;
-				case 2:
-					$tmparray['verdict'] = 'KO';
-					break;
-				default:
-					$tmparray['verdict'] = '';
-					break;
-			}
-
-			$tmparray['public_note'] = $object->note_public;
-
-			foreach ($tmparray as $key=>$value)
-			{
-				try {
-					if ($key == 'photoDefault' || preg_match('/logo$/', $key)) // Image
-					{
-						if (file_exists($value)) $odfHandler->setImage($key, $value);
-						else $odfHandler->setVars($key, $langs->transnoentities('ErrorFileNotFound'), true, 'UTF-8');
-					}
-					else    // Text
-					{
-						if (empty($value)) {
-							$odfHandler->setVars($key, $langs->trans('NoData'), true, 'UTF-8');
-						} else {
-							$odfHandler->setVars($key, html_entity_decode($value,ENT_QUOTES | ENT_HTML5), true, 'UTF-8');
-						}
-					}
-				}
-				catch (OdfException $e)
-				{
-					dol_syslog($e->getMessage(), LOG_INFO);
-				}
-			}
-			// Replace tags of lines
-			try {
-				$photoArray       = [];
-				$foundtagforlines = 1;
-
-				if ($foundtagforlines) {
-					if (!empty($object)) {
-						$listlines = $odfHandler->setSegment('questions');
-						$object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet');
-						$questionIds = $object->linkedObjectsIds;
-						if (is_array($questionIds['dolismq_question']) && !empty($questionIds['dolismq_question'])) {
-							foreach ($questionIds['dolismq_question'] as $questionId) {
-								$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
-								if ($result > 0 && is_array($result)) {
-									$itemControlDet = array_shift($result);
-									$answer = $itemControlDet->answer;
-									$comment = $itemControlDet->comment;
-								}
-								$item = $question;
-								$item->fetch($questionId);
-
-								$tmparray['ref']         = $item->ref;
-								$tmparray['label']       = $item->label;
-								$tmparray['description'] = $item->description;
-
-								if (!empty($conf->global->DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS)) {
-									$path = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ok/thumbs/';
-
-									$filearray = dol_dir_list($path, "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
-
-									if (count($filearray)) {
-										$image = array_shift($filearray);
-										$tmparray['photo_ok'] = $image['fullname'];
-									} else {
-										$nophoto = '/public/theme/common/nophoto.png';
-										$tmparray['photo_ok'] = DOL_DOCUMENT_ROOT . $nophoto;
-									}
-
-									$path = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ko/thumbs/';
-
-									$filearray = dol_dir_list($path, "files", 0, '', '(\.odt|_preview.*\.png)$', 'position_name', 'desc', 1);
-
-									if (count($filearray)) {
-										$image = array_shift($filearray);
-										$tmparray['photo_ko'] = $image['fullname'];
-									} else {
-										$nophoto = '/public/theme/common/nophoto.png';
-										$tmparray['photo_ko'] = DOL_DOCUMENT_ROOT . $nophoto;
-									}
-								}
-								$answerRef = $itemControlDet->ref;
-								$tmparray['ref_answer'] = $answerRef;
-
-								switch ($answer) {
-									case 1:
-										$tmparray['answer'] = $langs->trans('OK');
-										break;
-									case 2:
-										$tmparray['answer'] = $langs->trans('KO');
-										break;
-									case 3:
-										$tmparray['answer'] = $langs->trans('Repair');
-										break;
-									case 4:
-										$tmparray['answer'] = $langs->trans('NotApplicable');
-										break;
-									default:
-										$tmparray['answer'] = ' ';
-										break;
-								}
-
-								$path = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $item->ref;
-								$fileList = dol_dir_list($path, 'files');
-								// Fill an array with photo path and ref of the answer for next loop
-								if (is_array($fileList) && !empty($fileList)) {
-									foreach ($fileList as $singleFile) {
-										$fileSmall = saturne_get_thumb_name($singleFile['name']);
-										$image = $path . '/thumbs/' . $fileSmall;
-										$photoArray[$image] = $answerRef;
-									}
-								}
-
-								$tmparray['comment'] = dol_htmlentitiesbr_decode(strip_tags($comment, '<br>'));
-
-								unset($tmparray['object_fields']);
-								unset($tmparray['object_array_options']);
-
-								complete_substitutions_array($tmparray, $outputlangs, $object, $itemControlDet, "completesubstitutionarray_lines");
-								// Call the ODTSubstitutionLine hook
-								$parameters = array('odfHandler' => &$odfHandler, 'file' => $file, 'object' => $object, 'outputlangs' => $outputlangs, 'substitutionarray' => &$tmparray, 'line' => $line);
-								$hookmanager->executeHooks('ODTSubstitutionLine', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
-								foreach ($tmparray as $key => $val) {
-									try {
-										if (file_exists($val)) {
-											$listlines->setImage($key, $val);
-										} else {
-											if (empty($val)) {
-												$listlines->setVars($key, $langs->trans('NoData'), true, 'UTF-8');
-											} else {
-												$listlines->setVars($key, html_entity_decode($val, ENT_QUOTES | ENT_HTML5), true, 'UTF-8');
-											}
-										}
-									} catch (OdfException $e) {
-										dol_syslog($e->getMessage());
-									} catch (SegmentException $e) {
-										dol_syslog($e->getMessage());
-									}
-								}
-								$listlines->merge();
-							}
-							$odfHandler->mergeSegment($listlines);
-						}
-					}
-				}
-			} catch (OdfException $e) {
-				$this->error = $e->getMessage();
-				dol_syslog($this->error, LOG_WARNING);
-				return -1;
-			}
-
-			// Loop on previous photos array
-			if (is_array($photoArray) && !empty($photoArray)) {
-				$photoLines = $odfHandler->setSegment('photos');
-				foreach ($photoArray as $photoPath => $answerRef) {
-					$fileInfo = preg_split('/thumbs\//', $photoPath);
-					$name     = end($fileInfo);
-
-					$tmparray['answer_ref'] = ($previousRef == $answerRef) ? '' : $langs->trans('Ref') . ' : ' . $answerRef;
-					$tmparray['photo_name'] = $name;
-					$tmparray['photo']      = $photoPath;
-
-					$previousRef = $answerRef;
-
-					foreach ($tmparray as $key => $val) {
-						try {
-							if (file_exists($val)) {
-								$result = $photoLines->setImage($key, $val);
-							} else {
-								if (empty($val)) {
-									$photoLines->setVars($key, '', true, 'UTF-8');
-								} else {
-									$photoLines->setVars($key, html_entity_decode($val, ENT_QUOTES | ENT_HTML5), true, 'UTF-8');
-								}
-							}
-						} catch (OdfException $e) {
-							dol_syslog($e->getMessage());
-						} catch (SegmentException $e) {
-							dol_syslog($e->getMessage());
-						}
-					}
-					$photoLines->merge();
-				}
-				$odfHandler->mergeSegment($photoLines);
-			}
-
-			// Replace labels translated
-			$tmparray = $outputlangs->get_translations_for_substitutions();
-
-			// Call the beforeODTSave hook
-			$parameters = ['odfHandler' => &$odfHandler, 'file' => $file, 'object' => $object, 'outputlangs' => $outputlangs, 'substitutionarray' => &$tmparray];
-			$hookmanager->executeHooks('beforeODTSave', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
-
-			$fileInfos = pathinfo($filename);
-			$pdfName   = $fileInfos['filename'] . '.pdf';
-
-			// Write new file
-			if (!empty($conf->global->MAIN_ODT_AS_PDF) && $conf->global->DOLISMQ_AUTOMATIC_PDF_GENERATION > 0) {
-				try {
-					$odfHandler->exportAsAttachedPDF($file);
-
-					global $moduleNameLowerCase;
-					$documentUrl = DOL_URL_ROOT . '/document.php';
-					setEventMessages($langs->trans("FileGenerated") . ' - ' . '<a href=' . $documentUrl . '?modulepart=' . $moduleNameLowerCase . '&amp;file=' . urlencode('controldocument/' . $object->ref . '/' . $pdfName) . '&entity='. $conf->entity .'"' . '>' . $pdfName  . '</a>', null);
-				} catch (Exception $e) {
-					$this->error = $e->getMessage();
-					dol_syslog($e->getMessage());
-					setEventMessages($langs->transnoentities('FileCouldNotBeGeneratedInPDF') . '<br>' . $langs->transnoentities('CheckDocumentationToEnablePDFGeneration'), null, 'errors');
-				}
-			} else {
-				try {
-					$odfHandler->saveToDisk($file);
-				} catch (Exception $e) {
-					$this->error = $e->getMessage();
-					dol_syslog($e->getMessage());
-					return -1;
-				}
-			}
-
-			$parameters = ['odfHandler' => &$odfHandler, 'file' => $file, 'object' => $object, 'outputlangs' => $outputlangs, 'substitutionarray' => &$tmparray];
-			$hookmanager->executeHooks('afterODTCreation', $parameters, $this, $action); // Note that $action and $object may have been modified by some hooks
-
-			if (!empty($conf->global->MAIN_UMASK)) {
-				@chmod($file, octdec($conf->global->MAIN_UMASK));
-			}
-
-			$odfHandler = null; // Destroy object
-
-			$this->result = ['fullpath'=>$file];
-
-			return 1; // Success
-		} else {
-			$this->error = $langs->transnoentities("ErrorCanNotCreateDir", $dir);
-			return -1;
-		}
-
-		return -1;
-	}
+    /**
+     * @var array Minimum version of PHP required by module.
+     * e.g.: PHP ≥ 5.5 = array(5, 5)
+     */
+    public array $phpmin = [7, 4];
+
+    /**
+     * @var string Dolibarr version of the loaded document.
+     */
+    public string $version = 'dolibarr';
+
+    /**
+     * @var string Module.
+     */
+    public string $module = 'dolismq';
+
+    /**
+     * @var string Document type.
+     */
+    public string $document_type = 'controldocument';
+
+    /**
+     * Constructor.
+     *
+     * @param DoliDB $db Database handler.
+     */
+    public function __construct(DoliDB $db)
+    {
+        parent::__construct($db, $this->module, $this->document_type);
+    }
+
+    /**
+     * Return description of a module.
+     *
+     * @param  Translate $langs Lang object to use for output.
+     * @return string           Description.
+     */
+    public function info(Translate $langs): string
+    {
+        return parent::info($langs);
+    }
+
+    /**
+     * Fill all odt tags for segments lines.
+     *
+     * @param  Odf       $odfHandler  Object builder odf library.
+     * @param  Translate $outputLangs Lang object to use for output.
+     * @param  array     $moreParam   More param (Object/user/etc).
+     *
+     * @return int                    1 if OK, <=0 if KO.
+     * @throws Exception
+     */
+    public function fillTagsLines(Odf $odfHandler, Translate $outputLangs, array $moreParam): int
+    {
+        global $conf, $moduleNameLowerCase, $langs;
+
+        $object = $moreParam['object'];
+
+        // Replace tags of lines.
+        try {
+            // Get attendants role controller.
+            $foundTagForLines = 1;
+            try {
+                $listLines = $odfHandler->setSegment('controllers');
+            } catch (OdfException $e) {
+                // We may arrive here if tags for lines not present into template.
+                $foundTagForLines = 0;
+                $listLines = '';
+                dol_syslog($e->getMessage());
+            }
+
+            if ($foundTagForLines) {
+                if (!empty($object)) {
+                    $signatory        = new SaturneSignature($this->db, $this->module, $object->element);
+                    $signatoriesArray = $signatory->fetchSignatory('Controller', $object->id, $object->element);
+                    if (!empty($signatoriesArray) && is_array($signatoriesArray)) {
+                        $tempDir = $conf->$moduleNameLowerCase->multidir_output[$object->entity ?? 1] . '/temp/';
+                        foreach ($signatoriesArray as $objectSignatory) {
+                            $tmpArray['controller_firstname']      = $objectSignatory->firstname;
+                            $tmpArray['controller_lastname']       = strtoupper($objectSignatory->lastname);
+                            $tmpArray['controller_signature_date'] = dol_print_date($objectSignatory->signature_date, 'dayhour', 'tzuser');
+                            if (dol_strlen($objectSignatory->signature) > 0 && $objectSignatory->signature != $langs->transnoentities('FileGenerated')) {
+                                if ($moreParam['specimen'] == 0 || ($moreParam['specimen'] == 1 && $conf->global->DOLISMQ_SHOW_SIGNATURE_SPECIMEN == 1)) {
+                                    $encodedImage = explode(',', $objectSignatory->signature)[1];
+                                    $decodedImage = base64_decode($encodedImage);
+                                    file_put_contents($tempDir . 'signature' . $objectSignatory->id . '.png', $decodedImage);
+                                    $tmpArray['controller_signature'] = $tempDir . 'signature' . $objectSignatory->id . '.png';
+                                } else {
+                                    $tmpArray['controller_signature'] = '';
+                                }
+                            } else {
+                                $tmpArray['controller_signature'] = '';
+
+                            }
+                            $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
+                            dol_delete_file($tempDir . 'signature' . $objectSignatory->id . '.png');
+                        }
+                    } else {
+                        $tmpArray['controller_firstname']      = '';
+                        $tmpArray['controller_lastname']       = '';
+                        $tmpArray['controller_signature_date'] = '';
+                        $tmpArray['controller_signature']      = '';
+                        $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
+                    }
+                    $odfHandler->mergeSegment($listLines);
+                }
+            }
+
+            $moreParam['excludeAttendantsRole'] = ['Controller'];
+            $this->setAttendantsSegment($odfHandler, $outputLangs, $moreParam);
+
+            // Get questions.
+            $photoArray       = [];
+            $foundTagForLines = 1;
+            try {
+                $listLines = $odfHandler->setSegment('questions');
+            } catch (OdfException $e) {
+                // We may arrive here if tags for lines not present into template.
+                $foundTagForLines = 0;
+                $listLines = '';
+                dol_syslog($e->getMessage());
+            }
+
+            if ($foundTagForLines) {
+                if (!empty($object)) {
+                    $object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet');
+                    $questionIds = $object->linkedObjectsIds;
+                    if (is_array($questionIds['dolismq_question']) && !empty($questionIds['dolismq_question'])) {
+                        $controldet = new ControlLine($this->db);
+                        $question   = new Question($this->db);
+                        $answer     = new Answer($this->db);
+                        foreach ($questionIds['dolismq_question'] as $questionId) {
+                            $question->fetch($questionId);
+
+                            $controldets = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
+
+                            $tmpArray['ref']         = $question->ref;
+                            $tmpArray['label']       = $question->label;
+                            $tmpArray['description'] = $question->description;
+
+                            if (is_array($controldets) && !empty($controldets)) {
+                                $questionAnswerLine     = array_shift($controldets);
+                                $tmpArray['ref_answer'] = $questionAnswerLine->ref;
+                                $tmpArray['comment']    = dol_htmlentitiesbr_decode(strip_tags($questionAnswerLine->comment, '<br>'));
+
+                                $answerResult = $questionAnswerLine->answer;
+
+                                $question->fetch($questionAnswerLine->fk_question);
+                                $answerList = $answer->fetchAll('ASC', 'position', '', '', ['fk_question' => $questionAnswerLine->fk_question]);
+
+                                $answersArray = [];
+                                if (is_array($answerList) && !empty($answerList)) {
+                                    foreach ($answerList as $answerSingle) {
+                                        $answersArray[$answerSingle->position] = $answerSingle->value;
+                                    }
+                                }
+
+                                switch ($question->type) {
+                                    case 'OkKo' :
+                                    case 'OkKoToFixNonApplicable' :
+                                    case 'UniqueChoice' :
+                                        $tmpArray['answer'] = $answersArray[$answerResult];
+                                        break;
+                                    case 'Text' :
+                                    case 'Range' :
+                                        $tmpArray['answer'] = $answerResult;
+                                        break;
+                                    case 'Percentage' :
+                                        $tmpArray['answer'] = $answerResult . ' %';
+                                        break;
+                                    case 'MultipleChoices' :
+                                        $answers = explode(',', $answerResult);
+                                        $tmpArray['answer'] = '';
+                                        foreach ($answers as $answerId) {
+                                            $tmpArray['answer'] .= $answersArray[$answerId] . ', ';
+                                        }
+                                        $tmpArray['answer'] = rtrim($tmpArray['answer'], ', ');
+                                        break;
+                                    default:
+                                        $tmpArray['answer'] = '';
+                                }
+
+                                $path     = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
+                                $fileList = dol_dir_list($path, 'files');
+                                // Fill an array with photo path and ref of the answer for next loop.
+                                if (is_array($fileList) && !empty($fileList)) {
+                                    foreach ($fileList as $singleFile) {
+                                        $fileSmall          = saturne_get_thumb_name($singleFile['name']);
+                                        $image              = $path . '/thumbs/' . $fileSmall;
+                                        $photoArray[$image] = $questionAnswerLine->ref;
+                                    }
+                                }
+                            }
+                            $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
+                        }
+                        $odfHandler->mergeSegment($listLines);
+                    }
+                }
+            }
+
+            // Get answer photos.
+            $foundTagForLines = 1;
+            try {
+                $listLines = $odfHandler->setSegment('photos');
+            } catch (OdfException $e) {
+                // We may arrive here if tags for lines not present into template.
+                $foundTagForLines = 0;
+                $listLines = '';
+                dol_syslog($e->getMessage());
+            }
+
+            // Loop on previous photos array.
+            if ($foundTagForLines) {
+                if (is_array($photoArray) && !empty($photoArray)) {
+                    foreach ($photoArray as $photoPath => $answerRef) {
+                        $fileInfo = preg_split('/thumbs\//', $photoPath);
+                        $name     = end($fileInfo);
+
+                        $tmpArray['answer_ref'] = ($previousRef == $answerRef) ? '' : $outputLangs->trans('Ref') . ' : ' . $answerRef;
+                        $tmpArray['photo_name'] = $name;
+                        $tmpArray['photo']      = $photoPath;
+
+                        $previousRef = $answerRef;
+
+                        $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
+                    }
+                } else {
+                    $tmpArray['answer_ref'] = ' ';
+                    $tmpArray['photo_name'] = ' ';
+                    $tmpArray['photo']      = ' ';
+                    $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
+                }
+                $odfHandler->mergeSegment($listLines);
+            }
+        } catch (OdfException $e) {
+            $this->error = $e->getMessage();
+            dol_syslog($this->error, LOG_WARNING);
+            return -1;
+        }
+        return 0;
+    }
+
+    /**
+     * Function to build a document on disk.
+     *
+     * @param  SaturneDocuments $objectDocument  Object source to build document.
+     * @param  Translate        $outputLangs     Lang object to use for output.
+     * @param  string           $srcTemplatePath Full path of source filename for generator using a template file.
+     * @param  int              $hideDetails     Do not show line details.
+     * @param  int              $hideDesc        Do not show desc.
+     * @param  int              $hideRef         Do not show ref.
+     * @param  array            $moreParam       More param (Object/user/etc).
+     * @return int                               1 if OK, <=0 if KO.
+     * @throws Exception
+     */
+    public function write_file(SaturneDocuments $objectDocument, Translate $outputLangs, string $srcTemplatePath, int $hideDetails = 0, int $hideDesc = 0, int $hideRef = 0, array $moreParam): int
+    {
+        global $conf;
+
+        $object = $moreParam['object'];
+
+        if (!empty($object->photo)) {
+            $path      = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/photos';
+            $fileSmall = saturne_get_thumb_name($object->photo);
+            $image     = $path . '/thumbs/' . $fileSmall;
+            $tmpArray['photoDefault'] = $image;
+        } else {
+            $noPhoto                  = '/public/theme/common/nophoto.png';
+            $tmpArray['photoDefault'] = DOL_DOCUMENT_ROOT . $noPhoto;
+        }
+
+        $outputLangs->loadLangs(['products', 'bills', 'orders', 'contracts', 'projects']);
+
+        $sheet      = new Sheet($this->db);
+        $usertmp    = new User($this->db);
+        $projecttmp = new Project($this->db);
+
+        $sheet->fetch($object->fk_sheet);
+        $usertmp->fetch($object->fk_user_controller);
+        $projecttmp->fetch($object->projectid);
+
+        $object->fetchObjectLinked('', '', '', 'dolismq_control');
+        foreach ($object->linkedObjectsIds as $key => $linkedObjects) {
+            // Special case
+            if ($key == 'productbatch') {
+                $productlot = new Productlot($this->db);
+                $productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
+                $tmpArray['object_label_ref'] .= (!empty($productlot->batch) ? $outputLangs->transnoentities('Batch') . ' : ' . $productlot->batch . chr(0x0A) : '');
+            } elseif (!empty($object->linkedObjects[$key])) {
+                $linkedObject = array_values($object->linkedObjects[$key])[0];
+                $objectInfo = [
+                    'product'      => ['title' => 'Product',    'value' => $linkedObject->ref],
+                    'user'         => ['title' => 'User',       'value' => strtoupper($linkedObject->lastname) . ' ' . $linkedObject->firstname],
+                    'societe'      => ['title' => 'ThirdParty', 'value' => $linkedObject->name],
+                    'contact'      => ['title' => 'Contact',    'value' => strtoupper($linkedObject->lastname) . ' ' . $linkedObject->firstname],
+                    'project'      => ['title' => 'Project',    'value' => $linkedObject->ref . ' - ' . $linkedObject->title],
+                    'project_task' => ['title' => 'Task',       'value' => $linkedObject->ref . ' - ' . $linkedObject->label],
+                    'facture'      => ['title' => 'Bill',       'value' => $linkedObject->ref],
+                    'commande'     => ['title' => 'Order',      'value' => $linkedObject->ref],
+                    'contrat'      => ['title' => 'Contract',   'value' => $linkedObject->ref],
+                    'ticket'       => ['title' => 'Ticket',     'value' => $linkedObject->ref],
+                ];
+                $tmpArray['object_label_ref'] .= $outputLangs->transnoentities($objectInfo[$key]['title']) . ' : ' . $objectInfo[$key]['value'] . chr(0x0A);
+            }
+        }
+
+        $tmpArray['control_ref']      = $object->ref;
+        $tmpArray['object_label_ref'] = rtrim($tmpArray['object_label_ref'], chr(0x0A));
+        $tmpArray['control_date']     = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+        $tmpArray['project_label']    = $projecttmp->ref . ' - ' . $projecttmp->title;
+        $tmpArray['sheet_ref']        = $sheet->ref;
+        $tmpArray['sheet_label']      = $sheet->label;
+
+        switch ($object->verdict) {
+            case 1:
+                $tmpArray['verdict'] = 'OK';
+                break;
+            case 2:
+                $tmpArray['verdict'] = 'KO';
+                break;
+            default:
+                $tmpArray['verdict'] = '';
+                break;
+        }
+
+        $tmpArray['public_note'] = $object->note_public;
+
+        $tmpArray['mycompany_name']    = $conf->global->MAIN_INFO_SOCIETE_NOM;
+        $tmpArray['mycompany_address'] = (!empty($conf->global->MAIN_INFO_SOCIETE_ADRESS) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_ADRESS : '');
+        $tmpArray['mycompany_website'] = (!empty($conf->global->MAIN_INFO_SOCIETE_WEBSITE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_WEBSITE : '');
+        $tmpArray['mycompany_mail']    = (!empty($conf->global->MAIN_INFO_SOCIETE_MAIL) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_MAIL : '');
+        $tmpArray['mycompany_phone']   = (!empty($conf->global->MAIN_INFO_SOCIETE_PHONE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_PHONE : '');
+
+        $moreParam['tmparray'] = $tmpArray;
+
+        return parent::write_file($objectDocument, $outputLangs, $srcTemplatePath, $hideDetails, $hideDesc, $hideRef, $moreParam);
+    }
 }
