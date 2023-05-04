@@ -933,8 +933,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				print img_picto('', 'category') . $form->multiselectarray('categories', $categoryArborescence, $arrayselected, '', 0, 'quatrevingtpercent widthcentpercentminusx', 0, 0);
 				print '<input type="submit" class="button button-edit small" value="'.$langs->trans('Save').'">';
 				print '</form>';
-				print "</td>";
-			}
+				print '</td>';
+			} else {
+                print '<td>';
+                print $langs->trans('ErrorNoTagFound');
+                print '</td>';
+            }
 		}
 		print '</tr>';
 	}
