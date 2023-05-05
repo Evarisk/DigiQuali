@@ -239,7 +239,7 @@ if (empty($reshook)) {
 			//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
 			$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
 
-			if ($result > 0 && is_array($result)) {
+            if ($result > 0 && is_array($result) && !empty($result)) {
 				$controldettmp = array_shift($result);
 				//sauvegarder réponse
 				$questionAnswer = GETPOST('answer'.$questionId);
@@ -1123,8 +1123,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '</div>';
 	print '</div>';
 
-    $controldet = new ControlLine($db);
-
     $sheet->fetch($object->fk_sheet);
     $sheet->fetchQuestionsLinked($object->fk_sheet, 'dolismq_' . $sheet->element);
 
@@ -1137,8 +1135,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         $resultAnswer   = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
         if ($resultAnswer > 0 && is_array($resultAnswer)) {
             $itemControlDet = array_shift($resultAnswer);
-        } else {
-            $itemControlDet = $controldettmp;
         }
 
         if ($resultQuestion > 0 && !empty($question->mandatory)) {
@@ -1147,7 +1143,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             }
         }
     }
-
 
 	print '<div class="clearboth"></div>';
 
@@ -1181,7 +1176,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			if ($object->status == $object::STATUS_DRAFT && empty($cantValidateControl)) {
 				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . $displayButton . '</a>';
 			} else if ($cantValidateControl > 0) {
-                print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('QuestionMustBeAnswered')) . '">' . $displayButton . '</span>';
+                print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('QuestionMustBeAnswered', $cantValidateControl)) . '">' . $displayButton . '</span>';
             } else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $displayButton . '</span>';
 			}

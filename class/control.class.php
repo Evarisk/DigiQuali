@@ -1308,9 +1308,9 @@ class ControlLine extends CommonObjectLine
 	/**
 	 *    Load control line from database form parent with question
 	 *
-	 * @param int $control_id
-	 * @param int $question_id
-	 * @return int <0 if KO, >0 if OK
+	 * @param int $control_id    id of the control
+	 * @param int $question_id   id of the question
+	 * @return array|int         empty array if KO, records if OK
 	 */
 	public function fetchFromParentWithQuestion($control_id, $question_id, $limit = 0)
 	{
@@ -1349,7 +1349,7 @@ class ControlLine extends CommonObjectLine
 
 			$db->free($result);
 
-			return $records;
+            return $records ?: [];
 		} else {
 			$this->error = $db->lasterror();
 			return -1;

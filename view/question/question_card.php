@@ -1020,7 +1020,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<input type="checkbox" id="show_photo" name="show_photo"' . ($object->show_photo ? ' checked=""' : '') . '" disabled> ';
 	print '</td></tr>';
 
-    // AuthorizeAnswerPhoto -- Utiliser les réponses de photos
+    // Mandatory -- Rendre obligatoire
     print '<tr><td class="titlefield">';
     print $langs->trans("Mandatory");
     print '</td>';
