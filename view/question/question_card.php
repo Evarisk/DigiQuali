@@ -189,62 +189,6 @@ if (empty($reshook)) {
 			}
 		}
 
-		if ( ! $error && ! empty($conf->global->MAIN_UPLOAD_DOC)) {
-			// Define relativepath and upload_dir
-			$relativepath                                             = '/question/tmp/QU0/photo_ok';
-			$upload_dir                                               = $conf->dolismq->multidir_output[$conf->entity] . '/' . $relativepath;
-			if (is_array($_FILES['userfile']['tmp_name'])) $userfiles = $_FILES['userfile']['tmp_name'];
-			else $userfiles                                           = array($_FILES['userfile']['tmp_name']);
-
-			foreach ($userfiles as $key => $userfile) {
-				if (empty($_FILES['userfile']['tmp_name'][$key])) {
-					if ($_FILES['userfile']['error'][$key] == 1 || $_FILES['userfile']['error'][$key] == 2) {
-						setEventMessages($langs->trans('ErrorFileSizeTooLarge'), null, 'errors');
-					}
-					if ($_FILES['userfile']['error'][$key] == 4) {
-						$error++;
-					}
-				}
-			}
-
-			if ( ! $error) {
-				dol_add_file_process($upload_dir, 0, 1, 'userfile', '', null, '', 0);
-				$imgThumbMini   = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
-				$imgThumbSmall  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
-				$imgThumbMedium = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
-				$imgThumbLarge  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
-			}
-			$error = 0;
-		}
-
-		if ( ! $error && ! empty($conf->global->MAIN_UPLOAD_DOC)) {
-			// Define relativepath and upload_dir
-			$relativepath                                             = '/question/tmp/QU0/photo_ko';
-			$upload_dir                                               = $conf->dolismq->multidir_output[$conf->entity] . '/' . $relativepath;
-			if (is_array($_FILES['userfile2']['tmp_name'])) $userfiles = $_FILES['userfile2']['tmp_name'];
-			else $userfiles                                           = array($_FILES['userfile2']['tmp_name']);
-
-			foreach ($userfiles as $key => $userfile) {
-				if (empty($_FILES['userfile2']['tmp_name'][$key])) {
-					if ($_FILES['userfile2']['error'][$key] == 1 || $_FILES['userfile2']['error'][$key] == 2) {
-						setEventMessages($langs->trans('ErrorFileSizeTooLarge'), null, 'errors');
-					}
-					if ($_FILES['userfile']['error'][$key] == 4) {
-						$error++;
-					}
-				}
-			}
-
-			if ( ! $error) {
-				dol_add_file_process($upload_dir, 0, 1, 'userfile2', '', null, '', 0);
-				$imgThumbMini   = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
-				$imgThumbSmall  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
-				$imgThumbMedium = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
-				$imgThumbLarge  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
-			}
-			$error = 0;
-		}
-
 		if (!$error) {
 			$types = array('photo_ok', 'photo_ko');
 
@@ -264,6 +208,7 @@ if (empty($reshook)) {
 							}
 
 							copy($photo['fullname'], $pathToQuestionPhotoType . '/' . $photo['name']);
+                            copy($photo['fullname'], $pathToQuestionPhoto . '/' . $photo['name']);
 
 							$destfull = $pathToQuestionPhotoType . '/' . $photo['name'];
 
@@ -271,8 +216,14 @@ if (empty($reshook)) {
 								$object->$type = $photo['name'];
 							}
 
+                            addFileIntoDatabaseIndex($pathToQuestionPhoto, $photo['name'], $pathToQuestionPhoto . '/' . $photo['name'], 'uploaded', 0, $object);
+                            $imgThumbMini   = vignette($pathToQuestionPhoto . '/' . $photo['name'], $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
+                            $imgThumbSmall  = vignette($pathToQuestionPhoto . '/' . $photo['name'], $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL);
+                            $imgThumbMedium = vignette($pathToQuestionPhoto . '/' . $photo['name'], $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+                            $imgThumbLarge  = vignette($pathToQuestionPhoto . '/' . $photo['name'], $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
+
 							$imgThumbMini   = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
-							$imgThumbSmall  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
+							$imgThumbSmall  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL);
 							$imgThumbMedium = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
 							$imgThumbLarge  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
 							unlink($photo['fullname']);
