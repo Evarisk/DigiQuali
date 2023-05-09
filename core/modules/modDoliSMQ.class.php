@@ -517,7 +517,7 @@ class modDoliSMQ extends DolibarrModules
 	 */
 	public function init($options = ''): int
 	{
-		global $conf;
+		global $conf, $langs;
 
 		if ($this->error > 0) {
 			setEventMessages('', $this->errors, 'errors');
@@ -542,6 +542,22 @@ class modDoliSMQ extends DolibarrModules
 		delDocumentModel('calypso_controldocument', 'controldocument');
 
 		addDocumentModel('controldocument_odt', 'controldocument', 'ODT templates', 'DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH');
+
+        // Create extrafields during init.
+        include_once DOL_DOCUMENT_ROOT . '/core/class/extrafields.class.php';
+        $extraFields = new ExtraFields($this->db);
+
+        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'product', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
+        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'product_lot', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
+        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'user', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
+        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'societe', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
+        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'socpeople', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
+        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'projet', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
+        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'projet_task', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
+        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'facture', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
+        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'commande', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
+        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'contrat', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
+        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'ticket', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
 
 		if ($result < 0) {
 			return -1;
