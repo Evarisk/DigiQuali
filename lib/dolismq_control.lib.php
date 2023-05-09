@@ -18,10 +18,10 @@
 /**
  * \file    lib/dolismq_control.lib.php
  * \ingroup dolismq
- * \brief   Library files with common functions for Control
+ * \brief   Library files with common functions for Control.
  */
 
-// Load Saturne Libraries.
+// Load Saturne libraries.
 require_once __DIR__ . '/../../saturne/lib/object.lib.php';
 
 /**
@@ -43,5 +43,5 @@ function control_prepare_head(CommonObject $object): array
     $moreparam['documentType']       = 'ControlDocument';
     $moreparam['attendantTableMode'] = 'simple';
 
-    return saturne_object_prepare_head($object, $head, $moreparam, true);
+    return saturne_object_prepare_head($object, $head, $moreParams, true);
 }
