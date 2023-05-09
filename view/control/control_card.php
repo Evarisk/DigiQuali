@@ -939,150 +939,50 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</tr>';
 	}
 
+    $qcFrequency = 0;
 	$object->fetchObjectLinked('', '', '', 'dolismq_control');
-
-	if (!empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
-		//FKProduct -- Produit
-		print '<tr><td class="titlefield">';
-		print $langs->trans('ProductOrService');
-		print '</td>';
-		print '<td>';
-		$product->fetch(array_shift($object->linkedObjectsIds['product']));
-		if ($product > 0) {
-			print $product->getNomUrl(1);
-		}
-		print '<td></tr>';
-	}
-
-	if (!empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
-		//FKLot -- Numéro de série
-		print '<tr><td class="titlefield">';
-		print $langs->trans('Batch');
-		print '</td>';
-		print '<td>';
-		$productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
-		if ($productlot > 0) {
-			print $productlot->getNomUrl(1);
-		}
-		print '</td></tr>';
-	}
-
-	if (!empty($conf->global->DOLISMQ_SHEET_LINK_USER) && (!empty($object->linkedObjectsIds['user']))) {
-		//Fk_soc - Tiers lié
-		print '<tr><td class="titlefield">';
-		print $langs->trans('User');
-		print '</td>';
-		print '<td>';
-		$usertmp->fetch(array_shift($object->linkedObjectsIds['user']));
-		if ($usertmp > 0) {
-			print $usertmp->getNomUrl(1);
-		}
-		print '</td></tr>';
-	}
-
-	if (!empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
-		//Fk_soc - Tiers lié
-		print '<tr><td class="titlefield">';
-		print $langs->trans('ThirdParty');
-		print '</td>';
-		print '<td>';
-		$thirdparty->fetch(array_shift($object->linkedObjectsIds['societe']));
-		if ($thirdparty > 0) {
-			print $thirdparty->getNomUrl(1);
-		}
-		print '</td></tr>';
-	}
-
-	if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && (!empty($object->linkedObjectsIds['contact']))) {
-		//Fk_contact - Contact/adresse
-		print '<tr><td class="titlefield">';
-		print $langs->trans('Contact');
-		print '</td>';
-		print '<td>';
-		$contact->fetch(array_shift($object->linkedObjectsIds['contact']));
-		if ($contact > 0) {
-			print $contact->getNomUrl(1);
-		}
-		print '</td></tr>';
-	}
-
-	if (!empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT) && (!empty($object->linkedObjectsIds['project']))) {
-		//Fk_project - Projet lié
-		print '<tr><td class="titlefield">';
-		print $langs->trans('Project');
-		print '</td>';
-		print '<td>';
-		$project->fetch(array_shift($object->linkedObjectsIds['project']));
-		if ($project > 0) {
-			print $project->getNomUrl(1, '', 1);
-		}
-		print '</td></tr>';
-	}
-
-	if (!empty($conf->global->DOLISMQ_SHEET_LINK_TASK) && (!empty($object->linkedObjectsIds['project_task']))) {
-		//Fk_task - Tâche liée
-		print '<tr><td class="titlefield">';
-		print $langs->trans('Task');
-		print '</td>';
-		print '<td>';
-		$task->fetch(array_shift($object->linkedObjectsIds['project_task']));
-		if ($task > 0) {
-			print $task->getNomUrl(1);
-		}
-		print '</td></tr>';
-	}
-
-    if (!empty($conf->global->DOLISMQ_SHEET_LINK_INVOICE) && (!empty($object->linkedObjectsIds['facture']))) {
-        //Fk_invoice - Facture liée
+    foreach ($object->linkedObjectsIds as $key => $linkedObjects) {
         print '<tr><td class="titlefield">';
-        print $langs->trans('Invoice');
-        print '</td>';
-        print '<td>';
-        $invoice->fetch(array_shift($object->linkedObjectsIds['facture']));
-        if ($invoice > 0) {
-            print $invoice->getNomUrl(1);
+        // Special case
+        if ($key == 'productbatch') {
+            $productlot = new Productlot($db);
+            $productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
+            $objectInfoArray['productbatch'] = ['title' => 'Batch', 'qc_frequency' => $productlot->array_options['options_qc_frequency']];
+            print $langs->trans($objectInfoArray[$key]['title']);
+            print '</td><td>';
+            print $productlot->getNomUrl(1);
+        } elseif (!empty($object->linkedObjects[$key])) {
+            $linkedObject = array_values($object->linkedObjects[$key])[0];
+            $objectInfoArray = [
+                'product'      => ['title' => 'ProductOrService'],
+                'user'         => ['title' => 'User'],
+                'societe'      => ['title' => 'ThirdParty'],
+                'contact'      => ['title' => 'Contact'],
+                'project'      => ['title' => 'Project'],
+                'project_task' => ['title' => 'Task'],
+                'facture'      => ['title' => 'Bill'],
+                'commande'     => ['title' => 'Order'],
+                'contrat'      => ['title' => 'Contract'],
+                'ticket'       => ['title' => 'Ticket'],
+            ];
+            $objectInfoArray[$key]['qc_frequency'] = $linkedObject->array_options['options_qc_frequency'];
+            print $langs->trans($objectInfoArray[$key]['title']);
+            print '</td><td>';
+            print $linkedObject->getNomUrl(1);
+        }
+        if (isset($objectInfoArray[$key]['qc_frequency']) && $qcFrequency < $objectInfoArray[$key]['qc_frequency']){
+            $qcFrequency = $objectInfoArray[$key]['qc_frequency'];
+            print ' - <strong>' . $langs->transnoentities('QcFrequency') . ' : ' . $qcFrequency . '</strong>';
+        } elseif (!empty($objectInfoArray[$key]['qc_frequency'])) {
+            print ' - ' . $langs->transnoentities('QcFrequency') . ' : ' . $qcFrequency;
         }
         print '</td></tr>';
     }
 
-    if (!empty($conf->global->DOLISMQ_SHEET_LINK_ORDER) && (!empty($object->linkedObjectsIds['commande']))) {
-        //Fk_order - Commande liée
-        print '<tr><td class="titlefield">';
-        print $langs->trans('Order');
-        print '</td>';
-        print '<td>';
-        $order->fetch(array_shift($object->linkedObjectsIds['commande']));
-        if ($order > 0) {
-            print $order->getNomUrl(1);
-        }
-        print '</td></tr>';
-    }
-
-    if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && (!empty($object->linkedObjectsIds['contrat']))) {
-        //Fk_contract - Contrat lié
-        print '<tr><td class="titlefield">';
-        print $langs->trans('Contract');
-        print '</td>';
-        print '<td>';
-        $contract->fetch(array_shift($object->linkedObjectsIds['contrat']));
-        if ($contract > 0) {
-            print $contract->getNomUrl(1);
-        }
-        print '</td></tr>';
-    }
-
-    if (!empty($conf->global->DOLISMQ_SHEET_LINK_TICKET) && (!empty($object->linkedObjectsIds['ticket']))) {
-        //Fk_ticket - Ticket lié
-        print '<tr><td class="titlefield">';
-        print $langs->trans('Ticket');
-        print '</td>';
-        print '<td>';
-        $ticket->fetch(array_shift($object->linkedObjectsIds['ticket']));
-        if ($ticket > 0) {
-            print $ticket->getNomUrl(1);
-        }
-        print '</td></tr>';
-    }
+    print '<tr><td class="titlefield">' . img_picto('', 'calendar', 'class="pictofixedwidth"') . $langs->trans('NextControlDate') . '</td><td>';
+    $nextControlDate = dol_time_plus_duree($object->date_creation, $qcFrequency, 'd');
+    print dol_print_date($nextControlDate, 'day');
+    print '</td></tr>';
 
 	print '<tr class="linked-medias photo question-table"><td class=""><label for="photos">' . $langs->trans("Photo") . '</label></td><td class="linked-medias-list">';
     $pathPhotos = $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/';
