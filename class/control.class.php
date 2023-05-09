@@ -726,11 +726,13 @@ class Control extends SaturneObject
      */
     public function load_dashboard(): array
     {
-        $getNbControlsTagsByVerdict = $this->getNbControlsTagsByVerdict();
-        $getNbControlsByVerdict     = $this->getNbControlsByVerdict();
-        $getNbControlsByMonth       = $this->getNbControlsByMonth();
+        $getNbControlsTagsByVerdict   = $this->getNbControlsTagsByVerdict();
+        $getNbControlsByVerdict       = $this->getNbControlsByVerdict();
+        $getNbControlsByMonth         = $this->getNbControlsByMonth();
+        $getControlListsByQcFrequency = $this->getControlListsByQcFrequency();
 
         $array['graphs'] = [$getNbControlsTagsByVerdict, $getNbControlsByVerdict, $getNbControlsByMonth];
+        $array['lists']  = [$getControlListsByQcFrequency];
 
         return $array;
     }
@@ -902,6 +904,73 @@ class Control extends SaturneObject
             $array['data'][$arrayKey] = [$month, $arrayNbControls[0][$i], $arrayNbControls[1][$i], $arrayNbControls[2][$i]];
         }
         ksort($array['data']);
+
+        return $array;
+    }
+
+    /**
+     * Get controls list by qc frequency.
+     *
+     * @return array     Graph datas (label/color/type/title/data etc..).
+     * @throws Exception
+     */
+    public function getControlListsByQcFrequency(): array
+    {
+        global $conf, $langs;
+
+        // Graph Title parameters.
+        $array['title'] = $langs->transnoentities('ControlListsByQcFrequency');
+        $array['picto'] = $this->picto;
+
+        // Graph parameters.
+        $array['type']   = 'list';
+        $array['labels'] = ['Ref', 'ControlDateExceeded', 'NextControlDateIn30Days', 'NextControlDateIn60Days'];
+        
+        $arrayControlListsByQcFrequency = [];
+        $controls = $this->fetchAll('DESC', 'rowid', $conf->liste_limit, 0, ['customsql' => 't.status >= 0']);
+        if (is_array($controls) && !empty($controls)) {
+            foreach ($controls as $control) {
+                $qcFrequency = 0;
+                $control->fetchObjectLinked('', '', $control->id, 'dolismq_control');
+                foreach ($control->linkedObjectsIds as $key => $linkedObjects) {
+                    // Special case
+                    if ($key == 'productbatch') {
+                        require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
+                        $productLot = new Productlot($this->db);
+                        $productLot->fetch(array_shift($control->linkedObjectsIds['productbatch']));
+                        $controlInfoArray['productbatch'] = ['qc_frequency' => $productLot->array_options['options_qc_frequency']];
+                    } elseif (!empty($control->linkedObjects[$key])) {
+                        $linkedObject = array_values($control->linkedObjects[$key])[0];
+                        $controlInfoArray[$key]['qc_frequency'] = $linkedObject->array_options['options_qc_frequency'];
+                    }
+                    if (isset($controlInfoArray[$key]['qc_frequency']) && $qcFrequency < $controlInfoArray[$key]['qc_frequency']){
+                        $qcFrequency     = $controlInfoArray[$key]['qc_frequency'];
+                        $nextControlDate = dol_time_plus_duree($control->date_creation, $qcFrequency, 'd');
+                        $nextControl     = floor(($nextControlDate - dol_now('tzuser'))/(3600 * 24));
+                        $arrayControlListsByQcFrequency[$control->id]['Ref'] = $control->getNomUrl(1);
+                        if ($nextControl < 0) {
+                            $arrayControlListsByQcFrequency[$control->id]['ControlDateExceeded']     = dol_print_date($nextControlDate, 'day');
+                            $arrayControlListsByQcFrequency[$control->id]['NextControlDateIn30Days'] = '';
+                            $arrayControlListsByQcFrequency[$control->id]['NextControlDateIn60Days'] = '';
+                        }
+                        if ($nextControl >= 0 && $nextControl <= 30) {
+                            $arrayControlListsByQcFrequency[$control->id]['ControlDateExceeded']     = '';
+                            $arrayControlListsByQcFrequency[$control->id]['NextControlDateIn30Days'] = dol_print_date($nextControlDate, 'day');
+                            $arrayControlListsByQcFrequency[$control->id]['NextControlDateIn60Days'] = '';
+                        }
+                        if ($nextControl > 30 && $nextControl <= 60) {
+                            $arrayControlListsByQcFrequency[$control->id]['ControlDateExceeded']     = '';
+                            $arrayControlListsByQcFrequency[$control->id]['NextControlDateIn30Days'] = '';
+                            $arrayControlListsByQcFrequency[$control->id]['NextControlDateIn60Days'] = dol_print_date($nextControlDate, 'day');
+                        }
+                        if ($nextControl > 60) {
+                            unset($arrayControlListsByQcFrequency[$control->id]);
+                        }
+                    }
+                }
+            }
+        }
+        $array['data'] = $arrayControlListsByQcFrequency;
 
         return $array;
     }

@@ -263,6 +263,9 @@ NoEquipmentLinked = Aucun moyens de contrôle liés
 NoControlAnswersPhoto = Pas de photos sur les réponses du contrôle
 NeedObjectToControl = Vous devez sélectionner un objet à contrôler
 NeedFkSheet = Vous devez sélectionner une fiche modèle
+ControlDateExceeded = Date de contrôle dépassé à ce jour
+NextControlDateIn30Days = Date de contrôle à faire dans les 30 prochains jours
+NextControlDateIn60Days = Date de contrôle à faire dans les 60 prochains jours
 
 #
 # ControlDet
