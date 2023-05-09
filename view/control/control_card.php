@@ -1280,13 +1280,37 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							<div class="question-ref">
 								<?php
 								if ( ! empty( $itemControlDet->ref ) ) {
-									print '<span class="question-ref-title">' . $itemControlDet->ref . '</span> - ';
-								}
-								?>
-								<?php if ($item->enter_comment > 0) : ?>
-									<?php print $langs->trans('Comment') . ' : '; ?>
-								<?php endif; ?>
-							</div>
+									print '<span class="question-ref-title">' . $itemControlDet->ref . '</span> :';
+								} ?>
+                            </div>
+                            <?php if ($item->type == 'Text') : ?>
+                            <div class="<?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+                                <?php
+                                print '<span>' . $langs->trans('Answer') . ' : </span>';
+                                $object->status > $object::STATUS_DRAFT ? print $questionAnswer :
+                                print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" class="question-comment input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+                                ?>
+                            </div>
+                            <?php elseif ($item->type == 'Percentage') : ?>
+                            <div class="<?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+                                <?php
+                                print '<span>' . $langs->transnoentities('Answer') . ' : </span>';
+                                $object->status > $object::STATUS_DRAFT ? print $questionAnswer . '%' :
+                                print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" min="0" max="100" class="question-comment input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+                                ?>
+                            </div>
+                            <?php elseif ($item->type == 'Range') : ?>
+                            <div class="<?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+                                <?php
+                                print '<span>' . $langs->transnoentities('Answer') . ' : </span>';
+                                $object->status > $object::STATUS_DRAFT ? print $questionAnswer :
+                                print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" class="question-comment input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+                                ?>
+                            </div>
+                            <?php endif; ?>
+                            <?php if ($item->enter_comment > 0) : ?>
+                                <?php print $langs->trans('Comment') . ' : '; ?>
+                            <?php endif; ?>
 							<?php if ($item->enter_comment > 0) : ?>
 								<?php if ($object->status > 0 ) : ?>
 									<?php print $comment; ?>
@@ -1383,48 +1407,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							}
 							?>
 						</div>
-					<?php elseif ($item->type == 'Text') : ?>
-						<div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-							<div class="table-row">
-								<?php
-								print '<span class="table-cell" value="">';
-								print $langs->trans('Answer') . ' : ';
-								print '</span>';
-								print '<span class="table-cell" value="">';
-								print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
-								print '</span>';
-								?>
-							</div>
-						</div>
-					<?php elseif ($item->type == 'Percentage') : ?>
-						<div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-							<div class="table-row">
-								<?php
-								print '<span class="table-cell" value="">';
-								print $langs->transnoentities('Answer') . ' : ';
-								print '</span>';
-								print '<span class="table-cell" value="">';
-								print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" min="0" max="100" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
-								print '</span>';
-								?>
-							</div>
-						</div>
-					<?php elseif ($item->type == 'Range') : ?>
-						<div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-							<div class="table-row">
-								<?php
-								print '<span class="table-cell" value="">';
-								print $langs->transnoentities('Answer') . ' : ';
-								print '</span>';
-								print '<span class="table-cell" value="">';
-								print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
-								print '</span>';
-								?>
-							</div>
-						</div>
 					<?php endif; ?>
 					</div>
-			</div>
+			    </div>
 			<?php
 		}
 	}
