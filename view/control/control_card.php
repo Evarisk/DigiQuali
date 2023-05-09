@@ -1296,7 +1296,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                                 <?php
                                 print '<span>' . $langs->transnoentities('Answer') . ' : </span>';
                                 $object->status > $object::STATUS_DRAFT ? print $questionAnswer . '%' :
-                                print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" min="0" max="100" class="question-comment input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+                                print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" min="0" max="100" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'"> %';
                                 ?>
                             </div>
                             <?php elseif ($item->type == 'Range') : ?>
