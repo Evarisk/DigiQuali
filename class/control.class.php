@@ -675,9 +675,20 @@ class Control extends CommonObject
 			$linkclose .= ' class="classfortooltip' . ($morecss ? ' ' . $morecss : '') . '"';
 		} else $linkclose = ($morecss ? ' class="' . $morecss . '"' : '');
 
-		$linkstart  = '<a href="' . $url . '"';
-		$linkstart .= $linkclose . '>';
-		$linkend    = '</a>';
+        if ($option == 'nolink') {
+            $linkstart = '<span';
+        } else {
+            $linkstart = '<a href="' . $url . '"';
+        }
+        if ($option == 'blank') {
+            $linkstart .= 'target=_blank';
+        }
+        $linkstart .= $linkclose . '>';
+        if ($option == 'nolink' || empty($url)) {
+            $linkend = '</span>';
+        } else {
+            $linkend = '</a>';
+        }
 
 		if ($withpicto) $result .= '<i class="fas fa-tasks" style="color: #d35968;"></i>' . ' ';
 		$result .= $linkstart;
