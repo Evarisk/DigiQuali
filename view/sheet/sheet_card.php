@@ -265,6 +265,33 @@ if (empty($reshook)) {
             }
         }
     }
+
+    if ($action == 'set_mandatory' && $permissiontoadd) {
+        $questionId = GETPOST('mandatory') ?: GETPOST('unmandatory');
+
+        if (!empty($questionId)) {
+            $mandatoryArray = $object->mandatory_questions ? json_decode($object->mandatory_questions) : [];
+
+            if (in_array($questionId, $mandatoryArray)) {
+                $key = array_search($questionId, $mandatoryArray);
+                unset($mandatoryArray[$key]);
+            } else {
+                $mandatoryArray[] = $questionId;
+            }
+
+            $object->mandatory_questions = json_encode($mandatoryArray);
+            $result = $object->update($user);
+
+            $urltogo = str_replace('__ID__', $result, $backtopage);
+            $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
+            header('Location: ' . $urltogo);
+            if ($result > 0) {
+                setEventMessages($langs->trans('QuestionMandatorized'), []);
+            } else {
+                setEventMessages('', $object->errors, 'errors');
+            }
+        }
+    }
 }
 
 /*
@@ -642,6 +669,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>' . $langs->trans('Label') . '</td>';
 	print '<td>' . $langs->trans('Description') . '</td>';
 	print '<td>' . $langs->trans('QuestionType') . '</td>';
+    print '<td>' . $langs->trans('Mandatory') . '</td>';
 	print '<td>' . $langs->trans('PhotoOk') . '</td>';
 	print '<td>' . $langs->trans('PhotoKo') . '</td>';
 	print '<td>' . $langs->trans('Status') . '</td>';
@@ -671,6 +699,19 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '<td>';
 			print $langs->transnoentities($item->type);
 			print '</td>';
+
+            // Mandatory -- Rendre obligatoire
+            $mandatoryArray = !empty($object->mandatory_questions) || $object->mandatory_questions != 'null' ? json_decode($object->mandatory_questions) : [];
+
+            print '<td>';
+            print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+            print '<input type="hidden" name="token" value="' . newToken() . '">';
+            print '<input type="hidden" name="action" value="set_mandatory">';
+            print '<input type="hidden" name="id" value="' . $id . '">';
+            print '<input type="hidden" id="unmandatory" value="'. $item->id . '" name="unmandatory">';
+            print '<input type="checkbox" onchange="submit();" id="mandatory" name="mandatory" value="'. $item->id . '"' . (in_array($item->id, $mandatoryArray) ? ' checked=""' : '') . '" > ';
+            print '</form>';
+            print '</td>';
 
 			print '<td>';
 			if (dol_strlen($item->photo_ok)) {
