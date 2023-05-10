@@ -233,7 +233,6 @@ ControlsTagsRepartition = Répartition des contrôles par verdict par catégorie
 ControlsByFiscalYear = Rapport des contrôles sur l'exercice fiscal
 OfControl = des contrôles
 OfAnswer = des réponses
-ErrorNoTagFound = Aucun tag trouvé
 
 #
 # ControlDet

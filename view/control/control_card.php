@@ -917,7 +917,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 		if ($permissiontoadd && $action == 'categories') {
 			$categoryArborescence = $form->select_all_categories('control', '', 'parent', 64, 0, 1);
-			if (is_array($categoryArborescence) && !empty($categoryArborescence)) {
+            $categoryArborescence = empty($categoryArborescence) ? [] : $categoryArborescence;
+			if (is_array($categoryArborescence)) {
 				// Categories
 				print '<td>';
 				print '<form action="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '" method="post">';
@@ -934,11 +935,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				print '<input type="submit" class="button button-edit small" value="'.$langs->trans('Save').'">';
 				print '</form>';
 				print '</td>';
-			} else {
-                print '<td>';
-                print $langs->trans('ErrorNoTagFound');
-                print '</td>';
-            }
+			}
 		}
 		print '</tr>';
 	}
