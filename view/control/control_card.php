@@ -1288,23 +1288,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                                 <?php
                                 print '<span>' . $langs->trans('Answer') . ' : </span>';
                                 $object->status > $object::STATUS_DRAFT ? print $questionAnswer :
-                                print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" class="question-comment input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
-                                ?>
-                            </div>
-                            <?php elseif ($item->type == 'Percentage') : ?>
-                            <div class="<?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-                                <?php
-                                print '<span>' . $langs->transnoentities('Answer') . ' : </span>';
-                                $object->status > $object::STATUS_DRAFT ? print $questionAnswer . '%' :
-                                print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" min="0" max="100" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'"> %';
-                                ?>
-                            </div>
-                            <?php elseif ($item->type == 'Range') : ?>
-                            <div class="<?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-                                <?php
-                                print '<span>' . $langs->transnoentities('Answer') . ' : </span>';
-                                $object->status > $object::STATUS_DRAFT ? print $questionAnswer :
-                                print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" class="question-comment input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+                                print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'"class="question-textarea input-answer ' . ($object->status > 0 ? 'disable' : '') . '" value="'. $questionAnswer .'">';
                                 ?>
                             </div>
                             <?php endif; ?>
@@ -1315,7 +1299,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								<?php if ($object->status > 0 ) : ?>
 									<?php print $comment; ?>
 								<?php else : ?>
-									<?php print '<input class="question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?>
+									<?php print '<input class="question-textarea question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?>
 								<?php endif; ?>
 							<?php endif; ?>
 						</div>
@@ -1407,6 +1391,32 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							}
 							?>
 						</div>
+                    <?php elseif ($item->type == 'Percentage') : ?>
+                        <div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+                            <div class="table-row">
+                                <?php
+                                print '<span class="table-cell" value="">';
+                                print $langs->transnoentities('Answer') . ' : ';
+                                print '</span>';
+                                print '<span class="table-cell" value="">';
+                                print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" min="0" max="100" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">%';
+                                print '</span>';
+                                ?>
+                            </div>
+                        </div>
+                    <?php elseif ($item->type == 'Range') : ?>
+                        <div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+                            <div class="table-row">
+                                <?php
+                                print '<span class="table-cell" value="">';
+                                print $langs->transnoentities('Answer') . ' : ';
+                                print '</span>';
+                                print '<span class="table-cell" value="">';
+                                print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
+                                print '</span>';
+                                ?>
+                            </div>
+                        </div>
 					<?php endif; ?>
 					</div>
 			    </div>
