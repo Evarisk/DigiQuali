@@ -1201,7 +1201,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 		}
 
-		if ($object->status < QUESTION::STATUS_LOCKED) {
+		if ($object->status < QUESTION::STATUS_LOCKED && ($object->type != 'OkKo' && $object->type != 'OkKoToFixNonApplicable')) {
 			print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
 			print '<input type="hidden" name="token" value="' . newToken() . '">';
 			print '<input type="hidden" name="action" value="addAnswer">';
