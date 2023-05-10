@@ -278,7 +278,6 @@ SelectProducts = Sélectionner un produit
 AddMedia = Ajouter un média
 SearchFile = Rechercher un fichier
 NoMediaLinked = Pas de média lié
-ErrorFileNotFound = Aucun logo de la société renseigné
 Or = ou
 SelectProductsOrServices = Sélectionner un produit / service
 DoliSMQNumberOfModelFilesFound = Nombre de modèles par défaut
