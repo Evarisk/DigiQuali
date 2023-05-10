@@ -214,11 +214,7 @@ if (empty($reshook)) {
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
-	if ($action == 'classin' && $permissiontoadd) {
-		// Link to a project
-		$object->projectid = GETPOST('projectid', 'int');
-		$object->update($user, 1);
-	}
+	include __DIR__ . '/../../../saturne/core/tpl/actions/edit_project_action.tpl.php';
 
 	if ($action == 'set_categories' && $permissiontoadd) {
 		if ($object->fetch($id) > 0) {
@@ -540,14 +536,6 @@ if (empty($reshook)) {
 				setEventMessages($object->error, [], 'errors');
 			}
 		}
-	}
-
-	if ($action == 'add_favorite_photo') {
-		$data          = json_decode(file_get_contents('php://input'), true);
-		$fileName      = $data['filename'];
-		$object->photo = $fileName;
-
-		$object->update($user, true);
 	}
 
 	// Actions to send emails
