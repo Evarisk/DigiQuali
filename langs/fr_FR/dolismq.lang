@@ -232,7 +232,6 @@ ControlsRepartition = Répartition des contrôles par verdict
 ControlsTagsRepartition = Répartition des contrôles par verdict par catégories
 ControlsByFiscalYear = Rapport des contrôles sur l'exercice fiscal
 OfControl = des contrôles
-OfAnswer = des réponses
 
 #
 # ControlDet
@@ -253,21 +252,11 @@ ControlDocument = Fiche de Contrôle
 ControlDocumentsMin = fiches de contôle
 ControlDocumentName = Afficher les médias dans la fiche de contrôle
 ControlDocumentDescription = Afficher les médias des questions dans la fiche de contrôle du document ODT
-ControlDocumentPDFDoliSMQTemplate =	Modèle de fiche de contrôle au format PDF
 ControlDocumentSentByMailTrigger = Email fiche de contrôle envoyée
 controldocument = fiche de contrôle
 controldocument.odt = Fiche de Contrôle
 controldocument_photo.odt = Fiche de Contrôle avec photos
 controldocument_photo = fiche de contrôle avec photos
-SocietyName = Nom de la société
-ControlerName = Nom du contrôleur
-ControledProduct = Produit contrôlé
-LotNumber = Numéro Lot/Série
-ControlAndAnswerList = Liste des points contrôlés et des réponses associées à ce contrôle
-QuestionRef = Réf. Question
-QuestionTitle = Titre - Description Question
-AnswerRef = Réf. Réponse
-AnswerComment = Commentaire Réponse
 
 #
 # Other
@@ -275,17 +264,5 @@ AnswerComment = Commentaire Réponse
 
 # Data - Donnée
 SelectProducts = Sélectionner un produit
-AddMedia = Ajouter un média
-SearchFile = Rechercher un fichier
-NoMediaLinked = Pas de média lié
-Or = ou
 SelectProductsOrServices = Sélectionner un produit / service
-DoliSMQNumberOfModelFilesFound = Nombre de modèles par défaut
 Contact = Contact/Adresse
-CloseModal = Fermer
-PhotoWellSent = La photo a été ajoutée à la bibliothèque de médias
-PhotoNotSent = La photo ne s'est pas correctement envoyée
-DisplayMoreInfo = Afficher plus d'informations
-MediaDimensionSetWithSuccess = Dimensions des médias modifiées avec succès
-MediaDimensionNegativeError = Les valeurs des dimensions ne peuvent être négatives
-MediaDimensionEmptyError = Les valeurs des dimensions ne peuvent pas être vides
