@@ -972,7 +972,7 @@ class Control extends CommonObject
             ],
         ];
 
-        $arrayNbControlByVerdict = [];
+        $arrayNbControlByVerdict = [0 => 0, 1 => 0, 2 => 0];
         $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 't.status >= 0']);
         if (is_array($controls) && !empty($controls)) {
             foreach ($controls as $control) {
