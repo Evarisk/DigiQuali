@@ -274,63 +274,7 @@ if (empty($reshook)) {
 $title    = $langs->trans('Sheet');
 $help_url = 'FR:Module_DoliSMQ';
 
-$elementArray = array(
-	'product' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_PRODUCT,
-		'langs' => 'ProductOrService',
-		'picto' => 'product'
-	),
-	'productlot' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT,
-		'langs' => 'Batch',
-		'picto' => 'lot'
-	),
-	'user' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_USER,
-		'langs' => 'User',
-		'picto' => 'user'
-	),
-	'thirdparty' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY,
-		'langs' => 'ThirdParty',
-		'picto' => 'building'
-	),
-	'contact' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_CONTACT,
-		'langs' => 'Contact',
-		'picto' => 'address'
-	),
-	'project' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_PROJECT,
-		'langs' => 'Project',
-		'picto' => 'project'
-	),
-	'task' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_TASK,
-		'langs' => 'Task',
-		'picto' => 'projecttask'
-	),
-    'invoice' => array(
-        'conf' => $conf->global->DOLISMQ_SHEET_LINK_INVOICE,
-        'langs' => 'Invoice',
-        'picto' => 'bill'
-    ),
-    'order' => array(
-        'conf' => $conf->global->DOLISMQ_SHEET_LINK_ORDER,
-        'langs' => 'Order',
-        'picto' => 'order'
-    ),
-    'contract' => array(
-        'conf' => $conf->global->DOLISMQ_SHEET_LINK_CONTRACT,
-        'langs' => 'Contract',
-        'picto' => 'contract'
-    ),
-    'ticket' => array(
-        'conf' => $conf->global->DOLISMQ_SHEET_LINK_TICKET,
-        'langs' => 'Ticket',
-        'picto' => 'ticket'
-    ),
-);
+$elementArray = get_sheet_linkable_objects();
 
 saturne_header(0,'', $title, $help_url);
 
@@ -360,18 +304,7 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	//FK Element
-	if (empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && empty($conf->global->DOLISMQ_SHEET_LINK_USER)
-        && empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT)
-        && empty($conf->global->DOLISMQ_SHEET_LINK_TASK) && empty($conf->global->DOLISMQ_SHEET_LINK_INVOICE) && empty($conf->global->DOLISMQ_SHEET_LINK_ORDER)
-        && empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && empty($conf->global->DOLISMQ_SHEET_LINK_TICKET)) {
-		print '<div class="wpeo-notice notice-warning notice-red">';
-		print '<div class="notice-content">';
-		print '<a href="' . dol_buildpath('/custom/dolismq/admin/sheet.php', 2) . '">' . '<b><div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . ' : ' . $langs->trans('ConfigSheet') . '</b></a>';
-		print '</div>';
-		print '</div>';
-		print '</div>';
-	}
-
+	$linkableObject = 0;
 	foreach ($elementArray as $key => $element) {
 		if (!empty($element['conf'])) {
 			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
@@ -381,7 +314,17 @@ if ($action == 'create') {
 				print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'">';
 			}
 			print '</td></tr>';
+			$linkableObject++;
 		}
+	}
+
+	if ($linkableObject == 0) {
+		print '<div class="wpeo-notice notice-warning notice-red">';
+		print '<div class="notice-content">';
+		print '<a href="' . dol_buildpath('/custom/dolismq/admin/sheet.php', 2) . '">' . '<b><div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . ' : ' . $langs->trans('ConfigSheet') . '</b></a>';
+		print '</div>';
+		print '</div>';
+		print '</div>';
 	}
 
 	if (!empty($conf->categorie->enabled)) {

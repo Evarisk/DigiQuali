@@ -119,3 +119,138 @@ function sheet_prepare_head(CommonObject $object): array
 
 	return $head;
 }
+
+/**
+ * Get list of objects which can be linked to a sheet
+ *
+ * @param  CommonObject $object Object
+ * @return array                Array of tabs
+ * @throws Exception
+ */
+function get_sheet_linkable_objects(): array
+{
+	global $conf, $hookmanager, $db;
+
+	require_once __DIR__ . '/../../saturne/class/task/saturnetask.class.php';
+
+	$linkableObjectTypes = [];
+
+	if (isModEnabled('product')) {
+		$linkableObjectTypes['product'] = [
+			'langs'     => 'ProductOrService',
+			'picto'     => 'product',
+			'className' => 'Product',
+			'nameField' => 'ref'
+		];
+	}
+
+	if (isModEnabled('productbatch')) {
+		$linkableObjectTypes['productlot'] = [
+			'langs'     => 'Batch',
+			'picto'     => 'lot',
+			'className' => 'ProductLot',
+			'nameField' => 'batch'
+		];
+	}
+
+	if (isModEnabled('user')) {
+		$linkableObjectTypes['user'] = [
+			'langs'     => 'User',
+			'picto'     => 'user',
+			'className' => 'User',
+			'nameField' => 'lastname, firstname'
+		];
+	}
+
+	if (isModEnabled('societe')) {
+		$linkableObjectTypes['thirdparty'] = [
+			'langs'     => 'ThirdParty',
+			'picto'     => 'building',
+			'className' => 'Societe',
+			'nameField' => 'nom'
+		];
+		$linkableObjectTypes['contact'] = [
+			'langs'     => 'Contact',
+			'picto'     => 'address',
+			'className' => 'Contact',
+			'nameField' => 'lastname, firstname'
+		];
+	}
+
+	if (isModEnabled('project')) {
+		$linkableObjectTypes['project'] = [
+			'langs'     => 'Project',
+			'picto'     => 'project',
+			'className' => 'Project',
+			'nameField' => 'ref, title'
+		];
+		$linkableObjectTypes['task'] = [
+			'langs'     => 'Task',
+			'picto'     => 'projecttask',
+			'className' => 'SaturneTask',
+			'nameField' => 'label'
+		];
+	}
+//
+//	if (isModEnabled('facture')) {
+//		$linkableObjectTypes['invoice'] = [
+//			'langs' => 'Invoice',
+//			'picto' => 'bill'
+//		];
+//	}
+//
+//	if (isModEnabled('order')) {
+//		$linkableObjectTypes['order'] = [
+//			'langs' => 'Order',
+//			'picto' => 'order'
+//		];
+//	}
+//
+//	if (isModEnabled('contract')) {
+//		$linkableObjectTypes['contract'] = [
+//			'langs' => 'Contract',
+//			'picto' => 'contract'
+//		];
+//	}
+//
+//	if (isModEnabled('ticket')) {
+//		$linkableObjectTypes['ticket'] = [
+//			'langs' => 'Ticket',
+//			'picto' => 'ticket'
+//		];
+//	}
+
+	//Hook to add controllable objects from other modules
+	if ( ! is_object($hookmanager)) {
+		include_once DOL_DOCUMENT_ROOT . '/core/class/hookmanager.class.php';
+		$hookmanager = new HookManager($db);
+	}
+	$hookmanager->initHooks(array('get_sheet_linkable_objects'));
+
+	$reshook = $hookmanager->executeHooks('extendSheetLinkableObjectsList', $linkableObjectTypes);
+
+	if (is_array($hookmanager->resArray) && !empty($hookmanager->resArray)) {
+		$linkableObjectTypes = $hookmanager->resArray;
+	}
+
+	$linkableObjects = [];
+	if (is_array($linkableObjectTypes) && !empty($linkableObjectTypes)) {
+		foreach($linkableObjectTypes as $linkableObjectType => $linkableObjectInformations) {
+			if ($linkableObjectType != 'context' && $linkableObjectType != 'currentcontext') {
+				$confCode = 'DOLISMQ_SHEET_LINK_' . strtoupper($linkableObjectType);
+				$linkableObjects[$linkableObjectType] = [
+					'code'        => $confCode,
+					'conf'        => $conf->global->$confCode,
+					'name'        => 'Link' . ucfirst($linkableObjectType),
+					'description' => 'Link' . ucfirst($linkableObjectType) . 'Description',
+					'langs'       => $linkableObjectInformations['langs'],
+					'picto'       => $linkableObjectInformations['picto'],
+					'className'   => $linkableObjectInformations['className'],
+					'nameField'   => $linkableObjectInformations['nameField'],
+				];
+			}
+		}
+	}
+
+	return $linkableObjects;
+}

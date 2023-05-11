@@ -63,6 +63,7 @@ require_once __DIR__ . '/../../class/answer.class.php';
 require_once __DIR__ . '/../../class/dolismqdocuments/controldocument.class.php';
 require_once __DIR__ . '/../../lib/dolismq_control.lib.php';
 require_once __DIR__ . '/../../lib/dolismq_answer.lib.php';
+require_once __DIR__ . '/../../lib/dolismq_sheet.lib.php';
 require_once __DIR__ . '/../../core/modules/dolismq/control/mod_control_standard.php';
 require_once __DIR__ . '/../../core/modules/dolismq/controldet/mod_controldet_standard.php';
 
@@ -567,6 +568,8 @@ $help_url = 'FR:Module_DoliSMQ';
 saturne_header(1,'', $title, $help_url);
 $object->fetch(GETPOST('id'));
 
+$elementArray = get_sheet_linkable_objects();
+
 // Part to create
 if ($action == 'create') {
 	print load_fiche_titre($langs->trans('NewControl'), '', 'object_' . $object->picto);
@@ -613,155 +616,187 @@ if ($action == 'create') {
 	print '<tr><td>';
 	print '<div class="fields-content">';
 
-	//FK Product
-	if ($conf->global->DOLISMQ_SHEET_LINK_PRODUCT && preg_match('/"product":1/',$sheet->element_linked)) {
-		$productPost = GETPOST('fk_product') ?: (GETPOST('fromtype') == 'product' ? GETPOST('fromid') : 0);
-		print '<tr><td class="titlefieldcreate">' . $langs->trans('ProductOrServiceLinked') . '</td><td>';
-		print img_picto('', 'product', 'class="pictofixedwidth"');
-		$form->select_produits($productPost, 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices', 0, 'maxwidth500 widthcentpercentminusxx');
-		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/product/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProduct') . '"></span></a>';
-		print '</td></tr>';
+	foreach($elementArray as $linkableElementType => $linkableElement) {
+		if (!empty($linkableElement['conf'] && preg_match('/"'. $linkableElementType .'":1/',$sheet->element_linked))) {
+
+			$objectArray    = [];
+			$objectPostName = 'fk_' . $linkableElementType;
+			$objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $linkableElementType ? GETPOST('fromid') : '');
+			$objectList     = saturne_fetch_all_object_type($linkableElement['className']);
+
+			if (is_array($objectList) && !empty($objectList)) {
+				foreach($objectList as $objectSingle) {
+					$objectName = '';
+					$nameField = $linkableElement['nameField'];
+					if (strstr($nameField, ',')) {
+						$nameFields = explode(', ', $nameField);
+						if (is_array($nameFields) && !empty($nameFields)) {
+							foreach($nameFields as $subnameField) {
+								$objectName .= $objectSingle->$subnameField . ' ';
+							}
+						}
+					} else {
+						$objectName = $objectSingle->$nameField;
+					}
+					$objectArray[] = $objectName;
+				}
+			}
+
+			print '<tr><td class="titlefieldcreate">' . $langs->trans($linkableElement['langs']) . '</td><td>';
+			print img_picto('', $linkableElement['picto'], 'class="pictofixedwidth"');
+			print $form->selectArray($objectPostName, $objectArray, $objectPost, 1, 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+			print '</td></tr>';
+		}
 	}
-
-     // FK Productlot.
-    if ($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT && preg_match('/"productlot":1/', $sheet->element_linked)) {
-        $productLotPost = GETPOST('fk_productlot') ?: (GETPOST('fromtype') == 'productbatch' ? GETPOST('fromid') : -1);
-        print '<tr><td class="titlefieldcreate">' . $langs->trans('BatchLinked') . '</td><td class="lot-container">';
-        print '<span class="lot-content">';
-        print img_picto('', 'lot', 'class="pictofixedwidth"');
-        if (preg_match('/"product":1/', $sheet->element_linked)) {
-            $filter = ['customsql' => 'fk_product = ' . (dol_strlen(GETPOST('fk_product')) > 0 ? GETPOST('fk_product') : 0)];
-        } else {
-            $filter = [];
-        }
-        $productlots = saturne_fetch_all_object_type('Productlot', '', '', 0, 0, $filter);
-        if (is_array($productlots) && !empty($productlots)) {
-            $showEmpty = '1';
-            foreach ($productlots as $productlot) {
-                $arrayProductLots[$productlot->id] = $productlot->batch;
-            }
-        } else {
-            $showEmpty = $langs->transnoentities('NoLotForThisProduct');
-        }
-        print Form::selectarray('fk_productlot', $arrayProductLots, $productLotPost, $showEmpty, 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
-        print '</span>';
-        print '</td></tr>';
-    }
-    print '</div>';
-
-	//FK User
-	if ($conf->global->DOLISMQ_SHEET_LINK_USER && preg_match('/"user":1/',$sheet->element_linked)) {
-		$userPost = GETPOST('fk_user') ?: (GETPOST('fromtype') == 'user' ? GETPOST('fromid') : -1);
-		print '<tr><td class="titlefieldcreate">' . $langs->trans('UserLinked') . '</td><td>';
-		print img_picto('', 'user', 'class="pictofixedwidth"') . $form->select_dolusers($userPost, 'fk_user', $langs->trans('SelectUser'), null, 0, '', '', '0', 0, 0, '', 0, '', 'maxwidth500 widthcentpercentminusxx');
-		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/user/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddUser') . '"></span></a>';
-		print '</td></tr>';
-	}
-
-	//FK Soc
-	if ($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY && preg_match('/"thirdparty":1/',$sheet->element_linked)) {
-		$thirdpartyPost = GETPOST('fk_soc') ?: (GETPOST('fromtype') == 'societe' ? GETPOST('fromid') : 0);
-		print '<tr><td class="titlefieldcreate">' . $langs->trans('ThirdPartyLinked') . '</td><td>';
-		print img_picto('', 'building', 'class="pictofixedwidth"') . $form->select_company($thirdpartyPost, 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'maxwidth500 widthcentpercentminusxx');
-		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddThirdParty') . '"></span></a>';
-		print '</td></tr>';
-	}
-
-	// FK Contact
-	if ($conf->global->DOLISMQ_SHEET_LINK_CONTACT && preg_match('/"contact":1/',$sheet->element_linked)) {
-		$contactPost = GETPOST('fk_contact') ?: (GETPOST('fromtype') == 'contact' ? GETPOST('fromid') : 0);
-		print '<tr><td class="titlefieldcreate">' . $langs->trans('ContactLinked') . '</td><td>';
-		// If no fk_soc, set to -1 to avoid full contacts list
-		print img_picto('', 'address', 'class="pictofixedwidth"') . $form->selectcontacts(((GETPOST('fk_soc') > 0) ? GETPOST('fk_soc') : 0), $contactPost, 'fk_contact', 1, '', '', 0, 'maxwidth500 widthcentpercentminusxx');
-		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/contact/card.php?action=create' . ((GETPOST('fk_soc') > 0) ? '&socid=' . GETPOST('fk_soc') : '') . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddContact') . '"></span></a>';
-		print '</td></tr>';
-	}
-
-	//FK Project
-	if ($conf->global->DOLISMQ_SHEET_LINK_PROJECT && preg_match('/"project":1/',$sheet->element_linked)) {
-		$projectPost = GETPOST('fk_project') ?: (GETPOST('fromtype') == 'project' ? GETPOST('fromid') : 0);
-		print '<tr><td class="titlefieldcreate">' . $langs->trans('ProjectLinked') . '</td><td>';
-		print img_picto('', 'project', 'class="pictofixedwidth"') . $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1), $projectPost, 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'maxwidth500 widthcentpercentminusxx');
-		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/projet/card.php?action=create' . ((GETPOST('fk_soc') > 0) ? '&socid=' . GETPOST('fk_soc') : '') . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProject') . '"></span></a>';
-		print '</td></tr>';
-	}
-
-	//FK Task
-	if ($conf->global->DOLISMQ_SHEET_LINK_TASK && preg_match('/"task":1/',$sheet->element_linked)) {
-		$taskPost = GETPOST('fk_task') ?: (GETPOST('fromtype') == 'project_task' ? GETPOST('fromid') : 0);
-		print '<tr><td class="titlefieldcreate">' . $langs->trans('TaskLinked');
-		print '</td><td class="task-container">';
-		print '<span class="task-content">';
-		dol_strlen(GETPOST('fk_project')) > 0 ? $project->fetch(GETPOST('fk_project')) : 0;
-		print img_picto('', 'projecttask', 'class="pictofixedwidth"');
-		$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), $taskPost, 'fk_task', 24, 0, '1', 1, 0, 0, 'maxwidth500 widthcentpercentminusxx', GETPOST('fk_project') ?: 0, '');
-		print '</span>';
-		print '</td></tr>';
-	}
-	print '</div>';
-
-    // FK Invoice.
-    if ($conf->global->DOLISMQ_SHEET_LINK_INVOICE && preg_match('/"invoice":1/', $sheet->element_linked)) {
-        $invoicePost = GETPOST('fk_invoice') ?: (GETPOST('fromtype') == 'facture' ? GETPOST('fromid') : -1);
-        print '<tr><td class="titlefieldcreate">' . $langs->trans('InvoiceLinked') . '</td><td>';
-        print img_picto('', 'bill', 'class="pictofixedwidth"');
-        $invoices = saturne_fetch_all_object_type('Facture');
-        if (is_array($invoices) && !empty($invoices)) {
-            foreach ($invoices as $invoice) {
-                $arrayInvoices[$invoice->id] = $invoice->ref;
-            }
-        }
-        print Form::selectarray('fk_invoice', $arrayInvoices, $invoicePost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
-        print '</td></tr>';
-    }
-    print '</div>';
-
-    // FK Order.
-    if ($conf->global->DOLISMQ_SHEET_LINK_ORDER && preg_match('/"order":1/', $sheet->element_linked)) {
-        $orderPost = GETPOST('fk_order') ?: (GETPOST('fromtype') == 'commande' ? GETPOST('fromid') : -1);
-        print '<tr><td class="titlefieldcreate">' . $langs->trans('OrderLinked') . '</td><td>';
-        print img_picto('', 'order', 'class="pictofixedwidth"');
-        $orders = saturne_fetch_all_object_type('Commande');
-        if (is_array($orders) && !empty($orders)) {
-            foreach ($orders as $order) {
-                $arrayOrders[$order->id] = $order->ref;
-            }
-        }
-        print Form::selectarray('fk_order', $arrayOrders, $orderPost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
-        print '</td></tr>';
-    }
-    print '</div>';
-
-    // FK Contract.
-    if ($conf->global->DOLISMQ_SHEET_LINK_CONTRACT && preg_match('/"contract":1/', $sheet->element_linked)) {
-        $contractPost = GETPOST('fk_contract') ?: (GETPOST('fromtype') == 'contrat' ? GETPOST('fromid') : -1);
-        print '<tr><td class="titlefieldcreate">' . $langs->trans('ContractLinked') . '</td><td>';
-        print img_picto('', 'contract', 'class="pictofixedwidth"');
-        $contracts = saturne_fetch_all_object_type('Contrat');
-        if (is_array($contracts) && !empty($contracts)) {
-            foreach ($contracts as $contract) {
-                $arrayContracts[$contract->id] = $contract->ref;
-            }
-        }
-        print Form::selectarray('fk_contract', $arrayContracts, $contractPost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
-        print '</td></tr>';
-    }
-    print '</div>';
-
-    // FK Ticket.
-    if ($conf->global->DOLISMQ_SHEET_LINK_TICKET && preg_match('/"ticket":1/', $sheet->element_linked)) {
-        $ticketPost = GETPOST('fk_ticket') ?: (GETPOST('fromtype') == 'ticket' ? GETPOST('fromid') : -1);
-        print '<tr><td class="titlefieldcreate">' . $langs->trans('TicketLinked') . '</td><td>';
-        print img_picto('', 'ticket', 'class="pictofixedwidth"');
-        $tickets = saturne_fetch_all_object_type('Ticket');
-        if (is_array($tickets) && !empty($tickets)) {
-            foreach ($tickets as $ticket) {
-                $arrayTickets[$ticket->id] = $ticket->ref;
-            }
-        }
-        print Form::selectarray('fk_ticket', $arrayTickets, $ticketPost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
-        print '</td></tr>';
-    }
+//	//FK Product
+//	if ($conf->global->DOLISMQ_SHEET_LINK_PRODUCT && preg_match('/"product":1/',$sheet->element_linked)) {
+//		$productPost = GETPOST('fk_product') ?: (GETPOST('fromtype') == 'product' ? GETPOST('fromid') : 0);
+//		print '<tr><td class="titlefieldcreate">' . $langs->trans('ProductOrServiceLinked') . '</td><td>';
+//		print img_picto('', 'product', 'class="pictofixedwidth"');
+//		$form->select_produits($productPost, 'fk_product', '', 0, 1, -1, 2, '', '', '', '', 'SelectProductsOrServices', 0, 'maxwidth500 widthcentpercentminusxx');
+//		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/product/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProduct') . '"></span></a>';
+//		print '</td></tr>';
+//	}
+//
+//     // FK Productlot.
+//    if ($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT && preg_match('/"productlot":1/', $sheet->element_linked)) {
+//        $productLotPost = GETPOST('fk_productlot') ?: (GETPOST('fromtype') == 'productbatch' ? GETPOST('fromid') : -1);
+//        print '<tr><td class="titlefieldcreate">' . $langs->trans('BatchLinked') . '</td><td class="lot-container">';
+//        print '<span class="lot-content">';
+//        print img_picto('', 'lot', 'class="pictofixedwidth"');
+//        if (preg_match('/"product":1/', $sheet->element_linked)) {
+//            $filter = ['customsql' => 'fk_product = ' . (dol_strlen(GETPOST('fk_product')) > 0 ? GETPOST('fk_product') : 0)];
+//        } else {
+//            $filter = [];
+//        }
+//        $productlots = saturne_fetch_all_object_type('Productlot', '', '', 0, 0, $filter);
+//        if (is_array($productlots) && !empty($productlots)) {
+//            $showEmpty = '1';
+//            foreach ($productlots as $productlot) {
+//                $arrayProductLots[$productlot->id] = $productlot->batch;
+//            }
+//        } else {
+//            $showEmpty = $langs->transnoentities('NoLotForThisProduct');
+//        }
+//        print Form::selectarray('fk_productlot', $arrayProductLots, $productLotPost, $showEmpty, 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+//        print '</span>';
+//        print '</td></tr>';
+//    }
+//    print '</div>';
+//
+//	//FK User
+//	if ($conf->global->DOLISMQ_SHEET_LINK_USER && preg_match('/"user":1/',$sheet->element_linked)) {
+//		$userPost = GETPOST('fk_user') ?: (GETPOST('fromtype') == 'user' ? GETPOST('fromid') : -1);
+//		print '<tr><td class="titlefieldcreate">' . $langs->trans('UserLinked') . '</td><td>';
+//		print img_picto('', 'user', 'class="pictofixedwidth"') . $form->select_dolusers($userPost, 'fk_user', $langs->trans('SelectUser'), null, 0, '', '', '0', 0, 0, '', 0, '', 'maxwidth500 widthcentpercentminusxx');
+//		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/user/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddUser') . '"></span></a>';
+//		print '</td></tr>';
+//	}
+//
+//	//FK Soc
+//	if ($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY && preg_match('/"thirdparty":1/',$sheet->element_linked)) {
+//		$thirdpartyPost = GETPOST('fk_soc') ?: (GETPOST('fromtype') == 'societe' ? GETPOST('fromid') : 0);
+//		print '<tr><td class="titlefieldcreate">' . $langs->trans('ThirdPartyLinked') . '</td><td>';
+//		print img_picto('', 'building', 'class="pictofixedwidth"') . $form->select_company($thirdpartyPost, 'fk_soc', '', 'SelectThirdParty', 1, 0, array(), 0, 'maxwidth500 widthcentpercentminusxx');
+//		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/societe/card.php?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddThirdParty') . '"></span></a>';
+//		print '</td></tr>';
+//	}
+//
+//	// FK Contact
+//	if ($conf->global->DOLISMQ_SHEET_LINK_CONTACT && preg_match('/"contact":1/',$sheet->element_linked)) {
+//		$contactPost = GETPOST('fk_contact') ?: (GETPOST('fromtype') == 'contact' ? GETPOST('fromid') : 0);
+//		print '<tr><td class="titlefieldcreate">' . $langs->trans('ContactLinked') . '</td><td>';
+//		// If no fk_soc, set to -1 to avoid full contacts list
+//		print img_picto('', 'address', 'class="pictofixedwidth"') . $form->selectcontacts(((GETPOST('fk_soc') > 0) ? GETPOST('fk_soc') : 0), $contactPost, 'fk_contact', 1, '', '', 0, 'maxwidth500 widthcentpercentminusxx');
+//		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/contact/card.php?action=create' . ((GETPOST('fk_soc') > 0) ? '&socid=' . GETPOST('fk_soc') : '') . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddContact') . '"></span></a>';
+//		print '</td></tr>';
+//	}
+//
+//	//FK Project
+//	if ($conf->global->DOLISMQ_SHEET_LINK_PROJECT && preg_match('/"project":1/',$sheet->element_linked)) {
+//		$projectPost = GETPOST('fk_project') ?: (GETPOST('fromtype') == 'project' ? GETPOST('fromid') : 0);
+//		print '<tr><td class="titlefieldcreate">' . $langs->trans('ProjectLinked') . '</td><td>';
+//		print img_picto('', 'project', 'class="pictofixedwidth"') . $formproject->select_projects((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : -1), $projectPost, 'fk_project', 0, 0, 1, 0, 1, 0, 0, '', 1, 0, 'maxwidth500 widthcentpercentminusxx');
+//		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/projet/card.php?action=create' . ((GETPOST('fk_soc') > 0) ? '&socid=' . GETPOST('fk_soc') : '') . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddProject') . '"></span></a>';
+//		print '</td></tr>';
+//	}
+//
+//	//FK Task
+//	if ($conf->global->DOLISMQ_SHEET_LINK_TASK && preg_match('/"task":1/',$sheet->element_linked)) {
+//		$taskPost = GETPOST('fk_task') ?: (GETPOST('fromtype') == 'project_task' ? GETPOST('fromid') : 0);
+//		print '<tr><td class="titlefieldcreate">' . $langs->trans('TaskLinked');
+//		print '</td><td class="task-container">';
+//		print '<span class="task-content">';
+//		dol_strlen(GETPOST('fk_project')) > 0 ? $project->fetch(GETPOST('fk_project')) : 0;
+//		print img_picto('', 'projecttask', 'class="pictofixedwidth"');
+//		$formproject->selectTasks((!empty(GETPOST('fk_soc')) ? GETPOST('fk_soc') : 0), $taskPost, 'fk_task', 24, 0, '1', 1, 0, 0, 'maxwidth500 widthcentpercentminusxx', GETPOST('fk_project') ?: 0, '');
+//		print '</span>';
+//		print '</td></tr>';
+//	}
+//	print '</div>';
+//
+//    // FK Invoice.
+//    if ($conf->global->DOLISMQ_SHEET_LINK_INVOICE && preg_match('/"invoice":1/', $sheet->element_linked)) {
+//        $invoicePost = GETPOST('fk_invoice') ?: (GETPOST('fromtype') == 'facture' ? GETPOST('fromid') : -1);
+//        print '<tr><td class="titlefieldcreate">' . $langs->trans('InvoiceLinked') . '</td><td>';
+//        print img_picto('', 'bill', 'class="pictofixedwidth"');
+//        $invoices = saturne_fetch_all_object_type('Facture');
+//        if (is_array($invoices) && !empty($invoices)) {
+//            foreach ($invoices as $invoice) {
+//                $arrayInvoices[$invoice->id] = $invoice->ref;
+//            }
+//        }
+//        print Form::selectarray('fk_invoice', $arrayInvoices, $invoicePost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+//        print '</td></tr>';
+//    }
+//    print '</div>';
+//
+//    // FK Order.
+//    if ($conf->global->DOLISMQ_SHEET_LINK_ORDER && preg_match('/"order":1/', $sheet->element_linked)) {
+//        $orderPost = GETPOST('fk_order') ?: (GETPOST('fromtype') == 'commande' ? GETPOST('fromid') : -1);
+//        print '<tr><td class="titlefieldcreate">' . $langs->trans('OrderLinked') . '</td><td>';
+//        print img_picto('', 'order', 'class="pictofixedwidth"');
+//        $orders = saturne_fetch_all_object_type('Commande');
+//        if (is_array($orders) && !empty($orders)) {
+//            foreach ($orders as $order) {
+//                $arrayOrders[$order->id] = $order->ref;
+//            }
+//        }
+//        print Form::selectarray('fk_order', $arrayOrders, $orderPost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+//        print '</td></tr>';
+//    }
+//    print '</div>';
+//
+//    // FK Contract.
+//    if ($conf->global->DOLISMQ_SHEET_LINK_CONTRACT && preg_match('/"contract":1/', $sheet->element_linked)) {
+//        $contractPost = GETPOST('fk_contract') ?: (GETPOST('fromtype') == 'contrat' ? GETPOST('fromid') : -1);
+//        print '<tr><td class="titlefieldcreate">' . $langs->trans('ContractLinked') . '</td><td>';
+//        print img_picto('', 'contract', 'class="pictofixedwidth"');
+//        $contracts = saturne_fetch_all_object_type('Contrat');
+//        if (is_array($contracts) && !empty($contracts)) {
+//            foreach ($contracts as $contract) {
+//                $arrayContracts[$contract->id] = $contract->ref;
+//            }
+//        }
+//        print Form::selectarray('fk_contract', $arrayContracts, $contractPost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+//        print '</td></tr>';
+//    }
+//    print '</div>';
+//
+//    // FK Ticket.
+//    if ($conf->global->DOLISMQ_SHEET_LINK_TICKET && preg_match('/"ticket":1/', $sheet->element_linked)) {
+//        $ticketPost = GETPOST('fk_ticket') ?: (GETPOST('fromtype') == 'ticket' ? GETPOST('fromid') : -1);
+//        print '<tr><td class="titlefieldcreate">' . $langs->trans('TicketLinked') . '</td><td>';
+//        print img_picto('', 'ticket', 'class="pictofixedwidth"');
+//        $tickets = saturne_fetch_all_object_type('Ticket');
+//        if (is_array($tickets) && !empty($tickets)) {
+//            foreach ($tickets as $ticket) {
+//                $arrayTickets[$ticket->id] = $ticket->ref;
+//            }
+//        }
+//        print Form::selectarray('fk_ticket', $arrayTickets, $ticketPost, '1', 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+//        print '</td></tr>';
+//    }
     print '</div>';
 
 	// Other attributes
