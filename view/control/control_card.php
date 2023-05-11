@@ -912,7 +912,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if ($conf->categorie->enabled) {
 		print '<tr><td class="valignmiddle">' . $langs->trans('Categories') . '</td>';
 		if ($action != 'categories') {
-			print '<td style="display: flex"><a class="editfielda" href="' . $_SERVER['PHP_SELF'] . '?action=categories&id=' . $object->id . '">' . img_edit($langs->trans('Modify')) . '</a>';
+            print '<td style="display: flex">' . ($object->status < Control::STATUS_LOCKED ? '<a class="editfielda" href="' . $_SERVER['PHP_SELF'] . '?action=categories&id=' . $object->id . '">' . img_edit($langs->trans('Modify')) . '</a>' : '<img src="" alt="">');
 			print $form->showCategories($object->id, 'control', 1) . '</td>';
 		}
 		if ($permissiontoadd && $action == 'categories') {
