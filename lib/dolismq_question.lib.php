@@ -25,13 +25,13 @@
 require_once __DIR__ . '/../../saturne/lib/object.lib.php';
 
 /**
- * Prepare question pages header.
+ * Prepare array of tabs for question.
  *
- * @param  CommonObject $object Object.
- * @return array                Array of tabs.
+ * @param  Question $object Question object.
+ * @return array            Array of tabs.
  * @throws Exception
  */
-function question_prepare_head(CommonObject $object): array
+function question_prepare_head(Question $object): array
 {
     return saturne_object_prepare_head($object);
 }

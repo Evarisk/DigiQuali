@@ -25,13 +25,13 @@
 require_once __DIR__ . '/../../saturne/lib/object.lib.php';
 
 /**
- * Prepare sheet pages header.
+ * Prepare array of tabs for sheet.
  *
- * @param  CommonObject $object Object.
- * @return array                Array of tabs.
+ * @param  Sheet $object Sheet object.
+ * @return array         Array of tabs.
  * @throws Exception
  */
-function sheet_prepare_head(CommonObject $object): array
+function sheet_prepare_head(Sheet $object): array
 {
     return saturne_object_prepare_head($object);
 }

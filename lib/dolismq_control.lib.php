@@ -25,13 +25,13 @@
 require_once __DIR__ . '/../../saturne/lib/object.lib.php';
 
 /**
- * Prepare array of tabs for Control.
+ * Prepare array of tabs for control.
  *
- * @param  Control $object Control.
+ * @param  Control $object Control object.
  * @return array           Array of tabs.
  * @throws Exception
  */
-function control_prepare_head(CommonObject $object): array
+function control_prepare_head(Control $object): array
 {
     // Global variables definitions.
     global $langs;
@@ -40,8 +40,8 @@ function control_prepare_head(CommonObject $object): array
     $head[1][1] = '<i class="fas fa-file-image pictofixedwidth"></i>' . $langs->trans('Medias');
     $head[1][2] = 'medias';
 
-    $moreparam['documentType']       = 'ControlDocument';
-    $moreparam['attendantTableMode'] = 'simple';
+    $moreParams['documentType']       = 'ControlDocument';
+    $moreParams['attendantTableMode'] = 'simple';
 
     return saturne_object_prepare_head($object, $head, $moreParams, true);
 }
