@@ -885,7 +885,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         $onPhone = 0;
     }
 
-	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', '', empty($object->photo) ? false : true);
+	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', '', !empty($object->photo));
 
 	print '<div class="fichecenter controlInfo' . ($onPhone ? ' hidden' : '') . '">';
 	print '<div class="fichehalfleft">';
