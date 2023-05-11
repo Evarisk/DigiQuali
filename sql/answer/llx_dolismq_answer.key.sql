@@ -13,20 +13,9 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see https://www.gnu.org/licenses/.
 
-CREATE TABLE llx_dolismq_answer(
-	rowid         integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-	ref           varchar(128) DEFAULT '(PROV)' NOT NULL,
-	ref_ext       varchar(128),
-	entity        integer DEFAULT 1 NOT NULL,
-	date_creation datetime NOT NULL,
-    tms           timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    import_key    varchar(14),
-    status        integer DEFAULT 1 NOT NULL,
-	value         text,
-    position      integer,
-    pictogram     varchar(255),
-    color         varchar(255),
-    fk_question   integer NOT NULL,
-    fk_user_creat integer NOT NULL,
-	fk_user_modif integer
-) ENGINE=innodb;
+ALTER TABLE llx_dolismq_answer ADD INDEX idx_dolismq_answer_rowid (rowid);
+ALTER TABLE llx_dolismq_answer ADD INDEX idx_dolismq_answer_ref (ref);
+ALTER TABLE llx_dolismq_answer ADD INDEX idx_dolismq_answer_status (status);
+ALTER TABLE llx_dolismq_answer ADD INDEX idx_dolismq_answer_fk_question (fk_question);
+ALTER TABLE llx_dolismq_answer ADD UNIQUE INDEX uk_dolismq_answer_ref (ref, entity);
+ALTER TABLE llx_dolismq_answer ADD CONSTRAINT llx_dolismq_answer_fk_user_creat FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid);
