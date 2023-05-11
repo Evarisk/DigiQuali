@@ -234,7 +234,6 @@ class ActionsDolismq
 
 				if (is_array($objectsInCateg) && !empty($objectsInCateg)) {
 					// Form to add record into a category
-
 					if (count($objectsInCateg) > 0) {
 						$i = 0;
 						foreach ($objectsInCateg as $element) {
@@ -259,8 +258,9 @@ class ActionsDolismq
 					} else {
 						$out .= '<tr class="oddeven"><td colspan="2" class="opacitymedium">'.$langs->trans("ThisCategoryHasNoItems").'</td></tr>';
 					}
-					$out .= '</table>';
 				}
+				
+				$out .= '</table>';
 			} ?>
 
 			<script>
