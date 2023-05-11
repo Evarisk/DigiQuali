@@ -296,6 +296,9 @@ class Control extends CommonObject
 			return 0;
 		}
 
+        $signatory = new SaturneSignature($this->db);
+        $signatory->deleteSignatoriesSignatures($this->id, 'control');
+
 		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'CONTROL_UNVALIDATED');
 	}
 
