@@ -14,7 +14,7 @@
 ## Liens
 
 - Support & Assistance : [Forum www.dolibarr.fr](https://www.dolibarr.fr) / Par mail à technique@evarisk.com
-- Demo : [Demo DoliSMQ](https://www.demodoli.digirisk.com) - ID: demo - Password: demo
+- Demo : [Demo DoliSMQ](https://demodoli.digirisk.com) - ID: demo - Password: demo
 - Documentation : [Wiki DoliSMQ](https://wiki.dolibarr.org/index.php/Module_DoliSMQ)
 - Projet Github : [Projet DoliSMQ](https://github.com/Evarisk/dolismq/projects?type=classic)
 - D'autres modules développés par Evarisk disponibles sur [Dolistore.com](https://www.dolistore.com)
