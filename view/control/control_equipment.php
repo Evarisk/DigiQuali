@@ -94,6 +94,7 @@ if (empty($reshook)) {
 			$controlEquipment->fk_product = $equipment->id;
 			$controlEquipment->fk_control = $object->id;
 
+            $jsonArray['label']        = $equipment->label;
 			$jsonArray['lifetime']     = $equipment->lifetime;
 			$jsonArray['qc_frenquecy'] = $equipment->qc_frequency;
 
@@ -164,9 +165,11 @@ if ($id > 0 || !empty($ref)) {
 			$equipmentIds[$equipmentControl->id]['ref'] = $equipmentControl->ref;
 
 			$jsonArray            = json_decode($equipmentControl->json);
+            $equipmentLabel       = $jsonArray->label;
 			$equipmentLifetime    = $jsonArray->lifetime;
 			$equipmentQcFrequency = $jsonArray->qc_frenquecy;
 
+            $equipmentIds[$equipmentControl->id]['label']        = $equipmentLabel;
 			$equipmentIds[$equipmentControl->id]['lifetime']     = $equipmentLifetime;
 			$equipmentIds[$equipmentControl->id]['qc_frequency'] = $equipmentQcFrequency;
 		}
@@ -216,30 +219,30 @@ if ($id > 0 || !empty($ref)) {
 			print '</td>';
 
 			print '<td>';
-			print $item->label;
+            print $equipmentId['label'];
 			print '</td>';
 
 			print '<td class="center">';
 			$creationDate   = strtotime($item->date_creation);
 			$expirationDate = dol_time_plus_duree($creationDate, $equipmentId['lifetime'], 'd');
-			print  $item->lifetime ? dol_print_date($expirationDate, 'day') : $langs->trans('NoData');
+			print $equipmentId['lifetime'] ? dol_print_date($expirationDate, 'day') : $langs->trans('NoData');
 			print '</td>';
 
 			print '<td class="center">';
 			$remainingDay   = convertSecondToTime($expirationDate - dol_now(), 'allwithouthour')?: '- ' . convertSecondToTime(dol_now() - $expirationDate, 'allwithouthour');
-			if (empty($item->lifetime) || $expirationDate <= dol_now()) {
+			if (empty($equipmentId['lifetime']) || $expirationDate <= dol_now()) {
 				print '<span style="color:red">';
-			} else if (!empty($item->lifetime) && $expirationDate <= dol_now() + 2592000) {
+			} else if ($expirationDate <= dol_now() + 2592000) {
 				print '<span style="color:orange">';
 			} else {
 				print '<span style="color:green">';
 			}
-			print  $item->lifetime ? $remainingDay : $langs->trans('NoData');
+			print $equipmentId['lifetime'] ? $remainingDay : $langs->trans('NoData');
 			print '</span> </td>';
 
 			print '<td class="center">';
 			if ($object->status != 2) {
-				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&action=unlink_equipment&equipmentId=' . $equipmentId . '">';
+				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&action=unlink_equipment&equipmentId=' . $item->id . '">';
 				print img_delete();
 				print '</a>';
 			}
