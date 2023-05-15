@@ -122,39 +122,15 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 
 			case 'CONTROL_CREATE' :
                 if ($object->context != 'createfromclone') {
-                    if (!empty(GETPOST('fk_product')) && GETPOST('fk_product') > 0) {
-                        $object->add_object_linked('product', GETPOST('fk_product'));
-                    }
-                    if (!empty(GETPOST('fk_productlot')) && GETPOST('fk_productlot') > 0) {
-                        $object->add_object_linked('productbatch', GETPOST('fk_productlot'));
-                    }
-                    if (!empty(GETPOST('fk_user')) && GETPOST('fk_user') > 0) {
-                        $object->add_object_linked('user', GETPOST('fk_user'));
-                    }
-                    if (!empty(GETPOST('fk_soc')) && GETPOST('fk_soc') > 0) {
-                        $object->add_object_linked('societe', GETPOST('fk_soc'));
-                    }
-                    if (!empty(GETPOST('fk_contact')) && GETPOST('fk_contact') > 0) {
-                        $object->add_object_linked('contact', GETPOST('fk_contact'));
-                    }
-                    if (!empty(GETPOST('fk_project')) && GETPOST('fk_project') > 0) {
-                        $object->add_object_linked('project', GETPOST('fk_project'));
-                    }
-                    if (!empty(GETPOST('fk_task')) && GETPOST('fk_task') > 0) {
-                        $object->add_object_linked('project_task', GETPOST('fk_task'));
-                    }
-                    if (!empty(GETPOST('fk_invoice')) && GETPOST('fk_invoice') > 0) {
-                        $object->add_object_linked('invoice', GETPOST('fk_invoice'));
-                    }
-                    if (!empty(GETPOST('fk_order')) && GETPOST('fk_order') > 0) {
-                        $object->add_object_linked('order', GETPOST('fk_order'));
-                    }
-                    if (!empty(GETPOST('fk_contract')) && GETPOST('fk_contract') > 0) {
-                        $object->add_object_linked('contrat', GETPOST('fk_contract'));
-                    }
-                    if (!empty(GETPOST('fk_ticket')) && GETPOST('fk_ticket') > 0) {
-                        $object->add_object_linked('ticket', GETPOST('fk_ticket'));
-                    }
+					$linkableElements = get_sheet_linkable_objects();
+
+					if (is_array($linkableElements) && !empty($linkableElements)) {
+						foreach ($linkableElements as $linkableElementType => $linkableElement) {
+							if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
+								$object->add_object_linked($linkableElement['link_name'], GETPOST($linkableElement['post_name']));
+							}
+						}
+					}
 
                     // Load Saturne libraries.
                     require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';

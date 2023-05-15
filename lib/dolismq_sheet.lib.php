@@ -141,6 +141,7 @@ function get_sheet_linkable_objects(): array
 			'picto'     => 'product',
 			'className' => 'Product',
 			'post_name' => 'fk_product',
+			'link_name' => 'product',
 			'nameField' => 'ref'
 		];
 	}
@@ -151,6 +152,7 @@ function get_sheet_linkable_objects(): array
 			'picto'       => 'lot',
 			'className'   => 'ProductLot',
 			'post_name'   => 'fk_productlot',
+			'link_name'   => 'productbatch',
 			'nameField'   => 'batch',
 			'fk_parent'   => 'fk_product',
 			'parent_post' => 'fk_product'
@@ -163,6 +165,7 @@ function get_sheet_linkable_objects(): array
 			'picto'     => 'user',
 			'className' => 'User',
 			'post_name' => 'fk_user',
+			'link_name' => 'user',
 			'nameField' => 'lastname, firstname'
 		];
 	}
@@ -173,6 +176,7 @@ function get_sheet_linkable_objects(): array
 			'picto'     => 'building',
 			'className' => 'Societe',
 			'post_name' => 'fk_soc',
+			'link_name' => 'societe',
 			'nameField' => 'nom'
 		];
 		$linkableObjectTypes['contact'] = [
@@ -180,6 +184,7 @@ function get_sheet_linkable_objects(): array
 			'picto'       => 'address',
 			'className'   => 'Contact',
 			'post_name'   => 'fk_contact',
+			'link_name'   => 'contact',
 			'nameField'   => 'lastname, firstname',
 			'fk_parent'   => 'fk_soc',
 			'parent_post' => 'fk_soc'
@@ -192,6 +197,7 @@ function get_sheet_linkable_objects(): array
 			'picto'     => 'project',
 			'className' => 'Project',
 			'post_name' => 'fk_project',
+			'link_name' => 'project',
 			'nameField' => 'ref, title'
 		];
 		$linkableObjectTypes['task'] = [
@@ -199,6 +205,7 @@ function get_sheet_linkable_objects(): array
 			'picto'       => 'projecttask',
 			'className'   => 'SaturneTask',
 			'post_name'   => 'fk_task',
+			'link_name'   => 'project_task',
 			'nameField'   => 'label',
 			'fk_parent'   => 'fk_projet',
 			'parent_post' => 'fk_project'
@@ -211,6 +218,7 @@ function get_sheet_linkable_objects(): array
 			'picto'     => 'bill',
 			'className' => 'Facture',
 			'post_name' => 'fk_invoice',
+			'link_name' => 'facture',
 			'nameField' => 'ref'
 		];
 	}
@@ -221,6 +229,7 @@ function get_sheet_linkable_objects(): array
 			'picto'     => 'order',
 			'className' => 'Commande',
 			'post_name' => 'fk_order',
+			'link_name' => 'commande',
 			'nameField' => 'ref'
 		];
 	}
@@ -231,6 +240,7 @@ function get_sheet_linkable_objects(): array
 			'picto'     => 'contract',
 			'className' => 'Contrat',
 			'post_name' => 'fk_contract',
+			'link_name' => 'contrat',
 			'nameField' => 'ref'
 		];
 	}
@@ -241,6 +251,7 @@ function get_sheet_linkable_objects(): array
 			'picto'     => 'ticket',
 			'className' => 'Ticket',
 			'post_name' => 'fk_ticket',
+			'link_name' => 'ticket',
 			'nameField' => 'ref, subject'
 		];
 	}
@@ -273,6 +284,7 @@ function get_sheet_linkable_objects(): array
 					'className'     => $linkableObjectInformations['className'],
 					'nameField'     => $linkableObjectInformations['nameField'],
 					'post_name'     => $linkableObjectInformations['post_name'],
+					'link_name'     => $linkableObjectInformations['link_name'],
 					'fk_parent'     => $linkableObjectInformations['fk_parent'],
 					'parent_post'   => $linkableObjectInformations['parent_post'],
 				];
