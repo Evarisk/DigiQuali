@@ -146,10 +146,12 @@ function get_sheet_linkable_objects(): array
 
 	if (isModEnabled('productbatch')) {
 		$linkableObjectTypes['productlot'] = [
-			'langs'     => 'Batch',
-			'picto'     => 'lot',
-			'className' => 'ProductLot',
-			'nameField' => 'batch'
+			'langs'       => 'Batch',
+			'picto'       => 'lot',
+			'className'   => 'ProductLot',
+			'nameField'   => 'batch',
+			'fk_parent'   => 'fk_product',
+			'parent_post' => 'fk_product'
 		];
 	}
 
@@ -170,10 +172,12 @@ function get_sheet_linkable_objects(): array
 			'nameField' => 'nom'
 		];
 		$linkableObjectTypes['contact'] = [
-			'langs'     => 'Contact',
-			'picto'     => 'address',
-			'className' => 'Contact',
-			'nameField' => 'lastname, firstname'
+			'langs'       => 'Contact',
+			'picto'       => 'address',
+			'className'   => 'Contact',
+			'nameField'   => 'lastname, firstname',
+			'fk_parent'   => 'fk_soc',
+			'parent_post' => 'fk_thirdparty'
 		];
 	}
 
@@ -185,40 +189,50 @@ function get_sheet_linkable_objects(): array
 			'nameField' => 'ref, title'
 		];
 		$linkableObjectTypes['task'] = [
-			'langs'     => 'Task',
-			'picto'     => 'projecttask',
-			'className' => 'SaturneTask',
-			'nameField' => 'label'
+			'langs'       => 'Task',
+			'picto'       => 'projecttask',
+			'className'   => 'SaturneTask',
+			'nameField'   => 'label',
+			'fk_parent'   => 'fk_projet',
+			'parent_post' => 'fk_project'
 		];
 	}
-//
-//	if (isModEnabled('facture')) {
-//		$linkableObjectTypes['invoice'] = [
-//			'langs' => 'Invoice',
-//			'picto' => 'bill'
-//		];
-//	}
-//
-//	if (isModEnabled('order')) {
-//		$linkableObjectTypes['order'] = [
-//			'langs' => 'Order',
-//			'picto' => 'order'
-//		];
-//	}
-//
-//	if (isModEnabled('contract')) {
-//		$linkableObjectTypes['contract'] = [
-//			'langs' => 'Contract',
-//			'picto' => 'contract'
-//		];
-//	}
-//
-//	if (isModEnabled('ticket')) {
-//		$linkableObjectTypes['ticket'] = [
-//			'langs' => 'Ticket',
-//			'picto' => 'ticket'
-//		];
-//	}
+
+	if (isModEnabled('facture')) {
+		$linkableObjectTypes['invoice'] = [
+			'langs'     => 'Invoice',
+			'picto'     => 'bill',
+			'className' => 'Facture',
+			'nameField' => 'ref'
+		];
+	}
+
+	if (isModEnabled('order')) {
+		$linkableObjectTypes['order'] = [
+			'langs'     => 'Order',
+			'picto'     => 'order',
+			'className' => 'Commande',
+			'nameField' => 'ref'
+		];
+	}
+
+	if (isModEnabled('contract')) {
+		$linkableObjectTypes['contract'] = [
+			'langs'     => 'Contract',
+			'picto'     => 'contract',
+			'className' => 'Contrat',
+			'nameField' => 'ref'
+		];
+	}
+
+	if (isModEnabled('ticket')) {
+		$linkableObjectTypes['ticket'] = [
+			'langs'     => 'Ticket',
+			'picto'     => 'ticket',
+			'className' => 'Ticket',
+			'nameField' => 'ref, subject'
+		];
+	}
 
 	//Hook to add controllable objects from other modules
 	if ( ! is_object($hookmanager)) {
@@ -229,7 +243,7 @@ function get_sheet_linkable_objects(): array
 
 	$reshook = $hookmanager->executeHooks('extendSheetLinkableObjectsList', $linkableObjectTypes);
 
-	if (is_array($hookmanager->resArray) && !empty($hookmanager->resArray)) {
+	if ($reshook && (is_array($hookmanager->resArray) && !empty($hookmanager->resArray))) {
 		$linkableObjectTypes = $hookmanager->resArray;
 	}
 
@@ -239,14 +253,16 @@ function get_sheet_linkable_objects(): array
 			if ($linkableObjectType != 'context' && $linkableObjectType != 'currentcontext') {
 				$confCode = 'DOLISMQ_SHEET_LINK_' . strtoupper($linkableObjectType);
 				$linkableObjects[$linkableObjectType] = [
-					'code'        => $confCode,
-					'conf'        => $conf->global->$confCode,
-					'name'        => 'Link' . ucfirst($linkableObjectType),
-					'description' => 'Link' . ucfirst($linkableObjectType) . 'Description',
-					'langs'       => $linkableObjectInformations['langs'],
-					'picto'       => $linkableObjectInformations['picto'],
-					'className'   => $linkableObjectInformations['className'],
-					'nameField'   => $linkableObjectInformations['nameField'],
+					'code'          => $confCode,
+					'conf'          => $conf->global->$confCode,
+					'name'          => 'Link' . ucfirst($linkableObjectType),
+					'description'   => 'Link' . ucfirst($linkableObjectType) . 'Description',
+					'langs'         => $linkableObjectInformations['langs'],
+					'picto'         => $linkableObjectInformations['picto'],
+					'className'     => $linkableObjectInformations['className'],
+					'nameField'     => $linkableObjectInformations['nameField'],
+					'fk_parent'     => $linkableObjectInformations['fk_parent'],
+					'parent_post'   => $linkableObjectInformations['parent_post'],
 				];
 			}
 		}

@@ -622,7 +622,19 @@ if ($action == 'create') {
 			$objectArray    = [];
 			$objectPostName = 'fk_' . $linkableElementType;
 			$objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $linkableElementType ? GETPOST('fromid') : '');
-			$objectList     = saturne_fetch_all_object_type($linkableElement['className']);
+
+			if ((dol_strlen($linkableElement['fk_parent']) > 0 && GETPOST($linkableElement['parent_post']) > 0)) {
+				$objectFilter = [
+					'customsql' => $linkableElement['fk_parent'] . ' = ' . GETPOST($linkableElement['parent_post'])
+				];
+			} else {
+				$objectFilter = [];
+			}
+			if ($linkableElementType == 'task') {
+
+			}
+
+			$objectList     = saturne_fetch_all_object_type($linkableElement['className'], '', '', 0, 0, $objectFilter);
 
 			if (is_array($objectList) && !empty($objectList)) {
 				foreach($objectList as $objectSingle) {
