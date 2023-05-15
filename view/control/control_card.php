@@ -620,7 +620,7 @@ if ($action == 'create') {
 		if (!empty($linkableElement['conf'] && preg_match('/"'. $linkableElementType .'":1/',$sheet->element_linked))) {
 
 			$objectArray    = [];
-			$objectPostName = 'fk_' . $linkableElementType;
+			$objectPostName = $linkableElement['post_name'];
 			$objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $linkableElementType ? GETPOST('fromid') : '');
 
 			if ((dol_strlen($linkableElement['fk_parent']) > 0 && GETPOST($linkableElement['parent_post']) > 0)) {
