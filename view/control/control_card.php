@@ -639,7 +639,7 @@ if ($action == 'create') {
 			if (is_array($objectList) && !empty($objectList)) {
 				foreach($objectList as $objectSingle) {
 					$objectName = '';
-					$nameField = $linkableElement['nameField'];
+					$nameField = $linkableElement['name_field'];
 					if (strstr($nameField, ',')) {
 						$nameFields = explode(', ', $nameField);
 						if (is_array($nameFields) && !empty($nameFields)) {
@@ -657,6 +657,7 @@ if ($action == 'create') {
 			print '<tr><td class="titlefieldcreate">' . $langs->transnoentities($linkableElement['langs']) . '</td><td>';
 			print img_picto('', $linkableElement['picto'], 'class="pictofixedwidth"');
 			print $form->selectArray($objectPostName, $objectArray, $objectPost, 1, 0, 0, '', 0, 0, 0, '', 'maxwidth500 widthcentpercentminusxx');
+			print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/' . $linkableElement['create_url'] . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('Add' . $linkableElement['langs']) . '"></span></a>';
 			print '</td></tr>';
 		}
 	}
