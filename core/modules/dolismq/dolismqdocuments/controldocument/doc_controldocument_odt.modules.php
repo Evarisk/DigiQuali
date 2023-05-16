@@ -331,31 +331,35 @@ class doc_controldocument_odt extends SaturneDocumentModel
         $object->fetchObjectLinked('', '', '', 'dolismq_control');
 		$linkableElements = get_sheet_linkable_objects();
 
-		foreach($linkableElements as $linkableElement) {
-			$nameField[$linkableElement['link_name']] = $linkableElement['name_field'];
-			$objectInfo[$linkableElement['link_name']] = [
-				'title' => $linkableElement['langs'],
-				'className' => $linkableElement['className']
-			];
-		}
-        foreach ($object->linkedObjectsIds as $linkedObjectType => $linkedObjectsIds) {
-			$className = $objectInfo[$linkedObjectType]['className'];
-			$linkedObject = new $className($this->db);
-			$result = $linkedObject->fetch(array_shift($object->linkedObjectsIds[$linkedObjectType]));
-			if ($result > 0) {
-				$objectName = '';
-				$objectNameField = $nameField[$linkedObjectType];
-				if (strstr($objectNameField, ',')) {
-					$nameFields = explode(', ', $objectNameField);
-					if (is_array($nameFields) && !empty($nameFields)) {
-						foreach ($nameFields as $subnameField) {
-							$objectName .= $linkedObject->$subnameField . ' ';
+		if (is_array($linkableElements) && !empty($linkableElements)) {
+			foreach ($linkableElements as $linkableElement) {
+				$nameField[$linkableElement['link_name']] = $linkableElement['name_field'];
+				$objectInfo[$linkableElement['link_name']] = [
+					'title' => $linkableElement['langs'],
+					'className' => $linkableElement['className']
+				];
+			}
+			foreach ($object->linkedObjectsIds as $linkedObjectType => $linkedObjectsIds) {
+				$className = $objectInfo[$linkedObjectType]['className'];
+				$linkedObject = new $className($this->db);
+				$result = $linkedObject->fetch(array_shift($object->linkedObjectsIds[$linkedObjectType]));
+				if ($result > 0) {
+					$objectName = '';
+					$objectNameField = $nameField[$linkedObjectType];
+					if (strstr($objectNameField, ',')) {
+						$nameFields = explode(', ', $objectNameField);
+						if (is_array($nameFields) && !empty($nameFields)) {
+							foreach ($nameFields as $subnameField) {
+								$objectName .= $linkedObject->$subnameField . ' ';
+							}
 						}
+					} else {
+						$objectName = $linkedObject->$objectNameField;
 					}
-				} else {
-					$objectName = $linkedObject->$objectNameField;
+					$tmpArray['object_label_ref'] .= $outputLangs->transnoentities(
+							$objectInfo[$linkedObjectType]['title']
+						) . ' : ' . $objectName . chr(0x0A);
 				}
-				$tmpArray['object_label_ref'] .= $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ' . $objectName . chr(0x0A);
 			}
 		}
 
