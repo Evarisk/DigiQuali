@@ -67,18 +67,18 @@ require_once __DIR__ . '/../../../dolismq/class/control.class.php';
 global $conf, $db, $hookmanager, $langs;
 
 // Load translation files required by the page.
-saturne_load_langs(['bills', 'contracts', 'orders', 'products', 'projects']);
+saturne_load_langs(['bills', 'contracts', 'orders', 'products', 'projects', 'companies']);
 
 // Get parameters.
-$id       = GETPOST('id', 'int');
 $track_id = GETPOST('track_id', 'alpha');
-$action   = GETPOST('action', 'aZ09');
 
 // Initialize technical objects.
 $object = new Control($db);
 
+$hookmanager->initHooks(['publiccontrol']); // Note that conf->hooks_modules contains array.
+
 // Load object.
-include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php'; // Must be included, not include_once.
+$object->fetch(0, '', ' AND track_id =' . "'" . $track_id . "'");
 
 /*
  * View
@@ -91,48 +91,52 @@ $conf->dol_hide_leftmenu = 1;
 
 saturne_header(0, '', $title);
 
-$objectLinked    = '';
-$objectInfoArray = [];
-$qcFrequency     = 0;
+$qcFrequencyArray = [];
+$objectInfoArray  = [
+    'product'      => ['title' => 'Product',    'value' => img_picto('', 'product', 'class="pictofixedwidth"')],
+    'user'         => ['title' => 'User',       'value' => img_picto('', 'user', 'class="pictofixedwidth"')],
+    'societe'      => ['title' => 'ThirdParty', 'value' => img_picto('', 'company', 'class="pictofixedwidth"')],
+    'contact'      => ['title' => 'Contact',    'value' => img_picto('', 'contact', 'class="pictofixedwidth"')],
+    'project'      => ['title' => 'Project',    'value' => img_picto('', 'project', 'class="pictofixedwidth"')],
+    'project_task' => ['title' => 'Task',       'value' => img_picto('', 'projecttask', 'class="pictofixedwidth"')],
+    'facture'      => ['title' => 'Bill',       'value' => img_picto('', 'bill', 'class="pictofixedwidth"')],
+    'commande'     => ['title' => 'Order',      'value' => img_picto('', 'order', 'class="pictofixedwidth"')],
+    'contrat'      => ['title' => 'Contract',   'value' => img_picto('', 'contract', 'class="pictofixedwidth"')],
+    'ticket'       => ['title' => 'Ticket',     'value' => img_picto('', 'ticket', 'class="pictofixedwidth"')]
+];
 $object->fetchObjectLinked('', '', '', 'dolismq_control');
 foreach ($object->linkedObjectsIds as $key => $linkedObjects) {
     // Special case
     if ($key == 'productbatch') {
         $productlot = new Productlot($db);
         $productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
-        $objectInfoArray['productbatch'] = ['title' => 'Batch', 'value' => img_picto('', 'productlot', 'class="pictofixedwidth"') . $productlot->batch, 'qc_frequency' => $productlot->array_options['options_qc_frequency']];
+        $objectInfoArray[] = ['title' => 'Batch', 'value' => img_picto('', 'productlot', 'class="pictofixedwidth"') . $productlot->batch];
+        $qcFrequencyArray[$key] =  $productlot->array_options['options_qc_frequency'];
     } elseif (!empty($object->linkedObjects[$key])) {
         $linkedObject = array_values($object->linkedObjects[$key])[0];
-        $objectInfoArray = [
-            'product'      => ['title' => 'Product',    'value' => img_picto('', 'product', 'class="pictofixedwidth"') . $linkedObject->ref],
-            'user'         => ['title' => 'User',       'value' => img_picto('', 'user', 'class="pictofixedwidth"') . strtoupper($linkedObject->lastname) . ' ' . $linkedObject->firstname],
-            'societe'      => ['title' => 'ThirdParty', 'value' => img_picto('', 'company', 'class="pictofixedwidth"')  . $linkedObject->name],
-            'contact'      => ['title' => 'Contact',    'value' => img_picto('', 'contact', 'class="pictofixedwidth"')  . strtoupper($linkedObject->lastname) . ' ' . $linkedObject->firstname],
-            'project'      => ['title' => 'Project',    'value' => img_picto('', 'project', 'class="pictofixedwidth"') . $linkedObject->ref],
-            'project_task' => ['title' => 'Task',       'value' => img_picto('', 'task', 'class="pictofixedwidth"') . $linkedObject->ref],
-            'facture'      => ['title' => 'Bill',       'value' => img_picto('', 'bill', 'class="pictofixedwidth"') . $linkedObject->ref],
-            'commande'     => ['title' => 'Order',      'value' => img_picto('', 'order', 'class="pictofixedwidth"') . $linkedObject->ref],
-            'contrat'      => ['title' => 'Contract',   'value' => img_picto('', 'contract', 'class="pictofixedwidth"') . $linkedObject->ref],
-            'ticket'       => ['title' => 'Ticket',     'value' => img_picto('', 'ticket', 'class="pictofixedwidth"') . $linkedObject->ref],
-        ];
-        $objectInfoArray[$key]['qc_frequency'] = $linkedObject->array_options['options_qc_frequency'];
-    }
-    if (isset($objectInfoArray[$key]['qc_frequency']) && $qcFrequency < $objectInfoArray[$key]['qc_frequency']){
-        $qcFrequency = $objectInfoArray[$key]['qc_frequency'];
-        $objectLinked .= '<strong>' . $langs->transnoentities($objectInfoArray[$key]['title']) . ' : ' . $objectInfoArray[$key]['value'] . '</strong><br>';
-    } else {
-        $objectLinked .= $langs->transnoentities($objectInfoArray[$key]['title']) . ' : ' . $objectInfoArray[$key]['value'] . '<br>';
+        switch ($key) {
+            case 'societe' :
+                $objectInfoArray[$key]['value'] .= $linkedObject->name;
+                break;
+            case 'user' :
+            case 'contact' :
+                $objectInfoArray[$key]['value'] .= strtoupper($linkedObject->lastname) . ' ' . $linkedObject->firstname;
+                break;
+            default :
+                $objectInfoArray[$key]['value'] .= $linkedObject->ref;
+                break;
+        }
+        $qcFrequencyArray[$key] = $linkedObject->array_options['options_qc_frequency'];
     }
 }
-
 
 ?>
 
 <div class="signature-container">
     <div class="wpeo-gridlayout grid-2">
-        <div class=""><?php echo saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/' . $object->element . '/'. $object->ref . '/photos/', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, $object->element . '/'. $object->ref . '/photos/', $object, 'photo', 0, 0,0, 1); ?></div>
+        <div style="display: flex; justify-content: center; align-items: center;"><?php echo saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/' . $object->element . '/'. $object->ref . '/photos/', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, $object->element . '/'. $object->ref . '/photos/', $object, 'photo', 0, 0,0, 1); ?></div>
         <div class="informations">
-            <strong><?php echo $object->getNomUrl(1, 'nolink'); ?></strong>
+            <div style="margin-bottom: 10px"><strong><?php echo $object->getNomUrl(1, 'nolink'); ?></strong></div>
             <div class="wpeo-table table-flex table-3">
                 <div class="table-row">
                     <div class="table-cell"><?php echo '<i class="far fa-check-circle"></i> ' . $langs->trans('Verdict'); ?></div>
@@ -140,16 +144,25 @@ foreach ($object->linkedObjectsIds as $key => $linkedObjects) {
                 </div>
                 <div class="table-row">
                     <div class="table-cell"><?php echo $langs->trans('ObjectLinked'); ?></div>
-                    <div class="table-cell table-250 table-end"><?php echo $objectLinked; ?></div>
-                </div>
+                        <div class="wpeo-table table-cell table-full">
+                            <?php foreach ($objectInfoArray as $key => $linkedObject) : ?>
+                                <?php if (array_key_exists($key, $qcFrequencyArray)) : ?>
+                                    <div class="table-row">
+                                        <div class="table-cell table-100"><?php echo (($key == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0]) ? '<strong>' . $langs->transnoentities($linkedObject['title']) . ' : ' . '</strong>' : $langs->transnoentities($linkedObject['title']) . ' : '); ?></div>
+                                        <div class="table-cell table-end"><?php echo (($key == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0]) ? '<strong>' . $linkedObject['value'] . '</strong>' : $linkedObject['value']); ?></div>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 <div class="table-row">
                     <div class="table-cell table-200"><?php echo img_picto('', 'calendar', 'class="pictofixedwidth"') . $langs->trans('ControlDate'); ?></div>
                     <div class="table-cell table-end"><?php echo dol_print_date($object->date_creation, 'day'); ?></div>
                 </div>
-                <?php if ($qcFrequency > 0) : ?>
+                <?php if (!empty($qcFrequencyArray)) : ?>
                     <div class="table-row">
                         <div class="table-cell table-300"><?php echo img_picto('', 'calendar', 'class="pictofixedwidth"') . $langs->trans('NextControlDate'); ?></div>
-                        <?php $nextControlDate = dol_time_plus_duree($object->date_creation, $qcFrequency, 'd'); ?>
+                        <?php $nextControlDate = dol_time_plus_duree($object->date_creation, min($qcFrequencyArray), 'd'); ?>
                         <div class="table-cell table-end"><?php echo dol_print_date($nextControlDate, 'day'); ?></div>
                     </div>
                     <div class="table-row">
