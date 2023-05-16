@@ -1042,6 +1042,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
+	$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $object->id]);
+
 	// Buttons for actions
 	if ($action != 'presend') {
 		print '<div class="tabsAction">';
@@ -1060,7 +1062,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 
 			// Lock
-			if ($object->status == $object::STATUS_VALIDATED) {
+			if (($object->type == 'UniqueChoice' || $object->type == 'MultipleChoices') && empty($answerList)) {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('AnswerMustBeCreated')) . '"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
+			} else if ($object->status == $object::STATUS_VALIDATED) {
 				print '<span class="butAction" id="actionButtonLock"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeValidated', $langs->transnoentities('The' . ucfirst($object->element)))) . '"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
@@ -1114,8 +1118,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<td class="center">' . $langs->trans('Action') . '</td>';
 		print '<td class="center"></td>';
 		print '</tr></thead>';
-
-		$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $object->id]);
 
 		if (is_array($answerList) && !empty($answerList)) {
 			foreach($answerList as $answerSingle) {
