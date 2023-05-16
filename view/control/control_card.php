@@ -630,10 +630,6 @@ if ($action == 'create') {
 			} else {
 				$objectFilter = [];
 			}
-			if ($linkableElementType == 'task') {
-
-			}
-
 			$objectList     = saturne_fetch_all_object_type($linkableElement['className'], '', '', 0, 0, $objectFilter);
 
 			if (is_array($objectList) && !empty($objectList)) {

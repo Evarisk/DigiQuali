@@ -329,29 +329,35 @@ class doc_controldocument_odt extends SaturneDocumentModel
         $projecttmp->fetch($object->projectid);
 
         $object->fetchObjectLinked('', '', '', 'dolismq_control');
-        foreach ($object->linkedObjectsIds as $key => $linkedObjects) {
-            // Special case
-            if ($key == 'productbatch') {
-                $productlot = new Productlot($this->db);
-                $productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
-                $tmpArray['object_label_ref'] .= (!empty($productlot->batch) ? $outputLangs->transnoentities('Batch') . ' : ' . $productlot->batch . chr(0x0A) : '');
-            } elseif (!empty($object->linkedObjects[$key])) {
-                $linkedObject = array_values($object->linkedObjects[$key])[0];
-                $objectInfo = [
-                    'product'      => ['title' => 'Product',    'value' => $linkedObject->ref],
-                    'user'         => ['title' => 'User',       'value' => strtoupper($linkedObject->lastname) . ' ' . $linkedObject->firstname],
-                    'societe'      => ['title' => 'ThirdParty', 'value' => $linkedObject->name],
-                    'contact'      => ['title' => 'Contact',    'value' => strtoupper($linkedObject->lastname) . ' ' . $linkedObject->firstname],
-                    'project'      => ['title' => 'Project',    'value' => $linkedObject->ref . ' - ' . $linkedObject->title],
-                    'project_task' => ['title' => 'Task',       'value' => $linkedObject->ref . ' - ' . $linkedObject->label],
-                    'facture'      => ['title' => 'Bill',       'value' => $linkedObject->ref],
-                    'commande'     => ['title' => 'Order',      'value' => $linkedObject->ref],
-                    'contrat'      => ['title' => 'Contract',   'value' => $linkedObject->ref],
-                    'ticket'       => ['title' => 'Ticket',     'value' => $linkedObject->ref],
-                ];
-                $tmpArray['object_label_ref'] .= $outputLangs->transnoentities($objectInfo[$key]['title']) . ' : ' . $objectInfo[$key]['value'] . chr(0x0A);
-            }
-        }
+		$linkableElements = get_sheet_linkable_objects();
+
+		foreach($linkableElements as $linkableElement) {
+			$nameField[$linkableElement['link_name']] = $linkableElement['name_field'];
+			$objectInfo[$linkableElement['link_name']] = [
+				'title' => $linkableElement['langs'],
+				'className' => $linkableElement['className']
+			];
+		}
+        foreach ($object->linkedObjectsIds as $linkedObjectType => $linkedObjectsIds) {
+			$className = $objectInfo[$linkedObjectType]['className'];
+			$linkedObject = new $className($this->db);
+			$result = $linkedObject->fetch(array_shift($object->linkedObjectsIds[$linkedObjectType]));
+			if ($result > 0) {
+				$objectName = '';
+				$objectNameField = $nameField[$linkedObjectType];
+				if (strstr($objectNameField, ',')) {
+					$nameFields = explode(', ', $objectNameField);
+					if (is_array($nameFields) && !empty($nameFields)) {
+						foreach ($nameFields as $subnameField) {
+							$objectName .= $linkedObject->$subnameField . ' ';
+						}
+					}
+				} else {
+					$objectName = $linkedObject->$objectNameField;
+				}
+				$tmpArray['object_label_ref'] .= $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ' . $objectName . chr(0x0A);
+			}
+		}
 
         $tmpArray['control_ref']      = $object->ref;
         $tmpArray['object_label_ref'] = rtrim($tmpArray['object_label_ref'], chr(0x0A));
