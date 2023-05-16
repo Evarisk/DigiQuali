@@ -30,6 +30,7 @@ foreach ($object->fields as $key => $val)
 		$sql .= 't.' . $key . ', ';
 	}
 }
+
 // Add fields from extrafields
 if (!empty($extrafields->attributes[$object->table_element]['label'])) {
 	foreach ($extrafields->attributes[$object->table_element]['label'] as $key => $val) $sql .= ($extrafields->attributes[$object->table_element]['type'][$key] != 'separate' ? "ef.".$key.' as options_'.$key.', ' : '');
@@ -52,7 +53,7 @@ foreach($elementElementFields as $genericName => $elementElementName) {
 	}
 }
 
-if (array_key_exists($sortfield,$elementElementFields)) {
+if (array_key_exists($sortfield,$elementElementFields) && !preg_match('/' . 'LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementFields[$sortfield] .'/', $sql)) {
 	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementFields[$sortfield] .' on ( '. $elementElementFields[$sortfield] .'.sourcetype="'. $elementElementFields[$sortfield] .'" AND '. $elementElementFields[$sortfield] .'.targettype = "dolismq_control" AND '. $elementElementFields[$sortfield] .'.fk_target = t.rowid)';
 }
 
@@ -256,6 +257,7 @@ $arrayfields = dol_sort_array($arrayfields, 'position');
 // Fields title search
 // --------------------------------------------------------------------
 print '<tr class="liste_titre">';
+
 foreach ($object->fields as $key => $val)
 {
 	$cssforfield = (empty($val['css']) ? '' : $val['css']);
@@ -336,6 +338,8 @@ if (is_array($extrafields->attributes[$object->table_element]['computed']) && co
 // --------------------------------------------------------------------
 $i = 0;
 $totalarray = array();
+
+$revertedElementFields = array_flip($elementElementFields);
 while ($i < ($limit ? min($num, $limit) : $num))
 {
 	$obj = $db->fetch_object($resql);
@@ -366,98 +370,21 @@ while ($i < ($limit ? min($num, $limit) : $num))
 				print $object->getLibStatut(5);
 			}
 			elseif ($key == 'ref') print $object->getNomUrl(1);
-			elseif ($key == 'fk_product') {
-				if (!empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && (!empty($object->linkedObjectsIds['product']))) {
-					$producttmp = array_shift($object->linkedObjects['product']);
-					if ($producttmp > 0) {
-						print $producttmp->getNomUrl(1);
-					}
-				}
-			}
-			elseif ($key == 'fk_lot') {
-				if (!empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && (!empty($object->linkedObjectsIds['productbatch']))) {
-					$productbatchId = array_shift($object->linkedObjectsIds['productbatch']);
-					$productlottmp->fetch($productbatchId);
-					if ($productlottmp > 0) {
-						print $productlottmp->getNomUrl(1);
-					}
-				}
-			}
-			elseif ($key == 'fk_user') {
-				if (!empty($conf->global->DOLISMQ_SHEET_LINK_USER) && (!empty($object->linkedObjectsIds['user']))) {
-					$usertmp = array_shift($object->linkedObjects['user']);
-					if ($usertmp > 0) {
-						print $usertmp->getNomUrl(1);
-					}
-				}
-			}
-			elseif ($key == 'fk_thirdparty') {
-				if (!empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && (!empty($object->linkedObjectsIds['societe']))) {
-					$thirdparty = array_shift($object->linkedObjects['societe']);
-					if ($thirdparty > 0) {
-						print $thirdparty->getNomUrl(1);
-					}
-				}
-			}
-			elseif ($key == 'fk_contact') {
-				if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && (!empty($object->linkedObjectsIds['contact']))) {
-					$contact = array_shift($object->linkedObjects['contact']);
-					if ($contact > 0) {
-						print $contact->getNomUrl(1);
-					}
-				}
-			}
-			elseif ($key == 'fk_project') {
-				if (!empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT) && (!empty($object->linkedObjectsIds['project']))) {
-					$projecttmp = array_shift($object->linkedObjects['project']);
-					if ($projecttmp > 0) {
-						print $projecttmp->getNomUrl(1, '', 1);
-					}
-				}
-			}
-			elseif ($key == 'fk_task') {
-				if (!empty($conf->global->DOLISMQ_SHEET_LINK_TASK) && (!empty($object->linkedObjectsIds['project_task']))) {
-					$tasktmp = array_shift($object->linkedObjects['project_task']);
-					if ($tasktmp > 0) {
-						print $tasktmp->getNomUrl(1, 'withproject');
-					}
-				}
-			}
-            elseif ($key == 'fk_invoice') {
-                if (!empty($conf->global->DOLISMQ_SHEET_LINK_INVOICE) && (!empty($object->linkedObjectsIds['facture']))) {
-					$invoicetmp = array_shift($object->linkedObjects['facture']);
-					if ($invoicetmp > 0) {
-                        print $invoicetmp->getNomUrl(1);
-                    }
-                }
-            }
-            elseif ($key == 'fk_order') {
-                if (!empty($conf->global->DOLISMQ_SHEET_LINK_ORDER) && (!empty($object->linkedObjectsIds['commande']))) {
-					$ordertmp = array_shift($object->linkedObjects['commande']);
-					if ($ordertmp > 0) {
-                        print $ordertmp->getNomUrl(1);
-                    }
-                }
-            }
-            elseif ($key == 'fk_contract') {
-                if (!empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && (!empty($object->linkedObjectsIds['contrat']))) {
-					$contracttmp = array_shift($object->linkedObjects['contrat']);
-					if ($contracttmp > 0) {
-                        print $contracttmp->getNomUrl(1);
-                    }
-                }
-            }
-            elseif ($key == 'fk_ticket') {
-                if (!empty($conf->global->DOLISMQ_SHEET_LINK_TICKET) && (!empty($object->linkedObjectsIds['ticket']))) {
-					$tickettmp = array_shift($object->linkedObjects['ticket']);
-					if ($tickettmp > 0) {
-                        print $tickettmp->getNomUrl(1);
-                    }
-                }
-            }
 			elseif ($key == 'fk_sheet') {
 				$sheet->fetch($object->fk_sheet);
 				print $sheet->getNomUrl(1);
+			}
+			elseif (in_array($key, $revertedElementFields)) {
+				$linkedElement = $linkNameElementCorrespondance[$elementElementFields[$key]];
+
+				if (!empty($linkedElement['conf']) && (!empty($object->linkedObjectsIds[$linkedElement['link_name']]))) {
+					$className = $linkedElement['className'];
+					$linkedObject = new $className($db);
+					$result = $linkedObject->fetch(array_shift($object->linkedObjectsIds[$linkedElement['link_name']]));
+					if ($result > 0) {
+						print $linkedObject->getNomUrl(1);
+					}
+				}
 			}
 			else print $object->showOutputField($val, $key, $object->$key, '');
 			print '</td>';

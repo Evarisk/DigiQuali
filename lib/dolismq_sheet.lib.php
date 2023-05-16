@@ -157,7 +157,8 @@ function get_sheet_linkable_objects(): array
 			'post_name'  => 'fk_product',
 			'link_name'  => 'product',
 			'name_field' => 'ref',
-			'create_url' => 'product/card.php'
+			'create_url' => 'product/card.php',
+			'class_path' => 'product/class/product.class.php',
 		];
 	}
 
@@ -171,7 +172,8 @@ function get_sheet_linkable_objects(): array
 			'name_field'  => 'batch',
 			'fk_parent'   => 'fk_product',
 			'parent_post' => 'fk_product',
-			'create_url'  => 'product/stock/productlot_card.php'
+			'create_url'  => 'product/stock/productlot_card.php',
+			'class_path'  => 'product/stock/class/productlot.class.php',
 		];
 	}
 
@@ -183,7 +185,8 @@ function get_sheet_linkable_objects(): array
 			'post_name'  => 'fk_user',
 			'link_name'  => 'user',
 			'name_field' => 'lastname, firstname',
-			'create_url' => 'user/card.php'
+			'create_url' => 'user/card.php',
+			'class_path' => 'user/class/user.class.php',
 		];
 	}
 
@@ -195,7 +198,8 @@ function get_sheet_linkable_objects(): array
 			'post_name'  => 'fk_soc',
 			'link_name'  => 'societe',
 			'name_field' => 'nom',
-			'create_url' => 'societe/card.php'
+			'create_url' => 'societe/card.php',
+			'class_path' => 'societe/class/societe.class.php',
 		];
 		$linkableObjectTypes['contact'] = [
 			'langs'       => 'Contact',
@@ -206,7 +210,8 @@ function get_sheet_linkable_objects(): array
 			'name_field'  => 'lastname, firstname',
 			'fk_parent'   => 'fk_soc',
 			'parent_post' => 'fk_soc',
-			'create_url'  => 'contact/card.php'
+			'create_url'  => 'contact/card.php',
+			'class_path'  => 'contact/class/contact.class.php',
 		];
 	}
 
@@ -218,7 +223,8 @@ function get_sheet_linkable_objects(): array
 			'post_name'  => 'fk_project',
 			'link_name'  => 'project',
 			'name_field' => 'ref, title',
-			'create_url' => 'projet/card.php'
+			'create_url' => 'projet/card.php',
+			'class_path' => 'projet/class/project.class.php',
 		];
 		$linkableObjectTypes['task'] = [
 			'langs'       => 'Task',
@@ -229,7 +235,8 @@ function get_sheet_linkable_objects(): array
 			'name_field'  => 'label',
 			'fk_parent'   => 'fk_projet',
 			'parent_post' => 'fk_project',
-			'create_url'  => 'projet/tasks.php'
+			'create_url'  => 'projet/tasks.php',
+			'class_path'  => 'projet/class/task.class.php',
 		];
 	}
 
@@ -241,7 +248,8 @@ function get_sheet_linkable_objects(): array
 			'post_name'  => 'fk_invoice',
 			'link_name'  => 'facture',
 			'name_field' => 'ref',
-			'create_url' => 'compta/facture/card.php'
+			'create_url' => 'compta/facture/card.php',
+			'class_path' => 'compta/facture/class/facture.class.php',
 		];
 	}
 
@@ -253,7 +261,8 @@ function get_sheet_linkable_objects(): array
 			'post_name'  => 'fk_order',
 			'link_name'  => 'commande',
 			'name_field' => 'ref',
-			'create_url' => 'commande/card.php'
+			'create_url' => 'commande/card.php',
+			'class_path' => 'commande/class/commande.class.php',
 		];
 	}
 
@@ -265,7 +274,8 @@ function get_sheet_linkable_objects(): array
 			'post_name'  => 'fk_contract',
 			'link_name'  => 'contrat',
 			'name_field' => 'ref',
-			'create_url' => 'contrat/card.php'
+			'create_url' => 'contrat/card.php',
+			'class_path' => 'contrat/class/contrat.class.php',
 		];
 	}
 
@@ -277,7 +287,8 @@ function get_sheet_linkable_objects(): array
 			'post_name'  => 'fk_ticket',
 			'link_name'  => 'ticket',
 			'name_field' => 'ref, subject',
-			'create_url' => 'ticket/card.php'
+			'create_url' => 'ticket/card.php',
+			'class_path' => 'ticket/class/ticket.class.php',
 		];
 	}
 
@@ -313,6 +324,7 @@ function get_sheet_linkable_objects(): array
 					'fk_parent'     => $linkableObjectInformations['fk_parent'],
 					'parent_post'   => $linkableObjectInformations['parent_post'],
 					'create_url'    => $linkableObjectInformations['create_url'],
+					'class_path'    => $linkableObjectInformations['class_path'],
 				];
 			}
 		}
