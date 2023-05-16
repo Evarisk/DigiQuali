@@ -233,10 +233,6 @@ ControlsTagsRepartition = Répartition des contrôles par verdict par catégorie
 ControlsByFiscalYear = Rapport des contrôles sur l'exercice fiscal
 OfControl = des contrôles
 OfAnswer = des réponses
-AddProductOrService = Créer produit ou service
-AddBatch = Créer lot
-AddInvoice = Créer facture
-AddTicket = Créer ticket
 
 #
 # ControlDet
