@@ -83,6 +83,17 @@ if ($action == 'setmodControlDet') {
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
 
+if ($action == 'update') {
+    $reminderFrequency = GETPOST('ControlReminderFrequency');
+    $reminderType      = GETPOST('ControlReminderType');
+
+    dolibarr_set_const($db, 'DOLISMQ_CONTROL_REMINDER_FREQUENCY', $reminderFrequency, 'chaine', 0, '', $conf->entity);
+    dolibarr_set_const($db, 'DOLISMQ_CONTROL_REMINDER_TYPE', $reminderType, 'chaine', 0, '', $conf->entity);
+
+    setEventMessage('SavedConfig');
+}
+
+
 /*
  * View
  */
@@ -342,6 +353,113 @@ if (is_dir($dir)) {
 }
 
 print '</table>';
+
+//Control data
+print load_fiche_titre($langs->trans('ConfigData', $langs->transnoentities('ControlsMin')), '', '');
+
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans('Name') . '</td>';
+print '<td>' . $langs->trans('Description') . '</td>';
+print '<td class="center">' . $langs->trans('Status') . '</td>';
+print '</tr>';
+
+//Display medias conf
+print '<tr><td>';
+print $langs->trans('DisplayMedias');
+print '</td><td>';
+print $langs->trans('DisplayMediasDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_DISPLAY_MEDIAS');
+print '</td>';
+print '</tr>';
+
+//Use large size media in gallery
+print '<tr><td>';
+print $langs->trans('UseLargeSizeMedia');
+print '</td><td>';
+print $langs->trans('UseLargeSizeMediaDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY');
+print '</td>';
+print '</tr>';
+print '</table>';
+
+print load_fiche_titre($langs->trans('ControlReminder'), '', '');
+
+print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '">';
+print '<input type="hidden" name="token" value="' . newToken() . '">';
+print '<input type="hidden" name="action" value="update">';
+print '<table class="noborder centpercent">';
+print '<tr class="liste_titre">';
+print '<td>' . $langs->trans('Name') . '</td>';
+print '<td>' . $langs->trans('Description') . '</td>';
+print '<td class="center">' . $langs->trans('Value') . '</td>';
+print '</tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('ControlReminder');
+print '</td><td>';
+print $langs->trans('ControlReminderDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_CONTROL_REMINDER_ENABLED');
+print '</td></tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('ControlReminderFrequency');
+print '</td><td>';
+print $langs->trans('ControlReminderFrequencyDescription');
+print '</td>';
+
+print '<td class="center">';
+print '<input type="text" name="ControlReminderFrequency" value="' . $conf->global->DOLISMQ_CONTROL_REMINDER_FREQUENCY . '">';
+print '</td></tr>';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('ControlReminderType');
+print '</td><td>';
+print $langs->trans('ControlReminderTypeDescription');
+print '</td>';
+
+print '<td class="center">';
+$controlReminderType = ['browser' => 'Browser', 'email' => 'Email', 'sms' => 'SMS'];
+print Form::selectarray('ControlReminderType', $controlReminderType, (!empty($conf->global->DOLISMQ_CONTROL_REMINDER_TYPE) ? $conf->global->DOLISMQ_CONTROL_REMINDER_TYPE : $controlReminderType[0]), 0, 0, 0, '', 1);
+print '</td></tr>';
+
+print '</table>';
+print '<div class="tabsAction"><input type="submit" class="butAction" name="save" value="' . $langs->trans('Save') . '"></div>';
+print '</form>';
+print '</table>';
+
+//Extrafields control management
+print load_fiche_titre($langs->trans('ExtrafieldsControlManagement'), '', '');
+
+require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_view.tpl.php';
+
+// Buttons
+if ($action != 'create' && $action != 'edit') {
+	print '<div class="tabsAction">';
+	print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER['PHP_SELF'].'?action=create">'.$langs->trans('NewAttribute').'</a></div>';
+	print '</div>';
+}
+
+// Creation of an optional field
+if ($action == 'create') {
+	print load_fiche_titre($langs->trans('NewAttribute'));
+	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_add.tpl.php';
+}
+
+// Edition of an optional field
+if ($action == 'edit' && !empty($attrname)) {
+	print load_fiche_titre($langs->trans('FieldEdition', $attrname));
+	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_edit.tpl.php';
+}
 
 // Page end
 print dol_get_fiche_end();

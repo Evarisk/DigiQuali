@@ -246,7 +246,6 @@ NextControlDate                    = Prochaine date de contrôle
 NextControl                        = Prochain contrôle
 QuestionMustBeAnswered             = Vous devez encore répondre à %s question(s) obligatoire(s)
 NoControlAnswersPhoto              = Pas de photos sur les réponses du contrôle
-QuestionMustBeAnswered             = Vous devez encore répondre à %s question(s) obligatoire(s)
 ControlEquipment                   = Moyens de contrôle
 ControlEquipmentList               = Liste des moyens de contrôle utilisés
 AddEquipmentLink                   = Moyen de contrôle ajouté :
@@ -264,6 +263,12 @@ NoEquipmentLinked                  = Aucun moyen de contrôle lié
 NoControlAnswersPhoto              = Pas de photos sur les réponses du contrôle
 NeedObjectToControl                = Vous devez sélectionner un objet à contrôler
 NeedFkSheet                        = Vous devez sélectionner une fiche modèle
+ControlReminder = Rappel d'événement de contrôle
+ControlReminderDescription = Activer le rappel d'événement de contrôle
+ControlReminderFrequency = Fréquence de rappel d'évènement de contrôle
+ControlReminderFrequencyDescription = Choisir la fréquence de rappel d'évènement de contrôle <br> (par défaut : Un rappel 30 jours, 60 jours et 90 jours avant le contrôle)
+ControlReminderType = Type de rappel d'évènement de contrôle
+ControlReminderTypeDescription = Choisir le type de rappel d'évènement de contrôle <br> (par défaut : navigateur)
 
 #
 # ControlDet

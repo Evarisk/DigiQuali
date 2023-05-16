@@ -192,7 +192,6 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
                             $actionCommReminder->create($user);
                         }
                     }
-                    exit;
                     $actioncomm->percentage = 0;
                     $actioncomm->update($user);
                 }
