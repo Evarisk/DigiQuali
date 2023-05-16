@@ -292,6 +292,19 @@ function get_sheet_linkable_objects(): array
 		];
 	}
 
+//	if (isModEnabled('stock')) {
+//		$linkableObjectTypes['entrepot'] = [
+//			'langs'      => 'Warehouse',
+//			'picto'      => 'stock',
+//			'className'  => 'Entrepot',
+//			'post_name'  => 'fk_entrepot',
+//			'link_name'  => 'stock',
+//			'name_field' => 'ref',
+//			'create_url' => 'product/stock/entrepot/card.php',
+//			'class_path' => 'product/stock/class/entrepot.class.php',
+//		];
+//	}
+
 	//Hook to add controllable objects from other modules
 	if ( ! is_object($hookmanager)) {
 		include_once DOL_DOCUMENT_ROOT . '/core/class/hookmanager.class.php';
