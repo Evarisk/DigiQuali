@@ -831,6 +831,19 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</tr>';
 	}
 
+    $qcFrequencyArray = [];
+    $objectInfoArray = [
+        'product'      => ['title' => 'ProductOrService'],
+        'user'         => ['title' => 'User'],
+        'societe'      => ['title' => 'ThirdParty'],
+        'contact'      => ['title' => 'Contact'],
+        'project'      => ['title' => 'Project'],
+        'project_task' => ['title' => 'Task'],
+        'facture'      => ['title' => 'Bill'],
+        'commande'     => ['title' => 'Order'],
+        'contrat'      => ['title' => 'Contract'],
+        'ticket'       => ['title' => 'Ticket'],
+    ];
 	$object->fetchObjectLinked('', '', '', 'dolismq_control');
 
 	foreach($elementArray as $linkableElementType => $linkableElement) {
