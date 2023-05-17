@@ -340,6 +340,9 @@ $i = 0;
 $totalarray = array();
 
 $revertedElementFields = array_flip($elementElementFields);
+
+$linkedObjects = saturne_fetch_all_links_for_object_type('', '','', 'dolismq_control');
+
 while ($i < ($limit ? min($num, $limit) : $num))
 {
 	$obj = $db->fetch_object($resql);
@@ -347,7 +350,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
 
 	// Store properties in $object
 	$object->setVarsFromFetchObj($obj);
-	$object->fetchObjectLinked('', '','', 'dolismq_control');
 
 	// Show here line of result
 	print '<tr class="oddeven">';
