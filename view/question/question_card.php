@@ -250,33 +250,31 @@ if (empty($reshook)) {
 
 			foreach ($types as $type) {
 				$pathToTmpPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/' . $type;
-				$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type);
+				$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type, 'files');
 				if (is_array($photoList) && !empty($photoList)) {
 					foreach ($photoList as $photo) {
-						if ($photo['type'] !== 'dir') {
-							$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object);
-							if (!is_dir($pathToQuestionPhoto)) {
-								mkdir($pathToQuestionPhoto);
-							}
-							$pathToQuestionPhotoType = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object) . '/' . $type;
-							if (!is_dir($pathToQuestionPhotoType)) {
-								mkdir($pathToQuestionPhotoType);
-							}
-
-							copy($photo['fullname'], $pathToQuestionPhotoType . '/' . $photo['name']);
-
-							$destfull = $pathToQuestionPhotoType . '/' . $photo['name'];
-
-							if (empty($object->$type)) {
-								$object->$type = $photo['name'];
-							}
-
-							$imgThumbMini   = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
-							$imgThumbSmall  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
-							$imgThumbMedium = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
-							$imgThumbLarge  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
-							unlink($photo['fullname']);
+						$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object);
+						if (!is_dir($pathToQuestionPhoto)) {
+							mkdir($pathToQuestionPhoto);
 						}
+						$pathToQuestionPhotoType = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object) . '/' . $type;
+						if (!is_dir($pathToQuestionPhotoType)) {
+							mkdir($pathToQuestionPhotoType);
+						}
+
+						copy($photo['fullname'], $pathToQuestionPhotoType . '/' . $photo['name']);
+
+						$destfull = $pathToQuestionPhotoType . '/' . $photo['name'];
+
+						if (empty($object->$type)) {
+							$object->$type = $photo['name'];
+						}
+
+						$imgThumbMini   = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
+						$imgThumbSmall  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
+						$imgThumbMedium = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+						$imgThumbLarge  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
+						unlink($photo['fullname']);
 					}
 				}
 				$filesThumbs = dol_dir_list($pathToTmpPhoto . '/thumbs/');
@@ -449,8 +447,7 @@ if (empty($reshook)) {
 
 			foreach ($types as $type) {
 				$pathToTmpPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref .'/' . $type;
-				$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/' . $object->ref . '/' . $type);
-
+				$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/' . $object->ref . '/' . $type, 'files');
 				if (is_array($photoList) && !empty($photoList)) {
 					$favoriteExists = 0;
 					foreach ($photoList as $photo) {
@@ -463,6 +460,8 @@ if (empty($reshook)) {
 							$object->$type = $photo['name'];
 						}
 					}
+				} else {
+					$object->$type = '';
 				}
 			}
 			$object->update($user);
