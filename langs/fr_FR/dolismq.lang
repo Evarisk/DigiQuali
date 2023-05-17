@@ -84,6 +84,7 @@ ErrorDeleteAnswer             = Une erreur est survenue lors de la suppression d
 AnswerCreated                 = La réponse a été créée avec succès
 AnswerUpdated                 = La réponse a été mise à jour avec succès
 AnswerDeleted                 = La réponse a été supprimée avec succès
+AnswerMustBeCreated           = La question doit avoir au moins une réponse
 
 #
 # Sheet
