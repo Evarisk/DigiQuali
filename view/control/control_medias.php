@@ -102,7 +102,7 @@ if ($id > 0 || !empty($ref)) {
 	// Object card
 	// ------------------------------------------------------------
 
-	saturne_banner_tab($object);
+    saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', '', !empty($object->photo));
 
 	print '<div class="fichecenter control-list-medias">';
 	print '<div class="underbanner clearboth"></div>';

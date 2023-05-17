@@ -160,6 +160,8 @@ window.dolismq.control.reloadProductLot = function ( event ) {
 	let sheetId = formData.get('fk_sheet')
 	let productId = formData.get('fk_product')
 
+	window.saturne.loader.display($('#fk_productlot').parent().find('.select2-container'))
+
 	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_product=' + productId
 	$.ajax({
 		url: urlToGo,
@@ -167,7 +169,7 @@ window.dolismq.control.reloadProductLot = function ( event ) {
 		processData: false,
 		contentType: false,
 		success: function ( resp ) {
-			$('.lot-container').html($(resp).find('.lot-content'))
+			$('#fk_productlot').parent().replaceWith($(resp).find('#fk_productlot').parent())
 		},
 		error: function ( ) {
 		}
@@ -196,13 +198,15 @@ window.dolismq.control.reloadTask = function ( event ) {
 	let action = '?action=create'
 	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_project=' + projectId
 
+	window.saturne.loader.display($('#fk_task').parent().find('.select2-container'))
+
 	$.ajax({
 		url: urlToGo,
 		type: "POST",
 		processData: false,
 		contentType: false,
 		success: function ( resp ) {
-			$('.task-container').html($(resp).find('.task-content'))
+			$('#fk_task').parent().replaceWith($(resp).find('#fk_task').parent())
 		},
 		error: function ( ) {
 		}
@@ -230,13 +234,15 @@ window.dolismq.control.reloadContact = function ( event ) {
 	let action = '?action=create'
 	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_soc=' + socId
 
+	window.saturne.loader.display($('#fk_contact').parent().find('.select2-container'))
+
 	$.ajax({
 		url: urlToGo,
 		type: "POST",
 		processData: false,
 		contentType: false,
 		success: function ( resp ) {
-			$('#fk_contact').html($(resp).find('#fk_contact').children())
+			$('#fk_contact').parent().replaceWith($(resp).find('#fk_contact').parent())
 		},
 		error: function ( ) {
 		}
