@@ -939,48 +939,52 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</tr>';
 	}
 
-    $qcFrequency = 0;
+    $qcFrequencyArray = [];
+    $objectInfoArray = [
+        'product'      => ['title' => 'ProductOrService'],
+        'user'         => ['title' => 'User'],
+        'societe'      => ['title' => 'ThirdParty'],
+        'contact'      => ['title' => 'Contact'],
+        'project'      => ['title' => 'Project'],
+        'project_task' => ['title' => 'Task'],
+        'facture'      => ['title' => 'Bill'],
+        'commande'     => ['title' => 'Order'],
+        'contrat'      => ['title' => 'Contract'],
+        'ticket'       => ['title' => 'Ticket'],
+    ];
 	$object->fetchObjectLinked('', '', '', 'dolismq_control');
     foreach ($object->linkedObjectsIds as $key => $linkedObjects) {
-        print '<tr><td class="titlefield">';
         // Special case
         if ($key == 'productbatch') {
-            $productlot = new Productlot($db);
-            $productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
-            $objectInfoArray['productbatch'] = ['title' => 'Batch', 'qc_frequency' => $productlot->array_options['options_qc_frequency']];
-            print $langs->trans($objectInfoArray[$key]['title']);
-            print '</td><td>';
-            print $productlot->getNomUrl(1);
+            $linkedObject = new Productlot($db);
+            $linkedObject->fetch(array_shift($object->linkedObjectsIds['productbatch']));
+            $objectInfoArray[$key] = ['title' => 'Batch', 'value' => $linkedObject->getNomUrl(1)];
         } elseif (!empty($object->linkedObjects[$key])) {
             $linkedObject = array_values($object->linkedObjects[$key])[0];
-            $objectInfoArray = [
-                'product'      => ['title' => 'ProductOrService'],
-                'user'         => ['title' => 'User'],
-                'societe'      => ['title' => 'ThirdParty'],
-                'contact'      => ['title' => 'Contact'],
-                'project'      => ['title' => 'Project'],
-                'project_task' => ['title' => 'Task'],
-                'facture'      => ['title' => 'Bill'],
-                'commande'     => ['title' => 'Order'],
-                'contrat'      => ['title' => 'Contract'],
-                'ticket'       => ['title' => 'Ticket'],
-            ];
-            $objectInfoArray[$key]['qc_frequency'] = $linkedObject->array_options['options_qc_frequency'];
-            print $langs->trans($objectInfoArray[$key]['title']);
-            print '</td><td>';
-            print $linkedObject->getNomUrl(1);
+            $objectInfoArray[$key]['value'] = $linkedObject->getNomUrl(1);
         }
-        if (isset($objectInfoArray[$key]['qc_frequency']) && $qcFrequency < $objectInfoArray[$key]['qc_frequency']){
-            $qcFrequency = $objectInfoArray[$key]['qc_frequency'];
-            print ' - <strong>' . $langs->transnoentities('QcFrequency') . ' : ' . $qcFrequency . '</strong>';
-        } elseif (!empty($objectInfoArray[$key]['qc_frequency'])) {
-            print ' - ' . $langs->transnoentities('QcFrequency') . ' : ' . $qcFrequency;
+        if (!empty($linkedObject->array_options['options_qc_frequency'])) {
+            $qcFrequencyArray[$key] = $linkedObject->array_options['options_qc_frequency'];
         }
-        print '</td></tr>';
+    }
+
+    if (is_array($objectInfoArray) && !empty($objectInfoArray)) {
+        foreach ($objectInfoArray as $key => $linkedObject) {
+            if (!empty($linkedObject['value'])) {
+                print '<tr><td class="titlefield">';
+                print (($key == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0]) ? '<strong>' . $langs->transnoentities($linkedObject['title']) . '</strong>' : $langs->transnoentities($linkedObject['title']));
+                print '</td><td>';
+                print (($key == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0]) ? '<strong>' . $linkedObject['value'] . '</strong>' : $linkedObject['value']);
+                if (array_key_exists($key, $qcFrequencyArray)) {
+                    print ' - ' . (($key == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0]) ? '<strong>' . $langs->transnoentities('QcFrequency') . ' : ' . $qcFrequencyArray[$key] . '</strong>' : $langs->transnoentities('QcFrequency') . ' : ' . $qcFrequencyArray[$key]);
+                }
+                print '</td></tr>';
+            }
+        }
     }
 
     print '<tr><td class="titlefield">' . img_picto('', 'calendar', 'class="pictofixedwidth"') . $langs->trans('NextControlDate') . '</td><td>';
-    $nextControlDate = dol_time_plus_duree($object->date_creation, $qcFrequency, 'd');
+    $nextControlDate = dol_time_plus_duree($object->date_creation, min($qcFrequencyArray), 'd');
     print dol_print_date($nextControlDate, 'day');
     print '</td></tr>';
 
