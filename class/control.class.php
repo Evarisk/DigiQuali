@@ -559,63 +559,18 @@ class Control extends CommonObject
             }
 
             // Add objects linked.
-            if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
-                if (!empty($object->linkedObjects['project'])) {
-                    foreach ($object->linkedObjects['project'] as $project) {
-                        $objectFromClone->add_object_linked($project->element, $project->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['project_task'])) {
-                    foreach ($object->linkedObjects['project_task'] as $project_task) {
-                        $objectFromClone->add_object_linked($project_task->element, $project_task->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['product'])) {
-                    foreach ($object->linkedObjects['product'] as $product) {
-                        $objectFromClone->add_object_linked($product->element, $product->id);
-                    }
-                }
-                if (!empty($object->linkedObjectsIds['productbatch'])) {
-                    $productlot = new Productlot($this->db);
-                    $productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
-                    $objectFromClone->add_object_linked('productbatch', $productlot->id);
-                }
-                if (!empty($object->linkedObjects['user'])) {
-                    foreach ($object->linkedObjects['user'] as $usertmp) {
-                        $objectFromClone->add_object_linked($usertmp->element, $usertmp->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['societe'])) {
-                    foreach ($object->linkedObjects['societe'] as $societe) {
-                        $objectFromClone->add_object_linked($societe->element, $societe->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['contact'])) {
-                    foreach ($object->linkedObjects['contact'] as $contact) {
-                        $objectFromClone->add_object_linked($contact->element, $contact->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['facture'])) {
-                    foreach ($object->linkedObjects['facture'] as $invoice) {
-                        $objectFromClone->add_object_linked($invoice->element, $invoice->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['commande'])) {
-                    foreach ($object->linkedObjects['commande'] as $order) {
-                        $objectFromClone->add_object_linked($order->element, $order->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['contrat'])) {
-                    foreach ($object->linkedObjects['contrat'] as $contract) {
-                        $objectFromClone->add_object_linked($contract->element, $contract->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['ticket'])) {
-                    foreach ($object->linkedObjects['ticket'] as $ticket) {
-                        $objectFromClone->add_object_linked($ticket->element, $ticket->id);
-                    }
-                }
-            }
+			$linkableElements = get_sheet_linkable_objects();
+
+			if (is_array($linkableElements) && !empty($linkableElements)) {
+				foreach($linkableElements as $linkableElement) {
+					$linkName = $linkableElement['link_name'];
+					if (!empty($object->linkedObjectsIds[$linkName])) {
+						foreach($object->linkedObjectsIds[$linkName] as $linkedElementId) {
+							$objectFromClone->add_object_linked($linkName, $linkedElementId);
+						}
+					}
+				}
+			}
 
             // Add Attendants.
             $signatory = new SaturneSignature($this->db);

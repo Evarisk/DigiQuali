@@ -244,20 +244,26 @@ class modDoliSMQ extends DolibarrModules
 		}
 
 		// Array to add new pages in new tabs
+		require_once __DIR__ . '/../../lib/dolismq_sheet.lib.php';
+
 		$this->tabs   = [];
 		$pictopath    = dol_buildpath('/custom/dolismq/img/dolismq_color.png', 1);
 		$pictoDoliSMQ = img_picto('', $pictopath, '', 1, 0, 0, '', 'pictoModule');
-		$this->tabs[] = ['data' => 'productlot:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=productbatch'];
-		$this->tabs[] = ['data' => 'product:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=product'];
-		$this->tabs[] = ['data' => 'project:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project'];
-		$this->tabs[] = ['data' => 'thirdparty:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=societe'];
-		$this->tabs[] = ['data' => 'contact:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=contact'];
-		$this->tabs[] = ['data' => 'task:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project_task'];
-		$this->tabs[] = ['data' => 'user:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=user'];
-		$this->tabs[] = ['data' => 'invoice:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=facture'];
-		$this->tabs[] = ['data' => 'order:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=commande'];
-		$this->tabs[] = ['data' => 'contract:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=contrat'];
-		$this->tabs[] = ['data' => 'ticket:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=ticket'];
+		$linkableElements = get_sheet_linkable_objects();
+
+		if (is_array($linkableElements) && !empty($linkableElements)) {
+			foreach($linkableElements as $linkableElementType => $linkableElement) {
+				if (preg_match('/_/', $linkableElementType)) {
+					$splittedElementType = preg_split('/_/', $linkableElementType);
+					$moduleName = $splittedElementType[0];
+					$objectName = strtolower($linkableElement['className']);
+					$objectType = $objectName . '@' . $moduleName;
+				} else {
+					$objectType = $linkableElementType;
+				}
+				$this->tabs[] = ['data' => $objectType . ':+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=' . $linkableElement['link_name']];
+			}
+		}
 
         // Dictionaries.
         $this->dictionaries = [
