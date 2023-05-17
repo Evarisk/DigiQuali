@@ -83,7 +83,7 @@ if ($action == 'setmodControlDet') {
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
 
-if ($action == 'update') {
+if ($action == 'update_control_reminder') {
     $reminderFrequency = GETPOST('ControlReminderFrequency');
     $reminderType      = GETPOST('ControlReminderType');
 
@@ -393,7 +393,7 @@ print load_fiche_titre($langs->trans('ControlReminder'), '', '');
 
 print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '">';
 print '<input type="hidden" name="token" value="' . newToken() . '">';
-print '<input type="hidden" name="action" value="update">';
+print '<input type="hidden" name="action" value="update_control_reminder">';
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
 print '<td>' . $langs->trans('Name') . '</td>';
