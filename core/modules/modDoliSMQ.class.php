@@ -122,7 +122,8 @@ class modDoliSMQ extends DolibarrModules
 				'categoryindex',
 				'mainloginpage',
                 'controlcard',
-                'publiccontrol'
+                'publiccontrol',
+                'dolismqadmindocuments'
 			],
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
