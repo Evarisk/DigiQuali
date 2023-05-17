@@ -184,6 +184,7 @@ class modDoliSMQ extends DolibarrModules
             $i++ => ['DOLISMQ_SHEET_LINK_ORDER', 'integer', 0, '', 0, 'current'],
             $i++ => ['DOLISMQ_SHEET_LINK_CONTRACT', 'integer', 0, '', 0, 'current'],
             $i++ => ['DOLISMQ_SHEET_LINK_TICKET', 'integer', 0, '', 0, 'current'],
+			$i++ => ['DOLISMQ_SHEET_DEFAULT_TAG', 'integer', 0, '', 0, 'current'],
 
 			// CONST QUESTION
 			$i++ => ['DOLISMQ_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'],
@@ -542,6 +543,17 @@ class modDoliSMQ extends DolibarrModules
 		delDocumentModel('calypso_controldocument', 'controldocument');
 
 		addDocumentModel('controldocument_odt', 'controldocument', 'ODT templates', 'DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH');
+
+		if (!empty($conf->global->DOLISMQ_SHEET_TAGS_SET) && empty($conf->global->DOLISMQ_SHEET_DEFAULT_TAG)) {
+			global $user, $langs;
+
+			$tags = new Categorie($this->db);
+			$tags->label = $langs->transnoentities('Default');
+			$tags->type  = 'sheet';
+			$tags->create($user);
+
+			dolibarr_set_const($this->db, 'DOLISMQ_SHEET_DEFAULT_TAG', $tags->id, 'integer', 0, '', $conf->entity);
+		}
 
 		if ($result < 0) {
 			return -1;
