@@ -223,6 +223,7 @@ AddProductLot = Créer numéro de lot/série
 AddUser = Créer utilisateur
 AddControlIntoCategory = Assigner cette catégorie au contrôle
 ProductOrServiceLinked = Produit ou service contrôlé
+CanSetVerdict = Définir le verdict du contrôle
 ConfigDatasInDoc = Configuration des médias dans les documents
 MediaSizeDocument = Taille des média
 MediaSizeDocumentDescription = Sélection de la taille des médias dans les documents
