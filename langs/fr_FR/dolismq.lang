@@ -237,6 +237,11 @@ ControlsTagsRepartition = Répartition des contrôles par verdict par catégorie
 ControlsByFiscalYear = Rapport des contrôles sur l'exercice fiscal
 OfControl = des contrôles
 OfAnswer = des réponses
+PublicControl = Interface publique de contrôle
+QcFrequency = Période de validité (en jours)
+ObjectLinked = Objet lié(s)
+NextControlDate = Prochaine date de contrôle
+NextControl = Prochain contrôle
 QuestionMustBeAnswered = Vous devez encore répondre à %s question(s) obligatoire(s)
 
 #
