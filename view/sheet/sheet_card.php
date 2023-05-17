@@ -267,24 +267,25 @@ if (empty($reshook)) {
     }
 
     if ($action == 'set_mandatory' && $permissiontoadd) {
-        $questionId = GETPOST('questionId');
+        $questionId = GETPOST('questionId', 'int');
+		$questionRef = GETPOST('questionRef', 'alpha');
 
-        if (!empty($questionId)) {
-            $mandatoryArray = strlen($object->mandatory_questions) ? json_decode($object->mandatory_questions, true) : [];
+        if ($questionId > 0) {
+            $mandatoryArray = dol_strlen($object->mandatory_questions) > 0 ? json_decode($object->mandatory_questions, true) : [];
 
             if (in_array($questionId, $mandatoryArray)) {
                 $mandatoryArray = array_diff($mandatoryArray, [$questionId]);
-				$successMessage = $langs->trans('QuestionUnMandatorized');
+				$successMessage = $langs->trans('QuestionUnMandatorized', $questionRef);
 			} else {
 				$mandatoryArray[] = $questionId;
-				$successMessage = $langs->trans('QuestionMandatorized');
+				$successMessage = $langs->trans('QuestionMandatorized', $questionRef);
 			}
 
             $object->mandatory_questions = json_encode($mandatoryArray);
             $result = $object->update($user);
 
-			if ($result > 0 && GETPOST('questionId')) {
-				setEventMessages($successMessage, []);
+			if ($result > 0) {
+				setEventMessage($successMessage);
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
 				header('Location: ' . $urltogo . '#questionList');
@@ -702,16 +703,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
             // Mandatory -- Rendre obligatoire
-            $mandatoryArray = !empty($object->mandatory_questions) ? json_decode($object->mandatory_questions, true) : [];
-            $mandatoryArray = is_array($mandatoryArray) ? $mandatoryArray : [];
+            $mandatoryArray = json_decode($object->mandatory_questions, true);
 
-            print '<td>';
-            print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+            print '<td class="center">';
+            print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
             print '<input type="hidden" name="token" value="' . newToken() . '">';
             print '<input type="hidden" name="action" value="set_mandatory">';
-            print '<input type="hidden" name="id" value="' . $id . '">';
-            print '<input type="hidden" name="questionId" value="'. $item->id . '">';
-            print '<input type="checkbox" onchange="submit();" id="mandatory" name="mandatory" value="'. $item->id . '"' . (in_array($item->id, $mandatoryArray) ? ' checked=""' : '') .  '" ' . ($object->status < Sheet::STATUS_LOCKED ? '>' : 'disabled>');
+			print '<input type="hidden" name="questionId" value="'. $item->id . '">';
+			print '<input type="hidden" name="questionRef" value="'. $item->ref . '">';
+            print '<input type="checkbox" onchange="submit();" id="mandatory" name="mandatory" value="'. $item->id . '"' . (in_array($item->id, $mandatoryArray) ? ' checked ' : '') .  '" ' . ($object->status < Sheet::STATUS_LOCKED ? '>' : 'disabled>');
             print '</form>';
             print '</td>';
 

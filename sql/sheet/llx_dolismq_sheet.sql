@@ -26,7 +26,7 @@ CREATE TABLE llx_dolismq_sheet(
 	label               varchar(255) NOT NULL,
     description         text,
     element_linked      text,
-    mandatory_questions text,
+    mandatory_questions text NOT NULL DEFAULT '',
 	fk_user_creat       integer NOT NULL,
 	fk_user_modif       integer
 ) ENGINE=innodb;
