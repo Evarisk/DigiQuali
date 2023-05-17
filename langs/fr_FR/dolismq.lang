@@ -118,6 +118,8 @@ ErrorSheetUsedInControl = La fiche modèle %s ne peut pas être supprimée, elle
 ConfigElementLinked = Vous n'avez pas configuré d'éléments liés, veuillez cliquer ici pour vous rendre sur la page de configuration
 ConfigSheet = Page de configuration des fiches modèles
 AddSheetIntoCategory = Assigner cette catégorie à la fiche modèle
+QuestionMandatorized = La question %s a été rendue obligatoire
+QuestionUnMandatorized = La question %s n'est plus obligatoire
 
 # Tags - catégories
 Quality           = Qualité
@@ -234,6 +236,8 @@ ControlsRepartition = Répartition des contrôles par verdict
 ControlsTagsRepartition = Répartition des contrôles par verdict par catégories
 ControlsByFiscalYear = Rapport des contrôles sur l'exercice fiscal
 OfControl = des contrôles
+OfAnswer = des réponses
+QuestionMustBeAnswered = Vous devez encore répondre à %s question(s) obligatoire(s)
 
 #
 # ControlDet

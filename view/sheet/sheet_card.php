@@ -265,6 +265,35 @@ if (empty($reshook)) {
             }
         }
     }
+
+    if ($action == 'set_mandatory' && $permissiontoadd) {
+        $questionId = GETPOST('questionId', 'int');
+		$questionRef = GETPOST('questionRef', 'alpha');
+
+        if ($questionId > 0) {
+            $mandatoryArray = dol_strlen($object->mandatory_questions) > 0 ? json_decode($object->mandatory_questions, true) : [];
+
+            if (in_array($questionId, $mandatoryArray)) {
+                $mandatoryArray = array_diff($mandatoryArray, [$questionId]);
+				$successMessage = $langs->trans('QuestionUnMandatorized', $questionRef);
+			} else {
+				$mandatoryArray[] = $questionId;
+				$successMessage = $langs->trans('QuestionMandatorized', $questionRef);
+			}
+
+            $object->mandatory_questions = json_encode($mandatoryArray);
+            $result = $object->update($user);
+
+			if ($result > 0) {
+				setEventMessage($successMessage);
+				$urltogo = str_replace('__ID__', $result, $backtopage);
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
+				header('Location: ' . $urltogo . '#questionList');
+			} else {
+                setEventMessages('', $object->errors, 'errors');
+            }
+        }
+    }
 }
 
 /*
@@ -619,7 +648,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// QUESTIONS LINES
 	print '<div class="div-table-responsive-no-min">';
-	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '');
+	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '', 0, 'questionList');
 	print '<table id="tablelines" class="centpercent noborder noshadow">';
 
 	global $forceall, $forcetoshowtitlelines;
@@ -643,6 +672,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>' . $langs->trans('Label') . '</td>';
 	print '<td>' . $langs->trans('Description') . '</td>';
 	print '<td>' . $langs->trans('QuestionType') . '</td>';
+  print '<td class="center">' . $langs->trans('Mandatory') . '</td>';
 	print '<td class="center">' . $langs->trans('PhotoOk') . '</td>';
 	print '<td class="center">' . $langs->trans('PhotoKo') . '</td>';
 	print '<td>' . $langs->trans('Status') . '</td>';
@@ -673,7 +703,22 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print $langs->transnoentities($item->type);
 			print '</td>';
 
-			print '<td class="center">';
+      // Mandatory -- Rendre obligatoire
+      $mandatoryArray = json_decode($object->mandatory_questions, true);
+
+      print '<td class="center">';
+      print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
+      print '<input type="hidden" name="token" value="' . newToken() . '">';
+      print '<input type="hidden" name="action" value="set_mandatory">';
+			print '<input type="hidden" name="questionId" value="'. $item->id . '">';
+			print '<input type="hidden" name="questionRef" value="'. $item->ref . '">';
+      print '<input type="checkbox" onchange="submit();" id="mandatory" name="mandatory" value="'. $item->id . '"' . (in_array($item->id, $mandatoryArray) ? ' checked ' : '') .  '" ' . ($object->status < Sheet::STATUS_LOCKED ? '>' : 'disabled>');
+      print '</form>';
+      print '</td>';
+
+			print '<td>';
+
+      print '<td class="center">';
 			if (dol_strlen($item->photo_ok) > 0) {
 				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ok', 1, '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $item->ref . '/photo_ok', $item, 'photo_ok', 0, 0, 1,1);
 			}

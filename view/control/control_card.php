@@ -1128,6 +1128,31 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '</div>';
 	print '</div>';
 
+    $sheet->fetch($object->fk_sheet);
+    $sheet->fetchQuestionsLinked($object->fk_sheet, 'dolismq_' . $sheet->element);
+
+    $questionIds         = $sheet->linkedObjectsIds['dolismq_question'];
+    $cantValidateControl = 0;
+    $mandatoryArray      = json_decode($sheet->mandatory_questions, true);
+
+    if (!empty($sheet->mandatory_questions) && is_array($mandatoryArray)) {
+        foreach ($questionIds as $questionId) {
+            if (in_array($questionId, $mandatoryArray)) {
+                $controldettmp = $controldet;
+                $resultQuestion = $question->fetch($questionId);
+                $resultAnswer = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
+                if (($resultAnswer > 0 && is_array($resultAnswer)) || !empty($controldettmp)) {
+                    $itemControlDet = !empty($resultAnswer) ? array_shift($resultAnswer) : $controldettmp;
+                    if ($resultQuestion > 0) {
+                        if (empty($itemControlDet->comment) && empty($itemControlDet->answer)) {
+                            $cantValidateControl++;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 	print '<div class="clearboth"></div>';
 
 	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?action=save&id='.$object->id.'" id="saveControl" enctype="multipart/form-data">';
@@ -1157,9 +1182,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Validate
 			$displayButton = $onPhone ? '<i class="fas fa-check fa-2x"></i>' : '<i class="fas fa-check"></i>' . ' ' . $langs->trans('Validate');
-			if ($object->status == $object::STATUS_DRAFT) {
+			if ($object->status == $object::STATUS_DRAFT && empty($cantValidateControl)) {
 				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . $displayButton . '</a>';
-			} else {
+            } else if ($cantValidateControl > 0) {
+                print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('QuestionMustBeAnswered', $cantValidateControl)) . '">' . $displayButton . '</span>';
+            } else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $displayButton . '</span>';
 			}
 
