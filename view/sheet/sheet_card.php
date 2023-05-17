@@ -671,7 +671,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>' . $langs->trans('Label') . '</td>';
 	print '<td>' . $langs->trans('Description') . '</td>';
 	print '<td>' . $langs->trans('QuestionType') . '</td>';
-    print '<td>' . $langs->trans('Mandatory') . '</td>';
+    print '<td class="center">' . $langs->trans('Mandatory') . '</td>';
 	print '<td>' . $langs->trans('PhotoOk') . '</td>';
 	print '<td>' . $langs->trans('PhotoKo') . '</td>';
 	print '<td>' . $langs->trans('Status') . '</td>';
