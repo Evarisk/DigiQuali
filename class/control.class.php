@@ -594,47 +594,47 @@ class Control extends SaturneObject
         }
     }
 
-	/**
-	 * Return the status
-	 *
-	 * @param  int  $status        Id status
-	 * @param  int   $mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
-	 * @return string         Label of status
-	 */
+    /**
+     * Return the status
+     *
+     * @param  int  $status        Id status
+     * @param  int   $mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
+     * @return string         Label of status
+     */
     public function LibStatut(int $status, int $mode = 0): string
-	{
-		if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
-			global $langs;
+    {
+        if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
+            global $langs;
 
-			$this->labelStatus[self::STATUS_DRAFT]          = $langs->transnoentitiesnoconv('StatusDraft');
-			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->transnoentitiesnoconv('Validated');
-			$this->labelStatus[self::STATUS_LOCKED]         = $langs->transnoentitiesnoconv('Locked');
-      $this->labelStatus[self::STATUS_ARCHIVED]       = $langs->transnoentitiesnoconv('Archived');
-			$this->labelStatus[self::STATUS_DELETED]        = $langs->transnoentitiesnoconv('Deleted');
+            $this->labelStatus[self::STATUS_DRAFT]          = $langs->transnoentitiesnoconv('StatusDraft');
+            $this->labelStatus[self::STATUS_VALIDATED]      = $langs->transnoentitiesnoconv('Validated');
+            $this->labelStatus[self::STATUS_LOCKED]         = $langs->transnoentitiesnoconv('Locked');
+            $this->labelStatus[self::STATUS_ARCHIVED]       = $langs->transnoentitiesnoconv('Archived');
+            $this->labelStatus[self::STATUS_DELETED]        = $langs->transnoentitiesnoconv('Deleted');
 
-			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
-			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Validated');
-			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
-      $this->labelStatusShort[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
-			$this->labelStatusShort[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
-		}
+            $this->labelStatusShort[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
+            $this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Validated');
+            $this->labelStatusShort[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
+            $this->labelStatusShort[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
+            $this->labelStatusShort[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
+        }
 
-		$statusType = 'status' . $status;
-    if ($status == self::STATUS_VALIDATED) {
-      $statusType = 'status4';
-    }
-		if ($status == self::STATUS_LOCKED) {
-      $statusType = 'status6';
-    }
-    if ($status == self::STATUS_ARCHIVED) {
-       $statusType = 'status8';
-    }
-    if ($status == self::STATUS_DELETED) {
-       $statusType = 'status9';
-    }
+        $statusType = 'status' . $status;
+        if ($status == self::STATUS_VALIDATED) {
+            $statusType = 'status4';
+        }
+        if ($status == self::STATUS_LOCKED) {
+            $statusType = 'status6';
+        }
+        if ($status == self::STATUS_ARCHIVED) {
+            $statusType = 'status8';
+        }
+        if ($status == self::STATUS_DELETED) {
+            $statusType = 'status9';
+        }
 
-		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
-	}
+        return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
+    }
 
     /**
      * Initialise object with example values.

@@ -108,24 +108,24 @@ class Question extends SaturneObject
      * @var array Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
      */
 	public array $fields = [
-        'rowid'                  => ['type' => 'integer',      'label' => 'TechnicalID',      'enabled' => 1, 'position' => 1,   'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'Id'],
-        'ref'                    => ['type' => 'varchar(128)', 'label' => 'Ref',              'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 4, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
-        'ref_ext'                => ['type' => 'varchar(128)', 'label' => 'RefExt',           'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0],
-        'entity'                 => ['type' => 'integer',      'label' => 'Entity',           'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'index' => 1],
-        'date_creation'          => ['type' => 'datetime',     'label' => 'DateCreation',     'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 5],
-        'tms'                    => ['type' => 'timestamp',    'label' => 'DateModification', 'enabled' => 1, 'position' => 50,  'notnull' => 0, 'visible' => 0],
-        'import_key'             => ['type' => 'varchar(14)',  'label' => 'ImportId',         'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
-        'status'                 => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => 0, 'arrayofkeyval' => ['0' => 'Draft', 1 => 'Validated', '2' => 'Locked']],
-		'type'                   => ['type' => 'varchar(128)', 'label' => 'Type',             'enabled' => '1', 'position' => 80, 'notnull' => 1, 'visible' => 1,],
-		'label'                  => ['type' => 'varchar(255)', 'label' => 'Label',            'enabled' => '1', 'position' => 11, 'notnull' => 1, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200', 'help' => "Help text", 'showoncombobox' => '1',],
-		'description'            => ['type' => 'html',         'label' => 'Description',      'enabled' => '1', 'position' => 100, 'notnull' => 0, 'visible' => 3,],
-		'show_photo'             => ['type' => 'boolean', 'label' => 'ShowPhoto',             'enabled' => '1', 'position' => 105, 'notnull' => 0, 'visible' => 0,],
-		'authorize_answer_photo' => ['type' => 'boolean', 'label' => 'AuthorizeAnswerPhoto',  'enabled' => '1', 'position' => 106, 'notnull' => 0, 'visible' => 0,],
-		'enter_comment'          => ['type' => 'boolean', 'label' => 'EnterComment', 'enabled' => '1', 'position' => 107, 'notnull' => 0, 'visible' => 0,],
-		'photo_ok'               => ['type' => 'text', 'label' => 'PhotoOK', 'enabled' => '1', 'position' => 110, 'notnull' => 0, 'visible' => 3,],
-		'photo_ko'               => ['type' => 'text', 'label' => 'PhotoKO', 'enabled' => '1', 'position' => 120, 'notnull' => 0, 'visible' => 3,],
-		'fk_user_creat'          => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid',],
-		'fk_user_modif'          => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0,],
+        'rowid'                  => ['type' => 'integer',      'label' => 'TechnicalID',          'enabled' => 1, 'position' => 1,   'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'Id'],
+        'ref'                    => ['type' => 'varchar(128)', 'label' => 'Ref',                  'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 4, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
+        'ref_ext'                => ['type' => 'varchar(128)', 'label' => 'RefExt',               'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0],
+        'entity'                 => ['type' => 'integer',      'label' => 'Entity',               'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'index' => 1],
+        'date_creation'          => ['type' => 'datetime',     'label' => 'DateCreation',         'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 5],
+        'tms'                    => ['type' => 'timestamp',    'label' => 'DateModification',     'enabled' => 1, 'position' => 50,  'notnull' => 0, 'visible' => 0],
+        'import_key'             => ['type' => 'varchar(14)',  'label' => 'ImportId',             'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
+        'status'                 => ['type' => 'smallint',     'label' => 'Status',               'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => 0, 'arrayofkeyval' => ['0' => 'Draft', 1 => 'Validated', '2' => 'Locked']],
+		'type'                   => ['type' => 'varchar(128)', 'label' => 'Type',                 'enabled' => 1, 'position' => 80,  'notnull' => 1, 'visible' => 1],
+		'label'                  => ['type' => 'varchar(255)', 'label' => 'Label',                'enabled' => 1, 'position' => 11,  'notnull' => 1, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200', 'showoncombobox' => 1],
+		'description'            => ['type' => 'html',         'label' => 'Description',          'enabled' => 1, 'position' => 100, 'notnull' => 0, 'visible' => 3],
+		'show_photo'             => ['type' => 'boolean',      'label' => 'ShowPhoto',            'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 0],
+		'authorize_answer_photo' => ['type' => 'boolean',      'label' => 'AuthorizeAnswerPhoto', 'enabled' => 1, 'position' => 120, 'notnull' => 0, 'visible' => 0],
+		'enter_comment'          => ['type' => 'boolean',      'label' => 'EnterComment',         'enabled' => 1, 'position' => 130, 'notnull' => 0, 'visible' => 0],
+		'photo_ok'               => ['type' => 'text',         'label' => 'PhotoOK',              'enabled' => 1, 'position' => 140, 'notnull' => 0, 'visible' => 3],
+		'photo_ko'               => ['type' => 'text',         'label' => 'PhotoKO',              'enabled' => 1, 'position' => 150, 'notnull' => 0, 'visible' => 3],
+		'fk_user_creat'          => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'picto' => 'user', 'enabled' => 1, 'position' => 160, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
+		'fk_user_modif'          => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif',  'picto' => 'user', 'enabled' => 1, 'position' => 170, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
     ];
 
     /**
@@ -168,17 +168,55 @@ class Question extends SaturneObject
      */
     public $status;
 
+    /**
+     * @var string Type.
+     */
+    public string $type;
 
-	public $type;
-	public $label;
-	public $description;
-	public $show_photo;
-	public $authorize_answer_photo;
-	public $enter_comment;
-	public $photo_ok;
-	public $photo_ko;
-	public $fk_user_creat;
-	public $fk_user_modif;
+    /**
+     * @var string Label.
+     */
+    public string $label;
+
+    /**
+     * @var string|null Description.
+     */
+    public ?string $description;
+
+    /**
+     * @var bool|null Show photo.
+     */
+    public ?bool $show_photo;
+
+    /**
+     * @var bool|null Authorize answer photo.
+     */
+    public ?bool $authorize_answer_photo;
+
+    /**
+     * @var bool|null Comment.
+     */
+    public ?bool $enter_comment;
+
+    /**
+     * @var string|null Photo OK.
+     */
+    public ?string $photo_ok;
+
+    /**
+     * @var string|null Photo KO.
+     */
+    public ?string $photo_ko;
+
+    /**
+     * @var int User ID.
+     */
+    public int $fk_user_creat;
+
+    /**
+     * @var int|null User ID.
+     */
+    public ?int $fk_user_modif;
 
     /**
      * Constructor.
@@ -190,21 +228,23 @@ class Question extends SaturneObject
         parent::__construct($db, $this->module, $this->element);
     }
 
-	/**
-	 * Create object into database
-	 *
-	 * @param  User $user      User that creates
-	 * @param  bool $notrigger false=launch triggers after, true=disable triggers
-	 * @return int             <0 if KO, Id of created object if OK
-	 */
-	public function create(User $user, bool $notrigger = false): int
-	{
-		global $conf;
-		$refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($this->db);
-		$this->status = 1;
-		$this->ref = $refQuestionMod->getNextValue($this);
-		return $this->createCommon($user, $notrigger);
-	}
+    /**
+     * Create object into database.
+     *
+     * @param  User $user      User that creates.
+     * @param  bool $notrigger false = launch triggers after, true = disable triggers.
+     * @return int             0 < if KO, ID of created object if OK.
+     */
+    public function create(User $user, bool $notrigger = false): int
+    {
+        global $conf;
+
+        $refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($this->db);
+        $this->status   = 1;
+        $this->ref      = $refQuestionMod->getNextValue($this);
+
+        return $this->createCommon($user, $notrigger);
+    }
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
@@ -251,43 +291,43 @@ class Question extends SaturneObject
 		}
 	}
 
-	/**
-	 *  Return the status
-	 *
-	 *  @param  int    $status Id status
-	 *  @param  int    $mode   0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
-	 *  @return string         Label of status
-	 */
-	public function LibStatut(int $status, int $mode = 0): string
-	{
-		if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
-			global $langs;
-			$this->labelStatus[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
-			$this->labelStatus[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
-			$this->labelStatus[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
-			$this->labelStatus[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
-			$this->labelStatus[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
+    /**
+     * Return the status.
+     *
+     * @param  int    $status ID status.
+     * @param  int    $mode   0 = long label, 1 = short label, 2 = Picto + short label, 3 = Picto, 4 = Picto + long label, 5 = Short label + Picto, 6 = Long label + Picto.
+     * @return string         Label of status.
+     */
+    public function LibStatut(int $status, int $mode = 0): string
+    {
+        if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
+            global $langs;
+            $this->labelStatus[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
+            $this->labelStatus[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
+            $this->labelStatus[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
+            $this->labelStatus[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
+            $this->labelStatus[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
 
-			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
-			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
-			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
-			$this->labelStatusShort[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
-			$this->labelStatusShort[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
-		}
+            $this->labelStatusShort[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
+            $this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
+            $this->labelStatusShort[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
+            $this->labelStatusShort[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
+            $this->labelStatusShort[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
+        }
 
-		$statusType = 'status' . $status;
-		if ($status == self::STATUS_LOCKED) {
-			$statusType = 'status4';
-		}
-		if ($status == self::STATUS_ARCHIVED) {
-			$statusType = 'status8';
-		}
-		if ($status == self::STATUS_DELETED) {
-			$statusType = 'status9';
-		}
+        $statusType = 'status' . $status;
+        if ($status == self::STATUS_LOCKED) {
+            $statusType = 'status4';
+        }
+        if ($status == self::STATUS_ARCHIVED) {
+            $statusType = 'status8';
+        }
+        if ($status == self::STATUS_DELETED) {
+            $statusType = 'status9';
+        }
 
-		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
-	}
+        return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
+    }
 
 	/**
 	 * Clone an object into another one
