@@ -267,28 +267,28 @@ if (empty($reshook)) {
     }
 
     if ($action == 'set_mandatory' && $permissiontoadd) {
-        $questionId = GETPOST('mandatory') ?: GETPOST('unmandatory');
+        $questionId = GETPOST('questionId');
 
         if (!empty($questionId)) {
-            $mandatoryArray = $object->mandatory_questions ? json_decode($object->mandatory_questions, true) : [];
+            $mandatoryArray = strlen($object->mandatory_questions) ? json_decode($object->mandatory_questions, true) : [];
 
             if (in_array($questionId, $mandatoryArray)) {
                 $mandatoryArray = array_diff($mandatoryArray, [$questionId]);
-            } else {
-                $mandatoryArray[] = $questionId;
-            }
+				$successMessage = $langs->trans('QuestionUnMandatorized');
+			} else {
+				$mandatoryArray[] = $questionId;
+				$successMessage = $langs->trans('QuestionMandatorized');
+			}
 
             $object->mandatory_questions = json_encode($mandatoryArray);
             $result = $object->update($user);
 
-            $urltogo = str_replace('__ID__', $result, $backtopage);
-            $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
-            header('Location: ' . $urltogo . '#questionList');
-            if ($result > 0 && GETPOST('mandatory')) {
-                setEventMessages($langs->trans('QuestionMandatorized'), []);
-            } else if ($result > 0 && GETPOST('unmandatory')) {
-                setEventMessages($langs->trans('QuestionUnMandatorized'), []);
-            } else {
+			if ($result > 0 && GETPOST('questionId')) {
+				setEventMessages($successMessage, []);
+				$urltogo = str_replace('__ID__', $result, $backtopage);
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
+				header('Location: ' . $urltogo . '#questionList');
+			} else {
                 setEventMessages('', $object->errors, 'errors');
             }
         }
@@ -702,7 +702,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
             // Mandatory -- Rendre obligatoire
-            $mandatoryArray = !empty($object->mandatory_questions) || $object->mandatory_questions != 'null' ? json_decode($object->mandatory_questions, true) : [];
+            $mandatoryArray = !empty($object->mandatory_questions) ? json_decode($object->mandatory_questions, true) : [];
             $mandatoryArray = is_array($mandatoryArray) ? $mandatoryArray : [];
 
             print '<td>';
@@ -710,7 +710,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             print '<input type="hidden" name="token" value="' . newToken() . '">';
             print '<input type="hidden" name="action" value="set_mandatory">';
             print '<input type="hidden" name="id" value="' . $id . '">';
-            print '<input type="hidden" id="unmandatory" value="'. $item->id . '" name="unmandatory">';
+            print '<input type="hidden" name="questionId" value="'. $item->id . '">';
             print '<input type="checkbox" onchange="submit();" id="mandatory" name="mandatory" value="'. $item->id . '"' . (in_array($item->id, $mandatoryArray) ? ' checked=""' : '') .  '" ' . ($object->status < Sheet::STATUS_LOCKED ? '>' : 'disabled>');
             print '</form>';
             print '</td>';
