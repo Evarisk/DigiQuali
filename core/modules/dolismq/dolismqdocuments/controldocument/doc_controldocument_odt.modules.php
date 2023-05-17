@@ -262,10 +262,9 @@ class doc_controldocument_odt extends SaturneDocumentModel
                 if (!empty($object)) {
                     $controlEquipment  = new ControlEquipment($this->db);
                     $productEquipment  = new Product($this->db);
-                    $equipmentsControl = $controlEquipment->fetchFromParent($object->id);
+                    $equipmentsControl = $controlEquipment->fetchFromParent($object->id, 0, 'AND status != 0');
                     if (is_array($equipmentsControl) && !empty ($equipmentsControl)) {
                         foreach ($equipmentsControl as $equipmentControl) {
-                            if ($equipmentControl->status == 0) continue;
                             $productEquipment->fetch($equipmentControl->fk_product);
                             $jsonArray = json_decode($equipmentControl->json);
 
