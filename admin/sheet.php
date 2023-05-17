@@ -133,6 +133,11 @@ if ($action == 'generateCategories') {
 	$tags->type  = 'sheet';
 	$tags->create($user);
 
+	$tags->label = $langs->transnoentities('Default');
+	$tags->type  = 'sheet';
+	$tags->create($user);
+
+	dolibarr_set_const($db, 'DOLISMQ_SHEET_DEFAULT_TAG', $tags->id, 'integer', 0, '', $conf->entity);
 	dolibarr_set_const($db, 'DOLISMQ_SHEET_TAGS_SET', 1, 'integer', 0, '', $conf->entity);
 }
 

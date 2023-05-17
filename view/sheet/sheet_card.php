@@ -60,6 +60,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 $object      = new Sheet($db);
 $question    = new Question($db);
 $extrafields = new ExtraFields($db);
+$category    = new Categorie($db);
 $refSheetMod = new $conf->global->DOLISMQ_SHEET_ADDON($db);
 
 // View objects
@@ -153,8 +154,13 @@ if (empty($reshook)) {
 				$showArray[$linked_object_type] = 1;
 			}
 		}
-
 		$object->element_linked = json_encode($showArray);
+
+		if (empty(GETPOST('categories', 'array'))) {
+			$category->fetch($conf->global->DOLISMQ_SHEET_DEFAULT_TAG);
+			$defaultCategory[] = $category->id;
+			$_POST['categories'] = $defaultCategory;
+		}
 	}
 
 	if ($action == 'update' && $permissiontoadd) {
@@ -163,11 +169,15 @@ if (empty($reshook)) {
 				$showArray[$linked_object_type] = 1;
 			}
 		}
-
 		$object->element_linked = json_encode($showArray);
 
-		$categories = GETPOST('categories', 'array');
-		$object->setCategories(GETPOST('categories', 'array'));
+		if (empty(GETPOST('categories', 'array'))) {
+			$category->fetch($conf->global->DOLISMQ_SHEET_DEFAULT_TAG);
+			$defaultCategory[] = $category->id;
+			$_POST['categories'] = $defaultCategory;
+		} else {
+			$object->setCategories(GETPOST('categories', 'array'));
+		}
 	}
 
 	if ($action == 'moveLine' && $permissiontoadd) {
@@ -440,7 +450,7 @@ if (($id || $ref) && $action == 'edit') {
 				$arrayselected[] = $cat->id;
 			}
 		}
-		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $cate_arbo, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $cate_arbo, $object->getCategoriesCommon(436301002), '', 0, 'maxwidth500 widthcentpercentminusx');
 		print "</td></tr>";
 	}
 
