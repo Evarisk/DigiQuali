@@ -1399,13 +1399,14 @@ class ControlEquipment extends CommonObjectLine
 	 * @param  int       $limit      limit of object to fetch
 	 * @return array|int             <0 if KO, >0 if OK
 	 */
-	public function fetchFromParent($control_id, $limit = 0)
+	public function fetchFromParent($control_id, $limit = 0, $filter = '')
 	{
 		global $db;
 		$sql  = 'SELECT  t.rowid, t.ref, t.ref_ext, t.date_creation, t.tms, t.status, t.json, t.fk_product, t.fk_control ';
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_control_equipment as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 		$sql .= ' AND fk_control = ' . $control_id;
+		!empty($filter) ? $sql .= ' ' . $filter : '';
 
 		$result = $db->query($sql);
 

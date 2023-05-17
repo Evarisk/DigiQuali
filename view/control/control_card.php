@@ -676,11 +676,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if (!empty($conf->global->DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT)) {
 		$equipment         = new Product($db);
 		$controlEquipment  = new ControlEquipment($db);
-		$equipmentIds      = [];
-		$equipmentsControl = $controlEquipment->fetchFromParent($object->id);
+		$equipmentsControl = $controlEquipment->fetchFromParent($object->id, 0, 'AND status != 0');
 		if (is_array($equipmentsControl) && !empty ($equipmentsControl)) {
 			foreach ($equipmentsControl as $equipmentControl) {
-				if ($equipmentControl->status == 0) continue;
 				$equipment->fetch($equipmentControl->fk_product);
 				$creationDate = strtotime($equipment->date_creation);
 				if (!empty($equipment->lifetime) && dol_time_plus_duree($creationDate, $equipment->lifetime, 'd') <= dol_now()) {

@@ -118,20 +118,20 @@ if (empty($reshook)) {
 		$equipmentId = GETPOST('equipmentId');
 
 		if ($equipmentId > 0) {
-			$equipmentsControl = $controlEquipment->fetchFromParent($object->id);
+			$controlEquipments = $controlEquipment->fetchFromParent($object->id);
 
 			$result = 0;
-			if (is_array($equipmentsControl) && !empty($equipmentsControl)) {
-				foreach ($equipmentsControl as $equipmentControl) {
-					if ($equipmentId == $equipmentControl->fk_product && $equipmentControl->status != $equipmentControl::STATUS_DELETED) {
-						$result = $equipmentControl->delete($user);
+			if (is_array($controlEquipments) && !empty($controlEquipments)) {
+				foreach ($controlEquipments as $singleEquipment) {
+					if ($equipmentId == $singleEquipment->fk_product && $singleEquipment->status != $singleEquipment::STATUS_DELETED) {
+						$result = $singleEquipment->delete($user);
 						break;
 					}
 				}
 			}
 
 			if ($result > 0) {
-				setEventMessages($langs->trans('UnlinkEquipmentLink') . ' ' . $equipmentControl->ref, []);
+				setEventMessages($langs->trans('UnlinkEquipmentLink') . ' ' . $singleEquipment->ref, []);
 			}
 		} else {
 			setEventMessages($langs->trans('ErrorNoEquipmentSelected'), [], 'errors');
@@ -153,25 +153,10 @@ if ($id > 0 || !empty($ref)) {
 	print saturne_get_fiche_head($object, 'equipment', $langs->trans('Equipment'));
 	saturne_banner_tab($object);
 
-	$equipmentIds      = [];
-	$equipmentsControl = $controlEquipment->fetchFromParent($object->id);
-	if (is_array($equipmentsControl) && !empty ($equipmentsControl)) {
-		foreach ($equipmentsControl as $equipmentControl) {
-			if ($equipmentControl->status == 0) continue;
-			$equipment->fetch($equipmentControl->fk_product);
-			$excludeFilter .= $equipmentControl->fk_product . ',';
-
-			$equipmentIds[$equipmentControl->id]['id'] = $equipment->id;
-			$equipmentIds[$equipmentControl->id]['ref'] = $equipmentControl->ref;
-
-			$jsonArray            = json_decode($equipmentControl->json);
-            $equipmentLabel       = $jsonArray->label;
-			$equipmentLifetime    = $jsonArray->lifetime;
-			$equipmentQcFrequency = $jsonArray->qc_frenquecy;
-
-            $equipmentIds[$equipmentControl->id]['label']        = $equipmentLabel;
-			$equipmentIds[$equipmentControl->id]['lifetime']     = $equipmentLifetime;
-			$equipmentIds[$equipmentControl->id]['qc_frequency'] = $equipmentQcFrequency;
+	$controlEquipments = $controlEquipment->fetchFromParent($object->id, 0, 'AND status != 0');
+	if (is_array($controlEquipments) && !empty ($controlEquipments)) {
+		foreach ($controlEquipments as $singleEquipment) {
+			$excludeFilter .= $singleEquipment->fk_product . ',';
 		}
 	}
 
@@ -203,46 +188,48 @@ if ($id > 0 || !empty($ref)) {
 	print '<td> </td>';
 	print '</tr></thead>';
 
-	if (is_array($equipmentIds) && !empty($equipmentIds)) {
+	if (is_array($controlEquipments) && !empty($controlEquipments)) {
 		print '<tbody><tr>';
-		foreach ($equipmentIds as $equipmentId) {
-			$item = $equipment;
-			$item->fetch($equipmentId['id']);
+		foreach ($controlEquipments as $singleEquipment) {
+			$equipment->fetch($singleEquipment->fk_product);
+			$jsonArray = json_decode($singleEquipment->json);
 
-			print '<tr id="'. $item->id .'" class="line-row oddeven">';
+			print '<tr id="'. $equipment->id .'" class="line-row oddeven">';
 			print '<td>';
-			print $equipmentId['ref'];
+			print $singleEquipment->ref;
 			print '</td>';
 
 			print '<td>';
-			print $item->getNomUrl(1);
+			print $equipment->getNomUrl(1);
 			print '</td>';
 
 			print '<td>';
-            print $equipmentId['label'];
+            print $jsonArray->label;
 			print '</td>';
 
 			print '<td class="center">';
-			$creationDate   = strtotime($item->date_creation);
-			$expirationDate = dol_time_plus_duree($creationDate, $equipmentId['lifetime'], 'd');
-			print $equipmentId['lifetime'] ? dol_print_date($expirationDate, 'day') : $langs->trans('NoData');
+			$creationDate   = strtotime($equipment->date_creation);
+			$expirationDate = dol_time_plus_duree($creationDate, $jsonArray->lifetime, 'd');
+			print $jsonArray->lifetime ? dol_print_date($expirationDate, 'day') : $langs->trans('NoData');
 			print '</td>';
 
 			print '<td class="center">';
-			$remainingDay   = convertSecondToTime($expirationDate - dol_now(), 'allwithouthour')?: '- ' . convertSecondToTime(dol_now() - $expirationDate, 'allwithouthour');
-			if (empty($equipmentId['lifetime']) || $expirationDate <= dol_now()) {
+			$remainingDay = convertSecondToTime($expirationDate - dol_now(), 'allwithouthour')?: '- ' . convertSecondToTime(dol_now() - $expirationDate, 'allwithouthour');
+			$remainingDay == '- ' ? $remainingDay = 0 .' '.strtolower(dol_substr($langs->trans("Day"), 0, 1)).'. ' : '';
+
+			if (empty($jsonArray->lifetime) || $expirationDate <= dol_now()) {
 				print '<span style="color:red">';
 			} else if ($expirationDate <= dol_now() + 2592000) {
 				print '<span style="color:orange">';
 			} else {
 				print '<span style="color:green">';
 			}
-			print $equipmentId['lifetime'] ? $remainingDay : $langs->trans('NoData');
+			print $jsonArray->lifetime ? $remainingDay : $langs->trans('NoData');
 			print '</span> </td>';
 
 			print '<td class="center">';
 			if ($object->status != 2) {
-				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&action=unlink_equipment&equipmentId=' . $item->id . '">';
+				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&action=unlink_equipment&equipmentId=' . $equipment->id . '">';
 				print img_delete();
 				print '</a>';
 			}
@@ -260,7 +247,7 @@ if ($id > 0 || !empty($ref)) {
 		print '<input type="hidden" name="action" value="add_equipment">';
 		print '<input type="hidden" name="id" value="' . $id . '">';
 		print '<tr><td>';
-		print $form->selectarray('equipmentId', $productsData, '', $langs->transnoentities('SelectControlEquipment'));
+		print img_object('', 'product') . ' ' . $form->selectarray('equipmentId', $productsData, '', $langs->transnoentities('SelectProducts'));
 		print '</td>';
 		print '<td>';
 		print '</td>';
