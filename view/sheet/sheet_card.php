@@ -384,7 +384,7 @@ if ($action == 'create') {
 
 	// Description -- Description
 	print '<tr><td class=""><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
-	$doleditor = new DolEditor('description', '', '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
+	$doleditor = new DolEditor('description', GETPOST('description'), '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
 	print '</td></tr>';
 
@@ -404,10 +404,11 @@ if ($action == 'create') {
 	foreach ($elementArray as $key => $element) {
 		if (!empty($element['conf'])) {
 			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
+            $linkedObjects = empty(GETPOST("linked_object")) ? [] : GETPOST("linked_object");
 			if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
-				print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'"">';
+				print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
 			} else {
-				print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'">';
+				print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
 			}
 			print '</td></tr>';
 		}
@@ -612,7 +613,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			if ($object->status == $object::STATUS_LOCKED) {
 				print '<a class="butAction" id="actionButtonCreateControl" href="' . dol_buildpath('/custom/dolismq/view/control/control_card.php?action=create&fk_sheet=' . $object->id, 1) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('CreateControl') . '</a>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLocked', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('AddControl') . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLocked', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('CreateControl') . '</span>';
 			}
 
 			// Modify
@@ -671,9 +672,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>' . $langs->trans('Label') . '</td>';
 	print '<td>' . $langs->trans('Description') . '</td>';
 	print '<td>' . $langs->trans('QuestionType') . '</td>';
-    print '<td class="center">' . $langs->trans('Mandatory') . '</td>';
-	print '<td>' . $langs->trans('PhotoOk') . '</td>';
-	print '<td>' . $langs->trans('PhotoKo') . '</td>';
+  print '<td class="center">' . $langs->trans('Mandatory') . '</td>';
+	print '<td class="center">' . $langs->trans('PhotoOk') . '</td>';
+	print '<td class="center">' . $langs->trans('PhotoKo') . '</td>';
 	print '<td>' . $langs->trans('Status') . '</td>';
 	print '<td class="center">' . $langs->trans('Action') . '</td>';
 	print '<td class="center"></td>';
@@ -702,37 +703,30 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print $langs->transnoentities($item->type);
 			print '</td>';
 
-            // Mandatory -- Rendre obligatoire
-            $mandatoryArray = json_decode($object->mandatory_questions, true);
+      // Mandatory -- Rendre obligatoire
+      $mandatoryArray = json_decode($object->mandatory_questions, true);
 
-            print '<td class="center">';
-            print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
-            print '<input type="hidden" name="token" value="' . newToken() . '">';
-            print '<input type="hidden" name="action" value="set_mandatory">';
+      print '<td class="center">';
+      print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
+      print '<input type="hidden" name="token" value="' . newToken() . '">';
+      print '<input type="hidden" name="action" value="set_mandatory">';
 			print '<input type="hidden" name="questionId" value="'. $item->id . '">';
 			print '<input type="hidden" name="questionRef" value="'. $item->ref . '">';
-            print '<input type="checkbox" onchange="submit();" id="mandatory" name="mandatory" value="'. $item->id . '"' . (in_array($item->id, $mandatoryArray) ? ' checked ' : '') .  '" ' . ($object->status < Sheet::STATUS_LOCKED ? '>' : 'disabled>');
-            print '</form>';
-            print '</td>';
+      print '<input type="checkbox" onchange="submit();" id="mandatory" name="mandatory" value="'. $item->id . '"' . (in_array($item->id, $mandatoryArray) ? ' checked ' : '') .  '" ' . ($object->status < Sheet::STATUS_LOCKED ? '>' : 'disabled>');
+      print '</form>';
+      print '</td>';
 
 			print '<td>';
-			if (dol_strlen($item->photo_ok)) {
-				$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
-				if ($urladvanced) print '<a href="' . $urladvanced . '">';
-				print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . saturne_get_thumb_name($item->photo_ok, 'mini')) . '" >';
-				print '</a>';
-			} else {
-				print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+
+      print '<td class="center">';
+			if (dol_strlen($item->photo_ok) > 0) {
+				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ok', 1, '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $item->ref . '/photo_ok', $item, 'photo_ok', 0, 0, 1,1);
 			}
 			print '</td>';
-			print '<td>';
-			if (dol_strlen($item->photo_ko)) {
-				$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
-				if ($urladvanced) print '<a href="' . $urladvanced . '">';
-				print '<img width="40" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . saturne_get_thumb_name($item->photo_ko, 'mini')) . '" >';
-				print '</a>';
-			} else {
-				print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+
+			print '<td class="center">';
+			if (dol_strlen($item->photo_ko) > 0) {
+				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ko', 1, '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $item->ref . '/photo_ko', $item, 'photo_ko', 0, 0, 1,1);
 			}
 			print '</td>';
 
