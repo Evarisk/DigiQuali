@@ -45,7 +45,7 @@ ModifyQuestion                = Modifier une question
 LinkedQuestionsList           = Listes des questions liées
 addQuestionLink               = Question ajoutée à la fiche modèle :
 removeQuestionLink            = Question retirée de la fiche modèle :
-LockQuestions                 = Toutes les questions sélectionnées sont passées au status verrouillé
+LockQuestions                 = Toutes les questions sélectionnées sont passées au statut verrouillé
 ThereAre                      = Il y a
 YouAnswered                   = Vous avez répondu à
 On                            = sur
@@ -84,6 +84,7 @@ ErrorDeleteAnswer             = Une erreur est survenue lors de la suppression d
 AnswerCreated                 = La réponse a été créée avec succès
 AnswerUpdated                 = La réponse a été mise à jour avec succès
 AnswerDeleted                 = La réponse a été supprimée avec succès
+AnswerMustBeCreated           = La question doit avoir au moins une réponse
 
 #
 # Sheet
@@ -117,6 +118,8 @@ ErrorSheetUsedInControl = La fiche modèle %s ne peut pas être supprimée, elle
 ConfigElementLinked = Vous n'avez pas configuré d'éléments liés, veuillez cliquer ici pour vous rendre sur la page de configuration
 ConfigSheet = Page de configuration des fiches modèles
 AddSheetIntoCategory = Assigner cette catégorie à la fiche modèle
+QuestionMandatorized = La question %s a été rendue obligatoire
+QuestionUnMandatorized = La question %s n'est plus obligatoire
 
 # Tags - catégories
 Quality           = Qualité
@@ -183,17 +186,17 @@ ContractLinked = Contrat contrôlé
 TicketLinked = Ticket contrôlé
 LinkProduct = Activer le lien avec les produits
 LinkProductDescription = Permet la liaison entre les produits et les fiches modèles
-LinkProductLot = Activer le lien avec les numéros de lots/série
-LinkProductLotDescription = Permet la liaison entre les numéros de lots/série et les fiches modèles
+LinkProductlot = Activer le lien avec les numéros de lots/série
+LinkProductlotDescription = Permet la liaison entre les numéros de lots/série et les fiches modèles
 LinkUser = Activer le lien avec les utilisateurs
 LinkUserDescription = Permet la liaison entre les utilisateurs et les fiches modèles
-LinkThirdParty = Activer le lien avec les tiers
-LinkThirdPartyDescription = Permet la liaison entre les tiers et les fiches modèles
+LinkThirdparty = Activer le lien avec les tiers
+LinkThirdpartyDescription = Permet la liaison entre les tiers et les fiches modèles
 LinkContact = Activer le lien avec les contacts/adresses
 LinkContactDescription = Permet la liaison entre les contacts/adresses et les fiches modèles
 LinkProject = Activer le lien avec les projets
 LinkProjectDescription = Permet la liaison entre les projets et les fiches modèles
-LinkTaskDoliSMQ = Activer le lien avec les tâches
+LinkTask = Activer le lien avec les tâches
 LinkTaskDescription = Permet la liaison entre les tâches et les fiches modèles
 LinkInvoice = Activer le lien avec les factures
 LinkInvoiceDescription = Permet la liaison entre les factures et les fiches modèles
@@ -222,6 +225,7 @@ AddProductLot = Créer numéro de lot/série
 AddUser = Créer utilisateur
 AddControlIntoCategory = Assigner cette catégorie au contrôle
 ProductOrServiceLinked = Produit ou service contrôlé
+CanSetVerdict = Définir le verdict du contrôle
 ConfigDatasInDoc = Configuration des médias dans les documents
 MediaSizeDocument = Taille des média
 MediaSizeDocumentDescription = Sélection de la taille des médias dans les documents
@@ -232,6 +236,13 @@ ControlsRepartition = Répartition des contrôles par verdict
 ControlsTagsRepartition = Répartition des contrôles par verdict par catégories
 ControlsByFiscalYear = Rapport des contrôles sur l'exercice fiscal
 OfControl = des contrôles
+OfAnswer = des réponses
+PublicControl = Interface publique de contrôle
+QcFrequency = Période de validité (en jours)
+ObjectLinked = Objet lié(s)
+NextControlDate = Prochaine date de contrôle
+NextControl = Prochain contrôle
+QuestionMustBeAnswered = Vous devez encore répondre à %s question(s) obligatoire(s)
 
 #
 # ControlDet

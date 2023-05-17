@@ -36,13 +36,14 @@ require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 
 // Load DoliSMQ libraries.
 require_once __DIR__ . '/../lib/dolismq.lib.php';
+require_once __DIR__ . '/../lib/dolismq_sheet.lib.php';
 require_once __DIR__ . '/../class/sheet.class.php';
 
 // Global variables definitions.
 global $conf, $db, $langs, $user;
 
 // Load translation files required by the page.
-saturne_load_langs(['admin']);
+saturne_load_langs(['admin', 'accountancy']);
 
 // Get parameters
 $action     = GETPOST('action', 'alpha');
@@ -164,62 +165,13 @@ $constArray['sheet'] = [
         'description' => 'UniqueLinkedElementDescription',
         'code'        => 'DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT',
     ],
-    'LinkProduct' => [
-        'name'        => 'LinkProduct',
-        'description' => 'LinkProductDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_PRODUCT',
-    ],
-    'LinkProductLot' => [
-        'name'        => 'LinkProductLot',
-        'description' => 'LinkProductLotDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_PRODUCTLOT',
-    ],
-    'LinkUser' => [
-        'name'        => 'LinkUser',
-        'description' => 'LinkUserDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_USER',
-    ],
-    'LinkThirdParty' => [
-        'name'        => 'LinkThirdParty',
-        'description' => 'LinkThirdPartyDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_THIRDPARTY',
-    ],
-    'LinkContact' => [
-        'name'        => 'LinkContact',
-        'description' => 'LinkContactDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_CONTACT',
-    ],
-    'LinkProject' => [
-        'name'        => 'LinkProject',
-        'description' => 'LinkProjectDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_PROJECT',
-    ],
-    'LinkTaskDoliSMQ' => [
-        'name'        => 'LinkTaskDoliSMQ',
-        'description' => 'LinkTaskDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_TASK',
-    ],
-    'LinkInvoice' => [
-        'name'        => 'LinkInvoice',
-        'description' => 'LinkInvoiceDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_INVOICE',
-    ],
-    'LinkOrder' => [
-        'name'        => 'LinkOrder',
-        'description' => 'LinkOrderDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_ORDER',
-    ],
-    'LinkContract' => [
-        'name'        => 'LinkContract',
-        'description' => 'LinkContractDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_CONTRACT',
-    ],
-    'LinkTicket' => [
-        'name'        => 'LinkTicket',
-        'description' => 'LinkTicketDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_TICKET',
-    ],
 ];
+
+$linkableObjects = get_sheet_linkable_objects();
+
+if (is_array($linkableObjects) && !empty($linkableObjects)) {
+	$constArray['sheet'] = array_merge($constArray['sheet'], $linkableObjects);
+}
 
 require_once __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
 

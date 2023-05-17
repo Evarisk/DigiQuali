@@ -42,7 +42,7 @@ function answer_pictos_dropdown($selected = ''): string
 		$out .= $pictosArray[$selected]['picto_source'];
 		$out .= '</span>';
 	} else {
-		$out .= '<span class="wpeo-button button-square-50 button-grey"><i class="fas fa-exclamation-triangle button-icon"></i><i class="fas fa-plus-circle button-add"></i></span>';
+		$out .= '<span class="wpeo-button button-square-50 button-grey"><i class="fas fa-arrow-right button-icon"></i><i class="fas fa-plus-circle button-add"></i></span>';
 	}
 	$out .= '</div>';
 	$out .= '<ul class="dropdown-content wpeo-gridlayout grid-5 grid-gap-0">';

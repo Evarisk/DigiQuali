@@ -275,6 +275,35 @@ if (empty($reshook)) {
             }
         }
     }
+
+    if ($action == 'set_mandatory' && $permissiontoadd) {
+        $questionId = GETPOST('questionId', 'int');
+		$questionRef = GETPOST('questionRef', 'alpha');
+
+        if ($questionId > 0) {
+            $mandatoryArray = dol_strlen($object->mandatory_questions) > 0 ? json_decode($object->mandatory_questions, true) : [];
+
+            if (in_array($questionId, $mandatoryArray)) {
+                $mandatoryArray = array_diff($mandatoryArray, [$questionId]);
+				$successMessage = $langs->trans('QuestionUnMandatorized', $questionRef);
+			} else {
+				$mandatoryArray[] = $questionId;
+				$successMessage = $langs->trans('QuestionMandatorized', $questionRef);
+			}
+
+            $object->mandatory_questions = json_encode($mandatoryArray);
+            $result = $object->update($user);
+
+			if ($result > 0) {
+				setEventMessage($successMessage);
+				$urltogo = str_replace('__ID__', $result, $backtopage);
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
+				header('Location: ' . $urltogo . '#questionList');
+			} else {
+                setEventMessages('', $object->errors, 'errors');
+            }
+        }
+    }
 }
 
 /*
@@ -284,63 +313,7 @@ if (empty($reshook)) {
 $title    = $langs->trans('Sheet');
 $help_url = 'FR:Module_DoliSMQ';
 
-$elementArray = array(
-	'product' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_PRODUCT,
-		'langs' => 'ProductOrService',
-		'picto' => 'product'
-	),
-	'productlot' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT,
-		'langs' => 'Batch',
-		'picto' => 'lot'
-	),
-	'user' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_USER,
-		'langs' => 'User',
-		'picto' => 'user'
-	),
-	'thirdparty' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY,
-		'langs' => 'ThirdParty',
-		'picto' => 'building'
-	),
-	'contact' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_CONTACT,
-		'langs' => 'Contact',
-		'picto' => 'address'
-	),
-	'project' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_PROJECT,
-		'langs' => 'Project',
-		'picto' => 'project'
-	),
-	'task' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_TASK,
-		'langs' => 'Task',
-		'picto' => 'projecttask'
-	),
-    'invoice' => array(
-        'conf' => $conf->global->DOLISMQ_SHEET_LINK_INVOICE,
-        'langs' => 'Invoice',
-        'picto' => 'bill'
-    ),
-    'order' => array(
-        'conf' => $conf->global->DOLISMQ_SHEET_LINK_ORDER,
-        'langs' => 'Order',
-        'picto' => 'order'
-    ),
-    'contract' => array(
-        'conf' => $conf->global->DOLISMQ_SHEET_LINK_CONTRACT,
-        'langs' => 'Contract',
-        'picto' => 'contract'
-    ),
-    'ticket' => array(
-        'conf' => $conf->global->DOLISMQ_SHEET_LINK_TICKET,
-        'langs' => 'Ticket',
-        'picto' => 'ticket'
-    ),
-);
+$elementArray = get_sheet_linkable_objects();
 
 saturne_header(0,'', $title, $help_url);
 
@@ -365,33 +338,33 @@ if ($action == 'create') {
 
 	// Description -- Description
 	print '<tr><td class=""><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
-	$doleditor = new DolEditor('description', '', '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
+	$doleditor = new DolEditor('description', GETPOST('description'), '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
 	print '</td></tr>';
 
 	//FK Element
-	if (empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && empty($conf->global->DOLISMQ_SHEET_LINK_USER)
-        && empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT)
-        && empty($conf->global->DOLISMQ_SHEET_LINK_TASK) && empty($conf->global->DOLISMQ_SHEET_LINK_INVOICE) && empty($conf->global->DOLISMQ_SHEET_LINK_ORDER)
-        && empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && empty($conf->global->DOLISMQ_SHEET_LINK_TICKET)) {
+	$linkableObject = 0;
+	foreach ($elementArray as $key => $element) {
+		if (!empty($element['conf'])) {
+			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
+            $linkedObjects = empty(GETPOST("linked_object")) ? [] : GETPOST("linked_object");
+			if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
+				print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
+			} else {
+				print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
+			}
+			print '</td></tr>';
+			$linkableObject++;
+		}
+	}
+
+	if ($linkableObject == 0) {
 		print '<div class="wpeo-notice notice-warning notice-red">';
 		print '<div class="notice-content">';
 		print '<a href="' . dol_buildpath('/custom/dolismq/admin/sheet.php', 2) . '">' . '<b><div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . ' : ' . $langs->trans('ConfigSheet') . '</b></a>';
 		print '</div>';
 		print '</div>';
 		print '</div>';
-	}
-
-	foreach ($elementArray as $key => $element) {
-		if (!empty($element['conf'])) {
-			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
-			if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
-				print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'"">';
-			} else {
-				print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'">';
-			}
-			print '</td></tr>';
-		}
 	}
 
 	if (!empty($conf->categorie->enabled)) {
@@ -628,7 +601,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// QUESTIONS LINES
 	print '<div class="div-table-responsive-no-min">';
-	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '');
+	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '', 0, 'questionList');
 	print '<table id="tablelines" class="centpercent noborder noshadow">';
 
 	global $forceall, $forcetoshowtitlelines;
@@ -652,8 +625,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>' . $langs->trans('Label') . '</td>';
 	print '<td>' . $langs->trans('Description') . '</td>';
 	print '<td>' . $langs->trans('QuestionType') . '</td>';
-	print '<td>' . $langs->trans('PhotoOk') . '</td>';
-	print '<td>' . $langs->trans('PhotoKo') . '</td>';
+  print '<td class="center">' . $langs->trans('Mandatory') . '</td>';
+	print '<td class="center">' . $langs->trans('PhotoOk') . '</td>';
+	print '<td class="center">' . $langs->trans('PhotoKo') . '</td>';
 	print '<td>' . $langs->trans('Status') . '</td>';
 	print '<td class="center">' . $langs->trans('Action') . '</td>';
 	print '<td class="center"></td>';
@@ -682,24 +656,30 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print $langs->transnoentities($item->type);
 			print '</td>';
 
+      // Mandatory -- Rendre obligatoire
+      $mandatoryArray = json_decode($object->mandatory_questions, true);
+
+      print '<td class="center">';
+      print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
+      print '<input type="hidden" name="token" value="' . newToken() . '">';
+      print '<input type="hidden" name="action" value="set_mandatory">';
+			print '<input type="hidden" name="questionId" value="'. $item->id . '">';
+			print '<input type="hidden" name="questionRef" value="'. $item->ref . '">';
+      print '<input type="checkbox" onchange="submit();" id="mandatory" name="mandatory" value="'. $item->id . '"' . (in_array($item->id, $mandatoryArray) ? ' checked ' : '') .  '" ' . ($object->status < Sheet::STATUS_LOCKED ? '>' : 'disabled>');
+      print '</form>';
+      print '</td>';
+
 			print '<td>';
-			if (dol_strlen($item->photo_ok)) {
-				$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
-				if ($urladvanced) print '<a href="' . $urladvanced . '">';
-				print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . saturne_get_thumb_name($item->photo_ok, 'mini')) . '" >';
-				print '</a>';
-			} else {
-				print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+
+      print '<td class="center">';
+			if (dol_strlen($item->photo_ok) > 0) {
+				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ok', 1, '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $item->ref . '/photo_ok', $item, 'photo_ok', 0, 0, 1,1);
 			}
 			print '</td>';
-			print '<td>';
-			if (dol_strlen($item->photo_ko)) {
-				$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
-				if ($urladvanced) print '<a href="' . $urladvanced . '">';
-				print '<img width="40" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . saturne_get_thumb_name($item->photo_ko, 'mini')) . '" >';
-				print '</a>';
-			} else {
-				print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+
+			print '<td class="center">';
+			if (dol_strlen($item->photo_ko) > 0) {
+				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ko', 1, '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $item->ref . '/photo_ko', $item, 'photo_ko', 0, 0, 1,1);
 			}
 			print '</td>';
 

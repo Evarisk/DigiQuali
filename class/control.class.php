@@ -23,6 +23,7 @@
 
 // Put here all includes required by your class file
 require_once DOL_DOCUMENT_ROOT . '/core/class/commonobject.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/ticket.lib.php';
 
 /**
  * Class for Control
@@ -83,6 +84,7 @@ class Control extends CommonObject
 		'type'               => ['type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 100, 'notnull' => 0, 'visible' => 0],
 		'verdict'            => ['type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 110,'positioncard' => 20, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => ['0' => 'All', '1' => 'OK', '2' => 'KO', '3' => 'NoVerdict']],
 		'photo'              => ['type' => 'text', 'label' => 'Photo', 'enabled' => '1', 'position' => 120, 'notnull' => 0, 'visible' => 0],
+		'track_id'           => ['type' => 'varchar(128)', 'label' => 'TrackID', 'enabled' => 1, 'position' => 125, 'notnull' => 1, 'visible' => 0],
 		'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
 		'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0],
 		'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'SheetLinked', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5, 'css' => 'maxwidth500 widthcentpercentminusxx'],
@@ -101,6 +103,7 @@ class Control extends CommonObject
 	public $type;
 	public $verdict;
 	public $photo;
+	public $track_id;
 	public $label;
 	public $fk_user_creat;
 	public $fk_user_modif;
@@ -150,7 +153,27 @@ class Control extends CommonObject
 	 */
 	public function create(User $user, $notrigger = false)
 	{
-		return $this->createCommon($user, $notrigger);
+        $this->track_id = generate_random_id();
+        $result = $this->createCommon($user, $notrigger);
+
+        if ($result > 0) {
+            global $conf;
+
+            require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
+
+            $url = dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $this->track_id, 3);
+
+            $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
+            
+            dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/');
+            $file = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/' . 'barcode_' . $this->track_id . '.png';
+
+            $imageData = $barcode->getBarcodePngData();
+            $imageData = imagecreatefromstring($imageData);
+            imagepng($imageData, $file);
+        }
+
+		return $result;
 	}
 
 	/**
@@ -160,9 +183,9 @@ class Control extends CommonObject
 	 * @param string $ref  Ref
 	 * @return int         <0 if KO, 0 if not found, >0 if OK
 	 */
-	public function fetch($id, $ref = null)
+	public function fetch($id, $ref = null, $morewhere = '')
 	{
-		$result = $this->fetchCommon($id, $ref);
+		$result = $this->fetchCommon($id, $ref, $morewhere);
 		if ($result > 0 && ! empty($this->table_element_line)) $this->fetchLines();
 		return $result;
 	}
@@ -536,63 +559,18 @@ class Control extends CommonObject
             }
 
             // Add objects linked.
-            if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
-                if (!empty($object->linkedObjects['project'])) {
-                    foreach ($object->linkedObjects['project'] as $project) {
-                        $objectFromClone->add_object_linked($project->element, $project->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['project_task'])) {
-                    foreach ($object->linkedObjects['project_task'] as $project_task) {
-                        $objectFromClone->add_object_linked($project_task->element, $project_task->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['product'])) {
-                    foreach ($object->linkedObjects['product'] as $product) {
-                        $objectFromClone->add_object_linked($product->element, $product->id);
-                    }
-                }
-                if (!empty($object->linkedObjectsIds['productbatch'])) {
-                    $productlot = new Productlot($this->db);
-                    $productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
-                    $objectFromClone->add_object_linked('productbatch', $productlot->id);
-                }
-                if (!empty($object->linkedObjects['user'])) {
-                    foreach ($object->linkedObjects['user'] as $usertmp) {
-                        $objectFromClone->add_object_linked($usertmp->element, $usertmp->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['societe'])) {
-                    foreach ($object->linkedObjects['societe'] as $societe) {
-                        $objectFromClone->add_object_linked($societe->element, $societe->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['contact'])) {
-                    foreach ($object->linkedObjects['contact'] as $contact) {
-                        $objectFromClone->add_object_linked($contact->element, $contact->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['facture'])) {
-                    foreach ($object->linkedObjects['facture'] as $invoice) {
-                        $objectFromClone->add_object_linked($invoice->element, $invoice->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['commande'])) {
-                    foreach ($object->linkedObjects['commande'] as $order) {
-                        $objectFromClone->add_object_linked($order->element, $order->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['contrat'])) {
-                    foreach ($object->linkedObjects['contrat'] as $contract) {
-                        $objectFromClone->add_object_linked($contract->element, $contract->id);
-                    }
-                }
-                if (!empty($object->linkedObjects['ticket'])) {
-                    foreach ($object->linkedObjects['ticket'] as $ticket) {
-                        $objectFromClone->add_object_linked($ticket->element, $ticket->id);
-                    }
-                }
-            }
+			$linkableElements = get_sheet_linkable_objects();
+
+			if (is_array($linkableElements) && !empty($linkableElements)) {
+				foreach($linkableElements as $linkableElement) {
+					$linkName = $linkableElement['link_name'];
+					if (!empty($object->linkedObjectsIds[$linkName])) {
+						foreach($object->linkedObjectsIds[$linkName] as $linkedElementId) {
+							$objectFromClone->add_object_linked($linkName, $linkedElementId);
+						}
+					}
+				}
+			}
 
             // Add Attendants.
             $signatory = new SaturneSignature($this->db);
@@ -678,9 +656,20 @@ class Control extends CommonObject
 			$linkclose .= ' class="classfortooltip' . ($morecss ? ' ' . $morecss : '') . '"';
 		} else $linkclose = ($morecss ? ' class="' . $morecss . '"' : '');
 
-		$linkstart  = '<a href="' . $url . '"';
-		$linkstart .= $linkclose . '>';
-		$linkend    = '</a>';
+        if ($option == 'nolink') {
+            $linkstart = '<span';
+        } else {
+            $linkstart = '<a href="' . $url . '"';
+        }
+        if ($option == 'blank') {
+            $linkstart .= 'target=_blank';
+        }
+        $linkstart .= $linkclose . '>';
+        if ($option == 'nolink' || empty($url)) {
+            $linkend = '</span>';
+        } else {
+            $linkend = '</a>';
+        }
 
 		if ($withpicto) $result .= '<i class="fas fa-tasks" style="color: #d35968;"></i>' . ' ';
 		$result .= $linkstart;

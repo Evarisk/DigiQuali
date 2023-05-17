@@ -27,6 +27,7 @@ CREATE TABLE llx_dolismq_control(
 	type               varchar(128),
 	verdict            smallint,
 	photo              text,
+    track_id           varchar(128) NOT NULL,
 	fk_user_creat      integer NOT NULL,
 	fk_user_modif      integer,
 	fk_sheet           integer NOT NULL,
