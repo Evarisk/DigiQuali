@@ -794,8 +794,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Common attributes
 	unset($object->fields['projectid']); // Hide field already shown in banner
 
-    print '<tr><td class="titlefield">' . $langs->trans('PublicControl') . ' <a href="' . dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $object->track_id, 3) . '" target="_blank"><i class="fas fa-qrcode"></i></a></td>';
-    print '<td>' . saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
+    if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {
+        print '<tr><td class="titlefield">' . $langs->trans('PublicControl') . ' <a href="' . dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $object->track_id, 3) . '" target="_blank"><i class="fas fa-qrcode"></i></a></td>';
+        print '<td>' . saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
+    }
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 

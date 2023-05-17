@@ -131,6 +131,10 @@ foreach ($object->linkedObjectsIds as $key => $linkedObjects) {
     }
 }
 
+if (!empty($qcFrequencyArray)) {
+    $minQcFrequency = min($qcFrequencyArray);
+}
+
 ?>
 
 <div class="signature-container" style="max-width: 1000px;">
@@ -139,23 +143,23 @@ foreach ($object->linkedObjectsIds as $key => $linkedObjects) {
         <div class="informations">
             <div style="margin-bottom: 10px"><strong><?php echo $object->getNomUrl(1, 'nolink'); ?></strong></div>
             <div class="wpeo-table table-flex">
+                <div style="margin-bottom: 10px; margin-top: 10px;"><strong><?php echo $langs->trans('ObjectLinked'); ?></strong></div>
                 <div class="table-row">
-                    <div class="table-cell"><?php echo '<i class="far fa-check-circle"></i> ' . $langs->trans('Verdict'); ?></div>
-                    <div class="table-cell table-end"><?php echo (!empty($object->verdict) ? $langs->transnoentities($object->fields['verdict']['arrayofkeyval'][$object->verdict]) : $langs->transnoentities('NoVerdict')); ?></div>
-                </div>
-                <div class="table-row">
-                    <div class="table-cell"><?php echo $langs->trans('ObjectLinked'); ?></div>
                         <div class="wpeo-table table-cell table-full">
                             <?php foreach ($objectInfoArray as $key => $linkedObject) : ?>
                                 <?php if (!empty($linkedObject['value'])) : ?>
                                     <div class="table-row">
-                                        <div class="table-cell table-150"><?php echo (($key == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0]) ? '<strong>' . $langs->transnoentities($linkedObject['title']) . ' : ' . '</strong>' : $langs->transnoentities($linkedObject['title']) . ' : '); ?></div>
-                                        <div class="table-cell table-200 table-end"><?php echo (($key == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0]) ? '<strong>' . $linkedObject['picto'] . $linkedObject['value'] . '</strong>' : $linkedObject['picto'] . $linkedObject['value']); ?></div>
+                                        <div class="table-cell table-150"><?php echo (($key == array_keys($qcFrequencyArray, $minQcFrequency)[0]) ? '<strong>' . $langs->transnoentities($linkedObject['title']) . ' : ' . '</strong>' : $langs->transnoentities($linkedObject['title']) . ' : '); ?></div>
+                                        <div class="table-cell table-200 table-end"><?php echo (($key == array_keys($qcFrequencyArray, $minQcFrequency)[0]) ? '<strong>' . $linkedObject['picto'] . $linkedObject['value'] . '</strong>' : $linkedObject['picto'] . $linkedObject['value']); ?></div>
                                     </div>
                                 <?php endif; ?>
                             <?php endforeach; ?>
                         </div>
                     </div>
+                <div class="table-row">
+                    <div class="table-cell"><?php echo '<i class="far fa-check-circle"></i> ' . $langs->trans('Verdict'); ?></div>
+                    <div class="table-cell table-end"><?php echo (!empty($object->verdict) ? $langs->transnoentities($object->fields['verdict']['arrayofkeyval'][$object->verdict]) : $langs->transnoentities('NoVerdict')); ?></div>
+                </div>
                 <div class="table-row">
                     <div class="table-cell table-200"><?php echo img_picto('', 'calendar', 'class="pictofixedwidth"') . $langs->trans('ControlDate'); ?></div>
                     <div class="table-cell table-end"><?php echo dol_print_date($object->date_creation, 'day'); ?></div>
@@ -163,7 +167,7 @@ foreach ($object->linkedObjectsIds as $key => $linkedObjects) {
                 <?php if (!empty($qcFrequencyArray)) : ?>
                     <div class="table-row">
                         <div class="table-cell table-300"><?php echo img_picto('', 'calendar', 'class="pictofixedwidth"') . $langs->trans('NextControlDate'); ?></div>
-                        <?php $nextControlDate = dol_time_plus_duree($object->date_creation, min($qcFrequencyArray), 'd'); ?>
+                        <?php $nextControlDate = dol_time_plus_duree($object->date_creation, $minQcFrequency, 'd'); ?>
                         <div class="table-cell table-end"><?php echo dol_print_date($nextControlDate, 'day'); ?></div>
                     </div>
                     <div class="table-row">
