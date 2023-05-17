@@ -89,7 +89,7 @@ class Control extends CommonObject
 		'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0],
 		'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'SheetLinked', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5, 'css' => 'maxwidth500 widthcentpercentminusxx'],
 		'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1', 'label' => 'Controller','positioncard' => 1, 'enabled' => '1', 'position' => 24, 'notnull' => 1, 'visible' => 3, 'css' => 'maxwidth500 widthcentpercentminusxx', 'picto' => 'user', 'foreignkey' => 'user.rowid'],
-		'projectid'         => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project','positioncard' => 2, 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 3, 'css' => 'maxwidth500 widthcentpercentminusxx', 'picto' => 'project', 'foreignkey' => 'projet.rowid']
+		'projectid'         => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project','positioncard' => 2, 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'picto' => 'project', 'foreignkey' => 'projet.rowid']
 	];
 
 	public $rowid;
@@ -318,6 +318,9 @@ class Control extends CommonObject
 		if ($this->status <= self::STATUS_DRAFT) {
 			return 0;
 		}
+
+        $signatory = new SaturneSignature($this->db);
+        $signatory->deleteSignatoriesSignatures($this->id, 'control');
 
 		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'CONTROL_UNVALIDATED');
 	}
@@ -1006,7 +1009,7 @@ class Control extends CommonObject
             ],
         ];
 
-        $arrayNbControlByVerdict = [];
+        $arrayNbControlByVerdict = [0 => 0, 1 => 0, 2 => 0];
         $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 't.status >= 0']);
         if (is_array($controls) && !empty($controls)) {
             foreach ($controls as $control) {

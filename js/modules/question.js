@@ -98,5 +98,5 @@ window.dolismq.question.selectAnswerPicto = function( event ) {
 	$(this).closest('.content').removeClass('active');
 	element.find('.dropdown-toggle span').hide();
 	element.find('.dropdown-toggle.button-picto').html($(this).closest('.wpeo-tooltip-event').html());
-	element.find('.input-hidden-picto').val($(this).data('id'));
+	element.find('.input-hidden-picto').val($(this).data('label'));
 };
