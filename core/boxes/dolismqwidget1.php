@@ -172,6 +172,7 @@ class dolismqwidget1 extends ModeleBoxes
 
 		if (is_array($controls) && !empty($controls)) {
 			foreach ($controls as $control) {
+				$control->fetchObjectLinked('','', $control->id, 'dolismq_' . $control->element);
 				if (!empty($control->linkedObjectsIds)) {
 					if (array_key_exists($fromtype, $control->linkedObjectsIds)) {
 						$test = array_values($control->linkedObjectsIds[$fromtype]);
@@ -257,36 +258,41 @@ class dolismqwidget1 extends ModeleBoxes
 	{
 		global $langs;
 
-		foreach ($this->info_box_contents[$contents] as $sheet){
-			if (count($sheet) > 0) {
-				$contentArray[] = end($sheet);
-			} else {
-				foreach ($sheet as $control) {
-					$contentArray[] = $control;
+		if (is_array($this->info_box_contents) && !empty($this->info_box_contents)) {
+			foreach ($this->info_box_contents[$contents] as $sheet) {
+				if (count($sheet) > 0) {
+					$contentArray[] = end($sheet);
+				} else {
+					foreach ($sheet as $control) {
+						$contentArray[] = $control;
+					}
 				}
 			}
-		}
 
-		foreach ($contentArray as $content) {
-			$boxContent[] = $content[1];
-			if ($content[1][1]['verdict'] == 1) {
-				$score++;
+
+			foreach ($contentArray as $content) {
+				$boxContent[] = $content[1];
+				if ($content[1][1]['verdict'] == 1) {
+					$score++;
+				}
 			}
+
+			$totalScore = ($score / count($boxContent)) * 100;
+
+			$boxContent[] = array(
+				0 => array(
+					'td' => '',
+					'text' => $langs->trans('Score')
+				),
+				1 => array(
+					'td' => 'class="right"',
+					'text' => price2num($totalScore, 'MT', 1) . ' %',
+				)
+			);
+
+			return parent::showBox($this->info_box_head[$head][0], $boxContent, $nooutput);
+		} else {
+			return -1;
 		}
-
-		$totalScore = ($score / count($boxContent)) * 100;
-
-		$boxContent[] = array(
-			0 => array(
-				'td' => '',
-				'text' => $langs->trans('Score')
-			),
-			1 => array(
-				'td' => 'class="right"',
-				'text' => price2num($totalScore, 'MT', 1) . ' %',
-			)
-		);
-
-		return parent::showBox($this->info_box_head[$head][0], $boxContent, $nooutput);
 	}
 }

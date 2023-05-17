@@ -181,7 +181,8 @@ foreach ($object->fields as $key => $val) {
 			'checked'=>(($visible < 0) ? 0 : 1),
 			'enabled'=>($visible != 3 && dol_eval($val['enabled'], 1)),
 			'position'=>$val['position'],
-			'help'=>$val['help']
+			'help'=>$val['help'],
+            'css' => $val['css']
 		);
 	}
 }
@@ -314,6 +315,7 @@ if ($fromid) {
 
 	if (is_array($controls) && !empty($controls)) {
 		foreach ($controls as $control) {
+			$control->fetchObjectLinked('','', $control->id, 'dolismq_' . $control->element);
 			if (!empty($control->linkedObjectsIds)) {
 				if (array_key_exists($fromtype, $control->linkedObjectsIds)) {
 					$linkedObjectsIds = array_values($control->linkedObjectsIds[$fromtype]);

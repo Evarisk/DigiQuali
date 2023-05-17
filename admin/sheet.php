@@ -43,7 +43,7 @@ require_once __DIR__ . '/../class/sheet.class.php';
 global $conf, $db, $langs, $user;
 
 // Load translation files required by the page.
-saturne_load_langs(['admin']);
+saturne_load_langs(['admin', 'accountancy']);
 
 // Get parameters
 $action     = GETPOST('action', 'alpha');

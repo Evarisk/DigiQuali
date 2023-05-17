@@ -266,7 +266,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
                         $name     = end($fileInfo);
 
                         $tmpArray['answer_ref'] = ($previousRef == $answerRef) ? '' : $outputLangs->trans('Ref') . ' : ' . $answerRef;
-                        $tmpArray['photo_name'] = $name;
+                        $tmpArray['media_name'] = $name;
                         $tmpArray['photo']      = $photoPath;
 
                         $previousRef = $answerRef;
@@ -275,7 +275,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
                     }
                 } else {
                     $tmpArray['answer_ref'] = ' ';
-                    $tmpArray['photo_name'] = ' ';
+                    $tmpArray['media_name'] = ' ';
                     $tmpArray['photo']      = ' ';
                     $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
                 }

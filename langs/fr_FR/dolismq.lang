@@ -45,7 +45,7 @@ ModifyQuestion                = Modifier une question
 LinkedQuestionsList           = Listes des questions liées
 addQuestionLink               = Question ajoutée à la fiche modèle :
 removeQuestionLink            = Question retirée de la fiche modèle :
-LockQuestions                 = Toutes les questions sélectionnées sont passées au status verrouillé
+LockQuestions                 = Toutes les questions sélectionnées sont passées au statut verrouillé
 ThereAre                      = Il y a
 YouAnswered                   = Vous avez répondu à
 On                            = sur
@@ -84,6 +84,7 @@ ErrorDeleteAnswer             = Une erreur est survenue lors de la suppression d
 AnswerCreated                 = La réponse a été créée avec succès
 AnswerUpdated                 = La réponse a été mise à jour avec succès
 AnswerDeleted                 = La réponse a été supprimée avec succès
+AnswerMustBeCreated           = La question doit avoir au moins une réponse
 
 #
 # Sheet
@@ -117,6 +118,8 @@ ErrorSheetUsedInControl = La fiche modèle %s ne peut pas être supprimée, elle
 ConfigElementLinked = Vous n'avez pas configuré d'éléments liés, veuillez cliquer ici pour vous rendre sur la page de configuration
 ConfigSheet = Page de configuration des fiches modèles
 AddSheetIntoCategory = Assigner cette catégorie à la fiche modèle
+QuestionMandatorized = La question %s a été rendue obligatoire
+QuestionUnMandatorized = La question %s n'est plus obligatoire
 
 # Tags - catégories
 Quality           = Qualité
@@ -166,7 +169,7 @@ ValidateControl = Valider le contrôle
 ReOpenControl = Rouvrir le contrôle
 LockControl = Verrouiller le contrôle
 ConfirmValidateControl = Êtes-vous sûr de vouloir valider le contrôle ?
-ConfirmReOpenControl = Êtes-vous sûr de vouloir rouvrir le contrôle ? <br> La réouverture supprime le verdict  du contrôle.
+ConfirmReOpenControl = La réouverture supprime le verdict  du contrôle.
 ConfirmLockControl = Êtes-vous sûr de vouloir verrouiller le contrôle ? <br> Le verrouillage empêche toutes modifications du contrôle.
 ProjectLinked = Projet contrôlé
 ControlManagement = Gestion des contrôles
@@ -222,6 +225,7 @@ AddProductLot = Créer numéro de lot/série
 AddUser = Créer utilisateur
 AddControlIntoCategory = Assigner cette catégorie au contrôle
 ProductOrServiceLinked = Produit ou service contrôlé
+CanSetVerdict = Définir le verdict du contrôle
 ConfigDatasInDoc = Configuration des médias dans les documents
 MediaSizeDocument = Taille des média
 MediaSizeDocumentDescription = Sélection de la taille des médias dans les documents
@@ -233,6 +237,12 @@ ControlsTagsRepartition = Répartition des contrôles par verdict par catégorie
 ControlsByFiscalYear = Rapport des contrôles sur l'exercice fiscal
 OfControl = des contrôles
 OfAnswer = des réponses
+PublicControl = Interface publique de contrôle
+QcFrequency = Période de validité (en jours)
+ObjectLinked = Objet lié(s)
+NextControlDate = Prochaine date de contrôle
+NextControl = Prochain contrôle
+QuestionMustBeAnswered = Vous devez encore répondre à %s question(s) obligatoire(s)
 
 #
 # ControlDet
@@ -253,21 +263,11 @@ ControlDocument = Fiche de Contrôle
 ControlDocumentsMin = fiches de contôle
 ControlDocumentName = Afficher les médias dans la fiche de contrôle
 ControlDocumentDescription = Afficher les médias des questions dans la fiche de contrôle du document ODT
-ControlDocumentPDFDoliSMQTemplate =	Modèle de fiche de contrôle au format PDF
 ControlDocumentSentByMailTrigger = Email fiche de contrôle envoyée
 controldocument = fiche de contrôle
 controldocument.odt = Fiche de Contrôle
 controldocument_photo.odt = Fiche de Contrôle avec photos
 controldocument_photo = fiche de contrôle avec photos
-SocietyName = Nom de la société
-ControlerName = Nom du contrôleur
-ControledProduct = Produit contrôlé
-LotNumber = Numéro Lot/Série
-ControlAndAnswerList = Liste des points contrôlés et des réponses associées à ce contrôle
-QuestionRef = Réf. Question
-QuestionTitle = Titre - Description Question
-AnswerRef = Réf. Réponse
-AnswerComment = Commentaire Réponse
 
 #
 # Other
@@ -275,18 +275,5 @@ AnswerComment = Commentaire Réponse
 
 # Data - Donnée
 SelectProducts = Sélectionner un produit
-AddMedia = Ajouter un média
-SearchFile = Rechercher un fichier
-NoMediaLinked = Pas de média lié
-ErrorFileNotFound = Aucun logo de la société renseigné
-Or = ou
 SelectProductsOrServices = Sélectionner un produit / service
-DoliSMQNumberOfModelFilesFound = Nombre de modèles par défaut
 Contact = Contact/Adresse
-CloseModal = Fermer
-PhotoWellSent = La photo a été ajoutée à la bibliothèque de médias
-PhotoNotSent = La photo ne s'est pas correctement envoyée
-DisplayMoreInfo = Afficher plus d'informations
-MediaDimensionSetWithSuccess = Dimensions des médias modifiées avec succès
-MediaDimensionNegativeError = Les valeurs des dimensions ne peuvent être négatives
-MediaDimensionEmptyError = Les valeurs des dimensions ne peuvent pas être vides
