@@ -106,14 +106,14 @@ class Answer extends SaturneObject
         'ref'           => ['type' => 'varchar(128)', 'label' => 'Ref',              'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 4, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
         'ref_ext'       => ['type' => 'varchar(128)', 'label' => 'RefExt',           'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0],
         'entity'        => ['type' => 'integer',      'label' => 'Entity',           'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'index' => 1],
-        'date_creation' => ['type' => 'datetime',     'label' => 'DateCreation',     'enabled' => 1, 'position' => 40, 'notnull' => 1, 'visible' => 5],
+        'date_creation' => ['type' => 'datetime',     'label' => 'DateCreation',     'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 5],
         'tms'           => ['type' => 'timestamp',    'label' => 'DateModification', 'enabled' => 1, 'position' => 50,  'notnull' => 0, 'visible' => 0],
         'import_key'    => ['type' => 'varchar(14)',  'label' => 'ImportId',         'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
         'status'        => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => 1],
         'value'         => ['type' => 'text',         'label' => 'Value',            'enabled' => 1, 'position' => 80,  'notnull' => 1, 'visible' => 1],
         'position'      => ['type' => 'integer',      'label' => 'Position',         'enabled' => 1, 'position' => 90,  'notnull' => 1, 'visible' => 0],
         'color'         => ['type' => 'varchar(255)', 'label' => 'Color',            'enabled' => 1, 'position' => 100, 'notnull' => 1, 'visible' => 0],
-        'pictogram'     => ['type' => 'integer',      'label' => 'Pictogram',        'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 1],
+        'pictogram'     => ['type' => 'varchar(255)', 'label' => 'Pictogram',        'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 1],
         'fk_question'   => ['type' => 'integer',      'label' => 'FkQuestion',       'enabled' => 1, 'position' => 120, 'notnull' => 1, 'visible' => 0, 'index' => 1, 'foreignkey' => 'dolismq_question.rowid'],
         'fk_user_creat' => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'picto' => 'user', 'enabled' => 1, 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
         'fk_user_modif' => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif',  'picto' => 'user', 'enabled' => 1, 'position' => 140, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
@@ -175,9 +175,9 @@ class Answer extends SaturneObject
     public string $color;
 
     /**
-     * @var int Pictogram.
+     * @var string Pictogram.
      */
-    public int $pictogram;
+    public string $pictogram;
 
     /**
      * @var int Question ID.
@@ -220,15 +220,15 @@ class Answer extends SaturneObject
         $this->ref      = $refAnswerMod->getNextValue($this);
         $this->position = $this->getMaxPosition() + 1;
 
-        return $this->createCommon($user, $notrigger);
+        return parent::create($user, $notrigger);
     }
 
     /**
      * Returns max position of answers in question
      *
-     * @return int answer position.
+     * @return int|null answer position.
      */
-    public function getMaxPosition(): int
+    public function getMaxPosition(): ?int
     {
         $sql   = "SELECT rowid, position FROM ". MAIN_DB_PREFIX ."dolismq_answer WHERE fk_question = " . $this->fk_question . " ORDER BY position DESC LIMIT 1";
         $resql = $this->db->query($sql);

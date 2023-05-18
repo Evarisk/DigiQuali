@@ -108,20 +108,21 @@ class Sheet extends SaturneObject
      * @var array Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
      */
     public array $fields = [
-        'rowid'          => ['type' => 'integer',      'label' => 'TechnicalID',      'enabled' => 1, 'position' => 1,  'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'Id'],
-        'ref'            => ['type' => 'varchar(128)', 'label' => 'Ref',              'enabled' => 1, 'position' => 10, 'notnull' => 1, 'visible' => 4, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
-        'ref_ext'        => ['type' => 'varchar(128)', 'label' => 'RefExt',           'enabled' => 1, 'position' => 20, 'notnull' => 0, 'visible' => 0],
-        'entity'         => ['type' => 'integer',      'label' => 'Entity',           'enabled' => 1, 'position' => 30, 'notnull' => 1, 'visible' => 0, 'index' => 1],
-        'date_creation'  => ['type' => 'datetime',     'label' => 'DateCreation',     'enabled' => 1, 'position' => 40, 'notnull' => 1, 'visible' => 0],
-        'tms'            => ['type' => 'timestamp',    'label' => 'DateModification', 'enabled' => 1, 'position' => 50, 'notnull' => 1, 'visible' => 0],
-        'import_key'     => ['type' => 'varchar(14)',  'label' => 'ImportId',         'enabled' => 1, 'position' => 60, 'notnull' => 0, 'visible' => 0, 'index' => 0],
-        'status'         => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 70, 'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>1, 'arrayofkeyval' => ['0' => 'Draft', 1 => 'Enabled', '2' => 'Locked']],
-        'type'           => ['type' => 'varchar(128)', 'label' => 'Type',             'enabled' => 1, 'position' => 80, 'notnull' => 0, 'visible' => 0,],
-        'label'          => ['type' => 'varchar(255)', 'label' => 'Label',            'enabled' => 1, 'position' => 11, 'notnull' => 1, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200'],
-        'description'    => ['type' => 'html',         'label' => 'Description',      'enabled' => 1, 'position' => 15, 'notnull' => 0, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200'],
-        'element_linked' => ['type' => 'text',         'label' => 'ElementLinked',    'enabled' => 1, 'position' => 90, 'notnull' => 0, 'visible' => 0],
-        'fk_user_creat'  => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'picto' => 'user', 'enabled' => 1, 'position' => 100, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
-        'fk_user_modif'  => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif',  'picto' => 'user', 'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid']
+        'rowid'               => ['type' => 'integer',      'label' => 'TechnicalID',        'enabled' => 1, 'position' => 1,   'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'Id'],
+        'ref'                 => ['type' => 'varchar(128)', 'label' => 'Ref',                'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 4, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
+        'ref_ext'             => ['type' => 'varchar(128)', 'label' => 'RefExt',             'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0],
+        'entity'              => ['type' => 'integer',      'label' => 'Entity',             'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'index' => 1],
+        'date_creation'       => ['type' => 'datetime',     'label' => 'DateCreation',       'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 0],
+        'tms'                 => ['type' => 'timestamp',    'label' => 'DateModification',   'enabled' => 1, 'position' => 50,  'notnull' => 1, 'visible' => 0],
+        'import_key'          => ['type' => 'varchar(14)',  'label' => 'ImportId',           'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
+        'status'              => ['type' => 'smallint',     'label' => 'Status',             'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>1, 'arrayofkeyval' => ['0' => 'Draft', 1 => 'Enabled', '2' => 'Locked']],
+        'type'                => ['type' => 'varchar(128)', 'label' => 'Type',               'enabled' => 1, 'position' => 80,  'notnull' => 0, 'visible' => 0,],
+        'label'               => ['type' => 'varchar(255)', 'label' => 'Label',              'enabled' => 1, 'position' => 11,  'notnull' => 1, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200'],
+        'description'         => ['type' => 'html',         'label' => 'Description',        'enabled' => 1, 'position' => 15,  'notnull' => 0, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200'],
+        'element_linked'      => ['type' => 'text',         'label' => 'ElementLinked',      'enabled' => 1, 'position' => 90,  'notnull' => 0, 'visible' => 0],
+        'mandatory_questions' => ['type' => 'text',         'label' => 'MandatoryQuestions', 'enabled' => 1, 'position' => 100, 'notnull' => 1, 'visible' => 0],
+        'fk_user_creat'       => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'picto' => 'user', 'enabled' => 1, 'position' => 110, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
+        'fk_user_modif'       => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif',  'picto' => 'user', 'enabled' => 1, 'position' => 120, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid']
     ];
 
     /**
@@ -182,7 +183,12 @@ class Sheet extends SaturneObject
     /**
      * @var string Element linked json.
      */
-    public string $element_linked;
+    public string $element_linked = '';
+
+    /**
+     * @var string|null Mandatory questions.
+     */
+    public ?string $mandatory_questions;
 
     /**
      * @var int User ID.
@@ -219,7 +225,7 @@ class Sheet extends SaturneObject
         $this->status = 1;
         $this->ref    = $refSheetMod->getNextValue($this);
 
-        return $this->createCommon($user, $notrigger);
+        return parent::create($user, $notrigger);
     }
 
     /**

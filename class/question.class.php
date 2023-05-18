@@ -186,27 +186,27 @@ class Question extends SaturneObject
     /**
      * @var bool|null Show photo.
      */
-    public ?bool $show_photo;
+    public ?bool $show_photo = null;
 
     /**
      * @var bool|null Authorize answer photo.
      */
-    public ?bool $authorize_answer_photo;
+    public ?bool $authorize_answer_photo = null;
 
     /**
      * @var bool|null Comment.
      */
-    public ?bool $enter_comment;
+    public ?bool $enter_comment = null;
 
     /**
      * @var string|null Photo OK.
      */
-    public ?string $photo_ok;
+    public ?string $photo_ok = '';
 
     /**
      * @var string|null Photo KO.
      */
-    public ?string $photo_ko;
+    public ?string $photo_ko = '';
 
     /**
      * @var int User ID.
@@ -243,7 +243,7 @@ class Question extends SaturneObject
         $this->status   = 1;
         $this->ref      = $refQuestionMod->getNextValue($this);
 
-        return $this->createCommon($user, $notrigger);
+        return parent::create($user, $notrigger);
     }
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps

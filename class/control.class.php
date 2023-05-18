@@ -21,9 +21,11 @@
  * \brief   This file is a CRUD class file for Control (Create/Read/Update/Delete).
  */
 
+// Load Dolibarr libraries.
+require_once DOL_DOCUMENT_ROOT . '/core/lib/ticket.lib.php';
+
 // Load Saturne libraries.
 require_once __DIR__ . '/../../saturne/class/saturneobject.class.php';
-require_once DOL_DOCUMENT_ROOT . '/core/lib/ticket.lib.php';
 
 /**
  * Class for Control.
@@ -121,6 +123,7 @@ class Control extends SaturneObject
         'note_private'       => ['type' => 'html',         'label' => 'NotePrivate',      'enabled' => 1, 'position' => 90,  'notnull' => 0, 'visible' => 0],
         'verdict'            => ['type' => 'smallint',     'label' => 'Verdict',          'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'positioncard' => 20, 'arrayofkeyval' => ['0' => 'All', 1 => 'OK', '2' => 'KO', '3' => 'NoVerdict']],
         'photo'              => ['type' => 'text',         'label' => 'Photo',            'enabled' => 1, 'position' => 120, 'notnull' => 0, 'visible' => 0],
+        'track_id'           => ['type' => 'text',         'label' => 'TrackID',          'enabled' => 1, 'position' => 125, 'notnull' => 0, 'visible' => 0],
         'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserAuthor',  'picto' => 'user',                            'enabled' => 1, 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
         'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserModif',   'picto' => 'user',                            'enabled' => 1, 'position' => 140, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
         'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php',      'label' => 'SheetLinked', 'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 23,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'dolismq_sheet.rowid'],
@@ -157,37 +160,6 @@ class Control extends SaturneObject
      * @var int|string Timestamp.
      */
     public $tms;
-	/**
-	 * Create object into database
-	 *
-	 * @param  User $user      User that creates
-	 * @param  bool $notrigger false=launch triggers after, true=disable triggers
-	 * @return int             <0 if KO, Id of created object if OK
-	 */
-	public function create(User $user, $notrigger = false)
-	{
-        $this->track_id = generate_random_id();
-        $result = $this->createCommon($user, $notrigger);
-
-        if ($result > 0) {
-            global $conf;
-
-            require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
-
-            $url = dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $this->track_id, 3);
-
-            $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
-            
-            dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/');
-            $file = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/' . 'barcode_' . $this->track_id . '.png';
-
-            $imageData = $barcode->getBarcodePngData();
-            $imageData = imagecreatefromstring($imageData);
-            imagepng($imageData, $file);
-        }
-
-		return $result;
-	}
 
     /**
      * @var string Import key.
@@ -217,7 +189,12 @@ class Control extends SaturneObject
     /**
      * @var string|null Photo path.
      */
-    public ?string $photo;
+    public ?string $photo = '';
+
+    /**
+     * @var string|null TrackID.
+     */
+    public ?string $track_id;
 
     /**
      * @var int User ID.
@@ -254,7 +231,39 @@ class Control extends SaturneObject
         parent::__construct($db, $this->module, $this->element);
     }
 
-	/**
+    /**
+     * Create object into database.
+     *
+     * @param  User $user      User that creates.
+     * @param  bool $notrigger false = launch triggers after, true = disable triggers.
+     * @return int             0 < if KO, ID of created object if OK.
+     */
+    public function create(User $user, bool $notrigger = false): int
+    {
+        $this->track_id = generate_random_id();
+        $result = parent::create($user, $notrigger);
+
+        if ($result > 0) {
+            global $conf;
+
+            require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
+
+            $url = dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $this->track_id, 3);
+
+            $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
+
+            dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/');
+            $file = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/' . 'barcode_' . $this->track_id . '.png';
+
+            $imageData = $barcode->getBarcodePngData();
+            $imageData = imagecreatefromstring($imageData);
+            imagepng($imageData, $file);
+        }
+
+        return $result;
+    }
+
+    /**
 	 * Load list of objects in memory from the database.
 	 *
 	 * @param  string      $sortorder    Sort Order

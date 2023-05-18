@@ -1041,7 +1041,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $object->id]);
+    $answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $object->id]);
 
 	// Buttons for actions
 	if ($action != 'presend') {
@@ -1129,7 +1129,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
 					print '<td>';
-					print $answerSingle->getNomUrl(1);
+					print img_picto('', $answerSingle->picto, 'class="pictofixedwidth"') . $answerSingle->ref;
 					print '</td>';
 
 					print '<td>';
@@ -1161,7 +1161,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					//SHOW LINE
 					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
 					print '<td>';
-					print $answerSingle->getNomUrl(1);
+					print img_picto('', $answerSingle->picto, 'class="pictofixedwidth"') . $answerSingle->ref;
 					print '</td>';
 
 					print '<td>';
