@@ -78,3 +78,5 @@ ALTER TABLE `llx_dolismq_control` ADD `photo` TEXT NULL AFTER `verdict`;
 ALTER TABLE `llx_dolismq_control` ADD `track_id` VARCHAR(128) NOT NULL AFTER `photo`;
 ALTER TABLE `llx_dolismq_sheet` ADD `mandatory_questions` text AFTER `element_linked`;
 UPDATE `llx_dolismq_question` SET type = 'OkKoToFixNonApplicable' WHERE type IS NULL;
+UPDATE `llx_dolismq_sheet` SET mandatory_questions = '{}' WHERE mandatory_questions IS NULL;
+ALTER TABLE `llx_dolismq_sheet` CHANGE `mandatory_questions` `mandatory_questions` text NOT NULL DEFAULT '{}';
