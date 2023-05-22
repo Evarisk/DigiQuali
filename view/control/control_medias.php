@@ -88,9 +88,9 @@ if (!$permissiontoread) accessforbidden();
  */
 
 $help_url = '';
-$morecss  = array('/dolismq/css/dolismq.css');
-$morejs  = array('/dolismq/js/dolismq.js');
-saturne_header(0,'', $langs->trans('Control'), $help_url, '', 0, 0, $morejs, $morecss);
+$title    = $langs->trans('ControlMedia');
+
+saturne_header(0,'', $title, $help_url);
 
 if ($id > 0 || !empty($ref)) {
 	$object->fetch_thirdparty();

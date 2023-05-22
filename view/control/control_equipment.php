@@ -39,7 +39,7 @@ require_once __DIR__ . '/../../core/modules/dolismq/controlequipment/mod_control
 require_once __DIR__ . '/../../../saturne/lib/object.lib.php';
 
 // Global variables definitions
-global $conf, $db,$hookmanager, $langs, $user;
+global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
 saturne_load_langs(['productbatch']);
@@ -54,7 +54,7 @@ $backtopage = GETPOST('backtopage', 'alpha');
 // Initialize technical objects
 $object                 = new Control($db);
 $controlEquipment       = new ControlEquipment($db);
-$equipment              = new Product($db);
+$product                = new Product($db);
 $refControlEquipmentMod = new $conf->global->DOLISMQ_CONTROL_EQUIPMENT_ADDON($db);
 
 // Initialize view objects
@@ -88,15 +88,15 @@ if (empty($reshook)) {
 		$equipmentId = GETPOST('equipmentId');
 
 		if ($equipmentId > 0) {
-			$equipment->fetch($equipmentId);
+			$product->fetch($equipmentId);
 
 			$controlEquipment->ref        = $refControlEquipmentMod->getNextValue($controlEquipment);
-			$controlEquipment->fk_product = $equipment->id;
+			$controlEquipment->fk_product = $product->id;
 			$controlEquipment->fk_control = $object->id;
 
-            $jsonArray['label']        = $equipment->label;
-			$jsonArray['lifetime']     = $equipment->lifetime;
-			$jsonArray['qc_frenquecy'] = $equipment->qc_frequency;
+            $jsonArray['label']        = $product->label;
+			$jsonArray['lifetime']     = $product->lifetime;
+			$jsonArray['qc_frenquecy'] = $product->qc_frequency;
 
 			$controlEquipment->json    = json_encode($jsonArray);
 
@@ -118,20 +118,12 @@ if (empty($reshook)) {
 		$equipmentId = GETPOST('equipmentId');
 
 		if ($equipmentId > 0) {
-			$controlEquipments = $controlEquipment->fetchFromParent($object->id);
+			$controlEquipment->fetch($equipmentId);
 
-			$result = 0;
-			if (is_array($controlEquipments) && !empty($controlEquipments)) {
-				foreach ($controlEquipments as $singleEquipment) {
-					if ($equipmentId == $singleEquipment->fk_product && $singleEquipment->status != $singleEquipment::STATUS_DELETED) {
-						$result = $singleEquipment->delete($user);
-						break;
-					}
-				}
-			}
+			$result = $controlEquipment->delete($user);
 
 			if ($result > 0) {
-				setEventMessages($langs->trans('UnlinkEquipmentLink') . ' ' . $singleEquipment->ref, []);
+				setEventMessages($langs->trans('UnlinkEquipmentLink') . ' ' . $controlEquipment->ref, []);
 			}
 		} else {
 			setEventMessages($langs->trans('ErrorNoEquipmentSelected'), [], 'errors');
@@ -144,15 +136,16 @@ if (empty($reshook)) {
  */
 
 $help_url = '';
-$morecss  = array('/dolismq/css/dolismq.css');
-$morejs  = array('/dolismq/js/dolismq.js');
-saturne_header(0,'', $langs->trans('Control'), $help_url, '', 0, 0, $morejs, $morecss);
+$title    = $langs->trans('ControlEquipment');
+
+saturne_header(0,'', $title, $help_url);
 
 if ($id > 0 || !empty($ref)) {
 	// CONTROL EQUIPMENT LINES
 	print saturne_get_fiche_head($object, 'equipment', $langs->trans('Equipment'));
 	saturne_banner_tab($object);
 
+	$excludeFilter     = '';
 	$controlEquipments = $controlEquipment->fetchFromParent($object->id, 0, 'AND status != 0');
 	if (is_array($controlEquipments) && !empty ($controlEquipments)) {
 		foreach ($controlEquipments as $singleEquipment) {
@@ -160,7 +153,7 @@ if ($id > 0 || !empty($ref)) {
 		}
 	}
 
-	$excludeFilter = !empty($excludeFilter) ? substr($excludeFilter, 0, -1) : 0;
+	$excludeFilter = rtrim($excludeFilter, ',');
 	$products      = saturne_fetch_all_object_type('Product', '', '', 0, 0, ['customsql' => '`rowid` NOT IN (' . $excludeFilter . ')']);
 	$productsData  = [];
 	if (is_array($products) && !empty($products)) {
@@ -191,16 +184,16 @@ if ($id > 0 || !empty($ref)) {
 	if (is_array($controlEquipments) && !empty($controlEquipments)) {
 		print '<tbody><tr>';
 		foreach ($controlEquipments as $singleEquipment) {
-			$equipment->fetch($singleEquipment->fk_product);
+			$product->fetch($singleEquipment->fk_product);
 			$jsonArray = json_decode($singleEquipment->json);
 
-			print '<tr id="'. $equipment->id .'" class="line-row oddeven">';
+			print '<tr id="'. $product->id .'" class="line-row oddeven">';
 			print '<td>';
 			print $singleEquipment->ref;
 			print '</td>';
 
 			print '<td>';
-			print $equipment->getNomUrl(1);
+			print $product->getNomUrl(1);
 			print '</td>';
 
 			print '<td>';
@@ -208,14 +201,14 @@ if ($id > 0 || !empty($ref)) {
 			print '</td>';
 
 			print '<td class="center">';
-			$creationDate   = strtotime($equipment->date_creation);
+			$creationDate   = strtotime($product->date_creation);
 			$expirationDate = dol_time_plus_duree($creationDate, $jsonArray->lifetime, 'd');
 			print $jsonArray->lifetime ? dol_print_date($expirationDate, 'day') : $langs->trans('NoData');
 			print '</td>';
 
 			print '<td class="center">';
-			$remainingDay = convertSecondToTime($expirationDate - dol_now(), 'allwithouthour')?: '- ' . convertSecondToTime(dol_now() - $expirationDate, 'allwithouthour');
-			$remainingDay == '- ' ? $remainingDay = 0 .' '.strtolower(dol_substr($langs->trans("Day"), 0, 1)).'. ' : '';
+			$remainingDays = convertSecondToTime($expirationDate - dol_now(), 'allwithouthour')?: '- ' . convertSecondToTime(dol_now() - $expirationDate, 'allwithouthour');
+			$remainingDays == '- ' ? $remainingDays = 0 .' '.strtolower(dol_substr($langs->trans("Day"), 0, 1)).'. ' : '';
 
 			if (empty($jsonArray->lifetime) || $expirationDate <= dol_now()) {
 				print '<span style="color:red">';
@@ -224,12 +217,12 @@ if ($id > 0 || !empty($ref)) {
 			} else {
 				print '<span style="color:green">';
 			}
-			print $jsonArray->lifetime ? $remainingDay : $langs->trans('NoData');
+			print $jsonArray->lifetime ? $remainingDays : $langs->trans('NoData');
 			print '</span> </td>';
 
 			print '<td class="center">';
 			if ($object->status != 2) {
-				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&action=unlink_equipment&equipmentId=' . $equipment->id . '">';
+				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&action=unlink_equipment&equipmentId=' . $singleEquipment->id . '">';
 				print img_delete();
 				print '</a>';
 			}

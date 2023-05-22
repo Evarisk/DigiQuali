@@ -22,125 +22,21 @@
  *	\brief      File containing class for numbering module Standard
  */
 
+// Load Saturne libraries.
+require_once __DIR__ . '/../../../../../saturne/core/modules/saturne/modules_saturne.php';
+
 /**
  * 	Class to manage controlequipment numbering rules Standard
  */
-class mod_control_equipment_standard
+class mod_control_equipment_standard extends ModeleNumRefSaturne
 {
-	/**
-	 * Dolibarr version of the loaded document
-	 * @var string
-	 */
-	public $version = 'dolibarr'; // 'development', 'experimental', 'dolibarr'
-
 	/**
 	 * @var string document prefix
 	 */
-	public $prefix = 'FCE';
+	public string $prefix = 'FCE';
 
 	/**
 	 * @var string model name
 	 */
-	public $name = 'Fornjot';
-
-	/**
-	 * @var string Error code (or message)
-	 */
-	public $error = '';
-
-	/**
-	 *  Returns the description of the numbering model
-	 *
-	 *  @return     string      Texte descripif
-	 */
-	public function info()
-	{
-		global $langs;
-		$langs->load("dolismq@dolismq");
-		return $langs->trans('StandardModel', $this->prefix);
-	}
-
-	/**
-	 *	Return if a module can be used or not
-	 *
-	 *	@return		boolean     true if module can be used
-	 */
-	public function isEnabled()
-	{
-		return true;
-	}
-
-	/**
-	 *  Return an example of numbering
-	 *
-	 *  @return string Example
-	 */
-	public function getExample(): string
-	{
-		return $this->prefix."0501-0001";
-	}
-
-	/**
-	 * Return next free value
-	 *
-	 * @param  Object    $object Object we need next value for
-	 * @return string            Value if KO, <0 if KO
-	 * @throws Exception
-	 */
-	public function getNextValue(object $object)
-	{
-		global $db, $conf;
-
-		// first we get the max value
-		$posindice = strlen($this->prefix) + 6;
-		$sql = "SELECT MAX(CAST(SUBSTRING(ref FROM ".$posindice.") AS SIGNED)) as max";
-		$sql .= " FROM ".MAIN_DB_PREFIX."dolismq_control_equipment";
-		$sql .= " WHERE ref LIKE '".$db->escape($this->prefix)."____-%'";
-		if ($object->ismultientitymanaged == 1) {
-			$sql .= " AND entity = ".$conf->entity;
-		}
-
-		$resql = $db->query($sql);
-		if ($resql) {
-			$obj = $db->fetch_object($resql);
-			if ($obj) {
-				$max = intval($obj->max);
-			} else {
-				$max = 0;
-			}
-		} else {
-			dol_syslog("mod_controlequipment_standard::getNextValue", LOG_DEBUG);
-			return -1;
-		}
-
-		//$date=time();
-		$date = !empty($object->date_creation) ? $object->date_creation : dol_now();
-		$yymm = strftime("%y%m", $date);
-
-		if ($max >= (pow(10, 4) - 1)) {
-			$num = $max + 1; // If counter > 9999, we do not format on 4 chars, we take number as it is
-		} else {
-			$num = sprintf("%04s", $max + 1);
-		}
-
-		dol_syslog("mod_controlequipment_standard::getNextValue return ".$this->prefix.$yymm."-".$num);
-		return $this->prefix.$yymm."-".$num;
-	}
-
-	/**
-	 *	Returns version of numbering module
-	 *
-	 *	@return     string      Valeur
-	 */
-	public function getVersion()
-	{
-		global $langs;
-		$langs->load('admin');
-
-		if ($this->version == 'development') return $langs->trans("VersionDevelopment");
-		if ($this->version == 'experimental') return $langs->trans("VersionExperimental");
-		if ($this->version == 'dolibarr') return DOL_VERSION;
-		if ($this->version) return $this->version;
-		return $langs->trans("NotAvailable");
-	}
+	public string $name = 'Fornjot';
 }
