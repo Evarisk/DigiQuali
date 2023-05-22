@@ -188,7 +188,7 @@ class Sheet extends SaturneObject
     /**
      * @var string|null Mandatory questions.
      */
-    public ?string $mandatory_questions;
+    public ?string $mandatory_questions = '';
 
     /**
      * @var int User ID.
