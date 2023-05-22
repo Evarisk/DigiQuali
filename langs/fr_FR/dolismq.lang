@@ -143,6 +143,9 @@ ComputerScience   = Informatique
 
 # Trigger - Déclencheur
 ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
+ObjectSetVerdictTrigger = Verdict défini sur %s
+ObjectAddQuestionTrigger = Question ajoutée
+AnswerSaveTrigger = Réponses sauvergardées
 
 # Data - Donnée
 Control = Contrôle

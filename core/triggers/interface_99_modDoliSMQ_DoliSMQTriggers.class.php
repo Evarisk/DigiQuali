@@ -195,6 +195,26 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'CONTROL_LOCKED' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_LOCKED';
 				$actioncomm->label = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)));
+				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
+				$actioncomm->create($user);
+				break;
+
+			case 'SHEET_ADDQUESTION':
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_ADDQUESTION';
+				$actioncomm->label = $langs->transnoentities('ObjectAddQuestionTrigger');
+				$actioncomm->create($user);
+				break;
+
+			case 'CONTROL_SAVEANSWER' :
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . 'SAVEANSWER';
+				$actioncomm->label = $langs->transnoentities('AnswerSaveTrigger');
+				$actioncomm->create($user);
+				break;
+
+			case 'CONTROL_VERDICT' :
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_VERDICT';
+				$actioncomm->label = $langs->transnoentities('ObjectSetVerdictTrigger', $object->fields['verdict']['arrayofkeyval'][$object->verdict]);
+				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
 				$actioncomm->create($user);
 				break;
 

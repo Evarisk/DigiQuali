@@ -290,7 +290,8 @@ if (empty($reshook)) {
 			}
 		}
 
-		setEventMessages($langs->trans('AnswerSaved'), array());
+		$object->call_trigger('CONTROL_SAVEANSWER', $user);
+		setEventMessages($langs->trans('AnswerSaved'), []);
 		header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 		exit;
 	}
@@ -396,6 +397,7 @@ if (empty($reshook)) {
 			$result = $object->update($user);
 			if ($result > 0) {
 				// Set verdict Control
+				$object->call_trigger('CONTROL_VERDICT', $user);
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header('Location: ' . $urltogo);
