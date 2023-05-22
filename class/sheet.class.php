@@ -186,9 +186,9 @@ class Sheet extends SaturneObject
     public string $element_linked = '';
 
     /**
-     * @var string|null Mandatory questions.
+     * @var string Mandatory questions.
      */
-    public ?string $mandatory_questions = '';
+    public ?string $mandatory_questions = '{}';
 
     /**
      * @var int User ID.
