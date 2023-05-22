@@ -669,7 +669,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
       print '</form>';
       print '</td>';
 
-			print '<td>';
 
       print '<td class="center">';
 			if (dol_strlen($item->photo_ok) > 0) {
@@ -719,6 +718,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td>';
 		print '<td>';
 		print ' &nbsp; <input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
+		print '</td>';
+		print '<td>';
 		print '</td>';
 		print '<td>';
 		print '</td>';
