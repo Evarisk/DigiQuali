@@ -195,7 +195,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
                                 $answerResult = $questionAnswerLine->answer;
 
                                 $question->fetch($questionAnswerLine->fk_question);
-                                $answerList = $answer->fetchAll('ASC', 'position', '', '', ['fk_question' => $questionAnswerLine->fk_question]);
+                                $answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $questionAnswerLine->fk_question]);
 
                                 $answersArray = [];
                                 if (is_array($answerList) && !empty($answerList)) {
