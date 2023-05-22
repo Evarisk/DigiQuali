@@ -848,7 +848,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	foreach($elementArray as $linkableElementType => $linkableElement) {
 		if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-			//FKProduct -- Produit
+            // Print objectLinked info
 			print '<tr><td class="titlefield">';
 			print $langs->trans($linkableElement['langs']);
 			print '</td>';
