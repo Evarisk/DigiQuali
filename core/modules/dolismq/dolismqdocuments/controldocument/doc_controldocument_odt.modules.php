@@ -261,21 +261,22 @@ class doc_controldocument_odt extends SaturneDocumentModel
             if ($foundTagForLines) {
                 if (!empty($object)) {
                     $controlEquipment  = new ControlEquipment($this->db);
-                    $productEquipment  = new Product($this->db);
-                    $equipmentsControl = $controlEquipment->fetchFromParent($object->id, 0, 'AND status != 0');
-                    if (is_array($equipmentsControl) && !empty ($equipmentsControl)) {
-                        foreach ($equipmentsControl as $equipmentControl) {
-                            $productEquipment->fetch($equipmentControl->fk_product);
-                            $jsonArray = json_decode($equipmentControl->json);
+                    $product           = new Product($this->db);
 
-                            $creationDate   = strtotime($productEquipment->date_creation);
+					$controlEquipments = $controlEquipment->fetchAll('', '', 0, 0, ['customsql' => 'status > 0']);
+                    if (is_array($controlEquipments) && !empty ($controlEquipments)) {
+                        foreach ($controlEquipments as $equipment) {
+                            $product->fetch($equipment->fk_product);
+                            $jsonArray = json_decode($equipment->json);
+
+                            $creationDate   = strtotime($product->date_creation);
                             $expirationDate = dol_time_plus_duree($creationDate, $jsonArray->lifetime, 'd');
                             $remainingDay   = convertSecondToTime($expirationDate - dol_now(), 'allwithouthour') ?: '- ' . convertSecondToTime(dol_now() - $expirationDate, 'allwithouthour');
 
-                            $tmpArray['ref_equipment']         = $equipmentControl->ref;
-                            $tmpArray['ref_product']           = $productEquipment->ref;
+                            $tmpArray['ref_equipment']         = $equipment->ref;
+                            $tmpArray['ref_product']           = $product->ref;
                             $tmpArray['equipment_label']       = $jsonArray->label;
-                            $tmpArray['equipment_description'] = $productEquipment->description;
+                            $tmpArray['equipment_description'] = $product->description;
                             $tmpArray['dluo']                  = dol_print_date($expirationDate, 'day');
                             $tmpArray['lifetime']              = $remainingDay;
                             $tmpArray['qc_frequency']          = $jsonArray->qc_frenquecy;
