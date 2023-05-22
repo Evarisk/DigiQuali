@@ -247,6 +247,47 @@ class doc_controldocument_odt extends SaturneDocumentModel
                 }
             }
 
+            // Get equipment.
+            $foundTagForLines = 1;
+            try {
+                $listLines = $odfHandler->setSegment('equipment');
+            } catch (OdfException $e) {
+                // We may arrive here if tags for lines not present into template.
+                $foundTagForLines = 0;
+                $listLines = '';
+                dol_syslog($e->getMessage());
+            }
+
+            if ($foundTagForLines) {
+                if (!empty($object)) {
+                    $controlEquipment  = new ControlEquipment($this->db);
+                    $productEquipment  = new Product($this->db);
+                    $equipmentsControl = $controlEquipment->fetchFromParent($object->id);
+                    if (is_array($equipmentsControl) && !empty ($equipmentsControl)) {
+                        foreach ($equipmentsControl as $equipmentControl) {
+                            if ($equipmentControl->status == 0) continue;
+                            $productEquipment->fetch($equipmentControl->fk_product);
+                            $jsonArray = json_decode($equipmentControl->json);
+
+                            $creationDate   = strtotime($productEquipment->date_creation);
+                            $expirationDate = dol_time_plus_duree($creationDate, $jsonArray->lifetime, 'd');
+                            $remainingDay   = convertSecondToTime($expirationDate - dol_now(), 'allwithouthour') ?: '- ' . convertSecondToTime(dol_now() - $expirationDate, 'allwithouthour');
+
+                            $tmpArray['ref_equipment']         = $equipmentControl->ref;
+                            $tmpArray['ref_product']           = $productEquipment->ref;
+                            $tmpArray['equipment_label']       = $jsonArray->label;
+                            $tmpArray['equipment_description'] = $productEquipment->description;
+                            $tmpArray['dluo']                  = dol_print_date($expirationDate, 'day');
+                            $tmpArray['lifetime']              = $remainingDay;
+                            $tmpArray['qc_frequency']          = $jsonArray->qc_frenquecy;
+
+                            $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
+                        }
+                        $odfHandler->mergeSegment($listLines);
+                    }
+                }
+            }
+
             // Get answer photos.
             $foundTagForLines = 1;
             try {
