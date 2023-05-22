@@ -40,6 +40,16 @@ $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldListSelect', $parameters, $object); // Note that $action and $object may have been modified by hook
 $sql .= preg_replace('/^,/', '', $hookmanager->resPrint);
 $sql = preg_replace('/,\s*$/', '', $sql);
+foreach($elementElementFields as $genericName => $elementElementName) {
+    if (GETPOST('search_' . $genericName) > 0 || $fromtype == $elementElementName) {
+        $id_tosearch = GETPOST('search' . $genericName) ?: $fromid;
+        $sql .= ',' .  $elementElementName . '.fk_source, ';
+    }
+}
+$sql = rtrim($sql, ', ');
+if (array_key_exists($sortfield, $elementElementFields) && !preg_match('/' . 'LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as ' . $elementElementFields[$sortfield] . '/', $sql)) {
+    $sql .= ',' .  $elementElementFields[$sortfield] . '.fk_source';
+}
 $sql .= " FROM ".MAIN_DB_PREFIX.$object->table_element." as t";
 if (!empty($conf->categorie->enabled)) {
 	$sql .= Categorie::getFilterJoinQuery('control', "t.rowid");
