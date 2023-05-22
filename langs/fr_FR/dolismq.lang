@@ -238,6 +238,8 @@ ObjectLinked = Objet lié(s)
 NextControlDate = Prochaine date de contrôle
 NextControl = Prochain contrôle
 QuestionMustBeAnswered = Vous devez encore répondre à %s question(s) obligatoire(s)
+NoControlAnswersPhoto = Pas de photos sur les réponses du contrôle
+
 
 #
 # ControlDet
