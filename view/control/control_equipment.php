@@ -100,7 +100,8 @@ if (empty($reshook)) {
 
 			$controlEquipment->json    = json_encode($jsonArray);
 
-			$result = $controlEquipment->insert($user);
+			$result = $controlEquipment->create($user);
+
 			if ($result > 0) {
 				setEventMessages($langs->trans('AddEquipmentLink') . ' ' . $controlEquipment->ref, []);
 			} else {
@@ -146,7 +147,7 @@ if ($id > 0 || !empty($ref)) {
 	saturne_banner_tab($object);
 
 	$excludeFilter     = '';
-	$controlEquipments = $controlEquipment->fetchFromParent($object->id, 0, 'AND status != 0');
+	$controlEquipments = $controlEquipment->fetchAll('', '', 0, 0, ['customsql' => 'status > 0']);
 	if (is_array($controlEquipments) && !empty ($controlEquipments)) {
 		foreach ($controlEquipments as $singleEquipment) {
 			$excludeFilter .= $singleEquipment->fk_product . ',';
