@@ -910,7 +910,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     $cantValidateControl = 0;
     $mandatoryArray      = json_decode($sheet->mandatory_questions, true);
 
-    if (!empty($sheet->mandatory_questions) && is_array($mandatoryArray)) {
+    if (is_array($mandatoryArray) && !empty($mandatoryArray) && is_array($questionIds) && !empty($questionIds)) {
         foreach ($questionIds as $questionId) {
             if (in_array($questionId, $mandatoryArray)) {
                 $controldettmp = $controldet;
