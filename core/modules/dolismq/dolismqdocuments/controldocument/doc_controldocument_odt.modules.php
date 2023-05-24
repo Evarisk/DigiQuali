@@ -264,7 +264,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
                     $controlEquipment  = new ControlEquipment($this->db);
                     $product           = new Product($this->db);
 
-					$controlEquipments = $controlEquipment->fetchAll('', '', 0, 0, ['customsql' => 'status > 0']);
+					$controlEquipments = $controlEquipment->fetchFromParent($object->id);
                     if (is_array($controlEquipments) && !empty ($controlEquipments)) {
                         foreach ($controlEquipments as $equipment) {
                             $product->fetch($equipment->fk_product);
@@ -272,14 +272,15 @@ class doc_controldocument_odt extends SaturneDocumentModel
 
                             $creationDate   = strtotime($product->date_creation);
                             $expirationDate = dol_time_plus_duree($creationDate, $jsonArray->lifetime, 'd');
-                            $remainingDay   = convertSecondToTime($expirationDate - dol_now(), 'allwithouthour') ?: '- ' . convertSecondToTime(dol_now() - $expirationDate, 'allwithouthour');
+                            $remainingDays  = num_between_day(dol_now(), $expirationDate, 1) ?: '- ' . num_between_day($expirationDate, dol_now(), 1);
+                            $remainingDays .= ' ' . strtolower(dol_substr($langs->trans("Day"), 0, 1)) . '.';
 
-                            $tmpArray['ref_equipment']         = $equipment->ref;
-                            $tmpArray['ref_product']           = $product->ref;
+                            $tmpArray['equipment_ref']         = $equipment->ref;
+                            $tmpArray['product_ref']           = $product->ref;
                             $tmpArray['equipment_label']       = $jsonArray->label;
-                            $tmpArray['equipment_description'] = $product->description;
+                            $tmpArray['equipment_description'] = $jsonArray->description;
                             $tmpArray['dluo']                  = dol_print_date($expirationDate, 'day');
-                            $tmpArray['lifetime']              = $remainingDay;
+                            $tmpArray['lifetime']              = $remainingDays;
                             $tmpArray['qc_frequency']          = $jsonArray->qc_frenquecy;
 
                             $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
