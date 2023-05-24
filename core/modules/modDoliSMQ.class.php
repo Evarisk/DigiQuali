@@ -520,6 +520,97 @@ class modDoliSMQ extends DolibarrModules
 			'target'   => '',
 			'user'     => 0,
 		];
+
+		$this->menu[$r++] = [
+			'fk_menu'  => 'fk_mainmenu=dolismq',
+			'type'     => 'left',
+			'titre'    => '<i class="fas fa-wrench pictofixedwidth" style="padding-right: 4px;"></i>' . $langs->transnoentities('Tools'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq_tools',
+			'url'      => '/dolismq/view/dolismqtools.php',
+			'langs'    => 'dolismq@dolismq',
+			'position' => 1000 + $r,
+			'enabled'  => '$conf->dolismq->enabled && $user->rights->dolismq->question->read',
+			'perms'    => '$user->rights->dolismq->question->write',
+			'target'   => '',
+			'user'     => 0,
+		];
+
+        // Exports profiles provided by DoliSMQ
+        $r = 0;
+
+        // Export questions
+        $this->export_code[$r] = $this->rights_class . '_question';
+        $this->export_label[$r] = 'Question'; // Translation key (used only if key ExportDataset_xxx_z not found)
+        $this->export_icon[$r] = 'fa-question';
+        $this->export_enabled[$r] = '!empty($conf->dolismq->enabled)';
+        $this->export_permission[$r] = [["dolismq", "question", "read"]];
+
+        $this->export_fields_array[$r] = [
+            "q.ref" => "QuestionRef", "q.label" => "Label", "q.description" => "Description", "q.date_creation" => "DateCreation", "q.tms" => "DateModification", "q.type" => "Type", "q.show_photo" => "ShowPhoto", "q.authorize_answer_photo" => "AuthorizeAnswerPhoto", "q.enter_comment" => "EnterComment", "q.photo_ok" => "PhotoOK", "q.photo_ko" => "PhotoKO", "q.status" => "Status", "q.fk_user_creat" => "UserAuthor", "q.fk_user_modif" => "UserModif",
+            "a.ref" => "AnswerRef", "a.value" => "Label", "a.color" => "Color", "a.pictogram" => "Pictogram"];
+
+        // Array of key=>type where type can be 'Numeric', 'Date', 'Text', 'Boolean', 'Status', 'List:xxx:login:rowid'
+        $this->export_TypeFields_array[$r] = [
+            "q.ref" => "Text", "q.label" => "Text", "q.description" => "Text", "q.date_creation" => "Date", "q.tms" => "Date", "q.type" => "Text", "q.show_photo" => "Boolean", "q.authorize_answer_photo" => "Boolean", "q.enter_comment" => "Boolean", "q.photo_ok" => "Text", "q.photo_ko" => "Text", "q.status" => "Numeric", "q.fk_user_creat" => "Numeric", "q.fk_user_modif" => "Numeric",
+            "a.ref" => "Text", "a.value" => "Text", "a.color" => "Text", "a.pictogram" => "Numeric"];
+
+        // We define here only fields that use another picto
+        $this->export_entities_array[$r] = [];
+
+        // Add multicompany field
+        if (!empty($conf->global->MULTICOMPANY_ENTITY_IN_EXPORT_IF_SHARED)) {
+            $nbofallowedentities = count(explode(',', getEntity('question')));
+            if (!empty($conf->multicompany->enabled) && $nbofallowedentities > 1) {
+                $this->export_fields_array[$r] += ["q.entity" => "Entity"];
+            }
+        }
+
+        $this->export_sql_start[$r] = 'SELECT DISTINCT ';
+        $this->export_sql_end[$r]   = ' FROM ' . MAIN_DB_PREFIX . 'dolismq_question as q';
+        $this->export_sql_end[$r]  .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'dolismq_answer as a ON a.fk_question = q.rowid';
+        $this->export_sql_end[$r]  .= ' WHERE q.entity IN (' . getEntity("question") . ')';
+        $this->export_sql_order[$r] = ' ORDER BY q.ref';
+
+        $r++;
+
+        // Export sheets
+        $this->export_code[$r] = $this->rights_class . '_sheet';
+        $this->export_label[$r] = 'Sheet'; // Translation key (used only if key ExportDataset_xxx_z not found)
+        $this->export_icon[$r] = 'fa-list';
+        $this->export_enabled[$r] = '!empty($conf->dolismq->enabled)';
+        $this->export_permission[$r] = [["dolismq", "sheet", "read"]];
+
+        $this->export_fields_array[$r] = [
+            "s.ref" => "Ref", "s.label" => "Label", "s.description" => "Description", "s.date_creation" => "DateCreation", "s.tms" => "DateModification", "s.status" => "Status", "s.element_linked" => "ElementLinked", "s.fk_user_creat" => "UserAuthor", "s.fk_user_modif" => "UserModif",
+            "q.ref" => "QuestionRef", "q.label" => "Label", "q.description" => "Description", "q.date_creation" => "DateCreation", "q.tms" => "DateModification", "q.type" => "Type", "q.show_photo" => "ShowPhoto", "q.authorize_answer_photo" => "AuthorizeAnswerPhoto", "q.enter_comment" => "EnterComment", "q.photo_ok" => "PhotoOK", "q.photo_ko" => "PhotoKO", "q.status" => "Status", "q.fk_user_creat" => "UserAuthor", "q.fk_user_modif" => "UserModif",
+            "a.ref" => "AnswerRef", "a.value" => "Label", "a.color" => "Color", "a.pictogram" => "Pictogram"];
+
+        // Array of key=>type where type can be 'Numeric', 'Date', 'Text', 'Boolean', 'Status', 'List:xxx:login:rowid'
+        $this->export_TypeFields_array[$r] = [
+            "s.ref" => "Text", "s.label" => "Text", "s.description" => "Text", "s.date_creation" => "Date", "s.tms" => "Date", "s.status" => "Numeric", "s.element_linked" => "Text", "s.fk_user_creat" => "Numeric",
+            "q.ref" => "Text", "q.label" => "Text", "q.description" => "Text", "q.date_creation" => "Date", "q.tms" => "Date", "q.type" => "Text", "q.show_photo" => "Boolean", "q.authorize_answer_photo" => "Boolean", "q.enter_comment" => "Boolean", "q.photo_ok" => "Text", "q.photo_ko" => "Text", "q.status" => "Numeric", "q.fk_user_creat" => "Numeric", "q.fk_user_modif" => "Numeric",
+            "a.ref" => "Text", "a.value" => "Text", "a.color" => "Text", "a.pictogram" => "Numeric"];
+
+        // We define here only fields that use another picto
+        $this->export_entities_array[$r] = [];
+
+        // Add multicompany field
+        if (!empty($conf->global->MULTICOMPANY_ENTITY_IN_EXPORT_IF_SHARED)) {
+            $nbofallowedentities = count(explode(',', getEntity('sheet')));
+            if (!empty($conf->multicompany->enabled) && $nbofallowedentities > 1) {
+                $this->export_fields_array[$r] += ["s.entity" => "Entity"];
+            }
+        }
+
+        $this->export_sql_start[$r] = 'SELECT DISTINCT ';
+        $this->export_sql_end[$r]   = ' FROM ' . MAIN_DB_PREFIX . 'element_element as e';
+        $this->export_sql_end[$r]  .= ' RIGHT JOIN ' . MAIN_DB_PREFIX . 'dolismq_sheet as s ON s.rowid = e.fk_source';
+        $this->export_sql_end[$r]  .= ' RIGHT JOIN ' . MAIN_DB_PREFIX . 'dolismq_question as q ON q.rowid = e.fk_target';
+        $this->export_sql_end[$r]  .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'dolismq_answer as a ON a.fk_question = q.rowid';
+        $this->export_sql_end[$r]  .= ' WHERE s.entity IN (' . getEntity("sheet") . ')';
+        $this->export_sql_end[$r]  .= ' AND e.sourcetype = "dolismq_sheet"';
+        $this->export_sql_order[$r] = ' ORDER BY s.ref';
 	}
 
 	/**
