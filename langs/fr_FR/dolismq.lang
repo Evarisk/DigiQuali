@@ -90,6 +90,9 @@ AnswerMustBeCreated           = La question doit avoir au moins une réponse
 # Sheet
 #
 
+# Trigger - Déclencheur
+SheetAddQuestionTrigger = Question ajoutée
+
 # Data - Donnée
 Sheet       = Fiche modèle
 Sheets      = fiches modèles
@@ -143,8 +146,7 @@ ComputerScience   = Informatique
 
 # Trigger - Déclencheur
 ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
-ObjectSetVerdictTrigger = Verdict défini sur %s
-ObjectAddQuestionTrigger = Question ajoutée
+ControlSetVerdictTrigger = Verdict défini sur %s
 AnswerSaveTrigger = Réponses sauvergardées
 
 # Data - Donnée

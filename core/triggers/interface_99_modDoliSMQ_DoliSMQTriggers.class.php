@@ -97,22 +97,30 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 		$now = dol_now();
 		$actioncomm = new ActionComm($this->db);
 
-		$actioncomm->elementtype = $object->element . '@dolismq';
-		$actioncomm->type_code   = 'AC_OTH_AUTO';
-		$actioncomm->datep       = $now;
-		$actioncomm->fk_element  = $object->id;
-		$actioncomm->userownerid = $user->id;
-		$actioncomm->percentage  = -1;
+		$actioncomm->elementtype  = $object->element . '@dolismq';
+		$actioncomm->type_code    = 'AC_OTH_AUTO';
+		$actioncomm->datep        = $now;
+		$actioncomm->fk_element   = $object->id;
+		$actioncomm->userownerid  = $user->id;
+		$actioncomm->percentage   = -1;
+        $actioncomm->note_private = '';
+
+        foreach ($object->fields as $key => $value) {
+            if ($key == 'rowid' || $key == 'fk_user_creat' || $key == 'fk_user_modif' || $key == 'import_key' || $key == 'ref_ext') {
+                continue;
+            }
+            if ($key == 'date_creation' || $key == 'tms') {
+                $actioncomm->note_private .= $langs->trans($value['label']) . ' : ' . dol_print_date($object->$key, 'dayhoursec', 'tzuser') . '</br>';
+            } else {
+                $actioncomm->note_private .= $langs->trans($value['label']) . ' : ' . $object->$key . '</br>';
+            }
+        }
 
 		switch ($action) {
 			case 'QUESTION_CREATE' :
 			case 'SHEET_CREATE' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
-				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)));
-				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
-				$actioncomm->note_private .= $langs->trans('Label') . ' : ' . $object->label . '</br>';
-				$actioncomm->note_private .= $langs->trans('Description') . ' : ' . $object->description . '</br>';
-				$actioncomm->note_private .= $langs->trans('DateCreation') . ' : ' . dol_print_date($now, 'dayhoursec', 'tzuser') . '<br>';
+				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
 				$actioncomm->create($user);
 				break;
 
@@ -120,10 +128,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				$actioncomm->elementtype = 'question@dolismq';
 				$actioncomm->fk_element  = $object->fk_question;
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
-				$actioncomm->label = $langs->trans('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)));
-				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
-				$actioncomm->note_private .= $langs->trans('Value') . ' : ' . $object->value . '</br>';
-				$actioncomm->note_private .= $langs->trans('DateCreation') . ' : ' . dol_print_date($now, 'dayhoursec', 'tzuser') . '<br>';
+				$actioncomm->label = $langs->trans('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
 				$actioncomm->create($user);
 				break;
 
@@ -147,30 +152,15 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
                 }
 
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
-				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)));
-				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
-				$actioncomm->note_private .= $langs->trans('DateCreation') . ' : ' . dol_print_date($now, 'dayhoursec', 'tzuser') . '<br>';
+				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
 				$actioncomm->create($user);
 				break;
 
 			case 'QUESTION_MODIFY' :
 			case 'SHEET_MODIFY' :
-				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_MODIFY';
-				$actioncomm->label = $langs->transnoentities('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element)));
-				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
-				$actioncomm->note_private .= $langs->trans('Label') . ' : ' . $object->label . '</br>';
-				$actioncomm->note_private .= $langs->trans('Description') . ' : ' . $object->description . '</br>';
-				$actioncomm->note_private .= $langs->trans('DateCreation') . ' : ' . dol_print_date($object->date_creation, 'dayhoursec', 'tzuser') . '<br>';
-				$actioncomm->note_private .= $langs->trans('DateModification') . ' : ' . dol_print_date($now, 'dayhoursec', 'tzuser') . '<br>';
-				$actioncomm->create($user);
-				break;
-
-			case 'CONTROL_MODIFY' :
-				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_MODIFY';
-				$actioncomm->label = $langs->transnoentities('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element)));
-				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
-				$actioncomm->note_private .= $langs->trans('DateCreation') . ' : ' . dol_print_date($object->date_creation, 'dayhoursec', 'tzuser') . '<br>';
-				$actioncomm->note_private .= $langs->trans('DateModification') . ' : ' . dol_print_date($now, 'dayhoursec', 'tzuser') . '<br>';
+            case 'CONTROL_MODIFY' :
+                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_MODIFY';
+				$actioncomm->label = $langs->transnoentities('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
 				$actioncomm->create($user);
 				break;
 
@@ -178,11 +168,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				$actioncomm->elementtype = 'question@dolismq';
 				$actioncomm->fk_element  = $object->fk_question;
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_MODIFY';
-				$actioncomm->label = $langs->trans('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element)));
-				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
-				$actioncomm->note_private .= $langs->trans('Value') . ' : ' . $object->value . '</br>';
-				$actioncomm->note_private .= $langs->trans('DateCreation') . ' : ' . dol_print_date($object->date_creation, 'dayhoursec', 'tzuser') . '<br>';
-				$actioncomm->note_private .= $langs->trans('DateModification') . ' : ' . dol_print_date($now, 'dayhoursec', 'tzuser') . '<br>';
+				$actioncomm->label = $langs->trans('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
 				$actioncomm->create($user);
 				break;
 
@@ -190,10 +176,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'SHEET_DELETE' :
 			case 'CONTROL_DELETE' :
 				$actioncomm->code  = 'AC_ ' . strtoupper($object->element) . '_DELETE';
-				$actioncomm->label = $langs->transnoentities('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element)));
-				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
-				$actioncomm->note_private .= $langs->trans('DateCreation') . ' : ' . dol_print_date($object->date_creation, 'dayhoursec', 'tzuser') . '<br>';
-				$actioncomm->note_private .= $langs->trans('DateModification') . ' : ' . dol_print_date($now, 'dayhoursec', 'tzuser') . '<br>';
+				$actioncomm->label = $langs->transnoentities('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
 				$actioncomm->create($user);
 				break;
 
@@ -201,11 +184,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				$actioncomm->elementtype = 'question@dolismq';
 				$actioncomm->fk_element  = $object->fk_question;
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_DELETE';
-				$actioncomm->label = $langs->trans('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element)));
-				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
-				$actioncomm->note_private .= $langs->trans('Value') . ' : ' . $object->value . '</br>';
-				$actioncomm->note_private .= $langs->trans('DateCreation') . ' : ' . dol_print_date($object->date_creation, 'dayhoursec', 'tzuser') . '<br>';
-				$actioncomm->note_private .= $langs->trans('DateModification') . ' : ' . dol_print_date($now, 'dayhoursec', 'tzuser') . '<br>';
+				$actioncomm->label = $langs->trans('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
 				$actioncomm->create($user);
 				break;
 
@@ -213,62 +192,53 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'SHEET_VALIDATE' :
 			case 'CONTROL_VALIDATE' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_VALIDATE';
-				$actioncomm->label = $langs->transnoentities('ObjectValidateTrigger', $langs->transnoentities(ucfirst($object->element)));
-				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
-				$actioncomm->note_private .= $langs->trans('DateCreation') . ' : ' . dol_print_date($object->date_creation, 'dayhoursec', 'tzuser') . '<br>';
-				$actioncomm->note_private .= $langs->trans('DateModification') . ' : ' . dol_print_date($now, 'dayhoursec', 'tzuser') . '<br>';
+				$actioncomm->label = $langs->transnoentities('ObjectValidateTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
 				$actioncomm->create($user);
 				break;
 
 			case 'CONTROL_UNVALIDATE' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_UNVALIDATE';
-				$actioncomm->label = $langs->transnoentities('ObjectUnValidateTrigger', $langs->transnoentities(ucfirst($object->element)));
-				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
-				$actioncomm->note_private .= $langs->trans('DateCreation') . ' : ' . dol_print_date($object->date_creation, 'dayhoursec', 'tzuser') . '<br>';
-				$actioncomm->note_private .= $langs->trans('DateModification') . ' : ' . dol_print_date($now, 'dayhoursec', 'tzuser') . '<br>';
+				$actioncomm->label = $langs->transnoentities('ObjectUnValidateTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
 				$actioncomm->create($user);
 				break;
 
-			case 'QUESTION_LOCKED' :
-			case 'SHEET_LOCKED' :
-			case 'CONTROL_LOCKED' :
-				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_LOCKED';
-				$actioncomm->label = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)));
-				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
-				$actioncomm->note_private .= $langs->trans('DateCreation') . ' : ' . dol_print_date($object->date_creation, 'dayhoursec', 'tzuser') . '<br>';
-				$actioncomm->note_private .= $langs->trans('DateModification') . ' : ' . dol_print_date($now, 'dayhoursec', 'tzuser') . '<br>';
+			case 'QUESTION_LOCK' :
+			case 'SHEET_LOCK' :
+			case 'CONTROL_LOCK' :
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_LOCK';
+				$actioncomm->label = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
 				$actioncomm->create($user);
 				break;
+
+            case 'QUESTION_ARCHIVE' :
+            case 'SHEET_ARCHIVE' :
+            case 'CONTROL_ARCHIVE' :
+                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_ARCHIVE';
+                $actioncomm->label = $langs->transnoentities('ObjectArchivedTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+                $actioncomm->create($user);
+                break;
 
 			case 'SHEET_ADDQUESTION':
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_ADDQUESTION';
 				$actioncomm->label = $langs->transnoentities('ObjectAddQuestionTrigger');
-				$actioncomm->note_private .= $langs->trans('DateCreation') . ' : ' . dol_print_date($object->date_creation, 'dayhoursec', 'tzuser') . '<br>';
-				$actioncomm->note_private .= $langs->trans('DateModification') . ' : ' . dol_print_date($now, 'dayhoursec', 'tzuser') . '<br>';
 				$actioncomm->create($user);
 				break;
 
 			case 'CONTROL_SAVEANSWER' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . 'SAVEANSWER';
 				$actioncomm->label = $langs->transnoentities('AnswerSaveTrigger');
-				$actioncomm->note_private .= $langs->trans('DateCreation') . ' : ' . dol_print_date($object->date_creation, 'dayhoursec', 'tzuser') . '<br>';
-				$actioncomm->note_private .= $langs->trans('DateModification') . ' : ' . dol_print_date($now, 'dayhoursec', 'tzuser') . '<br>';
 				$actioncomm->create($user);
 				break;
 
 			case 'CONTROL_VERDICT' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_VERDICT';
 				$actioncomm->label = $langs->transnoentities('ObjectSetVerdictTrigger', $object->fields['verdict']['arrayofkeyval'][$object->verdict]);
-				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
-				$actioncomm->note_private .= $langs->trans('DateCreation') . ' : ' . dol_print_date($object->date_creation, 'dayhoursec', 'tzuser') . '<br>';
-				$actioncomm->note_private .= $langs->trans('DateModification') . ' : ' . dol_print_date($now, 'dayhoursec', 'tzuser') . '<br>';
 				$actioncomm->create($user);
 				break;
 
 			case 'CONTROL_SENTBYMAIL' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_SENTBYMAIL';
-				$actioncomm->label = $langs->transnoentities('ObjectSentByMailTrigger', $langs->transnoentities(ucfirst($object->element)));
-				$actioncomm->note_private .= $langs->trans('Ref') . ' : ' . $object->ref . '</br>';
+				$actioncomm->label = $langs->transnoentities('ObjectSentByMailTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
 				$actioncomm->create($user);
 				break;
 		}
