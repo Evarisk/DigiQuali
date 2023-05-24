@@ -341,7 +341,7 @@ $totalarray = array();
 
 $revertedElementFields = array_flip($elementElementFields);
 
-$linkedObjects = saturne_fetch_all_links_for_object_type('', '','', 'dolismq_control');
+$linkedObjects = $object->fetchAllLinksForObjectType();
 
 while ($i < ($limit ? min($num, $limit) : $num))
 {
@@ -379,11 +379,21 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			elseif (in_array($key, $revertedElementFields)) {
 				$linkedElement = $linkNameElementCorrespondance[$elementElementFields[$key]];
 
-				if (!empty($linkedElement['conf']) && (!empty($object->linkedObjectsIds[$linkedElement['link_name']]))) {
-					$className = $linkedElement['className'];
+				if (is_array($linkedObjects[$obj->rowid]) && !empty($linkedElement['conf']) && (!empty($linkedObjects[$obj->rowid][$linkedElement['link_name']]))) {
+					$className    = $linkedElement['className'];
 					$linkedObject = new $className($db);
-					$result = $linkedObject->fetch(array_shift($object->linkedObjectsIds[$linkedElement['link_name']]));
+
+					$linkedObjectType = $linkedElement['link_name'];
+					$linkedObjectId   = $linkedObjects[$obj->rowid][$linkedElement['link_name']];
+
+					if (!is_object($alreadyFetchedObjects[$linkedObjectType][$linkedObjectId])) {
+						$result = $linkedObject->fetch($linkedObjectId);
+					} else {
+						$linkedObject = $alreadyFetchedObjects[$linkedObjectType][$linkedObjectId];
+						$result = $linkedObjects[$obj->rowid][$linkedElement['link_name']];
+					}
 					if ($result > 0) {
+						$alreadyFetchedObjects[$linkedObjectType][$linkedObjectId] = $linkedObject;
 						print $linkedObject->getNomUrl(1);
 					}
 				}
