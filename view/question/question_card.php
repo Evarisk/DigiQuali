@@ -517,16 +517,6 @@ if (empty($reshook)) {
 		$options['categories'] = GETPOST('clone_categories');
 		$result = $object->createFromClone($user, $object->id, $options);
 		if ($result > 0) {
-			$answersToClone = $answer->fetchAll('', '', 0 , 0, ['customsql' => 'fk_question = ' . $object->id]);
-			if (is_array($answersToClone) && !empty($answersToClone)) {
-				foreach ($answersToClone as $answerToClone) {
-					$answer->fk_question = $result;
-					$answer->value       = $answerToClone->value;
-					$answer->pictogram   = $answerToClone->pictogram;
-					$answer->color       = $answerToClone->color;
-					$answer->create($user);
-				}
-			}
 			header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $result);
 			exit;
 		} else {
