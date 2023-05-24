@@ -1264,7 +1264,7 @@ class ControlEquipment extends SaturneObject
 	public $module = 'dolismq';
 
 	/**
-	 * @var string ID to identify managed object
+	 * @var string element to identify managed object
 	 */
 	public $element = 'control_equipment';
 
@@ -1292,14 +1292,59 @@ class ControlEquipment extends SaturneObject
 		'fk_control'    => ['type' => 'integer', 'label' => 'FkControl', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0],
 	];
 
-	public $ref;
-	public $ref_ext;
-	public $entity;
-	public $date_creation;
-	public $tms;
-	public $status;
-	public $json;
+    /**
+     * @var int ID.
+     */
+    public int $rowid;
+
+    /**
+     * @var string Ref.
+     */
+    public $ref;
+
+    /**
+     * @var string Ref ext.
+     */
+    public $ref_ext;
+
+    /**
+     * @var int Entity.
+     */
+    public $entity;
+
+    /**
+     * @var int|string Creation date.
+     */
+    public $date_creation;
+
+    /**
+     * @var int|string Timestamp.
+     */
+    public $tms;
+
+    /**
+     * @var string Import key.
+     */
+    public $import_key;
+
+    /**
+     * @var int Status.
+     */
+    public $status;
+
+    /**
+     * @var string Json.
+     */
+    public $json;
+
+    /**
+     * @var int Fk_product.
+     */
 	public $fk_product;
+
+    /**
+     * @var int Fk_control.
+     */
 	public $fk_control;
 
 	/**
@@ -1325,5 +1370,17 @@ class ControlEquipment extends SaturneObject
 
 		return parent::create($user, $notrigger);
 	}
+
+    /**
+     *    Load control line from database and from parent
+     *
+     * @param  int       $control_id id of parent control equipment to fetch
+     * @param  int       $limit      limit of object to fetch
+     * @return array|int             <0 if KO, >0 if OK
+     */
+    public function fetchFromParent($control_id, $limit = 0)
+    {
+        return $this->fetchAll('', '', $limit, 0, ['customsql' => 'fk_control = ' . $control_id . ' AND status > 0']);
+    }
 
 }

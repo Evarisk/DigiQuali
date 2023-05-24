@@ -88,7 +88,7 @@ if (!$permissiontoread) accessforbidden();
  */
 
 $help_url = '';
-$title    = $langs->trans('ControlMedia');
+$title    = $langs->trans('Medias');
 
 saturne_header(0,'', $title, $help_url);
 
@@ -97,7 +97,7 @@ if ($id > 0 || !empty($ref)) {
 
 	$head = control_prepare_head($object);
 
-	print saturne_get_fiche_head($object, 'medias', $langs->trans('Medias'));
+	print saturne_get_fiche_head($object, 'medias', $title);
 
 	// Object card
 	// ------------------------------------------------------------

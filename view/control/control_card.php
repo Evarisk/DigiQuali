@@ -675,7 +675,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$equipmentOutdated = false;
 	if (!empty($conf->global->DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT)) {
 		$controlEquipment  = new ControlEquipment($db);
-		$controlEquipments = $controlEquipment->fetchAll('', '', 0, 0, ['customsql' => 'status > 0']);
+		$controlEquipments = $controlEquipment->fetchFromParent($object->id);
 		if (is_array($controlEquipments) && !empty ($controlEquipments)) {
 			foreach ($controlEquipments as $equipmentControl) {
 				$product->fetch($equipmentControl->fk_product);

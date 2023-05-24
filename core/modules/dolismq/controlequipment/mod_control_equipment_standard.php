@@ -31,7 +31,7 @@ require_once __DIR__ . '/../../../../../saturne/core/modules/saturne/modules_sat
 class mod_control_equipment_standard extends ModeleNumRefSaturne
 {
 	/**
-	 * @var string document prefix
+	 * @var string Numbering module ref prefix
 	 */
 	public string $prefix = 'FCE';
 

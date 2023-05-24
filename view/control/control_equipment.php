@@ -95,6 +95,7 @@ if (empty($reshook)) {
 			$controlEquipment->fk_control = $object->id;
 
             $jsonArray['label']        = $product->label;
+            $jsonArray['description']  = $product->description;
 			$jsonArray['lifetime']     = $product->lifetime;
 			$jsonArray['qc_frenquecy'] = $product->qc_frequency;
 
@@ -107,8 +108,6 @@ if (empty($reshook)) {
 			} else {
 				setEventMessages($langs->trans('ErrorEquipmentLink'), [], 'errors');
 			}
-			header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . $id);
-			exit;
 		} else {
 			setEventMessages($langs->trans('ErrorNoEquipmentSelected'), [], 'errors');
 		}
@@ -143,18 +142,18 @@ saturne_header(0,'', $title, $help_url);
 
 if ($id > 0 || !empty($ref)) {
 	// CONTROL EQUIPMENT LINES
-	print saturne_get_fiche_head($object, 'equipment', $langs->trans('Equipment'));
+	print saturne_get_fiche_head($object, 'equipment', $title);
 	saturne_banner_tab($object);
 
-	$excludeFilter     = '';
-	$controlEquipments = $controlEquipment->fetchAll('', '', 0, 0, ['customsql' => 'status > 0']);
+	$excludeFilter     = '0';
+	$controlEquipments = $controlEquipment->fetchFromParent($object->id);
 	if (is_array($controlEquipments) && !empty ($controlEquipments)) {
-		foreach ($controlEquipments as $singleEquipment) {
-			$excludeFilter .= $singleEquipment->fk_product . ',';
+		foreach ($controlEquipments as $equipment) {
+			$excludeFilter .= $equipment->fk_product . ',';
 		}
+        $excludeFilter = rtrim($excludeFilter, ',');
 	}
 
-	$excludeFilter = rtrim($excludeFilter, ',');
 	$products      = saturne_fetch_all_object_type('Product', '', '', 0, 0, ['customsql' => '`rowid` NOT IN (' . $excludeFilter . ')']);
 	$productsData  = [];
 	if (is_array($products) && !empty($products)) {
@@ -165,32 +164,29 @@ if ($id > 0 || !empty($ref)) {
 
 	print '<div class="div-table-responsive-no-min">';
 	print load_fiche_titre($langs->trans("ControlEquipmentList"), '', '');
-	print '<table id="tablelines" class="centpercent noborder noshadow">';
+	print '<table class="centpercent noborder">';
 
-	global $forceall, $forcetoshowtitlelines;
-
-	if (empty($forceall)) $forceall = 0;
 	// Lines
-	print '<thead><tr class="liste_titre">';
-	print '<td>' . $langs->trans('Ref') . '</td>';
-	print '<td>' . $langs->trans('ProductRef') . '</td>';
-	print '<td>' . $langs->trans('Label') . '</td>';
-	print '<td class="center">' . $langs->trans('OptimalExpirationDate');
-	print $form->textwithpicto('', $langs->trans('OptimalExpirationDateDescription')) . '</td>';
-	print '<td class="center">' . $langs->trans('RemainingDays') . '</td>';
-	print '<td class="center">' . $langs->trans('Action') . '</td>';
-	print '<td> </td>';
-	print '</tr></thead>';
+    if (is_array($controlEquipments) && !empty($controlEquipments)) {
+        print '<thead><tr class="liste_titre">';
+        print '<td>' . $langs->trans('Ref') . '</td>';
+        print '<td>' . $langs->trans('ProductRef') . '</td>';
+        print '<td>' . $langs->trans('Label') . '</td>';
+        print '<td class="center">' . $langs->trans('OptimalExpirationDate');
+        print $form->textwithpicto('', $langs->trans('OptimalExpirationDateDescription')) . '</td>';
+        print '<td class="center">' . $langs->trans('RemainingDays') . '</td>';
+        print '<td class="center">' . $langs->trans('Action') . '</td>';
+        print '<td> </td>';
+        print '</tr></thead>';
 
-	if (is_array($controlEquipments) && !empty($controlEquipments)) {
 		print '<tbody><tr>';
-		foreach ($controlEquipments as $singleEquipment) {
-			$product->fetch($singleEquipment->fk_product);
-			$jsonArray = json_decode($singleEquipment->json);
+		foreach ($controlEquipments as $equipment) {
+			$product->fetch($equipment->fk_product);
+			$jsonArray = json_decode($equipment->json);
 
 			print '<tr id="'. $product->id .'" class="line-row oddeven">';
 			print '<td>';
-			print $singleEquipment->ref;
+			print $equipment->ref;
 			print '</td>';
 
 			print '<td>';
@@ -208,8 +204,8 @@ if ($id > 0 || !empty($ref)) {
 			print '</td>';
 
 			print '<td class="center">';
-			$remainingDays = convertSecondToTime($expirationDate - dol_now(), 'allwithouthour')?: '- ' . convertSecondToTime(dol_now() - $expirationDate, 'allwithouthour');
-			$remainingDays == '- ' ? $remainingDays = 0 .' '.strtolower(dol_substr($langs->trans("Day"), 0, 1)).'. ' : '';
+            $remainingDays = num_between_day(dol_now(), $expirationDate, 1) ?: '- ' . num_between_day($expirationDate, dol_now(), 1);
+            $remainingDays .= ' ' . strtolower(dol_substr($langs->trans("Day"), 0, 1)) . '.';
 
 			if (empty($jsonArray->lifetime) || $expirationDate <= dol_now()) {
 				print '<span style="color:red">';
@@ -222,8 +218,8 @@ if ($id > 0 || !empty($ref)) {
 			print '</span> </td>';
 
 			print '<td class="center">';
-			if ($object->status != 2) {
-				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&action=unlink_equipment&equipmentId=' . $singleEquipment->id . '">';
+			if ($object->status < Control::STATUS_LOCKED) {
+				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&action=unlink_equipment&equipmentId=' . $equipment->id . '">';
 				print img_delete();
 				print '</a>';
 			}
@@ -233,15 +229,16 @@ if ($id > 0 || !empty($ref)) {
 			print '</tr>';
 		}
 		print '</tr></tbody>';
-	}
+	}  else {
+        print '<span class="opacitymedium">' . $langs->trans('NoEquipmentLinked') . '</span>';
+    }
 
-	if ($object->status != 2) {
-		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+	if ($object->status < Control::STATUS_LOCKED) {
+		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id='. $id . '">';
 		print '<input type="hidden" name="token" value="' . newToken() . '">';
 		print '<input type="hidden" name="action" value="add_equipment">';
-		print '<input type="hidden" name="id" value="' . $id . '">';
 		print '<tr><td>';
-		print img_object('', 'product') . ' ' . $form->selectarray('equipmentId', $productsData, '', $langs->transnoentities('SelectProducts'));
+		print img_object('', 'product') . ' ' . $form->selectarray('equipmentId', $productsData, '', $langs->transnoentities('SelectProducts'), '', '', '', '', '', '','', 'maxwidth500');
 		print '</td>';
 		print '<td>';
 		print '</td>';
@@ -252,7 +249,7 @@ if ($id > 0 || !empty($ref)) {
 		print '<td>';
 		print '</td>';
 		print '<td class="center">';
-		print '<input type="submit" id ="add_equipment" class="button" name="add_equipment" value="' . $langs->trans('Add') . '">';
+		print '<input type="submit" id="add_equipment" class="button" name="add_equipment" value="' . $langs->trans('Add') . '">';
 		print '</td>';
 		print '<td>';
 		print '</td>';

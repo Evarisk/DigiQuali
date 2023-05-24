@@ -249,6 +249,7 @@ ControlEquipmentOutdated = La DLUO/DDM d'un ou plusieurs moyens de contrôle est
 GoToEquipmentHours = Aller sur la page des moyens de contrôle
 ExpiredSince = Expiré depuis
 RemainingDays = Jours avant expiration
+NoEquipmentLinked = Aucun moyens de contrôle liés
 
 #
 # ControlDet
