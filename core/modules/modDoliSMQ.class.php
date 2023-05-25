@@ -548,53 +548,56 @@ class modDoliSMQ extends DolibarrModules
 			return -1;
 		} // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
 
-        if (getDolGlobalInt('DOLISMQ_QUESTION_BACKWARD_COMPATIBILITY') == 0) {
-            require_once __DIR__ . '/../../class/question.class.php';
-            require_once __DIR__ . '/../../class/answer.class.php';
-
-            $question  = new Question($this->db);
-            $answer    = new Answer($this->db);
-
-            $questions = $question->fetchAll('', '', 0, 0, ['customsql' => 't.type = "OkKoToFixNonApplicable"']);
-            if (is_array($questions) && !empty($questions)) {
-                foreach ($questions as $question) {
-                    $answer->fk_question = $question->id;
-                    $answer->value       = $langs->transnoentities('OK');
-                    $answer->pictogram   = 'check';
-                    $answer->color       = '#47e58e';
-
-                    $answer->create($user);
-
-                    $answer->fk_question = $question->id;
-                    $answer->value       = $langs->transnoentities('KO');
-                    $answer->pictogram   = 'times';
-                    $answer->color       = '#e05353';
-
-                    $answer->create($user);
-
-                    $answer->fk_question = $question->id;
-                    $answer->value       = $langs->transnoentities('ToFix');
-                    $answer->pictogram   = 'tools';
-                    $answer->color       = '#e9ad4f';
-
-                    $answer->create($user);
-
-                    $answer->fk_question = $question->id;
-                    $answer->value       = $langs->transnoentities('NonApplicable');
-                    $answer->pictogram   = 'N/A';
-                    $answer->color       = '#2b2b2b';
-
-                    $answer->create($user);
-                }
-            }
-
-            dolibarr_set_const($this->db, 'DOLISMQ_QUESTION_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
-        }
 
 		// Permissions
 		$this->remove($options);
 
-		return $this->_init($sql, $options);
+		$result = $this->_init($sql, $options);
+
+		if (getDolGlobalInt('DOLISMQ_QUESTION_BACKWARD_COMPATIBILITY') == 0) {
+			require_once __DIR__ . '/../../class/question.class.php';
+			require_once __DIR__ . '/../../class/answer.class.php';
+
+			$question  = new Question($this->db);
+			$answer    = new Answer($this->db);
+
+			$questions = $question->fetchAll('', '', 0, 0, ['customsql' => 't.type = "OkKoToFixNonApplicable"']);
+			if (is_array($questions) && !empty($questions)) {
+				foreach ($questions as $question) {
+					$answer->fk_question = $question->id;
+					$answer->value       = $langs->transnoentities('OK');
+					$answer->pictogram   = 'check';
+					$answer->color       = '#47e58e';
+
+					$answer->create($user);
+
+					$answer->fk_question = $question->id;
+					$answer->value       = $langs->transnoentities('KO');
+					$answer->pictogram   = 'times';
+					$answer->color       = '#e05353';
+
+					$answer->create($user);
+
+					$answer->fk_question = $question->id;
+					$answer->value       = $langs->transnoentities('ToFix');
+					$answer->pictogram   = 'tools';
+					$answer->color       = '#e9ad4f';
+
+					$answer->create($user);
+
+					$answer->fk_question = $question->id;
+					$answer->value       = $langs->transnoentities('NonApplicable');
+					$answer->pictogram   = 'N/A';
+					$answer->color       = '#2b2b2b';
+
+					$answer->create($user);
+				}
+			}
+
+			dolibarr_set_const($this->db, 'DOLISMQ_QUESTION_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
+		}
+		
+		 return $result;
 	}
 
 	/**
