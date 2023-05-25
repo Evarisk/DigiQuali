@@ -24,6 +24,9 @@
 // Put here all includes required by your class file
 require_once DOL_DOCUMENT_ROOT . '/core/class/commonobject.class.php';
 
+// Load Dolismq librairies.
+require_once __DIR__ . '/../core/modules/dolismq/answer/mod_answer_standard.php';
+
 /**
  * Class for Answer
  */
