@@ -46,6 +46,7 @@ global $conf, $db, $langs, $user;
 saturne_load_langs();
 
 $error          = 0;
+$now            = dol_now();
 $answer         = new Answer($db);
 $question       = new Question($db);
 $sheet          = new Sheet($db);
@@ -53,18 +54,23 @@ $refSheetMod    = new $conf->global->DOLISMQ_SHEET_ADDON($db);
 $refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($db);
 $refAnswerMod   = new $conf->global->DOLISMQ_ANSWER_ADDON($db);
 
-$upload_dir = $conf->dolismq->multidir_output[isset($conf->entity) ? $conf->entity : 1];
+$upload_dir     = $conf->dolismq->multidir_output[isset($conf->entity) ? $conf->entity : 1];
 
 // Security check
-$permissiontoread = $user->rights->dolismq->read;
+$permissionToReadQuestions   = $user->rights->dolismq->question->read;
+$permissionToReadSheets      = $user->rights->dolismq->question->read;
+$permissionToRead            = $permissionToReadQuestions && $permissionToReadSheets;
+$permissionToImportQuestions = $user->rights->dolismq->question->write;
+$permissionToImportSheets    = $user->rights->dolismq->sheet->write;
+$permissionToWrite           = $permissionToImportQuestions && $permissionToImportSheets;
 
-saturne_check_access($permissiontoread);
+saturne_check_access($permissionToRead);
 
 /*
  * Actions
  */
 
-if (GETPOST('dataMigrationExportSQA', 'alpha')) {
+if (GETPOST('dataMigrationExportSQA', 'alpha') && $permissionToRead) {
     //DoliSMQ sheets data
     $allSheets = $sheet->fetchAll();
     if (is_array($allSheets) && !empty($allSheets)) {
@@ -137,7 +143,7 @@ if (GETPOST('dataMigrationExportSQA', 'alpha')) {
     $dolismqExportArray = json_encode($dolismqExportArray, JSON_PRETTY_PRINT);
 
     $filedir = $upload_dir . '/temp/';
-    $export_base = $filedir . dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_sqa_export';
+    $export_base = $filedir . dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_sheet_question_answer_export';
     $filename = $export_base . '.json';
 
     file_put_contents($filename, $dolismqExportArray);
@@ -146,7 +152,7 @@ if (GETPOST('dataMigrationExportSQA', 'alpha')) {
     if ($zip->open($export_base . '.zip', ZipArchive::CREATE ) === TRUE) {
         $zip->addFile($filename, basename($filename));
         $zip->close();
-        $filenamezip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_sqa_export.zip';
+        $filenamezip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_sheet_question_answer_export.zip';
         $filepath = DOL_URL_ROOT . '/document.php?modulepart=dolismq&file=' . urlencode('temp/'.$filenamezip);
 
         ?>
@@ -162,7 +168,7 @@ if (GETPOST('dataMigrationExportSQA', 'alpha')) {
 }
 
 
-if (GETPOST('dataMigrationExportQA', 'alpha')) {
+if (GETPOST('dataMigrationExportQA', 'alpha') && $permissionToRead) {
     //DoliSMQ questions data
     $allQuestions = $question->fetchAll();
     if (is_array($allQuestions) && !empty($allQuestions)) {
@@ -208,7 +214,7 @@ if (GETPOST('dataMigrationExportQA', 'alpha')) {
     $dolismqExportArray = json_encode($dolismqExportArray, JSON_PRETTY_PRINT);
 
     $filedir = $upload_dir . '/temp/';
-    $export_base = $filedir . dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_qa_export';
+    $export_base = $filedir . dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_question_answer_export';
     $filename = $export_base . '.json';
 
     file_put_contents($filename, $dolismqExportArray);
@@ -217,7 +223,7 @@ if (GETPOST('dataMigrationExportQA', 'alpha')) {
     if ($zip->open($export_base . '.zip', ZipArchive::CREATE ) === TRUE) {
         $zip->addFile($filename, basename($filename));
         $zip->close();
-        $filenamezip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_qa_export.zip';
+        $filenamezip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_sheet_question_answer_export.zip';
         $filepath = DOL_URL_ROOT . '/document.php?modulepart=dolismq&file=' . urlencode('temp/'.$filenamezip);
 
         ?>
@@ -233,29 +239,33 @@ if (GETPOST('dataMigrationExportQA', 'alpha')) {
 }
 
 // Import JSON file
-if (GETPOST('dataMigrationImportJson', 'alpha')) {
+if (GETPOST('dataMigrationImportJson', 'alpha') && $permissionToWrite) {
     if (!empty($_FILES)) {
-        if (!preg_match('/qa_export.json/', $_FILES['dataMigrationImportJsonFile']['name'][0]) || $_FILES['dataMigrationImportJsonFile']['size'][0] < 1) {
-            setEventMessages($langs->trans('ErrorFileNotWellFormattedJSON'), null, 'errors');
+        if (!preg_match('/question_answer_export.zip/', $_FILES['dataMigrationImportJsonFile']['name'][0]) || $_FILES['dataMigrationImportJsonFile']['size'][0] < 1) {
+            setEventMessages($langs->trans('ErrorArchiveNotWellFormattedZIP'), [], 'errors');
         } else {
-            if (is_array($_FILES['dataMigrationImportJsonFile']['tmp_name'])) $userfiles = $_FILES['dataMigrationImportJsonFile']['tmp_name'];
-            else $userfiles                                                               = array($_FILES['dataMigrationImportJsonFile']['tmp_name']);
+            if (is_array($_FILES['dataMigrationImportJsonFile']['tmp_name'])) {
+                $userFiles = $_FILES['dataMigrationImportJsonFile']['tmp_name'];
+            } else {
+                $userFiles = array($_FILES['dataMigrationImportJsonFile']['tmp_name']);
+            }
 
-            foreach ($userfiles as $key => $userfile) {
+            foreach ($userFiles as $key => $userFile) {
                 if (empty($_FILES['dataMigrationImportJsonFile']['tmp_name'][$key])) {
                     $error++;
                     if ($_FILES['dataMigrationImportJsonFile']['error'][$key] == 1 || $_FILES['dataMigrationImportJsonFile']['error'][$key] == 2) {
-                        setEventMessages($langs->trans('ErrorFileSizeTooLarge'), null, 'errors');
+                        setEventMessages($langs->trans('ErrorFileSizeTooLarge'), [], 'errors');
                     } else {
-                        setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("File")), null, 'errors');
+                        setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("File")), [], 'errors');
                     }
                 }
             }
 
+            $result = 0;
             if (!$error) {
                 $filedir = $upload_dir . '/temp/';
-                if ( ! empty($filedir)) {
-                    $result = dol_add_file_process($filedir, 0, 1, 'dataMigrationImportJsonFile', '', null, '', 0, null);
+                if (!empty($filedir)) {
+                    $result = dol_add_file_process($filedir, 1, 1, 'dataMigrationImportJsonFile', '', null, '', 0);
                 }
             }
 
@@ -266,7 +276,7 @@ if (GETPOST('dataMigrationImportJson', 'alpha')) {
                     $zip->close();
                 }
             }
-            $filename = preg_replace( '/\.zip/', '.json', $_FILES['dataMigrationImportJsonFile']['name'][0]);
+            $filename = preg_replace('/\.zip/', '.json', $_FILES['dataMigrationImportJsonFile']['name'][0]);
 
             $json               = file_get_contents($filedir . $filename);
             $dolismqExportArray = json_decode($json, true);
@@ -277,8 +287,7 @@ if (GETPOST('dataMigrationImportJson', 'alpha')) {
                 foreach ($dolismqExportArray['sheets'] as $sheetSingle) {
                     $count++;
                     $sheet->ref            = $refSheetMod->getNextValue($sheet);
-                    $sheet->date_creation  = $sheetSingle['date_creation'];
-                    $sheet->tms            = $sheetSingle['date_modification'];
+                    $sheet->date_creation  = $now;
                     $sheet->label          = $sheetSingle['label'];
                     $sheet->description    = $sheetSingle['description'];
                     $sheet->element_linked = $sheetSingle['element_linked'];
@@ -302,16 +311,15 @@ if (GETPOST('dataMigrationImportJson', 'alpha')) {
                 foreach ($dolismqExportArray['questions'] as $questionSingle) {
                     $count++;
                     $question->ref                    = $refQuestionMod->getNextValue($question);
-                    $question->date_creation          = $questionSingle['date_creation'];
-                    $question->tms                    = $questionSingle['tms'];
+                    $question->date_creation          = $now;
                     $question->type                   = $questionSingle['type'];
                     $question->label                  = $questionSingle['label'];
                     $question->description            = $questionSingle['description'];
                     $question->show_photo             = $questionSingle['show_photo'];
                     $question->authorize_answer_photo = $questionSingle['authorize_answer_photo'];
                     $question->enter_comment          = $questionSingle['enter_comment'];
-                    $question->photo_ok               = $questionSingle['photo_ok'];
-                    $question->photo_ko               = $questionSingle['photo_ko'];
+                    $question->photo_ok               = '';
+                    $question->photo_ko               = '';
 
                     $questionId = $question->create($user);
 
@@ -337,8 +345,7 @@ if (GETPOST('dataMigrationImportJson', 'alpha')) {
                             foreach ($questionSingle['answers'] as $answerSingle) {
                                 $count++;
                                 $answer->ref                     = $refAnswerMod->getNextValue($answer);
-                                $answer->date_creation           = $answerSingle['date_creation'];
-                                $answer->tms                     = $answerSingle['date_modification'];
+                                $answer->date_creation           = $now;
                                 $answer->status                  = $answerSingle['status'];
                                 $answer->value                   = $answerSingle['value'];
                                 $answer->position                = $answerSingle['position'];
@@ -363,60 +370,6 @@ if (GETPOST('dataMigrationImportJson', 'alpha')) {
 	}
 }
 
-//
-//if (GETPOST('dataMigrationImportZip', 'alpha')) {
-//	if (!empty($_FILES)) {
-//		if (!preg_match('/.zip/', $_FILES['dataMigrationImportZipFile']['name'][0]) || $_FILES['dataMigrationImportZipFile']['size'][0] < 1) {
-//			setEventMessages($langs->transnoentitiesnoconv('ErrorArchiveNotWellFormattedZIP'), null, 'errors');
-//		} else {
-//			if (is_array($_FILES['dataMigrationImportZipFile']['tmp_name'])) $userfiles = $_FILES['dataMigrationImportZipFile']['tmp_name'];
-//			else $userfiles = array($_FILES['dataMigrationImportZipFile']['tmp_name']);
-//
-//			foreach ($userfiles as $key => $userfile) {
-//				if (empty($_FILES['dataMigrationImportZipFile']['tmp_name'][$key])) {
-//					$error++;
-//					if ($_FILES['dataMigrationImportZipFile']['error'][$key] == 1 || $_FILES['dataMigrationImportZipFile']['error'][$key] == 2) {
-//						setEventMessages($langs->trans('ErrorFileSizeTooLarge'), null, 'errors');
-//					} else {
-//						setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("File")), null, 'errors');
-//					}
-//				}
-//			}
-//
-//			if (!$error) {
-//				$filedir = $upload_dir . '/temp/';
-//				if (!empty($filedir)) {
-//					$result = dol_add_file_process($filedir, 0, 1, 'dataMigrationImportZipFile', '', null, '', 0, null);
-//				}
-//			}
-//
-//			$filename = $_FILES['dataMigrationImportZipFile']['name'][0];
-//
-//			$dirName = $_FILES['dataMigrationImportZipFile']['name'][0];
-//			$dirName = str_replace('.zip', '/', $dirName);
-//
-//			if ($result > 0) {
-//				$zip = new ZipArchive;
-//				if ($zip->open($filedir . $_FILES['dataMigrationImportZipFile']['name'][0]) === TRUE) {
-//					$zip->extractTo($filedir . $dirName);
-//					$zip->close();
-//				}
-//			}
-//
-//			/*$json                = file_get_contents($filedir . $filename);
-//			if ($json > 0) {
-//				$dolismqExportArray = json_decode($json, true);
-//				$dolismqExportArray = end($dolismqExportArray);
-//			}
-//
-//			$it = new RecursiveIteratorIterator(new RecursiveArrayIterator($dolismqExportArray['digiriskelements']['digiriskelements']));
-//			foreach ($it as $key => $v) {
-//				$element[$key][] = $v;
-//			}*/
-//		}
-//	}
-//}
-
 /*
  * View
  */
@@ -429,8 +382,6 @@ saturne_header(0,'', $title);
 print load_fiche_titre($langs->trans('Tools'), '', 'wrench');
 
 print load_fiche_titre($langs->trans("DataMigrationDoliSMQToFile"), '', '');
-
-//print '<span class="opacitymedium">'.$langs->trans("RequiredFormatStyle") . ' : </span>' . '<u> <a class="wordbreak" href="https://github.com/Eoxia/checklist/blob/master/README.md">' . $langs->trans('ConfigFormatGithub') . '</a> </u> </br> </br>';
 
 print '<form class="data-migration-export-global-from" name="dataMigrationExportGlobal" id="dataMigrationExportGlobal" action="' . $_SERVER["PHP_SELF"] . '" method="POST">';
 print '<input type="hidden" name="token" value="' . newToken() . '">';
@@ -493,17 +444,6 @@ print '<input type="submit" class="button reposition data-migration-submit" name
 print '</td>';
 print '</tr>';
 
-//print '<tr class="oddeven"><td>';
-//print $langs->trans('DataMigrationImportZIP');
-//print "</td><td>";
-//print $langs->trans('DataMigrationImportZIPDescription');
-//print '</td>';
-//
-//print '<td class="center data-migration-import-zip">';
-//print '<input class="flat" type="file" name="dataMigrationImportZipFile[]" id="data-migration-import-zip" />';
-//print '<input type="submit" class="button reposition data-migration-submit" name="dataMigrationImportZip" value="' . $langs->trans("Upload") . '">';
-//print '</td>';
-//print '</tr>';
 print '</form>';
 
 // Page end

@@ -270,20 +270,15 @@ controldocument_photo = fiche de contrôle avec photos
 #
 
 # Data - Donnée
-DataMigrationDoliSMQToFile = Migration des données de DoliSMQ vers un fichier
+DataMigrationDoliSMQToFile = Migration des données de DoliSMQ
 DataMigrationExportSQA = Exportation Fiche/Question/Réponse vers JSON
-DataMigrationExportSQADescription = Exportation des données des fiches modèles, questions et réponses en fichier JSON
+DataMigrationExportSQADescription = Export des données des fiches modèles, questions et réponses en fichier JSON
 DataMigrationExportQA = Exportation Question/Réponse vers JSON
 DataMigrationExportQADescription = Exportation des données des questions et réponses en fichier JSON
-DataMigrationFileToDolibarr = Migration des données d'un fichier vers Dolibarr
+DataMigrationFileToDolibarr = Migration des données d'un fichier
 DataMigrationImportJSON = Importation fichier JSON vers Dolibarr
-DataMigrationImportJSONDescription = Importation des données des fiches modèle, des questions et des réponses d'un fichier JSON
-DataMigrationImportZIP = Importation d'une archive ZIP vers Dolibarr
-DataMigrationImportZIPDescription = Importation en masse des données des questions et fiches modèle aux différents formats (TXT, JSON, CSV)
-RequiredFormatStyle = Le format à avoir pour les fichiers est disponible sur la page Github suivante
-ConfigFormatGithub = Page du format des fichiers d'importation
+DataMigrationImportJSONDescription = Import des données des fiches modèles, des questions et des réponses d'un fichier JSON
 ErrorArchiveNotWellFormattedZIP = L'archive n'est pas pris en charge ou est vide. Vous devez joindre un archive d'import au format .zip
-ErrorFileNotWellFormattedJSON = Le fichier n'est pas au bon format ou est vide. Vous devez joindre un fichier d'import au format .json
 ImportFinishWith = L'import des %s a été terminé avec %s erreur(s) sur %s importation(s)
 
 #
