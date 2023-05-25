@@ -105,14 +105,16 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 		$actioncomm->percentage   = -1;
         $actioncomm->note_private = '';
 
-        foreach ($object->fields as $key => $value) {
-            if ($key == 'rowid' || $key == 'fk_user_creat' || $key == 'fk_user_modif' || $key == 'import_key' || $key == 'ref_ext') {
-                continue;
-            }
-            if ($key == 'date_creation' || $key == 'tms') {
-                $actioncomm->note_private .= $langs->trans($value['label']) . ' : ' . dol_print_date($object->$key, 'dayhoursec', 'tzuser') . '</br>';
-            } else {
-                $actioncomm->note_private .= $langs->trans($value['label']) . ' : ' . $object->$key . '</br>';
+        if ($conf->global->DOLISMQ_ADVANCED_TRIGGER) {
+            foreach ($object->fields as $key => $value) {
+                if ($key == 'rowid' || $key == 'fk_user_creat' || $key == 'fk_user_modif' || $key == 'import_key' || $key == 'ref_ext') {
+                    continue;
+                }
+                if ($key == 'date_creation' || $key == 'tms') {
+                    $actioncomm->note_private .= $langs->trans($value['label']) . ' : ' . dol_print_date($object->$key, 'dayhoursec', 'tzuser') . '</br>';
+                } else {
+                    $actioncomm->note_private .= $langs->trans($value['label']) . ' : ' . $object->$key . '</br>';
+                }
             }
         }
 
