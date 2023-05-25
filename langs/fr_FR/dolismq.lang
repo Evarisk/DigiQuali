@@ -254,10 +254,10 @@ ControlDocumentsMin = fiches de contôle
 ControlDocumentName = Afficher les médias dans la fiche de contrôle
 ControlDocumentDescription = Afficher les médias des questions dans la fiche de contrôle du document ODT
 ControlDocumentSentByMailTrigger = Email fiche de contrôle envoyée
-controldocument = fiche de contrôle
+controldocument = fiche de controle
 controldocument.odt = Fiche de Contrôle
 controldocument_photo.odt = Fiche de Contrôle avec photos
-controldocument_photo = fiche de contrôle avec photos
+controldocument_photo = fiche de controle avec photos
 
 #
 # Other
