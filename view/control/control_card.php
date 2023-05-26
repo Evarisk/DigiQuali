@@ -95,13 +95,10 @@ $question         = new Question($db);
 $answer           = new Answer($db);
 $usertmp          = new User($db);
 $product          = new Product($db);
-$productLinked    = new Product($db);
 $project          = new Project($db);
-$projectLinked    = new Project($db);
 $task             = new Task($db);
 $thirdparty       = new Societe($db);
 $contact          = new Contact($db);
-$societeLinked    = new Societe($db);
 $productlot       = new Productlot($db);
 $invoice          = new Facture($db);
 $order            = new Commande($db);
@@ -832,34 +829,50 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
     $qcFrequencyArray = [];
-    $objectInfoArray = [
-        'product'      => ['title' => 'ProductOrService'],
-        'user'         => ['title' => 'User'],
-        'societe'      => ['title' => 'ThirdParty'],
-        'contact'      => ['title' => 'Contact'],
-        'project'      => ['title' => 'Project'],
-        'project_task' => ['title' => 'Task'],
-        'facture'      => ['title' => 'Bill'],
-        'commande'     => ['title' => 'Order'],
-        'contrat'      => ['title' => 'Contract'],
-        'ticket'       => ['title' => 'Ticket'],
-    ];
+	$linkedObjects    = [];
+
 	$object->fetchObjectLinked('', '', '', 'dolismq_control');
 
 	foreach($elementArray as $linkableElementType => $linkableElement) {
 		if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-			//FKProduct -- Produit
+			$className = $linkableElement['className'];
+			$linkedObject = new $className($db);
+
+			$linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
+			$linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
+
+			$result = $linkedObject->fetch($linkedObjectId);
+			if ($result > 0) {
+				$linkedObjects[$linkableElementType] = $linkedObject;
+				if (array_key_exists('options_qc_frequency', $linkedObject->array_options)) {
+					if ($linkedObject->array_options['options_qc_frequency'] > 0) {
+						$qcFrequencyArray[$linkableElementType] = $linkedObject->array_options['options_qc_frequency'];
+					}
+				}
+			}
+		}
+	}
+
+	foreach($elementArray as $linkableElementType => $linkableElement) {
+		if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
+
 			print '<tr><td class="titlefield">';
 			print $langs->trans($linkableElement['langs']);
 			print '</td>';
 			print '<td>';
 
-			$className = $linkableElement['className'];
-			$linkedObject = new $className($db);
-			$result = $linkedObject->fetch(array_shift($object->linkedObjectsIds[$linkableElement['link_name']]));
-			if ($result > 0) {
-				print $linkedObject->getNomUrl(1);
+			$currentObject    = $linkedObjects[$linkableElementType];
+			$isMinQcFrequency = $linkableElementType == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0];
+
+			print $currentObject->getNomUrl(1);
+
+			if ($qcFrequencyArray[$linkableElementType] > 0) {
+				print ' - ';
+				print $isMinQcFrequency ? '<strong>' : '';
+				print $langs->transnoentities('QcFrequency') . ' : ' . $qcFrequencyArray[$linkableElementType];
+				print $isMinQcFrequency ? '</strong>' : '';
 			}
+
 			print '<td></tr>';
 		}
 	}
