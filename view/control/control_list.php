@@ -305,7 +305,7 @@ if ($fromid) {
 
 	if (is_array($controls) && !empty($controls)) {
 		foreach ($controls as $control) {
-			$control->fetchObjectLinked('','', $control->id, 'dolismq_' . $control->element);
+			$control->fetchObjectLinked('','', $control->id, 'dolismq_' . $control->element, 'OR', 1, 'sourcetype', 0);
 			if (!empty($control->linkedObjectsIds)) {
 				if (array_key_exists($fromtype, $control->linkedObjectsIds)) {
 					$linkedObjectsIds = array_values($control->linkedObjectsIds[$fromtype]);
