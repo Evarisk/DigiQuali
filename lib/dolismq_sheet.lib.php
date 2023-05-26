@@ -241,7 +241,7 @@ function get_sheet_linkable_objects(): array
 				$confCode = 'DOLISMQ_SHEET_LINK_' . strtoupper($linkableObjectType);
 				$linkableObjects[$linkableObjectType] = [
 					'code'          => $confCode,
-					'conf'          => $conf->global->$confCode,
+					'conf'          => getDolGlobalString($confCode),
 					'name'          => 'Link' . ucfirst($linkableObjectType),
 					'description'   => 'Link' . ucfirst($linkableObjectType) . 'Description',
 					'langs'         => $linkableObjectInformations['langs'],
@@ -250,10 +250,10 @@ function get_sheet_linkable_objects(): array
 					'name_field'    => $linkableObjectInformations['name_field'],
 					'post_name'     => $linkableObjectInformations['post_name'],
 					'link_name'     => $linkableObjectInformations['link_name'],
-					'fk_parent'     => $linkableObjectInformations['fk_parent'],
-					'parent_post'   => $linkableObjectInformations['parent_post'],
-					'create_url'    => $linkableObjectInformations['create_url'],
-					'class_path'    => $linkableObjectInformations['class_path'],
+					'fk_parent'     => ($linkableObjectInformations['fk_parent'] ?? ''),
+					'parent_post'   => ($linkableObjectInformations['parent_post'] ?? ''),
+					'create_url'    => ($linkableObjectInformations['create_url'] ?? ''),
+					'class_path'    => ($linkableObjectInformations['class_path'] ?? ''),
 				];
 			}
 		}
