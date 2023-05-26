@@ -40,7 +40,7 @@ function sheet_prepare_head(Sheet $object): array
  * Get list of objects which can be linked to a sheet
  *
  * @param  CommonObject $object Object
- * @return array                Array of tabs
+ * @return array                Array of sheet linkable objects
  * @throws Exception
  */
 function get_sheet_linkable_objects(): array
@@ -62,6 +62,19 @@ function get_sheet_linkable_objects(): array
 	require_once DOL_DOCUMENT_ROOT . '/ticket/class/ticket.class.php';
 
 	require_once __DIR__ . '/../../saturne/class/task/saturnetask.class.php';
+
+	//To add an object :
+
+	//	'langs'         => Object translation
+	//	'picto'         => Object picto for img_picto() function (equals $this->picto)
+	//	'className'     => Class name
+	//	'name_field'    => Object name to be shown (ref, label, firstname, etc.)
+	//	'post_name'     => Name of post sent retrieved by GETPOST() function
+	//	'link_name'     => Name of object sourcetype in llx_element_element
+	//	'fk_parent'     => OPTIONAL : Name of parent for objects as productlot, contact, task
+	//	'parent_post'   => OPTIONAL : Name of parent post (retrieved by GETPOST() function, it can be different from fk_parent
+	//	'create_url'    => Path to creation card, no need to add "?action=create"
+	//	'class_path'    => Path to object class
 
 	$linkableObjectTypes = [];
 
