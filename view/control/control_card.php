@@ -835,7 +835,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	foreach($elementArray as $linkableElementType => $linkableElement) {
 		if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-			$className = $linkableElement['className'];
+			$className    = $linkableElement['className'];
 			$linkedObject = new $className($db);
 
 			$linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
