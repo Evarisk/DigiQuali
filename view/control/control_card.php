@@ -656,7 +656,7 @@ if ($action == 'create') {
 
 	print dol_get_fiche_end();
 
-	print $form->buttonsSaveCancel('Create');
+	print $form->buttonsSaveCancel('Create', 'Cancel', [], 0, 'wpeo-button');
 
 	print '</form>';
 }
