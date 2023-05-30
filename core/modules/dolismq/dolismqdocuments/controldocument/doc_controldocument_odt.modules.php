@@ -37,6 +37,7 @@ require_once __DIR__ . '/../../../../../../saturne/core/modules/saturne/modules_
 
 // Load DoliSMQ libraries.
 require_once __DIR__ . '/mod_controldocument_standard.php';
+require_once __DIR__ . '/../../../../../lib/dolismq_sheet.lib.php';
 
 require_once __DIR__ . '/../../../../../class/question.class.php';
 require_once __DIR__ . '/../../../../../class/sheet.class.php';
