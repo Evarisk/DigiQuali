@@ -530,11 +530,17 @@ if (empty($reshook)) {
 		$answerColor = GETPOST('answerColor');
 		$answerPicto = GETPOST('answerPicto');
 
+        if (dol_strlen($answerPicto) > 0 && is_numeric($answerPicto)) {
+            $pictosArray = get_answer_pictos_array();
+            $pictosArray = array_keys($pictosArray);
+            $answerPicto = $pictosArray[$answerPicto];
+        }
+
 		if (empty($answerValue)) {
 			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
 			$urltogo = str_replace('__ID__', $result, $backtopage);
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
-			header('Location: ' . $urltogo . '&answerValue='. $answerValue .'&answerPicto='. $answerPicto .'#answerList');
+			header('Location: ' . $urltogo .'&answerPicto='. $answerPicto .'#answerList');
 			exit;
 		} else {
 			$answer->value = $answerValue;
@@ -561,6 +567,12 @@ if (empty($reshook)) {
 		$answerColor = GETPOST('answerColor');
 		$answerPicto = GETPOST('answerPicto');
 		$answerId    = GETPOST('answerId');
+
+        if (dol_strlen($answerPicto) > 0 && is_numeric($answerPicto)) {
+            $pictosArray = get_answer_pictos_array();
+            $pictosArray = array_keys($pictosArray);
+            $answerPicto = $pictosArray[$answerPicto];
+        }
 
 		$answer->fetch($answerId);
 		if (empty($answerValue)) {
