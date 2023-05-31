@@ -259,7 +259,7 @@ class ActionsDolismq
 						$out .= '<tr class="oddeven"><td colspan="2" class="opacitymedium">'.$langs->trans("ThisCategoryHasNoItems").'</td></tr>';
 					}
 				}
-				
+
 				$out .= '</table>';
 			} ?>
 
@@ -406,8 +406,9 @@ class ActionsDolismq
                 ]
             ];
             $this->results = $constArray;
+            return 1;
         }
 
-        return 1; // or return 1 to replace standard code.
+        return 0; // or return 1 to replace standard code.
     }
 }
