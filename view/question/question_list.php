@@ -256,7 +256,7 @@ $title    = $langs->trans('ListOf', $langs->transnoentitiesnoconv("Questions"));
 
 // Build and execute select
 // --------------------------------------------------------------------
-$sql = 'SELECT ';
+$sql = 'SELECT DISTINCT ';
 foreach ($object->fields as $key => $val) {
 	$sql .= 't.'.$key.', ';
 }
