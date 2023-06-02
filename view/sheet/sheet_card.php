@@ -400,7 +400,7 @@ if ($action == 'create') {
 	print dol_get_fiche_end();
 
 	print '<div class="center">';
-	print '<input type="submit" class="button" name="add" value="'.dol_escape_htmltag($langs->trans("Create")).'">';
+	print '<input type="submit" class="button wpeo-button" name="add" value="'.dol_escape_htmltag($langs->trans("Create")).'">';
 	print '&nbsp; ';
 	print '<input type="'.($backtopage ? "submit" : "button").'" class="button button-cancel" name="cancel" value="'.dol_escape_htmltag($langs->trans("Cancel")).'"'.($backtopage ? '' : ' onclick="javascript:history.go(-1)"').'>'; // Cancel for create does not post form if we don't know the backtopage
 	print '</div>';
@@ -478,7 +478,7 @@ if (($id || $ref) && $action == 'edit') {
 
 	print dol_get_fiche_end();
 
-	print '<div class="center"><input type="submit" class="button button-save" name="save" value="'.$langs->trans("Save").'">';
+	print '<div class="center"><input type="submit" class="button button-save wpeo-button" name="save" value="'.$langs->trans("Save").'">';
 	print ' &nbsp; <input type="submit" class="button button-cancel" name="cancel" value="'.$langs->trans("Cancel").'">';
 	print '</div>';
 
@@ -719,7 +719,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print $question->selectQuestionList(0, 'questionId', 's.status = ' . Question::STATUS_LOCKED, '1', 0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds);
 		print '</td>';
 		print '<td>';
-		print ' &nbsp; <input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
+		print ' &nbsp; <input type="submit" id="actionButtonAdd" class="button wpeo-button" name="add" value="' . $langs->trans("Add") . '">';
 		print '</td>';
 		print '<td>';
 		print '</td>';
