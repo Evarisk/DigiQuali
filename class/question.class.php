@@ -517,6 +517,7 @@ class Question extends CommonObject
 		require_once __DIR__ . '/../core/modules/dolismq/question/mod_question_standard.php';
 
 		$object = new self($this->db);
+        $answer = new Answer($this->db);
 
 		$this->db->begin();
 
@@ -605,6 +606,14 @@ class Question extends CommonObject
 					}
 				}
 			}
+
+            $answersToClone = $answer->fetchAll('', '', 0 , 0, ['customsql' => 'fk_question = ' . $fromid]);
+            if (is_array($answersToClone) && !empty($answersToClone)) {
+                foreach ($answersToClone as $answerToClone) {
+                    $answerToClone->fk_question = $result;
+                    $answerToClone->create($user);
+                }
+            }
 		} else {
 			$error++;
 			$this->error  = $object->error;
