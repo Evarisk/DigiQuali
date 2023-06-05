@@ -606,6 +606,14 @@ class Question extends CommonObject
 					}
 				}
 			}
+
+            $answersToClone = $answer->fetchAll('', '', 0 , 0, ['customsql' => 'fk_question = ' . $fromid]);
+            if (is_array($answersToClone) && !empty($answersToClone)) {
+                foreach ($answersToClone as $answerToClone) {
+                    $answerToClone->fk_question = $result;
+                    $answerToClone->create($user);
+                }
+            }
 		} else {
 			$error++;
 			$this->error  = $object->error;
@@ -617,15 +625,6 @@ class Question extends CommonObject
 		// End
 		if (!$error) {
 			$this->db->commit();
-
-            $answersToClone = $answer->fetchAll('', '', 0 , 0, ['customsql' => 'fk_question = ' . $fromid]);
-            if (is_array($answersToClone) && !empty($answersToClone)) {
-                foreach ($answersToClone as $answerToClone) {
-                    $answerToClone->fk_question = $result;
-                    $answerToClone->create($user);
-                }
-            }
-
 			return $result;
 		} else {
 			$this->db->rollback();
