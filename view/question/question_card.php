@@ -345,6 +345,9 @@ if (empty($reshook)) {
 
 	// Action to update record
 	if ($action == 'update' && !empty($permissiontoadd)) {
+
+		$previousType = $object->type;
+
 		foreach ($object->fields as $key => $val) {
 			// Check if field was submited to be edited
 			if ($object->fields[$key]['type'] == 'duration') {
@@ -464,7 +467,53 @@ if (empty($reshook)) {
 					$object->$type = '';
 				}
 			}
-			$object->update($user);
+			$result = $object->update($user);
+
+			$newType = $object->type;
+
+			if ($result > 0) {
+				if ($newType != $previousType && $newType != 'MultipleChoices' && $newType != 'UniqueChoice') {
+					$answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $result]);
+
+					if (is_array($answerList) && !empty($answerList)) {
+						foreach($answerList as $linkedAnswer) {
+							$linkedAnswer->delete($user, true, false);
+						}
+					}
+				}
+
+				if ($object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
+					$answer->fk_question = $result;
+					$answer->value       = $langs->transnoentities('OK');
+					$answer->pictogram   = 'check';
+					$answer->color       = '#47e58e';
+
+					$answer->create($user);
+
+					$answer->fk_question = $result;
+					$answer->value       = $langs->transnoentities('KO');
+					$answer->pictogram   = 'times';
+					$answer->color       = '#e05353';
+
+					$answer->create($user);
+				}
+
+				if ($object->type == 'OkKoToFixNonApplicable') {
+					$answer->fk_question = $result;
+					$answer->value = $langs->transnoentities('ToFix');
+					$answer->pictogram = 'tools';
+					$answer->color = '#e9ad4f';
+
+					$answer->create($user);
+
+					$answer->fk_question = $result;
+					$answer->value = $langs->transnoentities('NonApplicable');
+					$answer->pictogram = 'N/A';
+					$answer->color = '#2b2b2b';
+
+					$answer->create($user);
+				}
+			}
 
 			$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
