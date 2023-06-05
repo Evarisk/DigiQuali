@@ -828,52 +828,37 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</tr>';
 	}
 
-    $qcFrequencyArray = [];
 	$linkedObjects    = [];
 
 	$object->fetchObjectLinked('', '', '', 'dolismq_control');
 
 	foreach($elementArray as $linkableElementType => $linkableElement) {
 		if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-			$className = $linkableElement['className'];
+			$className    = $linkableElement['className'];
 			$linkedObject = new $className($db);
 
 			$linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
 			$linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
 
 			$result = $linkedObject->fetch($linkedObjectId);
+
 			if ($result > 0) {
-				$linkedObjects[$linkableElementType] = $linkedObject;
-				if (array_key_exists('options_qc_frequency', $linkedObject->array_options)) {
-					if ($linkedObject->array_options['options_qc_frequency'] > 0) {
-						$qcFrequencyArray[$linkableElementType] = $linkedObject->array_options['options_qc_frequency'];
-					}
+				print '<tr><td class="titlefield">';
+				print $langs->trans($linkableElement['langs']);
+				print '</td>';
+				print '<td>';
+
+				print $linkedObject->getNomUrl(1);
+
+				if ($linkedObject->array_options['options_qc_frequency'] > 0) {
+					print ' ';
+					print '<strong>';
+					print $langs->transnoentities('QcFrequency') . ' : ' . $linkedObject->array_options['options_qc_frequency'];
+					print '</strong>';
 				}
+
+				print '<td></tr>';
 			}
-		}
-	}
-
-	foreach($elementArray as $linkableElementType => $linkableElement) {
-		if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-
-			print '<tr><td class="titlefield">';
-			print $langs->trans($linkableElement['langs']);
-			print '</td>';
-			print '<td>';
-
-			$currentObject    = $linkedObjects[$linkableElementType];
-			$isMinQcFrequency = $linkableElementType == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0];
-
-			print $currentObject->getNomUrl(1);
-
-			if ($qcFrequencyArray[$linkableElementType] > 0) {
-				print ' - ';
-				print $isMinQcFrequency ? '<strong>' : '';
-				print $langs->transnoentities('QcFrequency') . ' : ' . $qcFrequencyArray[$linkableElementType];
-				print $isMinQcFrequency ? '</strong>' : '';
-			}
-
-			print '<td></tr>';
 		}
 	}
 

@@ -101,21 +101,7 @@ $object->fetchObjectLinked('', '', '', 'dolismq_control');
 
 foreach($elementArray as $linkableElementType => $linkableElement) {
 	if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-		$className = $linkableElement['className'];
-		$linkedObject = new $className($db);
 
-		$linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
-		$linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
-
-		$result = $linkedObject->fetch($linkedObjectId);
-		if ($result > 0) {
-			$linkedObjects[$linkableElementType] = $linkedObject;
-			if (array_key_exists('options_qc_frequency', $linkedObject->array_options)) {
-				if ($linkedObject->array_options['options_qc_frequency'] > 0) {
-					$qcFrequencyArray[$linkableElementType] = $linkedObject->array_options['options_qc_frequency'];
-				}
-			}
-		}
 	}
 }
 ?>
@@ -134,25 +120,48 @@ foreach($elementArray as $linkableElementType => $linkableElement) {
 					<div class="wpeo-table table-cell table-full">
 						<?php
 						foreach ($elementArray as $linkableObjectType => $linkableObject) {
-							if (is_object($linkedObjects[$linkableObjectType])) {
-								if ($linkableObject['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableObject['link_name']]))) {
-									$currentObject = $linkedObjects[$linkableObjectType];
-									$isMinQcFrequency = $linkableObjectType == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0];
+							if ($linkableObject['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableObject['link_name']]))) {
+
+								$className    = $linkableObject['className'];
+								$linkedObject = new $className($db);
+
+								$linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableObject['link_name']]);
+								$linkedObjectId  = $object->linkedObjectsIds[$linkableObject['link_name']][$linkedObjectKey];
+
+
+								$result = $linkedObject->fetch($linkedObjectId);
+								if ($result > 0) {
+									$linkedObject->fetch_optionals();
+
+									$objectName = '';
+									$objectNameField = $linkableObject['name_field'];
+
+									if (strstr($objectNameField, ',')) {
+										$nameFields = explode(', ', $objectNameField);
+										if (is_array($nameFields) && !empty($nameFields)) {
+											foreach ($nameFields as $subnameField) {
+												$objectName .= $linkedObject->$subnameField . ' ';
+											}
+										}
+									} else {
+										$objectName = $linkedObject->$objectNameField;
+									}
+
 									print '<div class="table-row">';
 									print '<div class="table-cell table-150">';
 
-									print $isMinQcFrequency ? '<strong>' : '';
-									print $langs->trans($linkableObject['langs']);
-
+									print '<strong>';
+									print $langs->transnoentities($linkableObject['langs']);
 									print '</div>';
-									print '<div class="table-cell table-200 table-end">';
+									print '<div class="table-cell table-end">';
+									print $objectName . ' ' . img_picto('', $linkableObject['picto'], 'class="pictofixedwidth"');
 
-									print img_picto('', $linkableObject['picto'], 'class="pictofixedwidth"') . $currentObject->ref;
-									if (array_key_exists($linkableObjectType, $qcFrequencyArray) && $qcFrequencyArray[$linkableObjectType] > 0) {
+									if ($linkedObject->array_options['options_qc_frequency'] > 0) {
 										print '<br>';
-										print $langs->transnoentities('QcFrequency') . ' : ' . $qcFrequencyArray[$linkableObjectType];
+										print $langs->transnoentities('QcFrequency') . ' : ' . $linkedObject->array_options['options_qc_frequency'];
 									}
-									print $isMinQcFrequency ? '</strong>' : '';
+
+									print '</strong>';
 
 									print '</div>';
 									print '</div>';
