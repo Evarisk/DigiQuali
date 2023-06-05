@@ -185,7 +185,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
 
                             $tmpArray['ref']         = $question->ref;
                             $tmpArray['label']       = $question->label;
-                            $tmpArray['description'] = $question->description;
+                            $tmpArray['description'] = strip_tags($question->description);
 
                             if (is_array($controldets) && !empty($controldets)) {
                                 $questionAnswerLine     = array_shift($controldets);
