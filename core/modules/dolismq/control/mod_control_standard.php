@@ -39,4 +39,9 @@ class mod_control_standard extends ModeleNumRefSaturne
      * @var string Name.
      */
     public string $name = 'Ymir';
+
+    /**
+	 * @var string Name of table without prefix where object is stored. This is also the key used for extrafields management.
+	 */
+	public $table_element = 'mod_control_standard';
 }
