@@ -45,7 +45,7 @@ ModifyQuestion                = Modifier une question
 LinkedQuestionsList           = Listes des questions liées
 addQuestionLink               = Question ajoutée à la fiche modèle :
 removeQuestionLink            = Question retirée de la fiche modèle :
-LockQuestions                 = Toutes les questions sélectionnées sont passées au status verrouillé
+LockQuestion                  = La question %s est passée au status verrouillé
 ThereAre                      = Il y a
 YouAnswered                   = Vous avez répondu à
 On                            = sur
@@ -84,7 +84,7 @@ ErrorDeleteAnswer             = Une erreur est survenue lors de la suppression d
 AnswerCreated                 = La réponse a été créée avec succès
 AnswerUpdated                 = La réponse a été mise à jour avec succès
 AnswerDeleted                 = La réponse a été supprimée avec succès
-AnswerMustBeCreated           = La question doit avoir au moins une réponse
+AnswerMustBeCreated           = La question %s doit avoir au moins une réponse pour être verrouillé
 
 #
 # Sheet
