@@ -210,17 +210,17 @@ class Control extends CommonObject
 			foreach ($filter as $key => $value) {
 				if ($key == 't.rowid') {
 					$sqlwhere[] = $key . '=' . $value;
-				} elseif (in_array($this->fields[$key]['type'], array('date', 'datetime', 'timestamp'))) {
-					$sqlwhere[] = $key . ' = \'' . $this->db->idate($value) . '\'';
 				} elseif ($key == 'customsql') {
 					$sqlwhere[] = $value;
+				} elseif (array_key_exists($key, $this->fields) && in_array($this->fields[$key]['type'], array('date', 'datetime', 'timestamp'))) {
+					$sqlwhere[] = $key . ' = \'' . $this->db->idate($value) . '\'';
 				} elseif (strpos($value, '%') === false) {
 					$sqlwhere[] = $key . ' IN (' . $this->db->sanitize($this->db->escape($value)) . ')';
 				} else {
 					$sqlwhere[] = $key . ' LIKE \'%' . $this->db->escape($value) . '%\'';
 				}
 			}
-		}
+		}		
 		if (count($sqlwhere) > 0) {
 			$sql .= ' AND (' . implode(' ' . $filtermode . ' ', $sqlwhere) . ')';
 		}
@@ -1005,7 +1005,7 @@ class Control extends CommonObject
 
         require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 
-        $category = new Categorie($db);
+        $category = new Categorie($this->db);
 
         // Graph Title parameters.
         $array['title'] = $langs->transnoentities('ControlsTagsRepartition');
