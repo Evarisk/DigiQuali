@@ -202,6 +202,7 @@ print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
 if (GETPOSTISSET('id')) {
 	print '<input type="hidden" name="id" value="'.GETPOST('id','int').'">';
 }
+$fromurl = '';
 if (!empty($fromtype)) {
 	$fromurl = '&fromtype='.$fromtype.'&fromid='.$fromid;
 }
