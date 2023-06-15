@@ -1093,6 +1093,11 @@ class Control extends CommonObject
         ];
 
         $arrayNbControls = [];
+		foreach ($years as $key => $year) {
+			for ($i = 1; $i <= 12; $i++) {
+				$arrayNbControls[$key][$i] = 0;
+			}
+		}
         for ($i = 1; $i < 13; $i++) {
             foreach ($years as $key => $year) {
                 $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'MONTH (t.date_creation) = ' . $i . ' AND YEAR (t.date_creation) = ' . $year . ' AND t.status >= 0']);
