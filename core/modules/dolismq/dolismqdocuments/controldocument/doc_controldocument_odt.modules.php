@@ -318,8 +318,6 @@ class doc_controldocument_odt extends SaturneDocumentModel
             $tmpArray['photoDefault'] = DOL_DOCUMENT_ROOT . $noPhoto;
         }
 
-        $outputLangs->loadLangs(['products', 'bills', 'orders', 'contracts', 'projects']);
-
         $sheet      = new Sheet($this->db);
         $usertmp    = new User($this->db);
         $projecttmp = new Project($this->db);

@@ -39,38 +39,29 @@ function sheet_prepare_head(Sheet $object): array
 /**
  * Get list of objects which can be linked to a sheet
  *
- * @param  CommonObject $object Object
- * @return array                Array of sheet linkable objects
+ * @return array     Array of sheet linkable objects
  * @throws Exception
  */
 function get_sheet_linkable_objects(): array
 {
-	global $conf, $hookmanager, $db;
+	global $conf, $db, $hookmanager, $langs;
 
-	require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
-	require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
-	require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
-	require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
-	require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
-	require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
-	require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
-	require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmdirectory.class.php';
-	require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
-	require_once DOL_DOCUMENT_ROOT . '/compta/facture/class/facture.class.php';
-	require_once DOL_DOCUMENT_ROOT . '/commande/class/commande.class.php';
-	require_once DOL_DOCUMENT_ROOT . '/contrat/class/contrat.class.php';
-	require_once DOL_DOCUMENT_ROOT . '/ticket/class/ticket.class.php';
-
+    // Load Saturne libraries.
 	require_once __DIR__ . '/../../saturne/class/task/saturnetask.class.php';
+
+    // Load DoliSMQ libraries.
+    require_once __DIR__ . '/../class/dolibarrobject.php';
 
 	//To add an object :
 
 	//	'langs'         => Object translation
+	//	'langfile'      => File lang translation
 	//	'picto'         => Object picto for img_picto() function (equals $this->picto)
 	//	'className'     => Class name
 	//	'name_field'    => Object name to be shown (ref, label, firstname, etc.)
 	//	'post_name'     => Name of post sent retrieved by GETPOST() function
 	//	'link_name'     => Name of object sourcetype in llx_element_element
+	//	'tab_type'      => OPTIONAL : Tab type element for prepare_head function
 	//	'fk_parent'     => OPTIONAL : Name of parent for objects as productlot, contact, task
 	//	'parent_post'   => OPTIONAL : Name of parent post (retrieved by GETPOST() function, it can be different from fk_parent
 	//	'create_url'    => Path to creation card, no need to add "?action=create"
@@ -81,6 +72,7 @@ function get_sheet_linkable_objects(): array
 	if (isModEnabled('product')) {
 		$linkableObjectTypes['product'] = [
 			'langs'      => 'ProductOrService',
+            'langfile'   => 'products',
 			'picto'      => 'product',
 			'className'  => 'Product',
 			'post_name'  => 'fk_product',
@@ -94,6 +86,7 @@ function get_sheet_linkable_objects(): array
 	if (isModEnabled('productbatch')) {
 		$linkableObjectTypes['productlot'] = [
 			'langs'       => 'Batch',
+            'langfile'    => 'products',
 			'picto'       => 'lot',
 			'className'   => 'ProductLot',
 			'post_name'   => 'fk_productlot',
@@ -147,6 +140,7 @@ function get_sheet_linkable_objects(): array
 	if (isModEnabled('project')) {
 		$linkableObjectTypes['project'] = [
 			'langs'      => 'Project',
+            'langfile'   => 'projects',
 			'picto'      => 'project',
 			'className'  => 'Project',
 			'post_name'  => 'fk_project',
@@ -157,6 +151,7 @@ function get_sheet_linkable_objects(): array
 		];
 		$linkableObjectTypes['task'] = [
 			'langs'       => 'Task',
+            'langfile'    => 'projects',
 			'picto'       => 'projecttask',
 			'className'   => 'SaturneTask',
 			'post_name'   => 'fk_task',
@@ -172,6 +167,7 @@ function get_sheet_linkable_objects(): array
 	if (isModEnabled('facture')) {
 		$linkableObjectTypes['invoice'] = [
 			'langs'      => 'Invoice',
+            'langfile'   => 'bills',
 			'picto'      => 'bill',
 			'className'  => 'Facture',
 			'post_name'  => 'fk_invoice',
@@ -185,6 +181,7 @@ function get_sheet_linkable_objects(): array
 	if (isModEnabled('order')) {
 		$linkableObjectTypes['order'] = [
 			'langs'      => 'Order',
+            'langfile'   => 'orders',
 			'picto'      => 'order',
 			'className'  => 'Commande',
 			'post_name'  => 'fk_order',
@@ -198,6 +195,7 @@ function get_sheet_linkable_objects(): array
 	if (isModEnabled('contract')) {
 		$linkableObjectTypes['contract'] = [
 			'langs'      => 'Contract',
+            'langfile'   => 'contracts',
 			'picto'      => 'contract',
 			'className'  => 'Contrat',
 			'post_name'  => 'fk_contract',
@@ -221,20 +219,92 @@ function get_sheet_linkable_objects(): array
 		];
 	}
 
-//	if (isModEnabled('stock')) {
-//		$linkableObjectTypes['entrepot'] = [
-//			'langs'      => 'Warehouse',
-//			'picto'      => 'stock',
-//			'className'  => 'Entrepot',
-//			'post_name'  => 'fk_entrepot',
-//			'link_name'  => 'stock',
-//			'name_field' => 'ref',
-//			'create_url' => 'product/stock/entrepot/card.php',
-//			'class_path' => 'product/stock/class/entrepot.class.php',
-//		];
-//	}
+    if (isModEnabled('stock')) {
+        $linkableObjectTypes['entrepot'] = [
+            'langs'      => 'Warehouse',
+            'langfile'   => 'stocks',
+            'picto'      => 'stock',
+            'className'  => 'Entrepot',
+            'post_name'  => 'fk_entrepot',
+            'link_name'  => 'stock',
+            'tab_type'   => 'stock',
+            'name_field' => 'ref',
+            'create_url' => 'product/stock/entrepot/card.php',
+            'class_path' => 'product/stock/class/entrepot.class.php',
+        ];
+    }
 
-	//Hook to add controllable objects from other modules
+    if (isModEnabled('expedition')) {
+        $linkableObjectTypes['expedition'] = [
+            'langs'      => 'Shipments',
+            'langfile'   => 'sendings',
+            'picto'      => 'dolly',
+            'className'  => 'DoliSMQExpedition',
+            'post_name'  => 'fk_expedition',
+            'link_name'  => 'expedition',
+            'tab_type'   => 'delivery',
+            'name_field' => 'ref',
+            'class_path' => 'expedition/class/expedition.class.php',
+        ];
+    }
+
+    if (isModEnabled('propal')) {
+        $linkableObjectTypes['propal'] = [
+            'langs'      => 'Proposal',
+            'langfile'   => 'propal',
+            'picto'      => 'propal',
+            'className'  => 'Propal',
+            'post_name'  => 'fk_propal',
+            'link_name'  => 'propal',
+            'name_field' => 'ref',
+            'create_url' => 'comm/propal/card.php',
+            'class_path' => 'comm/propal/class/propal.class.php',
+        ];
+    }
+
+    if (isModEnabled('supplier_proposal')) {
+        $linkableObjectTypes['supplier_proposal'] = [
+            'langs'      => 'SupplierProposalShort',
+            'langfile'   => 'supplier_proposal',
+            'picto'      => 'supplier_proposal',
+            'className'  => 'DoliSMQSupplierProposal',
+            'post_name'  => 'fk_supplier_proposal',
+            'link_name'  => 'supplier_proposal',
+            'tab_type'   => 'supplier_proposal',
+            'name_field' => 'ref',
+            'create_url' => 'supplier_proposal/card.php',
+            'class_path' => 'supplier_proposal/class/supplier_proposal.class.php',
+        ];
+    }
+
+    if (isModEnabled('fournisseur')) {
+        $linkableObjectTypes['supplier_order'] = [
+            'langs'      => 'SupplierOrder',
+            'langfile'   => 'orders',
+            'picto'      => 'supplier_order',
+            'className'  => 'CommandeFournisseur',
+            'post_name'  => 'fk_supplier_order',
+            'link_name'  => 'commande_fournisseur',
+            'tab_type'   => 'supplier_order',
+            'name_field' => 'ref',
+            'create_url' => 'fourn/commande/card.php',
+            'class_path' => 'fourn/class/fournisseur.commande.class.php',
+        ];
+        $linkableObjectTypes['supplier_invoice'] = [
+            'langs'      => 'SupplierInvoice',
+            'langfile'   => 'bills',
+            'picto'      => 'supplier_invoice',
+            'className'  => 'FactureFournisseur',
+            'post_name'  => 'fk_supplier_invoice',
+            'link_name'  => 'facture_fournisseur',
+            'tab_type'   => 'supplier_invoice',
+            'name_field' => 'ref',
+            'create_url' => 'fourn/facture/card.php',
+            'class_path' => 'fourn/class/fournisseur.facture.class.php',
+        ];
+    }
+
+    //Hook to add controllable objects from other modules
 	if ( ! is_object($hookmanager)) {
 		include_once DOL_DOCUMENT_ROOT . '/core/class/hookmanager.class.php';
 		$hookmanager = new HookManager($db);
@@ -251,25 +321,32 @@ function get_sheet_linkable_objects(): array
 	if (is_array($linkableObjectTypes) && !empty($linkableObjectTypes)) {
 		foreach($linkableObjectTypes as $linkableObjectType => $linkableObjectInformations) {
 			if ($linkableObjectType != 'context' && $linkableObjectType != 'currentcontext') {
+                require_once DOL_DOCUMENT_ROOT . '/' . $linkableObjectInformations['class_path'];
+
 				$confCode = 'DOLISMQ_SHEET_LINK_' . strtoupper($linkableObjectType);
 				$linkableObjects[$linkableObjectType] = [
 					'code'          => $confCode,
 					'conf'          => $conf->global->$confCode,
 					'name'          => 'Link' . ucfirst($linkableObjectType),
 					'description'   => 'Link' . ucfirst($linkableObjectType) . 'Description',
-					'langs'         => $linkableObjectInformations['langs'],
-					'picto'         => $linkableObjectInformations['picto'],
-					'className'     => $linkableObjectInformations['className'],
-					'name_field'    => $linkableObjectInformations['name_field'],
-					'post_name'     => $linkableObjectInformations['post_name'],
-					'link_name'     => $linkableObjectInformations['link_name'],
-					'fk_parent'     => $linkableObjectInformations['fk_parent'],
-					'parent_post'   => $linkableObjectInformations['parent_post'],
-					'create_url'    => $linkableObjectInformations['create_url'],
-					'class_path'    => $linkableObjectInformations['class_path'],
+					'langs'         => $linkableObjectInformations['langs'] ?? '',
+					'langfile'      => $linkableObjectInformations['langfile'] ?? '',
+					'picto'         => $linkableObjectInformations['picto'] ?? '',
+					'className'     => $linkableObjectInformations['className'] ?? '',
+					'name_field'    => $linkableObjectInformations['name_field'] ?? '',
+					'post_name'     => $linkableObjectInformations['post_name'] ?? '',
+					'link_name'     => $linkableObjectInformations['link_name'] ?? '',
+					'tab_type'      => $linkableObjectInformations['tab_type'] ?? '',
+					'fk_parent'     => $linkableObjectInformations['fk_parent'] ?? '',
+					'parent_post'   => $linkableObjectInformations['parent_post'] ?? '',
+					'create_url'    => $linkableObjectInformations['create_url'] ?? '',
+					'class_path'    => $linkableObjectInformations['class_path'] ?? '',
 				];
-			}
-		}
+                if (!empty($linkableObjectInformations['langfile'])) {
+                    $langs->load($linkableObjectInformations['langfile']);
+                }
+            }
+        }
 	}
 
 	return $linkableObjects;
