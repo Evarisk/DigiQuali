@@ -394,7 +394,7 @@ class ActionsDolismq
      * @param  array $parameters Hook metadatas (context, etc...).
      * @return int               0 < on error, 0 on success, 1 to replace standard code.
      */
-    public function SaturneAdminObjectConst($parameters)
+    public function SaturneAdminObjectConst(array $parameters): int
     {
         // Do something only for the current context.
         if ($parameters['currentcontext'] == 'dolismqadmindocuments') {

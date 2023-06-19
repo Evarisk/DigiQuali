@@ -50,7 +50,6 @@ $action      = GETPOST('action', 'alpha');
 $backtopage  = GETPOST('backtopage', 'alpha');
 $value       = GETPOST('value', 'alpha');
 $attrname    = GETPOST('attrname', 'alpha');
-$contextpage = GETPOST('contextpage', 'aZ') ?GETPOST('contextpage', 'aZ') : 'dolismqadminsheet'; // To manage different context of search
 
 // Initialize technical objects.
 $object = new Sheet($db);
@@ -160,7 +159,7 @@ print dol_get_fiche_head($head, $object->element, $title, -1, 'dolismq_color@dol
 
 require_once __DIR__ . '/../../saturne/core/tpl/admin/object/object_numbering_module_view.tpl.php';
 
-$constArray['sheet'] = [
+$constArray['dolismq'] = [
     'UniqueLinkedElement' => [
         'name'        => 'UniqueLinkedElement',
         'description' => 'UniqueLinkedElementDescription',
@@ -171,7 +170,7 @@ $constArray['sheet'] = [
 $linkableObjects = get_sheet_linkable_objects();
 
 if (is_array($linkableObjects) && !empty($linkableObjects)) {
-	$constArray[$moduleNameLowerCase] = array_merge($constArray['sheet'], $linkableObjects);
+    $constArray['dolismq'] = array_merge($constArray['dolismq'], $linkableObjects);
 }
 
 require_once __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
