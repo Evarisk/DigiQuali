@@ -189,9 +189,9 @@ class modDoliSMQ extends DolibarrModules
             $i++ => ['DOLISMQ_SHEET_LINK_ENTREPOT', 'integer', 0, '', 0, 'current'],
             $i++ => ['DOLISMQ_SHEET_LINK_EXPEDITION', 'integer', 0, '', 0, 'current'],
             $i++ => ['DOLISMQ_SHEET_LINK_PROPAL', 'integer', 0, '', 0, 'current'],
-            $i++ => ['DOLISMQ_SHEET_LINK_SUPPLIER_PROPOSAL', 'integer', 0, '', 0, 'current'],
-            $i++ => ['DOLISMQ_SHEET_LINK_SUPPLIER_ORDER', 'integer', 0, '', 0, 'current'],
-            $i++ => ['DOLISMQ_SHEET_LINK_SUPPLIER_INVOICE', 'integer', 0, '', 0, 'current'],
+//            $i++ => ['DOLISMQ_SHEET_LINK_SUPPLIER_PROPOSAL', 'integer', 0, '', 0, 'current'],
+//            $i++ => ['DOLISMQ_SHEET_LINK_SUPPLIER_ORDER', 'integer', 0, '', 0, 'current'],
+//            $i++ => ['DOLISMQ_SHEET_LINK_SUPPLIER_INVOICE', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DOLISMQ_SHEET_DEFAULT_TAG', 'integer', 0, '', 0, 'current'],
 
 			// CONST QUESTION
@@ -261,16 +261,14 @@ class modDoliSMQ extends DolibarrModules
 
 		if (is_array($linkableElements) && !empty($linkableElements)) {
 			foreach($linkableElements as $linkableElementType => $linkableElement) {
-                if (!empty($linkableElement['tab_type'])) {
-                    $objectType = $linkableElement['tab_type'];
-                } elseif (preg_match('/_/', $linkableElementType)) {
+                if (preg_match('/_/', $linkableElementType)) {
 					$splittedElementType = preg_split('/_/', $linkableElementType);
 					$moduleName = $splittedElementType[0];
 					$objectName = strtolower($linkableElement['className']);
 					$objectType = $objectName . '@' . $moduleName;
 				} else {
-					$objectType = $linkableElementType;
-				}
+                    $objectType = $linkableElement['tab_type'];
+                }
 				$this->tabs[] = ['data' => $objectType . ':+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=' . $linkableElement['link_name']];
 			}
 		}
