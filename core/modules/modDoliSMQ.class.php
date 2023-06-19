@@ -554,7 +554,7 @@ class modDoliSMQ extends DolibarrModules
 
 		$result = $this->_init($sql, $options);
 
-		if (getDolGlobalInt('DOLISMQ_QUESTION_BACKWARD_COMPATIBILITY') == 0) {
+		if (getDolGlobalInt('DOLISMQ_QUESTION_BACKWARD_COMPATIBILITY') == 0 && $result > 0) {
 			require_once __DIR__ . '/../../class/question.class.php';
 			require_once __DIR__ . '/../../class/answer.class.php';
 
