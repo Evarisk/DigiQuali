@@ -43,7 +43,7 @@ $sql .= " FROM ".MAIN_DB_PREFIX.$object->table_element." as t";
 if (!empty($conf->categorie->enabled)) {
 	$sql .= Categorie::getFilterJoinQuery('control', "t.rowid");
 }
-if (is_array($extrafields->attributes[$object->table_element]['label']) && count($extrafields->attributes[$object->table_element]['label'])) $sql .= " LEFT JOIN ".MAIN_DB_PREFIX.$object->table_element."_extrafields as ef on (t.rowid = ef.fk_object)";
+if (isset($extrafields->attributes[$object->table_element]['label']) && is_array($extrafields->attributes[$object->table_element]['label']) && count($extrafields->attributes[$object->table_element]['label'])) $sql .= " LEFT JOIN ".MAIN_DB_PREFIX.$object->table_element."_extrafields as ef on (t.rowid = ef.fk_object)";
 
 foreach($elementElementFields as $genericName => $elementElementName) {
 	if (GETPOST('search_'.$genericName) > 0 || $fromtype == $elementElementName) {
@@ -202,6 +202,7 @@ print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
 if (GETPOSTISSET('id')) {
 	print '<input type="hidden" name="id" value="'.GETPOST('id','int').'">';
 }
+$fromurl = '';
 if (!empty($fromtype)) {
 	$fromurl = '&fromtype='.$fromtype.'&fromid='.$fromid;
 }
@@ -267,14 +268,14 @@ foreach ($object->fields as $key => $val)
 	{
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
 		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
-			print $form->selectarray('search_' . $key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
+			print $form->selectarray('search_' . $key, $val['arrayofkeyval'], (isset($search[$key]) ? $search[$key] : ''), $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
 		}
 		elseif ($key == 'fk_sheet') {
-			print $sheet->selectSheetList(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : ($search['fk_sheet'] ?: 0), 'search_fk_sheet');
+			print $sheet->selectSheetList(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : (isset($search[$key]) ? $search[$key] : ''), 'search_fk_sheet');
 		}
 		elseif (strpos($val['type'], 'integer:') === 0) {
-			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'minwidth100 maxwidth125 widthcentpercentminusxx', 1);
-		} elseif (!preg_match('/^(date|timestamp)/', $val['type'])) print '<input type="text" class="flat maxwidth75" name="search_'.$key.'" value="'.dol_escape_htmltag($search[$key]).'">';
+			print $object->showInputField($val, $key, (isset($search[$key]) ? $search[$key] : ''), '', '', 'search_', 'minwidth100 maxwidth125 widthcentpercentminusxx', 1);
+		} elseif (!preg_match('/^(date|timestamp)/', $val['type'])) print '<input type="text" class="flat maxwidth75" name="search_'.$key.'" value="'.dol_escape_htmltag(isset($search[$key]) ? $search[$key] : '').'">';
 
 		print '</td>';
 	}
@@ -324,7 +325,7 @@ print '</tr>'."\n";
 
 // Detect if we need a fetch on each output line
 $needToFetchEachLine = 0;
-if (is_array($extrafields->attributes[$object->table_element]['computed']) && count($extrafields->attributes[$object->table_element]['computed']) > 0)
+if (isset($extrafields->attributes[$object->table_element]['computed']) && is_array($extrafields->attributes[$object->table_element]['computed']) && count($extrafields->attributes[$object->table_element]['computed']) > 0)
 {
 	foreach ($extrafields->attributes[$object->table_element]['computed'] as $key => $val)
 	{

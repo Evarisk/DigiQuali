@@ -132,7 +132,7 @@ class Control extends CommonObject
 		// Translate some data of arrayofkeyval
 		if (is_object($langs)) {
 			foreach ($this->fields as $key => $val) {
-				if (is_array($val['arrayofkeyval']) && !empty($val['arrayofkeyval'])) {
+				if (isset($val['arrayofkeyval']) && is_array($val['arrayofkeyval']) && !empty($val['arrayofkeyval'])) {
 					foreach ($val['arrayofkeyval'] as $key2 => $val2) {
 						$this->fields[$key]['arrayofkeyval'][$key2] = $langs->trans($val2);
 					}
@@ -210,17 +210,17 @@ class Control extends CommonObject
 			foreach ($filter as $key => $value) {
 				if ($key == 't.rowid') {
 					$sqlwhere[] = $key . '=' . $value;
-				} elseif (in_array($this->fields[$key]['type'], array('date', 'datetime', 'timestamp'))) {
-					$sqlwhere[] = $key . ' = \'' . $this->db->idate($value) . '\'';
 				} elseif ($key == 'customsql') {
 					$sqlwhere[] = $value;
+				} elseif (array_key_exists($key, $this->fields) && in_array($this->fields[$key]['type'], array('date', 'datetime', 'timestamp'))) {
+					$sqlwhere[] = $key . ' = \'' . $this->db->idate($value) . '\'';
 				} elseif (strpos($value, '%') === false) {
 					$sqlwhere[] = $key . ' IN (' . $this->db->sanitize($this->db->escape($value)) . ')';
 				} else {
 					$sqlwhere[] = $key . ' LIKE \'%' . $this->db->escape($value) . '%\'';
 				}
 			}
-		}
+		}		
 		if (count($sqlwhere) > 0) {
 			$sql .= ' AND (' . implode(' ' . $filtermode . ' ', $sqlwhere) . ')';
 		}
@@ -1005,7 +1005,7 @@ class Control extends CommonObject
 
         require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 
-        $category = new Categorie($db);
+        $category = new Categorie($this->db);
 
         // Graph Title parameters.
         $array['title'] = $langs->transnoentities('ControlsTagsRepartition');
@@ -1093,6 +1093,11 @@ class Control extends CommonObject
         ];
 
         $arrayNbControls = [];
+		foreach ($years as $key => $year) {
+			for ($i = 1; $i <= 12; $i++) {
+				$arrayNbControls[$key][$i] = 0;
+			}
+		}
         for ($i = 1; $i < 13; $i++) {
             foreach ($years as $key => $year) {
                 $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'MONTH (t.date_creation) = ' . $i . ' AND YEAR (t.date_creation) = ' . $year . ' AND t.status >= 0']);

@@ -105,7 +105,9 @@ foreach ($object->fields as $key => $val) {
 // List of fields to search into when doing a "search in all"
 $fieldstosearchall = [];
 foreach ($object->fields as $key => $val) {
-	if ($val['searchall']) $fieldstosearchall['t.'.$key] = $val['label'];
+	if (!empty($val['searchall'])) {
+		$fieldstosearchall['t.'.$key] = $val['label'];
+	}
 }
 
 // Definition of array of fields for columns
@@ -119,7 +121,7 @@ foreach ($object->fields as $key => $val) {
 			'checked'=>(($visible < 0) ? 0 : 1),
 			'enabled'=>($visible != 3 && dol_eval($val['enabled'], 1)),
 			'position'=>$val['position'],
-			'help'=>$val['help']
+			'help'=> isset($val['help']) ? $val['help'] : ''
 		);
 	}
 }
@@ -282,7 +284,7 @@ $sql .= " FROM ".MAIN_DB_PREFIX.$object->table_element." as t";
 if (!empty($conf->categorie->enabled)) {
 	$sql .= Categorie::getFilterJoinQuery('question', "t.rowid");
 }
-if (is_array($extrafields->attributes[$object->table_element]['label']) && count($extrafields->attributes[$object->table_element]['label'])) $sql .= " LEFT JOIN ".MAIN_DB_PREFIX.$object->table_element."_extrafields as ef on (t.rowid = ef.fk_object)";
+if (isset($extrafields->attributes[$object->table_element]['label']) && is_array($extrafields->attributes[$object->table_element]['label']) && count($extrafields->attributes[$object->table_element]['label'])) $sql .= " LEFT JOIN ".MAIN_DB_PREFIX.$object->table_element."_extrafields as ef on (t.rowid = ef.fk_object)";
 // Add table from hooks
 $parameters = [];
 $reshook = $hookmanager->executeHooks('printFieldListFrom', $parameters, $object); // Note that $action and $object may have been modified by hook
@@ -442,10 +444,11 @@ foreach ($object->fields as $key => $val) {
 	if (!empty($arrayfields['t.'.$key]['checked']))
 	{
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
-		if (is_array($val['arrayofkeyval']) && !empty($val['arrayofkeyval'])) print $form->selectarray('search_'.$key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
-		elseif (strpos($val['type'], 'integer:') === 0) {
+		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
+			print $form->selectarray('search_'.$key, $val['arrayofkeyval'], (isset($search[$key]) ? $search[$key] : ''), $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100'.($key == 'status' ? ' search_status width100 onrightofpage' : ''), 1);
+		} elseif (strpos($val['type'], 'integer:') === 0) {
 			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'maxwidth125', 1);
-		} elseif (!preg_match('/^(date|timestamp)/', $val['type'])) print '<input type="text" class="flat maxwidth75" name="search_'.$key.'" value="'.dol_escape_htmltag($search[$key]).'">';
+		} elseif (!preg_match('/^(date|timestamp)/', $val['type'])) print '<input type="text" class="flat maxwidth75" name="search_'.$key.'" value="'.dol_escape_htmltag(isset($search[$key]) ? $search[$key] : '').'">';
 		print '</td>';
 	}
 }
@@ -494,11 +497,11 @@ print '</tr>'."\n";
 
 // Detect if we need a fetch on each output line
 $needToFetchEachLine = 0;
-if (is_array($extrafields->attributes[$object->table_element]['computed']) && count($extrafields->attributes[$object->table_element]['computed']) > 0)
-{
-	foreach ($extrafields->attributes[$object->table_element]['computed'] as $key => $val)
-	{
-		if (preg_match('/\$object/', $val)) $needToFetchEachLine++; // There is at least one compute field that use $object
+if (isset($extrafields->attributes[$object->table_element]['computed']) && is_array($extrafields->attributes[$object->table_element]['computed']) && count($extrafields->attributes[$object->table_element]['computed']) > 0) {
+	foreach ($extrafields->attributes[$object->table_element]['computed'] as $key => $val) {
+		if ($val && preg_match('/\$object/', $val)) {
+			$needToFetchEachLine++; // There is at least one compute field that use $object
+		}
 	}
 }
 

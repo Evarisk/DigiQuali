@@ -229,7 +229,9 @@ if(!empty($fromtype)) {
 // List of fields to search into when doing a "search in all"
 $fieldstosearchall = array();
 foreach ($object->fields as $key => $val) {
-	if ($val['searchall']) $fieldstosearchall['t.'.$key] = $val['label'];
+	if (!empty($val['searchall'])) {
+		$fieldstosearchall['t.'.$key] = $val['label'];
+	}
 }
 
 // Definition of array of fields for columns
@@ -243,8 +245,8 @@ foreach ($object->fields as $key => $val) {
 			'checked'=>(($visible < 0) ? 0 : 1),
 			'enabled'=>($visible != 3 && dol_eval($val['enabled'], 1)),
 			'position'=>$val['position'],
-			'help'=>$val['help'],
-            'css' => $val['css']
+			'help'=> isset($val['help']) ? $val['help'] : '',
+            'css' => isset($val['css']) ? $val['css'] : ''
 		);
 	}
 }
