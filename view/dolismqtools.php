@@ -167,7 +167,6 @@ if (GETPOST('dataMigrationExportSQA', 'alpha') && $permissionToRead) {
     }
 }
 
-
 if (GETPOST('dataMigrationExportQA', 'alpha') && $permissionToRead) {
     //DoliSMQ questions data
     $allQuestions = $question->fetchAll();
@@ -223,7 +222,7 @@ if (GETPOST('dataMigrationExportQA', 'alpha') && $permissionToRead) {
     if ($zip->open($export_base . '.zip', ZipArchive::CREATE ) === TRUE) {
         $zip->addFile($filename, basename($filename));
         $zip->close();
-        $filenamezip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_sheet_question_answer_export.zip';
+        $filenamezip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_question_answer_export.zip';
         $filepath = DOL_URL_ROOT . '/document.php?modulepart=dolismq&file=' . urlencode('temp/'.$filenamezip);
 
         ?>
@@ -402,7 +401,7 @@ print $langs->trans('DataMigrationExportSQADescription');
 print '</td>';
 
 print '<td class="center data-migration-export-global">';
-print '<input type="submit" class="button reposition data-migration-submit" name="dataMigrationExportSQA" value="' . $langs->trans("ExportData") . '">';
+print '<input type="submit" class="button wpeo-button reposition data-migration-submit" name="dataMigrationExportSQA" value="' . $langs->trans("ExportData") . '">';
 print '</td>';
 print '</tr>';
 
@@ -414,7 +413,7 @@ print $langs->trans('DataMigrationExportQADescription');
 print '</td>';
 
 print '<td class="center data-migration-export-global">';
-print '<input type="submit" class="button reposition data-migration-submit" name="dataMigrationExportQA" value="' . $langs->trans("ExportData") . '">';
+print '<input type="submit" class="button wpeo-button reposition data-migration-submit" name="dataMigrationExportQA" value="' . $langs->trans("ExportData") . '">';
 print '</td>';
 print '</tr>';
 print '</form>';
@@ -433,14 +432,14 @@ print '<td class="center">' . $langs->trans("Action") . '</td>';
 print '</tr>';
 
 print '<tr class="oddeven"><td>';
-print $langs->trans('DataMigrationImportJSON');
+print $langs->trans('DataMigrationImportZIP');
 print "</td><td>";
-print $langs->trans('DataMigrationImportJSONDescription');
+print $langs->trans('DataMigrationImportZIPDescription');
 print '</td>';
 
 print '<td class="center data-migration-import-json">';
 print '<input class="flat" type="file" name="dataMigrationImportJsonFile[]" id="data-migration-import-json" />';
-print '<input type="submit" class="button reposition data-migration-submit" name="dataMigrationImportJson" value="' . $langs->trans("Upload") . '">';
+print '<input type="submit" class="button wpeo-button reposition data-migration-submit" name="dataMigrationImportJson" value="' . $langs->trans("Upload") . '">';
 print '</td>';
 print '</tr>';
 
