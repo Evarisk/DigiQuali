@@ -186,9 +186,9 @@ class Sheet extends SaturneObject
     public string $element_linked = '';
 
     /**
-     * @var string|null Mandatory questions.
+     * @var string Mandatory questions.
      */
-    public ?string $mandatory_questions = '';
+    public ?string $mandatory_questions = '{}';
 
     /**
      * @var int User ID.
@@ -349,7 +349,7 @@ class Sheet extends SaturneObject
 
 		$control = new Control($this->db);
 
-		$controls = $control->fetchAll( '', '', 0, 0, array('customsql' => 't.fk_sheet= ' . $this->id));
+		$controls = $control->fetchAll( '', '', 0, 0, ['customsql' => 't.fk_sheet= ' . $this->id . ' AND t.status >= 0']);
 		if (is_array($controls) && !empty($controls)) {
 			$result = -1;
 		} else {
