@@ -36,7 +36,6 @@ require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
 require_once __DIR__ . '/../../lib/dolismq_control.lib.php';
-require_once __DIR__ . '/../../lib/dolismq_function.lib.php';
 
 // Global variables definitions
 global $conf, $db,$hookmanager, $langs, $user;
@@ -103,7 +102,7 @@ if ($id > 0 || !empty($ref)) {
 	// Object card
 	// ------------------------------------------------------------
 
-	saturne_banner_tab($object);
+    saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', '', !empty($object->photo));
 
 	print '<div class="fichecenter control-list-medias">';
 	print '<div class="underbanner clearboth"></div>';

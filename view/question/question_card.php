@@ -40,9 +40,11 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 
 require_once '../../class/question.class.php';
+require_once '../../class/answer.class.php';
 require_once '../../core/modules/dolismq/question/mod_question_standard.php';
+require_once '../../core/modules/dolismq/answer/mod_answer_standard.php';
 require_once '../../lib/dolismq_question.lib.php';
-require_once '../../lib/dolismq_function.lib.php';
+require_once '../../lib/dolismq_answer.lib.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user, $langs;
@@ -64,6 +66,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Initialize objects
 // Technical objets
 $object         = new Question($db);
+$answer         = new Answer($db);
 $extrafields    = new ExtraFields($db);
 $refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($db);
 
@@ -114,6 +117,10 @@ if (empty($reshook)) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) $backtopage = $backurlforlist;
 			else $backtopage = dol_buildpath('/dolismq/view/question/question_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
 		}
+	}
+
+	if ($cancel && $action != 'update') {
+		$backtopage .= '#answerList';
 	}
 
 	if ($action == 'add' && !empty($permissiontoadd)) {
@@ -201,8 +208,11 @@ if (empty($reshook)) {
 			}
 
 			if ( ! $error) {
-				$generatethumbs = 1;
-				dol_add_file_process($upload_dir, 0, 1, 'userfile', '', null, '', $generatethumbs);
+				dol_add_file_process($upload_dir, 0, 1, 'userfile', '', null, '', 0);
+				$imgThumbMini   = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
+				$imgThumbSmall  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
+				$imgThumbMedium = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+				$imgThumbLarge  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
 			}
 			$error = 0;
 		}
@@ -226,8 +236,11 @@ if (empty($reshook)) {
 			}
 
 			if ( ! $error) {
-				$generatethumbs = 1;
-				dol_add_file_process($upload_dir, 0, 1, 'userfile2', '', null, '', $generatethumbs);
+				dol_add_file_process($upload_dir, 0, 1, 'userfile2', '', null, '', 0);
+				$imgThumbMini   = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
+				$imgThumbSmall  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
+				$imgThumbMedium = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+				$imgThumbLarge  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
 			}
 			$error = 0;
 		}
@@ -237,37 +250,31 @@ if (empty($reshook)) {
 
 			foreach ($types as $type) {
 				$pathToTmpPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/' . $type;
-				$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type);
+				$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type, 'files');
 				if (is_array($photoList) && !empty($photoList)) {
 					foreach ($photoList as $photo) {
-						if ($photo['type'] !== 'dir') {
-							$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object);
-							if (!is_dir($pathToQuestionPhoto)) {
-								mkdir($pathToQuestionPhoto);
-							}
-							$pathToQuestionPhotoType = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object) . '/' . $type;
-							if (!is_dir($pathToQuestionPhotoType)) {
-								mkdir($pathToQuestionPhotoType);
-							}
-
-							copy($photo['fullname'], $pathToQuestionPhotoType . '/' . $photo['name']);
-
-							global $maxwidthmini, $maxheightmini, $maxwidthsmall,$maxheightsmall ;
-							$destfull = $pathToQuestionPhotoType . '/' . $photo['name'];
-
-							if (empty($object->$type)) {
-								$object->$type = $photo['name'];
-							}
-
-							// Create thumbs
-							// We can't use $object->addThumbs here because there is no $object known
-							// Used on logon for example
-							$imgThumbSmall = vignette($destfull, $maxwidthsmall, $maxheightsmall, '_small', 50, "thumbs");
-							// Create mini thumbs for image (Ratio is near 16/9)
-							// Used on menu or for setup page for example
-							$imgThumbMini = vignette($destfull, $maxwidthmini, $maxheightmini, '_mini', 50, "thumbs");
-							unlink($photo['fullname']);
+						$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object);
+						if (!is_dir($pathToQuestionPhoto)) {
+							mkdir($pathToQuestionPhoto);
 						}
+						$pathToQuestionPhotoType = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object) . '/' . $type;
+						if (!is_dir($pathToQuestionPhotoType)) {
+							mkdir($pathToQuestionPhotoType);
+						}
+
+						copy($photo['fullname'], $pathToQuestionPhotoType . '/' . $photo['name']);
+
+						$destfull = $pathToQuestionPhotoType . '/' . $photo['name'];
+
+						if (empty($object->$type)) {
+							$object->$type = $photo['name'];
+						}
+
+						$imgThumbMini   = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
+						$imgThumbSmall  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
+						$imgThumbMedium = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+						$imgThumbLarge  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
+						unlink($photo['fullname']);
 					}
 				}
 				$filesThumbs = dol_dir_list($pathToTmpPhoto . '/thumbs/');
@@ -284,6 +291,40 @@ if (empty($reshook)) {
 				// Category association
 				$categories = GETPOST('categories', 'array');
 				$object->setCategories($categories);
+
+				if ($object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
+					$answer->fk_question = $result;
+					$answer->value       = $langs->transnoentities('OK');
+					$answer->pictogram   = 'check';
+					$answer->color       = '#47e58e';
+
+					$answer->create($user);
+
+					$answer->fk_question = $result;
+					$answer->value       = $langs->transnoentities('KO');
+					$answer->pictogram   = 'times';
+					$answer->color       = '#e05353';
+
+					$answer->create($user);
+				}
+
+				if ($object->type == 'OkKoToFixNonApplicable') {
+					$answer->fk_question = $result;
+					$answer->value       = $langs->transnoentities('ToFix');
+					$answer->pictogram   = 'tools';
+					$answer->color       = '#e9ad4f';
+
+					$answer->create($user);
+
+					$answer->fk_question = $result;
+					$answer->value       = $langs->transnoentities('NonApplicable');
+					$answer->pictogram   = 'N/A';
+					$answer->color       = '#2b2b2b';
+
+					$answer->create($user);
+				}
+
+
 				$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header("Location: ".$urltogo);
@@ -406,8 +447,7 @@ if (empty($reshook)) {
 
 			foreach ($types as $type) {
 				$pathToTmpPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref .'/' . $type;
-				$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/' . $object->ref . '/' . $type);
-
+				$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/' . $object->ref . '/' . $type, 'files');
 				if (is_array($photoList) && !empty($photoList)) {
 					$favoriteExists = 0;
 					foreach ($photoList as $photo) {
@@ -420,6 +460,8 @@ if (empty($reshook)) {
 							$object->$type = $photo['name'];
 						}
 					}
+				} else {
+					$object->$type = '';
 				}
 			}
 			$object->update($user);
@@ -442,18 +484,14 @@ if (empty($reshook)) {
 			dol_print_error('', 'Error, object must be fetched before being deleted');
 			exit;
 		}
-		$categories = $object->getCategoriesCommon('question');
 
-		if (is_array($categories) && !empty($categories)) {
-			foreach ($categories as $cat_id) {
-
-				$category = new Categorie($db);
-				$category->fetch($cat_id);
-				$category->del_type($object, 'question');
-			}
+		if (method_exists($object, 'isErasable') && $object->isErasable() <= 0) {
+			$langs->load("errors");
+			$object->errors = $langs->trans('ErrorQuestionUsedInSheet',$object->ref);
+			$result = 0;
+		} else {
+			$result = $object->delete($user);
 		}
-
-		$result = $object->delete($user);
 
 		if ($result > 0) {
 			// Delete OK
@@ -485,6 +523,94 @@ if (empty($reshook)) {
 			setEventMessages($object->error, $object->errors, 'errors');
 			$action = '';
 		}
+	}
+
+	if ($action == 'addAnswer') {
+		$answerValue = GETPOST('answerValue');
+		$answerColor = GETPOST('answerColor');
+		$answerPicto = GETPOST('answerPicto');
+
+		if (empty($answerValue)) {
+			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
+			$urltogo = str_replace('__ID__', $result, $backtopage);
+			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+			header('Location: ' . $urltogo . '&answerValue='. $answerValue .'&answerPicto='. $answerPicto .'#answerList');
+			exit;
+		} else {
+			$answer->value = $answerValue;
+			$answer->color = $answerColor;
+			$answer->pictogram = $answerPicto;
+			$answer->fk_question = $id;
+
+			$result = $answer->create($user);
+
+			if ($result > 0) {
+				setEventMessages($langs->trans('AnswerCreated'), []);
+			} else {
+				setEventMessages($langs->trans('ErrorCreateAnswer'), [], 'errors');
+			}
+			$urltogo = str_replace('__ID__', $result, $backtopage);
+			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+			header('Location: ' . $urltogo . '#answerList');
+			exit;
+		}
+	}
+
+	if ($action == 'updateAnswer' && !$cancel) {
+		$answerValue = GETPOST('answerValue');
+		$answerColor = GETPOST('answerColor');
+		$answerPicto = GETPOST('answerPicto');
+		$answerId    = GETPOST('answerId');
+
+		$answer->fetch($answerId);
+		if (empty($answerValue)) {
+			setEventMessages($langs->trans('EmptyValue'), [], 'errors');
+			$urltogo = str_replace('__ID__', $result, $backtopage);
+			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+			header('Location: ' . $urltogo . '&action=editAnswer&answerId='. $answerId .'&answerValue='. $answerValue .'&answerPicto='. $answerPicto . '#answerList');
+			exit;
+		} else {
+			$answer->value = $answerValue;
+			$answer->color = $answerColor;
+			$answer->pictogram = $answerPicto;
+
+			$result = $answer->update($user);
+
+			if ($result > 0) {
+				setEventMessages($langs->trans("AnswerUpdated"), [], 'mesgs');
+			} else {
+				setEventMessages($langs->trans('ErrorUpdateAnswer'), [], 'errors');
+			}
+			$urltogo = str_replace('__ID__', $result, $backtopage);
+			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+			header('Location: ' . $urltogo . '#answerList');
+			exit;
+		}
+	}
+
+	if ($action == 'deleteAnswer') {
+		$answerId = GETPOST('answerId');
+
+		$answer->fetch($answerId);
+		$result = $answer->delete($user);
+
+		$urltogo = str_replace('__ID__', $result, $backtopage);
+		$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo);
+		header('Location: ' . $urltogo . '#answerList');
+		if ($result > 0) {
+			setEventMessages($langs->trans("AnswerDeleted"), [], 'mesgs');
+		} else {
+			setEventMessages($langs->trans('ErrorDeleteAnswer'), [], 'errors');
+		}
+	}
+
+	if ($action == 'moveLine' && $permissiontoadd) {
+		$idsArray = json_decode(file_get_contents('php://input'), true);
+		if (is_array($idsArray['order']) && !empty($idsArray['order'])) {
+			$ids = array_values($idsArray['order']);
+			$reIndexedIds = array_combine(range(1, count($ids)), array_values($ids));
+		}
+		$object->updateAnswersPosition($reIndexedIds);
 	}
 
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
@@ -553,13 +679,18 @@ if ($action == 'create') {
 	print '<table class="border centpercent tableforfieldcreate question-table">'."\n";
 
 	// Label -- Libellé
-	print '<tr><td class="">'.$langs->trans("Label").'</td><td>';
+	print '<tr><td class="fieldrequired">'.$langs->trans("Label").'</td><td>';
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="'.GETPOST('label').'">';
 	print '</td></tr>';
 
+	// Type -- Type
+	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
+	print saturne_select_dictionary('type','c_question_type', 'label', 'label', GETPOST('type') ?: $langs->transnoentities('OkKoToFixNonApplicable'));
+	print '</td></tr>';
+
 	// Description -- Description
-	print '<tr><td class=""><label class="fieldrequired" for="description">' . $langs->trans("Description") . '</label></td><td>';
-	$doleditor = new DolEditor('description', '', '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
+	print '<tr><td class=""><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
+	$doleditor = new DolEditor('description', GETPOST('description'), '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
 	print '</td></tr>';
 
@@ -642,7 +773,7 @@ if ($action == 'create') {
 	print dol_get_fiche_end();
 
 	print '<div class="center">';
-	print '<input type="submit" class="button" name="add" value="'.dol_escape_htmltag($langs->trans("Create")).'">';
+	print '<input type="submit" class="button wpeo-button" name="add" value="'.dol_escape_htmltag($langs->trans("Create")).'">';
 	print '&nbsp; ';
 	print ' &nbsp; <input type="button" id ="actionButtonCancelCreate" class="button" name="cancel" value="' . $langs->trans("Cancel") . '" onClick="javascript:history.go(-1)">';
 	print '</div>';
@@ -677,7 +808,13 @@ if (($id || $ref) && $action == 'edit') {
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="'.$object->label.'">';
 	print '</td></tr>';
 
-	print '<tr><td><label class="fieldrequired" for="description">' . $langs->trans("Description") . '</label></td><td>';
+	// Type -- Type
+	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
+	print saturne_select_dictionary('type','c_question_type', 'label', 'label', $langs->transnoentities($object->type));
+	print '</td></tr>';
+
+	//Description -- Description
+	print '<tr><td><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
 	$doleditor = new DolEditor('description', $object->description, '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
 	print '</td></tr>';
@@ -777,7 +914,7 @@ if (($id || $ref) && $action == 'edit') {
 
 	print dol_get_fiche_end();
 
-	print '<div class="center"><input type="submit" class="button button-save" name="save" value="'.$langs->trans("Save").'">';
+	print '<div class="center"><input type="submit" class="button button-save wpeo-button" name="save" value="'.$langs->trans("Save").'">';
 	print ' &nbsp; <input type="submit" class="button button-cancel" name="cancel" value="'.$langs->trans("Cancel").'">';
 	print '</div>';
 
@@ -801,17 +938,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Clone confirmation
 	if (($action == 'clone' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
 		// Define confirmation messages
-        $formquestionclone = [
+		$formquestionclone = [
 			['type' => 'text', 'name' => 'clone_label', 'label' => $langs->trans('NewLabelForClone', $langs->transnoentities('The' . ucfirst($object->element))), 'value' => $langs->trans('CopyOf') . ' ' . $object->ref, 'size' => 24],
 			['type' => 'checkbox', 'name' => 'clone_photos', 'label' => $langs->trans('ClonePhotos'), 'value' => 1],
 			['type' => 'checkbox', 'name' => 'clone_categories', 'label' => $langs->trans('CloneCategories'), 'value' => 1],
 		];
-        $formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('CloneObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmCloneObject', $langs->transnoentities('The' . ucfirst($object->element)), $object->ref), 'confirm_clone', $formquestionclone, 'yes', 'actionButtonClone', 350, 600);
-    }
+		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('CloneObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmCloneObject', $langs->transnoentities('The' . ucfirst($object->element)), $object->ref), 'confirm_clone', $formquestionclone, 'yes', 'actionButtonClone', 350, 600);
+	}
 
 	// Confirmation to delete
 	if ($action == 'delete') {
-		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('DeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('Delete') . ' ' . $langs->transnoentities('The'  . ucfirst($object->element)), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
 	}
 
 	// Call Hook formConfirm
@@ -836,6 +973,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '</td>';
 	print '<td>';
 	print $object->description;
+	print '</td></tr>';
+
+	// Type -- Type
+	print '<tr><td class="titlefield">';
+	print $langs->trans("QuestionType");
+	print '</td>';
+	print '<td>';
+	print $langs->transnoentities($object->type);
 	print '</td></tr>';
 
 	// EnterComment -- Saisir les commentaires
@@ -896,7 +1041,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	print dol_get_fiche_end();
+	$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $object->id]);
 
 	// Buttons for actions
 	if ($action != 'presend') {
@@ -916,7 +1061,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 
 			// Lock
-			if ($object->status == $object::STATUS_VALIDATED) {
+			if (($object->type == 'UniqueChoice' || $object->type == 'MultipleChoices') && empty($answerList)) {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('AnswerMustBeCreated')) . '"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
+			} else if ($object->status == $object::STATUS_VALIDATED) {
 				print '<span class="butAction" id="actionButtonLock"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeValidated', $langs->transnoentities('The' . ucfirst($object->element)))) . '"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
@@ -933,12 +1080,167 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '<span class="butAction" id="actionButtonClone"><i class="fas fa-clone"></i> ' . $langs->trans('Clone') . '</span>';
 
 			// Delete (need delete permission, or if draft, just need create/modify permission)
-			if ($object->status != $object::STATUS_LOCKED) {
-				print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
-			}
+			print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 		}
 		print '</div>';
 	}
+
+	if ($object->type == 'MultipleChoices' || $object->type == 'UniqueChoice' || $object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
+
+		$pictosArray = get_answer_pictos_array();
+
+		// ANSWERS LINES
+		print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
+		print load_fiche_titre($langs->trans("AnswersList"), '', '', 0, 'answerList');
+		print '<table id="tablelines" class="centpercent noborder noshadow">';
+		global $forceall, $forcetoshowtitlelines;
+
+		if (empty($forceall)) $forceall = 0;
+
+		// Define colspan for the button 'Add'
+		$colspan = 3;
+		?>
+		<script>
+			$(document).ready(function(){
+				$(".move-line").css("background-image",'url(<?php echo DOL_URL_ROOT.'/theme/'.$conf->theme.'/img/grip.png'; ?>)');
+				$(".move-line").css("background-repeat","no-repeat");
+				$(".move-line").css("background-position","center center");
+			});
+		</script>
+		<?php
+		// Lines
+		print '<thead><tr class="liste_titre">';
+		print '<td>' . $langs->trans('Ref') . '</td>';
+		print '<td>' . $langs->trans('Value') . '</td>';
+		print '<td class="center">' . $langs->trans('Picto') . '</td>';
+		print '<td class="center">' . $langs->trans('Color') . '</td>';
+		print '<td class="center">' . $langs->trans('Action') . '</td>';
+		print '<td class="center"></td>';
+		print '</tr></thead>';
+
+		if (is_array($answerList) && !empty($answerList)) {
+			foreach($answerList as $answerSingle) {
+				if ($action == 'editAnswer' && GETPOST('answerId') == $answerSingle->id) {
+					//EDIT LINE
+					print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '">';
+					print '<input type="hidden" name="token" value="' . newToken() . '">';
+					print '<input type="hidden" name="action" value="updateAnswer">';
+					print '<input type="hidden" name="answerId" value="' . $answerSingle->id . '">';
+
+					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
+					print '<td>';
+					print $answerSingle->getNomUrl(1);
+					print '</td>';
+
+					print '<td>';
+					print '<input name="answerValue" value="'. (GETPOST('answerValue') ?: $answerSingle->value) .'">';
+					print '</td>';
+
+					// Pictogram -- Pictogram
+					print '<td class="center">';
+					print answer_pictos_dropdown(GETPOST('answerPicto') ?: $answerSingle->pictogram);
+					print '</td>';
+
+					print '<td class="center">';
+					print '<input type="color" name="answerColor" value="' . $answerSingle->color . '">';
+					print '</td>';
+
+					print '<td class="center">';
+					print $form->buttonsSaveCancel();
+					print '</td>';
+
+					if ($object->status < $object::STATUS_LOCKED) {
+						print '<td class="move-line ui-sortable-handle">';
+					} else {
+						print '<td>';
+					}
+					print '</td>';
+					print '</tr>';
+					print '</form>';
+				} else {
+					//SHOW LINE
+					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
+					print '<td>';
+					print $answerSingle->getNomUrl(1);
+					print '</td>';
+
+					print '<td>';
+					print $answerSingle->value;
+					print '</td>';
+
+					print '<td class="center">';
+					print $pictosArray[$answerSingle->pictogram]['picto_source'];
+					print '</td>';
+
+					print '<td class="center">';
+					print '<span class="color-circle" style="background:'. $answerSingle->color .'; color:'. $answerSingle->color .';">';
+					print '</span>';
+					print '</td>';
+					print '<td class="center">';
+					if ($object->status < Question::STATUS_LOCKED && ($object->type != 'OkKo' && $object->type != 'OkKoToFixNonApplicable')) {
+						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=editAnswer&answerId=' . $answerSingle->id . '#answerList">';
+						print '<div class="wpeo-button button-grey">';
+						print img_edit();
+						print '</div>';
+						print '</a>';
+
+						print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=deleteAnswer&answerId=' . $answerSingle->id . '&token='. newToken() .'">';
+						print '<div class="wpeo-button button-grey" style="margin-left: 10px">';
+						print img_delete();
+						print '</div>';
+						print '</a>';
+						print '</td>';
+						print '<td class="move-line ui-sortable-handle">';
+					} else {
+						print '</td>';
+						print '<td>';
+					}
+					print '</td>';
+					print '</tr>';
+				}
+			}
+		}
+
+		if ($object->status < QUESTION::STATUS_LOCKED && ($object->type != 'OkKo' && $object->type != 'OkKoToFixNonApplicable')) {
+			print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
+			print '<input type="hidden" name="token" value="' . newToken() . '">';
+			print '<input type="hidden" name="action" value="addAnswer">';
+			print '<input type="hidden" name="id" value="' . $id . '">';
+
+			print '<tr>';
+
+			print '<td>-</td>';
+			print '<td><input name="answerValue" value=""></td>';
+
+			// Pictogram -- Pictogram
+			print '<td class="center">';
+			print answer_pictos_dropdown(GETPOST('answerPicto') ?: '');
+			print '</td>';
+			?>
+
+			<td class="center">
+				<input type="color" name="answerColor" class="new-answer-color" value="<?php echo GETPOST('answerColor'); ?>">
+			</td>
+			<script>
+				var randomColor = Math.floor(Math.random()*16777215).toString(16);
+				$('.new-answer-color').val('#' + randomColor)
+			</script>
+			<?php
+
+
+			print '<td class="center">';
+			print '<input type="submit" class="button wpeo-button" value="' . $langs->trans("Add") . '">';
+			print '</td>';
+			print '<td>';
+			print '</td>';
+			print '</tr>';
+
+			print '</table>';
+			print '</form>';
+			print '</div>';
+		}
+	}
+	print dol_get_fiche_end();
 
 	print '<div class="fichecenter"><div class="fichehalfright">';
 

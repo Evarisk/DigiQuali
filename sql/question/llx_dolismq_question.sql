@@ -23,7 +23,7 @@ CREATE TABLE llx_dolismq_question(
     import_key             varchar(14),
     status                 integer DEFAULT 1 NOT NULL,
 	type                   varchar(128),
-	label                  varchar(255),
+	label                  varchar(255) NOT NULL,
 	description            text,
     show_photo             boolean,
     authorize_answer_photo boolean,

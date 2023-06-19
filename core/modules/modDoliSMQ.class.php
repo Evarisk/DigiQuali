@@ -37,7 +37,8 @@ class modDoliSMQ extends DolibarrModules
 	 */
 	public function __construct($db)
 	{
-		global $langs, $conf;
+		global $conf, $langs;
+
 		$this->db = $db;
 
 		if (file_exists(__DIR__ . '/../../../saturne/lib/saturne_functions.lib.php')) {
@@ -76,7 +77,7 @@ class modDoliSMQ extends DolibarrModules
 		$this->editor_url = 'https://evarisk.com/';
 
 		// Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-		$this->version = '1.5.0';
+		$this->version = '1.6.0';
 		// Url to the file with your last numberversion of this module
 		//$this->url_last_version = 'http://www.example.com/versionmodule.txt';
 
@@ -110,7 +111,7 @@ class modDoliSMQ extends DolibarrModules
 			// Set this to 1 if module has its own theme directory (theme)
 			'theme' => 0,
 			// Set this to relative path of css file if module has its own css file
-			'css' => ['/dolismq/css/scss/modules/_menu.scss'],
+			'css' => ['/dolismq/css/scss/modules/_menu.min.css'],
 			// Set this to relative path of js file if module must load a js on all pages
 			'js' => [
 				//   '/dolismq/js/dolismq.js',
@@ -119,7 +120,8 @@ class modDoliSMQ extends DolibarrModules
 			'hooks' => [
 				'category',
 				'categoryindex',
-				'mainloginpage'
+				'mainloginpage',
+                'controlcard'
 			],
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -142,7 +144,7 @@ class modDoliSMQ extends DolibarrModules
 		// A condition to hide module
 		$this->hidden = false;
 		// List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
-		$this->depends = ['modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM', 'modProjet', 'modCategorie', 'modSaturne'];
+		$this->depends = ['modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM', 'modProjet', 'modCategorie', 'modSaturne', 'modTicket'];
 		$this->requiredby = []; // List of module class names as string to disable if this one is disabled. Example: array('modModuleToDisable1', ...)
 		$this->conflictwith = []; // List of module class names as string this module is in conflict with. Example: array('modModuleToDisable1', ...)
 
@@ -178,13 +180,26 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_SHEET_LINK_CONTACT', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DOLISMQ_SHEET_LINK_PROJECT', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DOLISMQ_SHEET_LINK_TASK', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_SHEET_LINK_INVOICE', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_SHEET_LINK_ORDER', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_SHEET_LINK_CONTRACT', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_SHEET_LINK_TICKET', 'integer', 0, '', 0, 'current'],
 
 			// CONST QUESTION
 			$i++ => ['DOLISMQ_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'],
+            $i++ => ['DOLISMQ_QUESTION_BACKWARD_COMPATIBILITY', 'integer', 1, '', 0, 'current'],
+
+			// CONST ANSWER
+			$i++ => ['DOLISMQ_ANSWER_ADDON', 'chaine', 'mod_answer_standard', '', 0, 'current'],
 
 			// CONST CONTROL
 			$i++ => ['DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
+
+            // CONST DOLISMQ DOCUMENTS
+            $i++ => ['DOLISMQ_AUTOMATIC_PDF_GENERATION', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_MANUAL_PDF_GENERATION', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_SHOW_SIGNATURE_SPECIMEN', 'integer', 0, '', 0, 'current'],
 
 			//CONST CONTROL DOCUMENT
 			$i++ => ['DOLISMQ_CONTROLDOCUMENT_ADDON', 'chaine', 'mod_controldocument_standard', '', 0, 'current'],
@@ -192,6 +207,7 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_CONTROLDOCUMENT_CUSTOM_ADDON_ODT_PATH', 'chaine', 'DOL_DATA_ROOT' . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'ecm/dolismq/controldocument/', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROLDOCUMENT_DEFAULT_MODEL', 'chaine', 'template_controldocument_photo' ,'', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS', 'integer', 1,'', 0, 'current'],
+			$i++ => ['DOLISMQ_DOCUMENT_MEDIA_VIGNETTE_USED', 'chaine', 'small','', 0, 'current'],
 
 			// CONST CONTROL LINE
 			$i++ => ['DOLISMQ_CONTROLDET_ADDON', 'chaine', 'mod_controldet_standard', '', 0, 'current'],
@@ -200,6 +216,10 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_VERSION','chaine', $this->version, '', 0, 'current'],
 			$i++ => ['DOLISMQ_DB_VERSION', 'chaine', $this->version, '', 0, 'current'],
 			$i++ => ['DOLISMQ_SHOW_PATCH_NOTE', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLISMQ_MEDIA_MAX_WIDTH_MINI', 'integer', 128, '', 0, 'current'],
+			$i++ => ['DOLISMQ_MEDIA_MAX_HEIGHT_MINI', 'integer', 72, '', 0, 'current'],
+			$i++ => ['DOLISMQ_MEDIA_MAX_WIDTH_SMALL', 'integer', 480, '', 0, 'current'],
+			$i++ => ['DOLISMQ_MEDIA_MAX_HEIGHT_SMALL', 'integer', 270, '', 0, 'current'],
 			$i++ => ['DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM', 'integer', 854, '', 0, 'current'],
 			$i++ => ['DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM', 'integer', 480, '', 0, 'current'],
 			$i++ => ['DOLISMQ_MEDIA_MAX_WIDTH_LARGE', 'integer', 1280, '', 0, 'current'],
@@ -233,9 +253,60 @@ class modDoliSMQ extends DolibarrModules
 		$this->tabs[] = ['data' => 'contact:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=contact'];
 		$this->tabs[] = ['data' => 'task:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project_task'];
 		$this->tabs[] = ['data' => 'user:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=user'];
+		$this->tabs[] = ['data' => 'invoice:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=facture'];
+		$this->tabs[] = ['data' => 'order:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=commande'];
+		$this->tabs[] = ['data' => 'contract:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=contrat'];
+		$this->tabs[] = ['data' => 'ticket:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=ticket'];
 
-		// Dictionaries
-		$this->dictionaries = [];
+        // Dictionaries.
+        $this->dictionaries = [
+            'langs' => 'dolismq@dolismq',
+            // List of tables we want to see into dictonnary editor.
+            'tabname' => [
+                MAIN_DB_PREFIX . 'c_question_type',
+                MAIN_DB_PREFIX . 'c_control_attendants_role'
+            ],
+            // Label of tables.
+            'tablib' => [
+                'Question',
+                'Control'
+            ],
+            // Request to select fields.
+            'tabsql' => [
+                'SELECT f.rowid as rowid, f.ref, f.label, f.description, f.position, f.active  FROM ' . MAIN_DB_PREFIX . 'c_question_type as f',
+                'SELECT f.rowid as rowid, f.ref, f.label, f.description, f.position, f.active FROM ' . MAIN_DB_PREFIX . 'c_control_attendants_role as f'
+            ],
+            // Sort order.
+            'tabsqlsort' => [
+                'label ASC',
+                'label ASC'
+            ],
+            // List of fields (result of select to show dictionary).
+            'tabfield' => [
+                'ref,label,description,position',
+                'ref,label,description,position'
+            ],
+            // List of fields (list of fields to edit a record).
+            'tabfieldvalue' => [
+                'ref,label,description,position',
+                'ref,label,description,position'
+            ],
+            // List of fields (list of fields for insert).
+            'tabfieldinsert' => [
+                'ref,label,description,position',
+                'ref,label,description,position'
+            ],
+            // Name of columns with primary key (try to always name it 'rowid').
+            'tabrowid' => [
+                'rowid',
+                'rowid'
+            ],
+            // Condition to show each dictionary.
+            'tabcond' => [
+                $conf->dolismq->enabled,
+                $conf->dolismq->enabled
+            ]
+        ];
 
 		// Boxes/Widgets
 		// Add here list of php file(s) stored in dolismq/core/boxes that contains a class to show a widget.
@@ -262,51 +333,51 @@ class modDoliSMQ extends DolibarrModules
 
 		/* CONTROL PERMISSSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('ReadObject',$langs->transnoentities('ControlsMin')); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('ReadObjects',$langs->transnoentities('ControlsMin')); // Permission label
 		$this->rights[$r][4] = 'control'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('CreateObject', $langs->transnoentities('ControlsMin')); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('CreateObjects', $langs->transnoentities('ControlsMin')); // Permission label
 		$this->rights[$r][4] = 'control'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('DeleteObject', $langs->transnoentities('ControlsMin')); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('DeleteObjects', $langs->transnoentities('ControlsMin')); // Permission label
 		$this->rights[$r][4] = 'control'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 
 		/* QUESTION PERMISSSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('ReadObject',$langs->transnoentities('Questions')); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('ReadObjects',$langs->transnoentities('Questions')); // Permission label
 		$this->rights[$r][4] = 'question'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('CreateObject', $langs->transnoentities('Questions')); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('CreateObjects', $langs->transnoentities('Questions')); // Permission label
 		$this->rights[$r][4] = 'question'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('DeleteObject', $langs->transnoentities('Questions')); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('DeleteObjects', $langs->transnoentities('Questions')); // Permission label
 		$this->rights[$r][4] = 'question'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 
 		/* SHEET PERMISSSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('ReadObject',$langs->transnoentities('Sheets')); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('ReadObjects',$langs->transnoentities('Sheets')); // Permission label
 		$this->rights[$r][4] = 'sheet'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('CreateObject', $langs->transnoentities('Sheets')); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('CreateObjects', $langs->transnoentities('Sheets')); // Permission label
 		$this->rights[$r][4] = 'sheet'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-		$this->rights[$r][1] = $langs->transnoentities('DeleteObject', $langs->transnoentities('Sheets')); // Permission label
+		$this->rights[$r][1] = $langs->transnoentities('DeleteObjects', $langs->transnoentities('Sheets')); // Permission label
 		$this->rights[$r][4] = 'sheet'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
@@ -447,7 +518,7 @@ class modDoliSMQ extends DolibarrModules
 	 */
 	public function init($options = ''): int
 	{
-		global $conf;
+		global $conf, $langs, $user;
 
 		if ($this->error > 0) {
 			setEventMessages('', $this->errors, 'errors');
@@ -472,16 +543,61 @@ class modDoliSMQ extends DolibarrModules
 		delDocumentModel('calypso_controldocument', 'controldocument');
 
 		addDocumentModel('controldocument_odt', 'controldocument', 'ODT templates', 'DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH');
-		addDocumentModel('calypso_controldocument', 'controldocument', 'calypso');
 
 		if ($result < 0) {
 			return -1;
 		} // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
 
+
 		// Permissions
 		$this->remove($options);
 
-		return $this->_init($sql, $options);
+		$result = $this->_init($sql, $options);
+
+		if (getDolGlobalInt('DOLISMQ_QUESTION_BACKWARD_COMPATIBILITY') == 0 && $result > 0) {
+			require_once __DIR__ . '/../../class/question.class.php';
+			require_once __DIR__ . '/../../class/answer.class.php';
+
+			$question  = new Question($this->db);
+			$answer    = new Answer($this->db);
+
+			$questions = $question->fetchAll('', '', 0, 0, ['customsql' => 't.type = "OkKoToFixNonApplicable"']);
+			if (is_array($questions) && !empty($questions)) {
+				foreach ($questions as $question) {
+					$answer->fk_question = $question->id;
+					$answer->value       = $langs->transnoentities('OK');
+					$answer->pictogram   = 'check';
+					$answer->color       = '#47e58e';
+
+					$answer->create($user);
+
+					$answer->fk_question = $question->id;
+					$answer->value       = $langs->transnoentities('KO');
+					$answer->pictogram   = 'times';
+					$answer->color       = '#e05353';
+
+					$answer->create($user);
+
+					$answer->fk_question = $question->id;
+					$answer->value       = $langs->transnoentities('ToFix');
+					$answer->pictogram   = 'tools';
+					$answer->color       = '#e9ad4f';
+
+					$answer->create($user);
+
+					$answer->fk_question = $question->id;
+					$answer->value       = $langs->transnoentities('NonApplicable');
+					$answer->pictogram   = 'N/A';
+					$answer->color       = '#2b2b2b';
+
+					$answer->create($user);
+				}
+			}
+
+			dolibarr_set_const($this->db, 'DOLISMQ_QUESTION_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
+		}
+		
+		 return $result;
 	}
 
 	/**

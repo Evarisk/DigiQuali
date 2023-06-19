@@ -93,41 +93,22 @@
       border: 1px solid rgba(0,0,0,0.4);
       transition: all 0.2s ease-out;
 
+      @media ( max-width: $media__small ) {
+        width: 80px;
+        height: 80px;
+        line-height: 80px;
+        font-size: 30px;
+      }
+
+      &.square {
+        border-radius: 10%;
+      }
+
       &:hover {
         cursor: pointer;
       }
-
-      &[value="1"] {
-        color: $color__green;
-
-        &.active {
-          background: $color__green;
-        }
-      }
-      &[value="2"] {
-        color: $color__red;
-
-        &.active {
-          background: $color__red;
-        }
-      }
-      &[value="3"] {
-        color: $color__yellow;
-
-        &.active {
-          background: $color__yellow;
-        }
-      }
-      &[value="4"] {
-        color: rgba(0,0,0,0.7);
-        font-weight: 700;
-
-        &.active {
-          background: rgba(0,0,0,0.7);
-        }
-      }
       &.active {
-        color: #fff;
+        color: #fff !important;
         //border-color: $color__secondary;
         //box-shadow: 0 0 0 2px $color__secondary;
       }
@@ -140,7 +121,7 @@
         font-size: 13px;
         font-weight: 700;
       }
-      .question-comment {
+      .question-textarea {
         width: 100%;
         background: #fff;
         border: 1px solid rgba(0,0,0,0.2);
@@ -150,14 +131,14 @@
   }
 }
 
-.confirmquestions .tagtr {
-  float: left;
-  width: 25%;
-}
-.confirmquestions .tagtr:first-child {
-  width: 100%;
-  margin-bottom: 15px;
-}
+//.confirmquestions .tagtr {
+//  float: left;
+//  width: 25%;
+//}
+//.confirmquestions .tagtr:first-child {
+//  width: 100%;
+//  margin-bottom: 15px;
+//}
 
 .confirmquestions .answer {
   display: inline-block;

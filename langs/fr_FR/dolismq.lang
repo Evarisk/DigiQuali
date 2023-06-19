@@ -45,7 +45,7 @@ ModifyQuestion                = Modifier une question
 LinkedQuestionsList           = Listes des questions liées
 addQuestionLink               = Question ajoutée à la fiche modèle :
 removeQuestionLink            = Question retirée de la fiche modèle :
-LockQuestions                 = Toutes les questions sélectionnées sont passées au status verrouillé
+LockQuestion                  = La question %s est passée au status verrouillé
 ThereAre                      = Il y a
 YouAnswered                   = Vous avez répondu à
 On                            = sur
@@ -66,7 +66,25 @@ ErrorNoQuestionSelected       = Aucune question sélectionnée
 AddQuestionIntoCategory       = Assigner cette catégorie à la question
 ClonePhotos                   = Cloner les photos
 CloneCategories               = Cloner les catégories
-
+QuestionType                  = Type de question
+AnswersList                   = Liste des réponses possibles
+MultipleChoices               = Choix multiples
+Text                          = Texte
+UniqueChoice                  = Choix unique
+Range                         = Valeur numérique
+OkKo                          = Sélecteur OK/KO
+OkKoToFixNonApplicable        = Sélecteur OK/KO/NA/A réparer
+ToFix                         = A réparer
+NonApplicable                 = NA
+Answer                        = Réponse
+EmptyValue                    = La valeur de la réponse est vide
+ErrorCreateAnswer             = Une erreur est survenue lors de la création de la réponse
+ErrorUpdateAnswer             = Une erreur est survenue lors de l'édition de la réponse
+ErrorDeleteAnswer             = Une erreur est survenue lors de la suppression de la réponse
+AnswerCreated                 = La réponse a été créée avec succès
+AnswerUpdated                 = La réponse a été mise à jour avec succès
+AnswerDeleted                 = La réponse a été supprimée avec succès
+AnswerMustBeCreated           = La question %s doit avoir au moins une réponse pour être verrouillé
 
 #
 # Sheet
@@ -128,10 +146,11 @@ ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
 Control = Contrôle
 ControlsMin = contrôles
 TheControl = le contrôle
+CreateControl = Créer un contrôle
 AddControl = Ajouter un contrôle
 NewControl = Nouveau contrôle
 ControlList = Liste des contrôles
-FKUserController = Contrôleur
+Controller = Contrôleur
 ControlDate = Date de contrôle
 Controls = Contrôles
 ControlMustBeDraft = Le contrôle doit être brouillon pour accéder à cette fonctionnalité
@@ -148,7 +167,7 @@ ValidateControl = Valider le contrôle
 ReOpenControl = Rouvrir le contrôle
 LockControl = Verrouiller le contrôle
 ConfirmValidateControl = Êtes-vous sûr de vouloir valider le contrôle ?
-ConfirmReOpenControl = Êtes-vous sûr de vouloir rouvrir le contrôle ? <br> La réouverture supprime le verdict  du contrôle.
+ConfirmReOpenControl = La réouverture supprime le verdict  du contrôle.
 ConfirmLockControl = Êtes-vous sûr de vouloir verrouiller le contrôle ? <br> Le verrouillage empêche toutes modifications du contrôle.
 ProjectLinked = Projet contrôlé
 ControlManagement = Gestion des contrôles
@@ -159,6 +178,10 @@ ChangeUserController = Changer l'utilisateur contrôleur
 TaskLinked = Tâche contrôlée
 ThirdPartyLinked = Tiers contrôlé
 ContactLinked = Contact/Adresse contrôlée
+InvoiceLinked = Facture contrôlée
+OrderLinked = Commande contrôlée
+ContractLinked = Contrat contrôlé
+TicketLinked = Ticket contrôlé
 LinkProduct = Activer le lien avec les produits
 LinkProductDescription = Permet la liaison entre les produits et les fiches modèles
 LinkProductLot = Activer le lien avec les numéros de lots/série
@@ -173,6 +196,14 @@ LinkProject = Activer le lien avec les projets
 LinkProjectDescription = Permet la liaison entre les projets et les fiches modèles
 LinkTaskDoliSMQ = Activer le lien avec les tâches
 LinkTaskDescription = Permet la liaison entre les tâches et les fiches modèles
+LinkInvoice = Activer le lien avec les factures
+LinkInvoiceDescription = Permet la liaison entre les factures et les fiches modèles
+LinkOrder = Activer le lien avec les commandes
+LinkOrderDescription = Permet la liaison entre les commandes et les fiches modèles
+LinkContract = Activer le lien avec les contrats
+LinkContractDescription = Permet la liaison entre les contrats et les fiches modèles
+LinkTicket = Activer le lien avec les tickets
+LinkTicketDescription = Permet la liaison entre les tickets et les fiches modèles
 NoLotDefined = Pas de numéros de lots/série trouvé
 SelectAProductFirst = Sélectionnez d'abord un produit
 ActionsOnControl = Événements liés au contrôle
@@ -192,8 +223,16 @@ AddProductLot = Créer numéro de lot/série
 AddUser = Créer utilisateur
 AddControlIntoCategory = Assigner cette catégorie au contrôle
 ProductOrServiceLinked = Produit ou service contrôlé
-
-
+ConfigDatasInDoc = Configuration des médias dans les documents
+MediaSizeDocument = Taille des média
+MediaSizeDocumentDescription = Sélection de la taille des médias dans les documents
+MediaDocumentSizeSetWithSuccess = La taille des médias dans les documents a été modifiée avec succès
+MediaDocumentSizeSetWithFailure = Une erreur est survenue lors de la modification de la taille des médias dans les documents
+NoVerdict = Pas de verdict
+ControlsRepartition = Répartition des contrôles par verdict
+ControlsTagsRepartition = Répartition des contrôles par verdict par catégories
+ControlsByFiscalYear = Rapport des contrôles sur l'exercice fiscal
+OfControl = du contrôle
 
 #
 # ControlDet
@@ -214,19 +253,11 @@ ControlDocument = Fiche de Contrôle
 ControlDocumentsMin = fiches de contôle
 ControlDocumentName = Afficher les médias dans la fiche de contrôle
 ControlDocumentDescription = Afficher les médias des questions dans la fiche de contrôle du document ODT
-ControlDocumentPDFDoliSMQTemplate =	Modèle de fiche de contrôle au format PDF
 ControlDocumentSentByMailTrigger = Email fiche de contrôle envoyée
+controldocument = fiche de controle
 controldocument.odt = Fiche de Contrôle
 controldocument_photo.odt = Fiche de Contrôle avec photos
-SocietyName = Nom de la société
-ControlerName = Nom du contrôleur
-ControledProduct = Produit contrôlé
-LotNumber = Numéro Lot/Série
-ControlAndAnswerList = Liste des points contrôlés et des réponses associées à ce contrôle
-QuestionRef = Réf. Question
-QuestionTitle = Titre - Description Question
-AnswerRef = Réf. Réponse
-AnswerComment = Commentaire Réponse
+controldocument_photo = fiche de controle avec photos
 
 #
 # Other
@@ -234,15 +265,5 @@ AnswerComment = Commentaire Réponse
 
 # Data - Donnée
 SelectProducts = Sélectionner un produit
-AddMedia = Ajouter un média
-SearchFile = Rechercher un fichier
-NoMediaLinked = Pas de média lié
-ErrorFileNotFound = Aucun logo de la société renseigné
-Or = ou
 SelectProductsOrServices = Sélectionner un produit / service
-DoliSMQNumberOfModelFilesFound = Nombre de modèles par défaut
 Contact = Contact/Adresse
-CloseModal = Fermer
-PhotoWellSent = La photo a été ajoutée à la bibliothèque de médias
-PhotoNotSent = La photo ne s'est pas correctement envoyée
-DisplayMoreInfo = Afficher plus d'informations
