@@ -30,6 +30,8 @@ DoliSMQDescriptionLong = Système de management de la qualité pour Dolibarr
 RedirectAfterConnection            = Redirection après la connexion au site
 RedirectAfterConnectionDescription = Redirection sur la page de bienvenue de DoliSMQ par défaut au lieu de celle de Dolibarr.
 EnableDolismq                      = Veuillez activer le module DoliSMQ pour accéder à cette page
+AdvancedTriggers                   = Contenu des événéments avancé
+AdvancedTriggersDescription        = Active une description détaillé des événements de DoliSMQ
 
 #
 # Questions
@@ -91,6 +93,9 @@ AnswerMustBeCreated           = La question %s doit avoir au moins une réponse 
 # Sheet
 #
 
+# Trigger - Déclencheur
+SheetAddQuestionTrigger = Question ajoutée
+
 # Data - Donnée
 Sheet       = Fiche modèle
 Sheets      = fiches modèles
@@ -144,6 +149,8 @@ ComputerScience   = Informatique
 
 # Trigger - Déclencheur
 ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
+ControlSetVerdictTrigger = Verdict défini sur %s
+AnswerSaveTrigger = Réponses sauvergardées
 
 # Data - Donnée
 Control = Contrôle

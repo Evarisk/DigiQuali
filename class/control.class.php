@@ -389,7 +389,7 @@ class Control extends SaturneObject
 
 			if (!$error && !$notrigger) {
 				// Call trigger
-				$result = $this->call_trigger('CONTROL_VALIDATED', $user);
+				$result = $this->call_trigger('CONTROL_VALIDATE', $user);
 				if ($result < 0) {
 					$error++;
 				}

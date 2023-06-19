@@ -122,8 +122,8 @@ if (empty($reshook)) {
 			$questionIds     = $object->linkedObjectsIds['dolismq_question'];
 			$object->updateQuestionsPosition($questionIds);
 
+			$object->call_trigger('SHEET_ADDQUESTION', $user);
 			setEventMessages($langs->trans('addQuestionLink') . ' ' . $question->ref, array());
-
 			header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 			exit;
 		} else {
