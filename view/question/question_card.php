@@ -345,6 +345,9 @@ if (empty($reshook)) {
 
 	// Action to update record
 	if ($action == 'update' && !empty($permissiontoadd)) {
+
+		$previousType = $object->type;
+
 		foreach ($object->fields as $key => $val) {
 			// Check if field was submited to be edited
 			if ($object->fields[$key]['type'] == 'duration') {
@@ -464,7 +467,53 @@ if (empty($reshook)) {
 					$object->$type = '';
 				}
 			}
-			$object->update($user);
+			$result = $object->update($user);
+
+			$newType = $object->type;
+
+			if ($result > 0) {
+				if ($newType != $previousType && $newType != 'MultipleChoices' && $newType != 'UniqueChoice') {
+					$answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $result]);
+
+					if (is_array($answerList) && !empty($answerList)) {
+						foreach($answerList as $linkedAnswer) {
+							$linkedAnswer->delete($user, true, false);
+						}
+					}
+				}
+
+				if ($object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
+					$answer->fk_question = $result;
+					$answer->value       = $langs->transnoentities('OK');
+					$answer->pictogram   = 'check';
+					$answer->color       = '#47e58e';
+
+					$answer->create($user);
+
+					$answer->fk_question = $result;
+					$answer->value       = $langs->transnoentities('KO');
+					$answer->pictogram   = 'times';
+					$answer->color       = '#e05353';
+
+					$answer->create($user);
+				}
+
+				if ($object->type == 'OkKoToFixNonApplicable') {
+					$answer->fk_question = $result;
+					$answer->value = $langs->transnoentities('ToFix');
+					$answer->pictogram = 'tools';
+					$answer->color = '#e9ad4f';
+
+					$answer->create($user);
+
+					$answer->fk_question = $result;
+					$answer->value = $langs->transnoentities('NonApplicable');
+					$answer->pictogram = 'N/A';
+					$answer->color = '#2b2b2b';
+
+					$answer->create($user);
+				}
+			}
 
 			$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
@@ -685,12 +734,12 @@ if ($action == 'create') {
 
 	// Type -- Type
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'label', 'label', GETPOST('type') ?: $langs->transnoentities('OkKoToFixNonApplicable'));
+	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', GETPOST('type') ?: 'OkKoToFixNonApplicable');
 	print '</td></tr>';
 
 	// Description -- Description
 	print '<tr><td class=""><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
-	$doleditor = new DolEditor('description', '', '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
+	$doleditor = new DolEditor('description', GETPOST('description'), '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
 	$doleditor->Create();
 	print '</td></tr>';
 
@@ -762,6 +811,7 @@ if ($action == 'create') {
 		print '<tr><td>'.$langs->trans("Categories").'</td><td>';
 		$categoryArborescence = $form->select_all_categories('question', '', 'parent', 64, 0, 1);
 		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $categoryArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=question&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print "</td></tr>";
 	}
 
@@ -773,7 +823,7 @@ if ($action == 'create') {
 	print dol_get_fiche_end();
 
 	print '<div class="center">';
-	print '<input type="submit" class="button" name="add" value="'.dol_escape_htmltag($langs->trans("Create")).'">';
+	print '<input type="submit" class="button wpeo-button" name="add" value="'.dol_escape_htmltag($langs->trans("Create")).'">';
 	print '&nbsp; ';
 	print ' &nbsp; <input type="button" id ="actionButtonCancelCreate" class="button" name="cancel" value="' . $langs->trans("Cancel") . '" onClick="javascript:history.go(-1)">';
 	print '</div>';
@@ -810,7 +860,7 @@ if (($id || $ref) && $action == 'edit') {
 
 	// Type -- Type
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'label', 'label', $langs->transnoentities($object->type));
+	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', $object->type);
 	print '</td></tr>';
 
 	//Description -- Description
@@ -904,6 +954,7 @@ if (($id || $ref) && $action == 'edit') {
 			}
 		}
 		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $categoryArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=question&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print "</td></tr>";
 	}
 
@@ -914,7 +965,7 @@ if (($id || $ref) && $action == 'edit') {
 
 	print dol_get_fiche_end();
 
-	print '<div class="center"><input type="submit" class="button button-save" name="save" value="'.$langs->trans("Save").'">';
+	print '<div class="center"><input type="submit" class="button button-save wpeo-button" name="save" value="'.$langs->trans("Save").'">';
 	print ' &nbsp; <input type="submit" class="button button-cancel" name="cancel" value="'.$langs->trans("Cancel").'">';
 	print '</div>';
 
@@ -1229,7 +1280,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 
 			print '<td class="center">';
-			print '<input type="submit" class="button" value="' . $langs->trans("Add") . '">';
+			print '<input type="submit" class="button wpeo-button" value="' . $langs->trans("Add") . '">';
 			print '</td>';
 			print '<td>';
 			print '</td>';
@@ -1246,7 +1297,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	$maxEvent = 10;
 
-	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliMeet&object_type=' . $object->element);
+	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element);
 
 	// List of actions on element
 	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';

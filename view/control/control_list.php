@@ -36,16 +36,6 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 
-require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
-require_once DOL_DOCUMENT_ROOT.'/contact/class/contact.class.php';
-require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
-require_once DOL_DOCUMENT_ROOT.'/product/stock/class/productlot.class.php';
-require_once DOL_DOCUMENT_ROOT.'/projet/class/project.class.php';
-require_once DOL_DOCUMENT_ROOT.'/projet/class/task.class.php';
-require_once DOL_DOCUMENT_ROOT . '/compta/facture/class/facture.class.php';
-require_once DOL_DOCUMENT_ROOT . '/commande/class/commande.class.php';
-require_once DOL_DOCUMENT_ROOT . '/contrat/class/contrat.class.php';
-require_once DOL_DOCUMENT_ROOT . '/ticket/class/ticket.class.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcategory.class.php';
 require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
 
@@ -187,8 +177,6 @@ foreach ($object->fields as $key => $val) {
 	}
 }
 
-$arrayfields['t.status']['checked'] = 0;
-
 // Extra fields
 include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_array_fields.tpl.php';
 
@@ -315,7 +303,7 @@ if ($fromid) {
 
 	if (is_array($controls) && !empty($controls)) {
 		foreach ($controls as $control) {
-			$control->fetchObjectLinked('','', $control->id, 'dolismq_' . $control->element);
+			$control->fetchObjectLinked('','', $control->id, 'dolismq_' . $control->element, 'OR', 1, 'sourcetype', 0);
 			if (!empty($control->linkedObjectsIds)) {
 				if (array_key_exists($fromtype, $control->linkedObjectsIds)) {
 					$linkedObjectsIds = array_values($control->linkedObjectsIds[$fromtype]);
@@ -331,14 +319,12 @@ if ($fromid) {
 			}
 		}
 
-		if (!empty($categories)) {
-			$box->loadBox();
-			if (is_array($nbBox) || is_object($nbBox)) {
-				for ($i = 0; $i < count($nbBox); $i++) {
-					$box->showBox($i,$i);
-				}
-			}
-		}
+        if (is_array($nbBox) || is_object($nbBox)) {
+            $box->loadBox();
+            for ($i = 0; $i < count($nbBox); $i++) {
+                $box->showBox($i,$i);
+            }
+        }
 	}
 	print '</div>';
 }

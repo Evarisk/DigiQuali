@@ -248,7 +248,7 @@ class Control extends SaturneObject
 
             require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
 
-            $url = dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $this->track_id, 3);
+            $url = dol_buildpath('custom/dolismq/public/control/public_control.php?track_id=' . $this->track_id, 3);
 
             $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
 
@@ -389,7 +389,7 @@ class Control extends SaturneObject
 
 			if (!$error && !$notrigger) {
 				// Call trigger
-				$result = $this->call_trigger('CONTROL_VALIDATED', $user);
+				$result = $this->call_trigger('CONTROL_VALIDATE', $user);
 				if ($result < 0) {
 					$error++;
 				}
@@ -532,7 +532,7 @@ class Control extends SaturneObject
 
         $object->context = 'createfromclone';
 
-        $object->fetchObjectLinked('','', $object->id, 'dolismq_' . $object->element);
+        $object->fetchObjectLinked('','', $object->id, 'dolismq_' . $object->element,  'OR', 1, 'sourcetype', 0);
 
         $controlID = $object->create($user);
 
@@ -604,11 +604,51 @@ class Control extends SaturneObject
     }
 
     /**
-     * Return the status
+     * Return the label of the verdict.
      *
-     * @param  int  $status        Id status
-     * @param  int   $mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
-     * @return string         Label of status
+     * @param  int    $mode 0 = long label, 1 = short label, 2 = Picto + short label, 3 = Picto, 4 = Picto + long label, 5 = Short label + Picto, 6 = Long label + Picto.
+     * @return string       Label of verdict.
+     */
+    public function getLibVerdict(int $mode = 0): string
+    {
+        return $this->libVerdict($this->verdict, $mode);
+    }
+
+    /**
+     * Return the verdict.
+     *
+     * @param  int    $verdict ID verdict.
+     * @param  int    $mode    0 = long label, 1 = short label, 2 = Picto + short label, 3 = Picto, 4 = Picto + long label, 5 = Short label + Picto, 6 = Long label + Picto.
+     * @return string          Label of verdict.
+     */
+    public function libVerdict(int $verdict, int $mode = 0): string
+    {
+        global $langs;
+
+        $this->labelStatus[0] = $langs->trans('NA');
+        $this->labelStatus[1] = $langs->trans('OK');
+        $this->labelStatus[2] = $langs->trans('KO');
+
+        $verdictType = 'status' . $verdict;
+        if ($verdict == 0) {
+            $verdictType = 'status6';
+        }
+        if ($verdict == 1) {
+            $verdictType = 'status4';
+        }
+        if ($verdict == 2) {
+            $verdictType = 'status8';
+        }
+
+        return dolGetStatus($this->labelStatus[$verdict], $this->labelStatusShort[$verdict], '', $verdictType, $mode);
+    }
+
+    /**
+     * Return the status.
+     *
+     * @param  int    $status ID status.
+     * @param  int    $mode   0 = long label, 1 = short label, 2 = Picto + short label, 3 = Picto, 4 = Picto + long label, 5 = Short label + Picto, 6 = Long label + Picto.
+     * @return string         Label of status.
      */
     public function LibStatut(int $status, int $mode = 0): string
     {
@@ -865,6 +905,44 @@ class Control extends SaturneObject
 
         return $array;
     }
+
+	/**
+	 * Get control linked objects with qc frequencies.
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
+	public function getLinkedObjectsWithQcFrequency($linkableObjects): array
+	{
+		global $db;
+
+		$qcFrequencyArray = [];
+		$linkedObjects    = [];
+
+		foreach($linkableObjects as $linkableElementType => $linkableElement) {
+			if ($linkableElement['conf'] > 0 && (!empty($this->linkedObjectsIds[$linkableElement['link_name']]))) {
+				$className = $linkableElement['className'];
+				$linkedObject = new $className($db);
+
+				$linkedObjectKey = array_key_first($this->linkedObjectsIds[$linkableElement['link_name']]);
+				$linkedObjectId  = $this->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
+
+				$result = $linkedObject->fetch($linkedObjectId);
+				if ($result > 0) {
+					$linkedObjects[$linkableElementType] = $linkedObject;
+					if (array_key_exists('options_qc_frequency', $linkedObject->array_options)) {
+						if ($linkedObject->array_options['options_qc_frequency'] > 0) {
+							$qcFrequencyArray[$linkableElementType] = $linkedObject->array_options['options_qc_frequency'];
+						}
+					}
+				}
+			}
+		}
+		return [
+			'qcFrequencyArray' => $qcFrequencyArray,
+			'linkedObjects'    => $linkedObjects
+			];
+	}
 }
 
 class ControlLine extends CommonObjectLine

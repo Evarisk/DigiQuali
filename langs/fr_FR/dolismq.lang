@@ -30,6 +30,8 @@ DoliSMQDescriptionLong = Système de management de la qualité pour Dolibarr
 RedirectAfterConnection            = Redirection après la connexion au site
 RedirectAfterConnectionDescription = Redirection sur la page de bienvenue de DoliSMQ par défaut au lieu de celle de Dolibarr.
 EnableDolismq                      = Veuillez activer le module DoliSMQ pour accéder à cette page
+AdvancedTriggers                   = Contenu des événéments avancé
+AdvancedTriggersDescription        = Active une description détaillé des événements de DoliSMQ
 
 #
 # Questions
@@ -45,6 +47,7 @@ ModifyQuestion                = Modifier une question
 LinkedQuestionsList           = Liste des questions liées
 addQuestionLink               = Question ajoutée à la fiche modèle :
 removeQuestionLink            = Question retirée de la fiche modèle :
+LockQuestion                  = La question %s est passée au status verrouillé
 LockQuestions                 = Toutes les questions sélectionnées sont passées au statut verrouillé
 ThereAre                      = Il y a
 YouAnswered                   = Vous avez répondu à
@@ -84,11 +87,14 @@ ErrorDeleteAnswer             = Une erreur est survenue lors de la suppression d
 AnswerCreated                 = La réponse a été créée avec succès
 AnswerUpdated                 = La réponse a été mise à jour avec succès
 AnswerDeleted                 = La réponse a été supprimée avec succès
-AnswerMustBeCreated           = La question doit avoir au moins une réponse
+AnswerMustBeCreated           = La question %s doit avoir au moins une réponse pour être verrouillé
 
 #
 # Sheet
 #
+
+# Trigger - Déclencheur
+SheetAddQuestionTrigger = Question ajoutée
 
 # Data - Donnée
 Sheet       = Fiche modèle
@@ -143,6 +149,8 @@ ComputerScience   = Informatique
 
 # Trigger - Déclencheur
 ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
+ControlSetVerdictTrigger = Verdict défini sur %s
+AnswerSaveTrigger = Réponses sauvergardées
 
 # Data - Donnée
 Control = Contrôle
@@ -230,6 +238,8 @@ NoVerdict = Pas de verdict
 ControlsRepartition = Répartition des contrôles par verdict
 ControlsTagsRepartition = Répartition des contrôles par verdict par catégories
 ControlsByFiscalYear = Rapport des contrôles sur l'exercice fiscal
+OfControl = du contrôle
+OfAnswer = des réponses
 PublicControl = Interface publique de contrôle
 QcFrequency = Période de validité (en jours)
 ObjectLinked = Objet lié(s)
@@ -249,6 +259,7 @@ ControlEquipmentOutdated = La DLUO/DDM d'un ou plusieurs moyens de contrôle est
 GoToEquipmentHours = Aller sur la page des moyens de contrôle
 ExpiredSince = Expiré depuis
 RemainingDays = Jours avant expiration
+NoControlAnswersPhoto = Pas de photos sur les réponses du contrôle
 
 #
 # ControlDet
@@ -270,10 +281,10 @@ ControlDocumentsMin = fiches de contôle
 ControlDocumentDisplayMedias = Afficher les médias dans la fiche de contrôle
 ControlDocumentDisplayMediasDescription = Afficher les médias des questions dans la fiche de contrôle du document ODT
 ControlDocumentSentByMailTrigger = Email fiche de contrôle envoyée
-controldocument = fiche de contrôle
+controldocument = fiche de controle
 controldocument.odt = Fiche de Contrôle
 controldocument_photo.odt = Fiche de Contrôle avec photos
-controldocument_photo = fiche de contrôle avec photos
+controldocument_photo = fiche de controle avec photos
 
 #
 # Other
