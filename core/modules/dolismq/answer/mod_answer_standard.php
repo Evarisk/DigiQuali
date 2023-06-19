@@ -17,26 +17,26 @@
  */
 
 /**
- *  \file    core/modules/dolismq/controldet/mod_controldet_standard.php
+ *  \file    core/modules/dolismq/answer/mod_answer_standard.php
  *  \ingroup dolismq
- *  \brief   File of class to manage controldet numbering rules standard.
+ *  \brief   File of class to manage answer numbering rules standard.
  */
 
 // Load Saturne libraries.
 require_once __DIR__ . '/../../../../../saturne/core/modules/saturne/modules_saturne.php';
 
 /**
- *	Class to manage controldet numbering rules standard.
+ *	Class to manage answer numbering rules standard.
  */
-class mod_controldet_standard extends ModeleNumRefSaturne
+class mod_answer_standard extends ModeleNumRefSaturne
 {
-    /**
-     * @var string Numbering module ref prefix.
-     */
-    public string $prefix = 'FCR';
+	/**
+	 * @var string Numbering module ref prefix.
+	 */
+	public string $prefix = 'AN';
 
-    /**
-     * @var string Name.
-     */
-    public string $name = 'Anthée';
+	/**
+	 * @var string Name.
+	 */
+	public string $name = 'Hati';
 }

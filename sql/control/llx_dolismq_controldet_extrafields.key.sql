@@ -13,4 +13,5 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program. If not, see https://www.gnu.org/licenses/.
 
-ALTER TABLE llx_dolismq_controldet_extrafields ADD INDEX idx_fk_object(fk_object);
+ALTER TABLE llx_dolismq_controldet_extrafields ADD INDEX idx_dolismq_controldet_extrafields_rowid (rowid);
+ALTER TABLE llx_dolismq_controldet_extrafields ADD INDEX idx_dolismq_controldet_extrafields_fk_object (fk_object);

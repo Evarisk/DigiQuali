@@ -207,34 +207,33 @@ class ActionsDolismq
 				$category->fetch($id);
 				$objectsInCateg = $category->getObjectsInCateg($type, 0, $limit, $offset);
 
-				if (!is_array($objectsInCateg) || empty($objectsInCateg)) {
-					dol_print_error($this->db, $category->error, $category->errors);
-				} else {
+				$out = '<br>';
+
+				$out .= '<form method="post" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&type=' . $type . '">';
+				$out .= '<input type="hidden" name="token" value="'.newToken().'">';
+				$out .= '<input type="hidden" name="action" value="addintocategory">';
+
+				$out .= '<table class="noborder centpercent">';
+				$out .= '<tr class="liste_titre"><td>';
+				$out .= $langs->trans("Add". ucfirst($type) . "IntoCategory") . ' ';
+				$out .= $form->selectarray('element_id', $array, '', 1);
+				$out .= '<input type="submit" class="button buttongen" value="'.$langs->trans("ClassifyInCategory").'"></td>';
+				$out .= '</tr>';
+				$out .= '</table>';
+				$out .= '</form>';
+
+				$out .= '<br>';
+
+				//$param = '&limit=' . $limit . '&id=' . $id . '&type=' . $type;
+				//$num = count($objectsInCateg);
+				//print_barre_liste($langs->trans(ucfirst($type)), $page, $_SERVER["PHP_SELF"], $param, '', '', '', $num, '', 'object_'.$type.'@dolismq', 0, '', '', $limit);
+
+				$out .= load_fiche_titre($langs->transnoentities($classname), '', 'object_' . $object->picto);
+				$out .= '<table class="noborder centpercent">';
+				$out .= '<tr class="liste_titre"><td colspan="3">'.$langs->trans("Ref").'</td></tr>';
+
+				if (is_array($objectsInCateg) && !empty($objectsInCateg)) {
 					// Form to add record into a category
-					$out = '<br>';
-
-					$out .= '<form method="post" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&type=' . $type . '">';
-					$out .= '<input type="hidden" name="token" value="'.newToken().'">';
-					$out .= '<input type="hidden" name="action" value="addintocategory">';
-
-					$out .= '<table class="noborder centpercent">';
-					$out .= '<tr class="liste_titre"><td>';
-					$out .= $langs->trans("Add". ucfirst($type) . "IntoCategory") . ' ';
-					$out .= $form->selectarray('element_id', $array, '', 1);
-					$out .= '<input type="submit" class="button buttongen" value="'.$langs->trans("ClassifyInCategory").'"></td>';
-					$out .= '</tr>';
-					$out .= '</table>';
-					$out .= '</form>';
-
-					$out .= '<br>';
-
-					//$param = '&limit=' . $limit . '&id=' . $id . '&type=' . $type;
-					//$num = count($objectsInCateg);
-					//print_barre_liste($langs->trans(ucfirst($type)), $page, $_SERVER["PHP_SELF"], $param, '', '', '', $num, '', 'object_'.$type.'@dolismq', 0, '', '', $limit);
-
-					$out .= load_fiche_titre($langs->transnoentities($classname), '', 'object_' . $object->picto);
-					$out .= '<table class="noborder centpercent">';
-					$out .= '<tr class="liste_titre"><td colspan="3">'.$langs->trans("Ref").'</td></tr>';
 					if (count($objectsInCateg) > 0) {
 						$i = 0;
 						foreach ($objectsInCateg as $element) {
@@ -259,8 +258,9 @@ class ActionsDolismq
 					} else {
 						$out .= '<tr class="oddeven"><td colspan="2" class="opacitymedium">'.$langs->trans("ThisCategoryHasNoItems").'</td></tr>';
 					}
-					$out .= '</table>';
 				}
+				
+				$out .= '</table>';
 			} ?>
 
 			<script>
@@ -304,4 +304,29 @@ class ActionsDolismq
 			return -1;
 		}
 	}
+
+    /**
+     *  Overloading the saturneBannerTab function : replacing the parent's function with the one below.
+     *
+     * @param  array        $parameters Hook metadatas (context, etc...).
+     * @param  CommonObject $object     Current object.
+     * @return int                      0 < on error, 0 on success, 1 to replace standard code.
+     */
+    public function saturneBannerTab(array $parameters, CommonObject $object): int
+    {
+        global $conf, $langs;
+
+        // Do something only for the current context.
+        if (preg_match('/controlcard/', $parameters['context'])) {
+            if ($conf->browser->layout == 'phone') {
+                $morehtmlref = '<i class="toggleControlInfo far fa-caret-square-down"></i>' . ' ' . $langs->trans('DisplayMoreInfo');
+            } else {
+                $morehtmlref = '';
+            }
+
+            $this->resprints = $morehtmlref;
+        }
+
+        return 0; // or return 1 to replace standard code.
+    }
 }

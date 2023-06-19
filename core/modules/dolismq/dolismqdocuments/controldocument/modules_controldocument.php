@@ -17,29 +17,28 @@
  */
 
 /**
- *  \file			core/modules/dolismq/dolismqdocuments/controldocument/modules_controldocument.php
- *  \ingroup		dolismq
- *  \brief			File that contains parent class for controldocuments document models
+ *  \file    core/modules/dolismq/dolismqdocuments/controldocument/modules_controldocument.php
+ *  \ingroup dolismq
+ *  \brief   File that contains parent class for controldocuments document models.
  */
-
-require_once DOL_DOCUMENT_ROOT . '/core/class/commondocgenerator.class.php';
 
 /**
- *	Parent class for documents models
+ * Parent class for documents models.
  */
-abstract class ModeleODTControlDocument extends CommonDocGenerator
+abstract class ModeleODTControlDocument extends SaturneDocumentModel
 {
-	/**
-	 *  Return list of active generation modules
-	 *
-	 * @param DoliDB      $db                 Database handler
-	 * @param integer     $maxfilenamelength  Max length of value to show
-	 * @return array                          List of templates
-	 * @throws Exception
-	 */
-	public static function liste_modeles($db, $maxfilenamelength = 0)
-	{
-		require_once __DIR__ . '/../../../../../lib/dolismq_function.lib.php';
-		return saturne_get_list_of_models($db, 'controldocument', $maxfilenamelength);
-	}
+    /**
+     * Return list of active generation modules.
+     *
+     * @param  DoliDB $db                Database handler.
+     * @param  string $type              Document type.
+     * @param  int    $maxfilenamelength Max length of value to show.
+     *
+     * @return array                     List of templates.
+     * @throws Exception
+     */
+    public static function liste_modeles(DoliDB $db, string $type, int $maxfilenamelength = 0): array
+    {
+        return parent::liste_modeles($db, 'controldocument', $maxfilenamelength);
+    }
 }

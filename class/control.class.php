@@ -60,9 +60,11 @@ class Control extends CommonObject
 	 */
 	public $picto = 'fontawesome_fa-tasks_fas_#d35968';
 
+	public const STATUS_DELETED   = -1;
 	public const STATUS_DRAFT     = 0;
 	public const STATUS_VALIDATED = 1;
 	public const STATUS_LOCKED    = 2;
+    public const STATUS_ARCHIVED  = 3;
 
 	/**
 	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
@@ -79,12 +81,13 @@ class Control extends CommonObject
 		'note_public'        => ['type' => 'html', 'label' => 'PublicNote', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0],
 		'note_private'       => ['type' => 'html', 'label' => 'PrivateNote', 'enabled' => '1', 'position' => 90, 'notnull' => 0, 'visible' => 0],
 		'type'               => ['type' => 'varchar(128)', 'label' => 'Type', 'enabled' => '1', 'position' => 100, 'notnull' => 0, 'visible' => 0],
-		'verdict'            => ['type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 110,'positioncard' => 20, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => ['0' => '', '1' => 'OK', '2' => 'KO']],
+		'verdict'            => ['type' => 'smallint', 'label' => 'Verdict', 'enabled' => '1', 'position' => 110,'positioncard' => 20, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'arrayofkeyval' => ['0' => 'All', '1' => 'OK', '2' => 'KO', '3' => 'NoVerdict']],
+		'photo'              => ['type' => 'text', 'label' => 'Photo', 'enabled' => '1', 'position' => 120, 'notnull' => 0, 'visible' => 0],
 		'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'enabled' => '1', 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
 		'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif', 'enabled' => '1', 'position' => 140, 'notnull' => -1, 'visible' => 0],
 		'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php', 'label' => 'SheetLinked', 'enabled' => '1', 'position' => 23, 'notnull' => 1, 'visible' => 5, 'css' => 'maxwidth500 widthcentpercentminusxx'],
-		'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1', 'label' => 'FKUserController','positioncard' => 1, 'enabled' => '1', 'position' => 24, 'notnull' => 1, 'visible' => 3, 'css' => 'maxwidth500 widthcentpercentminusxx', 'picto' => 'user', 'foreignkey' => 'user.rowid'],
-		'projectid'         => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project','positioncard' => 2, 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 3, 'css' => 'maxwidth500 widthcentpercentminusxx', 'picto' => 'project', 'foreignkey' => 'projet.rowid']
+		'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1', 'label' => 'Controller','positioncard' => 1, 'enabled' => '1', 'position' => 24, 'notnull' => 1, 'visible' => 3, 'css' => 'maxwidth500 widthcentpercentminusxx', 'picto' => 'user', 'foreignkey' => 'user.rowid'],
+		'projectid'         => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project','positioncard' => 2, 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'picto' => 'project', 'foreignkey' => 'projet.rowid']
 	];
 
 	public $rowid;
@@ -97,6 +100,7 @@ class Control extends CommonObject
 	public $status;
 	public $type;
 	public $verdict;
+	public $photo;
 	public $label;
 	public $fk_user_creat;
 	public $fk_user_modif;
@@ -186,15 +190,18 @@ class Control extends CommonObject
 	 * @param  string      $filtermode   Filter mode (AND or OR)
 	 * @return array|int                 int <0 if KO, array of pages if OK
 	 */
-	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
+	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND', $fetchCategories = false)
 	{
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
 		$records = array();
 
 		$sql                                                                              = 'SELECT ';
-		$sql                                                                             .= $this->getFieldList();
+		$sql                                                                             .= $this->getFieldList('t');
 		$sql                                                                             .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
+        if (isModEnabled('categorie') && $fetchCategories) {
+            $sql .= Categorie::getFilterJoinQuery('control', 't.rowid');
+        }
 		if (isset($this->ismultientitymanaged) && $this->ismultientitymanaged == 1) $sql .= ' WHERE t.entity IN (' . getEntity($this->table_element) . ')';
 		else $sql                                                                        .= ' WHERE 1 = 1';
 		// Manage filter
@@ -234,7 +241,6 @@ class Control extends CommonObject
 
 				$record = new self($this->db);
 				$record->setVarsFromFetchObj($obj);
-				$record->fetchObjectLinked('', 'product', '', 'dolismq_control');
 
 				$records[$record->id] = $record;
 
@@ -272,7 +278,8 @@ class Control extends CommonObject
 	 */
 	public function delete(User $user, $notrigger = false)
 	{
-		return $this->deleteCommon($user, $notrigger);
+		$this->status = $this::STATUS_DELETED;
+		return $this->update($user, $notrigger);
 	}
 
 	/**
@@ -288,6 +295,9 @@ class Control extends CommonObject
 		if ($this->status <= self::STATUS_DRAFT) {
 			return 0;
 		}
+
+        $signatory = new SaturneSignature($this->db);
+        $signatory->deleteSignatoriesSignatures($this->id, 'control');
 
 		return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'CONTROL_UNVALIDATED');
 	}
@@ -399,6 +409,18 @@ class Control extends CommonObject
 		return $this->setStatusCommon($user, self::STATUS_LOCKED, $notrigger, 'CONTROL_LOCKED');
 	}
 
+    /**
+     * Set archived status.
+     *
+     * @param  User $user       Object user that modify.
+     * @param  int  $notrigger  1 = Does not execute triggers, 0 = Execute triggers.
+     * @return int              0 < if KO, >0 if OK.
+     */
+    public function setArchived(User $user, int $notrigger = 0): int
+    {
+        return $this->setStatusCommon($user, self::STATUS_ARCHIVED, $notrigger, 'CONTROL_ARCHIVED');
+    }
+
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
 	 *  Return if a control can be deleted
@@ -444,96 +466,172 @@ class Control extends CommonObject
 		}
 	}
 
-	/**
-	 * Clone an object into another one
-	 *
-	 * @param User $user User that creates
-	 * @param int $fromid Id of object to clone
-	 * @param $options
-	 * @return    mixed                New object created, <0 if KO
-	 * @throws Exception
-	 */
-	public function createFromClone(User $user, $fromid)
-	{
-		global $conf, $langs;
-		$error = 0;
+    /**
+     * Clone an object into another one.
+     *
+     * @param  User      $user    User that creates
+     * @param  int       $fromID  ID of object to clone.
+     * @param  array     $options Options array.
+     * @return int                New object created, <0 if KO.
+     * @throws Exception
+     */
+    public function createFromClone(User $user, int $fromID, array $options): int
+    {
+        global $conf;
 
-		dol_syslog(__METHOD__, LOG_DEBUG);
+        dol_syslog(__METHOD__, LOG_DEBUG);
 
-		$object = new self($this->db);
-		$this->db->begin();
+        $error = 0;
 
-		// Load source object
-		$result = $object->fetchCommon($fromid);
-		if ($result > 0 && ! empty($object->table_element_line)) {
-			$object->fetchLines();
-		}
+        $object = new self($this->db);
+        $this->db->begin();
 
-		// Create clone
-		$object->fetchObjectLinked('','',$object->id, 'dolismq_' . $object->element);
-		$object->context['createfromclone'] = 'createfromclone';
-		$object->ref = '';
-		$object->status = 0;
-		$object->verdict = null;
-		$object->note_public = null;
-		$objectid = $object->create($user);
+        // Load source object.
+        $result = $object->fetchCommon($fromID);
+        if ($result > 0 && ! empty($object->table_element_line)) {
+            $object->fetchLines();
+        }
 
+        $objectRef = $object->ref;
 
+        // Reset some properties.
+        unset($object->fk_user_creat);
+        unset($object->import_key);
 
-		//add categories
-		$cat = new Categorie($this->db);
-		$categories = $cat->containing($fromid, 'control');
+        // Clear fields.
+        if (property_exists($object, 'ref')) {
+            $object->ref = '';
+        }
+        if (property_exists($object, 'date_creation')) {
+            $object->date_creation = dol_now();
+        }
+        if (property_exists($object, 'status')) {
+            $object->status = 0;
+        }
+        if (property_exists($object, 'verdict')) {
+            $object->verdict = 0;
+        }
+        if (empty($options['photos'])) {
+            $object->photo = '';
+        }
 
-		if (is_array($categories) && !empty($categories)) {
-			foreach($categories as $cat) {
-				$categoryIds[] = $cat->id;
-			}
-			if ($objectid > 0) {
-				$object->fetch($objectid);
-				$object->setCategories($categoryIds);
-			}
-		}
+        $object->context = 'createfromclone';
 
-		//add objects linked
-		if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
-			if (!empty($object->linkedObjects['project'])) {
-				foreach ($object->linkedObjects['project'] as $project) {
-					$object->add_object_linked($project->element, $project->id);
-				}
-			}
-			if (!empty($object->linkedObjects['project_task'])) {
-				foreach ($object->linkedObjects['project_task'] as $project_task) {
-					$object->add_object_linked($project_task->element, $project_task->id);
-				}
-			}
-			if (!empty($object->linkedObjects['product'])) {
-				foreach ($object->linkedObjects['product'] as $product) {
-					$object->add_object_linked($product->element, $product->id);
-				}
-			}
-			if (!empty($object->linkedObjects['productbatch'])) {
-				foreach ($object->linkedObjects['productbatch'] as $productbatch) {
-					$object->add_object_linked($productbatch->element, $productbatch->id);
-				}
-			}
-			if (!empty($object->linkedObjects['societe'])) {
-				foreach ($object->linkedObjects['societe'] as $societe) {
-					$object->add_object_linked($societe->element, $societe->id);
-				}
-			}
-		}
+        $object->fetchObjectLinked('','', $object->id, 'dolismq_' . $object->element);
 
-		unset($object->context['createfromclone']);
+        $controlID = $object->create($user);
 
-		// End
-		if ( ! $error) {
-			$this->db->commit();
-			return $objectid;
-		} else {
-			$this->db->rollback();
-			return -1;
-		}
-	}
+        if ($controlID > 0) {
+            $objectFromClone = new self($this->db);
+            $objectFromClone->fetch($controlID);
+
+            // Categories.
+            $cat = new Categorie($this->db);
+            $categories = $cat->containing($fromID, 'control');
+            if (is_array($categories) && !empty($categories)) {
+                foreach($categories as $cat) {
+                    $categoryIds[] = $cat->id;
+                }
+                $object->setCategories($categoryIds);
+            }
+
+            // Add objects linked.
+            if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
+                if (!empty($object->linkedObjects['project'])) {
+                    foreach ($object->linkedObjects['project'] as $project) {
+                        $objectFromClone->add_object_linked($project->element, $project->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['project_task'])) {
+                    foreach ($object->linkedObjects['project_task'] as $project_task) {
+                        $objectFromClone->add_object_linked($project_task->element, $project_task->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['product'])) {
+                    foreach ($object->linkedObjects['product'] as $product) {
+                        $objectFromClone->add_object_linked($product->element, $product->id);
+                    }
+                }
+                if (!empty($object->linkedObjectsIds['productbatch'])) {
+                    $productlot = new Productlot($this->db);
+                    $productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
+                    $objectFromClone->add_object_linked('productbatch', $productlot->id);
+                }
+                if (!empty($object->linkedObjects['user'])) {
+                    foreach ($object->linkedObjects['user'] as $usertmp) {
+                        $objectFromClone->add_object_linked($usertmp->element, $usertmp->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['societe'])) {
+                    foreach ($object->linkedObjects['societe'] as $societe) {
+                        $objectFromClone->add_object_linked($societe->element, $societe->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['contact'])) {
+                    foreach ($object->linkedObjects['contact'] as $contact) {
+                        $objectFromClone->add_object_linked($contact->element, $contact->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['facture'])) {
+                    foreach ($object->linkedObjects['facture'] as $invoice) {
+                        $objectFromClone->add_object_linked($invoice->element, $invoice->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['commande'])) {
+                    foreach ($object->linkedObjects['commande'] as $order) {
+                        $objectFromClone->add_object_linked($order->element, $order->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['contrat'])) {
+                    foreach ($object->linkedObjects['contrat'] as $contract) {
+                        $objectFromClone->add_object_linked($contract->element, $contract->id);
+                    }
+                }
+                if (!empty($object->linkedObjects['ticket'])) {
+                    foreach ($object->linkedObjects['ticket'] as $ticket) {
+                        $objectFromClone->add_object_linked($ticket->element, $ticket->id);
+                    }
+                }
+            }
+
+            // Add Attendants.
+            $signatory = new SaturneSignature($this->db);
+            if (!empty($options['attendants'])) {
+                // Load signatory from source object.
+                $signatories = $signatory->fetchSignatory('', $fromID, $this->element);
+                if (is_array($signatories) && !empty($signatories)) {
+                    foreach ($signatories as $arrayRole) {
+                        foreach ($arrayRole as $signatoryRole) {
+                            $signatory->createFromClone($user, $signatoryRole->id, $controlID);
+                        }
+                    }
+                }
+            } else {
+                $signatory->setSignatory($objectFromClone->id, $this->element, 'user', [$objectFromClone->fk_user_controller], 'Controller', 1);
+            }
+
+            // Add Photos.
+            if (!empty($options['photos'])) {
+                $dir  = $conf->dolismq->multidir_output[$conf->entity] . '/control';
+                $path = $dir . '/' . $objectRef . '/photos';
+                dol_mkdir($dir . '/' . $objectFromClone->ref . '/photos');
+                dolCopyDir($path,$dir . '/' . $objectFromClone->ref . '/photos', 0, 1);
+            }
+        } else {
+            $error++;
+            $this->error  = $object->error;
+            $this->errors = $object->errors;
+        }
+
+        // End.
+        if (!$error) {
+            $this->db->commit();
+            return $controlID;
+        } else {
+            $this->db->rollback();
+            return -1;
+        }
+    }
 
 
 	/**
@@ -624,31 +722,44 @@ class Control extends CommonObject
 	}
 
 
-	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *  Return the status
+	 * Return the status
 	 *
-	 *  @param	int		$status        Id status
-	 *  @param  int		$mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
-	 *  @return string 			       Label of status
+	 * @param  int  $status        Id status
+	 * @param  int   $mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
+	 * @return string         Label of status
 	 */
-	public function LibStatut($status, $mode = 0)
+    public function LibStatut(int $status, int $mode = 0): string
 	{
-		// phpcs:enable
 		if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
 			global $langs;
-			//$langs->load("dolismq@dolismq");
-			$this->labelStatus[self::STATUS_DRAFT]          = $langs->trans('StatusDraft');
-			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->trans('Validated');
-			$this->labelStatus[self::STATUS_LOCKED]         = $langs->trans('Locked');
-			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->trans('StatusDraft');
-			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->trans('Validated');
-			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->trans('Locked');
+
+			$this->labelStatus[self::STATUS_DRAFT]          = $langs->transnoentitiesnoconv('StatusDraft');
+			$this->labelStatus[self::STATUS_VALIDATED]      = $langs->transnoentitiesnoconv('Validated');
+			$this->labelStatus[self::STATUS_LOCKED]         = $langs->transnoentitiesnoconv('Locked');
+      $this->labelStatus[self::STATUS_ARCHIVED]       = $langs->transnoentitiesnoconv('Archived');
+			$this->labelStatus[self::STATUS_DELETED]        = $langs->transnoentitiesnoconv('Deleted');
+
+			$this->labelStatusShort[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
+			$this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Validated');
+			$this->labelStatusShort[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
+      $this->labelStatusShort[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
+			$this->labelStatusShort[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
 		}
 
 		$statusType = 'status' . $status;
-		if ($status == self::STATUS_VALIDATED) $statusType = 'status4';
-		if ($status == self::STATUS_LOCKED) $statusType = 'status6';
+    if ($status == self::STATUS_VALIDATED) {
+      $statusType = 'status4';
+    }
+		if ($status == self::STATUS_LOCKED) {
+      $statusType = 'status6';
+    }
+    if ($status == self::STATUS_ARCHIVED) {
+       $statusType = 'status8';
+    }
+    if ($status == self::STATUS_DELETED) {
+       $statusType = 'status9';
+    }
 
 		return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
 	}
@@ -811,6 +922,194 @@ class Control extends CommonObject
 			return "";
 		}
 	}
+
+    /**
+     * Load dashboard info.
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function load_dashboard(): array
+    {
+        $getNbControlsTagsByVerdict = $this->getNbControlsTagsByVerdict();
+        $getNbControlsByVerdict     = $this->getNbControlsByVerdict();
+        $getNbControlsByMonth       = $this->getNbControlsByMonth();
+
+        $array['graphs'] = [$getNbControlsTagsByVerdict, $getNbControlsByVerdict, $getNbControlsByMonth];
+
+        return $array;
+    }
+
+    /**
+     * Get controls by verdict.
+     *
+     * @return array     Graph datas (label/color/type/title/data etc..).
+     * @throws Exception
+     */
+    public function getNbControlsByVerdict(): array
+    {
+        global $langs;
+
+        // Graph Title parameters.
+        $array['title'] = $langs->transnoentities('ControlsRepartition');
+        $array['picto'] = $this->picto;
+
+        // Graph parameters.
+        $array['width']   = 800;
+        $array['height']  = 400;
+        $array['type']    = 'pie';
+        $array['dataset'] = 1;
+
+        $array['labels'] = [
+            0 => [
+                'label' => $langs->transnoentities('NoVerdict'),
+                'color' => '#999999'
+            ],
+            1 => [
+                'label' => $langs->transnoentities('OK'),
+                'color' => '#47e58e'
+            ],
+            2 => [
+                'label' => $langs->transnoentities('KO'),
+                'color' => '#e05353'
+            ],
+        ];
+
+        $arrayNbControlByVerdict = [0 => 0, 1 => 0, 2 => 0];
+        $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 't.status >= 0']);
+        if (is_array($controls) && !empty($controls)) {
+            foreach ($controls as $control) {
+                if (empty($control->verdict)) {
+                    $arrayNbControlByVerdict[0]++;
+                } else {
+                    $arrayNbControlByVerdict[$control->verdict]++;
+                }
+            }
+            ksort($arrayNbControlByVerdict);
+        }
+
+        $array['data'] = $arrayNbControlByVerdict;
+
+        return $array;
+    }
+
+    /**
+     * Get controls with tags by verdict.
+     *
+     * @return array     Graph datas (label/color/type/title/data etc..).
+     * @throws Exception
+     */
+    public function getNbControlsTagsByVerdict(): array
+    {
+        global $db, $langs;
+
+        require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
+
+        $category = new Categorie($db);
+
+        // Graph Title parameters.
+        $array['title'] = $langs->transnoentities('ControlsTagsRepartition');
+        $array['picto'] = $this->picto;
+
+        // Graph parameters.
+        $array['width']   = 800;
+        $array['height']  = 400;
+        $array['type']    = 'bar';
+        $array['dataset'] = 3;
+
+        $array['labels'] = [
+            0 => [
+                'label' => $langs->transnoentities('NoVerdict'),
+                'color' => '#999999'
+            ],
+            1 => [
+                'label' => $langs->transnoentities('OK'),
+                'color' => '#47e58e'
+            ],
+            2 => [
+                'label' => $langs->transnoentities('KO'),
+                'color' => '#e05353'
+            ]
+        ];
+
+        $categories = $category->get_all_categories('control');
+        if (is_array($categories) && !empty($categories)) {
+            foreach ($categories as $category) {
+                $arrayNbControlByVerdict = [];
+                $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'cp.fk_categorie = ' . $category->id . ' AND t.status >= 0'], 'AND', true);
+                if (is_array($controls) && !empty($controls)) {
+                    foreach ($controls as $control) {
+                        if (empty($control->verdict)) {
+                            $arrayNbControlByVerdict[0]++;
+                        } else {
+                            $arrayNbControlByVerdict[$control->verdict]++;
+                        }
+                    }
+                    $array['data'][] = [$category->label, $arrayNbControlByVerdict[0],  $arrayNbControlByVerdict[1], $arrayNbControlByVerdict[2]];
+                }
+            }
+        }
+
+        return $array;
+    }
+
+    /**
+     * Get controls by month.
+     *
+     * @return array     Graph datas (label/color/type/title/data etc..).
+     * @throws Exception
+     */
+    public function getNbControlsByMonth(): array
+    {
+        global $conf, $langs;
+
+        $startMonth  = $conf->global->SOCIETE_FISCAL_MONTH_START;
+        $currentYear = date('Y', dol_now());
+        $years       = [0 => $currentYear - 2, 1 => $currentYear - 1, 2 => $currentYear];
+
+        // Graph Title parameters.
+        $array['title'] = $langs->transnoentities('ControlsByFiscalYear');
+        $array['picto'] = $this->picto;
+
+        // Graph parameters.
+        $array['width']   = 800;
+        $array['height']  = 400;
+        $array['type']    = 'bars';
+        $array['dataset'] = 3;
+
+        $array['labels'] = [
+            0 => [
+                'label' => $langs->trans("$years[0]"),
+                'color' => '#9567AA'
+            ],
+            1 => [
+                'label' => $langs->trans("$years[1]"),
+                'color' => '#4F9EBE'
+            ],
+            2 => [
+                'label' => $langs->trans("$years[2]"),
+                'color' => '#FAC461'
+            ]
+        ];
+
+        $arrayNbControls = [];
+        for ($i = 1; $i < 13; $i++) {
+            foreach ($years as $key => $year) {
+                $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'MONTH (t.date_creation) = ' . $i . ' AND YEAR (t.date_creation) = ' . $year . ' AND t.status >= 0']);
+                if (is_array($controls) && !empty($controls)) {
+                    $arrayNbControls[$key][$i] = count($controls);
+                }
+            }
+
+            $month    = $langs->transnoentitiesnoconv('MonthShort'.sprintf('%02d', $i));
+            $arrayKey = $i - $startMonth;
+            $arrayKey = $arrayKey >= 0 ? $arrayKey : $arrayKey + 12;
+            $array['data'][$arrayKey] = [$month, $arrayNbControls[0][$i], $arrayNbControls[1][$i], $arrayNbControls[2][$i]];
+        }
+        ksort($array['data']);
+
+        return $array;
+    }
 }
 
 class ControlLine extends CommonObjectLine
@@ -920,7 +1219,7 @@ class ControlLine extends CommonObjectLine
 	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
 	{
 		global $db;
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answser_photo, t.comment, t.fk_question, t.fk_control ';
+		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 

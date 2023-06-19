@@ -16,6 +16,7 @@
 ALTER TABLE llx_dolismq_controldet ADD INDEX idx_dolismq_controldet_rowid (rowid);
 ALTER TABLE llx_dolismq_controldet ADD INDEX idx_dolismq_controldet_ref (ref);
 ALTER TABLE llx_dolismq_controldet ADD INDEX idx_dolismq_controldet_status (status);
-ALTER TABLE llx_dolismq_controldet ADD CONSTRAINT llx_dolismq_controldet_fk_user_creat FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid);
 ALTER TABLE llx_dolismq_controldet ADD INDEX idx_dolismq_controldet_fk_control (fk_control);
 ALTER TABLE llx_dolismq_controldet ADD INDEX idx_dolismq_controldet_fk_question (fk_question);
+ALTER TABLE llx_dolismq_controldet ADD UNIQUE INDEX uk_dolismq_controldet_ref (ref, entity);
+ALTER TABLE llx_dolismq_controldet ADD CONSTRAINT llx_dolismq_controldet_fk_user_creat FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid);

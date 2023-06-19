@@ -38,13 +38,12 @@ require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
 require_once __DIR__ . '/../../lib/dolismq_sheet.lib.php';
 require_once __DIR__ . '/../../core/modules/dolismq/sheet/mod_sheet_standard.php';
-require_once '../../lib/dolismq_function.lib.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
-saturne_load_langs(["other", "product"]);
+saturne_load_langs(["other", "product", 'bills', 'orders']);
 
 // Get parameters
 $id                  = GETPOST('id', 'int');
@@ -186,30 +185,14 @@ if (empty($reshook)) {
 			dol_print_error('', 'Error, object must be fetched before being deleted');
 			exit;
 		}
-		$categories = $object->getCategoriesCommon('sheet');
 
-		if (is_array($categories) && !empty($categories)) {
-			foreach ($categories as $cat_id) {
-
-				$category = new Categorie($db);
-				$category->fetch($cat_id);
-				$category->del_type($object, 'sheet');
-			}
+		if (method_exists($object, 'isErasable') && $object->isErasable() <= 0) {
+			$langs->load("errors");
+			$object->errors = $langs->trans('ErrorQuestionUsedInSheet',$object->ref);
+			$result = 0;
+		} else {
+			$result = $object->delete($user);
 		}
-
-		$object->fetchObjectLinked($id, 'dolismq_' . $object->element);
-		$object->element = 'dolismq_' . $object->element;
-
-		if (is_array($object->linkedObjects) && !empty($object->linkedObjects)) {
-			foreach($object->linkedObjects as $linkedObjectType => $linkedObjectArray) {
-				foreach($linkedObjectArray as $linkedObject) {
-					if (method_exists($object, 'isErasable') && $object->isErasable() > 0) {
-						$object->deleteObjectLinked('','',$linkedObject->id, $linkedObjectType);
-					}
-				}
-			}
-		}
-		$result = $object->delete($user);
 
 		if ($result > 0) {
 			// Delete OK
@@ -263,6 +246,25 @@ if (empty($reshook)) {
 			}
 		}
 	}
+
+    // Action to set status STATUS_ARCHIVED.
+    if ($action == 'confirm_archive' && $permissiontoadd) {
+        $object->fetch($id);
+        if (!$error) {
+            $result = $object->setArchived($user);
+            if ($result > 0) {
+                // Set Archived OK.
+                $urltogo = str_replace('__ID__', $result, $backtopage);
+                $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
+                header('Location: ' . $urltogo);
+                exit;
+            } elseif (!empty($object->errors)) { // Set Archived KO.
+                setEventMessages('', $object->errors, 'errors');
+            } else {
+                setEventMessages($object->error, [], 'errors');
+            }
+        }
+    }
 }
 
 /*
@@ -308,6 +310,26 @@ $elementArray = array(
 		'langs' => 'Task',
 		'picto' => 'projecttask'
 	),
+    'invoice' => array(
+        'conf' => $conf->global->DOLISMQ_SHEET_LINK_INVOICE,
+        'langs' => 'Invoice',
+        'picto' => 'bill'
+    ),
+    'order' => array(
+        'conf' => $conf->global->DOLISMQ_SHEET_LINK_ORDER,
+        'langs' => 'Order',
+        'picto' => 'order'
+    ),
+    'contract' => array(
+        'conf' => $conf->global->DOLISMQ_SHEET_LINK_CONTRACT,
+        'langs' => 'Contract',
+        'picto' => 'contract'
+    ),
+    'ticket' => array(
+        'conf' => $conf->global->DOLISMQ_SHEET_LINK_TICKET,
+        'langs' => 'Ticket',
+        'picto' => 'ticket'
+    ),
 );
 
 saturne_header(0,'', $title, $help_url);
@@ -327,15 +349,24 @@ if ($action == 'create') {
 	print '<table class="border centpercent tableforfieldcreate sheet-table">'."\n";
 
 	//Label -- Libellé
-	print '<tr><td class="">' . $langs->trans("Label") . '</td><td>';
+	print '<tr><td class="fieldrequired">' . $langs->trans("Label") . '</td><td>';
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="' . GETPOST('label') . '">';
 	print '</td></tr>';
 
+	// Description -- Description
+	print '<tr><td class=""><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
+	$doleditor = new DolEditor('description', GETPOST('description'), '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
+	$doleditor->Create();
+	print '</td></tr>';
+
 	//FK Element
-	if (empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && empty($conf->global->DOLISMQ_SHEET_LINK_USER) && empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT) && empty($conf->global->DOLISMQ_SHEET_LINK_TASK)) {
-		print '<div class="wpeo-notice notice-info">';
+	if (empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && empty($conf->global->DOLISMQ_SHEET_LINK_USER)
+        && empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT)
+        && empty($conf->global->DOLISMQ_SHEET_LINK_TASK) && empty($conf->global->DOLISMQ_SHEET_LINK_INVOICE) && empty($conf->global->DOLISMQ_SHEET_LINK_ORDER)
+        && empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && empty($conf->global->DOLISMQ_SHEET_LINK_TICKET)) {
+		print '<div class="wpeo-notice notice-warning notice-red">';
 		print '<div class="notice-content">';
-		print '<div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . ' : ' . '<a href="' .dol_buildpath('/custom/dolismq/admin/sheet.php', 2).'">' . $langs->trans('ConfigSheet') . '</a>';
+		print '<a href="' . dol_buildpath('/custom/dolismq/admin/sheet.php', 2) . '">' . '<b><div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . ' : ' . $langs->trans('ConfigSheet') . '</b></a>';
 		print '</div>';
 		print '</div>';
 		print '</div>';
@@ -344,11 +375,12 @@ if ($action == 'create') {
 	foreach ($elementArray as $key => $element) {
 		if (!empty($element['conf'])) {
 			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
-			if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
-				print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'"">';
-			} else {
-				print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'">';
-			}
+            $linkedObjects = empty(GETPOST("linked_object")) ? [] : GETPOST("linked_object");
+            if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
+                print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
+            } else {
+                print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
+            }
 			print '</td></tr>';
 		}
 	}
@@ -369,7 +401,7 @@ if ($action == 'create') {
 	print dol_get_fiche_end();
 
 	print '<div class="center">';
-	print '<input type="submit" class="button" name="add" value="'.dol_escape_htmltag($langs->trans("Create")).'">';
+	print '<input type="submit" class="button wpeo-button" name="add" value="'.dol_escape_htmltag($langs->trans("Create")).'">';
 	print '&nbsp; ';
 	print '<input type="'.($backtopage ? "submit" : "button").'" class="button button-cancel" name="cancel" value="'.dol_escape_htmltag($langs->trans("Cancel")).'"'.($backtopage ? '' : ' onclick="javascript:history.go(-1)"').'>'; // Cancel for create does not post form if we don't know the backtopage
 	print '</div>';
@@ -399,8 +431,14 @@ if (($id || $ref) && $action == 'edit') {
 	print '</td></tr>';
 
 	//Label -- Libellé
-	print '<tr><td class="">' . $langs->trans("Label") . '</td><td>';
+	print '<tr><td class="fieldrequired">' . $langs->trans("Label") . '</td><td>';
 	print '<input class="flat" type="text" size="36" name="label" id="label" value="' . $object->label . '">';
+	print '</td></tr>';
+
+	// Description -- Description
+	print '<tr><td class=""><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
+	$doleditor = new DolEditor('description', $object->description, '', 90, 'dolibarr_details', '', false, true, $conf->global->FCKEDITOR_ENABLE_SOCIETE, ROWS_3, '90%');
+	$doleditor->Create();
 	print '</td></tr>';
 
 	//FK Element
@@ -441,7 +479,7 @@ if (($id || $ref) && $action == 'edit') {
 
 	print dol_get_fiche_end();
 
-	print '<div class="center"><input type="submit" class="button button-save" name="save" value="'.$langs->trans("Save").'">';
+	print '<div class="center"><input type="submit" class="button button-save wpeo-button" name="save" value="'.$langs->trans("Save").'">';
 	print ' &nbsp; <input type="submit" class="button button-cancel" name="cancel" value="'.$langs->trans("Cancel").'">';
 	print '</div>';
 
@@ -469,7 +507,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Confirmation to delete
 	if ($action == 'delete') {
-		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('DeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
+		$formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('Delete') . ' ' . $langs->transnoentities('The' . ucfirst($object->element)), $langs->trans('ConfirmDeleteObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_delete', '', 'yes', 1);
 	}
 
 	// Call Hook formConfirm
@@ -542,8 +580,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		if (empty($reshook) && $permissiontoadd) {
+			// Create control
+			if ($object->status == $object::STATUS_LOCKED) {
+				print '<a class="butAction" id="actionButtonCreateControl" href="' . dol_buildpath('/custom/dolismq/view/control/control_card.php?action=create&fk_sheet=' . $object->id, 1) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('CreateControl') . '</a>';
+			} else {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLocked', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('CreateControl') . '</span>';
+			}
+
 			// Modify
-			if ($object->status != $object::STATUS_LOCKED) {
+			if ($object->status == $object::STATUS_VALIDATED) {
 				print '<a class="butAction" id="actionButtonEdit" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit' . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</a>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeDraft', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</span>';
@@ -559,10 +604,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			// Clone
 			print '<span class="butAction" id="actionButtonClone"><i class="fas fa-clone"></i> ' . $langs->trans('Clone') . '</span>';
 
+            // Archive
+            if ($object->status == $object::STATUS_LOCKED) {
+                print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=confirm_archive&token=' . newToken() . '"><i class="fas fa-archive"></i> ' . $langs->trans('Archive') . '</a>';
+            } else {
+                print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLockedToArchive', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-archive"></i> ' . $langs->trans('Archive') . '</span>';
+            }
+
 			// Delete (need delete permission, or if draft, just need create/modify permission)
-			if ($object->status != $object::STATUS_LOCKED) {
-				print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
-			}
+			print dolGetButtonAction('<i class="fas fa-trash"></i> ' . $langs->trans('Delete'), '', 'delete', $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=delete', '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
 		}
 		print '</div>';
 	}
@@ -584,38 +634,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$(".move-line").css("background-image",'url(<?php echo DOL_URL_ROOT.'/theme/'.$conf->theme.'/img/grip.png'; ?>)');
 			$(".move-line").css("background-repeat","no-repeat");
 			$(".move-line").css("background-position","center center");
-			$('#tablelines tbody').sortable({
-				handle: '.move-line',
-				connectWith:'#tablelines tbody .line-row',
-				tolerance:'intersect',
-				over:function(event,ui){
-				},
-				stop: function(event, ui) {
-					let token = $('.fiche').find('input[name="token"]').val();
-
-					let separator = '&'
-					if (document.URL.match(/action=/)) {
-						document.URL = document.URL.split(/\?/)[0]
-						separator = '?'
-					}
-					let lineOrder = [];
-					$('.line-row').each(function(  ) {
-						lineOrder.push($(this).attr('id'));
-					});
-					$.ajax({
-						url: document.URL + separator + "action=moveLine&token=" + token,
-						type: "POST",
-						data: JSON.stringify({
-							order: lineOrder
-						}),
-						processData: false,
-						contentType: false,
-						success: function ( resp ) {
-						}
-					});
-				}
-			});
-
 		});
 	</script>
 	<?php
@@ -624,8 +642,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>' . $langs->trans('Ref') . '</td>';
 	print '<td>' . $langs->trans('Label') . '</td>';
 	print '<td>' . $langs->trans('Description') . '</td>';
-	print '<td>' . $langs->trans('PhotoOk') . '</td>';
-	print '<td>' . $langs->trans('PhotoKo') . '</td>';
+	print '<td>' . $langs->trans('QuestionType') . '</td>';
+	print '<td class="center">' . $langs->trans('PhotoOk') . '</td>';
+	print '<td class="center">' . $langs->trans('PhotoKo') . '</td>';
 	print '<td>' . $langs->trans('Status') . '</td>';
 	print '<td class="center">' . $langs->trans('Action') . '</td>';
 	print '<td class="center"></td>';
@@ -651,23 +670,18 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
 			print '<td>';
-			if (dol_strlen($item->photo_ok)) {
-				$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ok/' . $item->photo_ok, 0, 'entity=' . $conf->entity);
-				if ($urladvanced) print '<a href="' . $urladvanced . '">';
-				print '<img width="40" class="photo photo-ok clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ok/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ok)) . '" >';
-				print '</a>';
-			} else {
-				print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+			print $langs->transnoentities($item->type);
+			print '</td>';
+
+			print '<td class="center">';
+			if (dol_strlen($item->photo_ok) > 0) {
+				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ok', 1, '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $item->ref . '/photo_ok', $item, 'photo_ok', 0, 0, 1,1);
 			}
 			print '</td>';
-			print '<td>';
-			if (dol_strlen($item->photo_ko)) {
-				$urladvanced               = getAdvancedPreviewUrl('dolismq', $item->element . '/' . $item->ref . '/photo_ko/' . $item->photo_ko, 0, 'entity=' . $conf->entity);
-				if ($urladvanced) print '<a href="' . $urladvanced . '">';
-				print '<img width="40" class="photo photo-ko clicked-photo-preview" src="' . DOL_URL_ROOT . '/viewimage.php?modulepart=dolismq&entity=' . $conf->entity . '&file=' . urlencode($item->element . '/' . $item->ref . '/photo_ko/thumbs/' . preg_replace('/\./', '_mini.', $item->photo_ko)) . '" >';
-				print '</a>';
-			} else {
-				print '<img height="40" src="'.DOL_URL_ROOT.'/public/theme/common/nophoto.png">';
+
+			print '<td class="center">';
+			if (dol_strlen($item->photo_ko) > 0) {
+				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ko', 1, '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $item->ref . '/photo_ko', $item, 'photo_ko', 0, 0, 1,1);
 			}
 			print '</td>';
 
@@ -676,7 +690,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
 			print '<td class="center">';
-			if ($object->status != 2) {
+			if ($object->status < $object::STATUS_LOCKED) {
 				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=unlinkQuestion&questionId=' . $item->id . '">';
 				print img_delete();
 				print '</a>';
@@ -696,7 +710,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</tr></tbody>';
 	}
 
-	if ($object->status != 2) {
+	if ($object->status < $object::STATUS_LOCKED) {
 		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '">';
 		print '<input type="hidden" name="token" value="' . newToken() . '">';
 		print '<input type="hidden" name="action" value="addQuestion">';
@@ -706,7 +720,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print $question->selectQuestionList(0, 'questionId', 's.status = ' . Question::STATUS_LOCKED, '1', 0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds);
 		print '</td>';
 		print '<td>';
-		print ' &nbsp; <input type="submit" id ="actionButtonCancelEdit" class="button" name="cancel" value="' . $langs->trans("Add") . '">';
+		print ' &nbsp; <input type="submit" id="actionButtonAdd" class="button wpeo-button" name="add" value="' . $langs->trans("Add") . '">';
+		print '</td>';
+		print '<td>';
 		print '</td>';
 		print '<td>';
 		print '</td>';
