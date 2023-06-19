@@ -15,12 +15,6 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 require_once __DIR__.'/../../class/sheet.class.php';
 
 $sheet         = new Sheet($db);
-$usertmp       = new User($db);
-$thirdparty    = new Societe($db);
-$contact       = new Contact($db);
-$formproject   = new FormProjets($db);
-$productlottmp = new Productlot($db);
-
 // Build and execute select
 // --------------------------------------------------------------------
 $sql = 'SELECT DISTINCT ';

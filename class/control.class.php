@@ -532,7 +532,7 @@ class Control extends SaturneObject
 
         $object->context = 'createfromclone';
 
-        $object->fetchObjectLinked('','', $object->id, 'dolismq_' . $object->element);
+        $object->fetchObjectLinked('','', $object->id, 'dolismq_' . $object->element,  'OR', 1, 'sourcetype', 0);
 
         $controlID = $object->create($user);
 
