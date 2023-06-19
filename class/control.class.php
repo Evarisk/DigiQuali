@@ -184,7 +184,7 @@ class Control extends SaturneObject
     /**
      * @var int|null Verdict.
      */
-    public ?int $verdict;
+    public ?int $verdict = null;
 
     /**
      * @var string|null Photo path.
