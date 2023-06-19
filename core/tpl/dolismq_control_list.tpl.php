@@ -40,6 +40,16 @@ $parameters = array();
 $reshook = $hookmanager->executeHooks('printFieldListSelect', $parameters, $object); // Note that $action and $object may have been modified by hook
 $sql .= preg_replace('/^,/', '', $hookmanager->resPrint);
 $sql = preg_replace('/,\s*$/', '', $sql);
+foreach($elementElementFields as $genericName => $elementElementName) {
+    if (GETPOST('search_' . $genericName) > 0 || $fromtype == $elementElementName) {
+        $id_tosearch = GETPOST('search' . $genericName) ?: $fromid;
+        $sql .= ',' .  $elementElementName . '.fk_source, ';
+    }
+}
+$sql = rtrim($sql, ', ');
+if (array_key_exists($sortfield, $elementElementFields) && !preg_match('/' . 'LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as ' . $elementElementFields[$sortfield] . '/', $sql)) {
+    $sql .= ',' .  $elementElementFields[$sortfield] . '.fk_source';
+}
 $sql .= " FROM ".MAIN_DB_PREFIX.$object->table_element." as t";
 if (!empty($conf->categorie->enabled)) {
 	$sql .= Categorie::getFilterJoinQuery('control', "t.rowid");
@@ -340,6 +350,9 @@ $i = 0;
 $totalarray = array();
 
 $revertedElementFields = array_flip($elementElementFields);
+
+$linkedObjects = $object->fetchAllLinksForObjectType();
+
 while ($i < ($limit ? min($num, $limit) : $num))
 {
 	$obj = $db->fetch_object($resql);
@@ -347,7 +360,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
 
 	// Store properties in $object
 	$object->setVarsFromFetchObj($obj);
-	$object->fetchObjectLinked('', '','', 'dolismq_control');
 
 	// Show here line of result
 	print '<tr class="oddeven">';
@@ -377,11 +389,21 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			elseif (in_array($key, $revertedElementFields)) {
 				$linkedElement = $linkNameElementCorrespondance[$elementElementFields[$key]];
 
-				if (!empty($linkedElement['conf']) && (!empty($object->linkedObjectsIds[$linkedElement['link_name']]))) {
-					$className = $linkedElement['className'];
+				if (is_array($linkedObjects[$obj->rowid]) && !empty($linkedElement['conf']) && (!empty($linkedObjects[$obj->rowid][$linkedElement['link_name']]))) {
+					$className    = $linkedElement['className'];
 					$linkedObject = new $className($db);
-					$result = $linkedObject->fetch(array_shift($object->linkedObjectsIds[$linkedElement['link_name']]));
+
+					$linkedObjectType = $linkedElement['link_name'];
+					$linkedObjectId   = $linkedObjects[$obj->rowid][$linkedElement['link_name']];
+
+					if (!is_object($alreadyFetchedObjects[$linkedObjectType][$linkedObjectId])) {
+						$result = $linkedObject->fetch($linkedObjectId);
+					} else {
+						$linkedObject = $alreadyFetchedObjects[$linkedObjectType][$linkedObjectId];
+						$result = $linkedObjects[$obj->rowid][$linkedElement['link_name']];
+					}
 					if ($result > 0) {
+						$alreadyFetchedObjects[$linkedObjectType][$linkedObjectId] = $linkedObject;
 						print $linkedObject->getNomUrl(1);
 					}
 				}

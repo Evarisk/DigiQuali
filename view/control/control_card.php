@@ -95,13 +95,10 @@ $question         = new Question($db);
 $answer           = new Answer($db);
 $usertmp          = new User($db);
 $product          = new Product($db);
-$productLinked    = new Product($db);
 $project          = new Project($db);
-$projectLinked    = new Project($db);
 $task             = new Task($db);
 $thirdparty       = new Societe($db);
 $contact          = new Contact($db);
-$societeLinked    = new Societe($db);
 $productlot       = new Productlot($db);
 $invoice          = new Facture($db);
 $order            = new Commande($db);
@@ -590,7 +587,7 @@ if ($action == 'create') {
 		print '<tr><td>'.$langs->trans('Categories').'</td><td>';
 		$categoryArborescence = $form->select_all_categories('control', '', 'parent', 64, 0, 1);
 		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $categoryArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
-		//print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=control&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
+		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=control&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print '</td></tr>';
 	}
 
@@ -794,10 +791,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Common attributes
 	unset($object->fields['projectid']); // Hide field already shown in banner
 
-    if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {
-        print '<tr><td class="titlefield">' . $langs->trans('PublicControl') . ' <a href="' . dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $object->track_id, 3) . '" target="_blank"><i class="fas fa-qrcode"></i></a></td>';
-        print '<td>' . saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
-    }
+  if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {
+      print '<tr><td class="titlefield">' . $langs->trans('PublicControl') . ' <a href="' . dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $object->track_id, 3) . '" target="_blank"><i class="fas fa-qrcode"></i></a></td>';
+      print '<td>' . saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
+  }
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
@@ -834,34 +831,50 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
     $qcFrequencyArray = [];
-    $objectInfoArray = [
-        'product'      => ['title' => 'ProductOrService'],
-        'user'         => ['title' => 'User'],
-        'societe'      => ['title' => 'ThirdParty'],
-        'contact'      => ['title' => 'Contact'],
-        'project'      => ['title' => 'Project'],
-        'project_task' => ['title' => 'Task'],
-        'facture'      => ['title' => 'Bill'],
-        'commande'     => ['title' => 'Order'],
-        'contrat'      => ['title' => 'Contract'],
-        'ticket'       => ['title' => 'Ticket'],
-    ];
+	$linkedObjects    = [];
+
 	$object->fetchObjectLinked('', '', '', 'dolismq_control');
 
 	foreach($elementArray as $linkableElementType => $linkableElement) {
 		if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-			//FKProduct -- Produit
+			$className = $linkableElement['className'];
+			$linkedObject = new $className($db);
+
+			$linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
+			$linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
+
+			$result = $linkedObject->fetch($linkedObjectId);
+			if ($result > 0) {
+				$linkedObjects[$linkableElementType] = $linkedObject;
+				if (array_key_exists('options_qc_frequency', $linkedObject->array_options)) {
+					if ($linkedObject->array_options['options_qc_frequency'] > 0) {
+						$qcFrequencyArray[$linkableElementType] = $linkedObject->array_options['options_qc_frequency'];
+					}
+				}
+			}
+		}
+	}
+
+	foreach($elementArray as $linkableElementType => $linkableElement) {
+		if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
+
 			print '<tr><td class="titlefield">';
 			print $langs->trans($linkableElement['langs']);
 			print '</td>';
 			print '<td>';
 
-			$className = $linkableElement['className'];
-			$linkedObject = new $className($db);
-			$result = $linkedObject->fetch(array_shift($object->linkedObjectsIds[$linkableElement['link_name']]));
-			if ($result > 0) {
-				print $linkedObject->getNomUrl(1);
+			$currentObject    = $linkedObjects[$linkableElementType];
+			$isMinQcFrequency = $linkableElementType == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0];
+
+			print $currentObject->getNomUrl(1);
+
+			if ($qcFrequencyArray[$linkableElementType] > 0) {
+				print ' - ';
+				print $isMinQcFrequency ? '<strong>' : '';
+				print $langs->transnoentities('QcFrequency') . ' : ' . $qcFrequencyArray[$linkableElementType];
+				print $isMinQcFrequency ? '</strong>' : '';
 			}
+
 			print '<td></tr>';
 		}
 	}
@@ -912,7 +925,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     $cantValidateControl = 0;
     $mandatoryArray      = json_decode($sheet->mandatory_questions, true);
 
-    if (!empty($sheet->mandatory_questions) && is_array($mandatoryArray)) {
+    if (is_array($mandatoryArray) && !empty($mandatoryArray) && is_array($questionIds) && !empty($questionIds)) {
         foreach ($questionIds as $questionId) {
             if (in_array($questionId, $mandatoryArray)) {
                 $controldettmp = $controldet;
@@ -1162,7 +1175,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					$pictosArray = get_answer_pictos_array();
 					?>
 					<?php if ($item->type == 'MultipleChoices') :
-						$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $item->id]);
+						$answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $item->id]);
 						?>
 						<div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<?php
@@ -1188,7 +1201,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							?>
 						</div>
 					<?php elseif ($item->type == 'UniqueChoice' || $item->type == 'OkKo' || $item->type == 'OkKoToFixNonApplicable') :
-						$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $item->id]);
+						$answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $item->id]);
 						?>
 						<div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<?php
@@ -1260,7 +1273,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		$maxEvent = 10;
 
-		$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliMeet&object_type=' . $object->element);
+		$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element);
 
 		// List of actions on element
 		include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';

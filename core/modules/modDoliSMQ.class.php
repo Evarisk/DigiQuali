@@ -122,7 +122,8 @@ class modDoliSMQ extends DolibarrModules
 				'categoryindex',
 				'mainloginpage',
                 'controlcard',
-                'publiccontrol'
+                'publiccontrol',
+                'dolismqadmindocuments'
 			],
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -570,18 +571,17 @@ class modDoliSMQ extends DolibarrModules
         // Create extrafields during init.
         include_once DOL_DOCUMENT_ROOT . '/core/class/extrafields.class.php';
         $extraFields = new ExtraFields($this->db);
+		$linkableElements = get_sheet_linkable_objects();
 
-        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'product', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
-        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'product_lot', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
-        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'user', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
-        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'societe', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
-        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'socpeople', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
-        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'projet', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
-        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'projet_task', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
-        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'facture', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
-        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'commande', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
-        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'contrat', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
-        $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, 'ticket', 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
+		if (is_array($linkableElements) && !empty($linkableElements)) {
+			foreach($linkableElements as $linkableElementType => $linkableElement) {
+				$className      = $linkableElement['className'];
+				$linkableObject = new $className($this->db);
+				$tableElement   = $linkableObject->table_element;
+
+				$extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, $tableElement, 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
+			}
+		}
 
 		if ($result < 0) {
 			return -1;
@@ -597,7 +597,7 @@ class modDoliSMQ extends DolibarrModules
                     $control->track_id = generate_random_id();
                     $control->update($user, true);
 
-                    $url = dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $control->track_id, 3);
+                    $url = dol_buildpath('custom/dolismq/public/control/public_control.php?track_id=' . $control->track_id, 3);
 
                     $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
                     dol_mkdir(DOL_DATA_ROOT . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'dolismq/control/' . $control->ref . '/qrcode/');
