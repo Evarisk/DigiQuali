@@ -177,8 +177,6 @@ foreach ($object->fields as $key => $val) {
 	}
 }
 
-$arrayfields['t.status']['checked'] = 0;
-
 // Extra fields
 include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_array_fields.tpl.php';
 
