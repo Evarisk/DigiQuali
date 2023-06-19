@@ -121,7 +121,9 @@ class modDoliSMQ extends DolibarrModules
 				'category',
 				'categoryindex',
 				'mainloginpage',
-                'controlcard'
+                'controlcard',
+                'publiccontrol',
+                'dolismqadmindocuments'
 			],
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -184,6 +186,7 @@ class modDoliSMQ extends DolibarrModules
             $i++ => ['DOLISMQ_SHEET_LINK_ORDER', 'integer', 0, '', 0, 'current'],
             $i++ => ['DOLISMQ_SHEET_LINK_CONTRACT', 'integer', 0, '', 0, 'current'],
             $i++ => ['DOLISMQ_SHEET_LINK_TICKET', 'integer', 0, '', 0, 'current'],
+			$i++ => ['DOLISMQ_SHEET_DEFAULT_TAG', 'integer', 0, '', 0, 'current'],
 
 			// CONST QUESTION
 			$i++ => ['DOLISMQ_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'],
@@ -195,6 +198,7 @@ class modDoliSMQ extends DolibarrModules
 			// CONST CONTROL
 			$i++ => ['DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLISMQ_CONTROL_BACKWARD_COMPATIBILITY', 'integer', 0, '', 0, 'current'],
 
             // CONST DOLISMQ DOCUMENTS
             $i++ => ['DOLISMQ_AUTOMATIC_PDF_GENERATION', 'integer', 0, '', 0, 'current'],
@@ -243,20 +247,26 @@ class modDoliSMQ extends DolibarrModules
 		}
 
 		// Array to add new pages in new tabs
+		require_once __DIR__ . '/../../lib/dolismq_sheet.lib.php';
+
 		$this->tabs   = [];
 		$pictopath    = dol_buildpath('/custom/dolismq/img/dolismq_color.png', 1);
 		$pictoDoliSMQ = img_picto('', $pictopath, '', 1, 0, 0, '', 'pictoModule');
-		$this->tabs[] = ['data' => 'productlot:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=productbatch'];
-		$this->tabs[] = ['data' => 'product:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=product'];
-		$this->tabs[] = ['data' => 'project:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project'];
-		$this->tabs[] = ['data' => 'thirdparty:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=societe'];
-		$this->tabs[] = ['data' => 'contact:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=contact'];
-		$this->tabs[] = ['data' => 'task:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=project_task'];
-		$this->tabs[] = ['data' => 'user:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=user'];
-		$this->tabs[] = ['data' => 'invoice:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=facture'];
-		$this->tabs[] = ['data' => 'order:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=commande'];
-		$this->tabs[] = ['data' => 'contract:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=contrat'];
-		$this->tabs[] = ['data' => 'ticket:+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=ticket'];
+		$linkableElements = get_sheet_linkable_objects();
+
+		if (is_array($linkableElements) && !empty($linkableElements)) {
+			foreach($linkableElements as $linkableElementType => $linkableElement) {
+				if (preg_match('/_/', $linkableElementType)) {
+					$splittedElementType = preg_split('/_/', $linkableElementType);
+					$moduleName = $splittedElementType[0];
+					$objectName = strtolower($linkableElement['className']);
+					$objectType = $objectName . '@' . $moduleName;
+				} else {
+					$objectType = $linkableElementType;
+				}
+				$this->tabs[] = ['data' => $objectType . ':+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=' . $linkableElement['link_name']];
+			}
+		}
 
         // Dictionaries.
         $this->dictionaries = [
@@ -346,6 +356,11 @@ class modDoliSMQ extends DolibarrModules
 		$this->rights[$r][1] = $langs->transnoentities('DeleteObjects', $langs->transnoentities('ControlsMin')); // Permission label
 		$this->rights[$r][4] = 'control'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$r++;
+		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
+		$this->rights[$r][1] = $langs->transnoentities('CanSetVerdict'); // Permission label
+		$this->rights[$r][4] = 'control'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
+		$this->rights[$r][5] = 'setverdict'; // In php code, permission will be checked by test if ($user->rights->dolismq->level1->level2)
 		$r++;
 
 		/* QUESTION PERMISSSIONS */
@@ -544,10 +559,59 @@ class modDoliSMQ extends DolibarrModules
 
 		addDocumentModel('controldocument_odt', 'controldocument', 'ODT templates', 'DOLISMQ_CONTROLDOCUMENT_ADDON_ODT_PATH');
 
+		if (!empty($conf->global->DOLISMQ_SHEET_TAGS_SET) && empty($conf->global->DOLISMQ_SHEET_DEFAULT_TAG)) {
+			global $user, $langs;
+
+			$tags = new Categorie($this->db);
+			$tags->label = $langs->transnoentities('Default');
+			$tags->type  = 'sheet';
+			$tags->create($user);
+
+			dolibarr_set_const($this->db, 'DOLISMQ_SHEET_DEFAULT_TAG', $tags->id, 'integer', 0, '', $conf->entity);
+		}
+        // Create extrafields during init.
+        include_once DOL_DOCUMENT_ROOT . '/core/class/extrafields.class.php';
+        $extraFields = new ExtraFields($this->db);
+		$linkableElements = get_sheet_linkable_objects();
+
+		if (is_array($linkableElements) && !empty($linkableElements)) {
+			foreach($linkableElements as $linkableElementType => $linkableElement) {
+				$className      = $linkableElement['className'];
+				$linkableObject = new $className($this->db);
+				$tableElement   = $linkableObject->table_element;
+
+				$extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, $tableElement, 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'dolismq@dolismq', '$conf->dolismq->enabled');
+			}
+		}
+
 		if ($result < 0) {
 			return -1;
 		} // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
 
+    if (getDolGlobalInt('DOLISMQ_CONTROL_BACKWARD_COMPATIBILITY') == 0) {
+        require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
+        require_once __DIR__ . '/../../class/control.class.php';
+        $control  = new Control($this->db);
+        $controls = $control->fetchAll();
+        if (is_array($controls) && !empty($controls)) {
+            foreach ($controls as $control) {
+                $control->track_id = generate_random_id();
+                $control->update($user, true);
+
+                $url = dol_buildpath('custom/dolismq/public/control/public_control.php?track_id=' . $control->track_id, 3);
+
+                $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
+                dol_mkdir(DOL_DATA_ROOT . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'dolismq/control/' . $control->ref . '/qrcode/');
+                $file = DOL_DATA_ROOT . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'dolismq/control/' . $control->ref . '/qrcode/barcode_' . $control->track_id . '.png';
+
+                $imageData = $barcode->getBarcodePngData();
+                $imageData = imagecreatefromstring($imageData);
+                imagepng($imageData, $file);
+            }
+        }
+
+        dolibarr_set_const($this->db, 'DOLISMQ_CONTROL_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
+    }
 
 		// Permissions
 		$this->remove($options);

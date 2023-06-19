@@ -685,7 +685,7 @@ if ($action == 'create') {
 
 	// Type -- Type
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'label', 'label', GETPOST('type') ?: $langs->transnoentities('OkKoToFixNonApplicable'));
+	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', GETPOST('type') ?: 'OkKoToFixNonApplicable');
 	print '</td></tr>';
 
 	// Description -- Description
@@ -762,6 +762,7 @@ if ($action == 'create') {
 		print '<tr><td>'.$langs->trans("Categories").'</td><td>';
 		$categoryArborescence = $form->select_all_categories('question', '', 'parent', 64, 0, 1);
 		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $categoryArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=question&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print "</td></tr>";
 	}
 
@@ -810,7 +811,7 @@ if (($id || $ref) && $action == 'edit') {
 
 	// Type -- Type
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'label', 'label', $langs->transnoentities($object->type));
+	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', $object->type);
 	print '</td></tr>';
 
 	//Description -- Description
@@ -904,6 +905,7 @@ if (($id || $ref) && $action == 'edit') {
 			}
 		}
 		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $categoryArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=question&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print "</td></tr>";
 	}
 
@@ -1041,7 +1043,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $object->id]);
+    $answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $object->id]);
 
 	// Buttons for actions
 	if ($action != 'presend') {
@@ -1129,7 +1131,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
 					print '<td>';
-					print $answerSingle->getNomUrl(1);
+					print img_picto('', $answerSingle->picto, 'class="pictofixedwidth"') . $answerSingle->ref;
 					print '</td>';
 
 					print '<td>';
@@ -1161,7 +1163,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					//SHOW LINE
 					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
 					print '<td>';
-					print $answerSingle->getNomUrl(1);
+					print img_picto('', $answerSingle->picto, 'class="pictofixedwidth"') . $answerSingle->ref;
 					print '</td>';
 
 					print '<td>';
@@ -1246,7 +1248,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	$maxEvent = 10;
 
-	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliMeet&object_type=' . $object->element);
+	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element);
 
 	// List of actions on element
 	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';

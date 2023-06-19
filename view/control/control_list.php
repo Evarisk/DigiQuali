@@ -123,88 +123,26 @@ $search_array_options = $extrafields->getOptionalsFromPost($object->table_elemen
 if (!$sortfield) { reset($object->fields); $sortfield="t.".key($object->fields); }   // Set here default search field. By default 1st field in definition. Reset is required to avoid key() to return null.
 if (!$sortorder) $sortorder = "ASC";
 
-if (!empty($fromtype)) {
-	switch ($fromtype) {
-		case 'project' :
-			$objectLinked = new Project($db);
-			break;
-		case 'product' :
-			$objectLinked = new Product($db);
-			break;
-		case 'productbatch' :
-			$objectLinked = new Productlot($db);
-			break;
-		case 'project_task' :
-			$objectLinked = new Task($db);
-			break;
-		case 'societe' :
-			$objectLinked = new Societe($db);
-			break;
-		case 'contact' :
-			$objectLinked = new Contact($db);
-			break;
-		case 'user' :
-			$objectLinked = new User($db);
-			break;
-		case 'fk_sheet' :
-			$objectLinked = new Sheet($db);
-			break;
-        case 'facture' :
-            $objectLinked = new Facture($db);
-            break;
-        case 'commande' :
-            $objectLinked = new Commande($db);
-            break;
-        case 'contrat' :
-            $objectLinked = new Contrat($db);
-			$objectLinked->element = 'contract';
-            break;
-        case 'ticket' :
-            $objectLinked = new Ticket($db);
-            break;
+$linkableElements = get_sheet_linkable_objects();
+
+$objectPosition = 10;
+foreach($linkableElements as $linkableElementType => $linkableElement) {
+	$className  = $linkableElement['className'];
+
+	if (!empty($fromtype) && $fromtype == $linkableElement['link_name']) {
+		$objectLinked = new $className($db);
+		$objectLinked->fetch($fromid);
 	}
-	$objectLinked->fetch($fromid);
-	$linkedObjectsArray = array('sheet', 'user');
+
+	$arrayfields['t.'.$linkableElement['post_name']] = [
+		'type' => 'integer:'. $className .':' . $linkableElement['class_path'], 'label' => $linkableElement['langs'], 'enabled' => '1', 'position' => $objectPosition, 'notnull' => 0, 'visible' => 5, 'checked' => 1
+	];
+
+	$object->fields[$linkableElement['post_name']] = $arrayfields['t.'.$linkableElement['post_name']];
+	$elementElementFields[$linkableElement['post_name']] = $linkableElement['link_name'];
+	$linkNameElementCorrespondance[$linkableElement['link_name']] = $linkableElement;
+	$objectPosition++;
 }
-
-//Define custom field provide by element_element
-$arrayfields['t.fk_product']    = array('type' => 'integer:Product:product/class/product.class.php', 'label' => 'ProductOrServiceLinked', 'enabled' => '1', 'position' => 21, 'notnull' => 0, 'visible' => 5, 'css' => 'maxwidthsearch', 'foreignkey' => 'product.rowid', 'checked' => 1);
-$arrayfields['t.fk_lot']        = array('type' => 'integer:Productlot:product/stock/class/productlot.class.php', 'label' => 'BatchLinked', 'enabled' => '1', 'position' => 22, 'notnull' => 0, 'visible' => 5, 'css' => 'maxwidthsearch', 'foreignkey' => 'productlot.rowid', 'checked' => 1);
-$arrayfields['t.fk_user']       = array('type' => 'integer:User:user/class/user.class.php', 'label' => 'UserLinked', 'enabled' => '1', 'position' => 23, 'notnull' => 0, 'visible' => 5, 'css' => 'maxwidthsearch', 'foreignkey' => 'user.rowid', 'checked' => 1);
-$arrayfields['t.fk_thirdparty'] = array('type' => 'integer:Societe:societe/class/societe.class.php', 'label' => 'ThirdPartyLinked', 'enabled' => '1', 'position' => 25, 'notnull' => 0, 'visible' => 5, 'css' => 'maxwidthsearch', 'foreignkey' => 'societe.rowid', 'checked' => 1);
-$arrayfields['t.fk_contact']    = array('type' => 'integer:Contact:contact/class/contact.class.php', 'label' => 'ContactLinked', 'enabled' => '1', 'position' => 26, 'notnull' => 0, 'visible' => 5, 'css' => 'maxwidthsearch', 'foreignkey' => 'contact.rowid', 'checked' => 1);
-$arrayfields['t.fk_project']    = array('type' => 'integer:Project:projet/class/project.class.php', 'label' => 'ProjectLinked', 'enabled' => '1', 'position' => 27, 'notnull' => 0, 'visible' => 5, 'css' => 'maxwidthsearch', 'foreignkey' => 'project.rowid', 'checked' => 1);
-$arrayfields['t.fk_task']       = array('type' => 'integer:Task:projet/class/task.class.php', 'label' => 'TaskLinked', 'enabled' => '1', 'position' => 28, 'notnull' => 0, 'visible' => 5, 'css' => 'maxwidthsearch', 'foreignkey' => 'task.rowid', 'checked' => 1);
-$arrayfields['t.fk_invoice']    = array('type' => 'integer:Facture:compta/facture/class/facture.class.php', 'label' => 'InvoiceLinked', 'enabled' => '1', 'position' => 29, 'notnull' => 0, 'visible' => 5, 'css' => 'maxwidthsearch', 'foreignkey' => 'facture.rowid', 'checked' => 1);
-$arrayfields['t.fk_order']      = array('type' => 'integer:Commande:commande/class/commande.class.php', 'label' => 'OrderLinked', 'enabled' => '1', 'position' => 30, 'notnull' => 0, 'visible' => 5, 'css' => 'maxwidthsearch', 'foreignkey' => 'commande.rowid', 'checked' => 1);
-$arrayfields['t.fk_contract']   = array('type' => 'integer:Contrat:contrat/class/contrat.class.php', 'label' => 'ContractLinked', 'enabled' => '1', 'position' => 31, 'notnull' => 0, 'visible' => 5, 'css' => 'maxwidthsearch', 'foreignkey' => 'contrat.rowid', 'checked' => 1);
-$arrayfields['t.fk_ticket']     = array('type' => 'integer:Ticket:ticket/class/ticket.class.php', 'label' => 'TicketLinked', 'enabled' => '1', 'position' => 32, 'notnull' => 0, 'visible' => 5, 'css' => 'maxwidthsearch', 'foreignkey' => 'ticket.rowid', 'checked' => 1);
-
-$object->fields['fk_product']    = $arrayfields['t.fk_product'];
-$object->fields['fk_lot']        = $arrayfields['t.fk_lot'];
-$object->fields['fk_user']       = $arrayfields['t.fk_user'];
-$object->fields['fk_thirdparty'] = $arrayfields['t.fk_thirdparty'];
-$object->fields['fk_contact']    = $arrayfields['t.fk_contact'];
-$object->fields['fk_project']    = $arrayfields['t.fk_project'];
-$object->fields['fk_task']       = $arrayfields['t.fk_task'];
-$object->fields['fk_invoice']    = $arrayfields['t.fk_invoice'];
-$object->fields['fk_order']      = $arrayfields['t.fk_order'];
-$object->fields['fk_contract']   = $arrayfields['t.fk_contract'];
-$object->fields['fk_ticket']     = $arrayfields['t.fk_ticket'];
-
-$elementElementFields = array(
-	'fk_product'    => 'product',
-	'fk_lot'        => 'productbatch',
-	'fk_user'       => 'user',
-	'fk_thirdparty' => 'societe',
-	'fk_contact'    => 'contact',
-	'fk_project'    => 'project',
-	'fk_task'       => 'project_task',
-	'fk_invoice'    => 'facture',
-	'fk_order'      => 'commande',
-	'fk_contract'   => 'contrat',
-	'fk_ticket'     => 'ticket',
-);
 
 // Initialize array of search criterias
 $searchAll = GETPOST('search_all', 'alphanohtml') ? GETPOST('search_all', 'alphanohtml') : GETPOST('sall', 'alphanohtml');
