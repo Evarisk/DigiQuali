@@ -372,6 +372,7 @@ if ($action == 'create') {
 		print '<tr><td>'.$langs->trans("Categories").'</td><td>';
 		$cate_arbo = $form->select_all_categories('sheet', '', 'parent', 64, 0, 1);
 		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $cate_arbo, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=sheet&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print "</td></tr>";
 	}
 
@@ -451,6 +452,7 @@ if (($id || $ref) && $action == 'edit') {
 			}
 		}
 		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $cate_arbo, $object->getCategoriesCommon(436301002), '', 0, 'maxwidth500 widthcentpercentminusx');
+        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=sheet&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print "</td></tr>";
 	}
 
