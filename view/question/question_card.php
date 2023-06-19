@@ -685,7 +685,7 @@ if ($action == 'create') {
 
 	// Type -- Type
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'label', 'label', GETPOST('type') ?: $langs->transnoentities('OkKoToFixNonApplicable'));
+	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', GETPOST('type') ?: 'OkKoToFixNonApplicable');
 	print '</td></tr>';
 
 	// Description -- Description
@@ -811,7 +811,7 @@ if (($id || $ref) && $action == 'edit') {
 
 	// Type -- Type
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'label', 'label', $langs->transnoentities($object->type));
+	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', $object->type);
 	print '</td></tr>';
 
 	//Description -- Description
