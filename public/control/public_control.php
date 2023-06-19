@@ -126,42 +126,47 @@ foreach($elementArray as $linkableElementType => $linkableElement) {
         <div class="informations">
             <div style="margin-bottom: 10px"><strong><?php echo $object->getNomUrl(1, 'nolink'); ?></strong></div>
             <div class="wpeo-table table-flex">
+                <div style="margin-bottom: 10px; margin-top: 10px;"><strong><?php echo $langs->trans('ObjectLinked'); ?></strong></div>
                 <div class="table-row">
                     <div class="table-cell"><?php echo '<i class="far fa-check-circle"></i> ' . $langs->trans('Verdict'); ?></div>
                     <div class="table-cell table-end"><?php echo (!empty($object->verdict) ? $langs->transnoentities($object->fields['verdict']['arrayofkeyval'][$object->verdict]) : $langs->transnoentities('NoVerdict')); ?></div>
                 </div>
-				<div class="table-row">
-					<div class="wpeo-table table-cell table-full">
-						<?php
-						foreach ($elementArray as $linkableObjectType => $linkableObject) {
-							if (is_object($linkedObjects[$linkableObjectType])) {
-								if ($linkableObject['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableObject['link_name']]))) {
-									$currentObject = $linkedObjects[$linkableObjectType];
-									$isMinQcFrequency = $linkableObjectType == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0];
-									print '<div class="table-row">';
-									print '<div class="table-cell table-150">';
+                <div class="table-row">
+                  <div class="wpeo-table table-cell table-full">
+                    <?php
+                    foreach ($elementArray as $linkableObjectType => $linkableObject) {
+                      if (is_object($linkedObjects[$linkableObjectType])) {
+                        if ($linkableObject['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableObject['link_name']]))) {
+                          $currentObject = $linkedObjects[$linkableObjectType];
+                          $isMinQcFrequency = $linkableObjectType == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0];
+                          print '<div class="table-row">';
+                          print '<div class="table-cell table-150">';
 
-									print $isMinQcFrequency ? '<strong>' : '';
-									print $langs->trans($linkableObject['langs']);
+                          print $isMinQcFrequency ? '<strong>' : '';
+                          print $langs->trans($linkableObject['langs']);
 
-									print '</div>';
-									print '<div class="table-cell table-200 table-end">';
+                          print '</div>';
+                          print '<div class="table-cell table-200 table-end">';
 
-									print img_picto('', $linkableObject['picto'], 'class="pictofixedwidth"') . $currentObject->ref;
-									if (array_key_exists($linkableObjectType, $qcFrequencyArray) && $qcFrequencyArray[$linkableObjectType] > 0) {
-										print '<br>';
-										print $langs->transnoentities('QcFrequency') . ' : ' . $qcFrequencyArray[$linkableObjectType];
-									}
-									print $isMinQcFrequency ? '</strong>' : '';
+                          print img_picto('', $linkableObject['picto'], 'class="pictofixedwidth"') . $currentObject->ref;
+                          if (array_key_exists($linkableObjectType, $qcFrequencyArray) && $qcFrequencyArray[$linkableObjectType] > 0) {
+                            print '<br>';
+                            print $langs->transnoentities('QcFrequency') . ' : ' . $qcFrequencyArray[$linkableObjectType];
+                          }
+                          print $isMinQcFrequency ? '</strong>' : '';
 
-									print '</div>';
-									print '</div>';
-								}
-							}
-						}
-						?>
-					</div>
-				</div>
+                          print '</div>';
+                          print '</div>';
+                        }
+                      }
+                    }
+                    ?>
+                  </div>
+                </div>
+                <div class="table-row">
+                    <div class="table-cell"><?php echo '<i class="far fa-check-circle"></i> ' . $langs->trans('Verdict'); ?></div>
+                    <div class="table-cell table-end"><?php echo (!empty($object->verdict) ? $langs->transnoentities($object->fields['verdict']['arrayofkeyval'][$object->verdict]) : $langs->transnoentities('NoVerdict')); ?></div>
+                </div>
                 <div class="table-row">
                     <div class="table-cell table-200"><?php echo img_picto('', 'calendar', 'class="pictofixedwidth"') . $langs->trans('ControlDate'); ?></div>
                     <div class="table-cell table-end"><?php echo dol_print_date($object->date_creation, 'day'); ?></div>
@@ -169,7 +174,7 @@ foreach($elementArray as $linkableElementType => $linkableElement) {
                 <?php if (!empty($qcFrequencyArray)) : ?>
                     <div class="table-row">
                         <div class="table-cell table-300"><?php echo img_picto('', 'calendar', 'class="pictofixedwidth"') . $langs->trans('NextControlDate'); ?></div>
-                        <?php $nextControlDate = dol_time_plus_duree($object->date_creation, min($qcFrequencyArray), 'd'); ?>
+                        <?php $nextControlDate = dol_time_plus_duree($object->date_creation, $minQcFrequency, 'd'); ?>
                         <div class="table-cell table-end"><?php echo dol_print_date($nextControlDate, 'day'); ?></div>
                     </div>
                     <div class="table-row">
