@@ -24,6 +24,9 @@
 // Load Saturne libraries.
 require_once __DIR__ . '/../../saturne/class/saturneobject.class.php';
 
+// Load Dolismq librairies.
+require_once __DIR__ . '/../core/modules/dolismq/answer/mod_answer_standard.php';
+
 /**
  * Class for Answer.
  */

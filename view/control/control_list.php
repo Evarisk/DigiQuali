@@ -331,14 +331,12 @@ if ($fromid) {
 			}
 		}
 
-		if (!empty($categories)) {
-			$box->loadBox();
-			if (is_array($nbBox) || is_object($nbBox)) {
-				for ($i = 0; $i < count($nbBox); $i++) {
-					$box->showBox($i,$i);
-				}
-			}
-		}
+        if (is_array($nbBox) || is_object($nbBox)) {
+            $box->loadBox();
+            for ($i = 0; $i < count($nbBox); $i++) {
+                $box->showBox($i,$i);
+            }
+        }
 	}
 	print '</div>';
 }

@@ -45,6 +45,7 @@ ModifyQuestion                = Modifier une question
 LinkedQuestionsList           = Listes des questions liées
 addQuestionLink               = Question ajoutée à la fiche modèle :
 removeQuestionLink            = Question retirée de la fiche modèle :
+LockQuestion                  = La question %s est passée au status verrouillé
 LockQuestions                 = Toutes les questions sélectionnées sont passées au statut verrouillé
 ThereAre                      = Il y a
 YouAnswered                   = Vous avez répondu à
@@ -84,7 +85,7 @@ ErrorDeleteAnswer             = Une erreur est survenue lors de la suppression d
 AnswerCreated                 = La réponse a été créée avec succès
 AnswerUpdated                 = La réponse a été mise à jour avec succès
 AnswerDeleted                 = La réponse a été supprimée avec succès
-AnswerMustBeCreated           = La question doit avoir au moins une réponse
+AnswerMustBeCreated           = La question %s doit avoir au moins une réponse pour être verrouillé
 
 #
 # Sheet
@@ -230,7 +231,7 @@ NoVerdict = Pas de verdict
 ControlsRepartition = Répartition des contrôles par verdict
 ControlsTagsRepartition = Répartition des contrôles par verdict par catégories
 ControlsByFiscalYear = Rapport des contrôles sur l'exercice fiscal
-OfControl = des contrôles
+OfControl = du contrôle
 OfAnswer = des réponses
 PublicControl = Interface publique de contrôle
 QcFrequency = Période de validité (en jours)
@@ -239,7 +240,6 @@ NextControlDate = Prochaine date de contrôle
 NextControl = Prochain contrôle
 QuestionMustBeAnswered = Vous devez encore répondre à %s question(s) obligatoire(s)
 NoControlAnswersPhoto = Pas de photos sur les réponses du contrôle
-
 
 #
 # ControlDet
@@ -261,10 +261,10 @@ ControlDocumentsMin = fiches de contôle
 ControlDocumentDisplayMedias = Afficher les médias dans la fiche de contrôle
 ControlDocumentDisplayMediasDescription = Afficher les médias des questions dans la fiche de contrôle du document ODT
 ControlDocumentSentByMailTrigger = Email fiche de contrôle envoyée
-controldocument = fiche de contrôle
+controldocument = fiche de controle
 controldocument.odt = Fiche de Contrôle
 controldocument_photo.odt = Fiche de Contrôle avec photos
-controldocument_photo = fiche de contrôle avec photos
+controldocument_photo = fiche de controle avec photos
 
 #
 # Other

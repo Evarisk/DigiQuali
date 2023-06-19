@@ -185,7 +185,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
 
                             $tmpArray['ref']         = $question->ref;
                             $tmpArray['label']       = $question->label;
-                            $tmpArray['description'] = $question->description;
+                            $tmpArray['description'] = strip_tags($question->description);
 
                             if (is_array($controldets) && !empty($controldets)) {
                                 $questionAnswerLine     = array_shift($controldets);
@@ -318,7 +318,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
             $tmpArray['photoDefault'] = DOL_DOCUMENT_ROOT . $noPhoto;
         }
 
-        $outputLangs->loadLangs(['products', 'bills', 'orders', 'contracts', 'projects']);
+        $outputLangs->loadLangs(['products', 'bills', 'orders', 'contracts', 'projects', 'companies']);
 
         $sheet      = new Sheet($this->db);
         $usertmp    = new User($this->db);
