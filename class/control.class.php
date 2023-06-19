@@ -905,6 +905,44 @@ class Control extends SaturneObject
 
         return $array;
     }
+
+	/**
+	 * Get control linked objects with qc frequencies.
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
+	public function getLinkedObjectsWithQcFrequency($linkableObjects): array
+	{
+		global $db;
+
+		$qcFrequencyArray = [];
+		$linkedObjects    = [];
+
+		foreach($linkableObjects as $linkableElementType => $linkableElement) {
+			if ($linkableElement['conf'] > 0 && (!empty($this->linkedObjectsIds[$linkableElement['link_name']]))) {
+				$className = $linkableElement['className'];
+				$linkedObject = new $className($db);
+
+				$linkedObjectKey = array_key_first($this->linkedObjectsIds[$linkableElement['link_name']]);
+				$linkedObjectId  = $this->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
+
+				$result = $linkedObject->fetch($linkedObjectId);
+				if ($result > 0) {
+					$linkedObjects[$linkableElementType] = $linkedObject;
+					if (array_key_exists('options_qc_frequency', $linkedObject->array_options)) {
+						if ($linkedObject->array_options['options_qc_frequency'] > 0) {
+							$qcFrequencyArray[$linkableElementType] = $linkedObject->array_options['options_qc_frequency'];
+						}
+					}
+				}
+			}
+		}
+		return [
+			'qcFrequencyArray' => $qcFrequencyArray,
+			'linkedObjects'    => $linkedObjects
+			];
+	}
 }
 
 class ControlLine extends CommonObjectLine

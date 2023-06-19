@@ -94,30 +94,12 @@ saturne_header(0, '', $title);
 
 $elementArray = get_sheet_linkable_objects();
 
-$qcFrequencyArray = [];
-$linkedObjects    = [];
-
 $object->fetchObjectLinked('', '', '', 'dolismq_control', 'OR', 1, 'sourcetype', 0);
 
-foreach($elementArray as $linkableElementType => $linkableElement) {
-	if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-		$className = $linkableElement['className'];
-		$linkedObject = new $className($db);
+$linkedObjectsInfos = $object->getLinkedObjectsWithQcFrequency($elementArray);
 
-		$linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
-		$linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
-
-		$result = $linkedObject->fetch($linkedObjectId);
-		if ($result > 0) {
-			$linkedObjects[$linkableElementType] = $linkedObject;
-			if (array_key_exists('options_qc_frequency', $linkedObject->array_options)) {
-				if ($linkedObject->array_options['options_qc_frequency'] > 0) {
-					$qcFrequencyArray[$linkableElementType] = $linkedObject->array_options['options_qc_frequency'];
-				}
-			}
-		}
-	}
-}
+$linkedObjects    = $linkedObjectsInfos['linkedObjects'];
+$qcFrequencyArray = $linkedObjectsInfos['qcFrequencyArray'];
 ?>
 
 <div class="signature-container" style="max-width: 1000px;">
