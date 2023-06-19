@@ -597,7 +597,7 @@ class modDoliSMQ extends DolibarrModules
                     $control->track_id = generate_random_id();
                     $control->update($user, true);
 
-                    $url = dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $control->track_id, 3);
+                    $url = dol_buildpath('custom/dolismq/public/control/public_control.php?track_id=' . $control->track_id, 3);
 
                     $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
                     dol_mkdir(DOL_DATA_ROOT . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'dolismq/control/' . $control->ref . '/qrcode/');

@@ -248,7 +248,7 @@ class Control extends SaturneObject
 
             require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
 
-            $url = dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $this->track_id, 3);
+            $url = dol_buildpath('custom/dolismq/public/control/public_control.php?track_id=' . $this->track_id, 3);
 
             $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
 
