@@ -172,7 +172,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
 
             if ($foundTagForLines) {
                 if (!empty($object)) {
-                    $object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet');
+                    $object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet', 'OR', 1, 'sourcetype', 0);
                     $questionIds = $object->linkedObjectsIds;
                     if (is_array($questionIds['dolismq_question']) && !empty($questionIds['dolismq_question'])) {
                         $controldet = new ControlLine($this->db);
@@ -185,7 +185,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
 
                             $tmpArray['ref']         = $question->ref;
                             $tmpArray['label']       = $question->label;
-                            $tmpArray['description'] = $question->description;
+                            $tmpArray['description'] = strip_tags($question->description);
 
                             if (is_array($controldets) && !empty($controldets)) {
                                 $questionAnswerLine     = array_shift($controldets);
@@ -318,7 +318,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
             $tmpArray['photoDefault'] = DOL_DOCUMENT_ROOT . $noPhoto;
         }
 
-        $outputLangs->loadLangs(['products', 'bills', 'orders', 'contracts', 'projects']);
+        $outputLangs->loadLangs(['products', 'bills', 'orders', 'contracts', 'projects', 'companies']);
 
         $sheet      = new Sheet($this->db);
         $usertmp    = new User($this->db);
@@ -328,7 +328,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
         $usertmp->fetch($object->fk_user_controller);
         $projecttmp->fetch($object->projectid);
 
-        $object->fetchObjectLinked('', '', '', 'dolismq_control');
+        $object->fetchObjectLinked('', '', '', 'dolismq_control',  'OR', 1, 'sourcetype', 0);
 		$linkableElements = get_sheet_linkable_objects();
 
 		if (is_array($linkableElements) && !empty($linkableElements)) {
@@ -356,9 +356,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
 					} else {
 						$objectName = $linkedObject->$objectNameField;
 					}
-					$tmpArray['object_label_ref'] .= $outputLangs->transnoentities(
-							$objectInfo[$linkedObjectType]['title']
-						) . ' : ' . $objectName . chr(0x0A);
+					$tmpArray['object_label_ref'] .= $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ' . $objectName . chr(0x0A);
 				}
 			}
 		}
