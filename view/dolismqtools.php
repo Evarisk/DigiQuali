@@ -401,7 +401,7 @@ print $langs->trans('DataMigrationExportSQADescription');
 print '</td>';
 
 print '<td class="center data-migration-export-global">';
-print '<input type="submit" class="button wpeo-button reposition data-migration-submit" name="dataMigrationExportSQA" value="' . $langs->trans("ExportData") . '">';
+print '<input type="submit" class="button reposition data-migration-submit" name="dataMigrationExportSQA" value="' . $langs->trans("ExportData") . '">';
 print '</td>';
 print '</tr>';
 
@@ -413,7 +413,7 @@ print $langs->trans('DataMigrationExportQADescription');
 print '</td>';
 
 print '<td class="center data-migration-export-global">';
-print '<input type="submit" class="button wpeo-button reposition data-migration-submit" name="dataMigrationExportQA" value="' . $langs->trans("ExportData") . '">';
+print '<input type="submit" class="button reposition data-migration-submit" name="dataMigrationExportQA" value="' . $langs->trans("ExportData") . '">';
 print '</td>';
 print '</tr>';
 print '</form>';
@@ -439,7 +439,7 @@ print '</td>';
 
 print '<td class="center data-migration-import-json">';
 print '<input class="flat" type="file" name="dataMigrationImportJsonFile[]" id="data-migration-import-json" />';
-print '<input type="submit" class="button wpeo-button reposition data-migration-submit" name="dataMigrationImportJson" value="' . $langs->trans("Upload") . '">';
+print '<input type="submit" class="button reposition data-migration-submit" name="dataMigrationImportJson" value="' . $langs->trans("Upload") . '">';
 print '</td>';
 print '</tr>';
 

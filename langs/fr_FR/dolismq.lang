@@ -270,16 +270,17 @@ controldocument_photo = fiche de contrôle avec photos
 #
 
 # Data - Donnée
-DataMigrationDoliSMQToFile = Migration des données de DoliSMQ
+DataMigrationDoliSMQToFile = Export des données de DoliSMQ
 DataMigrationExportSQA = Export Fiche modèle/Question/Réponse vers ZIP
 DataMigrationExportSQADescription = Export des données des fiches modèles, questions et réponses en fichier ZIP
 DataMigrationExportQA = Export Question/Réponse vers ZIP
 DataMigrationExportQADescription = Export des données des questions et réponses en fichier ZIP
-DataMigrationFileToDolibarr = Migration des données d'un fichier
+DataMigrationFileToDolibarr = Import des données vers DoliSMQ
 DataMigrationImportZIP = Import fichier ZIP vers Dolibarr
 DataMigrationImportZIPDescription = Import des données des fiches modèles, des questions et des réponses d'un fichier ZIP
 ErrorArchiveNotWellFormattedZIP = L'archive n'est pas pris en charge ou est vide. Vous devez joindre un archive d'import au format .zip
 ImportFinishWith = L'import des %s a été terminé avec %s erreur(s) sur %s importation(s)
+ExportData = Exporter mes données
 
 #
 # Other
