@@ -213,6 +213,32 @@ if (empty($reshook)) {
 		}
 	}
 
+	if ($action == 'add') {
+		$linkableElements = get_sheet_linkable_objects();
+		$controlledObjectSelected = 0;
+
+		if (!empty($linkableElements)) {
+			foreach ($linkableElements as $linkableElementType => $linkableElement) {
+				if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
+					$controlledObjectSelected++;
+				}
+			}
+		}
+
+		if (GETPOST('fk_sheet') > 0) {
+			if ($controlledObjectSelected == 0) {
+				setEventMessages($langs->trans('NeedObjectToControl'), [], 'errors');
+				header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&fk_sheet=' . GETPOST('fk_sheet'));
+				exit;
+			}
+		} else {
+			setEventMessages($langs->trans('NeedFkSheet'), [], 'errors');
+			header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create');
+			exit;
+		}
+
+	}
+
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 

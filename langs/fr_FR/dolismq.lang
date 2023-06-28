@@ -247,6 +247,8 @@ NextControlDate = Prochaine date de contrôle
 NextControl = Prochain contrôle
 QuestionMustBeAnswered = Vous devez encore répondre à %s question(s) obligatoire(s)
 NoControlAnswersPhoto = Pas de photos sur les réponses du contrôle
+NeedObjectToControl = Vous devez sélectionner un objet à contrôler
+NeedFkSheet = Vous devez sélectionner une fiche modèle
 
 #
 # ControlDet
