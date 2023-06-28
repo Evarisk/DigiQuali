@@ -600,7 +600,7 @@ if ($action == 'create') {
 	print '</table>';
 	print '<hr>';
 
-	print '<table class="border centpercent tableforfieldcreate control-table">'."\n";
+	print '<table class="border centpercent tableforfieldcreate control-table linked-objects">'."\n";
 
 	print '<tr><td>';
 	print '<div class="fields-content">';
