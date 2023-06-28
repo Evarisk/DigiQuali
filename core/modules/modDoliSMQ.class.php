@@ -199,6 +199,8 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_BACKWARD_COMPATIBILITY', 'integer', 0, '', 0, 'current'],
+			$i++ => ['PRODUCT_LOT_ENABLE_QUALITY_CONTROL', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT', 'integer', 0, '', 0, 'current'],
 
             // CONST DOLISMQ DOCUMENTS
             $i++ => ['DOLISMQ_AUTOMATIC_PDF_GENERATION', 'integer', 0, '', 0, 'current'],
@@ -215,6 +217,7 @@ class modDoliSMQ extends DolibarrModules
 
 			// CONST CONTROL LINE
 			$i++ => ['DOLISMQ_CONTROLDET_ADDON', 'chaine', 'mod_controldet_standard', '', 0, 'current'],
+			$i++ => ['DOLISMQ_CONTROL_EQUIPMENT_ADDON', 'chaine', 'mod_control_equipment_standard', '', 0, 'current'],
 
 			// CONST MODULE
 			$i++ => ['DOLISMQ_VERSION','chaine', $this->version, '', 0, 'current'],

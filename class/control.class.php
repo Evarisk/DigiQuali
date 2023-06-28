@@ -1334,3 +1334,131 @@ class ControlLine extends CommonObjectLine
 	}
 }
 
+class ControlEquipment extends SaturneObject
+{
+	/**
+	 * @var string Module name.
+	 */
+	public $module = 'dolismq';
+
+	/**
+	 * @var string element to identify managed object
+	 */
+	public $element = 'control_equipment';
+
+	/**
+	 * @var string Name of table without prefix where object is stored
+	 */
+	public $table_element = 'dolismq_control_equipment';
+
+	public const STATUS_DELETED = -1;
+	public const STATUS_ENABLED = 1;
+
+	/**
+	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
+	 */
+	public $fields = [
+		'rowid'         => ['type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'comment' => 'Id'],
+		'ref'           => ['type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 1, 'noteditable' => '1', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => 'Reference of object'],
+		'ref_ext'       => ['type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 0, 'visible' => 0],
+		'entity'        => ['type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0],
+		'date_creation' => ['type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0],
+		'tms'           => ['type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 40, 'notnull' => 0, 'visible' => 0],
+		'status'        => ['type' => 'status', 'label' => 'Status', 'enabled' => '1', 'position' => 50, 'notnull' => 1, 'visible' => 0],
+		'json'          => ['type' => 'text', 'label' => 'JSON', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0],
+		'fk_product'    => ['type' => 'integer', 'label' => 'FkProduct', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 0],
+		'fk_control'    => ['type' => 'integer', 'label' => 'FkControl', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0],
+	];
+
+    /**
+     * @var int ID.
+     */
+    public int $rowid;
+
+    /**
+     * @var string Ref.
+     */
+    public $ref;
+
+    /**
+     * @var string Ref ext.
+     */
+    public $ref_ext;
+
+    /**
+     * @var int Entity.
+     */
+    public $entity;
+
+    /**
+     * @var int|string Creation date.
+     */
+    public $date_creation;
+
+    /**
+     * @var int|string Timestamp.
+     */
+    public $tms;
+
+    /**
+     * @var string Import key.
+     */
+    public $import_key;
+
+    /**
+     * @var int Status.
+     */
+    public $status;
+
+    /**
+     * @var string Json.
+     */
+    public $json;
+
+    /**
+     * @var int Fk_product.
+     */
+	public $fk_product;
+
+    /**
+     * @var int Fk_control.
+     */
+	public $fk_control;
+
+	/**
+	 * Constructor
+	 *
+	 * @param DoliDb $db Database handler
+	 */
+	public function __construct(DoliDB $db)
+	{
+		parent::__construct($db, $this->module, $this->element);
+	}
+
+	/**
+	 * Create object into database.
+	 *
+	 * @param  User $user      User that creates.
+	 * @param  bool $notrigger false = launch triggers after, true = disable triggers.
+	 * @return int             0 < if KO, ID of created object if OK.
+	 */
+	public function create(User $user, bool $notrigger = false): int
+	{
+		$this->status = 1;
+
+		return parent::create($user, $notrigger);
+	}
+
+    /**
+     *    Load control line from database and from parent
+     *
+     * @param  int       $control_id id of parent control equipment to fetch
+     * @param  int       $limit      limit of object to fetch
+     * @return array|int             <0 if KO, >0 if OK
+     */
+    public function fetchFromParent($control_id, $limit = 0)
+    {
+        return $this->fetchAll('', '', $limit, 0, ['customsql' => 'fk_control = ' . $control_id . ' AND status > 0']);
+    }
+
+}

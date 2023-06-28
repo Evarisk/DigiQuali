@@ -697,6 +697,22 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	$formconfirm = '';
 
+	$equipmentOutdated = false;
+	if (!empty($conf->global->DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT)) {
+		$controlEquipment  = new ControlEquipment($db);
+		$controlEquipments = $controlEquipment->fetchFromParent($object->id);
+		if (is_array($controlEquipments) && !empty ($controlEquipments)) {
+			foreach ($controlEquipments as $equipmentControl) {
+				$product->fetch($equipmentControl->fk_product);
+				$creationDate = strtotime($product->date_creation);
+				if (!empty($product->lifetime) && dol_time_plus_duree($creationDate, $product->lifetime, 'd') <= dol_now()) {
+					$equipmentOutdated = true;
+					break;
+				}
+			}
+		}
+	}
+
 	if ($action == 'setVerdict') {
 //		//Form to close proposal (signed or not)
 //		$answersArray = $controldet->fetchFromParent($object->id);
@@ -955,6 +971,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
+	if ($equipmentOutdated == true) { ?>
+		<div class="wpeo-notice notice-error">
+			<div class="notice-content">
+				<div class="notice-title"><?php echo $langs->trans('ControlEquipmentOutdated') ?></div>
+			</div>
+			<a class="butAction" style="width = 100%;margin-right:0" target="_blank" href="<?php echo DOL_URL_ROOT . '/custom/dolismq/view/control/control_equipment.php?id=' . $object->id?>"><?php echo $langs->trans("GoToEquipmentHours", $usertmp->getFullName($langs)) ?></a>
+		</div>
+	<?php }
+
 	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?action=save&id='.$object->id.'" id="saveControl" enctype="multipart/form-data">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="save">';
@@ -982,11 +1007,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Validate
 			$displayButton = $onPhone ? '<i class="fas fa-check fa-2x"></i>' : '<i class="fas fa-check"></i>' . ' ' . $langs->trans('Validate');
-			if ($object->status == $object::STATUS_DRAFT && empty($cantValidateControl)) {
+			if ($object->status == $object::STATUS_DRAFT && empty($cantValidateControl) && !$equipmentOutdated) {
 				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . $displayButton . '</a>';
             } else if ($cantValidateControl > 0) {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('QuestionMustBeAnswered', $cantValidateControl)) . '">' . $displayButton . '</span>';
-            } else {
+			} else if ($equipmentOutdated) {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</span>';
+			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $displayButton . '</span>';
 			}
 
@@ -1000,12 +1027,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Set verdict control
 			$displayButton = $onPhone ? '<i class="far fa-check-circle fa-2x"></i>' : '<i class="far fa-check-circle"></i>' . ' ' . $langs->trans('SetOK/KO');
-			if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null) {
+			if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null && !$equipmentOutdated) {
 				if ($permissiontosetverdict) {
 					print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setVerdict&token=' . newToken() . '">' . $displayButton . '</a>';
 				}
 			} elseif ($object->status == $object::STATUS_DRAFT) {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . $displayButton . '</span>';
+			} else if ($equipmentOutdated) {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . $displayButton . '</span>';
 			}
@@ -1020,7 +1049,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Lock
 			$displayButton = $onPhone ? '<i class="fas fa-lock fa-2x"></i>' : '<i class="fas fa-lock"></i>' . ' ' . $langs->trans('Lock');
-			if ($object->status == $object::STATUS_VALIDATED && $object->verdict != null && $signatory->checkSignatoriesSignatures($object->id, $object->element)) {
+			if ($object->status == $object::STATUS_VALIDATED && $object->verdict != null && $signatory->checkSignatoriesSignatures($object->id, $object->element) && !$equipmentOutdated) {
 				print '<span class="butAction" id="actionButtonLock">' . $displayButton . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToLock')) . '">' . $displayButton . '</span>';

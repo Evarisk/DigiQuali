@@ -60,7 +60,7 @@ $project     = new Project($db);
 // View objects
 $form = new Form($db);
 
-$hookmanager->initHooks(array('controlnote', 'globalcard')); // Note that conf->hooks_modules contains array
+$hookmanager->initHooks(array('controlmedia', 'globalcard')); // Note that conf->hooks_modules contains array
 
 // Fetch optionals attributes and labels
 $extrafields->fetch_name_optionals_label($object->table_element);
@@ -88,16 +88,16 @@ if (!$permissiontoread) accessforbidden();
  */
 
 $help_url = '';
-$morecss  = array('/dolismq/css/dolismq.css');
-$morejs  = array('/dolismq/js/dolismq.js');
-saturne_header(0,'', $langs->trans('Control'), $help_url, '', 0, 0, $morejs, $morecss);
+$title    = $langs->trans('Medias');
+
+saturne_header(0,'', $title, $help_url);
 
 if ($id > 0 || !empty($ref)) {
 	$object->fetch_thirdparty();
 
 	$head = control_prepare_head($object);
 
-	print saturne_get_fiche_head($object, 'medias', $langs->trans('Medias'));
+	print saturne_get_fiche_head($object, 'medias', $title);
 
 	// Object card
 	// ------------------------------------------------------------
