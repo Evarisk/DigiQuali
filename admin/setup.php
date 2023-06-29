@@ -122,6 +122,17 @@ print ajax_constantonoff('DOLISMQ_REDIRECT_AFTER_CONNECTION');
 print '</td>';
 print '</tr>';
 
+print '<tr class="oddeven"><td>';
+print $langs->trans('AdvancedTriggers');
+print '</td><td>';
+print $langs->trans('AdvancedTriggersDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DOLISMQ_ADVANCED_TRIGGER');
+print '</td>';
+print '</tr>';
+
 print load_fiche_titre($langs->trans('Configs', $langs->transnoentities('MediasMin')), '', '');
 
 print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '" name="media_data">';
