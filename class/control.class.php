@@ -924,47 +924,67 @@ class Control extends SaturneObject
 
         // Graph parameters.
         $array['type']   = 'list';
-        $array['labels'] = ['Ref', 'ControlDateExceeded', 'NextControlDateIn30Days', 'NextControlDateIn60Days'];
+        $array['labels'] = ['Ref', 'LinkedObject', 'Controller', 'Project', 'Sheet', 'ControlDate', 'NextControl', 'Verdict'];
         
         $arrayControlListsByQcFrequency = [];
-        $controls = $this->fetchAll('DESC', 'rowid', $conf->liste_limit, 0, ['customsql' => 't.status >= 0']);
+
+        $elementArray = get_sheet_linkable_objects();
+        $controls     = $this->fetchAll('DESC', 'rowid', $conf->liste_limit, 0, ['customsql' => 't.status >= 0']);
         if (is_array($controls) && !empty($controls)) {
             foreach ($controls as $control) {
-                $qcFrequency = 0;
-                $control->fetchObjectLinked('', '', $control->id, 'dolismq_control');
-                foreach ($control->linkedObjectsIds as $key => $linkedObjects) {
-                    // Special case
-                    if ($key == 'productbatch') {
-                        require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
-                        $productLot = new Productlot($this->db);
-                        $productLot->fetch(array_shift($control->linkedObjectsIds['productbatch']));
-                        $controlInfoArray['productbatch'] = ['qc_frequency' => $productLot->array_options['options_qc_frequency']];
-                    } elseif (!empty($control->linkedObjects[$key])) {
-                        $linkedObject = array_values($control->linkedObjects[$key])[0];
-                        $controlInfoArray[$key]['qc_frequency'] = $linkedObject->array_options['options_qc_frequency'];
-                    }
-                    if (isset($controlInfoArray[$key]['qc_frequency']) && $qcFrequency < $controlInfoArray[$key]['qc_frequency']){
-                        $qcFrequency     = $controlInfoArray[$key]['qc_frequency'];
-                        $nextControlDate = dol_time_plus_duree($control->date_creation, $qcFrequency, 'd');
-                        $nextControl     = floor(($nextControlDate - dol_now('tzuser'))/(3600 * 24));
-                        $arrayControlListsByQcFrequency[$control->id]['Ref'] = $control->getNomUrl(1);
-                        if ($nextControl < 0) {
-                            $arrayControlListsByQcFrequency[$control->id]['ControlDateExceeded']     = dol_print_date($nextControlDate, 'day');
-                            $arrayControlListsByQcFrequency[$control->id]['NextControlDateIn30Days'] = '';
-                            $arrayControlListsByQcFrequency[$control->id]['NextControlDateIn60Days'] = '';
-                        }
-                        if ($nextControl >= 0 && $nextControl <= 30) {
-                            $arrayControlListsByQcFrequency[$control->id]['ControlDateExceeded']     = '';
-                            $arrayControlListsByQcFrequency[$control->id]['NextControlDateIn30Days'] = dol_print_date($nextControlDate, 'day');
-                            $arrayControlListsByQcFrequency[$control->id]['NextControlDateIn60Days'] = '';
-                        }
-                        if ($nextControl > 30 && $nextControl <= 60) {
-                            $arrayControlListsByQcFrequency[$control->id]['ControlDateExceeded']     = '';
-                            $arrayControlListsByQcFrequency[$control->id]['NextControlDateIn30Days'] = '';
-                            $arrayControlListsByQcFrequency[$control->id]['NextControlDateIn60Days'] = dol_print_date($nextControlDate, 'day');
-                        }
-                        if ($nextControl > 60) {
-                            unset($arrayControlListsByQcFrequency[$control->id]);
+                $control->fetchObjectLinked('', '', $control->id, 'dolismq_control', 'OR', 1, 'sourcetype', 0);
+                $linkedObjectsInfos = $control->getLinkedObjectsWithQcFrequency($elementArray);
+                $linkedObjects      = $linkedObjectsInfos['linkedObjects'];
+                $qcFrequencyArray   = $linkedObjectsInfos['qcFrequencyArray'];
+                foreach ($elementArray as $linkableObjectType => $linkableObject) {
+                    if (is_object($linkedObjects[$linkableObjectType])) {
+                        if ($linkableObject['conf'] > 0 && (!empty($control->linkedObjectsIds[$linkableObject['link_name']]))) {
+                            $currentObject = $linkedObjects[$linkableObjectType];
+                            if ($qcFrequencyArray[$linkableObjectType] > 0) {
+                                require_once __DIR__ . '/sheet.class.php';
+
+                                $userTmp = new User($this->db);
+                                $project = new Project($this->db);
+                                $sheet   = new Sheet($this->db);
+
+                                $userTmp->fetch($control->fk_user_controller);
+                                $project->fetch($control->projectid);
+                                $sheet->fetch($control->fk_sheet);
+
+                                $nextControlDate = dol_time_plus_duree($control->date_creation, $qcFrequencyArray[$linkableObjectType], 'd');
+                                $nextControl     = floor(($nextControlDate - dol_now('tzuser'))/(3600 * 24));
+                                $arrayControlListsByQcFrequency[$control->id]['Ref']['value']            = $control->getNomUrl(1);
+                                $arrayControlListsByQcFrequency[$control->id]['LinkedObject']['value']   = $currentObject->getNomUrl(1);
+                                $arrayControlListsByQcFrequency[$control->id]['UserController']['value'] = $userTmp->getNomUrl(1);
+                                $arrayControlListsByQcFrequency[$control->id]['Project']['value']        = $project->id > 0 ? $project->getNomUrl(1) : '';
+                                $arrayControlListsByQcFrequency[$control->id]['Sheet']['value']          = $sheet->getNomUrl(1);
+                                $arrayControlListsByQcFrequency[$control->id]['ControlDate']['value']    = dol_print_date($control->date_creation, 'day');
+                                $arrayControlListsByQcFrequency[$control->id]['NextControl']['value']    = $nextControl . ' ' . $langs->trans('Days');
+                                $arrayControlListsByQcFrequency[$control->id]['NextControl']['morecss']  = 'dashboard-control';
+                                $arrayControlListsByQcFrequency[$control->id]['Verdict']['value']        = $control->fields['verdict']['arrayofkeyval'][(!empty($control->verdict)) ?: 3];
+                                $arrayControlListsByQcFrequency[$control->id]['Verdict']['morecss']      = 'dashboard-control';
+                                if ($nextControl < 0) {
+                                    $arrayControlListsByQcFrequency[$control->id]['NextControl']['morecss'] .= ' red-background';
+                                }
+                                if ($nextControl >= 0 && $nextControl <= 30) {
+                                    $arrayControlListsByQcFrequency[$control->id]['NextControl']['morecss'] .= ' orange-background';
+                                }
+                                if ($nextControl > 30 && $nextControl <= 60) {
+                                    $arrayControlListsByQcFrequency[$control->id]['NextControl']['morecss'] .= ' yellow-background';
+                                }
+                                if ($nextControl > 60) {
+                                    $arrayControlListsByQcFrequency[$control->id]['NextControl']['morecss'] .= ' green-background';
+                                }
+                                if ($control->verdict == 1) {
+                                    $arrayControlListsByQcFrequency[$control->id]['Verdict']['morecss'] .= ' green-background';
+                                }
+                                if ($control->verdict == 2) {
+                                    $arrayControlListsByQcFrequency[$control->id]['Verdict']['morecss'] .= ' red-background';
+                                }
+                                if ($control->verdict == 3 || empty($control->verdict)) {
+                                    $arrayControlListsByQcFrequency[$control->id]['Verdict']['morecss'] .= ' grey-background';
+                                }
+                            }
                         }
                     }
                 }
