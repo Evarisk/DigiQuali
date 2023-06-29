@@ -30,6 +30,8 @@ DoliSMQDescriptionLong = Système de management de la qualité pour Dolibarr
 RedirectAfterConnection            = Redirection après la connexion au site
 RedirectAfterConnectionDescription = Redirection sur la page de bienvenue de DoliSMQ par défaut au lieu de celle de Dolibarr.
 EnableDolismq                      = Veuillez activer le module DoliSMQ pour accéder à cette page
+AdvancedTriggers                   = Contenu des événéments avancé
+AdvancedTriggersDescription        = Active une description détaillé des événements de DoliSMQ
 
 #
 # Questions
@@ -42,9 +44,10 @@ TheQuestion                   = la question
 QuestionList                  = Liste des questions
 NewQuestion                   = Nouvelle question
 ModifyQuestion                = Modifier une question
-LinkedQuestionsList           = Listes des questions liées
+LinkedQuestionsList           = Liste des questions liées
 addQuestionLink               = Question ajoutée à la fiche modèle :
 removeQuestionLink            = Question retirée de la fiche modèle :
+LockQuestion                  = La question %s est passée au status verrouillé
 LockQuestions                 = Toutes les questions sélectionnées sont passées au statut verrouillé
 ThereAre                      = Il y a
 YouAnswered                   = Vous avez répondu à
@@ -56,11 +59,11 @@ PhotoOk                       = Exemple de photo correcte
 PhotoKo                       = Exemple de photo incorrecte
 ShowPhoto                     = Afficher les photos
 AuthorizeAnswerPhoto          = Autoriser l'envoi de photos sur les réponses
-ShowPhotoTooltip              = Affiche les photos et la bibliothèque de média sur la question
+ShowPhotoTooltip              = Affiche les photos et la bibliothèque de médias sur la question
 AuthorizeAnswerPhotoTooltip   = Autorise l'envoi de photos sur les réponses de question
 NoteControl                   = Note publique
 EnterComment                  = Saisir les commentaires
-EnterCommentTooltip           = Saisi le commentaire sur les réponses de question
+EnterCommentTooltip           = Saisit le commentaire sur les réponses de question
 ErrorQuestionUsedInSheet      = La question %s ne peut pas être supprimée, elle est utilisée dans une ou plusieurs fiches modèles.
 ErrorNoQuestionSelected       = Aucune question sélectionnée
 AddQuestionIntoCategory       = Assigner cette catégorie à la question
@@ -84,11 +87,14 @@ ErrorDeleteAnswer             = Une erreur est survenue lors de la suppression d
 AnswerCreated                 = La réponse a été créée avec succès
 AnswerUpdated                 = La réponse a été mise à jour avec succès
 AnswerDeleted                 = La réponse a été supprimée avec succès
-AnswerMustBeCreated           = La question doit avoir au moins une réponse
+AnswerMustBeCreated           = La question %s doit avoir au moins une réponse pour être verrouillé
 
 #
 # Sheet
 #
+
+# Trigger - Déclencheur
+SheetAddQuestionTrigger = Question ajoutée
 
 # Data - Donnée
 Sheet       = Fiche modèle
@@ -143,6 +149,8 @@ ComputerScience   = Informatique
 
 # Trigger - Déclencheur
 ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
+ControlSetVerdictTrigger = Verdict défini sur %s
+AnswerSaveTrigger = Réponses sauvergardées
 
 # Data - Donnée
 Control = Contrôle
@@ -242,7 +250,7 @@ NoVerdict = Pas de verdict
 ControlsRepartition = Répartition des contrôles par verdict
 ControlsTagsRepartition = Répartition des contrôles par verdict par catégories
 ControlsByFiscalYear = Rapport des contrôles sur l'exercice fiscal
-OfControl = des contrôles
+OfControl = du contrôle
 OfAnswer = des réponses
 PublicControl = Interface publique de contrôle
 QcFrequency = Période de validité (en jours)
@@ -250,6 +258,23 @@ ObjectLinked = Objet lié(s)
 NextControlDate = Prochaine date de contrôle
 NextControl = Prochain contrôle
 QuestionMustBeAnswered = Vous devez encore répondre à %s question(s) obligatoire(s)
+ControlEquipment = Moyens de contrôle
+ControlEquipmentList = Liste des moyens de contrôle utilisés
+AddEquipmentLink = Moyen de contrôle ajouté :
+UnlinkEquipmentLink = Moyen de contrôle retiré :
+ErrorNoEquipmentSelected = Aucun moyen de contrôle sélectionné
+OptimalExpirationDate = DLUO/DDM
+OptimalExpirationDateDescription = Date Limite d'Utilisation Optimale / Date de Durabilité Minimale
+LockControlOutdatedEquipment = Verrouiller le contrôle si la DLUO/DDM est dépassée
+LockControlOutdatedEquipmentDescription = Le contrôle sera verouillé si la DLUO/DDM d'un ou plusieurs moyens de contrôle est dépassée
+ControlEquipmentOutdated = La DLUO/DDM d'un ou plusieurs moyens de contrôle est dépassée
+GoToEquipmentHours = Aller sur la page des moyens de contrôle
+ExpiredSince = Expiré depuis
+RemainingDays = Jours avant expiration
+NoEquipmentLinked = Aucun moyens de contrôle liés
+NoControlAnswersPhoto = Pas de photos sur les réponses du contrôle
+NeedObjectToControl = Vous devez sélectionner un objet à contrôler
+NeedFkSheet = Vous devez sélectionner une fiche modèle
 
 #
 # ControlDet
@@ -271,10 +296,10 @@ ControlDocumentsMin = fiches de contôle
 ControlDocumentDisplayMedias = Afficher les médias dans la fiche de contrôle
 ControlDocumentDisplayMediasDescription = Afficher les médias des questions dans la fiche de contrôle du document ODT
 ControlDocumentSentByMailTrigger = Email fiche de contrôle envoyée
-controldocument = fiche de contrôle
+controldocument = fiche de controle
 controldocument.odt = Fiche de Contrôle
 controldocument_photo.odt = Fiche de Contrôle avec photos
-controldocument_photo = fiche de contrôle avec photos
+controldocument_photo = fiche de controle avec photos
 
 #
 # Other
