@@ -186,6 +186,12 @@ class modDoliSMQ extends DolibarrModules
             $i++ => ['DOLISMQ_SHEET_LINK_ORDER', 'integer', 0, '', 0, 'current'],
             $i++ => ['DOLISMQ_SHEET_LINK_CONTRACT', 'integer', 0, '', 0, 'current'],
             $i++ => ['DOLISMQ_SHEET_LINK_TICKET', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_SHEET_LINK_ENTREPOT', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_SHEET_LINK_EXPEDITION', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_SHEET_LINK_PROPAL', 'integer', 0, '', 0, 'current'],
+//            $i++ => ['DOLISMQ_SHEET_LINK_SUPPLIER_PROPOSAL', 'integer', 0, '', 0, 'current'],
+//            $i++ => ['DOLISMQ_SHEET_LINK_SUPPLIER_ORDER', 'integer', 0, '', 0, 'current'],
+//            $i++ => ['DOLISMQ_SHEET_LINK_SUPPLIER_INVOICE', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DOLISMQ_SHEET_DEFAULT_TAG', 'integer', 0, '', 0, 'current'],
 
 			// CONST QUESTION
@@ -199,6 +205,8 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_BACKWARD_COMPATIBILITY', 'integer', 0, '', 0, 'current'],
+			$i++ => ['PRODUCT_LOT_ENABLE_QUALITY_CONTROL', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT', 'integer', 0, '', 0, 'current'],
 
             // CONST DOLISMQ DOCUMENTS
             $i++ => ['DOLISMQ_AUTOMATIC_PDF_GENERATION', 'integer', 0, '', 0, 'current'],
@@ -215,6 +223,7 @@ class modDoliSMQ extends DolibarrModules
 
 			// CONST CONTROL LINE
 			$i++ => ['DOLISMQ_CONTROLDET_ADDON', 'chaine', 'mod_controldet_standard', '', 0, 'current'],
+			$i++ => ['DOLISMQ_CONTROL_EQUIPMENT_ADDON', 'chaine', 'mod_control_equipment_standard', '', 0, 'current'],
 
 			// CONST MODULE
 			$i++ => ['DOLISMQ_VERSION','chaine', $this->version, '', 0, 'current'],
@@ -257,14 +266,14 @@ class modDoliSMQ extends DolibarrModules
 
 		if (is_array($linkableElements) && !empty($linkableElements)) {
 			foreach($linkableElements as $linkableElementType => $linkableElement) {
-				if (preg_match('/_/', $linkableElementType)) {
+                if (preg_match('/_/', $linkableElementType)) {
 					$splittedElementType = preg_split('/_/', $linkableElementType);
 					$moduleName = $splittedElementType[0];
 					$objectName = strtolower($linkableElement['className']);
 					$objectType = $objectName . '@' . $moduleName;
 				} else {
-					$objectType = $linkableElementType;
-				}
+                    $objectType = $linkableElement['tab_type'];
+                }
 				$this->tabs[] = ['data' => $objectType . ':+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=' . $linkableElement['link_name']];
 			}
 		}

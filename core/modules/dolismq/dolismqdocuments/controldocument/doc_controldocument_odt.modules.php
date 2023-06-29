@@ -173,7 +173,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
 
             if ($foundTagForLines) {
                 if (!empty($object)) {
-                    $object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet', 'OR', 1, 'sourcetype', 0);
+                    $object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet','', '', 'OR', 1, 'sourcetype', 0);
                     $questionIds = $object->linkedObjectsIds;
                     if (is_array($questionIds['dolismq_question']) && !empty($questionIds['dolismq_question'])) {
                         $controldet = new ControlLine($this->db);
@@ -320,7 +320,6 @@ class doc_controldocument_odt extends SaturneDocumentModel
         }
 
         $outputLangs->loadLangs(['products', 'bills', 'orders', 'contracts', 'projects', 'companies']);
-
         $sheet      = new Sheet($this->db);
         $usertmp    = new User($this->db);
         $projecttmp = new Project($this->db);
@@ -329,7 +328,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
         $usertmp->fetch($object->fk_user_controller);
         $projecttmp->fetch($object->projectid);
 
-        $object->fetchObjectLinked('', '', '', 'dolismq_control',  'OR', 1, 'sourcetype', 0);
+        $object->fetchObjectLinked('', '', $object->id, 'dolismq_control',  'OR', 1, 'sourcetype', 0);
 		$linkableElements = get_sheet_linkable_objects();
 
 		if (is_array($linkableElements) && !empty($linkableElements)) {
@@ -357,7 +356,8 @@ class doc_controldocument_odt extends SaturneDocumentModel
 					} else {
 						$objectName = $linkedObject->$objectNameField;
 					}
-					$tmpArray['object_label_ref'] .= $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ' . $objectName . chr(0x0A);
+					$tmpArray['object_label_ref'] .= $objectName . chr(0x0A);
+					$tmpArray['object_type'] = $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ';
 				}
 			}
 		}

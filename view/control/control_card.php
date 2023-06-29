@@ -31,24 +31,12 @@ if (file_exists('../dolismq.main.inc.php')) {
 }
 
 // Libraries
-require_once DOL_DOCUMENT_ROOT . '/core/class/html.formcompany.class.php';
-require_once DOL_DOCUMENT_ROOT . '/core/class/html.formfile.class.php';
-require_once DOL_DOCUMENT_ROOT . '/core/class/html.formprojet.class.php';
-require_once DOL_DOCUMENT_ROOT . '/core/class/html.formother.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/class/doleditor.class.php';
-require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
-require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
-require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
-require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT . '/societe/class/societe.class.php';
 require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmdirectory.class.php';
 require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
-require_once DOL_DOCUMENT_ROOT . '/compta/facture/class/facture.class.php';
-require_once DOL_DOCUMENT_ROOT . '/commande/class/commande.class.php';
-require_once DOL_DOCUMENT_ROOT . '/contrat/class/contrat.class.php';
-require_once DOL_DOCUMENT_ROOT . '/ticket/class/ticket.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
@@ -94,16 +82,8 @@ $sheet            = new Sheet($db);
 $question         = new Question($db);
 $answer           = new Answer($db);
 $usertmp          = new User($db);
-$product          = new Product($db);
-$project          = new Project($db);
-$task             = new Task($db);
 $thirdparty       = new Societe($db);
 $contact          = new Contact($db);
-$productlot       = new Productlot($db);
-$invoice          = new Facture($db);
-$order            = new Commande($db);
-$contract         = new Contrat($db);
-$ticket           = new Ticket($db);
 $extrafields      = new ExtraFields($db);
 $ecmfile          = new EcmFiles($db);
 $ecmdir           = new EcmDirectory($db);
@@ -112,8 +92,7 @@ $refControlMod    = new $conf->global->DOLISMQ_CONTROL_ADDON($db);
 $refControlDetMod = new $conf->global->DOLISMQ_CONTROLDET_ADDON($db);
 
 // View objects
-$form        = new Form($db);
-$formproject = new FormProjets($db);
+$form = new Form($db);
 
 $hookmanager->initHooks(array('controlcard', 'globalcard')); // Note that conf->hooks_modules contains array
 
@@ -213,6 +192,32 @@ if (empty($reshook)) {
 		}
 	}
 
+	if ($action == 'add') {
+		$linkableElements = get_sheet_linkable_objects();
+		$controlledObjectSelected = 0;
+
+		if (!empty($linkableElements)) {
+			foreach ($linkableElements as $linkableElementType => $linkableElement) {
+				if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
+					$controlledObjectSelected++;
+				}
+			}
+		}
+
+		if (GETPOST('fk_sheet') > 0) {
+			if ($controlledObjectSelected == 0) {
+				setEventMessages($langs->trans('NeedObjectToControl'), [], 'errors');
+				header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&fk_sheet=' . GETPOST('fk_sheet'));
+				exit;
+			}
+		} else {
+			setEventMessages($langs->trans('NeedFkSheet'), [], 'errors');
+			header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create');
+			exit;
+		}
+
+	}
+
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
@@ -229,7 +234,7 @@ if (empty($reshook)) {
 	if ($action == 'save') {
 		$controldet = new ControlLine($db);
 		$sheet->fetch($object->fk_sheet);
-		$object->fetchObjectLinked($sheet->id, 'dolismq_sheet');
+		$object->fetchObjectLinked($sheet->id, 'dolismq_sheet', '', '', 'OR', 1, 'sourcetype', 0);
 		$questionIds = $object->linkedObjectsIds['dolismq_question'];
 
 		foreach ($questionIds as $questionId) {
@@ -415,7 +420,7 @@ if (empty($reshook)) {
 			if ($result > 0) {
 				$controldet = new ControlLine($db);
 				$sheet->fetch($object->fk_sheet);
-				$object->fetchObjectLinked($sheet->id, 'dolismq_sheet');
+				$object->fetchObjectLinked($sheet->id, 'dolismq_sheet', '', '', 'OR', 1, 'sourcetype', 0);
 				$questionIds = $object->linkedObjectsIds;
 				foreach ($questionIds['dolismq_question'] as $questionId) {
 					$controldettmp = $controldet;
@@ -602,7 +607,7 @@ if ($action == 'create') {
 	print '</table>';
 	print '<hr>';
 
-	print '<table class="border centpercent tableforfieldcreate control-table">'."\n";
+	print '<table class="border centpercent tableforfieldcreate control-table linked-objects">'."\n";
 
 	print '<tr><td>';
 	print '<div class="fields-content">';
@@ -670,6 +675,22 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	saturne_get_fiche_head($object, 'card', $title);
 
 	$formconfirm = '';
+
+	$equipmentOutdated = false;
+	if (!empty($conf->global->DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT)) {
+		$controlEquipment  = new ControlEquipment($db);
+		$controlEquipments = $controlEquipment->fetchFromParent($object->id);
+		if (is_array($controlEquipments) && !empty ($controlEquipments)) {
+			foreach ($controlEquipments as $equipmentControl) {
+				$product->fetch($equipmentControl->fk_product);
+				$creationDate = strtotime($product->date_creation);
+				if (!empty($product->lifetime) && dol_time_plus_duree($creationDate, $product->lifetime, 'd') <= dol_now()) {
+					$equipmentOutdated = true;
+					break;
+				}
+			}
+		}
+	}
 
 	if ($action == 'setVerdict') {
 //		//Form to close proposal (signed or not)
@@ -833,33 +854,35 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 
-	$object->fetchObjectLinked('', '', '', 'dolismq_control', 'OR', 1, 'sourcetype', 0);
-
-	$linkedObjectsInfos = $object->getLinkedObjectsWithQcFrequency($elementArray);
-	$linkedObjects    = $linkedObjectsInfos['linkedObjects'];
-	$qcFrequencyArray = $linkedObjectsInfos['qcFrequencyArray'];
+	$object->fetchObjectLinked('', '', $object->id, 'dolismq_control', 'OR', 1, 'sourcetype', 0);
 
 	foreach($elementArray as $linkableElementType => $linkableElement) {
 		if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
+			$className    = $linkableElement['className'];
+			$linkedObject = new $className($db);
 
-			print '<tr><td class="titlefield">';
-			print $langs->trans($linkableElement['langs']);
-			print '</td>';
-			print '<td>';
+			$linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
+			$linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
 
-			$currentObject    = $linkedObjects[$linkableElementType];
-			$isMinQcFrequency = $linkableElementType == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0];
+			$result = $linkedObject->fetch($linkedObjectId);
 
-			print $currentObject->getNomUrl(1);
+			if ($result > 0) {
+				print '<tr><td class="titlefield">';
+				print $langs->trans($linkableElement['langs']);
+				print '</td>';
+				print '<td>';
 
-			if ($qcFrequencyArray[$linkableElementType] > 0) {
-				print ' - ';
-				print $isMinQcFrequency ? '<strong>' : '';
-				print $langs->transnoentities('QcFrequency') . ' : ' . $qcFrequencyArray[$linkableElementType];
-				print $isMinQcFrequency ? '</strong>' : '';
+				print $linkedObject->getNomUrl(1);
+
+				if ($linkedObject->array_options['options_qc_frequency'] > 0) {
+					print ' ';
+					print '<strong>';
+					print $langs->transnoentities('QcFrequency') . ' : ' . $linkedObject->array_options['options_qc_frequency'];
+					print '</strong>';
+				}
+
+				print '<td></tr>';
 			}
-
-			print '<td></tr>';
 		}
 	}
 
@@ -929,6 +952,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
+	if ($equipmentOutdated == true) { ?>
+		<div class="wpeo-notice notice-error">
+			<div class="notice-content">
+				<div class="notice-title"><?php echo $langs->trans('ControlEquipmentOutdated') ?></div>
+			</div>
+			<a class="butAction" style="width = 100%;margin-right:0" target="_blank" href="<?php echo DOL_URL_ROOT . '/custom/dolismq/view/control/control_equipment.php?id=' . $object->id?>"><?php echo $langs->trans("GoToEquipmentHours", $usertmp->getFullName($langs)) ?></a>
+		</div>
+	<?php }
+
 	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?action=save&id='.$object->id.'" id="saveControl" enctype="multipart/form-data">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="save">';
@@ -956,11 +988,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Validate
 			$displayButton = $onPhone ? '<i class="fas fa-check fa-2x"></i>' : '<i class="fas fa-check"></i>' . ' ' . $langs->trans('Validate');
-			if ($object->status == $object::STATUS_DRAFT && empty($cantValidateControl)) {
+			if ($object->status == $object::STATUS_DRAFT && empty($cantValidateControl) && !$equipmentOutdated) {
 				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . $displayButton . '</a>';
             } else if ($cantValidateControl > 0) {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('QuestionMustBeAnswered', $cantValidateControl)) . '">' . $displayButton . '</span>';
-            } else {
+			} else if ($equipmentOutdated) {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</span>';
+			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $displayButton . '</span>';
 			}
 
@@ -974,19 +1008,21 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Set verdict control
 			$displayButton = $onPhone ? '<i class="far fa-check-circle fa-2x"></i>' : '<i class="far fa-check-circle"></i>' . ' ' . $langs->trans('SetOK/KO');
-			if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null) {
+			if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null && !$equipmentOutdated) {
 				if ($permissiontosetverdict) {
 					print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setVerdict&token=' . newToken() . '">' . $displayButton . '</a>';
 				}
 			} elseif ($object->status == $object::STATUS_DRAFT) {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . $displayButton . '</span>';
+			} else if ($equipmentOutdated) {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . $displayButton . '</span>';
 			}
 
             // Sign
             $displayButton = $onPhone ? '<i class="fas fa-signature fa-2x"></i>' : '<i class="fas fa-signature"></i>' . ' ' . $langs->trans('Sign');
-            if ($object->status == $object::STATUS_VALIDATED && !empty($object->verdict) && !$signatory->checkSignatoriesSignatures($object->id, $object->element)) {
+            if ($object->status == $object::STATUS_VALIDATED && !$signatory->checkSignatoriesSignatures($object->id, $object->element)) {
                 print '<a class="butAction" id="actionButtonSign" href="' . dol_buildpath('/custom/saturne/view/saturne_attendants.php?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element . '&document_type=ControlDocument&attendant_table_mode=simple', 3) . '">' . $displayButton . '</a>';
             } else {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeValidatedToSign', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '">' . $displayButton . '</span>';
@@ -994,7 +1030,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Lock
 			$displayButton = $onPhone ? '<i class="fas fa-lock fa-2x"></i>' : '<i class="fas fa-lock"></i>' . ' ' . $langs->trans('Lock');
-			if ($object->status == $object::STATUS_VALIDATED && $object->verdict != null && $signatory->checkSignatoriesSignatures($object->id, $object->element)) {
+			if ($object->status == $object::STATUS_VALIDATED && $object->verdict != null && $signatory->checkSignatoriesSignatures($object->id, $object->element) && !$equipmentOutdated) {
 				print '<span class="butAction" id="actionButtonLock">' . $displayButton . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToLock')) . '">' . $displayButton . '</span>';

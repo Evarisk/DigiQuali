@@ -63,7 +63,7 @@ ShowPhotoTooltip              = Affiche les photos et la bibliothèque de média
 AuthorizeAnswerPhotoTooltip   = Autorise l'envoi de photos sur les réponses de question
 NoteControl                   = Note publique
 EnterComment                  = Saisir les commentaires
-EnterCommentTooltip           = Saisi le commentaire sur les réponses de question
+EnterCommentTooltip           = Saisit le commentaire sur les réponses de question
 ErrorQuestionUsedInSheet      = La question %s ne peut pas être supprimée, elle est utilisée dans une ou plusieurs fiches modèles.
 ErrorNoQuestionSelected       = Aucune question sélectionnée
 AddQuestionIntoCategory       = Assigner cette catégorie à la question
@@ -246,6 +246,24 @@ NextControlDate                    = Prochaine date de contrôle
 NextControl                        = Prochain contrôle
 QuestionMustBeAnswered             = Vous devez encore répondre à %s question(s) obligatoire(s)
 NoControlAnswersPhoto              = Pas de photos sur les réponses du contrôle
+QuestionMustBeAnswered             = Vous devez encore répondre à %s question(s) obligatoire(s)
+ControlEquipment                   = Moyens de contrôle
+ControlEquipmentList               = Liste des moyens de contrôle utilisés
+AddEquipmentLink                   = Moyen de contrôle ajouté :
+UnlinkEquipmentLink                = Moyen de contrôle retiré :
+ErrorNoEquipmentSelected           = Aucun moyen de contrôle sélectionné
+OptimalExpirationDate              = DLUO/DDM
+OptimalExpirationDateDescription   = Date Limite d'Utilisation Optimale / Date de Durabilité Minimale
+LockControlOutdatedEquipment       = Verrouiller le contrôle si la DLUO/DDM est dépassée
+LockControlOutdatedEquipmentDescription = Le contrôle sera verouillé si la DLUO/DDM d'un ou plusieurs moyens de contrôle est dépassée
+ControlEquipmentOutdated           = La DLUO/DDM d'un ou plusieurs moyens de contrôle est dépassée
+GoToEquipmentHours                 = Aller sur la page des moyens de contrôle
+ExpiredSince                       = Expiré depuis
+RemainingDays                      = Jours avant expiration
+NoEquipmentLinked                  = Aucun moyen de contrôle lié
+NoControlAnswersPhoto              = Pas de photos sur les réponses du contrôle
+NeedObjectToControl                = Vous devez sélectionner un objet à contrôler
+NeedFkSheet                        = Vous devez sélectionner une fiche modèle
 
 #
 # ControlDet
