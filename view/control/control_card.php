@@ -234,7 +234,7 @@ if (empty($reshook)) {
 	if ($action == 'save') {
 		$controldet = new ControlLine($db);
 		$sheet->fetch($object->fk_sheet);
-		$object->fetchObjectLinked($sheet->id, 'dolismq_sheet');
+		$object->fetchObjectLinked($sheet->id, 'dolismq_sheet', '', '', 'OR', 1, 'sourcetype', 0);
 		$questionIds = $object->linkedObjectsIds['dolismq_question'];
 
 		foreach ($questionIds as $questionId) {
@@ -420,7 +420,7 @@ if (empty($reshook)) {
 			if ($result > 0) {
 				$controldet = new ControlLine($db);
 				$sheet->fetch($object->fk_sheet);
-				$object->fetchObjectLinked($sheet->id, 'dolismq_sheet');
+				$object->fetchObjectLinked($sheet->id, 'dolismq_sheet', '', '', 'OR', 1, 'sourcetype', 0);
 				$questionIds = $object->linkedObjectsIds;
 				foreach ($questionIds['dolismq_question'] as $questionId) {
 					$controldettmp = $controldet;
@@ -854,7 +854,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 
-	$object->fetchObjectLinked('', '', '', 'dolismq_control', 'OR', 1, 'sourcetype', 0);
+	$object->fetchObjectLinked('', '', $object->id, 'dolismq_control', 'OR', 1, 'sourcetype', 0);
 
 	foreach($elementArray as $linkableElementType => $linkableElement) {
 		if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
