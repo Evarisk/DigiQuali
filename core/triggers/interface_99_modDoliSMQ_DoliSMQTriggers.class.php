@@ -105,15 +105,14 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 		$actioncomm->percentage   = -1;
         $actioncomm->note_private = '';
 
-        if ($conf->global->DOLISMQ_ADVANCED_TRIGGER) {
+        if ($conf->global->DOLISMQ_ADVANCED_TRIGGER && !empty($object->fields)) {
             foreach ($object->fields as $key => $value) {
-                if ($key == 'rowid' || $key == 'fk_user_creat' || $key == 'fk_user_modif' || $key == 'import_key' || $key == 'ref_ext') {
+                if (in_array($key, ['rowid', 'fk_user_creat', 'fk_user_modif', 'import_key', 'ref_ext', 'track_id'])) {
                     continue;
-                }
-                if ($key == 'date_creation' || $key == 'tms') {
+                } else if ($key == 'date_creation' || $key == 'tms') {
                     $actioncomm->note_private .= $langs->trans($value['label']) . ' : ' . dol_print_date($object->$key, 'dayhoursec', 'tzuser') . '</br>';
                 } else {
-                    $actioncomm->note_private .= $langs->trans($value['label']) . ' : ' . $object->$key . '</br>';
+                    $actioncomm->note_private .= !empty($object->$key) ? $langs->trans($value['label']) . ' : ' . $object->$key . '</br>' : '';
                 }
             }
         }
