@@ -628,7 +628,7 @@ if ($action == 'create') {
 	print '</table>';
 	print '<hr>';
 
-	print '<table class="border centpercent tableforfieldcreate control-table">'."\n";
+	print '<table class="border centpercent tableforfieldcreate control-table linked-objects">'."\n";
 
 	print '<tr><td>';
 	print '<div class="fields-content">';
@@ -877,31 +877,33 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	$object->fetchObjectLinked('', '', '', 'dolismq_control', 'OR', 1, 'sourcetype', 0);
 
-	$linkedObjectsInfos = $object->getLinkedObjectsWithQcFrequency($elementArray);
-	$linkedObjects    = $linkedObjectsInfos['linkedObjects'];
-	$qcFrequencyArray = $linkedObjectsInfos['qcFrequencyArray'];
-
 	foreach($elementArray as $linkableElementType => $linkableElement) {
 		if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
+			$className    = $linkableElement['className'];
+			$linkedObject = new $className($db);
 
-			print '<tr><td class="titlefield">';
-			print $langs->trans($linkableElement['langs']);
-			print '</td>';
-			print '<td>';
+			$linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
+			$linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
 
-			$currentObject    = $linkedObjects[$linkableElementType];
-			$isMinQcFrequency = $linkableElementType == array_keys($qcFrequencyArray, min($qcFrequencyArray))[0];
+			$result = $linkedObject->fetch($linkedObjectId);
 
-			print $currentObject->getNomUrl(1);
+			if ($result > 0) {
+				print '<tr><td class="titlefield">';
+				print $langs->trans($linkableElement['langs']);
+				print '</td>';
+				print '<td>';
 
-			if ($qcFrequencyArray[$linkableElementType] > 0) {
-				print ' - ';
-				print $isMinQcFrequency ? '<strong>' : '';
-				print $langs->transnoentities('QcFrequency') . ' : ' . $qcFrequencyArray[$linkableElementType];
-				print $isMinQcFrequency ? '</strong>' : '';
+				print $linkedObject->getNomUrl(1);
+
+				if ($linkedObject->array_options['options_qc_frequency'] > 0) {
+					print ' ';
+					print '<strong>';
+					print $langs->transnoentities('QcFrequency') . ' : ' . $linkedObject->array_options['options_qc_frequency'];
+					print '</strong>';
+				}
+
+				print '<td></tr>';
 			}
-
-			print '<td></tr>';
 		}
 	}
 
@@ -1041,7 +1043,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
             // Sign
             $displayButton = $onPhone ? '<i class="fas fa-signature fa-2x"></i>' : '<i class="fas fa-signature"></i>' . ' ' . $langs->trans('Sign');
-            if ($object->status == $object::STATUS_VALIDATED && !empty($object->verdict) && !$signatory->checkSignatoriesSignatures($object->id, $object->element)) {
+            if ($object->status == $object::STATUS_VALIDATED && !$signatory->checkSignatoriesSignatures($object->id, $object->element)) {
                 print '<a class="butAction" id="actionButtonSign" href="' . dol_buildpath('/custom/saturne/view/saturne_attendants.php?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element . '&document_type=ControlDocument&attendant_table_mode=simple', 3) . '">' . $displayButton . '</a>';
             } else {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeValidatedToSign', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '">' . $displayButton . '</span>';

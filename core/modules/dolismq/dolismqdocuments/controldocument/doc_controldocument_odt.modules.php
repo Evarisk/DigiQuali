@@ -357,7 +357,8 @@ class doc_controldocument_odt extends SaturneDocumentModel
 					} else {
 						$objectName = $linkedObject->$objectNameField;
 					}
-					$tmpArray['object_label_ref'] .= $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ' . $objectName . chr(0x0A);
+					$tmpArray['object_label_ref'] .= $objectName . chr(0x0A);
+					$tmpArray['object_type'] = $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ';
 				}
 			}
 		}

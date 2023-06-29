@@ -347,12 +347,12 @@ if ($action == 'create') {
 	foreach ($elementArray as $key => $element) {
 		if (!empty($element['conf'])) {
 			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
-      $linkedObjects = empty(GETPOST("linked_object")) ? [] : GETPOST("linked_object");
-      if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
-          print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
-      } else {
-          print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
-      }
+			$linkedObjects = empty(GETPOST("linked_object")) ? [] : GETPOST("linked_object");
+			if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
+				print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
+			} else {
+				print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
+			}
 			print '</td></tr>';
 			$linkableObject++;
 		}
@@ -627,7 +627,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>' . $langs->trans('Label') . '</td>';
 	print '<td>' . $langs->trans('Description') . '</td>';
 	print '<td>' . $langs->trans('QuestionType') . '</td>';
-  print '<td class="center">' . $langs->trans('Mandatory') . '</td>';
+  	print '<td class="center">' . $langs->trans('Mandatory') . '</td>';
 	print '<td class="center">' . $langs->trans('PhotoOk') . '</td>';
 	print '<td class="center">' . $langs->trans('PhotoKo') . '</td>';
 	print '<td>' . $langs->trans('Status') . '</td>';
@@ -641,7 +641,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$item = $question;
 			$item->fetch($questionId);
 
-			print '<tr id="'. $item->id .'" class="line-row oddeven">';
+			print '<tr id="' . $item->id . '" class="line-row oddeven">';
 			print '<td>';
 			print $item->getNomUrl();
 			print '</td>';
@@ -658,30 +658,24 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print $langs->transnoentities($item->type);
 			print '</td>';
 
-      // Mandatory -- Rendre obligatoire
-      $mandatoryArray = json_decode($object->mandatory_questions, true);
+			// Mandatory -- Rendre obligatoire
+			$mandatoryArray = json_decode($object->mandatory_questions, true);
 
-      print '<td class="center">';
-      print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
-      print '<input type="hidden" name="token" value="' . newToken() . '">';
-      print '<input type="hidden" name="action" value="set_mandatory">';
-			print '<input type="hidden" name="questionId" value="'. $item->id . '">';
-			print '<input type="hidden" name="questionRef" value="'. $item->ref . '">';
-      print '<input type="checkbox" onchange="submit();" id="mandatory" name="mandatory" value="'. $item->id . '"' . (in_array($item->id, $mandatoryArray) ? ' checked ' : '') .  '" ' . ($object->status < Sheet::STATUS_LOCKED ? '>' : 'disabled>');
-      print '</form>';
-      print '</td>';
-
-
-      print '<td class="center">';
-			if (dol_strlen($item->photo_ok) > 0) {
-				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ok', 1, '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $item->ref . '/photo_ok', $item, 'photo_ok', 0, 0, 1,1);
-			}
+			print '<td class="center">';
+			print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
+			print '<input type="hidden" name="token" value="' . newToken() . '">';
+			print '<input type="hidden" name="action" value="set_mandatory">';
+			print '<input type="hidden" name="questionId" value="' . $item->id . '">';
+			print '<input type="hidden" name="questionRef" value="' . $item->ref . '">';
+			print '<input type="checkbox" onchange="submit();" id="mandatory" name="mandatory" value="' . $item->id . '"' . (in_array($item->id, $mandatoryArray) ? ' checked ' : '') . '" ' . ($object->status < Sheet::STATUS_LOCKED ? '>' : 'disabled>');
+			print '</form>';
 			print '</td>';
 
 			print '<td class="center">';
-			if (dol_strlen($item->photo_ko) > 0) {
-				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ko', 1, '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $item->ref . '/photo_ko', $item, 'photo_ko', 0, 0, 1,1);
-			}
+			print saturne_show_medias_linked('dolismq',$conf->dolismq->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ok',1,'',0,0,0,50,50,0,0,0,'question/' . $item->ref . '/photo_ok',$item,'photo_ok',0,0,1,1);
+			print '</td>';
+			print '<td>';
+			print saturne_show_medias_linked('dolismq',$conf->dolismq->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ko',1,'',0,0,0,50,50,0,0,0,'question/' . $item->ref . '/photo_ko',$item,'photo_ko',0,0,1,1);
 			print '</td>';
 
 			print '<td>';
@@ -759,7 +753,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '</div>';
 	print dol_get_fiche_end();
 }
-
 // End of page
 llxFooter();
 $db->close();
