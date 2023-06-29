@@ -24,6 +24,8 @@
 // Load DoliSMQ environment
 if (file_exists('../dolismq.main.inc.php')) {
 	require_once __DIR__ . '/../dolismq.main.inc.php';
+} elseif (file_exists('../../dolismq.main.inc.php')) {
+	require_once __DIR__ . '/../../dolismq.main.inc.php';
 } else {
 	die('Include of dolismq main fails');
 }
@@ -39,20 +41,17 @@ require_once __DIR__ . '/../core/modules/dolismq/answer/mod_answer_standard.php'
 require_once __DIR__ . '/../core/modules/dolismq/question/mod_question_standard.php';
 require_once __DIR__ . '/../core/modules/dolismq/sheet/mod_sheet_standard.php';
 
-
 // Global variables definitions
 global $conf, $db, $langs, $user;
 
 saturne_load_langs();
 
+$action         = GETPOST('action', 'alpha');
 $error          = 0;
 $now            = dol_now();
 $answer         = new Answer($db);
 $question       = new Question($db);
 $sheet          = new Sheet($db);
-$refSheetMod    = new $conf->global->DOLISMQ_SHEET_ADDON($db);
-$refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($db);
-$refAnswerMod   = new $conf->global->DOLISMQ_ANSWER_ADDON($db);
 
 $upload_dir     = $conf->dolismq->multidir_output[isset($conf->entity) ? $conf->entity : 1];
 
@@ -70,33 +69,38 @@ saturne_check_access($permissionToRead);
  * Actions
  */
 
-if (GETPOST('dataMigrationExportSQA', 'alpha') && $permissionToRead) {
-    //DoliSMQ sheets data
-    $allSheets = $sheet->fetchAll();
-    if (is_array($allSheets) && !empty($allSheets)) {
-        foreach ($allSheets as $sheetSingle) {
-            $sheetExportArray['rowid'] = $sheetSingle->id;
-            $sheetExportArray['ref'] = $sheetSingle->ref;
-            $sheetExportArray['date_creation'] = $sheetSingle->date_creation;
-            $sheetExportArray['date_modification'] = $sheetSingle->tms;
-            $sheetExportArray['status'] = $sheetSingle->status;
-            $sheetExportArray['label'] = $sheetSingle->label;
-            $sheetExportArray['description'] = $sheetSingle->description;
-            $sheetExportArray['element_linked'] = $sheetSingle->element_linked;
-            //$sheetExportArray['mandatory_questions'] = $sheetSingle->mandatory_questions;
+if ($action == 'dataMigrationExportGlobal' && $permissionToRead) {
 
-            $dolismqExportArray['sheets'][$sheetSingle->id] = $sheetExportArray;
+	if (GETPOST('dataMigrationExportSQA', 'alpha')) {
+		$allSheets  = $sheet->fetchAll();
+		$exportName = 'sheet_question_answer';
+		if (is_array($allSheets) && !empty($allSheets)) {
+			foreach ($allSheets as $sheetSingle) {
+				$sheetExportArray['rowid']             = $sheetSingle->id;
+				$sheetExportArray['ref']               = $sheetSingle->ref;
+				$sheetExportArray['date_creation']     = $sheetSingle->date_creation;
+				$sheetExportArray['date_modification'] = $sheetSingle->tms;
+				$sheetExportArray['status']            = $sheetSingle->status;
+				$sheetExportArray['label']             = $sheetSingle->label;
+				$sheetExportArray['description']       = $sheetSingle->description;
+				$sheetExportArray['element_linked']    = $sheetSingle->element_linked;
+				//$sheetExportArray['mandatory_questions'] = $sheetSingle->mandatory_questions;
 
-            $sheetSingle->fetchQuestionsLinked($sheetSingle->id, 'dolismq_sheet');
-            $questionsLinked = $sheetSingle->linkedObjectsIds['dolismq_question'];
-            if (is_array($questionsLinked) && !empty($questionsLinked)) {
-                ksort($questionsLinked);
-                foreach ($questionsLinked as $questionId) {
-                    $dolismqExportArray['element_element'][$sheetSingle->id][] = $questionId;
-                }
-            }
-        }
-    }
+				$dolismqExportArray['sheets'][$sheetSingle->id] = $sheetExportArray;
+
+				$sheetSingle->fetchQuestionsLinked($sheetSingle->id, 'dolismq_sheet');
+				$questionsLinked = $sheetSingle->linkedObjectsIds['dolismq_question'];
+				if (is_array($questionsLinked) && !empty($questionsLinked)) {
+					ksort($questionsLinked);
+					foreach ($questionsLinked as $questionId) {
+						$dolismqExportArray['element_element'][$sheetSingle->id][] = $questionId;
+					}
+				}
+			}
+		}
+	} else {
+		$exportName = 'question_answer';
+	}
 
     $allQuestions = $question->fetchAll();
     if (is_array($allQuestions) && !empty($allQuestions)) {
@@ -116,113 +120,40 @@ if (GETPOST('dataMigrationExportSQA', 'alpha') && $permissionToRead) {
             $questionExportArray['photo_ko']               = $questionSingle->photo_ko;
 
             $dolismqExportArray['questions'][$questionSingle->id] = $questionExportArray;
+		}
+	}
 
-            $allAnswers = $answer->fetchAll();
-            if (is_array($allAnswers) && !empty($allAnswers)) {
-                foreach ($allAnswers as $answerSingle) {
-                    if ($answerSingle->fk_question == $questionSingle->id) {
-                        $answerExportArray['rowid']             = $answerSingle->id;
-                        $answerExportArray['ref']               = $answerSingle->ref;
-                        $answerExportArray['date_creation']     = $answerSingle->date_creation;
-                        $answerExportArray['date_modification'] = $answerSingle->tms;
-                        $answerExportArray['status']            = $answerSingle->status;
-                        $answerExportArray['value']             = $answerSingle->value;
-                        $answerExportArray['position']          = $answerSingle->position;
-                        $answerExportArray['pictogram']         = $answerSingle->pictogram;
-                        $answerExportArray['color']             = $answerSingle->color;
-                        $answerExportArray['fk_question']       = $answerSingle->fk_question;
+	$allAnswers = $answer->fetchAll();
+	if (is_array($allAnswers) && !empty($allAnswers)) {
+		foreach ($allAnswers as $answerSingle) {
+			$answerExportArray['rowid']             = $answerSingle->id;
+			$answerExportArray['ref']               = $answerSingle->ref;
+			$answerExportArray['date_creation']     = $answerSingle->date_creation;
+			$answerExportArray['date_modification'] = $answerSingle->tms;
+			$answerExportArray['status']            = $answerSingle->status;
+			$answerExportArray['value']             = $answerSingle->value;
+			$answerExportArray['position']          = $answerSingle->position;
+			$answerExportArray['pictogram']         = $answerSingle->pictogram;
+			$answerExportArray['color']             = $answerSingle->color;
+			$answerExportArray['fk_question']       = $answerSingle->fk_question;
 
-                        $dolismqExportArray['questions'][$questionSingle->id]['answers'][$answerSingle->id] = $answerExportArray;
-                    }
-                }
-            }
-        }
-    }
-
-
-    $dolismqExportArray = json_encode($dolismqExportArray, JSON_PRETTY_PRINT);
-
-    $filedir = $upload_dir . '/temp/';
-    $export_base = $filedir . dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_sheet_question_answer_export';
-    $filename = $export_base . '.json';
-
-    file_put_contents($filename, $dolismqExportArray);
-
-    $zip = new ZipArchive();
-    if ($zip->open($export_base . '.zip', ZipArchive::CREATE ) === TRUE) {
-        $zip->addFile($filename, basename($filename));
-        $zip->close();
-        $filenamezip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_sheet_question_answer_export.zip';
-        $filepath = DOL_URL_ROOT . '/document.php?modulepart=dolismq&file=' . urlencode('temp/'.$filenamezip);
-
-        ?>
-        <script>
-            var alink = document.createElement( 'a' );
-            alink.setAttribute('href', <?php echo json_encode($filepath); ?>);
-            alink.setAttribute('download', <?php echo json_encode($filenamezip); ?>);
-            alink.click();
-        </script>
-        <?php
-        $fileExportGlobals = dol_dir_list($filedir, "files", 0, '', '', '', '', 1);
-    }
-}
-
-if (GETPOST('dataMigrationExportQA', 'alpha') && $permissionToRead) {
-    //DoliSMQ questions data
-    $allQuestions = $question->fetchAll();
-    if (is_array($allQuestions) && !empty($allQuestions)) {
-        foreach ($allQuestions as $questionSingle) {
-            $questionExportArray['rowid']                  = $questionSingle->id;
-            $questionExportArray['ref']                    = $questionSingle->ref;
-            $questionExportArray['date_creation']          = $questionSingle->date_creation;
-            $questionExportArray['date_modification']      = $questionSingle->tms;
-            $questionExportArray['status']                 = $questionSingle->status;
-            $questionExportArray['type']                   = $questionSingle->type;
-            $questionExportArray['label']                  = $questionSingle->label;
-            $questionExportArray['description']            = $questionSingle->description;
-            $questionExportArray['show_photo']             = $questionSingle->show_photo;
-            $questionExportArray['authorize_answer_photo'] = $questionSingle->authorize_answer_photo;
-            $questionExportArray['enter_comment']          = $questionSingle->enter_comment;
-            $questionExportArray['photo_ok']               = $questionSingle->photo_ok;
-            $questionExportArray['photo_ko']               = $questionSingle->photo_ko;
-
-            $dolismqExportArray['questions'][$questionSingle->id] = $questionExportArray;
-
-            $allAnswers = $answer->fetchAll();
-            if (is_array($allAnswers) && !empty($allAnswers)) {
-                foreach ($allAnswers as $answerSingle) {
-                    if ($answerSingle->fk_question == $questionSingle->id) {
-                        $answerExportArray['rowid']             = $answerSingle->id;
-                        $answerExportArray['ref']               = $answerSingle->ref;
-                        $answerExportArray['date_creation']     = $answerSingle->date_creation;
-                        $answerExportArray['date_modification'] = $answerSingle->tms;
-                        $answerExportArray['status']            = $answerSingle->status;
-                        $answerExportArray['value']             = $answerSingle->value;
-                        $answerExportArray['position']          = $answerSingle->position;
-                        $answerExportArray['pictogram']         = $answerSingle->pictogram;
-                        $answerExportArray['color']             = $answerSingle->color;
-                        $answerExportArray['fk_question']       = $answerSingle->fk_question;
-
-                        $dolismqExportArray['questions'][$questionSingle->id]['answers'][$answerSingle->id] = $answerExportArray;
-                    }
-                }
-            }
-        }
+			$dolismqExportArray['questions'][$answerSingle->fk_question]['answers'][$answerSingle->id] = $answerExportArray;
+		}
     }
 
     $dolismqExportArray = json_encode($dolismqExportArray, JSON_PRETTY_PRINT);
 
-    $filedir = $upload_dir . '/temp/';
-    $export_base = $filedir . dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_question_answer_export';
-    $filename = $export_base . '.json';
+    $filedir    = $upload_dir . '/temp/';
+    $exportBase = $filedir . dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export';
+    $filename   = $exportBase . '.json';
 
     file_put_contents($filename, $dolismqExportArray);
 
     $zip = new ZipArchive();
-    if ($zip->open($export_base . '.zip', ZipArchive::CREATE ) === TRUE) {
+    if ($zip->open($exportBase . '.zip', ZipArchive::CREATE ) === TRUE) {
         $zip->addFile($filename, basename($filename));
         $zip->close();
-        $filenamezip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_question_answer_export.zip';
+        $filenamezip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export.zip';
         $filepath = DOL_URL_ROOT . '/document.php?modulepart=dolismq&file=' . urlencode('temp/'.$filenamezip);
 
         ?>
@@ -280,36 +211,30 @@ if (GETPOST('dataMigrationImportJson', 'alpha') && $permissionToWrite) {
             $json               = file_get_contents($filedir . $filename);
             $dolismqExportArray = json_decode($json, true);
             $error              = 0;
-            $count              = 0;
 
             if (is_array($dolismqExportArray['sheets']) && !empty($dolismqExportArray['sheets'])) {
                 foreach ($dolismqExportArray['sheets'] as $sheetSingle) {
-                    $count++;
-                    $sheet->ref            = $refSheetMod->getNextValue($sheet);
                     $sheet->date_creation  = $now;
                     $sheet->label          = $sheetSingle['label'];
                     $sheet->description    = $sheetSingle['description'];
-                    $sheet->element_linked = $sheetSingle['element_linked'];
-                    $sheet->entity         = $conf->entity;
+					$sheet->element_linked = $sheetSingle['element_linked'];
+					$sheet->status         = $sheetSingle['status'];
 
                     $sheetId = $sheet->create($user);
 
                     if ($sheetId > 0) {
-                        $sheet->setStatusCommon($user, $sheetSingle['status'], true);
                         $tmpElementSheetArray[$sheetSingle['rowid']] = $sheet->id;
                     } else {
                         $error++;
                     }
                 }
-                setEventMessage($langs->transnoentities("ImportFinishWith", $langs->trans('Sheets'), $error, $count));
+				$count = count($dolismqExportArray['sheets']);
+				setEventMessage($langs->transnoentities("ImportFinishWith", $langs->trans('Sheets'), $error, $count));
             }
 
             $error = 0;
-            $count = 0;
             if (is_array($dolismqExportArray['questions']) && !empty($dolismqExportArray['questions'])) {
-                foreach ($dolismqExportArray['questions'] as $questionSingle) {
-                    $count++;
-                    $question->ref                    = $refQuestionMod->getNextValue($question);
+				foreach ($dolismqExportArray['questions'] as $questionSingle) {
                     $question->date_creation          = $now;
                     $question->type                   = $questionSingle['type'];
                     $question->label                  = $questionSingle['label'];
@@ -317,14 +242,13 @@ if (GETPOST('dataMigrationImportJson', 'alpha') && $permissionToWrite) {
                     $question->show_photo             = $questionSingle['show_photo'];
                     $question->authorize_answer_photo = $questionSingle['authorize_answer_photo'];
                     $question->enter_comment          = $questionSingle['enter_comment'];
-                    $question->photo_ok               = '';
-                    $question->photo_ko               = '';
+					$question->status                 = $questionSingle['status'];
+					$question->photo_ok               = '';
+					$question->photo_ko               = '';
 
                     $questionId = $question->create($user);
 
                     if ($questionId > 0) {
-                        $question->setStatusCommon($user, $questionSingle['status'], true);
-
                         if (array_key_exists('element_element', $dolismqExportArray) && !empty($dolismqExportArray['element_element'])) {
                             foreach ($dolismqExportArray['element_element'] as $key => $value) {
                                 if (isset($tmpElementSheetArray[$key]) && in_array($questionSingle['rowid'], $dolismqExportArray['element_element'][$key])) {
@@ -341,9 +265,7 @@ if (GETPOST('dataMigrationImportJson', 'alpha') && $permissionToWrite) {
                         }
 
                         if (array_key_exists('answers', $questionSingle) && !empty($questionSingle['answers'])) {
-                            foreach ($questionSingle['answers'] as $answerSingle) {
-                                $count++;
-                                $answer->ref                     = $refAnswerMod->getNextValue($answer);
+							foreach ($questionSingle['answers'] as $answerSingle) {
                                 $answer->date_creation           = $now;
                                 $answer->status                  = $answerSingle['status'];
                                 $answer->value                   = $answerSingle['value'];
@@ -358,12 +280,13 @@ if (GETPOST('dataMigrationImportJson', 'alpha') && $permissionToWrite) {
                                     $error++;
                                 }
                             }
-                        }
+						}
                     } else {
                         $error++;
                     }
                 }
-                setEventMessage($langs->transnoentities("ImportFinishWith", $langs->trans('Questions'), $error, $count));
+				$count = count($dolismqExportArray['questions']);
+				setEventMessage($langs->transnoentities("ImportFinishWith", $langs->trans('Questions'), $error, $count));
             }
         }
 	}

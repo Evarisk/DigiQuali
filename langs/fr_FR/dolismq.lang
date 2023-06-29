@@ -280,7 +280,6 @@ DataMigrationImportZIP = Import fichier ZIP vers Dolibarr
 DataMigrationImportZIPDescription = Import des données des fiches modèles, des questions et des réponses d'un fichier ZIP
 ErrorArchiveNotWellFormattedZIP = L'archive n'est pas pris en charge ou est vide. Vous devez joindre un archive d'import au format .zip
 ImportFinishWith = L'import des %s a été terminé avec %s erreur(s) sur %s importation(s)
-ExportData = Exporter mes données
 
 #
 # Other

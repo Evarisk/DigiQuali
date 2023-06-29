@@ -524,7 +524,7 @@ class modDoliSMQ extends DolibarrModules
 		$this->menu[$r++] = [
 			'fk_menu'  => 'fk_mainmenu=dolismq',
 			'type'     => 'left',
-			'titre'    => '<i class="fas fa-wrench pictofixedwidth" style="padding-right: 4px;"></i>' . $langs->transnoentities('Tools'),
+			'titre'    => '<i class="fas fa-wrench pictofixedwidth"></i>' . $langs->transnoentities('Tools'),
 			'mainmenu' => 'dolismq',
 			'leftmenu' => 'dolismq_tools',
 			'url'      => '/dolismq/view/dolismqtools.php',
