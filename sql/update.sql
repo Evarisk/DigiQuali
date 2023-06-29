@@ -73,6 +73,7 @@ ALTER TABLE `llx_dolismq_sheet` ADD UNIQUE INDEX uk_dolismq_sheet_ref (ref, enti
 ALTER TABLE `llx_dolismq_control` ADD UNIQUE INDEX uk_dolismq_control_ref (ref, entity);
 ALTER TABLE `llx_dolismq_controldet` ADD UNIQUE INDEX uk_dolismq_controldet_ref (ref, entity);
 ALTER TABLE `llx_dolismq_control` ADD `photo` TEXT NULL AFTER `verdict`;
+UPDATE `llx_dolismq_question` SET type = 'OkKoToFixNonApplicable' WHERE type = '';
 
 -- 1.7.0
 ALTER TABLE `llx_dolismq_control` ADD `track_id` VARCHAR(128) NOT NULL AFTER `photo`;

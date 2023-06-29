@@ -213,6 +213,32 @@ if (empty($reshook)) {
 		}
 	}
 
+	if ($action == 'add') {
+		$linkableElements = get_sheet_linkable_objects();
+		$controlledObjectSelected = 0;
+
+		if (!empty($linkableElements)) {
+			foreach ($linkableElements as $linkableElementType => $linkableElement) {
+				if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
+					$controlledObjectSelected++;
+				}
+			}
+		}
+
+		if (GETPOST('fk_sheet') > 0) {
+			if ($controlledObjectSelected == 0) {
+				setEventMessages($langs->trans('NeedObjectToControl'), [], 'errors');
+				header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&fk_sheet=' . GETPOST('fk_sheet'));
+				exit;
+			}
+		} else {
+			setEventMessages($langs->trans('NeedFkSheet'), [], 'errors');
+			header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create');
+			exit;
+		}
+
+	}
+
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
@@ -287,7 +313,8 @@ if (empty($reshook)) {
 			}
 		}
 
-		setEventMessages($langs->trans('AnswerSaved'), array());
+		$object->call_trigger('CONTROL_SAVEANSWER', $user);
+		setEventMessages($langs->trans('AnswerSaved'), []);
 		header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 		exit;
 	}
@@ -393,6 +420,7 @@ if (empty($reshook)) {
 			$result = $object->update($user);
 			if ($result > 0) {
 				// Set verdict Control
+				$object->call_trigger('CONTROL_VERDICT', $user);
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header('Location: ' . $urltogo);
@@ -587,7 +615,7 @@ if ($action == 'create') {
 		print '<tr><td>'.$langs->trans('Categories').'</td><td>';
 		$categoryArborescence = $form->select_all_categories('control', '', 'parent', 64, 0, 1);
 		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $categoryArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
-		//print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=control&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
+		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=control&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print '</td></tr>';
 	}
 
@@ -656,7 +684,7 @@ if ($action == 'create') {
 
 	print dol_get_fiche_end();
 
-	print $form->buttonsSaveCancel('Create');
+	print $form->buttonsSaveCancel('Create', 'Cancel', [], 0, 'wpeo-button');
 
 	print '</form>';
 }
@@ -668,6 +696,22 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	saturne_get_fiche_head($object, 'card', $title);
 
 	$formconfirm = '';
+
+	$equipmentOutdated = false;
+	if (!empty($conf->global->DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT)) {
+		$controlEquipment  = new ControlEquipment($db);
+		$controlEquipments = $controlEquipment->fetchFromParent($object->id);
+		if (is_array($controlEquipments) && !empty ($controlEquipments)) {
+			foreach ($controlEquipments as $equipmentControl) {
+				$product->fetch($equipmentControl->fk_product);
+				$creationDate = strtotime($product->date_creation);
+				if (!empty($product->lifetime) && dol_time_plus_duree($creationDate, $product->lifetime, 'd') <= dol_now()) {
+					$equipmentOutdated = true;
+					break;
+				}
+			}
+		}
+	}
 
 	if ($action == 'setVerdict') {
 //		//Form to close proposal (signed or not)
@@ -791,8 +835,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Common attributes
 	unset($object->fields['projectid']); // Hide field already shown in banner
 
-    print '<tr><td class="titlefield">' . $langs->trans('PublicControl') . ' <a href="' . dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $object->track_id, 3) . '" target="_blank"><i class="fas fa-qrcode"></i></a></td>';
-    print '<td>' . saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
+  if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {
+      print '<tr><td class="titlefield">' . $langs->trans('PublicControl') . ' <a href="' . dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $object->track_id, 3) . '" target="_blank"><i class="fas fa-qrcode"></i></a></td>';
+      print '<td>' . saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
+  }
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
@@ -828,9 +874,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</tr>';
 	}
 
-	$linkedObjects    = [];
 
-	$object->fetchObjectLinked('', '', '', 'dolismq_control');
+	$object->fetchObjectLinked('', '', '', 'dolismq_control', 'OR', 1, 'sourcetype', 0);
 
 	foreach($elementArray as $linkableElementType => $linkableElement) {
 		if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
@@ -908,7 +953,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     $cantValidateControl = 0;
     $mandatoryArray      = json_decode($sheet->mandatory_questions, true);
 
-    if (!empty($sheet->mandatory_questions) && is_array($mandatoryArray)) {
+    if (is_array($mandatoryArray) && !empty($mandatoryArray) && is_array($questionIds) && !empty($questionIds)) {
         foreach ($questionIds as $questionId) {
             if (in_array($questionId, $mandatoryArray)) {
                 $controldettmp = $controldet;
@@ -927,6 +972,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     }
 
 	print '<div class="clearboth"></div>';
+
+	if ($equipmentOutdated == true) { ?>
+		<div class="wpeo-notice notice-error">
+			<div class="notice-content">
+				<div class="notice-title"><?php echo $langs->trans('ControlEquipmentOutdated') ?></div>
+			</div>
+			<a class="butAction" style="width = 100%;margin-right:0" target="_blank" href="<?php echo DOL_URL_ROOT . '/custom/dolismq/view/control/control_equipment.php?id=' . $object->id?>"><?php echo $langs->trans("GoToEquipmentHours", $usertmp->getFullName($langs)) ?></a>
+		</div>
+	<?php }
 
 	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?action=save&id='.$object->id.'" id="saveControl" enctype="multipart/form-data">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
@@ -955,11 +1009,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Validate
 			$displayButton = $onPhone ? '<i class="fas fa-check fa-2x"></i>' : '<i class="fas fa-check"></i>' . ' ' . $langs->trans('Validate');
-			if ($object->status == $object::STATUS_DRAFT && empty($cantValidateControl)) {
+			if ($object->status == $object::STATUS_DRAFT && empty($cantValidateControl) && !$equipmentOutdated) {
 				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . $displayButton . '</a>';
             } else if ($cantValidateControl > 0) {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('QuestionMustBeAnswered', $cantValidateControl)) . '">' . $displayButton . '</span>';
-            } else {
+			} else if ($equipmentOutdated) {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</span>';
+			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $displayButton . '</span>';
 			}
 
@@ -973,19 +1029,21 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Set verdict control
 			$displayButton = $onPhone ? '<i class="far fa-check-circle fa-2x"></i>' : '<i class="far fa-check-circle"></i>' . ' ' . $langs->trans('SetOK/KO');
-			if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null) {
+			if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null && !$equipmentOutdated) {
 				if ($permissiontosetverdict) {
 					print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setVerdict&token=' . newToken() . '">' . $displayButton . '</a>';
 				}
 			} elseif ($object->status == $object::STATUS_DRAFT) {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . $displayButton . '</span>';
+			} else if ($equipmentOutdated) {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . $displayButton . '</span>';
 			}
 
             // Sign
             $displayButton = $onPhone ? '<i class="fas fa-signature fa-2x"></i>' : '<i class="fas fa-signature"></i>' . ' ' . $langs->trans('Sign');
-            if ($object->status == $object::STATUS_VALIDATED && !empty($object->verdict) && !$signatory->checkSignatoriesSignatures($object->id, $object->element)) {
+            if ($object->status == $object::STATUS_VALIDATED && !$signatory->checkSignatoriesSignatures($object->id, $object->element)) {
                 print '<a class="butAction" id="actionButtonSign" href="' . dol_buildpath('/custom/saturne/view/saturne_attendants.php?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element . '&document_type=ControlDocument&attendant_table_mode=simple', 3) . '">' . $displayButton . '</a>';
             } else {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeValidatedToSign', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '">' . $displayButton . '</span>';
@@ -993,7 +1051,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			// Lock
 			$displayButton = $onPhone ? '<i class="fas fa-lock fa-2x"></i>' : '<i class="fas fa-lock"></i>' . ' ' . $langs->trans('Lock');
-			if ($object->status == $object::STATUS_VALIDATED && $object->verdict != null && $signatory->checkSignatoriesSignatures($object->id, $object->element)) {
+			if ($object->status == $object::STATUS_VALIDATED && $object->verdict != null && $signatory->checkSignatoriesSignatures($object->id, $object->element) && !$equipmentOutdated) {
 				print '<span class="butAction" id="actionButtonLock">' . $displayButton . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToLock')) . '">' . $displayButton . '</span>';
@@ -1256,7 +1314,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 		$maxEvent = 10;
 
-		$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliMeet&object_type=' . $object->element);
+		$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element);
 
 		// List of actions on element
 		include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';

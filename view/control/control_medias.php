@@ -60,7 +60,7 @@ $project     = new Project($db);
 // View objects
 $form = new Form($db);
 
-$hookmanager->initHooks(array('controlnote', 'globalcard')); // Note that conf->hooks_modules contains array
+$hookmanager->initHooks(array('controlmedia', 'globalcard')); // Note that conf->hooks_modules contains array
 
 // Fetch optionals attributes and labels
 $extrafields->fetch_name_optionals_label($object->table_element);
@@ -88,16 +88,16 @@ if (!$permissiontoread) accessforbidden();
  */
 
 $help_url = '';
-$morecss  = array('/dolismq/css/dolismq.css');
-$morejs  = array('/dolismq/js/dolismq.js');
-saturne_header(0,'', $langs->trans('Control'), $help_url, '', 0, 0, $morejs, $morecss);
+$title    = $langs->trans('Medias');
+
+saturne_header(0,'', $title, $help_url);
 
 if ($id > 0 || !empty($ref)) {
 	$object->fetch_thirdparty();
 
 	$head = control_prepare_head($object);
 
-	print saturne_get_fiche_head($object, 'medias', $langs->trans('Medias'));
+	print saturne_get_fiche_head($object, 'medias', $title);
 
 	// Object card
 	// ------------------------------------------------------------
@@ -110,21 +110,27 @@ if ($id > 0 || !empty($ref)) {
 	print load_fiche_titre($langs->trans('MediaGalleryQuestionAnswers'), '', '');
 
 	$object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet');
-	$questionIds = $object->linkedObjectsIds;
+	$questionIds     = $object->linkedObjectsIds;
+	$questionsLinked = $object->linkedObjects;
+	$relativepath    = 'dolismq/medias/thumbs';
+	$linkedMedias    = 0;
 
-	if (!empty($questionIds['dolismq_question']) && $questionIds > 0) {
-		foreach ($questionIds['dolismq_question'] as $questionId) {
-			$question->fetch($questionId);
-			if ($question->authorize_answer_photo > 0 && file_exists($conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref)) {
+	if (is_array($questionsLinked['dolismq_question']) && !empty($questionsLinked['dolismq_question'])) {
+		foreach ($questionsLinked['dolismq_question'] as $questionLinked) {
+			if ($questionLinked->authorize_answer_photo > 0 && file_exists($conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $questionLinked->ref)) {
 				print '<div class="question-section">';
-				print '<span class="question-ref">' . $question->ref . '</span>';
+				print '<span class="question-ref">' . $questionLinked->ref . '</span>';
 				print '<div class="table-cell table-full linked-medias answer_photo">';
-				$relativepath = 'dolismq/medias/thumbs';
-				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref, ($conf->global->DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY ? 'large' : 'medium'), '', 0, 0, 0, 200, 200, 0, 0, 0, 'control/' . $object->ref . '/answer_photo/' . $question->ref, null, '', 0, 0);
+				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $questionLinked->ref, ($conf->global->DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY ? 'large' : 'medium'), '', 0, 0, 0, 200, 200, 0, 0, 0, 'control/' . $object->ref . '/answer_photo/' . $questionLinked->ref, null, '', 0, 0);
 				print '</div>';
 				print '</div>';
+				$linkedMedias++;
 			}
 		}
+	}
+
+	if ($linkedMedias == 0) {
+		print $langs->trans('NoControlAnswersPhoto');
 	}
 
 	print '</div>';

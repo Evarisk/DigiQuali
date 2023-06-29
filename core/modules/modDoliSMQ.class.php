@@ -111,7 +111,7 @@ class modDoliSMQ extends DolibarrModules
 			// Set this to 1 if module has its own theme directory (theme)
 			'theme' => 0,
 			// Set this to relative path of css file if module has its own css file
-			'css' => ['/dolismq/css/scss/modules/_menu.scss'],
+			'css' => ['/dolismq/css/scss/modules/_menu.min.css'],
 			// Set this to relative path of js file if module must load a js on all pages
 			'js' => [
 				//   '/dolismq/js/dolismq.js',
@@ -146,7 +146,7 @@ class modDoliSMQ extends DolibarrModules
 		// A condition to hide module
 		$this->hidden = false;
 		// List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
-		$this->depends = ['modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM', 'modProjet', 'modCategorie', 'modSaturne'];
+		$this->depends = ['modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM', 'modProjet', 'modCategorie', 'modSaturne', 'modTicket'];
 		$this->requiredby = []; // List of module class names as string to disable if this one is disabled. Example: array('modModuleToDisable1', ...)
 		$this->conflictwith = []; // List of module class names as string this module is in conflict with. Example: array('modModuleToDisable1', ...)
 
@@ -190,6 +190,7 @@ class modDoliSMQ extends DolibarrModules
 
 			// CONST QUESTION
 			$i++ => ['DOLISMQ_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'],
+            $i++ => ['DOLISMQ_QUESTION_BACKWARD_COMPATIBILITY', 'integer', 1, '', 0, 'current'],
 
 			// CONST ANSWER
 			$i++ => ['DOLISMQ_ANSWER_ADDON', 'chaine', 'mod_answer_standard', '', 0, 'current'],
@@ -198,6 +199,8 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_BACKWARD_COMPATIBILITY', 'integer', 0, '', 0, 'current'],
+			$i++ => ['PRODUCT_LOT_ENABLE_QUALITY_CONTROL', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT', 'integer', 0, '', 0, 'current'],
 
             // CONST DOLISMQ DOCUMENTS
             $i++ => ['DOLISMQ_AUTOMATIC_PDF_GENERATION', 'integer', 0, '', 0, 'current'],
@@ -214,6 +217,7 @@ class modDoliSMQ extends DolibarrModules
 
 			// CONST CONTROL LINE
 			$i++ => ['DOLISMQ_CONTROLDET_ADDON', 'chaine', 'mod_controldet_standard', '', 0, 'current'],
+			$i++ => ['DOLISMQ_CONTROL_EQUIPMENT_ADDON', 'chaine', 'mod_control_equipment_standard', '', 0, 'current'],
 
 			// CONST MODULE
 			$i++ => ['DOLISMQ_VERSION','chaine', $this->version, '', 0, 'current'],
@@ -228,7 +232,8 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_MEDIA_MAX_WIDTH_LARGE', 'integer', 1280, '', 0, 'current'],
 			$i++ => ['DOLISMQ_MEDIA_MAX_HEIGHT_LARGE', 'integer', 720, '', 0, 'current'],
 			$i++ => ['DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY', 'integer', 8, '', 0, 'current'],
-			$i++ => ['DOLISMQ_REDIRECT_AFTER_CONNECTION', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_REDIRECT_AFTER_CONNECTION', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_ADVANCED_TRIGGER', 'integer', 1, '', 0, 'current'],
 
 			// CONST DOCUMENTS
 			$i++ => ['MAIN_ODT_AS_PDF', 'chaine', 'libreoffice', '', 0, 'current'],
@@ -587,35 +592,80 @@ class modDoliSMQ extends DolibarrModules
 			return -1;
 		} // Do not activate module if error 'not allowed' returned when loading module SQL queries (the _load_table run sql with run_sql with the error allowed parameter set to 'default')
 
-        if (getDolGlobalInt('DOLISMQ_CONTROL_BACKWARD_COMPATIBILITY') == 0) {
-            require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
-            require_once __DIR__ . '/../../class/control.class.php';
-            $control  = new Control($this->db);
-            $controls = $control->fetchAll();
-            if (is_array($controls) && !empty($controls)) {
-                foreach ($controls as $control) {
-                    $control->track_id = generate_random_id();
-                    $control->update($user, true);
+    if (getDolGlobalInt('DOLISMQ_CONTROL_BACKWARD_COMPATIBILITY') == 0) {
+        require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
+        require_once __DIR__ . '/../../class/control.class.php';
+        $control  = new Control($this->db);
+        $controls = $control->fetchAll();
+        if (is_array($controls) && !empty($controls)) {
+            foreach ($controls as $control) {
+                $control->track_id = generate_random_id();
+                $control->update($user, true);
 
-                    $url = dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $control->track_id, 3);
+                $url = dol_buildpath('custom/dolismq/public/control/public_control.php?track_id=' . $control->track_id, 3);
 
-                    $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
-                    dol_mkdir(DOL_DATA_ROOT . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'dolismq/control/' . $control->ref . '/qrcode/');
-                    $file = DOL_DATA_ROOT . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'dolismq/control/' . $control->ref . '/qrcode/barcode_' . $control->track_id . '.png';
+                $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
+                dol_mkdir(DOL_DATA_ROOT . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'dolismq/control/' . $control->ref . '/qrcode/');
+                $file = DOL_DATA_ROOT . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'dolismq/control/' . $control->ref . '/qrcode/barcode_' . $control->track_id . '.png';
 
-                    $imageData = $barcode->getBarcodePngData();
-                    $imageData = imagecreatefromstring($imageData);
-                    imagepng($imageData, $file);
-                }
+                $imageData = $barcode->getBarcodePngData();
+                $imageData = imagecreatefromstring($imageData);
+                imagepng($imageData, $file);
             }
-
-            dolibarr_set_const($this->db, 'DOLISMQ_CONTROL_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
         }
+
+        dolibarr_set_const($this->db, 'DOLISMQ_CONTROL_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
+    }
 
 		// Permissions
 		$this->remove($options);
 
-		return $this->_init($sql, $options);
+		$result = $this->_init($sql, $options);
+
+		if (getDolGlobalInt('DOLISMQ_QUESTION_BACKWARD_COMPATIBILITY') == 0 && $result > 0) {
+			require_once __DIR__ . '/../../class/question.class.php';
+			require_once __DIR__ . '/../../class/answer.class.php';
+
+			$question  = new Question($this->db);
+			$answer    = new Answer($this->db);
+
+			$questions = $question->fetchAll('', '', 0, 0, ['customsql' => 't.type = "OkKoToFixNonApplicable"']);
+			if (is_array($questions) && !empty($questions)) {
+				foreach ($questions as $question) {
+					$answer->fk_question = $question->id;
+					$answer->value       = $langs->transnoentities('OK');
+					$answer->pictogram   = 'check';
+					$answer->color       = '#47e58e';
+
+					$answer->create($user);
+
+					$answer->fk_question = $question->id;
+					$answer->value       = $langs->transnoentities('KO');
+					$answer->pictogram   = 'times';
+					$answer->color       = '#e05353';
+
+					$answer->create($user);
+
+					$answer->fk_question = $question->id;
+					$answer->value       = $langs->transnoentities('ToFix');
+					$answer->pictogram   = 'tools';
+					$answer->color       = '#e9ad4f';
+
+					$answer->create($user);
+
+					$answer->fk_question = $question->id;
+					$answer->value       = $langs->transnoentities('NonApplicable');
+					$answer->pictogram   = 'N/A';
+					$answer->color       = '#2b2b2b';
+
+					$answer->create($user);
+				}
+			}
+
+			dolibarr_set_const($this->db, 'DOLISMQ_QUESTION_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
+		}
+		
+		 return $result;
 	}
 
 	/**

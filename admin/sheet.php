@@ -50,7 +50,6 @@ $action      = GETPOST('action', 'alpha');
 $backtopage  = GETPOST('backtopage', 'alpha');
 $value       = GETPOST('value', 'alpha');
 $attrname    = GETPOST('attrname', 'alpha');
-$contextpage = GETPOST('contextpage', 'aZ') ?GETPOST('contextpage', 'aZ') : 'dolismqadminsheet'; // To manage different context of search
 
 // Initialize technical objects.
 $object = new Sheet($db);

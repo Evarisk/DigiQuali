@@ -248,7 +248,7 @@ class Control extends SaturneObject
 
             require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
 
-            $url = dol_buildpath('custom/dolismq/public/control/public_control?track_id=' . $this->track_id, 3);
+            $url = dol_buildpath('custom/dolismq/public/control/public_control.php?track_id=' . $this->track_id, 3);
 
             $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
 
@@ -389,7 +389,7 @@ class Control extends SaturneObject
 
 			if (!$error && !$notrigger) {
 				// Call trigger
-				$result = $this->call_trigger('CONTROL_VALIDATED', $user);
+				$result = $this->call_trigger('CONTROL_VALIDATE', $user);
 				if ($result < 0) {
 					$error++;
 				}
@@ -532,7 +532,7 @@ class Control extends SaturneObject
 
         $object->context = 'createfromclone';
 
-        $object->fetchObjectLinked('','', $object->id, 'dolismq_' . $object->element);
+        $object->fetchObjectLinked('','', $object->id, 'dolismq_' . $object->element,  'OR', 1, 'sourcetype', 0);
 
         $controlID = $object->create($user);
 
@@ -604,11 +604,51 @@ class Control extends SaturneObject
     }
 
     /**
-     * Return the status
+     * Return the label of the verdict.
      *
-     * @param  int  $status        Id status
-     * @param  int   $mode          0=long label, 1=short label, 2=Picto + short label, 3=Picto, 4=Picto + long label, 5=Short label + Picto, 6=Long label + Picto
-     * @return string         Label of status
+     * @param  int    $mode 0 = long label, 1 = short label, 2 = Picto + short label, 3 = Picto, 4 = Picto + long label, 5 = Short label + Picto, 6 = Long label + Picto.
+     * @return string       Label of verdict.
+     */
+    public function getLibVerdict(int $mode = 0): string
+    {
+        return $this->libVerdict($this->verdict, $mode);
+    }
+
+    /**
+     * Return the verdict.
+     *
+     * @param  int    $verdict ID verdict.
+     * @param  int    $mode    0 = long label, 1 = short label, 2 = Picto + short label, 3 = Picto, 4 = Picto + long label, 5 = Short label + Picto, 6 = Long label + Picto.
+     * @return string          Label of verdict.
+     */
+    public function libVerdict(int $verdict, int $mode = 0): string
+    {
+        global $langs;
+
+        $this->labelStatus[0] = $langs->trans('NA');
+        $this->labelStatus[1] = $langs->trans('OK');
+        $this->labelStatus[2] = $langs->trans('KO');
+
+        $verdictType = 'status' . $verdict;
+        if ($verdict == 0) {
+            $verdictType = 'status6';
+        }
+        if ($verdict == 1) {
+            $verdictType = 'status4';
+        }
+        if ($verdict == 2) {
+            $verdictType = 'status8';
+        }
+
+        return dolGetStatus($this->labelStatus[$verdict], $this->labelStatusShort[$verdict], '', $verdictType, $mode);
+    }
+
+    /**
+     * Return the status.
+     *
+     * @param  int    $status ID status.
+     * @param  int    $mode   0 = long label, 1 = short label, 2 = Picto + short label, 3 = Picto, 4 = Picto + long label, 5 = Short label + Picto, 6 = Long label + Picto.
+     * @return string         Label of status.
      */
     public function LibStatut(int $status, int $mode = 0): string
     {
@@ -865,6 +905,44 @@ class Control extends SaturneObject
 
         return $array;
     }
+
+	/**
+	 * Get control linked objects with qc frequencies.
+	 *
+	 * @return array
+	 * @throws Exception
+	 */
+	public function getLinkedObjectsWithQcFrequency($linkableObjects): array
+	{
+		global $db;
+
+		$qcFrequencyArray = [];
+		$linkedObjects    = [];
+
+		foreach($linkableObjects as $linkableElementType => $linkableElement) {
+			if ($linkableElement['conf'] > 0 && (!empty($this->linkedObjectsIds[$linkableElement['link_name']]))) {
+				$className = $linkableElement['className'];
+				$linkedObject = new $className($db);
+
+				$linkedObjectKey = array_key_first($this->linkedObjectsIds[$linkableElement['link_name']]);
+				$linkedObjectId  = $this->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
+
+				$result = $linkedObject->fetch($linkedObjectId);
+				if ($result > 0) {
+					$linkedObjects[$linkableElementType] = $linkedObject;
+					if (array_key_exists('options_qc_frequency', $linkedObject->array_options)) {
+						if ($linkedObject->array_options['options_qc_frequency'] > 0) {
+							$qcFrequencyArray[$linkableElementType] = $linkedObject->array_options['options_qc_frequency'];
+						}
+					}
+				}
+			}
+		}
+		return [
+			'qcFrequencyArray' => $qcFrequencyArray,
+			'linkedObjects'    => $linkedObjects
+			];
+	}
 }
 
 class ControlLine extends CommonObjectLine
@@ -1256,3 +1334,131 @@ class ControlLine extends CommonObjectLine
 	}
 }
 
+class ControlEquipment extends SaturneObject
+{
+	/**
+	 * @var string Module name.
+	 */
+	public $module = 'dolismq';
+
+	/**
+	 * @var string element to identify managed object
+	 */
+	public $element = 'control_equipment';
+
+	/**
+	 * @var string Name of table without prefix where object is stored
+	 */
+	public $table_element = 'dolismq_control_equipment';
+
+	public const STATUS_DELETED = -1;
+	public const STATUS_ENABLED = 1;
+
+	/**
+	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
+	 */
+	public $fields = [
+		'rowid'         => ['type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'comment' => 'Id'],
+		'ref'           => ['type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 1, 'noteditable' => '1', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => 'Reference of object'],
+		'ref_ext'       => ['type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 0, 'visible' => 0],
+		'entity'        => ['type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 20, 'notnull' => 1, 'visible' => 0],
+		'date_creation' => ['type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0],
+		'tms'           => ['type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 40, 'notnull' => 0, 'visible' => 0],
+		'status'        => ['type' => 'status', 'label' => 'Status', 'enabled' => '1', 'position' => 50, 'notnull' => 1, 'visible' => 0],
+		'json'          => ['type' => 'text', 'label' => 'JSON', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0],
+		'fk_product'    => ['type' => 'integer', 'label' => 'FkProduct', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 0],
+		'fk_control'    => ['type' => 'integer', 'label' => 'FkControl', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0],
+	];
+
+    /**
+     * @var int ID.
+     */
+    public int $rowid;
+
+    /**
+     * @var string Ref.
+     */
+    public $ref;
+
+    /**
+     * @var string Ref ext.
+     */
+    public $ref_ext;
+
+    /**
+     * @var int Entity.
+     */
+    public $entity;
+
+    /**
+     * @var int|string Creation date.
+     */
+    public $date_creation;
+
+    /**
+     * @var int|string Timestamp.
+     */
+    public $tms;
+
+    /**
+     * @var string Import key.
+     */
+    public $import_key;
+
+    /**
+     * @var int Status.
+     */
+    public $status;
+
+    /**
+     * @var string Json.
+     */
+    public $json;
+
+    /**
+     * @var int Fk_product.
+     */
+	public $fk_product;
+
+    /**
+     * @var int Fk_control.
+     */
+	public $fk_control;
+
+	/**
+	 * Constructor
+	 *
+	 * @param DoliDb $db Database handler
+	 */
+	public function __construct(DoliDB $db)
+	{
+		parent::__construct($db, $this->module, $this->element);
+	}
+
+	/**
+	 * Create object into database.
+	 *
+	 * @param  User $user      User that creates.
+	 * @param  bool $notrigger false = launch triggers after, true = disable triggers.
+	 * @return int             0 < if KO, ID of created object if OK.
+	 */
+	public function create(User $user, bool $notrigger = false): int
+	{
+		$this->status = 1;
+
+		return parent::create($user, $notrigger);
+	}
+
+    /**
+     *    Load control line from database and from parent
+     *
+     * @param  int       $control_id id of parent control equipment to fetch
+     * @param  int       $limit      limit of object to fetch
+     * @return array|int             <0 if KO, >0 if OK
+     */
+    public function fetchFromParent($control_id, $limit = 0)
+    {
+        return $this->fetchAll('', '', $limit, 0, ['customsql' => 'fk_control = ' . $control_id . ' AND status > 0']);
+    }
+
+}
