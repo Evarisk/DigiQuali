@@ -145,7 +145,7 @@ if ($id > 0 || !empty($ref)) {
 	print saturne_get_fiche_head($object, 'equipment', $title);
 	saturne_banner_tab($object);
 
-	$excludeFilter     = '0';
+	$excludeFilter     = '';
 	$controlEquipments = $controlEquipment->fetchFromParent($object->id);
 	if (is_array($controlEquipments) && !empty ($controlEquipments)) {
 		foreach ($controlEquipments as $equipment) {
@@ -154,7 +154,7 @@ if ($id > 0 || !empty($ref)) {
         $excludeFilter = rtrim($excludeFilter, ',');
 	}
 
-	$products      = saturne_fetch_all_object_type('Product', '', '', 0, 0, ['customsql' => '`rowid` NOT IN (' . $excludeFilter . ')']);
+	$products      = saturne_fetch_all_object_type('Product', '', '', 0, 0, dol_strlen($excludeFilter) > 0 ? ['customsql' => '`rowid` NOT IN (' . $excludeFilter . ')'] : []);
 	$productsData  = [];
 	if (is_array($products) && !empty($products)) {
 		foreach ($products as $key => $value) {
