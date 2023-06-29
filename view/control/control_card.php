@@ -78,6 +78,7 @@ $object           = new Control($db);
 $controldet       = new ControlLine($db);
 $document         = new ControlDocument($db);
 $signatory        = new SaturneSignature($db, 'dolismq');
+$controlEquipment = new ControlEquipment($db);
 $sheet            = new Sheet($db);
 $question         = new Question($db);
 $answer           = new Answer($db);
@@ -678,7 +679,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	$equipmentOutdated = false;
 	if (!empty($conf->global->DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT)) {
-		$controlEquipment  = new ControlEquipment($db);
 		$controlEquipments = $controlEquipment->fetchFromParent($object->id);
 		if (is_array($controlEquipments) && !empty ($controlEquipments)) {
 			foreach ($controlEquipments as $equipmentControl) {
