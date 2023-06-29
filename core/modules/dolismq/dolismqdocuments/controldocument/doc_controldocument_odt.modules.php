@@ -320,7 +320,6 @@ class doc_controldocument_odt extends SaturneDocumentModel
         }
 
         $outputLangs->loadLangs(['products', 'bills', 'orders', 'contracts', 'projects', 'companies']);
-
         $sheet      = new Sheet($this->db);
         $usertmp    = new User($this->db);
         $projecttmp = new Project($this->db);
