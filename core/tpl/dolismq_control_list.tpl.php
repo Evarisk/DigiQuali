@@ -380,6 +380,9 @@ while ($i < ($limit ? min($num, $limit) : $num))
 				$sheet->fetch($object->fk_sheet);
 				print $sheet->getNomUrl(1);
 			}
+			elseif ($key == 'verdict') {
+				print dol_strlen($object->$key) > 0 ? $object->fields[$key]['arrayofkeyval'][$object->$key] : "N/A";
+			}
 			elseif (in_array($key, $revertedElementFields)) {
 				$linkedElement = $linkNameElementCorrespondance[$elementElementFields[$key]];
 
