@@ -224,7 +224,7 @@ class Sheet extends SaturneObject
         $refSheetMod               = new $conf->global->DOLISMQ_SHEET_ADDON($this->db);
 		$this->status              = $this->status ?: 1;
 		$this->ref                 = $refSheetMod->getNextValue($this);
-		$this->mandatory_questions = '{}';
+		$this->mandatory_questions = $this->mandatory_questions ?: '{}';
 
         return parent::create($user, $notrigger);
     }

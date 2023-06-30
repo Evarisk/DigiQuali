@@ -80,13 +80,13 @@ if ($action == 'data_migration_export_global' && $permissionToRead) {
 		$exportName = 'sheet_question_answer';
 		if (is_array($allSheets) && !empty($allSheets)) {
 			foreach ($allSheets as $sheetSingle) {
-				$sheetExportArray['rowid']          = $sheetSingle->id;
-				$sheetExportArray['ref']            = $sheetSingle->ref;
-				$sheetExportArray['status']         = $sheetSingle->status;
-				$sheetExportArray['label']          = $sheetSingle->label;
-				$sheetExportArray['description']    = $sheetSingle->description;
-				$sheetExportArray['element_linked'] = $sheetSingle->element_linked;
-				//$sheetExportArray['mandatory_questions'] = $sheetSingle->mandatory_questions;
+				$sheetExportArray['rowid']               = $sheetSingle->id;
+				$sheetExportArray['ref']                 = $sheetSingle->ref;
+				$sheetExportArray['status']              = $sheetSingle->status;
+				$sheetExportArray['label']               = $sheetSingle->label;
+				$sheetExportArray['description']         = $sheetSingle->description;
+				$sheetExportArray['element_linked']      = $sheetSingle->element_linked;
+				$sheetExportArray['mandatory_questions'] = $sheetSingle->mandatory_questions;
 
 				$dolismqExportArray['sheets'][$sheetSingle->id] = $sheetExportArray;
 
@@ -210,10 +210,11 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
 
             if (is_array($dolismqExportArray['sheets']) && !empty($dolismqExportArray['sheets'])) {
                 foreach ($dolismqExportArray['sheets'] as $sheetSingle) {
-                    $sheet->label          = $sheetSingle['label'];
-                    $sheet->description    = $sheetSingle['description'];
-					$sheet->element_linked = $sheetSingle['element_linked'];
-					$sheet->status         = $sheetSingle['status'];
+                    $sheet->label               = $sheetSingle['label'];
+                    $sheet->description         = $sheetSingle['description'];
+					$sheet->element_linked      = $sheetSingle['element_linked'];
+					$sheet->mandatory_questions = $sheetSingle['mandatory_questions'];
+					$sheet->status              = $sheetSingle['status'];
 
                     $sheetId = $sheet->create($user);
 
