@@ -71,7 +71,7 @@ class DoliSMQExpedition extends Expedition
     /**
      * @var array Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
      */
-    public array $fields = [
+    public $fields = [
         'rowid'              => ['type' => 'integer',      'label' => 'TechnicalID',      'enabled' => 1, 'position' => 1,   'notnull' => 1, 'visible' => -1, 'noteditable' => 1, 'index' => 1, 'comment' => 'Id'],
         'tms'                => ['type' => 'timestamp',    'label' => 'DateModification', 'enabled' => 1, 'position' => 10,  'notnull' => 0, 'visible' => -1],
         'ref'                => ['type' => 'varchar(30)',  'label' => 'Ref',              'enabled' => 1, 'position' => 20,  'notnull' => 1, 'visible' => -1, 'noteditable' => 1, 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
