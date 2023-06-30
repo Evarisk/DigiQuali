@@ -1005,6 +1005,35 @@ class Control extends SaturneObject
 			'linkedObjects'    => $linkedObjects
 			];
 	}
+
+	/**
+	 * Write information of the description of a trigger
+	 *
+	 * @param  Object $object Object calling the trigger
+	 * @return string         Description to display in actioncomm->note_private
+	 */
+	public function getTriggerDescription(object $object): string
+	{
+		global $db, $langs;
+
+		$sheet = new Sheet($db);
+		$sheet->fetch($object->fk_sheet);
+
+		$ret  = parent::getTriggerDescription($object);
+		$ret .= $langs->trans('SheetLinked') . ' : ' . $sheet->ref . ' - ' . $sheet->label . '</br>';
+		if (!empty($object->fk_user_controller)) {
+			$user = new User($db);
+			$user->fetch($object->fk_user_controller);
+
+			$ret .= $langs->trans('Controller') . ' : ' . $user->firstname . ' ' . $user->lastname . '</br>';
+		}
+		$ret  .= (!empty($object->note_public) ? $langs->trans('NotePublic') . ' : ' . $object->note_public . '</br>' : '');
+		$ret  .= (!empty($object->note_private) ? $langs->trans('NotePrivate') . ' : ' . $object->note_private . '</br>' : '');
+		$ret  .= (!empty($object->verdict) ? $langs->trans('Verdict') . ' : ' . $object->verdict . '</br>' : '');
+		$ret  .= (!empty($object->photo) ? $langs->trans('Photo') . ' : ' . $object->photo . '</br>' : '');
+
+		return $ret;
+	}
 }
 
 class ControlLine extends CommonObjectLine
