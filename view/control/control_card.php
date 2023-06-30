@@ -142,40 +142,6 @@ if (empty($reshook)) {
 		}
 	}
 
-	if ($action == 'confirm_delete' && $permissiontodelete) {
-		$db->begin();
-
-		$objecttmp = $object;
-		$nbok = 0;
-		$TMsg = array();
-		$result = $objecttmp->fetch($id);
-
-		if ($result > 0) {
-			$result = $objecttmp->delete($user);
-
-			if ($result > 0) {
-				$db->commit();
-
-				// Delete OK
-				setEventMessages('RecordDeleted', null, 'mesgs');
-
-				header('Location: ' .$backurlforlist);
-				exit;
-			} else {
-				$error++;
-				if (!empty($object->errors)) {
-					setEventMessages(null, $object->errors, 'errors');
-				} else {
-					setEventMessages($object->error, null, 'errors');
-				}
-			}
-			$action = '';
-		} else {
-			setEventMessages($objecttmp->error, $objecttmp->errors, 'errors');
-			$error++;
-		}
-	}
-
 	// Action clone object
 	if ($action == 'confirm_clone' && $confirm == 'yes') {
         $options['attendants'] = GETPOST('clone_attendants');
