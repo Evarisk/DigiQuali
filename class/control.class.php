@@ -929,7 +929,7 @@ class Control extends SaturneObject
         $arrayControlListsByQcFrequency = [];
 
         $elementArray = get_sheet_linkable_objects();
-        $controls     = $this->fetchAll('DESC', 'rowid', $conf->liste_limit, 0, ['customsql' => 't.status >= 0']);
+        $controls     = $this->fetchAll('DESC', 'rowid', 10, 0, ['customsql' => 't.status >= 0']);
         if (is_array($controls) && !empty($controls)) {
             foreach ($controls as $control) {
                 $control->fetchObjectLinked('', '', $control->id, 'dolismq_control', 'OR', 1, 'sourcetype', 0);
