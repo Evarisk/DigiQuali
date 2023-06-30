@@ -351,8 +351,8 @@ print "</td><td>";
 print $langs->trans('DataMigrationImportZIPDescription');
 print '</td>';
 
-print '<td class="center data-migration-import-json">';
-print '<input class="flat" type="file" name="dataMigrationImportZipFile[]" id="data-migration-import-json" />';
+print '<td class="center">';
+print '<input class="flat" type="file" name="dataMigrationImportZipFile[]"/>';
 print '<input type="submit" class="button reposition data-migration-submit" name="dataMigrationImportZip" value="' . $langs->trans("Upload") . '">';
 print '</td>';
 print '</tr>';
