@@ -219,9 +219,9 @@ class Answer extends SaturneObject
         global $conf;
 
         $refAnswerMod   = new $conf->global->DOLISMQ_ANSWER_ADDON($this->db);
-        $this->status   = 1;
         $this->ref      = $refAnswerMod->getNextValue($this);
         $this->position = $this->getMaxPosition() + 1;
+		$this->status   = $this->status ?: 1;
 
         return parent::create($user, $notrigger);
     }
