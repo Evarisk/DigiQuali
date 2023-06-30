@@ -8,22 +8,5 @@
   font-size: 14px;
   line-height: 0.9;
   padding: 7px 2px;
-
-  &.red-background {
-    background: $color__red;
-  }
-  &.orange-background {
-    background: $color__orange;
-  }
-  &.yellow-background {
-    background: $color__yellow;
-    color: #000;
-  }
-  &.green-background {
-    background: $color__green;
-  }
-  &.grey-background {
-    background: $color__grey;
-    color: #000;
-  }
+  pointer-events: none;
 }
