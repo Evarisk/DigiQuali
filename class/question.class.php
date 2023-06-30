@@ -241,7 +241,7 @@ class Question extends SaturneObject
 
         $refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($this->db);
         $this->ref      = $refQuestionMod->getNextValue($this);
-		!isset($this->status) ? $this->status = 1 : '';
+		$this->status   = $this->status ?: 1;
 
         return parent::create($user, $notrigger);
     }

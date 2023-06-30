@@ -46,14 +46,18 @@ global $conf, $db, $langs, $user;
 
 saturne_load_langs();
 
-$action         = GETPOST('action', 'alpha');
-$error          = 0;
-$now            = dol_now();
-$answer         = new Answer($db);
-$question       = new Question($db);
-$sheet          = new Sheet($db);
+// Get parameters
+$action = GETPOST('action', 'alpha');
 
-$upload_dir     = $conf->dolismq->multidir_output[isset($conf->entity) ? $conf->entity : 1];
+// Initialize objects
+// Technical objets
+$answer   = new Answer($db);
+$question = new Question($db);
+$sheet    = new Sheet($db);
+
+$error      = 0;
+$now        = dol_now();
+$upload_dir = $conf->dolismq->multidir_output[isset($conf->entity) ? $conf->entity : 1];
 
 // Security check
 $permissionToReadQuestions   = $user->rights->dolismq->question->read;
@@ -69,26 +73,24 @@ saturne_check_access($permissionToRead);
  * Actions
  */
 
-if ($action == 'dataMigrationExportGlobal' && $permissionToRead) {
-
-	if (GETPOST('dataMigrationExportSQA', 'alpha')) {
+if ($action == 'data_migration_export_global' && $permissionToRead) {
+	$dolismqExportArray = [];
+	if (GETPOST('data_migration_export_sqa', 'alpha')) {
 		$allSheets  = $sheet->fetchAll();
 		$exportName = 'sheet_question_answer';
 		if (is_array($allSheets) && !empty($allSheets)) {
 			foreach ($allSheets as $sheetSingle) {
-				$sheetExportArray['rowid']             = $sheetSingle->id;
-				$sheetExportArray['ref']               = $sheetSingle->ref;
-				$sheetExportArray['date_creation']     = $sheetSingle->date_creation;
-				$sheetExportArray['date_modification'] = $sheetSingle->tms;
-				$sheetExportArray['status']            = $sheetSingle->status;
-				$sheetExportArray['label']             = $sheetSingle->label;
-				$sheetExportArray['description']       = $sheetSingle->description;
-				$sheetExportArray['element_linked']    = $sheetSingle->element_linked;
+				$sheetExportArray['rowid']          = $sheetSingle->id;
+				$sheetExportArray['ref']            = $sheetSingle->ref;
+				$sheetExportArray['status']         = $sheetSingle->status;
+				$sheetExportArray['label']          = $sheetSingle->label;
+				$sheetExportArray['description']    = $sheetSingle->description;
+				$sheetExportArray['element_linked'] = $sheetSingle->element_linked;
 				//$sheetExportArray['mandatory_questions'] = $sheetSingle->mandatory_questions;
 
 				$dolismqExportArray['sheets'][$sheetSingle->id] = $sheetExportArray;
 
-				$sheetSingle->fetchQuestionsLinked($sheetSingle->id, 'dolismq_sheet');
+				$sheetSingle->fetchQuestionsLinked($sheetSingle->id, 'dolismq_sheet', null, '', 'OR', 1, 'sourcetype', 0);
 				$questionsLinked = $sheetSingle->linkedObjectsIds['dolismq_question'];
 				if (is_array($questionsLinked) && !empty($questionsLinked)) {
 					ksort($questionsLinked);
@@ -107,8 +109,6 @@ if ($action == 'dataMigrationExportGlobal' && $permissionToRead) {
         foreach ($allQuestions as $questionSingle) {
             $questionExportArray['rowid']                  = $questionSingle->id;
             $questionExportArray['ref']                    = $questionSingle->ref;
-            $questionExportArray['date_creation']          = $questionSingle->date_creation;
-            $questionExportArray['date_modification']      = $questionSingle->tms;
             $questionExportArray['status']                 = $questionSingle->status;
             $questionExportArray['type']                   = $questionSingle->type;
             $questionExportArray['label']                  = $questionSingle->label;
@@ -116,8 +116,6 @@ if ($action == 'dataMigrationExportGlobal' && $permissionToRead) {
             $questionExportArray['show_photo']             = $questionSingle->show_photo;
             $questionExportArray['authorize_answer_photo'] = $questionSingle->authorize_answer_photo;
             $questionExportArray['enter_comment']          = $questionSingle->enter_comment;
-            $questionExportArray['photo_ok']               = $questionSingle->photo_ok;
-            $questionExportArray['photo_ko']               = $questionSingle->photo_ko;
 
             $dolismqExportArray['questions'][$questionSingle->id] = $questionExportArray;
 		}
@@ -126,64 +124,62 @@ if ($action == 'dataMigrationExportGlobal' && $permissionToRead) {
 	$allAnswers = $answer->fetchAll();
 	if (is_array($allAnswers) && !empty($allAnswers)) {
 		foreach ($allAnswers as $answerSingle) {
-			$answerExportArray['rowid']             = $answerSingle->id;
-			$answerExportArray['ref']               = $answerSingle->ref;
-			$answerExportArray['date_creation']     = $answerSingle->date_creation;
-			$answerExportArray['date_modification'] = $answerSingle->tms;
-			$answerExportArray['status']            = $answerSingle->status;
-			$answerExportArray['value']             = $answerSingle->value;
-			$answerExportArray['position']          = $answerSingle->position;
-			$answerExportArray['pictogram']         = $answerSingle->pictogram;
-			$answerExportArray['color']             = $answerSingle->color;
-			$answerExportArray['fk_question']       = $answerSingle->fk_question;
+			$answerExportArray['rowid']       = $answerSingle->id;
+			$answerExportArray['ref']         = $answerSingle->ref;
+			$answerExportArray['status']      = $answerSingle->status;
+			$answerExportArray['value']       = $answerSingle->value;
+			$answerExportArray['position']    = $answerSingle->position;
+			$answerExportArray['pictogram']   = $answerSingle->pictogram;
+			$answerExportArray['color']       = $answerSingle->color;
+			$answerExportArray['fk_question'] = $answerSingle->fk_question;
 
 			$dolismqExportArray['questions'][$answerSingle->fk_question]['answers'][$answerSingle->id] = $answerExportArray;
 		}
     }
 
-    $dolismqExportArray = json_encode($dolismqExportArray, JSON_PRETTY_PRINT);
+    $dolismqExportJSON = json_encode($dolismqExportArray, JSON_PRETTY_PRINT);
 
-    $filedir    = $upload_dir . '/temp/';
-    $exportBase = $filedir . dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export';
-    $filename   = $exportBase . '.json';
+    $fileDir    = $upload_dir . '/temp/';
+    $exportBase = $fileDir . dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export';
+    $fileName   = $exportBase . '.json';
 
-    file_put_contents($filename, $dolismqExportArray);
+    file_put_contents($fileName, $dolismqExportJSON);
 
     $zip = new ZipArchive();
     if ($zip->open($exportBase . '.zip', ZipArchive::CREATE ) === TRUE) {
-        $zip->addFile($filename, basename($filename));
+        $zip->addFile($fileName, basename($fileName));
         $zip->close();
-        $filenamezip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export.zip';
-        $filepath = DOL_URL_ROOT . '/document.php?modulepart=dolismq&file=' . urlencode('temp/'.$filenamezip);
+        $fileNameZip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export.zip';
+        $filepath = DOL_URL_ROOT . '/document.php?modulepart=dolismq&file=' . urlencode('temp/'.$fileNameZip);
 
         ?>
         <script>
             var alink = document.createElement( 'a' );
             alink.setAttribute('href', <?php echo json_encode($filepath); ?>);
-            alink.setAttribute('download', <?php echo json_encode($filenamezip); ?>);
+            alink.setAttribute('download', <?php echo json_encode($fileNameZip); ?>);
             alink.click();
         </script>
         <?php
-        $fileExportGlobals = dol_dir_list($filedir, "files", 0, '', '', '', '', 1);
+        $fileExportGlobals = dol_dir_list($fileDir, "files", 0, '', '', '', '', 1);
     }
 }
 
-// Import JSON file
-if (GETPOST('dataMigrationImportJson', 'alpha') && $permissionToWrite) {
+// Import ZIP file
+if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
     if (!empty($_FILES)) {
-        if (!preg_match('/question_answer_export.zip/', $_FILES['dataMigrationImportJsonFile']['name'][0]) || $_FILES['dataMigrationImportJsonFile']['size'][0] < 1) {
+        if (!preg_match('/question_answer_export.zip/', $_FILES['dataMigrationImportZipFile']['name'][0]) || $_FILES['dataMigrationImportZipFile']['size'][0] < 1) {
             setEventMessages($langs->trans('ErrorArchiveNotWellFormattedZIP'), [], 'errors');
         } else {
-            if (is_array($_FILES['dataMigrationImportJsonFile']['tmp_name'])) {
-                $userFiles = $_FILES['dataMigrationImportJsonFile']['tmp_name'];
+            if (is_array($_FILES['dataMigrationImportZipFile']['tmp_name'])) {
+                $userFiles = $_FILES['dataMigrationImportZipFile']['tmp_name'];
             } else {
-                $userFiles = array($_FILES['dataMigrationImportJsonFile']['tmp_name']);
+                $userFiles = array($_FILES['dataMigrationImportZipFile']['tmp_name']);
             }
 
             foreach ($userFiles as $key => $userFile) {
-                if (empty($_FILES['dataMigrationImportJsonFile']['tmp_name'][$key])) {
+                if (empty($_FILES['dataMigrationImportZipFile']['tmp_name'][$key])) {
                     $error++;
-                    if ($_FILES['dataMigrationImportJsonFile']['error'][$key] == 1 || $_FILES['dataMigrationImportJsonFile']['error'][$key] == 2) {
+                    if ($_FILES['dataMigrationImportZipFile']['error'][$key] == 1 || $_FILES['dataMigrationImportZipFile']['error'][$key] == 2) {
                         setEventMessages($langs->trans('ErrorFileSizeTooLarge'), [], 'errors');
                     } else {
                         setEventMessages($langs->trans("ErrorFieldRequired", $langs->transnoentitiesnoconv("File")), [], 'errors');
@@ -193,28 +189,27 @@ if (GETPOST('dataMigrationImportJson', 'alpha') && $permissionToWrite) {
 
             $result = 0;
             if (!$error) {
-                $filedir = $upload_dir . '/temp/';
-                if (!empty($filedir)) {
-                    $result = dol_add_file_process($filedir, 1, 1, 'dataMigrationImportJsonFile', '', null, '', 0);
+                $fileDir = $upload_dir . '/temp/';
+                if (!empty($fileDir)) {
+                    $result = dol_add_file_process($fileDir, 1, 1, 'dataMigrationImportZipFile', '', null, '', 0);
                 }
             }
 
             if ($result > 0) {
                 $zip = new ZipArchive;
-                if ($zip->open($filedir . $_FILES['dataMigrationImportJsonFile']['name'][0]) === TRUE) {
-                    $zip->extractTo($filedir);
+                if ($zip->open($fileDir . $_FILES['dataMigrationImportZipFile']['name'][0]) === TRUE) {
+                    $zip->extractTo($fileDir);
                     $zip->close();
                 }
             }
-            $filename = preg_replace('/\.zip/', '.json', $_FILES['dataMigrationImportJsonFile']['name'][0]);
+            $fileName = preg_replace('/\.zip/', '.json', $_FILES['dataMigrationImportZipFile']['name'][0]);
 
-            $json               = file_get_contents($filedir . $filename);
+            $json               = file_get_contents($fileDir . $fileName);
             $dolismqExportArray = json_decode($json, true);
             $error              = 0;
 
             if (is_array($dolismqExportArray['sheets']) && !empty($dolismqExportArray['sheets'])) {
                 foreach ($dolismqExportArray['sheets'] as $sheetSingle) {
-                    $sheet->date_creation  = $now;
                     $sheet->label          = $sheetSingle['label'];
                     $sheet->description    = $sheetSingle['description'];
 					$sheet->element_linked = $sheetSingle['element_linked'];
@@ -228,14 +223,13 @@ if (GETPOST('dataMigrationImportJson', 'alpha') && $permissionToWrite) {
                         $error++;
                     }
                 }
-				$count = count($dolismqExportArray['sheets']);
-				setEventMessage($langs->transnoentities("ImportFinishWith", $langs->trans('Sheets'), $error, $count));
+				$sheetCount = count($dolismqExportArray['sheets']);
+				setEventMessage($langs->transnoentities("ImportFinishWith", $langs->trans('Sheets'), $error, $sheetCount));
             }
 
             $error = 0;
             if (is_array($dolismqExportArray['questions']) && !empty($dolismqExportArray['questions'])) {
 				foreach ($dolismqExportArray['questions'] as $questionSingle) {
-                    $question->date_creation          = $now;
                     $question->type                   = $questionSingle['type'];
                     $question->label                  = $questionSingle['label'];
                     $question->description            = $questionSingle['description'];
@@ -243,8 +237,6 @@ if (GETPOST('dataMigrationImportJson', 'alpha') && $permissionToWrite) {
                     $question->authorize_answer_photo = $questionSingle['authorize_answer_photo'];
                     $question->enter_comment          = $questionSingle['enter_comment'];
 					$question->status                 = $questionSingle['status'];
-					$question->photo_ok               = '';
-					$question->photo_ko               = '';
 
                     $questionId = $question->create($user);
 
@@ -256,7 +248,7 @@ if (GETPOST('dataMigrationImportJson', 'alpha') && $permissionToWrite) {
                                     $question->add_object_linked('dolismq_sheet', $tmpElementSheetArray[$key]);
 
                                     $sheet->fetch($tmpElementSheetArray[$key]);
-                                    $questionsLinked = $sheet->fetchQuestionsLinked($tmpElementSheetArray[$key], 'dolismq_sheet');
+                                    $questionsLinked = $sheet->fetchQuestionsLinked($tmpElementSheetArray[$key], 'dolismq_sheet', null, '', 'OR', 1, 'sourcetype', 0);
                                     $questionIds     = $sheet->linkedObjectsIds['dolismq_question'];
 
                                     $sheet->updateQuestionsPosition($questionIds);
@@ -266,13 +258,12 @@ if (GETPOST('dataMigrationImportJson', 'alpha') && $permissionToWrite) {
 
                         if (array_key_exists('answers', $questionSingle) && !empty($questionSingle['answers'])) {
 							foreach ($questionSingle['answers'] as $answerSingle) {
-                                $answer->date_creation           = $now;
-                                $answer->status                  = $answerSingle['status'];
-                                $answer->value                   = $answerSingle['value'];
-                                $answer->position                = $answerSingle['position'];
-                                $answer->pictogram               = $answerSingle['pictogram'];
-                                $answer->color                   = $answerSingle['color'];
-                                $answer->fk_question             = $questionId;
+                                $answer->status      = $answerSingle['status'];
+                                $answer->value       = $answerSingle['value'];
+                                $answer->position    = $answerSingle['position'];
+                                $answer->pictogram   = $answerSingle['pictogram'];
+                                $answer->color       = $answerSingle['color'];
+                                $answer->fk_question = $questionId;
 
                                 $answerId = $answer->create($user);
 
@@ -285,8 +276,8 @@ if (GETPOST('dataMigrationImportJson', 'alpha') && $permissionToWrite) {
                         $error++;
                     }
                 }
-				$count = count($dolismqExportArray['questions']);
-				setEventMessage($langs->transnoentities("ImportFinishWith", $langs->trans('Questions'), $error, $count));
+				$questionCount = count($dolismqExportArray['questions']);
+				setEventMessage($langs->transnoentities("ImportFinishWith", $langs->trans('Questions'), $error, $questionCount));
             }
         }
 	}
@@ -305,9 +296,9 @@ print load_fiche_titre($langs->trans('Tools'), '', 'wrench');
 
 print load_fiche_titre($langs->trans("DataMigrationDoliSMQToFile"), '', '');
 
-print '<form class="data-migration-export-global-from" name="dataMigrationExportGlobal" id="dataMigrationExportGlobal" action="' . $_SERVER["PHP_SELF"] . '" method="POST">';
+print '<form class="data-migration-export-global-from" name="data_migration_export_global" id="data_migration_export_global" action="' . $_SERVER["PHP_SELF"] . '" method="POST">';
 print '<input type="hidden" name="token" value="' . newToken() . '">';
-print '<input type="hidden" name="action" value="dataMigrationExportGlobal">';
+print '<input type="hidden" name="action" value="data_migration_export_global">';
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
@@ -324,7 +315,7 @@ print $langs->trans('DataMigrationExportSQADescription');
 print '</td>';
 
 print '<td class="center data-migration-export-global">';
-print '<input type="submit" class="button reposition data-migration-submit" name="dataMigrationExportSQA" value="' . $langs->trans("ExportData") . '">';
+print '<input type="submit" class="button reposition data-migration-submit" name="data_migration_export_sqa" value="' . $langs->trans("ExportData") . '">';
 print '</td>';
 print '</tr>';
 
@@ -361,8 +352,8 @@ print $langs->trans('DataMigrationImportZIPDescription');
 print '</td>';
 
 print '<td class="center data-migration-import-json">';
-print '<input class="flat" type="file" name="dataMigrationImportJsonFile[]" id="data-migration-import-json" />';
-print '<input type="submit" class="button reposition data-migration-submit" name="dataMigrationImportJson" value="' . $langs->trans("Upload") . '">';
+print '<input class="flat" type="file" name="dataMigrationImportZipFile[]" id="data-migration-import-json" />';
+print '<input type="submit" class="button reposition data-migration-submit" name="dataMigrationImportZip" value="' . $langs->trans("Upload") . '">';
 print '</td>';
 print '</tr>';
 
