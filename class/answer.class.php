@@ -244,4 +244,27 @@ class Answer extends SaturneObject
             return 0;
         }
     }
+
+	/**
+	 * Write information of the description of a trigger
+	 *
+	 * @param  Object $object Object calling the trigger
+	 * @return string         Description to display in actioncomm->note_private
+	 */
+	public function getTriggerDescription(object $object): string
+	{
+		global $db, $langs;
+
+		$ret   = parent::getTriggerDescription($object);
+		$ret  .= $langs->trans('Position') . ' : ' . $object->position . '</br>';
+		$ret  .= $langs->trans('Color') . ' : ' . $object->color . '</br>';
+		$ret  .= (dol_strlen($object->pictogram) > 0 ? $langs->trans('Pictogram') . ' : ' . $object->pictogram . '</br>' : '');
+		if (!empty($object->fk_question)) {
+			$question = new Question($db);
+			$question->fetch($object->fk_question);
+
+			$ret .= $langs->trans('Question') . ' : ' . $question->ref . ' - ' . $question->label . '</br>';
+		}
+		return $ret;
+	}
 }

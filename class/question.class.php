@@ -600,4 +600,24 @@ class Question extends SaturneObject
 			$this->db->commit();
 		}
 	}
+
+	/**
+	 * Write information of the description of a trigger
+	 *
+	 * @param  Object $object Object calling the trigger
+	 * @return string         Description to display in actioncomm->note_private
+	 */
+	public function getTriggerDescription(object $object): string
+	{
+		global $langs;
+
+		$ret   = parent::getTriggerDescription($object);
+		$ret  .= $langs->trans('ShowPhoto') . ' : ' . ($object->show_photo ? $langs->trans('Yes') : $langs->trans('No')) . '</br>';
+		$ret  .= $langs->trans('AuthorizeAnswerPhoto') . ' : ' . ($object->authorize_answer_photo ? $langs->trans('Yes') : $langs->trans('No')) . '</br>';
+		$ret  .= $langs->trans('EnterComment') . ' : ' . ($object->enter_comment ? $langs->trans('Yes') : $langs->trans('No')) . '</br>';
+		$ret  .= (dol_strlen($object->photo_ok) > 0 ? $langs->trans('PhotoOK') . ' : ' . $object->photo_ok . '</br>' : '');
+		$ret  .= (dol_strlen($object->photo_ko) > 0 ? $langs->trans('PhotoKO') . ' : ' . $object->photo_ko . '</br>' : '');
+
+		return $ret;
+	}
 }
