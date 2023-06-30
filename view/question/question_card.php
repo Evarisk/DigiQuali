@@ -480,39 +480,41 @@ if (empty($reshook)) {
 							$linkedAnswer->delete($user, true, false);
 						}
 					}
+
+					if ($object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
+						$answer->fk_question = $result;
+						$answer->value       = $langs->transnoentities('OK');
+						$answer->pictogram   = 'check';
+						$answer->color       = '#47e58e';
+
+						$answer->create($user);
+
+						$answer->fk_question = $result;
+						$answer->value       = $langs->transnoentities('KO');
+						$answer->pictogram   = 'times';
+						$answer->color       = '#e05353';
+
+						$answer->create($user);
+					}
+
+					if ($object->type == 'OkKoToFixNonApplicable') {
+						$answer->fk_question = $result;
+						$answer->value = $langs->transnoentities('ToFix');
+						$answer->pictogram = 'tools';
+						$answer->color = '#e9ad4f';
+
+						$answer->create($user);
+
+						$answer->fk_question = $result;
+						$answer->value = $langs->transnoentities('NonApplicable');
+						$answer->pictogram = 'N/A';
+						$answer->color = '#2b2b2b';
+
+						$answer->create($user);
+					}
 				}
 
-				if ($object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
-					$answer->fk_question = $result;
-					$answer->value       = $langs->transnoentities('OK');
-					$answer->pictogram   = 'check';
-					$answer->color       = '#47e58e';
 
-					$answer->create($user);
-
-					$answer->fk_question = $result;
-					$answer->value       = $langs->transnoentities('KO');
-					$answer->pictogram   = 'times';
-					$answer->color       = '#e05353';
-
-					$answer->create($user);
-				}
-
-				if ($object->type == 'OkKoToFixNonApplicable') {
-					$answer->fk_question = $result;
-					$answer->value = $langs->transnoentities('ToFix');
-					$answer->pictogram = 'tools';
-					$answer->color = '#e9ad4f';
-
-					$answer->create($user);
-
-					$answer->fk_question = $result;
-					$answer->value = $langs->transnoentities('NonApplicable');
-					$answer->pictogram = 'N/A';
-					$answer->color = '#2b2b2b';
-
-					$answer->create($user);
-				}
 			}
 
 			$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
