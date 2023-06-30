@@ -167,7 +167,7 @@ if ($action == 'data_migration_export_global' && $permissionToRead) {
 // Import ZIP file
 if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
     if (!empty($_FILES)) {
-        if (!preg_match('/question_answer_export.zip/', $_FILES['dataMigrationImportZipFile']['name'][0]) || $_FILES['dataMigrationImportZipFile']['size'][0] < 1) {
+        if (!preg_match('/question_answer_export/', $_FILES['dataMigrationImportZipFile']['name'][0]) || $_FILES['dataMigrationImportZipFile']['size'][0] < 1) {
             setEventMessages($langs->trans('ErrorArchiveNotWellFormattedZIP'), [], 'errors');
         } else {
             if (is_array($_FILES['dataMigrationImportZipFile']['tmp_name'])) {
