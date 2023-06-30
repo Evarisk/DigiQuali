@@ -47,7 +47,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 		$this->name        = preg_replace('/^Interface/i', '', get_class($this));
 		$this->family      = 'demo';
 		$this->description = 'DoliSMQ triggers.';
-		$this->version     = '1.6.0';
+		$this->version     = '1.7.0';
 		$this->picto       = 'dolismq@dolismq';
 	}
 
