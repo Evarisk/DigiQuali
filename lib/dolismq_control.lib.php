@@ -34,16 +34,26 @@ require_once __DIR__ . '/../../saturne/lib/object.lib.php';
 function control_prepare_head(Control $object): array
 {
     // Global variables definitions.
-    global $langs;
+    global $db, $langs;
 
     $head[1][0] = dol_buildpath('/dolismq/view/control/control_medias.php', 1) . '?id=' . $object->id;
     $head[1][1] = '<i class="fas fa-file-image pictofixedwidth"></i>' . $langs->trans('Medias');
     $head[1][2] = 'medias';
 
+	// Initialize technical objects
+	$controlEquipment = new ControlEquipment($db);
+
+	$controlEquipmentArray = $controlEquipment->fetchFromParent($object->id);
+	if (is_array($controlEquipmentArray) && !empty($controlEquipmentArray)) {
+		$nbEquipment = count($controlEquipmentArray);
+	} else {
+		$nbEquipment = 0;
+	}
+
 	$head[2][0] = dol_buildpath('/dolismq/view/control/control_equipment.php', 1) . '?id=' . $object->id;
-	$head[2][1] = '<i class="fas fa-toolbox pictofixedwidth"></i>' . $langs->trans('ControlEquipment');
+	$head[2][1] = '<i class="fas fa-toolbox pictofixedwidth"></i>' . $langs->trans('ControlEquipment') . '<span class="badge marginleftonlyshort">' . $nbEquipment . '</span>';
 	$head[2][2] = 'equipment';
-	
+
 	$moreparam['documentType']       = 'ControlDocument';
     $moreparam['attendantTableMode'] = 'simple';
 
