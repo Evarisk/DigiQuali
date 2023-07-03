@@ -153,6 +153,12 @@ if (empty($reshook)) {
 			foreach (GETPOST('linked_object') as $linked_object_type) {
 				$showArray[$linked_object_type] = 1;
 			}
+		} else {
+			setEventMessages($langs->trans('NoLinkedObjectSelected'), null, 'errors');
+			if (dol_strlen(GETPOST('label')) > 0) {
+				header("Location: " . $_SERVER['PHP_SELF'] . '?action=create&label=' . GETPOST('label'));
+				exit;
+			}
 		}
 		$object->element_linked = json_encode($showArray);
 
