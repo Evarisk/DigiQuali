@@ -63,6 +63,10 @@ class Answer extends SaturneObject
      */
     public string $picto = 'fontawesome_fa-arrow-right_fas_#d35968';
 
+	public const STATUS_DELETED   = -1;
+	public const STATUS_DRAFT     = 0;
+	public const STATUS_VALIDATED = 1;
+
     /**
      * 'type' field format:
      *      'integer', 'integer:ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter[:Sortfield]]]',
