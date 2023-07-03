@@ -79,6 +79,7 @@ $controldet       = new ControlLine($db);
 $document         = new ControlDocument($db);
 $signatory        = new SaturneSignature($db, 'dolismq');
 $controlEquipment = new ControlEquipment($db);
+$product          = new Product($db);
 $sheet            = new Sheet($db);
 $question         = new Question($db);
 $answer           = new Answer($db);
