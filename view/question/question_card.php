@@ -1063,17 +1063,19 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	if ($object->show_photo > 0) {
 		//Photo OK -- Photo OK
 		print '<tr><td class="titlefield">';
-		print $langs->trans("PhotoOk");
-		print '</td>';
-		print '<td>';
+        print $form->textwithpicto($langs->trans('PhotoOk'), $langs->trans('PhotoTooltip'));
+        $countPhotoOk = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'files');
+        print ' <span class="badge badge-info">' . count($countPhotoOk) . '</span>';
+        print '</td><td>';
 		print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ok', $object, 'photo_ok', 0, 0, 0,1);
-		print '</td></tr>';
+        print '</td></tr>';
 
 		//Photo KO -- Photo KO
 		print '<tr><td class="titlefield">';
-		print $langs->trans("PhotoKo");
-		print '</td>';
-		print '<td>';
+		print $form->textwithpicto($langs->trans('PhotoKo'), $langs->trans('PhotoTooltip'));
+        $countPhotoKo = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'files');
+        print ' <span class="badge badge-info">' . count($countPhotoKo) . '</span>';
+        print '</td><td>';
 		print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ko', $object, 'photo_ko', 0, 0, 0,1);
 		print '</td></tr>';
 	}
