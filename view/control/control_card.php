@@ -384,7 +384,7 @@ if (empty($reshook)) {
 	if ($action == 'confirm_setValidated') {
 		$object->fetch($id);
 		if ( ! $error) {
-			$result = $object->setValidated($user, false);
+			$result = $object->validate($user, false);
 			if ($result > 0) {
 				$controldet = new ControlLine($db);
 				$sheet->fetch($object->fk_sheet);
