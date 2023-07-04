@@ -142,7 +142,7 @@ saturne_header(0,'', $title, $help_url);
 
 if ($id > 0 || !empty($ref)) {
 	// CONTROL EQUIPMENT LINES
-	print saturne_get_fiche_head($object, 'equipment', $title);
+	saturne_get_fiche_head($object, 'equipment', $title);
 	saturne_banner_tab($object);
 
 	$excludeFilter     = '';
