@@ -1163,7 +1163,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					<?php if ($item->type == 'MultipleChoices') :
 						$answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $item->id]);
 						?>
-						<div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+						<div class="table-cell table-end select-answer answer-cell" <?php echo ($object->status > 0) ? ' style="pointer-events: none"' : '' ?>>
 							<?php
 							if (preg_match('/,/', $questionAnswer)) {
 								$questionAnswers = preg_split('/,/', $questionAnswer);
