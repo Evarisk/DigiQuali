@@ -164,7 +164,7 @@ $object->fetchObjectLinked('', '', '', 'dolismq_control');
 						<div class="table-cell table-200"><?php echo img_picto('', 'calendar', 'class="pictofixedwidth"') . $langs->trans('ControlDate'); ?></div>
 						<div class="table-cell table-end"><?php echo dol_print_date($object->date_creation, 'day'); ?></div>
 					</div>
-					<?php if (!empty($objectQcFrequency)) : ?>
+					<?php if (!empty($object->next_control_date)) : ?>
 						<div class="table-row">
 							<div class="table-cell table-300"><?php echo img_picto('', 'calendar', 'class="pictofixedwidth"') . $langs->trans('NextControlDate'); ?></div>
 							<div class="table-cell table-end"><?php echo dol_print_date($object->next_control_date, 'day'); ?></div>
