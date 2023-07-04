@@ -173,7 +173,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
 
             if ($foundTagForLines) {
                 if (!empty($object)) {
-                    $object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet', 'OR', 1, 'sourcetype', 0);
+                    $object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet','', '', 'OR', 1, 'sourcetype', 0);
                     $questionIds = $object->linkedObjectsIds;
                     if (is_array($questionIds['dolismq_question']) && !empty($questionIds['dolismq_question'])) {
                         $controldet = new ControlLine($this->db);
@@ -241,6 +241,48 @@ class doc_controldocument_odt extends SaturneDocumentModel
                                     }
                                 }
                             }
+                            $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
+                        }
+                        $odfHandler->mergeSegment($listLines);
+                    }
+                }
+            }
+
+            // Get equipment.
+            $foundTagForLines = 1;
+            try {
+                $listLines = $odfHandler->setSegment('equipment');
+            } catch (OdfException $e) {
+                // We may arrive here if tags for lines not present into template.
+                $foundTagForLines = 0;
+                $listLines = '';
+                dol_syslog($e->getMessage());
+            }
+
+            if ($foundTagForLines) {
+                if (!empty($object)) {
+                    $controlEquipment  = new ControlEquipment($this->db);
+                    $product           = new Product($this->db);
+
+					$controlEquipments = $controlEquipment->fetchFromParent($object->id);
+                    if (is_array($controlEquipments) && !empty ($controlEquipments)) {
+                        foreach ($controlEquipments as $equipment) {
+                            $product->fetch($equipment->fk_product);
+                            $jsonArray = json_decode($equipment->json);
+
+                            $creationDate   = strtotime($product->date_creation);
+                            $expirationDate = dol_time_plus_duree($creationDate, $jsonArray->lifetime, 'd');
+                            $remainingDays  = num_between_day(dol_now(), $expirationDate, 1) ?: '- ' . num_between_day($expirationDate, dol_now(), 1);
+                            $remainingDays .= ' ' . strtolower(dol_substr($langs->trans("Day"), 0, 1)) . '.';
+
+                            $tmpArray['equipment_ref']         = $equipment->ref;
+                            $tmpArray['product_ref']           = $product->ref;
+                            $tmpArray['equipment_label']       = $jsonArray->label;
+                            $tmpArray['equipment_description'] = $jsonArray->description;
+                            $tmpArray['dluo']                  = dol_print_date($expirationDate, 'day');
+                            $tmpArray['lifetime']              = $remainingDays;
+                            $tmpArray['qc_frequency']          = $jsonArray->qc_frenquecy;
+
                             $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
                         }
                         $odfHandler->mergeSegment($listLines);
@@ -320,7 +362,6 @@ class doc_controldocument_odt extends SaturneDocumentModel
         }
 
         $outputLangs->loadLangs(['products', 'bills', 'orders', 'contracts', 'projects', 'companies']);
-
         $sheet      = new Sheet($this->db);
         $usertmp    = new User($this->db);
         $projecttmp = new Project($this->db);
@@ -329,7 +370,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
         $usertmp->fetch($object->fk_user_controller);
         $projecttmp->fetch($object->projectid);
 
-        $object->fetchObjectLinked('', '', '', 'dolismq_control',  'OR', 1, 'sourcetype', 0);
+        $object->fetchObjectLinked('', '', $object->id, 'dolismq_control',  'OR', 1, 'sourcetype', 0);
 		$linkableElements = get_sheet_linkable_objects();
 
 		if (is_array($linkableElements) && !empty($linkableElements)) {
@@ -357,7 +398,8 @@ class doc_controldocument_odt extends SaturneDocumentModel
 					} else {
 						$objectName = $linkedObject->$objectNameField;
 					}
-					$tmpArray['object_label_ref'] .= $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ' . $objectName . chr(0x0A);
+					$tmpArray['object_label_ref'] .= $objectName . chr(0x0A);
+					$tmpArray['object_type'] = $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ';
 				}
 			}
 		}

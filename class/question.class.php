@@ -240,8 +240,8 @@ class Question extends SaturneObject
         global $conf;
 
         $refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($this->db);
-        $this->status   = 1;
         $this->ref      = $refQuestionMod->getNextValue($this);
+		$this->status   = $this->status ?: 1;
 
         return parent::create($user, $notrigger);
     }

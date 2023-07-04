@@ -31,10 +31,8 @@ window.dolismq.control.event = function() {
 	$( document ).on( 'click', '.answer:not(.disable)', window.dolismq.control.selectAnswer );
 	$( document ).on( 'input', '.input-answer:not(.disable)', window.dolismq.control.selectAnswer );
 	$( document ).on( 'keyup', '.question-comment', window.dolismq.control.writeComment );
+	$( document ).on( 'change', '.control-table.linked-objects select', window.dolismq.control.disableOtherSelectors );
 	$( document ).on( 'keyup', '.question-comment', window.dolismq.control.showCommentUnsaved );
-	$( document ).on( 'change', '#fk_product', window.dolismq.control.reloadProductLot );
-	$( document ).on( 'change', '#fk_project', window.dolismq.control.reloadTask );
-	$( document ).on( 'change', '#fk_soc', window.dolismq.control.reloadContact );
 	$( document ).on( 'click', '.validateButton', window.dolismq.control.getAnswerCounter);
 	$( document ).on( 'change', '#fk_sheet', window.dolismq.control.showSelectObjectLinked);
 	$( document ).on( 'click', '.toggleControlInfo', window.dolismq.control.toggleControlInfo );
@@ -107,6 +105,30 @@ window.dolismq.control.writeComment = function ( event ) {
 };
 
 /**
+ * Disable selectors on control object selection.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.dolismq.control.disableOtherSelectors = function ( event ) {
+	var controlForm = document.getElementById('createControlForm');
+	var formData = new FormData(controlForm);
+
+	let selectorId = $(this).attr('id');
+	let selectorData = formData.get(selectorId)
+
+	if (selectorData >= 0) {
+		$('.control-table.linked-objects').find('select').not('#' + selectorId).attr('disabled', 1);
+	} else {
+		$('.control-table.linked-objects').find('select').not('#' + selectorId).removeAttr('disabled');
+	}
+};
+
+
+/**
  * Show a comment for a control question if focus out.
  *
  * @since   1.1.0
@@ -139,114 +161,6 @@ window.dolismq.control.updateButtonsStatus = function (  ) {
 
 	$('#validateButton').removeClass('butAction')
 	$('#validateButton').addClass('butActionRefused')
-};
-
-/**
- * Write a comment for a control question.
- *
- * @since   1.0.0
- * @version 1.0.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.dolismq.control.reloadProductLot = function ( event ) {
-	let token = $('.id-container').find('input[name="token"]').val();
-	let action = '?action=create'
-
-	var controlForm = document.getElementById('createControlForm');
-	var formData = new FormData(controlForm);
-
-	let sheetId = formData.get('fk_sheet')
-	let productId = formData.get('fk_product')
-
-	window.saturne.loader.display($('#fk_productlot').parent().find('.select2-container'))
-
-	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_product=' + productId
-	$.ajax({
-		url: urlToGo,
-		type: "POST",
-		processData: false,
-		contentType: false,
-		success: function ( resp ) {
-			$('#fk_productlot').parent().replaceWith($(resp).find('#fk_productlot').parent())
-		},
-		error: function ( ) {
-		}
-	});
-	//$(this).closest('.control-table').find('.lot-container').load(document.URL+'&productRef='+productRef + ' .lot-content')
-};
-
-/**
- * Write a comment for a control question.
- *
- * @since   1.0.0
- * @version 1.0.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.dolismq.control.reloadTask = function ( event ) {
-
-	var controlForm = document.getElementById('createControlForm');
-	var formData = new FormData(controlForm);
-
-	let sheetId = formData.get('fk_sheet')
-	let projectId = formData.get('fk_project')
-
-	let token = $('.id-container').find('input[name="token"]').val();
-	let action = '?action=create'
-	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_project=' + projectId
-
-	window.saturne.loader.display($('#fk_task').parent().find('.select2-container'))
-
-	$.ajax({
-		url: urlToGo,
-		type: "POST",
-		processData: false,
-		contentType: false,
-		success: function ( resp ) {
-			$('#fk_task').parent().replaceWith($(resp).find('#fk_task').parent())
-		},
-		error: function ( ) {
-		}
-	});
-};
-
-/**
- * Reload contact selector after company selection.
- *
- * @since   1.0.0
- * @version 1.0.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.dolismq.control.reloadContact = function ( event ) {
-
-	var controlForm = document.getElementById('createControlForm');
-	var formData = new FormData(controlForm);
-
-	let socId = formData.get('fk_soc')
-	let sheetId = formData.get('fk_sheet')
-
-	let token = $('.id-container').find('input[name="token"]').val();
-	let action = '?action=create'
-	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_soc=' + socId
-
-	window.saturne.loader.display($('#fk_contact').parent().find('.select2-container'))
-
-	$.ajax({
-		url: urlToGo,
-		type: "POST",
-		processData: false,
-		contentType: false,
-		success: function ( resp ) {
-			$('#fk_contact').parent().replaceWith($(resp).find('#fk_contact').parent())
-		},
-		error: function ( ) {
-		}
-	});
 };
 
 /**

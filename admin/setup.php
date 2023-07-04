@@ -191,8 +191,8 @@ print '<td><input type="number" name="DisplayNumberMediaGallery" value="' . $con
 print '</td></tr>';
 
 print '</table>';
-
 print $form->buttonsSaveCancel('Save', '');
+print '</form>';
 
 // Page end
 print dol_get_fiche_end();

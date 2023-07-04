@@ -186,6 +186,12 @@ class modDoliSMQ extends DolibarrModules
             $i++ => ['DOLISMQ_SHEET_LINK_ORDER', 'integer', 0, '', 0, 'current'],
             $i++ => ['DOLISMQ_SHEET_LINK_CONTRACT', 'integer', 0, '', 0, 'current'],
             $i++ => ['DOLISMQ_SHEET_LINK_TICKET', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_SHEET_LINK_ENTREPOT', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_SHEET_LINK_EXPEDITION', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DOLISMQ_SHEET_LINK_PROPAL', 'integer', 0, '', 0, 'current'],
+//            $i++ => ['DOLISMQ_SHEET_LINK_SUPPLIER_PROPOSAL', 'integer', 0, '', 0, 'current'],
+//            $i++ => ['DOLISMQ_SHEET_LINK_SUPPLIER_ORDER', 'integer', 0, '', 0, 'current'],
+//            $i++ => ['DOLISMQ_SHEET_LINK_SUPPLIER_INVOICE', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DOLISMQ_SHEET_DEFAULT_TAG', 'integer', 0, '', 0, 'current'],
 
 			// CONST QUESTION
@@ -198,6 +204,9 @@ class modDoliSMQ extends DolibarrModules
 			// CONST CONTROL
 			$i++ => ['DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLISMQ_CONTROL_REMINDER_ENABLED', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLISMQ_CONTROL_REMINDER_FREQUENCY', 'chaine', '30,60,90', '', 0, 'current'],
+			$i++ => ['DOLISMQ_CONTROL_REMINDER_TYPE', 'chaine', 'browser', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_BACKWARD_COMPATIBILITY', 'integer', 0, '', 0, 'current'],
 			$i++ => ['PRODUCT_LOT_ENABLE_QUALITY_CONTROL', 'integer', 1, '', 0, 'current'],
 			$i++ => ['DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT', 'integer', 0, '', 0, 'current'],
@@ -235,6 +244,9 @@ class modDoliSMQ extends DolibarrModules
             $i++ => ['DOLISMQ_REDIRECT_AFTER_CONNECTION', 'integer', 0, '', 0, 'current'],
             $i++ => ['DOLISMQ_ADVANCED_TRIGGER', 'integer', 1, '', 0, 'current'],
 
+            $i++ => ['AGENDA_REMINDER_BROWSER', 'integer', 1, '', 0, 'current'],
+            $i++ => ['AGENDA_REMINDER_EMAIL', 'integer', 1, '', 0, 'current'],
+
 			// CONST DOCUMENTS
 			$i++ => ['MAIN_ODT_AS_PDF', 'chaine', 'libreoffice', '', 0, 'current'],
 		];
@@ -260,14 +272,14 @@ class modDoliSMQ extends DolibarrModules
 
 		if (is_array($linkableElements) && !empty($linkableElements)) {
 			foreach($linkableElements as $linkableElementType => $linkableElement) {
-				if (preg_match('/_/', $linkableElementType)) {
+                if (preg_match('/_/', $linkableElementType)) {
 					$splittedElementType = preg_split('/_/', $linkableElementType);
 					$moduleName = $splittedElementType[0];
 					$objectName = strtolower($linkableElement['className']);
 					$objectType = $objectName . '@' . $moduleName;
 				} else {
-					$objectType = $linkableElementType;
-				}
+                    $objectType = $linkableElement['tab_type'];
+                }
 				$this->tabs[] = ['data' => $objectType . ':+control:' . $pictoDoliSMQ . $langs->trans('Controls') . ':dolismq@dolismq:$user->rights->dolismq->control->read:/custom/dolismq/view/control/control_list.php?fromid=__ID__&fromtype=' . $linkableElement['link_name']];
 			}
 		}
@@ -522,6 +534,21 @@ class modDoliSMQ extends DolibarrModules
 			'position' => 1000 + $r,
 			'enabled'  => '$conf->dolismq->enabled && $conf->categorie->enabled && $user->rights->dolismq->control->read',
 			'perms'    => '$user->rights->dolismq->control->read',
+			'target'   => '',
+			'user'     => 0,
+		];
+
+		$this->menu[$r++] = [
+			'fk_menu'  => 'fk_mainmenu=dolismq',
+			'type'     => 'left',
+			'titre'    => '<i class="fas fa-wrench pictofixedwidth"></i>' . $langs->transnoentities('Tools'),
+			'mainmenu' => 'dolismq',
+			'leftmenu' => 'dolismq_tools',
+			'url'      => '/dolismq/view/dolismqtools.php',
+			'langs'    => 'dolismq@dolismq',
+			'position' => 1000 + $r,
+			'enabled'  => '$conf->dolismq->enabled',
+			'perms'    => '$user->rights->dolismq->question->write && $user->rights->dolismq->sheet->write',
 			'target'   => '',
 			'user'     => 0,
 		];
