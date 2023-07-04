@@ -24,6 +24,7 @@
 // Load Dolibarr libraries.
 require_once DOL_DOCUMENT_ROOT . '/expedition/class/expedition.class.php';
 require_once DOL_DOCUMENT_ROOT . '/supplier_proposal/class/supplier_proposal.class.php';
+require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
 
 /**
  * Class for DoliSMQExpedition.
@@ -162,4 +163,22 @@ class DoliSMQSupplierProposal extends SupplierProposal
         'ref'                => ['type' => 'varchar(30)',  'label' => 'Ref',              'enabled' => 1, 'position' => 20,  'notnull' => 1, 'visible' => -1, 'noteditable' => 1, 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
         'entity'             => ['type' => 'integer',      'label' => 'Entity',           'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => -1, 'index' => 1]
     ];
+}
+
+/**
+ * Class for DoliSMQContact.
+ */
+class DoliSMQContact extends Contact
+{
+    /**
+     * Constructor.
+     *
+     * @param DoliDb $db Database handler.
+     */
+    public function __construct(DoliDB $db)
+    {
+        parent::__construct($db);
+
+        $this->fields['fk_soc']['enabled'] = 1;
+    }
 }

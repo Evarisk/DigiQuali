@@ -62,6 +62,7 @@ function get_sheet_linkable_objects(): array
 	//	'post_name'     => Name of post sent retrieved by GETPOST() function
 	//	'link_name'     => Name of object sourcetype in llx_element_element
 	//	'tab_type'      => Tab type element for prepare_head function
+	//	'parent_object' => OPTIONAL : $linkableObjectTypes Key of parent (Use for objects as productlot, contact, task)
 	//	'fk_parent'     => OPTIONAL : Name of parent for objects as productlot, contact, task
 	//	'parent_post'   => OPTIONAL : Name of parent post (retrieved by GETPOST() function, it can be different from fk_parent
 	//	'create_url'    => Path to creation card, no need to add "?action=create"
@@ -86,18 +87,19 @@ function get_sheet_linkable_objects(): array
 
 	if (isModEnabled('productbatch')) {
 		$linkableObjectTypes['productlot'] = [
-			'langs'       => 'Batch',
-            'langfile'    => 'products',
-			'picto'       => 'lot',
-			'className'   => 'ProductLot',
-			'post_name'   => 'fk_productlot',
-			'link_name'   => 'productbatch',
-            'tab_type'    => 'productlot',
-			'name_field'  => 'batch',
-			'fk_parent'   => 'fk_product',
-			'parent_post' => 'fk_product',
-			'create_url'  => 'product/stock/productlot_card.php',
-			'class_path'  => 'product/stock/class/productlot.class.php',
+			'langs'         => 'Batch',
+            'langfile'      => 'products',
+			'picto'         => 'lot',
+			'className'     => 'ProductLot',
+			'post_name'     => 'fk_productlot',
+			'link_name'     => 'productbatch',
+            'tab_type'      => 'productlot',
+			'name_field'    => 'fk_product, batch',
+			'parent_object' => 'product',
+			'fk_parent'     => 'fk_product',
+			'parent_post'   => 'fk_product',
+			'create_url'    => 'product/stock/productlot_card.php',
+			'class_path'    => 'product/stock/class/productlot.class.php',
 		];
 	}
 
@@ -129,18 +131,19 @@ function get_sheet_linkable_objects(): array
 			'class_path' => 'societe/class/societe.class.php',
 		];
 		$linkableObjectTypes['contact'] = [
-			'langs'       => 'Contact',
-            'langfile'    => 'companies',
-			'picto'       => 'address',
-			'className'   => 'Contact',
-			'post_name'   => 'fk_contact',
-			'link_name'   => 'contact',
-            'tab_type'    => 'contact',
-			'name_field'  => 'lastname, firstname',
-			'fk_parent'   => 'fk_soc',
-			'parent_post' => 'fk_soc',
-			'create_url'  => 'contact/card.php',
-			'class_path'  => 'contact/class/contact.class.php',
+			'langs'         => 'Contact',
+            'langfile'      => 'companies',
+			'picto'         => 'address',
+			'className'     => 'DoliSMQContact',
+			'post_name'     => 'fk_contact',
+			'link_name'     => 'contact',
+            'tab_type'      => 'contact',
+			'name_field'    => 'fk_soc, lastname, firstname',
+            'parent_object' => 'thirdparty',
+			'fk_parent'     => 'fk_soc',
+			'parent_post'   => 'fk_soc',
+			'create_url'    => 'contact/card.php',
+			'class_path'    => 'contact/class/contact.class.php',
 		];
 	}
 
@@ -158,18 +161,19 @@ function get_sheet_linkable_objects(): array
 			'class_path' => 'projet/class/project.class.php',
 		];
 		$linkableObjectTypes['task'] = [
-			'langs'       => 'Task',
-            'langfile'    => 'projects',
-			'picto'       => 'projecttask',
-			'className'   => 'SaturneTask',
-			'post_name'   => 'fk_task',
-			'link_name'   => 'project_task',
-            'tab_type'    => 'task',
-			'name_field'  => 'label',
-			'fk_parent'   => 'fk_projet',
-			'parent_post' => 'fk_project',
-			'create_url'  => 'projet/tasks.php',
-			'class_path'  => 'projet/class/task.class.php',
+			'langs'         => 'Task',
+            'langfile'      => 'projects',
+			'picto'         => 'projecttask',
+			'className'     => 'SaturneTask',
+			'post_name'     => 'fk_task',
+			'link_name'     => 'project_task',
+            'tab_type'      => 'task',
+			'name_field'    => 'fk_projet, label',
+            'parent_object' => 'project',
+			'fk_parent'     => 'fk_projet',
+			'parent_post'   => 'fk_project',
+			'create_url'    => 'projet/tasks.php',
+			'class_path'    => 'projet/class/task.class.php',
 		];
 	}
 
@@ -348,9 +352,10 @@ function get_sheet_linkable_objects(): array
 					'className'     => $linkableObjectInformations['className'] ?? '',
 					'name_field'    => $linkableObjectInformations['name_field'] ?? '',
 					'post_name'     => $linkableObjectInformations['post_name'] ?? '',
-					'link_name'     => $linkableObjectInformations['link_name'] ?? '',
-					'tab_type'      => $linkableObjectInformations['tab_type'] ?? '',
-					'fk_parent'     => $linkableObjectInformations['fk_parent'] ?? '',
+                    'link_name'     => $linkableObjectInformations['link_name'] ?? '',
+                    'tab_type'      => $linkableObjectInformations['tab_type'] ?? '',
+                    'parent_object' => $linkableObjectInformations['parent_object'] ?? '',
+                    'fk_parent'     => $linkableObjectInformations['fk_parent'] ?? '',
 					'parent_post'   => $linkableObjectInformations['parent_post'] ?? '',
 					'create_url'    => $linkableObjectInformations['create_url'] ?? '',
 					'class_path'    => $linkableObjectInformations['class_path'] ?? '',
