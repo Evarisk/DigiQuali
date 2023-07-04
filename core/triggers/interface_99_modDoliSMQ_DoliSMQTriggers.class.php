@@ -121,15 +121,15 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'QUESTION_CREATE' :
 			case 'SHEET_CREATE' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
-				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
 				break;
 
 			case 'ANSWER_CREATE' :
 				$actioncomm->elementtype = 'question@dolismq';
 				$actioncomm->fk_element  = $object->fk_question;
-				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
-				$actioncomm->label = $langs->trans('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+				$actioncomm->code        = 'AC_' . strtoupper($object->element) . '_CREATE';
+				$actioncomm->label       = $langs->trans('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
 				break;
 
@@ -155,7 +155,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
                 }
 
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
-				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
                 $actioncomm->create($user);
 
                 if ($object->context != 'createfromclone') {
@@ -221,15 +221,15 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'SHEET_MODIFY' :
             case 'CONTROL_MODIFY' :
                 $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_MODIFY';
-				$actioncomm->label = $langs->transnoentities('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+				$actioncomm->label = $langs->transnoentities('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
 				break;
 
 			case 'ANSWER_MODIFY' :
 				$actioncomm->elementtype = 'question@dolismq';
 				$actioncomm->fk_element  = $object->fk_question;
-				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_MODIFY';
-				$actioncomm->label = $langs->trans('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+				$actioncomm->code        = 'AC_' . strtoupper($object->element) . '_MODIFY';
+				$actioncomm->label       = $langs->trans('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
 				break;
 
@@ -237,15 +237,15 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'SHEET_DELETE' :
 			case 'CONTROL_DELETE' :
 				$actioncomm->code  = 'AC_ ' . strtoupper($object->element) . '_DELETE';
-				$actioncomm->label = $langs->transnoentities('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+				$actioncomm->label = $langs->transnoentities('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
 				break;
 
 			case 'ANSWER_DELETE' :
 				$actioncomm->elementtype = 'question@dolismq';
 				$actioncomm->fk_element  = $object->fk_question;
-				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_DELETE';
-				$actioncomm->label = $langs->trans('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+				$actioncomm->code        = 'AC_' . strtoupper($object->element) . '_DELETE';
+				$actioncomm->label       = $langs->trans('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
 				break;
 
@@ -253,13 +253,13 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'SHEET_VALIDATE' :
 			case 'CONTROL_VALIDATE' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_VALIDATE';
-				$actioncomm->label = $langs->transnoentities('ObjectValidateTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+				$actioncomm->label = $langs->transnoentities('ObjectValidateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
 				break;
 
 			case 'CONTROL_UNVALIDATE' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_UNVALIDATE';
-				$actioncomm->label = $langs->transnoentities('ObjectUnValidateTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+				$actioncomm->label = $langs->transnoentities('ObjectUnValidateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
 				break;
 
@@ -267,7 +267,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'SHEET_LOCK' :
 			case 'CONTROL_LOCK' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_LOCK';
-				$actioncomm->label = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+				$actioncomm->label = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
 				break;
 
@@ -275,7 +275,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
             case 'SHEET_ARCHIVE' :
             case 'CONTROL_ARCHIVE' :
                 $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_ARCHIVE';
-                $actioncomm->label = $langs->transnoentities('ObjectArchivedTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+                $actioncomm->label = $langs->transnoentities('ObjectArchivedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
                 $actioncomm->create($user);
                 break;
 
@@ -299,9 +299,17 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 
 			case 'CONTROL_SENTBYMAIL' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_SENTBYMAIL';
-				$actioncomm->label = $langs->transnoentities('ObjectSentByMailTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+				$actioncomm->label = $langs->transnoentities('ObjectSentByMailTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
 				break;
+
+            case 'CONTROLDOCUMENT_GENERATE' :
+                $actioncomm->elementtype = $object->parent_type . '@dolismq';
+                $actioncomm->fk_element  = $object->parent_id;
+                $actioncomm->code        = 'AC_' . strtoupper($object->element) . '_GENERATE';
+                $actioncomm->label       = $langs->transnoentities('ObjectGenerateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
+                $actioncomm->create($user);
+                break;
 		}
 		return 0;
 	}

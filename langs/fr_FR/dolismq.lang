@@ -291,6 +291,7 @@ AnswerPhoto   = Photo
 
 # Data - Donnée
 ControlDocument                         = Fiche de Contrôle
+Controldocument                         = Fiche de Contrôle
 ControlDocumentsMin                     = fiches de contôle
 ControlDocumentDisplayMedias            = Afficher les médias dans la fiche de contrôle
 ControlDocumentDisplayMediasDescription = Afficher les médias des questions dans la fiche de contrôle ODT
