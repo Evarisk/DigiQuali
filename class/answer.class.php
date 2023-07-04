@@ -256,14 +256,14 @@ class Answer extends SaturneObject
 		global $db, $langs;
 
 		$ret   = parent::getTriggerDescription($object);
-		$ret  .= $langs->trans('Position') . ' : ' . $object->position . '</br>';
-		$ret  .= $langs->trans('Color') . ' : ' . $object->color . '</br>';
-		$ret  .= (dol_strlen($object->pictogram) > 0 ? $langs->trans('Pictogram') . ' : ' . $object->pictogram . '</br>' : '');
+		$ret  .= $langs->transnoentities('Position') . ' : ' . $object->position . '</br>';
+		$ret  .= $langs->transnoentities('Color') . ' : ' . $object->color . '</br>';
+		$ret  .= (dol_strlen($object->pictogram) > 0 ? $langs->transnoentities('Pictogram') . ' : ' . $object->pictogram . '</br>' : '');
 		if (!empty($object->fk_question)) {
 			$question = new Question($db);
 			$question->fetch($object->fk_question);
 
-			$ret .= $langs->trans('Question') . ' : ' . $question->ref . ' - ' . $question->label . '</br>';
+			$ret .= $langs->transnoentities('Question') . ' : ' . $question->ref . ' - ' . $question->label . '</br>';
 		}
 		return $ret;
 	}
