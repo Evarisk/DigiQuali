@@ -167,7 +167,6 @@ if ($id > 0 || !empty($ref)) {
 	print '<table class="centpercent noborder">';
 
 	// Lines
-    if (is_array($controlEquipments) && !empty($controlEquipments)) {
         print '<thead><tr class="liste_titre">';
         print '<td>' . $langs->trans('Ref') . '</td>';
         print '<td>' . $langs->trans('ProductRef') . '</td>';
@@ -178,7 +177,7 @@ if ($id > 0 || !empty($ref)) {
         print '<td class="center">' . $langs->trans('Action') . '</td>';
         print '<td> </td>';
         print '</tr></thead>';
-
+	if (is_array($controlEquipments) && !empty($controlEquipments)) {
 		print '<tbody><tr>';
 		foreach ($controlEquipments as $equipment) {
 			$product->fetch($equipment->fk_product);
