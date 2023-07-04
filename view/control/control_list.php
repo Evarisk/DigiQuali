@@ -120,7 +120,7 @@ if (!$sortorder) $sortorder = "ASC";
 
 $linkableElements = get_sheet_linkable_objects();
 
-$objectPosition = 10;
+$objectPosition = 20;
 foreach($linkableElements as $linkableElementType => $linkableElement) {
 	$className  = $linkableElement['className'];
 
