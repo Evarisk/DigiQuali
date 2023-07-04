@@ -209,6 +209,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
                 $actioncomm->code          = 'AC_' . strtoupper($object->element) . '_ARCHIVE';
                 $actioncomm->label         = $langs->transnoentities('ObjectArchivedTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
 				$actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Archived') . '</br>';
+				$actioncomm->create($user);
                 break;
 
 			case 'SHEET_ADDQUESTION':
