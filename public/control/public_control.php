@@ -167,12 +167,11 @@ $object->fetchObjectLinked('', '', '', 'dolismq_control');
 					<?php if (!empty($objectQcFrequency)) : ?>
 						<div class="table-row">
 							<div class="table-cell table-300"><?php echo img_picto('', 'calendar', 'class="pictofixedwidth"') . $langs->trans('NextControlDate'); ?></div>
-							<?php $nextControlDate = dol_time_plus_duree($object->date_creation, $objectQcFrequency, 'd'); ?>
-							<div class="table-cell table-end"><?php echo dol_print_date($nextControlDate, 'day'); ?></div>
+							<div class="table-cell table-end"><?php echo dol_print_date($object->next_control_date, 'day'); ?></div>
 						</div>
 						<div class="table-row">
 							<div class="table-cell table-200"><?php echo img_picto('', $object->picto, 'class="pictofixedwidth"') . $langs->trans('NextControl'); ?></div>
-							<div class="table-cell table-75 table-end badge badge-status <?php echo ((($nextControlDate - dol_now()) > 0) ? 'badge-status4' : 'badge-status8'); ?>"><?php echo floor(($nextControlDate - dol_now())/(3600 * 24)) . ' ' . $langs->trans('Days'); ?></div>
+							<div class="table-cell table-75 table-end badge badge-status <?php echo ((($object->next_control_date - dol_now()) > 0) ? 'badge-status4' : 'badge-status8'); ?>"><?php echo floor(($object->next_control_date - dol_now())/(3600 * 24)) . ' ' . $langs->trans('Days'); ?></div>
 						</div>
 					<?php endif; ?>
 				</div>

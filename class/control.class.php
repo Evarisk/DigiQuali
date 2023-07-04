@@ -124,6 +124,7 @@ class Control extends SaturneObject
         'verdict'            => ['type' => 'smallint',     'label' => 'Verdict',          'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'positioncard' => 20, 'arrayofkeyval' => ['0' => '', 1 => 'OK', '2' => 'KO', '3' => 'N/A']],
         'photo'              => ['type' => 'text',         'label' => 'Photo',            'enabled' => 1, 'position' => 120, 'notnull' => 0, 'visible' => 0],
         'track_id'           => ['type' => 'text',         'label' => 'TrackID',          'enabled' => 1, 'position' => 125, 'notnull' => 0, 'visible' => 0],
+        'next_control_date'  => ['type' => 'datetime',     'label' => 'NextControlDate',  'enabled' => 1, 'position' => 126, 'notnull' => 0, 'visible' => 5],
         'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserAuthor',  'picto' => 'user',                            'enabled' => 1, 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
         'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserModif',   'picto' => 'user',                            'enabled' => 1, 'position' => 140, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
         'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php',      'label' => 'SheetLinked', 'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 23,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'dolismq_sheet.rowid'],
@@ -195,6 +196,11 @@ class Control extends SaturneObject
      * @var string|null TrackID.
      */
     public ?string $track_id;
+
+    /**
+     * @var int|string NextControlDate.
+     */
+    public $next_control_date;
 
     /**
      * @var int User ID.
@@ -579,6 +585,9 @@ class Control extends SaturneObject
 
                                 $now         = dol_now();
                                 $qcFrequency = $linkedObject->array_options['options_qc_frequency'];
+
+                                $objectFromClone->next_control_date = $this->db->idate(dol_time_plus_duree($objectFromClone->date_creation, $qcFrequency, 'd'));
+                                $objectFromClone->update($user, true);
 
                                 $actioncomm->code        = 'AC_' . strtoupper($object->element) . '_REMINDER';
                                 $actioncomm->label       = $langs->transnoentities('ControlReminderTrigger', $langs->transnoentities(ucfirst($linkedObject->element)) . ' ' . $linkedObject->ref, $qcFrequency);
@@ -1005,8 +1014,7 @@ class Control extends SaturneObject
                                 $project->fetch($control->projectid);
                                 $sheet->fetch($control->fk_sheet);
 
-                                $nextControlDate  = dol_time_plus_duree($control->date_creation, $qcFrequencyArray[$linkableObjectType], 'd');
-                                $nextControl      = floor(($nextControlDate - dol_now('tzuser'))/(3600 * 24));
+                                $nextControl      = floor(($control->next_control_date - dol_now('tzuser'))/(3600 * 24));
 								$nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
 								$verdictColor     = $control->verdict == 1 ? 'green' : ($control->verdict == 2 ? 'red' : 'grey');
 
