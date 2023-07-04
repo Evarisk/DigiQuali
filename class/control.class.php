@@ -780,11 +780,13 @@ class Control extends SaturneObject
      */
     public function load_dashboard(): array
     {
-        $getNbControlsTagsByVerdict = $this->getNbControlsTagsByVerdict();
-        $getNbControlsByVerdict     = $this->getNbControlsByVerdict();
-        $getNbControlsByMonth       = $this->getNbControlsByMonth();
+        $getNbControlsTagsByVerdict   = $this->getNbControlsTagsByVerdict();
+        $getNbControlsByVerdict       = $this->getNbControlsByVerdict();
+        $getNbControlsByMonth         = $this->getNbControlsByMonth();
+        $getControlListsByQcFrequency = $this->getControlListsByQcFrequency();
 
         $array['graphs'] = [$getNbControlsTagsByVerdict, $getNbControlsByVerdict, $getNbControlsByMonth];
+        $array['lists']  = [$getControlListsByQcFrequency];
 
         return $array;
     }
@@ -956,6 +958,75 @@ class Control extends SaturneObject
             $array['data'][$arrayKey] = [$month, $arrayNbControls[0][$i], $arrayNbControls[1][$i], $arrayNbControls[2][$i]];
         }
         ksort($array['data']);
+
+        return $array;
+    }
+
+    /**
+     * Get controls list by qc frequency.
+     *
+     * @return array     Graph datas (label/color/type/title/data etc..).
+     * @throws Exception
+     */
+    public function getControlListsByQcFrequency(): array
+    {
+        global $conf, $langs;
+
+        // Graph Title parameters.
+        $array['title'] = $langs->transnoentities('ControlListsByQcFrequency');
+        $array['picto'] = $this->picto;
+
+        // Graph parameters.
+        $array['type']   = 'list';
+        $array['labels'] = ['Ref', 'LinkedObject', 'Controller', 'Project', 'Sheet', 'ControlDate', 'NextControl', 'Verdict'];
+
+        $arrayControlListsByQcFrequency = [];
+
+        $elementArray = get_sheet_linkable_objects();
+        $controls     = $this->fetchAll('DESC', 'rowid', 10, 0, ['customsql' => 't.status >= 0']);
+        if (is_array($controls) && !empty($controls)) {
+            foreach ($controls as $control) {
+                $control->fetchObjectLinked('', '', $control->id, 'dolismq_control', 'OR', 1, 'sourcetype', 0);
+                $linkedObjectsInfos = $control->getLinkedObjectsWithQcFrequency($elementArray);
+                $linkedObjects      = $linkedObjectsInfos['linkedObjects'];
+                $qcFrequencyArray   = $linkedObjectsInfos['qcFrequencyArray'];
+                foreach ($elementArray as $linkableObjectType => $linkableObject) {
+                    if (is_object($linkedObjects[$linkableObjectType])) {
+                        if ($linkableObject['conf'] > 0 && (!empty($control->linkedObjectsIds[$linkableObject['link_name']]))) {
+                            $currentObject = $linkedObjects[$linkableObjectType];
+                            if ($qcFrequencyArray[$linkableObjectType] > 0) {
+                                require_once __DIR__ . '/sheet.class.php';
+
+                                $userTmp = new User($this->db);
+                                $project = new Project($this->db);
+                                $sheet   = new Sheet($this->db);
+
+                                $userTmp->fetch($control->fk_user_controller);
+                                $project->fetch($control->projectid);
+                                $sheet->fetch($control->fk_sheet);
+
+                                $nextControlDate  = dol_time_plus_duree($control->date_creation, $qcFrequencyArray[$linkableObjectType], 'd');
+                                $nextControl      = floor(($nextControlDate - dol_now('tzuser'))/(3600 * 24));
+								$nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
+								$verdictColor     = $control->verdict == 1 ? 'green' : ($control->verdict == 2 ? 'red' : 'grey');
+
+                                $arrayControlListsByQcFrequency[$control->id]['Ref']['value']            = $control->getNomUrl(1);
+                                $arrayControlListsByQcFrequency[$control->id]['LinkedObject']['value']   = $currentObject->getNomUrl(1);
+                                $arrayControlListsByQcFrequency[$control->id]['UserController']['value'] = $userTmp->getNomUrl(1);
+                                $arrayControlListsByQcFrequency[$control->id]['Project']['value']        = $project->id > 0 ? $project->getNomUrl(1) : '';
+                                $arrayControlListsByQcFrequency[$control->id]['Sheet']['value']          = $sheet->getNomUrl(1);
+                                $arrayControlListsByQcFrequency[$control->id]['ControlDate']['value']    = dol_print_date($control->date_creation, 'day');
+                                $arrayControlListsByQcFrequency[$control->id]['NextControl']['value']    = '<div class="wpeo-button button-'. $nextControlColor .'">' . $nextControl . '<br>' . $langs->trans('Days') . '</div>';
+                                $arrayControlListsByQcFrequency[$control->id]['NextControl']['morecss']  = 'dashboard-control';
+                                $arrayControlListsByQcFrequency[$control->id]['Verdict']['value']        = '<div class="wpeo-button button-'. $verdictColor .'">' . $control->fields['verdict']['arrayofkeyval'][(!empty($control->verdict)) ?: 3] . '</div>';
+                                $arrayControlListsByQcFrequency[$control->id]['Verdict']['morecss']      = 'dashboard-control';
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        $array['data'] = $arrayControlListsByQcFrequency;
 
         return $array;
     }
