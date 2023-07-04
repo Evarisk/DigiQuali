@@ -208,6 +208,47 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
             $dolismqExportArray = json_decode($json, true);
             $error              = 0;
 
+			$idCorrespondanceArray = [];
+
+			$error = 0;
+
+			if (is_array($dolismqExportArray['questions']) && !empty($dolismqExportArray['questions'])) {
+				foreach ($dolismqExportArray['questions'] as $questionSingle) {
+
+					$question->type = $questionSingle['type'];
+					$question->label = $questionSingle['label'];
+					$question->description = $questionSingle['description'];
+					$question->show_photo = $questionSingle['show_photo'];
+					$question->authorize_answer_photo = $questionSingle['authorize_answer_photo'];
+					$question->enter_comment = $questionSingle['enter_comment'];
+					$question->status = $questionSingle['status'];
+
+					$questionId = $question->create($user);
+
+					if ($questionId > 0) {
+						$idCorrespondanceArray['question'][$questionSingle['rowid']] = $questionId;
+						if (array_key_exists('answers', $questionSingle) && !empty($questionSingle['answers'])) {
+							foreach ($questionSingle['answers'] as $answerSingle) {
+								$answer->status = $answerSingle['status'];
+								$answer->value = $answerSingle['value'];
+								$answer->position = $answerSingle['position'];
+								$answer->pictogram = $answerSingle['pictogram'];
+								$answer->color = $answerSingle['color'];
+								$answer->fk_question = $questionId;
+
+								$answerId = $answer->create($user);
+
+								if ($answerId <= 0) {
+									$error++;
+								}
+							}
+						}
+					} else {
+						$error++;
+					}
+				}
+			}
+
             if (is_array($dolismqExportArray['sheets']) && !empty($dolismqExportArray['sheets'])) {
                 foreach ($dolismqExportArray['sheets'] as $sheetSingle) {
                     $sheet->label               = $sheetSingle['label'];
@@ -216,10 +257,22 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
 					$sheet->mandatory_questions = $sheetSingle['mandatory_questions'];
 					$sheet->status              = $sheetSingle['status'];
 
+					$sheetMandatoryQuestions = json_decode($sheetSingle['mandatory_questions']);
+
+					if (is_array($sheetMandatoryQuestions) && !empty($sheetMandatoryQuestions)) {
+						foreach($sheetMandatoryQuestions as $sheetMandatoryQuestionId) {
+							$newQuestionIdToLink = $idCorrespondanceArray['question'][$sheetMandatoryQuestionId];
+							$questionsToLink[] = $newQuestionIdToLink;
+						}
+						$sheet->mandatory_questions = json_encode($questionsToLink);
+					} else {
+						$sheet->mandatory_questions = '{}';
+					}
+
                     $sheetId = $sheet->create($user);
 
                     if ($sheetId > 0) {
-                        $tmpElementSheetArray[$sheetSingle['rowid']] = $sheet->id;
+						$idCorrespondanceArray['sheet'][$sheetSingle['rowid']] = $sheetId;
                     } else {
                         $error++;
                     }
@@ -228,58 +281,28 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
 				setEventMessage($langs->transnoentities("ImportFinishWith", $langs->trans('Sheets'), $error, $sheetCount));
             }
 
-            $error = 0;
-            if (is_array($dolismqExportArray['questions']) && !empty($dolismqExportArray['questions'])) {
-				foreach ($dolismqExportArray['questions'] as $questionSingle) {
-                    $question->type                   = $questionSingle['type'];
-                    $question->label                  = $questionSingle['label'];
-                    $question->description            = $questionSingle['description'];
-                    $question->show_photo             = $questionSingle['show_photo'];
-                    $question->authorize_answer_photo = $questionSingle['authorize_answer_photo'];
-                    $question->enter_comment          = $questionSingle['enter_comment'];
-					$question->status                 = $questionSingle['status'];
+			if (is_array($dolismqExportArray['element_element']) && !empty($dolismqExportArray['element_element'])) {
+				foreach ($dolismqExportArray['element_element'] as $previousSheetId => $previousQuestionIdArray) {
+					if (is_array($previousQuestionIdArray) && !empty($previousQuestionIdArray)) {
+						foreach($previousQuestionIdArray as $previousQuestionId) {
+							$newSheetId    = $idCorrespondanceArray['sheet'][$previousSheetId];
+							$newQuestionId = $idCorrespondanceArray['question'][$previousQuestionId];
 
-                    $questionId = $question->create($user);
+							$question->fetch($newQuestionId);
+							$question->add_object_linked('dolismq_sheet', $newSheetId);
 
-                    if ($questionId > 0) {
-                        if (array_key_exists('element_element', $dolismqExportArray) && !empty($dolismqExportArray['element_element'])) {
-                            foreach ($dolismqExportArray['element_element'] as $key => $value) {
-                                if (isset($tmpElementSheetArray[$key]) && in_array($questionSingle['rowid'], $dolismqExportArray['element_element'][$key])) {
-                                    $question->fetch($questionId);
-                                    $question->add_object_linked('dolismq_sheet', $tmpElementSheetArray[$key]);
+							$sheet->fetch($newSheetId);
+							$questionsLinked = $sheet->fetchQuestionsLinked($newSheetId, 'dolismq_sheet', null, '', 'OR', 1, 'sourcetype', 0);
+							$questionIds     = $sheet->linkedObjectsIds['dolismq_question'];
 
-                                    $sheet->fetch($tmpElementSheetArray[$key]);
-                                    $questionsLinked = $sheet->fetchQuestionsLinked($tmpElementSheetArray[$key], 'dolismq_sheet', null, '', 'OR', 1, 'sourcetype', 0);
-                                    $questionIds     = $sheet->linkedObjectsIds['dolismq_question'];
-
-                                    $sheet->updateQuestionsPosition($questionIds);
-                                }
-                            }
-                        }
-
-                        if (array_key_exists('answers', $questionSingle) && !empty($questionSingle['answers'])) {
-							foreach ($questionSingle['answers'] as $answerSingle) {
-                                $answer->status      = $answerSingle['status'];
-                                $answer->value       = $answerSingle['value'];
-                                $answer->position    = $answerSingle['position'];
-                                $answer->pictogram   = $answerSingle['pictogram'];
-                                $answer->color       = $answerSingle['color'];
-                                $answer->fk_question = $questionId;
-
-                                $answerId = $answer->create($user);
-
-                                if ($answerId <= 0) {
-                                    $error++;
-                                }
-                            }
+							$sheet->updateQuestionsPosition($questionIds);
 						}
-                    } else {
-                        $error++;
-                    }
-                }
-				$questionCount = count($dolismqExportArray['questions']);
-				setEventMessage($langs->transnoentities("ImportFinishWith", $langs->trans('Questions'), $error, $questionCount));
-            }
+					}
+				}
+			}
+
+			$questionCount = count($dolismqExportArray['questions']);
+			setEventMessage($langs->transnoentities("ImportFinishWith", $langs->trans('Questions'), $error, $questionCount));
         }
 	}
 }
