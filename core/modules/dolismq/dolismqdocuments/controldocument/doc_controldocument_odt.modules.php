@@ -264,8 +264,8 @@ class doc_controldocument_odt extends SaturneDocumentModel
                     $controlEquipment  = new ControlEquipment($this->db);
                     $product           = new Product($this->db);
 
-					$controlEquipments = ($controlEquipment->fetchFromParent($object->id));
-					$controlEquipments = (!is_array($controlEquipments) || empty($controlEquipments) ? [$controlEquipment] : $controlEquipments);
+					$controlEquipments = $controlEquipment->fetchFromParent($object->id);
+					$controlEquipments = ((!is_array($controlEquipments) || empty($controlEquipments)) ? [$controlEquipment] : $controlEquipments);
 
 					foreach ($controlEquipments as $equipment) {
 						$product->fetch($equipment->fk_product);
