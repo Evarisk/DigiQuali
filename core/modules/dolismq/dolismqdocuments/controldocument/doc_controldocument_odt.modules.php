@@ -264,37 +264,35 @@ class doc_controldocument_odt extends SaturneDocumentModel
                     $controlEquipment  = new ControlEquipment($this->db);
                     $product           = new Product($this->db);
 
-					$controlEquipments = ($controlEquipment->fetchFromParent($object->id) ?: []);
-					$controlEquipments = (empty($controlEquipments) ? [$controlEquipment] : $controlEquipments);
+					$controlEquipments = ($controlEquipment->fetchFromParent($object->id));
+					$controlEquipments = (!is_array($controlEquipments) || empty($controlEquipments) ? [$controlEquipment] : $controlEquipments);
 
-					if (is_array($controlEquipments) && !empty($controlEquipments)) {
-                        foreach ($controlEquipments as $equipment) {
-                            $product->fetch($equipment->fk_product);
-                            $jsonArray = json_decode($equipment->json);
+					foreach ($controlEquipments as $equipment) {
+						$product->fetch($equipment->fk_product);
+						$jsonArray = json_decode($equipment->json);
 
-                            $creationDate   = strtotime($product->date_creation);
-                            $expirationDate = dol_time_plus_duree($creationDate, $jsonArray->lifetime, 'd');
+						$creationDate   = strtotime($product->date_creation);
+						$expirationDate = dol_time_plus_duree($creationDate, $jsonArray->lifetime, 'd');
 
-							if (!empty($expirationDate)) {
-								$remainingDays  = num_between_day(dol_now(), $expirationDate, 1) ?: '- ' . num_between_day($expirationDate, dol_now(), 1);
-								$remainingDays .= ' ' . strtolower(dol_substr($langs->trans("Day"), 0, 1)) . '.';
-							} else {
-								$remainingDays = $langs->trans('NoData');
-							}
+						if (!empty($expirationDate)) {
+							$remainingDays  = num_between_day(dol_now(), $expirationDate, 1) ?: '- ' . num_between_day($expirationDate, dol_now(), 1);
+							$remainingDays .= ' ' . strtolower(dol_substr($langs->trans("Day"), 0, 1)) . '.';
+						} else {
+							$remainingDays = $langs->trans('NoData');
+						}
 
-                            $tmpArray['equipment_ref']         = $equipment->ref;
-                            $tmpArray['product_ref']           = $product->ref;
-                            $tmpArray['equipment_label']       = $jsonArray->label;
-                            $tmpArray['equipment_description'] = $jsonArray->description;
-                            $tmpArray['dluo']                  = dol_print_date($expirationDate, 'day');
-                            $tmpArray['lifetime']              = $remainingDays;
-                            $tmpArray['qc_frequency']          = $jsonArray->qc_frenquecy;
+						$tmpArray['equipment_ref']         = $equipment->ref;
+						$tmpArray['product_ref']           = $product->ref;
+						$tmpArray['equipment_label']       = $jsonArray->label;
+						$tmpArray['equipment_description'] = $jsonArray->description;
+						$tmpArray['dluo']                  = dol_print_date($expirationDate, 'day');
+						$tmpArray['lifetime']              = $remainingDays;
+						$tmpArray['qc_frequency']          = $jsonArray->qc_frenquecy;
 
-                            $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
-                        }
-                        $odfHandler->mergeSegment($listLines);
-                    }
-                }
+						$this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
+					}
+					$odfHandler->mergeSegment($listLines);
+				}
             }
 
             // Get answer photos.
