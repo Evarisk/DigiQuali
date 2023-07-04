@@ -204,6 +204,9 @@ class modDoliSMQ extends DolibarrModules
 			// CONST CONTROL
 			$i++ => ['DOLISMQ_CONTROL_ADDON', 'chaine', 'mod_control_standard', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLISMQ_CONTROL_REMINDER_ENABLED', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DOLISMQ_CONTROL_REMINDER_FREQUENCY', 'chaine', '30,60,90', '', 0, 'current'],
+			$i++ => ['DOLISMQ_CONTROL_REMINDER_TYPE', 'chaine', 'browser', '', 0, 'current'],
 			$i++ => ['DOLISMQ_CONTROL_BACKWARD_COMPATIBILITY', 'integer', 0, '', 0, 'current'],
 			$i++ => ['PRODUCT_LOT_ENABLE_QUALITY_CONTROL', 'integer', 1, '', 0, 'current'],
 			$i++ => ['DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT', 'integer', 0, '', 0, 'current'],
@@ -240,6 +243,9 @@ class modDoliSMQ extends DolibarrModules
 			$i++ => ['DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY', 'integer', 8, '', 0, 'current'],
             $i++ => ['DOLISMQ_REDIRECT_AFTER_CONNECTION', 'integer', 0, '', 0, 'current'],
             $i++ => ['DOLISMQ_ADVANCED_TRIGGER', 'integer', 1, '', 0, 'current'],
+
+            $i++ => ['AGENDA_REMINDER_BROWSER', 'integer', 1, '', 0, 'current'],
+            $i++ => ['AGENDA_REMINDER_EMAIL', 'integer', 1, '', 0, 'current'],
 
 			// CONST DOCUMENTS
 			$i++ => ['MAIN_ODT_AS_PDF', 'chaine', 'libreoffice', '', 0, 'current'],
