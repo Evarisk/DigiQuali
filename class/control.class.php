@@ -815,7 +815,7 @@ class Control extends SaturneObject
         $array['picto'] = $this->picto;
 
         // Graph parameters.
-        $array['width']   = 800;
+        $array['width']   = '100%';
         $array['height']  = 400;
         $array['type']    = 'pie';
         $array['dataset'] = 1;
@@ -872,7 +872,7 @@ class Control extends SaturneObject
         $array['picto'] = $this->picto;
 
         // Graph parameters.
-        $array['width']   = 800;
+        $array['width']   = '100%';
         $array['height']  = 400;
         $array['type']    = 'bar';
         $array['dataset'] = 3;
@@ -932,7 +932,7 @@ class Control extends SaturneObject
         $array['picto'] = $this->picto;
 
         // Graph parameters.
-        $array['width']   = 800;
+        $array['width']   = '100%';
         $array['height']  = 400;
         $array['type']    = 'bars';
         $array['dataset'] = 3;
@@ -992,7 +992,7 @@ class Control extends SaturneObject
         $arrayControlListsByNextControl = [];
 
         $elementArray = get_sheet_linkable_objects();
-        $controls     = $this->fetchAll('DESC', 'rowid', 10, 0, ['customsql' => 't.status >= 0']);
+        $controls     = $this->fetchAll('ASC', 'next_control_date', 10, 0, ['customsql' => 't.status >= 0 AND t.next_control_date IS NOT NULL']);
         if (is_array($controls) && !empty($controls)) {
             foreach ($controls as $control) {
                 $control->fetchObjectLinked('', '', $control->id, 'dolismq_control', 'OR', 1, 'sourcetype', 0);
