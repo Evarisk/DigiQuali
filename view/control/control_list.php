@@ -130,7 +130,7 @@ foreach($linkableElements as $linkableElementType => $linkableElement) {
 	}
 
 	$arrayfields['t.'.$linkableElement['post_name']] = [
-		'type' => 'integer:'. $className .':' . $linkableElement['class_path'], 'label' => $linkableElement['langs'], 'enabled' => '1', 'position' => $objectPosition, 'notnull' => 0, 'visible' => 5, 'checked' => 1
+		'type' => 'integer:'. $className .':' . $linkableElement['class_path'], 'label' => $langs->trans($linkableElement['langs']) . ' ' . $langs->trans('controlled') , 'enabled' => '1', 'position' => $objectPosition, 'notnull' => 0, 'visible' => 5, 'checked' => 1
 	];
 
 	$object->fields[$linkableElement['post_name']] = $arrayfields['t.'.$linkableElement['post_name']];
