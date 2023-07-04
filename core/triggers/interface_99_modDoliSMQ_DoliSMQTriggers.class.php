@@ -103,6 +103,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 		$actioncomm->fk_element   = $object->id;
 		$actioncomm->userownerid  = $user->id;
 		$actioncomm->percentage   = -1;
+		$object->fetch($object->id);
 
         if ($conf->global->DOLISMQ_ADVANCED_TRIGGER && !empty($object->fields)) {
 			$actioncomm->note_private = method_exists($object, 'getTriggerDescription') ? $object->getTriggerDescription($object) : '';

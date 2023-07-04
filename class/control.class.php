@@ -962,8 +962,7 @@ class Control extends SaturneObject
 		if (!empty($object->fk_user_controller)) {
 			$user = new User($db);
 			$user->fetch($object->fk_user_controller);
-
-			$ret .= $langs->transnoentities('Controller') . ' : ' . $user->firstname . ' ' . $user->lastname . '</br>';
+			$ret .= $langs->transnoentities('Controller') . ' : ' . ucfirst($user->firstname) . ' ' . dol_strtoupper($user->lastname) . '</br>';
 		}
 		$ret  .= (!empty($object->note_public) ? $langs->transnoentities('NotePublic') . ' : ' . $object->note_public . '</br>' : '');
 		$ret  .= (!empty($object->note_private) ? $langs->transnoentities('NotePrivate') . ' : ' . $object->note_private . '</br>' : '');
