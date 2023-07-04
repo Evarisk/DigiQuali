@@ -575,6 +575,7 @@ if ($action == 'create') {
 			} else {
 				$objectFilter = [];
 			}
+
 			$objectList     = saturne_fetch_all_object_type($linkableElement['className'], '', '', 0, 0, $objectFilter);
 
 			if (is_array($objectList) && !empty($objectList)) {
@@ -585,8 +586,24 @@ if ($action == 'create') {
 						$nameFields = explode(', ', $nameField);
 						if (is_array($nameFields) && !empty($nameFields)) {
 							foreach($nameFields as $subnameField) {
-								$objectName .= $objectSingle->$subnameField . ' ';
-							}
+                                if ($subnameField == $linkableElement['fk_parent']) {
+                                    $parentObject = new $elementArray[$linkableElement['parent_object']]['className']($db);
+                                    $parentObject->fetch($objectSingle->$subnameField);
+                                    $parentNameField = $elementArray[$linkableElement['parent_object']]['name_field'];
+                                    if (strstr($parentNameField, ',')) {
+                                        $parentNameFields = explode(', ', $parentNameField);
+                                        if (is_array($parentNameFields) && !empty($parentNameFields)) {
+                                            foreach($parentNameFields as $subParentNameField) {
+                                                $objectName .= $parentObject->$subParentNameField . ' - ';
+                                            }
+                                        }
+                                    } else {
+                                        $objectName .= $parentObject->$parentNameField . ' - ';
+                                    }
+                                } else {
+                                    $objectName .= $objectSingle->$subnameField . ' ';
+                                }
+                            }
 						}
 					} else {
 						$objectName = $objectSingle->$nameField;
