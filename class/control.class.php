@@ -1020,7 +1020,7 @@ class Control extends SaturneObject
 		$sheet->fetch($object->fk_sheet);
 
 		$ret  = parent::getTriggerDescription($object);
-		$ret .= $langs->trans('SheetLinked') . ' : ' . $sheet->ref . ' - ' . $sheet->label . '</br>';
+		$ret .= $langs->trans('Sheet') . ' : ' . $sheet->ref . ' - ' . $sheet->label . '</br>';
 		if (!empty($object->fk_user_controller)) {
 			$user = new User($db);
 			$user->fetch($object->fk_user_controller);
