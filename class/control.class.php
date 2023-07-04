@@ -1020,17 +1020,17 @@ class Control extends SaturneObject
 		$sheet->fetch($object->fk_sheet);
 
 		$ret  = parent::getTriggerDescription($object);
-		$ret .= $langs->trans('Sheet') . ' : ' . $sheet->ref . ' - ' . $sheet->label . '</br>';
+		$ret .= $langs->transnoentities('Sheet') . ' : ' . $sheet->ref . ' - ' . $sheet->label . '</br>';
 		if (!empty($object->fk_user_controller)) {
 			$user = new User($db);
 			$user->fetch($object->fk_user_controller);
 
-			$ret .= $langs->trans('Controller') . ' : ' . $user->firstname . ' ' . $user->lastname . '</br>';
+			$ret .= $langs->transnoentities('Controller') . ' : ' . $user->firstname . ' ' . $user->lastname . '</br>';
 		}
-		$ret  .= (!empty($object->note_public) ? $langs->trans('NotePublic') . ' : ' . $object->note_public . '</br>' : '');
-		$ret  .= (!empty($object->note_private) ? $langs->trans('NotePrivate') . ' : ' . $object->note_private . '</br>' : '');
-		$ret  .= (!empty($object->verdict) ? $langs->trans('Verdict') . ' : ' . $object->verdict . '</br>' : '');
-		$ret  .= (!empty($object->photo) ? $langs->trans('Photo') . ' : ' . $object->photo . '</br>' : '');
+		$ret  .= (!empty($object->note_public) ? $langs->transnoentities('NotePublic') . ' : ' . $object->note_public . '</br>' : '');
+		$ret  .= (!empty($object->note_private) ? $langs->transnoentities('NotePrivate') . ' : ' . $object->note_private . '</br>' : '');
+		$ret  .= (!empty($object->verdict) ? $langs->transnoentities('Verdict') . ' : ' . $object->verdict . '</br>' : '');
+		$ret  .= (!empty($object->photo) ? $langs->transnoentities('Photo') . ' : ' . $object->photo . '</br>' : '');
 
 		return $ret;
 	}
