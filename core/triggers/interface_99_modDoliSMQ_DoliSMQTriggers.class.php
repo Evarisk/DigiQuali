@@ -105,6 +105,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 		$actioncomm->fk_element   = $object->id;
 		$actioncomm->userownerid  = $user->id;
 		$actioncomm->percentage   = -1;
+		$object->fetch($object->id);
 
         $object->fetch($object->id);
 
