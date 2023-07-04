@@ -78,6 +78,7 @@ $object           = new Control($db);
 $controldet       = new ControlLine($db);
 $document         = new ControlDocument($db);
 $signatory        = new SaturneSignature($db, 'dolismq');
+$controlEquipment = new ControlEquipment($db);
 $sheet            = new Sheet($db);
 $question         = new Question($db);
 $answer           = new Answer($db);
@@ -139,40 +140,6 @@ if (empty($reshook)) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) $backtopage = $backurlforlist;
 			else $backtopage = dol_buildpath('/dolismq/view/control/control_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
-		}
-	}
-
-	if ($action == 'confirm_delete' && $permissiontodelete) {
-		$db->begin();
-
-		$objecttmp = $object;
-		$nbok = 0;
-		$TMsg = array();
-		$result = $objecttmp->fetch($id);
-
-		if ($result > 0) {
-			$result = $objecttmp->delete($user);
-
-			if ($result > 0) {
-				$db->commit();
-
-				// Delete OK
-				setEventMessages('RecordDeleted', null, 'mesgs');
-
-				header('Location: ' .$backurlforlist);
-				exit;
-			} else {
-				$error++;
-				if (!empty($object->errors)) {
-					setEventMessages(null, $object->errors, 'errors');
-				} else {
-					setEventMessages($object->error, null, 'errors');
-				}
-			}
-			$action = '';
-		} else {
-			setEventMessages($objecttmp->error, $objecttmp->errors, 'errors');
-			$error++;
 		}
 	}
 
@@ -678,7 +645,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	$equipmentOutdated = false;
 	if (!empty($conf->global->DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT)) {
-		$controlEquipment  = new ControlEquipment($db);
 		$controlEquipments = $controlEquipment->fetchFromParent($object->id);
 		if (is_array($controlEquipments) && !empty ($controlEquipments)) {
 			foreach ($controlEquipments as $equipmentControl) {
