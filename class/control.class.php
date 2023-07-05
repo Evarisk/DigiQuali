@@ -1021,12 +1021,12 @@ class Control extends SaturneObject
 
 		$ret  = parent::getTriggerDescription($object);
 		$ret .= $langs->transnoentities('Sheet') . ' : ' . $sheet->ref . ' - ' . $sheet->label . '</br>';
-		if (!empty($object->fk_user_controller)) {
+		if ($object->fk_user_controller > 0) {
 			$user = new User($db);
 			$user->fetch($object->fk_user_controller);
 			$ret .= $langs->transnoentities('Controller') . ' : ' . ucfirst($user->firstname) . ' ' . dol_strtoupper($user->lastname) . '</br>';
 		}
-		if (!empty($object->projectid)) {
+		if ($object->projectid > 0) {
 			require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 			$project = new Project($db);
 			$project->fetch($object->projectid);
