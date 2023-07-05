@@ -99,13 +99,13 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 		$now = dol_now();
 		$actioncomm = new ActionComm($this->db);
 
+		$object->fetch($object->id);
 		$actioncomm->elementtype  = $object->element . '@dolismq';
 		$actioncomm->type_code    = 'AC_OTH_AUTO';
 		$actioncomm->datep        = $now;
 		$actioncomm->fk_element   = $object->id;
 		$actioncomm->userownerid  = $user->id;
 		$actioncomm->percentage   = -1;
-		$object->fetch($object->id);
 
         $object->fetch($object->id);
 
