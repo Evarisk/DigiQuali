@@ -266,98 +266,11 @@ if (empty($reshook)) {
 		exit;
 	}
 
-    // Action to build doc.
-    if (($action == 'builddoc' || GETPOST('forcebuilddoc')) && $permissiontoadd) {
-        $outputlangs = $langs;
-        $newlang = '';
-
-        if ($conf->global->MAIN_MULTILANGS && empty($newlang) && GETPOST('lang_id', 'aZ09')) {
-            $newlang = GETPOST('lang_id', 'aZ09');
-        }
-        if (!empty($newlang)) {
-            $outputlangs = new Translate('', $conf);
-            $outputlangs->setDefaultLang($newlang);
-        }
-
-        // To be sure vars is defined.
-        if (empty($hidedetails)){
-            $hidedetails = 0;
-        }
-        if (empty($hidedesc)) {
-            $hidedesc = 0;
-        }
-        if (empty($hideref)) {
-            $hideref = 0;
-        }
-        if (empty($moreparams)) {
-            $moreparams = [];
-        }
-
-        if (GETPOST('forcebuilddoc')) {
-            $model  = '';
-            $modellist = saturne_get_list_of_models($db, $object->element . 'document');
-            if (!empty($modellist)) {
-                asort($modellist);
-                $modellist = array_filter($modellist, 'saturne_remove_index');
-                if (is_array($modellist)) {
-                    $models = array_keys($modellist);
-                }
-            }
-        } else {
-            $model = GETPOST('model', 'alpha');
-        }
-
-        $moreparams['object'] = $object;
-        $moreparams['user']   = $user;
-
-        if ($object->status < $object::STATUS_LOCKED) {
-            $moreparams['specimen'] = 1;
-            $moreparams['zone']     = 'private';
-        } else {
-            $moreparams['specimen'] = 0;
-        }
-
-        $result = $document->generateDocument((!empty($models) ? $models[0] : $model), $outputlangs, $hidedetails, $hidedesc, $hideref, $moreparams);
-        if ($result <= 0) {
-            setEventMessages($document->error, $document->errors, 'errors');
-            $action = '';
-        } elseif (empty($donotredirect)) {
-            setEventMessages($langs->trans('FileGenerated') . ' - ' . '<a href=' . DOL_URL_ROOT . '/document.php?modulepart=dolismq&file=' . urlencode('controldocument/' . $object->ref . '/' . $document->last_main_doc) . '&entity=' . $conf->entity . '"' . '>' . $document->last_main_doc, []);
-            $urltoredirect = $_SERVER['REQUEST_URI'];
-            $urltoredirect = preg_replace('/#builddoc$/', '', $urltoredirect);
-            $urltoredirect = preg_replace('/action=builddoc&?/', '', $urltoredirect); // To avoid infinite loop
-            $urltoredirect = preg_replace('/forcebuilddoc=1&?/', '', $urltoredirect); // To avoid infinite loop
-            header('Location: ' . $urltoredirect . '#builddoc');
-            exit;
-        }
-    }
+    // Actions builddoc, forcebuilddoc, remove_file.
+    require_once __DIR__ . '/../../../saturne/core/tpl/documents/documents_action.tpl.php';
 
 	// Action to generate pdf from odt file
-	include_once DOL_DOCUMENT_ROOT . '/custom/saturne/core/tpl/documents/saturne_manual_pdf_generation_action.tpl.php';
-
-	// Delete file in doc form
-	if ($action == 'remove_file' && $permissiontodelete) {
-		if ( ! empty($upload_dir)) {
-			require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
-
-			$langs->load('other');
-			$filetodelete = GETPOST('file', 'alpha');
-			$file         = $upload_dir . '/' . $filetodelete;
-			$ret          = dol_delete_file($file, 0, 0, 0, $object);
-			if ($ret) setEventMessages($langs->trans('FileWasRemoved', $filetodelete), null, 'mesgs');
-			else setEventMessages($langs->trans('ErrorFailToDeleteFile', $filetodelete), null, 'errors');
-
-			// Make a redirect to avoid to keep the remove_file into the url that create side effects
-			$urltoredirect = $_SERVER['REQUEST_URI'];
-			$urltoredirect = preg_replace('/#builddoc$/', '', $urltoredirect);
-			$urltoredirect = preg_replace('/action=remove_file&?/', '', $urltoredirect);
-
-			header('Location: ' . $urltoredirect);
-			exit;
-		} else {
-			setEventMessages('BugFoundVarUploaddirnotDefined', null, 'errors');
-		}
-	}
+    require_once __DIR__ . '/../../../saturne/core/tpl/documents/saturne_manual_pdf_generation_action.tpl.php';
 
 	if ($action == 'confirm_setVerdict' && $permissiontosetverdict && !GETPOST('cancel', 'alpha')) {
 		$object->fetch($id);
@@ -384,7 +297,7 @@ if (empty($reshook)) {
 	if ($action == 'confirm_setValidated') {
 		$object->fetch($id);
 		if ( ! $error) {
-			$result = $object->setValidated($user, false);
+			$result = $object->validate($user, false);
 			if ($result > 0) {
 				$controldet = new ControlLine($db);
 				$sheet->fetch($object->fk_sheet);
@@ -847,11 +760,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		</label>
 		<input type="hidden" class="favorite-photo" id="photo" name="photo" value="<?php echo $object->photo ?>"/>
 		<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-			<input type="hidden" class="modal-to-open" value="media_gallery"/>
-			<input type="hidden" class="from-type" value="control"/>
-			<input type="hidden" class="from-subtype" value="photo"/>
-			<input type="hidden" class="from-subdir" value="photos"/>
-			<input type="hidden" class="from-id" value="<?php echo $object->id?>"/>
+			<input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id?>" data-from-type="control" data-from-subtype="photo" data-from-subdir="photos"/>
 			<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 		</div>
 	</span>
@@ -970,7 +879,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
             // Sign
             $displayButton = $onPhone ? '<i class="fas fa-signature fa-2x"></i>' : '<i class="fas fa-signature"></i>' . ' ' . $langs->trans('Sign');
-            if ($object->status == $object::STATUS_VALIDATED && !$signatory->checkSignatoriesSignatures($object->id, $object->element)) {
+            if ($object->status == $object::STATUS_VALIDATED && !$signatory->checkSignatoriesSignatures($object->id, $object->element) && $object->verdict > 0) {
                 print '<a class="butAction" id="actionButtonSign" href="' . dol_buildpath('/custom/saturne/view/saturne_attendants.php?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element . '&document_type=ControlDocument&attendant_table_mode=simple', 3) . '">' . $displayButton . '</a>';
             } else {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeValidatedToSign', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '">' . $displayButton . '</span>';
@@ -1126,11 +1035,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								</div>
 							</label>
 							<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
-								<input type="hidden" class="modal-to-open" value="media_gallery"/>
-								<input type="hidden" class="from-id" value="<?php echo $object->id ?>"/>
-								<input type="hidden" class="from-type" value="<?php echo $object->element ?>"/>
-								<input type="hidden" class="from-subtype" value="answer_photo_<?php echo $item->id ?>"/>
-								<input type="hidden" class="from-subdir" value="answer_photo/<?php echo $item->ref ?>"/>
+								<input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id ?>" data-from-type="<?php echo $object->element ?>" data-from-subtype="answer_photo_<?php echo $item->id ?>" data-from-subdir="answer_photo/<?php echo $item->ref ?>"/>
 								<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 							</div>
 						<?php endif; ?>
