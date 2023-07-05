@@ -822,7 +822,7 @@ class Control extends SaturneObject
 
         $array['labels'] = [
             0 => [
-                'label' => $langs->transnoentities('NoVerdict'),
+                'label' => 'N/A',
                 'color' => '#999999'
             ],
             1 => [
@@ -879,7 +879,7 @@ class Control extends SaturneObject
 
         $array['labels'] = [
             0 => [
-                'label' => $langs->transnoentities('NoVerdict'),
+                'label' => 'N/A',
                 'color' => '#999999'
             ],
             1 => [
