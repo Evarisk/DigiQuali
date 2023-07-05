@@ -148,7 +148,7 @@ if (empty($reshook)) {
 		exit;
 	}
 
-	if ($action == 'add' && $permissiontoadd) {
+	if ($action == 'add' && $permissiontoadd && !$cancel) {
 		if (is_array(GETPOST('linked_object')) && !empty(GETPOST('linked_object'))) {
 			foreach (GETPOST('linked_object') as $linked_object_type) {
 				$showArray[$linked_object_type] = 1;
