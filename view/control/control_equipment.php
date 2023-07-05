@@ -227,10 +227,12 @@ if ($id > 0 || !empty($ref)) {
 			print '</td>';
 			print '</tr>';
 		}
-		print '</tr></tbody>';
 	}  else {
+		print '<tbody><tr><td>';
         print '<span class="opacitymedium">' . $langs->trans('NoEquipmentLinked') . '</span>';
+		print '</td><td></td><td></td><td></td><td></td><td></td><td></td>';
     }
+	print '</tr></tbody>';
 
 	if ($object->status < Control::STATUS_LOCKED) {
 		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id='. $id . '">';
