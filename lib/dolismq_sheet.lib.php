@@ -269,7 +269,8 @@ function get_sheet_linkable_objects(): array
             'className'  => 'Propal',
             'post_name'  => 'fk_propal',
             'link_name'  => 'propal',
-            'name_field' => 'ref',
+			'tab_type'   => 'propal',
+			'name_field' => 'ref',
             'create_url' => 'comm/propal/card.php',
             'class_path' => 'comm/propal/class/propal.class.php',
         ];
