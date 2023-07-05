@@ -308,7 +308,7 @@ foreach ($object->fields as $key => $val)
 {
 	$disableSortField = dol_strlen($fromtype) > 0 ? preg_match('/'. $invertedElementElementFields[$fromtype] .'/',$key) : 0;
 
-	$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? '' : $val['css']) : $val['csslist']);
+	$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? 'maxwidthsearch' : $val['css']) : $val['csslist']);
 	if ($key == 'status') $cssforfield .= ($cssforfield ? ' ' : '').'center';
 	elseif (in_array($val['type'], array('date', 'datetime', 'timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'center';
 	elseif (in_array($val['type'], array('timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'nowrap';
