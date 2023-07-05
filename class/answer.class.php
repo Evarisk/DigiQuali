@@ -224,7 +224,7 @@ class Answer extends SaturneObject
         $refAnswerMod   = new $conf->global->DOLISMQ_ANSWER_ADDON($this->db);
         $this->ref      = $refAnswerMod->getNextValue($this);
         $this->position = $this->getMaxPosition() + 1;
-		$this->status   = $this->status ?: Answer::STATUS_VALIDATED;
+		$this->status   = $this->status ?: self::STATUS_VALIDATED;
 
         return parent::create($user, $notrigger);
     }
