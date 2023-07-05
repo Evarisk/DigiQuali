@@ -657,4 +657,33 @@ class Sheet extends SaturneObject
 			$this->db->commit();
 		}
 	}
+
+	/**
+	 * Write information of trigger description
+	 *
+	 * @param  Object $object Object calling the trigger
+	 * @return string         Description to display in actioncomm->note_private
+	 */
+	public function getTriggerDescription(SaturneObject $object): string
+	{
+		global $langs;
+
+		$linkedElement = json_decode($object->element_linked, true);
+
+		$ret  = parent::getTriggerDescription($object);
+		$ret .= $langs->transnoentities('ElementLinked') . ' : ';
+
+		if (is_array($linkedElement) && !empty($linkedElement)) {
+			foreach ($linkedElement as $objectType => $active) {
+				$objectTypeUppercase = ucfirst($objectType);
+
+				$ret .= $langs->transnoentities($objectTypeUppercase) . ' ';
+			}
+		} else {
+			$ret .= $langs->transnoentities('NoData');
+		}
+		$ret .= '</br>';
+
+		return $ret;
+	}
 }

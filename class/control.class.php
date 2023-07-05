@@ -945,12 +945,12 @@ class Control extends SaturneObject
 	}
 
 	/**
-	 * Write information of the description of a trigger
+	 * Write information of trigger description
 	 *
 	 * @param  Object $object Object calling the trigger
 	 * @return string         Description to display in actioncomm->note_private
 	 */
-	public function getTriggerDescription(object $object): string
+	public function getTriggerDescription(SaturneObject $object): string
 	{
 		global $db, $langs;
 
