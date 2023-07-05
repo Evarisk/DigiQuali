@@ -540,10 +540,10 @@ class Control extends SaturneObject
     /**
      * Return the label of the verdict.
      *
-     * @param  int|null $mode 0 = long label, 1 = short label, 2 = Picto + short label, 3 = Picto, 4 = Picto + long label, 5 = Short label + Picto, 6 = Long label + Picto.
-     * @return string         Label of verdict.
+     * @param  int     $mode 0 = long label, 1 = short label, 2 = Picto + short label, 3 = Picto, 4 = Picto + long label, 5 = Short label + Picto, 6 = Long label + Picto.
+     * @return string        Label of verdict.
      */
-    public function getLibVerdict(?int $mode = 0): string
+    public function getLibVerdict(int $mode = 0): string
     {
         return $this->libVerdict($this->verdict, $mode);
     }
@@ -551,13 +551,17 @@ class Control extends SaturneObject
     /**
      * Return the verdict.
      *
-     * @param  int    $verdict ID verdict.
-     * @param  int    $mode    0 = long label, 1 = short label, 2 = Picto + short label, 3 = Picto, 4 = Picto + long label, 5 = Short label + Picto, 6 = Long label + Picto.
-     * @return string          Label of verdict.
+     * @param  int|null $verdict ID verdict.
+     * @param  int      $mode    0 = long label, 1 = short label, 2 = Picto + short label, 3 = Picto, 4 = Picto + long label, 5 = Short label + Picto, 6 = Long label + Picto.
+     * @return string            Label of verdict.
      */
-    public function libVerdict(int $verdict, int $mode = 0): string
+    public function libVerdict(?int $verdict, int $mode = 0): string
     {
         global $langs;
+
+        if (empty($verdict)) {
+            $verdict = 0;
+        }
 
         $this->labelStatus[0] = $langs->trans('NA');
         $this->labelStatus[1] = $langs->trans('OK');
