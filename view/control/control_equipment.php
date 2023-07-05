@@ -167,25 +167,23 @@ if ($id > 0 || !empty($ref)) {
 	print '<table class="centpercent noborder">';
 
 	// Lines
-        print '<thead><tr class="liste_titre">';
-        print '<td>' . $langs->trans('Ref') . '</td>';
-        print '<td>' . $langs->trans('ProductRef') . '</td>';
-        print '<td>' . $langs->trans('Label') . '</td>';
-        print '<td class="center">' . $langs->trans('OptimalExpirationDate');
-        print $form->textwithpicto('', $langs->trans('OptimalExpirationDateDescription')) . '</td>';
-        print '<td class="center">' . $langs->trans('RemainingDays') . '</td>';
-        print '<td class="center">' . $langs->trans('Action') . '</td>';
-        print '<td> </td>';
-        print '</tr></thead>';
+    print '<tr class="liste_titre">';
+    print '<td>' . $langs->trans('Ref') . '</td>';
+    print '<td>' . $langs->trans('ProductRef') . '</td>';
+    print '<td>' . $langs->trans('Label') . '</td>';
+    print '<td class="center">' . $langs->trans('OptimalExpirationDate');
+    print $form->textwithpicto('', $langs->trans('OptimalExpirationDateDescription')) . '</td>';
+    print '<td class="center">' . $langs->trans('RemainingDays') . '</td>';
+    print '<td class="center">' . $langs->trans('Action') . '</td>';
+    print '</tr>';
 	if (is_array($controlEquipments) && !empty($controlEquipments)) {
-		print '<tbody><tr>';
 		foreach ($controlEquipments as $equipment) {
 			$product->fetch($equipment->fk_product);
 			$jsonArray = json_decode($equipment->json);
 
 			print '<tr id="'. $product->id .'" class="line-row oddeven">';
 			print '<td>';
-			print $equipment->ref;
+			print img_picto('', $equipment->picto, 'class="pictofixedwidth"')  . $equipment->ref;
 			print '</td>';
 
 			print '<td>';
@@ -207,14 +205,14 @@ if ($id > 0 || !empty($ref)) {
             $remainingDays .= ' ' . strtolower(dol_substr($langs->trans("Day"), 0, 1)) . '.';
 
 			if (empty($jsonArray->lifetime) || $expirationDate <= dol_now()) {
-				print '<span style="color:red">';
-			} else if ($expirationDate <= dol_now() + 2592000) {
-				print '<span style="color:orange">';
+				print '<span style="color: red;">';
+			} elseif ($expirationDate <= dol_now() + 2592000) {
+				print '<span style="color: orange;">';
 			} else {
-				print '<span style="color:green">';
+				print '<span style="color: green;">';
 			}
 			print $jsonArray->lifetime ? $remainingDays : $langs->trans('NoData');
-			print '</span> </td>';
+			print '</span></td>';
 
 			print '<td class="center">';
 			if ($object->status < Control::STATUS_LOCKED) {
@@ -222,39 +220,24 @@ if ($id > 0 || !empty($ref)) {
 				print img_delete();
 				print '</a>';
 			}
-			print '</td>';
-			print '<td>';
-			print '</td>';
-			print '</tr>';
+			print '</td></tr>';
 		}
 	}  else {
-		print '<tbody><tr><td>';
+		print '<tr class="oddeven"><td colspan="6">';
         print '<span class="opacitymedium">' . $langs->trans('NoEquipmentLinked') . '</span>';
-		print '</td><td></td><td></td><td></td><td></td><td></td><td></td>';
+		print '</td></tr>';
     }
-	print '</tr></tbody>';
 
 	if ($object->status < Control::STATUS_LOCKED) {
 		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id='. $id . '">';
 		print '<input type="hidden" name="token" value="' . newToken() . '">';
 		print '<input type="hidden" name="action" value="add_equipment">';
-		print '<tr><td>';
-		print img_object('', 'product') . ' ' . $form->selectarray('equipmentId', $productsData, '', $langs->transnoentities('SelectProducts'), '', '', '', '', '', '','', 'maxwidth500');
-		print '</td>';
-		print '<td>';
-		print '</td>';
-		print '<td>';
-		print '</td>';
-		print '<td>';
-		print '</td>';
-		print '<td>';
+		print '<tr class="oddeven"><td colspan="5">';
+		print img_object('', 'product') . ' ' . $form::selectarray('equipmentId', $productsData, '', $langs->transnoentities('SelectProducts'), '', '', '', '', '', '','', 'maxwidth200 widthcentpercentminusx');
 		print '</td>';
 		print '<td class="center">';
 		print '<input type="submit" id="add_equipment" class="button" name="add_equipment" value="' . $langs->trans('Add') . '">';
-		print '</td>';
-		print '<td>';
-		print '</td>';
-		print '</tr>';
+		print '</td></tr>';
 		print '</form>';
 	}
 
