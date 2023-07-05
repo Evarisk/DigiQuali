@@ -461,6 +461,9 @@ class Control extends SaturneObject
         if (empty($options['photos'])) {
             $object->photo = '';
         }
+        if (property_exists($object, 'next_control_date')) {
+            $object->next_control_date = '';
+        }
 
         $object->context = 'createfromclone';
 
@@ -486,71 +489,13 @@ class Control extends SaturneObject
 			$linkableElements = get_sheet_linkable_objects();
 
 			if (!empty($linkableElements)) {
-                $qcFrequency  = 0;
-                $actioncommID = 0;
 				foreach($linkableElements as $linkableElement) {
                     if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
 						foreach($object->linkedObjectsIds[$linkableElement['link_name']] as $linkedElementId) {
 							$objectFromClone->add_object_linked($linkableElement['link_name'], $linkedElementId);
 						}
-                        $className    = $linkableElement['className'];
-                        $linkedObject = new $className($this->db);
-
-                        $linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
-                        $linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
-
-                        $result = $linkedObject->fetch($linkedObjectId);
-
-                        if ($result > 0) {
-                            $linkedObject->fetch_optionals();
-                            if (!empty($linkedObject->array_options['options_qc_frequency'])) {
-                                require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-                                require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
-
-                                $actioncomm = new ActionComm($this->db);
-
-                                $now         = dol_now();
-                                $qcFrequency = $linkedObject->array_options['options_qc_frequency'];
-
-                                $objectFromClone->next_control_date = $this->db->idate(dol_time_plus_duree($objectFromClone->date_creation, $qcFrequency, 'd'));
-                                $objectFromClone->update($user, true);
-
-                                $actioncomm->code        = 'AC_' . strtoupper($object->element) . '_REMINDER';
-                                $actioncomm->label       = $langs->transnoentities('ControlReminderTrigger', $langs->transnoentities(ucfirst($linkedObject->element)) . ' ' . $linkedObject->ref, $qcFrequency);
-                                $actioncomm->elementtype = $linkedObject->element;
-                                $actioncomm->type_code   = 'AC_OTH_AUTO';
-                                $actioncomm->datep       = dol_time_plus_duree($now, $qcFrequency, 'd');
-                                $actioncomm->fk_element  = $linkedObject->id;
-                                $actioncomm->userownerid = $user->id;
-                                $actioncomm->percentage  = ActionComm::EVENT_TODO;
-                                $actioncommID            = $actioncomm->create($user);
-                            }
-                        }
 					}
 				}
-
-                // Create reminders.
-                if ($actioncommID > 0 && $qcFrequency > 0 && getDolGlobalInt('DOLISMQ_CONTROL_REMINDER_ENABLED') && (getDolGlobalString('AGENDA_REMINDER_BROWSER') || getDolGlobalString('AGENDA_REMINDER_EMAIL'))) {
-                    require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
-
-                    $actionCommReminder = new ActionCommReminder($this->db);
-
-                    $actionCommReminder->status        = ActionCommReminder::STATUS_TODO;
-                    $actionCommReminder->fk_actioncomm = $actioncommID;
-                    $actionCommReminder->fk_user       = $user->id;
-
-                    $reminderArray = explode(',' , getDolGlobalString('DOLISMQ_CONTROL_REMINDER_FREQUENCY'));
-                    $nextControlDate = dol_time_plus_duree(dol_now('tzuser'), $qcFrequency, 'd');
-                    foreach ($reminderArray as $reminder) {
-                        $dateReminder = dol_time_plus_duree($nextControlDate, -$reminder, 'd');
-
-                        $actionCommReminder->dateremind  = $dateReminder;
-                        $actionCommReminder->offsetvalue = $reminder;
-                        $actionCommReminder->offsetunit  = 'd';
-                        $actionCommReminder->typeremind  = getDolGlobalString('DOLISMQ_CONTROL_REMINDER_TYPE');
-                        $actionCommReminder->create($user);
-                    }
-                }
 			}
 
             // Add Attendants.
