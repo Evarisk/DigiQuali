@@ -847,11 +847,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		</label>
 		<input type="hidden" class="favorite-photo" id="photo" name="photo" value="<?php echo $object->photo ?>"/>
 		<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-			<input type="hidden" class="modal-to-open" value="media_gallery"/>
-			<input type="hidden" class="from-type" value="control"/>
-			<input type="hidden" class="from-subtype" value="photo"/>
-			<input type="hidden" class="from-subdir" value="photos"/>
-			<input type="hidden" class="from-id" value="<?php echo $object->id?>"/>
+			<input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id?>" data-from-type="control" data-from-subtype="photo" data-from-subdir="photos"/>
 			<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 		</div>
 	</span>
@@ -1126,11 +1122,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 								</div>
 							</label>
 							<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
-								<input type="hidden" class="modal-to-open" value="media_gallery"/>
-								<input type="hidden" class="from-id" value="<?php echo $object->id ?>"/>
-								<input type="hidden" class="from-type" value="<?php echo $object->element ?>"/>
-								<input type="hidden" class="from-subtype" value="answer_photo_<?php echo $item->id ?>"/>
-								<input type="hidden" class="from-subdir" value="answer_photo/<?php echo $item->ref ?>"/>
+								<input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id ?>" data-from-type="<?php echo $object->element ?>" data-from-subtype="answer_photo_<?php echo $item->id ?>" data-from-subdir="answer_photo/<?php echo $item->ref ?>"/>
 								<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 							</div>
 						<?php endif; ?>
