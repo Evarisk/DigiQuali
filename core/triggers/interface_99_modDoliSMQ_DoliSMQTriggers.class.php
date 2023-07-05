@@ -23,6 +23,8 @@
  * \brief   DoliSMQ trigger.
  */
 
+// Load Dolibarr libraries.
+require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/triggers/dolibarrtriggers.class.php';
 
 /**
@@ -105,6 +107,8 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 		$actioncomm->percentage   = -1;
         $actioncomm->note_private = '';
 
+        $object->fetch($object->id);
+
         if ($conf->global->DOLISMQ_ADVANCED_TRIGGER && !empty($object->fields)) {
             foreach ($object->fields as $key => $value) {
                 if (in_array($key, ['rowid', 'fk_user_creat', 'fk_user_modif', 'import_key', 'ref_ext', 'track_id'])) {
@@ -174,9 +178,10 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
                                 if ($result > 0) {
                                     $linkedObject->fetch_optionals();
                                     if (!empty($linkedObject->array_options['options_qc_frequency'])) {
-                                        require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
-
                                         $qcFrequency = $linkedObject->array_options['options_qc_frequency'];
+
+                                        $object->next_control_date = $this->db->idate(dol_time_plus_duree($object->date_creation, $qcFrequency, 'd'));
+                                        $object->update($user, true);
 
                                         $actioncomm->code        = 'AC_' . strtoupper($object->element) . '_REMINDER';
                                         $actioncomm->label       = $langs->transnoentities('ControlReminderTrigger', $langs->transnoentities(ucfirst($linkedObject->element)) . ' ' . $linkedObject->ref, $qcFrequency);
@@ -194,8 +199,6 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 
                     // Create reminders.
                     if ($actioncommID > 0 && $qcFrequency > 0 && getDolGlobalInt('DOLISMQ_CONTROL_REMINDER_ENABLED') && (getDolGlobalString('AGENDA_REMINDER_BROWSER') || getDolGlobalString('AGENDA_REMINDER_EMAIL'))) {
-                        require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
-
                         $actionCommReminder = new ActionCommReminder($this->db);
 
                         $actionCommReminder->status        = ActionCommReminder::STATUS_TODO;
