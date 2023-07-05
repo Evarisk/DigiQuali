@@ -124,6 +124,7 @@ class Control extends SaturneObject
         'verdict'            => ['type' => 'smallint',     'label' => 'Verdict',          'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'positioncard' => 20, 'arrayofkeyval' => ['0' => '', 1 => 'OK', '2' => 'KO', '3' => 'N/A']],
         'photo'              => ['type' => 'text',         'label' => 'Photo',            'enabled' => 1, 'position' => 120, 'notnull' => 0, 'visible' => 0],
         'track_id'           => ['type' => 'text',         'label' => 'TrackID',          'enabled' => 1, 'position' => 125, 'notnull' => 0, 'visible' => 0],
+        'next_control_date'  => ['type' => 'datetime',     'label' => 'NextControlDate',  'enabled' => 1, 'position' => 126, 'notnull' => 0, 'visible' => 5],
         'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserAuthor',  'picto' => 'user',                            'enabled' => 1, 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
         'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserModif',   'picto' => 'user',                            'enabled' => 1, 'position' => 140, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
         'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php',      'label' => 'SheetLinked', 'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 11,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'dolismq_sheet.rowid'],
@@ -195,6 +196,11 @@ class Control extends SaturneObject
      * @var string|null TrackID.
      */
     public ?string $track_id;
+
+    /**
+     * @var int|string NextControlDate.
+     */
+    public $next_control_date;
 
     /**
      * @var int User ID.
@@ -580,6 +586,9 @@ class Control extends SaturneObject
                                 $now         = dol_now();
                                 $qcFrequency = $linkedObject->array_options['options_qc_frequency'];
 
+                                $objectFromClone->next_control_date = $this->db->idate(dol_time_plus_duree($objectFromClone->date_creation, $qcFrequency, 'd'));
+                                $objectFromClone->update($user, true);
+
                                 $actioncomm->code        = 'AC_' . strtoupper($object->element) . '_REMINDER';
                                 $actioncomm->label       = $langs->transnoentities('ControlReminderTrigger', $langs->transnoentities(ucfirst($linkedObject->element)) . ' ' . $linkedObject->ref, $qcFrequency);
                                 $actioncomm->elementtype = $linkedObject->element;
@@ -783,10 +792,10 @@ class Control extends SaturneObject
         $getNbControlsTagsByVerdict   = $this->getNbControlsTagsByVerdict();
         $getNbControlsByVerdict       = $this->getNbControlsByVerdict();
         $getNbControlsByMonth         = $this->getNbControlsByMonth();
-        $getControlListsByQcFrequency = $this->getControlListsByQcFrequency();
+        $getControlListsByNextControl = $this->getControlListsByNextControl();
 
         $array['graphs'] = [$getNbControlsTagsByVerdict, $getNbControlsByVerdict, $getNbControlsByMonth];
-        $array['lists']  = [$getControlListsByQcFrequency];
+        $array['lists']  = [$getControlListsByNextControl];
 
         return $array;
     }
@@ -806,14 +815,14 @@ class Control extends SaturneObject
         $array['picto'] = $this->picto;
 
         // Graph parameters.
-        $array['width']   = 800;
+        $array['width']   = '100%';
         $array['height']  = 400;
         $array['type']    = 'pie';
         $array['dataset'] = 1;
 
         $array['labels'] = [
             0 => [
-                'label' => $langs->transnoentities('NoVerdict'),
+                'label' => 'N/A',
                 'color' => '#999999'
             ],
             1 => [
@@ -863,14 +872,14 @@ class Control extends SaturneObject
         $array['picto'] = $this->picto;
 
         // Graph parameters.
-        $array['width']   = 800;
+        $array['width']   = '100%';
         $array['height']  = 400;
         $array['type']    = 'bar';
         $array['dataset'] = 3;
 
         $array['labels'] = [
             0 => [
-                'label' => $langs->transnoentities('NoVerdict'),
+                'label' => 'N/A',
                 'color' => '#999999'
             ],
             1 => [
@@ -923,7 +932,7 @@ class Control extends SaturneObject
         $array['picto'] = $this->picto;
 
         // Graph parameters.
-        $array['width']   = 800;
+        $array['width']   = '100%';
         $array['height']  = 400;
         $array['type']    = 'bars';
         $array['dataset'] = 3;
@@ -963,27 +972,27 @@ class Control extends SaturneObject
     }
 
     /**
-     * Get controls list by qc frequency.
+     * Get controls list by next control.
      *
      * @return array     Graph datas (label/color/type/title/data etc..).
      * @throws Exception
      */
-    public function getControlListsByQcFrequency(): array
+    public function getControlListsByNextControl(): array
     {
-        global $conf, $langs;
+        global $langs;
 
         // Graph Title parameters.
-        $array['title'] = $langs->transnoentities('ControlListsByQcFrequency');
+        $array['title'] = $langs->transnoentities('ControlListsByNextControl');
         $array['picto'] = $this->picto;
 
         // Graph parameters.
         $array['type']   = 'list';
         $array['labels'] = ['Ref', 'LinkedObject', 'Controller', 'Project', 'Sheet', 'ControlDate', 'NextControl', 'Verdict'];
 
-        $arrayControlListsByQcFrequency = [];
+        $arrayControlListsByNextControl = [];
 
         $elementArray = get_sheet_linkable_objects();
-        $controls     = $this->fetchAll('DESC', 'rowid', 10, 0, ['customsql' => 't.status >= 0']);
+        $controls     = $this->fetchAll('ASC', 'next_control_date', 10, 0, ['customsql' => 't.status >= 0 AND t.next_control_date IS NOT NULL']);
         if (is_array($controls) && !empty($controls)) {
             foreach ($controls as $control) {
                 $control->fetchObjectLinked('', '', $control->id, 'dolismq_control', 'OR', 1, 'sourcetype', 0);
@@ -1005,28 +1014,30 @@ class Control extends SaturneObject
                                 $project->fetch($control->projectid);
                                 $sheet->fetch($control->fk_sheet);
 
-                                $nextControlDate  = dol_time_plus_duree($control->date_creation, $qcFrequencyArray[$linkableObjectType], 'd');
-                                $nextControl      = floor(($nextControlDate - dol_now('tzuser'))/(3600 * 24));
-								$nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
-								$verdictColor     = $control->verdict == 1 ? 'green' : ($control->verdict == 2 ? 'red' : 'grey');
+                                if (!empty($control->next_control_date)) {
+                                    $nextControl      = floor(($control->next_control_date - dol_now('tzuser'))/(3600 * 24));
+                                    $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
 
-                                $arrayControlListsByQcFrequency[$control->id]['Ref']['value']            = $control->getNomUrl(1);
-                                $arrayControlListsByQcFrequency[$control->id]['LinkedObject']['value']   = $currentObject->getNomUrl(1);
-                                $arrayControlListsByQcFrequency[$control->id]['UserController']['value'] = $userTmp->getNomUrl(1);
-                                $arrayControlListsByQcFrequency[$control->id]['Project']['value']        = $project->id > 0 ? $project->getNomUrl(1) : '';
-                                $arrayControlListsByQcFrequency[$control->id]['Sheet']['value']          = $sheet->getNomUrl(1);
-                                $arrayControlListsByQcFrequency[$control->id]['ControlDate']['value']    = dol_print_date($control->date_creation, 'day');
-                                $arrayControlListsByQcFrequency[$control->id]['NextControl']['value']    = '<div class="wpeo-button button-'. $nextControlColor .'">' . $nextControl . '<br>' . $langs->trans('Days') . '</div>';
-                                $arrayControlListsByQcFrequency[$control->id]['NextControl']['morecss']  = 'dashboard-control';
-                                $arrayControlListsByQcFrequency[$control->id]['Verdict']['value']        = '<div class="wpeo-button button-'. $verdictColor .'">' . $control->fields['verdict']['arrayofkeyval'][(!empty($control->verdict)) ?: 3] . '</div>';
-                                $arrayControlListsByQcFrequency[$control->id]['Verdict']['morecss']      = 'dashboard-control';
+                                    $verdictColor = $control->verdict == 1 ? 'green' : ($control->verdict == 2 ? 'red' : 'grey');
+
+                                    $arrayControlListsByNextControl[$control->id]['Ref']['value']            = $control->getNomUrl(1);
+                                    $arrayControlListsByNextControl[$control->id]['LinkedObject']['value']   = $currentObject->getNomUrl(1);
+                                    $arrayControlListsByNextControl[$control->id]['UserController']['value'] = $userTmp->getNomUrl(1);
+                                    $arrayControlListsByNextControl[$control->id]['Project']['value']        = $project->id > 0 ? $project->getNomUrl(1) : '';
+                                    $arrayControlListsByNextControl[$control->id]['Sheet']['value']          = $sheet->getNomUrl(1);
+                                    $arrayControlListsByNextControl[$control->id]['ControlDate']['value']    = dol_print_date($control->date_creation, 'day');
+                                    $arrayControlListsByNextControl[$control->id]['NextControl']['value']    = '<div class="wpeo-button button-'. $nextControlColor .'">' . $nextControl . '<br>' . $langs->trans('Days') . '</div>';
+                                    $arrayControlListsByNextControl[$control->id]['NextControl']['morecss']  = 'dashboard-control';
+                                    $arrayControlListsByNextControl[$control->id]['Verdict']['value']        = '<div class="wpeo-button button-'. $verdictColor .'">' . $control->fields['verdict']['arrayofkeyval'][(!empty($control->verdict)) ?: 3] . '</div>';
+                                    $arrayControlListsByNextControl[$control->id]['Verdict']['morecss']      = 'dashboard-control';
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        $array['data'] = $arrayControlListsByQcFrequency;
+        $array['data'] = $arrayControlListsByNextControl;
 
         return $array;
     }
