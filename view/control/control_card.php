@@ -710,6 +710,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	else :
 		$dateSelector = '<form method="post" action="'.$_SERVER["PHP_SELF"].'?id='.$id.'">';
 		$dateSelector .= '<input hidden name="action" value="save_next_control_date">';
+		$dateSelector .= '<input hidden name="token" value="'. newToken() .'">';
 		$dateSelector .= $form->selectDate($object->next_control_date, 're', 0, 0, 1, '', 1, 1);
 		$dateSelector .= '<button type="submit" class="butAction" id="saveNextControlDate"> <i class="fas fa-save"></i>' . ' ' . $langs->trans('Save') . '</button type=submit>';
 		$dateSelector .= '</form>';
