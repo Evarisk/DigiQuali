@@ -104,7 +104,6 @@ SheetList                      = Liste des modèles de contrôle
 NewSheet                       = Nouveau modèle de contrôle
 ModifySheet                    = Modifier un modèle de contrôle
 AddSheet                       = Ajouter un modèle de contrôle
-SheetLinked                    = Modèle de contrôle
 AllQuestionsMustHaveLocked     = Tous les questions doivent être verrouillées pour verrouiller le modèle de contrôle
 NoLotForThisProduct            = Pas de lot défini pour ce produit
 ModalAddPhoto                  = Bibliothèque de médias
