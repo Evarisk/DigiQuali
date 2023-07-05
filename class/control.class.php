@@ -918,7 +918,7 @@ class Control extends SaturneObject
         $arrayControlListsByNextControl = [];
 
         $elementArray = get_sheet_linkable_objects();
-        $controls     = $this->fetchAll('ASC', 'next_control_date', 10, 0, ['customsql' => 't.status >= 0 AND t.next_control_date IS NOT NULL']);
+        $controls     = $this->fetchAll('ASC', 'next_control_date', 10, 0, ['customsql' => 't.status = ' . self::STATUS_LOCKED . ' AND t.next_control_date IS NOT NULL']);
         if (is_array($controls) && !empty($controls)) {
             foreach ($controls as $control) {
                 $control->fetchObjectLinked('', '', $control->id, 'dolismq_control', 'OR', 1, 'sourcetype', 0);
