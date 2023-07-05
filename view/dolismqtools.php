@@ -31,6 +31,7 @@ if (file_exists('../dolismq.main.inc.php')) {
 }
 
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/ticket.lib.php';
 
 require_once __DIR__ . '/../class/answer.class.php';
 require_once __DIR__ . '/../class/question.class.php';
@@ -207,6 +208,7 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
             $json               = file_get_contents($fileDir . $fileName);
             $dolismqExportArray = json_decode($json, true);
             $error              = 0;
+			$importKey          = generate_random_id();
 
 			$idCorrespondanceArray = [];
 
@@ -214,14 +216,15 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
 
 			if (is_array($dolismqExportArray['questions']) && !empty($dolismqExportArray['questions'])) {
 				foreach ($dolismqExportArray['questions'] as $questionSingle) {
-
-					$question->type = $questionSingle['type'];
-					$question->label = $questionSingle['label'];
-					$question->description = $questionSingle['description'];
-					$question->show_photo = $questionSingle['show_photo'];
+					$question->ref_ext                = $questionSingle['ref'];
+					$question->type                   = $questionSingle['type'];
+					$question->label                  = $questionSingle['label'];
+					$question->description            = $questionSingle['description'];
+					$question->show_photo             = $questionSingle['show_photo'];
 					$question->authorize_answer_photo = $questionSingle['authorize_answer_photo'];
-					$question->enter_comment = $questionSingle['enter_comment'];
-					$question->status = $questionSingle['status'];
+					$question->enter_comment          = $questionSingle['enter_comment'];
+					$question->status                 = $questionSingle['status'];
+					$question->import_key             = $importKey;
 
 					$questionId = $question->create($user);
 
@@ -229,12 +232,14 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
 						$idCorrespondanceArray['question'][$questionSingle['rowid']] = $questionId;
 						if (array_key_exists('answers', $questionSingle) && !empty($questionSingle['answers'])) {
 							foreach ($questionSingle['answers'] as $answerSingle) {
-								$answer->status = $answerSingle['status'];
-								$answer->value = $answerSingle['value'];
-								$answer->position = $answerSingle['position'];
-								$answer->pictogram = $answerSingle['pictogram'];
-								$answer->color = $answerSingle['color'];
+								$answer->ref_ext     = $answerSingle['ref'];
+								$answer->status      = $answerSingle['status'];
+								$answer->value       = $answerSingle['value'];
+								$answer->position    = $answerSingle['position'];
+								$answer->pictogram   = $answerSingle['pictogram'];
+								$answer->color       = $answerSingle['color'];
 								$answer->fk_question = $questionId;
+								$answer->import_key  = $importKey;
 
 								$answerId = $answer->create($user);
 
@@ -251,11 +256,13 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
 
             if (is_array($dolismqExportArray['sheets']) && !empty($dolismqExportArray['sheets'])) {
                 foreach ($dolismqExportArray['sheets'] as $sheetSingle) {
+					$sheet->ref_ext             = $sheetSingle['ref'];
                     $sheet->label               = $sheetSingle['label'];
                     $sheet->description         = $sheetSingle['description'];
 					$sheet->element_linked      = $sheetSingle['element_linked'];
 					$sheet->mandatory_questions = $sheetSingle['mandatory_questions'];
 					$sheet->status              = $sheetSingle['status'];
+					$sheet->import_key          = $importKey;
 
 					$sheetMandatoryQuestions = json_decode($sheetSingle['mandatory_questions']);
 
