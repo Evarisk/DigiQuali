@@ -266,6 +266,24 @@ if (empty($reshook)) {
 		exit;
 	}
 
+	if ($action == 'save_next_control_date') {
+		$day    = GETPOST('reday');
+		$month  = GETPOST('remonth');
+		$year   = GETPOST('reyear');
+
+		$object->next_control_date = dol_mktime(0, 0, 0, $month, $day, $year);
+
+		$result = $object->update($user);
+
+		if ($result > 0) {
+			setEventMessages($langs->trans('NextControlDateUpdated'), []);
+		} else {
+			setEventMessages($langs->trans('ErrorUpdatingNextControlDate'), [], 'errors');
+		}
+		header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $id);
+		exit;
+	}
+
     // Actions builddoc, forcebuilddoc, remove_file.
     require_once __DIR__ . '/../../../saturne/core/tpl/documents/documents_action.tpl.php';
 
@@ -682,6 +700,27 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
+  	if ($action != 'edit_next_control_date') :
+		?>
+			<script>
+				let pencil = ' <a href="'+ window.location.href + '&action=edit_next_control_date' +'"  <span class="fas fa-pencil-alt" style="color: #ccc"></span></a>'
+				$('.valuefield.fieldname_next_control_date').append(pencil)
+			</script>
+		<?php
+	else :
+		$dateSelector = '<form method="post" action="'.$_SERVER["PHP_SELF"].'?id='.$id.'">';
+		$dateSelector .= '<input hidden name="action" value="save_next_control_date">';
+		$dateSelector .= $form->selectDate($object->next_control_date, 're', 0, 0, 1, '', 1, 1);
+		$dateSelector .= '<button type="submit" class="butAction" id="saveNextControlDate"> <i class="fas fa-save"></i>' . ' ' . $langs->trans('Save') . '</button type=submit>';
+		$dateSelector .= '</form>';
+		?>
+		<script>
+			$('.valuefield.fieldname_next_control_date').html(<?php echo json_encode($dateSelector) ?>)
+			$('.valuefield.fieldname_next_control_date').append(<?php echo json_encode($saveButton) ?>)
+		</script>
+	<?php
+	endif;
+
 	// Categories
 	if ($conf->categorie->enabled) {
 		print '<tr><td class="valignmiddle">' . $langs->trans('Categories') . '</td>';
@@ -713,7 +752,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 		print '</tr>';
 	}
-
 
 	$object->fetchObjectLinked('', '', $object->id, 'dolismq_control', 'OR', 1, 'sourcetype', 0);
 
