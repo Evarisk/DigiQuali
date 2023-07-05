@@ -384,7 +384,7 @@ if (empty($reshook)) {
 	if ($action == 'confirm_setValidated') {
 		$object->fetch($id);
 		if ( ! $error) {
-			$result = $object->setValidated($user, false);
+			$result = $object->validate($user, false);
 			if ($result > 0) {
 				$controldet = new ControlLine($db);
 				$sheet->fetch($object->fk_sheet);
@@ -970,7 +970,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
             // Sign
             $displayButton = $onPhone ? '<i class="fas fa-signature fa-2x"></i>' : '<i class="fas fa-signature"></i>' . ' ' . $langs->trans('Sign');
-            if ($object->status == $object::STATUS_VALIDATED && !$signatory->checkSignatoriesSignatures($object->id, $object->element)) {
+            if ($object->status == $object::STATUS_VALIDATED && !$signatory->checkSignatoriesSignatures($object->id, $object->element) && $object->verdict > 0) {
                 print '<a class="butAction" id="actionButtonSign" href="' . dol_buildpath('/custom/saturne/view/saturne_attendants.php?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element . '&document_type=ControlDocument&attendant_table_mode=simple', 3) . '">' . $displayButton . '</a>';
             } else {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeValidatedToSign', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '">' . $displayButton . '</span>';

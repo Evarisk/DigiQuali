@@ -81,3 +81,4 @@ ALTER TABLE `llx_dolismq_sheet` ADD `mandatory_questions` text AFTER `element_li
 UPDATE `llx_dolismq_question` SET type = 'OkKoToFixNonApplicable' WHERE type IS NULL;
 UPDATE `llx_dolismq_sheet` SET mandatory_questions = '{}' WHERE mandatory_questions IS NULL;
 ALTER TABLE `llx_dolismq_sheet` CHANGE `mandatory_questions` `mandatory_questions` text;
+ALTER TABLE `llx_dolismq_control` ADD `next_control_date` DATETIME AFTER `track_id`;
