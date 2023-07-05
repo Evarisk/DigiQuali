@@ -279,7 +279,8 @@ ControlReminderFrequencyDescription     = Choisir la fréquence de rappel d'év�
 ControlReminderType                     = Type de rappel d'évènement de contrôle
 ControlReminderTypeDescription          = Choisir le type de rappel d'évènement de contrôle <br> (par défaut : navigateur)
 controlled                              = contrôlé(e)
-
+NextControlDateUpdated                  = La date de prochain contrôle a été mise à jour
+ErrorUpdatingNextControlDate            = La date de prochain contrôle n'a pas pu être mise à jour
 
 
 #
