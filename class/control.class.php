@@ -1026,6 +1026,12 @@ class Control extends SaturneObject
 			$user->fetch($object->fk_user_controller);
 			$ret .= $langs->transnoentities('Controller') . ' : ' . ucfirst($user->firstname) . ' ' . dol_strtoupper($user->lastname) . '</br>';
 		}
+		if (!empty($object->projectid)) {
+			require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
+			$project = new Project($db);
+			$project->fetch($object->projectid);
+			$ret .= $langs->transnoentities('Project') . ' : ' . $project->ref . ' ' . $project->title . '</br>';
+		}
 		$ret  .= (!empty($object->note_public) ? $langs->transnoentities('NotePublic') . ' : ' . $object->note_public . '</br>' : '');
 		$ret  .= (!empty($object->note_private) ? $langs->transnoentities('NotePrivate') . ' : ' . $object->note_private . '</br>' : '');
 		$ret  .= (!empty($object->verdict) ? $langs->transnoentities('Verdict') . ' : ' . $object->verdict . '</br>' : '');

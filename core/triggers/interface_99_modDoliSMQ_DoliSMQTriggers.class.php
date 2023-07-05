@@ -262,7 +262,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'SHEET_LOCK' :
 			case 'CONTROL_LOCK' :
 				$actioncomm->code          = 'AC_' . strtoupper($object->element) . '_LOCK';
-				$actioncomm->label         = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+				$actioncomm->label         = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Locked') . '</br>';
 				$actioncomm->create($user);
 				break;
@@ -271,7 +271,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
             case 'SHEET_ARCHIVE' :
             case 'CONTROL_ARCHIVE' :
                 $actioncomm->code          = 'AC_' . strtoupper($object->element) . '_ARCHIVE';
-                $actioncomm->label         = $langs->transnoentities('ObjectArchivedTrigger', $langs->transnoentities(ucfirst($object->element) . ' ' . $object->ref));
+				$actioncomm->label         = $langs->transnoentities('ObjectArchivedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Archived') . '</br>';
 				$actioncomm->create($user);
                 break;
