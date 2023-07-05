@@ -129,8 +129,6 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 
 			case 'CONTROL_CREATE' :
                 $elementArray = [];
-                $qcFrequency  = 0;
-                $actioncommID = 0;
                 if ($object->context != 'createfromclone') {
 					$elementArray = get_sheet_linkable_objects();
 					if (!empty($elementArray)) {
@@ -151,63 +149,6 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
 				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
                 $actioncomm->create($user);
-
-                if ($object->context != 'createfromclone') {
-                    $object->fetchObjectLinked('', '', '', 'dolismq_control', 'OR', 1, 'sourcetype', 0);
-                    if (!empty($elementArray)) {
-                        foreach($elementArray as $linkableElementType => $linkableElement) {
-                            if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-                                $className    = $linkableElement['className'];
-                                $linkedObject = new $className($this->db);
-
-                                $linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
-                                $linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
-
-                                $result = $linkedObject->fetch($linkedObjectId);
-
-                                if ($result > 0) {
-                                    $linkedObject->fetch_optionals();
-                                    if (!empty($linkedObject->array_options['options_qc_frequency'])) {
-                                        $qcFrequency = $linkedObject->array_options['options_qc_frequency'];
-
-                                        $object->next_control_date = $this->db->idate(dol_time_plus_duree($object->date_creation, $qcFrequency, 'd'));
-                                        $object->update($user, true);
-
-                                        $actioncomm->code        = 'AC_' . strtoupper($object->element) . '_REMINDER';
-                                        $actioncomm->label       = $langs->transnoentities('ControlReminderTrigger', $langs->transnoentities(ucfirst($linkedObject->element)) . ' ' . $linkedObject->ref, $qcFrequency);
-                                        $actioncomm->elementtype = $linkedObject->element;
-                                        $actioncomm->datep       = dol_time_plus_duree($now, $qcFrequency, 'd');
-                                        $actioncomm->fk_element  = $linkedObject->id;
-                                        $actioncomm->userownerid = $user->id;
-                                        $actioncomm->percentage  = ActionComm::EVENT_TODO;
-                                        $actioncommID            = $actioncomm->create($user);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Create reminders.
-                    if ($actioncommID > 0 && $qcFrequency > 0 && getDolGlobalInt('DOLISMQ_CONTROL_REMINDER_ENABLED') && (getDolGlobalString('AGENDA_REMINDER_BROWSER') || getDolGlobalString('AGENDA_REMINDER_EMAIL'))) {
-                        $actionCommReminder = new ActionCommReminder($this->db);
-
-                        $actionCommReminder->status        = ActionCommReminder::STATUS_TODO;
-                        $actionCommReminder->fk_actioncomm = $actioncommID;
-                        $actionCommReminder->fk_user       = $user->id;
-
-                        $reminderArray = explode(',' , getDolGlobalString('DOLISMQ_CONTROL_REMINDER_FREQUENCY'));
-                        $nextControlDate = dol_time_plus_duree(dol_now('tzuser'), $qcFrequency, 'd');
-                        foreach ($reminderArray as $reminder) {
-                            $dateReminder = dol_time_plus_duree($nextControlDate, -$reminder, 'd');
-
-                            $actionCommReminder->dateremind  = $dateReminder;
-                            $actionCommReminder->offsetvalue = $reminder;
-                            $actionCommReminder->offsetunit  = 'd';
-                            $actionCommReminder->typeremind  = getDolGlobalString('DOLISMQ_CONTROL_REMINDER_TYPE');
-                            $actionCommReminder->create($user);
-                        }
-                    }
-                }
 				break;
 
 			case 'QUESTION_MODIFY' :
@@ -258,11 +199,75 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 
 			case 'QUESTION_LOCK' :
 			case 'SHEET_LOCK' :
+                $actioncomm->code          = 'AC_' . strtoupper($object->element) . '_LOCK';
+                $actioncomm->label         = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
+                $actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Locked') . '</br>';
+                $actioncomm->create($user);
+            break;
+
 			case 'CONTROL_LOCK' :
-				$actioncomm->code          = 'AC_' . strtoupper($object->element) . '_LOCK';
-				$actioncomm->label         = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-				$actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Locked') . '</br>';
-				$actioncomm->create($user);
+                $actioncomm->code          = 'AC_' . strtoupper($object->element) . '_LOCK';
+                $actioncomm->label         = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
+                $actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Locked') . '</br>';
+                $actioncomm->create($user);
+
+                $qcFrequency  = 0;
+                $actioncommID = 0;
+                $elementArray = get_sheet_linkable_objects();
+                $object->fetchObjectLinked('', '', '', 'dolismq_control', 'OR', 1, 'sourcetype', 0);
+                if (!empty($elementArray)) {
+                    foreach($elementArray as $linkableElementType => $linkableElement) {
+                        if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
+                            $className    = $linkableElement['className'];
+                            $linkedObject = new $className($this->db);
+
+                            $linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
+                            $linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
+
+                            $result = $linkedObject->fetch($linkedObjectId);
+
+                            if ($result > 0) {
+                                $linkedObject->fetch_optionals();
+                                if (!empty($linkedObject->array_options['options_qc_frequency'])) {
+                                    $qcFrequency = $linkedObject->array_options['options_qc_frequency'];
+
+                                    $object->next_control_date = $this->db->idate(dol_time_plus_duree($object->date_creation, $qcFrequency, 'd'));
+                                    $object->update($user, true);
+
+                                    $actioncomm->code        = 'AC_' . strtoupper($object->element) . '_REMINDER';
+                                    $actioncomm->label       = $langs->transnoentities('ControlReminderTrigger', $langs->transnoentities(ucfirst($linkedObject->element)) . ' ' . $linkedObject->ref, $qcFrequency);
+                                    $actioncomm->elementtype = $linkedObject->element;
+                                    $actioncomm->datep       = dol_time_plus_duree($now, $qcFrequency, 'd');
+                                    $actioncomm->fk_element  = $linkedObject->id;
+                                    $actioncomm->userownerid = $user->id;
+                                    $actioncomm->percentage  = ActionComm::EVENT_TODO;
+                                    $actioncommID            = $actioncomm->create($user);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Create reminders.
+                if ($actioncommID > 0 && $qcFrequency > 0 && getDolGlobalInt('DOLISMQ_CONTROL_REMINDER_ENABLED') && (getDolGlobalString('AGENDA_REMINDER_BROWSER') || getDolGlobalString('AGENDA_REMINDER_EMAIL'))) {
+                    $actionCommReminder = new ActionCommReminder($this->db);
+
+                    $actionCommReminder->status        = ActionCommReminder::STATUS_TODO;
+                    $actionCommReminder->fk_actioncomm = $actioncommID;
+                    $actionCommReminder->fk_user       = $user->id;
+
+                    $reminderArray = explode(',' , getDolGlobalString('DOLISMQ_CONTROL_REMINDER_FREQUENCY'));
+                    $nextControlDate = dol_time_plus_duree(dol_now('tzuser'), $qcFrequency, 'd');
+                    foreach ($reminderArray as $reminder) {
+                        $dateReminder = dol_time_plus_duree($nextControlDate, -$reminder, 'd');
+
+                        $actionCommReminder->dateremind  = $dateReminder;
+                        $actionCommReminder->offsetvalue = $reminder;
+                        $actionCommReminder->offsetunit  = 'd';
+                        $actionCommReminder->typeremind  = getDolGlobalString('DOLISMQ_CONTROL_REMINDER_TYPE');
+                        $actionCommReminder->create($user);
+                    }
+                }
 				break;
 
             case 'QUESTION_ARCHIVE' :
