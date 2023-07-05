@@ -773,11 +773,7 @@ if ($action == 'create') {
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo GETPOST('favorite_photo_ok') ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-		<input type="hidden" class="modal-to-open" value="media_gallery"/>
-		<input type="hidden" class="from-type" value="question"/>
-		<input type="hidden" class="from-subtype" value="photo_ok"/>
-		<input type="hidden" class="from-subdir" value="photo_ok"/>
-		<input type="hidden" class="from-id" value="<?php echo 0 ?>"/>
+		<input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo 0 ?>" data-from-type="question" data-from-subtype="photo_ok" data-from-subdir="photo_ok"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
@@ -797,11 +793,7 @@ if ($action == 'create') {
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo GETPOST('favorite_photo_ko') ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-		<input type="hidden" class="modal-to-open" value="media_gallery"/>
-		<input type="hidden" class="from-type" value="question"/>
-		<input type="hidden" class="from-subtype" value="photo_ko"/>
-		<input type="hidden" class="from-subdir" value="photo_ko"/>
-		<input type="hidden" class="from-id" value="<?php echo 0 ?>"/>
+        <input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo 0 ?>" data-from-type="question" data-from-subtype="photo_ko" data-from-subdir="photo_ko"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
@@ -908,11 +900,7 @@ if (($id || $ref) && $action == 'edit') {
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo (dol_strlen($object->photo_ok) > 0 ? $object->photo_ok : GETPOST('favorite_photo_ok')) ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-		<input type="hidden" class="modal-to-open" value="media_gallery"/>
-		<input type="hidden" class="from-type" value="question"/>
-		<input type="hidden" class="from-subtype" value="photo_ok"/>
-		<input type="hidden" class="from-subdir" value="photo_ok"/>
-		<input type="hidden" class="from-id" value="<?php echo $object->id ?>"/>
+        <input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id ?>" data-from-type="question" data-from-subtype="photo_ok" data-from-subdir="photo_ok"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
@@ -932,11 +920,7 @@ if (($id || $ref) && $action == 'edit') {
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo (dol_strlen($object->photo_ko) > 0 ? $object->photo_ko : GETPOST('favorite_photo_ko')) ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-		<input type="hidden" class="modal-to-open" value="media_gallery"/>
-		<input type="hidden" class="from-type" value="question"/>
-		<input type="hidden" class="from-subtype" value="photo_ko"/>
-		<input type="hidden" class="from-subdir" value="photo_ko"/>
-		<input type="hidden" class="from-id" value="<?php echo $object->id ?>"/>
+        <input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id ?>" data-from-type="question" data-from-subtype="photo_ko" data-from-subdir="photo_ko"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
