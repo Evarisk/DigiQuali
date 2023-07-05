@@ -1048,7 +1048,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					$pictosArray = get_answer_pictos_array();
 					?>
 					<?php if ($item->type == 'MultipleChoices') :
-						$answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $item->id]);
+						$answerList = $answer->fetchAll('ASC', 'position', 0, 0,  ['customsql' => 't.status > ' . Answer::STATUS_DELETED . ' AND t.fk_question = ' . $item->id]);
 						?>
 						<div class="table-cell table-end select-answer answer-cell" <?php echo ($object->status > 0) ? ' style="pointer-events: none"' : '' ?>>
 							<?php
@@ -1074,7 +1074,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 							?>
 						</div>
 					<?php elseif ($item->type == 'UniqueChoice' || $item->type == 'OkKo' || $item->type == 'OkKoToFixNonApplicable') :
-						$answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $item->id]);
+						$answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['customsql' => 't.status > ' . Answer::STATUS_DELETED . ' AND t.fk_question = ' . $item->id]);
 						?>
 						<div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
 							<?php

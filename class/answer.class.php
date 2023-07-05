@@ -63,6 +63,9 @@ class Answer extends SaturneObject
      */
     public string $picto = 'fontawesome_fa-arrow-right_fas_#d35968';
 
+	public const STATUS_DELETED   = -1;
+	public const STATUS_VALIDATED = 1;
+
     /**
      * 'type' field format:
      *      'integer', 'integer:ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter[:Sortfield]]]',
@@ -221,7 +224,7 @@ class Answer extends SaturneObject
         $refAnswerMod   = new $conf->global->DOLISMQ_ANSWER_ADDON($this->db);
         $this->ref      = $refAnswerMod->getNextValue($this);
         $this->position = $this->getMaxPosition() + 1;
-		$this->status   = $this->status ?: 1;
+		$this->status   = $this->status ?: self::STATUS_VALIDATED;
 
         return parent::create($user, $notrigger);
     }
