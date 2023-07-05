@@ -99,26 +99,18 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 		$now = dol_now();
 		$actioncomm = new ActionComm($this->db);
 
+		$object->fetch($object->id);
 		$actioncomm->elementtype  = $object->element . '@dolismq';
 		$actioncomm->type_code    = 'AC_OTH_AUTO';
 		$actioncomm->datep        = $now;
 		$actioncomm->fk_element   = $object->id;
 		$actioncomm->userownerid  = $user->id;
 		$actioncomm->percentage   = -1;
-        $actioncomm->note_private = '';
 
         $object->fetch($object->id);
 
         if ($conf->global->DOLISMQ_ADVANCED_TRIGGER && !empty($object->fields)) {
-            foreach ($object->fields as $key => $value) {
-                if (in_array($key, ['rowid', 'fk_user_creat', 'fk_user_modif', 'import_key', 'ref_ext', 'track_id'])) {
-                    continue;
-                } else if ($key == 'date_creation' || $key == 'tms') {
-                    $actioncomm->note_private .= $langs->trans($value['label']) . ' : ' . dol_print_date($object->$key, 'dayhoursec', 'tzuser') . '</br>';
-                } else {
-                    $actioncomm->note_private .= !empty($object->$key) ? $langs->trans($value['label']) . ' : ' . $object->$key . '</br>' : '';
-                }
-            }
+			$actioncomm->note_private = method_exists($object, 'getTriggerDescription') ? $object->getTriggerDescription($object) : '';
         }
 
 		switch ($action) {
@@ -269,17 +261,19 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
 			case 'QUESTION_LOCK' :
 			case 'SHEET_LOCK' :
 			case 'CONTROL_LOCK' :
-				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_LOCK';
-				$actioncomm->label = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
+				$actioncomm->code          = 'AC_' . strtoupper($object->element) . '_LOCK';
+				$actioncomm->label         = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
+				$actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Locked') . '</br>';
 				$actioncomm->create($user);
 				break;
 
             case 'QUESTION_ARCHIVE' :
             case 'SHEET_ARCHIVE' :
             case 'CONTROL_ARCHIVE' :
-                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_ARCHIVE';
-                $actioncomm->label = $langs->transnoentities('ObjectArchivedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->create($user);
+                $actioncomm->code          = 'AC_' . strtoupper($object->element) . '_ARCHIVE';
+				$actioncomm->label         = $langs->transnoentities('ObjectArchivedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
+				$actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Archived') . '</br>';
+				$actioncomm->create($user);
                 break;
 
 			case 'SHEET_ADDQUESTION':

@@ -1005,6 +1005,40 @@ class Control extends SaturneObject
 			'linkedObjects'    => $linkedObjects
 			];
 	}
+
+	/**
+	 * Write information of trigger description
+	 *
+	 * @param  Object $object Object calling the trigger
+	 * @return string         Description to display in actioncomm->note_private
+	 */
+	public function getTriggerDescription(SaturneObject $object): string
+	{
+		global $db, $langs;
+
+		$sheet = new Sheet($db);
+		$sheet->fetch($object->fk_sheet);
+
+		$ret  = parent::getTriggerDescription($object);
+		$ret .= $langs->transnoentities('Sheet') . ' : ' . $sheet->ref . ' - ' . $sheet->label . '</br>';
+		if ($object->fk_user_controller > 0) {
+			$user = new User($db);
+			$user->fetch($object->fk_user_controller);
+			$ret .= $langs->transnoentities('Controller') . ' : ' . ucfirst($user->firstname) . ' ' . dol_strtoupper($user->lastname) . '</br>';
+		}
+		if ($object->projectid > 0) {
+			require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
+			$project = new Project($db);
+			$project->fetch($object->projectid);
+			$ret .= $langs->transnoentities('Project') . ' : ' . $project->ref . ' ' . $project->title . '</br>';
+		}
+		$ret  .= (!empty($object->note_public) ? $langs->transnoentities('NotePublic') . ' : ' . $object->note_public . '</br>' : '');
+		$ret  .= (!empty($object->note_private) ? $langs->transnoentities('NotePrivate') . ' : ' . $object->note_private . '</br>' : '');
+		$ret  .= (!empty($object->verdict) ? $langs->transnoentities('Verdict') . ' : ' . $object->verdict . '</br>' : '');
+		$ret  .= (!empty($object->photo) ? $langs->transnoentities('Photo') . ' : ' . $object->photo . '</br>' : '');
+
+		return $ret;
+	}
 }
 
 class ControlLine extends CommonObjectLine
