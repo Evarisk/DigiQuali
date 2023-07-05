@@ -105,7 +105,7 @@ $object->fetchObjectLinked('', '', '', 'dolismq_control');
 				<div class="wpeo-table table-flex">
 					<div class="table-row">
 						<div class="table-cell"><?php echo '<i class="far fa-check-circle"></i> ' . $langs->trans('Verdict'); ?></div>
-						<div class="table-cell table-end"><?php echo (!empty($object->verdict) ? $langs->transnoentities($object->fields['verdict']['arrayofkeyval'][$object->verdict]) : $langs->transnoentities('NoVerdict')); ?></div>
+						<div class="table-cell table-end"><?php echo (!empty($object->verdict) ? $langs->transnoentities($object->fields['verdict']['arrayofkeyval'][$object->verdict]) : 'N/A'); ?></div>
 					</div>
 					<div class="table-row">
 						<div class="wpeo-table table-cell table-full">

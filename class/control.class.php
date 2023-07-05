@@ -813,7 +813,7 @@ class Control extends SaturneObject
 
         $array['labels'] = [
             0 => [
-                'label' => $langs->transnoentities('NoVerdict'),
+                'label' => 'N/A',
                 'color' => '#999999'
             ],
             1 => [
@@ -870,7 +870,7 @@ class Control extends SaturneObject
 
         $array['labels'] = [
             0 => [
-                'label' => $langs->transnoentities('NoVerdict'),
+                'label' => 'N/A',
                 'color' => '#999999'
             ],
             1 => [
@@ -1018,7 +1018,7 @@ class Control extends SaturneObject
                                 $arrayControlListsByQcFrequency[$control->id]['ControlDate']['value']    = dol_print_date($control->date_creation, 'day');
                                 $arrayControlListsByQcFrequency[$control->id]['NextControl']['value']    = '<div class="wpeo-button button-'. $nextControlColor .'">' . $nextControl . '<br>' . $langs->trans('Days') . '</div>';
                                 $arrayControlListsByQcFrequency[$control->id]['NextControl']['morecss']  = 'dashboard-control';
-                                $arrayControlListsByQcFrequency[$control->id]['Verdict']['value']        = '<div class="wpeo-button button-'. $verdictColor .'">' . $control->fields['verdict']['arrayofkeyval'][(!empty($control->verdict)) ?: 3] . '</div>';
+                                $arrayControlListsByQcFrequency[$control->id]['Verdict']['value']        = '<div class="wpeo-button button-'. $verdictColor .'">' . (!empty($control->verdict) ? $langs->transnoentities($control->fields['verdict']['arrayofkeyval'][$control->verdict]) : '<i class="fas fa-minus"></i>') . '</div>';
                                 $arrayControlListsByQcFrequency[$control->id]['Verdict']['morecss']      = 'dashboard-control';
                             }
                         }

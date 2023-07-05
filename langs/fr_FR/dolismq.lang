@@ -237,7 +237,6 @@ AddUser                                 = Créer utilisateur
 AddControlIntoCategory                  = Assigner cette catégorie au contrôle
 ProductOrServiceLinked                  = Produit ou service contrôlé
 CanSetVerdict                           = Définir le verdict du contrôle
-NoVerdict                               = Pas de verdict
 ControlsRepartition                     = Répartition des contrôles par verdict
 ControlsTagsRepartition                 = Répartition des contrôles par verdict et par catégories
 ControlsByFiscalYear                    = Rapport des contrôles sur l'exercice fiscal
