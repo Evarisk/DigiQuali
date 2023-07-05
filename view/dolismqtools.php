@@ -45,7 +45,7 @@ require_once __DIR__ . '/../core/modules/dolismq/sheet/mod_sheet_standard.php';
 // Global variables definitions
 global $conf, $db, $langs, $user;
 
-saturne_load_langs();
+saturne_load_langs(['exports']);
 
 // Get parameters
 $action = GETPOST('action', 'alpha');
@@ -205,14 +205,11 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
             }
             $fileName = preg_replace('/\.zip/', '.json', $_FILES['dataMigrationImportZipFile']['name'][0]);
 
-            $json               = file_get_contents($fileDir . $fileName);
-            $dolismqExportArray = json_decode($json, true);
-            $error              = 0;
-			$importKey          = generate_random_id();
-
+            $json                  = file_get_contents($fileDir . $fileName);
+            $dolismqExportArray    = json_decode($json, true);
+			$importKey             = dol_print_date($now, 'dayhourlog');
 			$idCorrespondanceArray = [];
-
-			$error = 0;
+			$error                 = 0;
 
 			if (is_array($dolismqExportArray['questions']) && !empty($dolismqExportArray['questions'])) {
 				foreach ($dolismqExportArray['questions'] as $questionSingle) {
@@ -310,6 +307,7 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
 
 			$questionCount = count($dolismqExportArray['questions']);
 			setEventMessage($langs->transnoentities("ImportFinishWith", $langs->trans('Questions'), $error, $questionCount));
+			setEventMessage($langs->transnoentities("FileWasImported", $importKey));
         }
 	}
 }
