@@ -347,100 +347,26 @@ class Control extends SaturneObject
 		}
 	}
 
-	/**
-	 *	Set validate status
-	 *
-	 *	@param	User	$user			Object user that modify
-	 *  @param	int		$notrigger		1=Does not execute triggers, 0=Execute triggers
-	 *	@return	int						<0 if KO, >0 if OK
-	 *  @throws Exception
-	 */
-	public function setValidated($user, $notrigger = 0)
-	{
-		global $conf;
+    /**
+     * Set draft status.
+     *
+     * @param  User $user      Object user that modify.
+     * @param  int  $notrigger 1 = Does not execute triggers, 0 = Execute triggers.
+     * @return int             0 < if KO, > 0 if OK.
+     * @throws Exception
+     */
+    public function setDraft(User $user, int $notrigger = 0): int
+    {
+        // Protection
+        if ($this->status <= self::STATUS_DRAFT) {
+            return 0;
+        }
 
-		require_once DOL_DOCUMENT_ROOT.'/core/lib/files.lib.php';
+        $signatory = new SaturneSignature($this->db);
+        $signatory->deleteSignatoriesSignatures($this->id, 'control');
 
-		$error = 0;
-
-		// Protection
-		if ($this->status == self::STATUS_VALIDATED) {
-			dol_syslog(get_class($this)."::validate action abandonned: already validated", LOG_WARNING);
-			return 0;
-		}
-
-		$this->db->begin();
-
-		// Define new ref
-		if ((preg_match('/^\(?PROV/i', $this->ref) || empty($this->ref))) { // empty should not happen, but when it occurs, the test save life
-			$newref = $this->getNextNumRef();
-		} else {
-			$newref = $this->ref;
-		}
-
-		if (!empty($newref)) {
-			// Validate
-			$sql = "UPDATE ".MAIN_DB_PREFIX.$this->table_element;
-			$sql .= " SET ref = '".$this->db->escape($newref)."',";
-			$sql .= " status = ".self::STATUS_VALIDATED;
-			$sql .= " WHERE rowid = ".($this->id);
-
-			dol_syslog(get_class($this)."::validate()", LOG_DEBUG);
-			$resql = $this->db->query($sql);
-			if (!$resql) {
-				dol_print_error($this->db);
-				$this->error = $this->db->lasterror();
-				$error++;
-			}
-
-			if (!$error && !$notrigger) {
-				// Call trigger
-				$result = $this->call_trigger('CONTROL_VALIDATE', $user);
-				if ($result < 0) {
-					$error++;
-				}
-				// End call triggers
-			}
-		}
-
-		if (!$error) {
-			// Rename directory if dir was a temporary ref
-			if (preg_match('/^\(?PROV/i', $this->ref)) {
-				// Now we rename also files into index
-				$sql = 'UPDATE '.MAIN_DB_PREFIX."ecm_files set filename = CONCAT('".$this->db->escape($newref)."', SUBSTR(filename, ".(strlen($this->ref) + 1).")), filepath = 'control/".$this->db->escape($newref)."'";
-				$sql .= " WHERE filename LIKE '".$this->db->escape($this->ref)."%' AND filepath = 'control/".$this->db->escape($this->ref)."' and entity = ".$conf->entity;
-				$resql = $this->db->query($sql);
-				if (!$resql) {
-					$error++; $this->error = $this->db->lasterror();
-				}
-
-				// We rename directory ($this->ref = old ref, $newref = new ref) in order not to lose the attachments
-				$oldref = dol_sanitizeFileName($this->ref);
-				$newref = dol_sanitizeFileName($newref);
-
-				$dirsource = $conf->dolismq->dir_output.'/control/'.$oldref;
-				$dirdest = $conf->dolismq->dir_output.'/control/'.$newref;
-
-				if (is_dir($dirsource)) {
-					rename($dirsource, $dirdest);
-				}
-			}
-		}
-
-		// Set new ref and current status
-		if (!$error) {
-			$this->ref = $newref;
-			$this->status = self::STATUS_VALIDATED;
-		}
-
-		if (!$error) {
-			$this->db->commit();
-			return 1;
-		} else {
-			$this->db->rollback();
-			return -1;
-		}
-	}
+        return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'CONTROL_UNVALIDATE');
+    }
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
@@ -669,10 +595,10 @@ class Control extends SaturneObject
     /**
      * Return the label of the verdict.
      *
-     * @param  int    $mode 0 = long label, 1 = short label, 2 = Picto + short label, 3 = Picto, 4 = Picto + long label, 5 = Short label + Picto, 6 = Long label + Picto.
-     * @return string       Label of verdict.
+     * @param  int|null $mode 0 = long label, 1 = short label, 2 = Picto + short label, 3 = Picto, 4 = Picto + long label, 5 = Short label + Picto, 6 = Long label + Picto.
+     * @return string         Label of verdict.
      */
-    public function getLibVerdict(int $mode = 0): string
+    public function getLibVerdict(?int $mode = 0): string
     {
         return $this->libVerdict($this->verdict, $mode);
     }
