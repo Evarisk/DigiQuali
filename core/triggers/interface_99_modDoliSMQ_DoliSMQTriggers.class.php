@@ -257,9 +257,8 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
                     $actionCommReminder->fk_user       = $user->id;
 
                     $reminderArray = explode(',' , getDolGlobalString('DOLISMQ_CONTROL_REMINDER_FREQUENCY'));
-                    $nextControlDate = dol_time_plus_duree(dol_now('tzuser'), $qcFrequency, 'd');
                     foreach ($reminderArray as $reminder) {
-                        $dateReminder = dol_time_plus_duree($nextControlDate, -$reminder, 'd');
+                        $dateReminder = dol_time_plus_duree($object->next_control_date, -$reminder, 'd');
 
                         $actionCommReminder->dateremind  = $dateReminder;
                         $actionCommReminder->offsetvalue = $reminder;
