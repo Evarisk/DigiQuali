@@ -216,7 +216,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
                 $elementArray = get_sheet_linkable_objects();
                 $object->fetchObjectLinked('', '', '', 'dolismq_control', 'OR', 1, 'sourcetype', 0);
                 if (!empty($elementArray)) {
-                    foreach($elementArray as $linkableElementType => $linkableElement) {
+                    foreach($elementArray as $linkableElement) {
                         if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
                             $className    = $linkableElement['className'];
                             $linkedObject = new $className($this->db);
@@ -249,7 +249,7 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
                 }
 
                 // Create reminders.
-                if ($actioncommID > 0 && $qcFrequency > 0 && getDolGlobalInt('DOLISMQ_CONTROL_REMINDER_ENABLED') && (getDolGlobalString('AGENDA_REMINDER_BROWSER') || getDolGlobalString('AGENDA_REMINDER_EMAIL'))) {
+                if ($actioncommID > 0 && !empty($object->next_control_date) && getDolGlobalInt('DOLISMQ_CONTROL_REMINDER_ENABLED') && (getDolGlobalString('AGENDA_REMINDER_BROWSER') || getDolGlobalString('AGENDA_REMINDER_EMAIL'))) {
                     $actionCommReminder = new ActionCommReminder($this->db);
 
                     $actionCommReminder->status        = ActionCommReminder::STATUS_TODO;
@@ -257,9 +257,8 @@ class InterfaceDoliSMQTriggers extends DolibarrTriggers
                     $actionCommReminder->fk_user       = $user->id;
 
                     $reminderArray = explode(',' , getDolGlobalString('DOLISMQ_CONTROL_REMINDER_FREQUENCY'));
-                    $nextControlDate = dol_time_plus_duree(dol_now('tzuser'), $qcFrequency, 'd');
                     foreach ($reminderArray as $reminder) {
-                        $dateReminder = dol_time_plus_duree($nextControlDate, -$reminder, 'd');
+                        $dateReminder = dol_time_plus_duree($object->next_control_date, -$reminder, 'd');
 
                         $actionCommReminder->dateremind  = $dateReminder;
                         $actionCommReminder->offsetvalue = $reminder;

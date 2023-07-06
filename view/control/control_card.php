@@ -700,14 +700,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
-  	if ($action != 'edit_next_control_date') :
+  	if ($action != 'edit_next_control_date' && $object->status < $object::STATUS_LOCKED) :
 		?>
 			<script>
 				let pencil = ' <a href="'+ window.location.href + '&action=edit_next_control_date' +'"  <span class="fas fa-pencil-alt" style="color: #ccc"></span></a>'
 				$('.valuefield.fieldname_next_control_date').append(pencil)
 			</script>
 		<?php
-	else :
+	elseif ($action == 'edit_next_control_date') :
 		$dateSelector = '<form method="post" action="'.$_SERVER["PHP_SELF"].'?id='.$id.'">';
 		$dateSelector .= '<input hidden name="action" value="save_next_control_date">';
 		$dateSelector .= '<input hidden name="token" value="'. newToken() .'">';
