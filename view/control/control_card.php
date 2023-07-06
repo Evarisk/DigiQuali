@@ -717,7 +717,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		?>
 		<script>
 			$('.valuefield.fieldname_next_control_date').html(<?php echo json_encode($dateSelector) ?>)
-			$('.valuefield.fieldname_next_control_date').append(<?php echo json_encode($saveButton) ?>)
 		</script>
 	<?php
 	endif;
