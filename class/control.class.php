@@ -1396,6 +1396,11 @@ class ControlEquipment extends SaturneObject
 	 */
 	public $table_element = 'dolismq_control_equipment';
 
+    /**
+     * @var string Name of icon for control_equipment. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'control_equipment@dolismq' if picto is file 'img/object_control_equipment.png'.
+     */
+    public string $picto = 'fontawesome_fa-toolbox_fas_#d35968';
+
 	public const STATUS_DELETED = -1;
 	public const STATUS_ENABLED = 1;
 
