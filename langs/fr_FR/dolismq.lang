@@ -30,6 +30,8 @@ DoliSMQDescriptionLong = Système de management de la qualité pour Dolibarr
 RedirectAfterConnection            = Redirection après la connexion au site
 RedirectAfterConnectionDescription = Redirection sur la page de bienvenue de DoliSMQ par défaut au lieu de celle de Dolibarr.
 EnableDolismq                      = Veuillez activer le module DoliSMQ pour accéder à cette page
+AdvancedTriggers                   = Contenu des événéments avancé
+AdvancedTriggersDescription        = Active une description détaillée des événements de DoliSMQ
 
 #
 # Questions
@@ -42,10 +44,11 @@ TheQuestion                   = la question
 QuestionList                  = Liste des questions
 NewQuestion                   = Nouvelle question
 ModifyQuestion                = Modifier une question
-LinkedQuestionsList           = Listes des questions liées
-addQuestionLink               = Question ajoutée à la fiche modèle :
-removeQuestionLink            = Question retirée de la fiche modèle :
-LockQuestion                  = La question %s est passée au status verrouillé
+LinkedQuestionsList           = Liste des questions liées
+addQuestionLink               = Question ajoutée au modèle de contrôle :
+removeQuestionLink            = Question retirée de le modèle de contrôle :
+LockQuestion                  = La question %s est passée au statut verrouillé
+LockQuestions                 = Toutes les questions sélectionnées sont passées au statut verrouillé
 ThereAre                      = Il y a
 YouAnswered                   = Vous avez répondu à
 On                            = sur
@@ -56,12 +59,12 @@ PhotoOk                       = Exemple de photo correcte
 PhotoKo                       = Exemple de photo incorrecte
 ShowPhoto                     = Afficher les photos
 AuthorizeAnswerPhoto          = Autoriser l'envoi de photos sur les réponses
-ShowPhotoTooltip              = Affiche les photos et la bibliothèque de média sur la question
+ShowPhotoTooltip              = Affiche les photos et la bibliothèque de médias sur la question
 AuthorizeAnswerPhotoTooltip   = Autorise l'envoi de photos sur les réponses de question
 NoteControl                   = Note publique
 EnterComment                  = Saisir les commentaires
-EnterCommentTooltip           = Saisi le commentaire sur les réponses de question
-ErrorQuestionUsedInSheet      = La question %s ne peut pas être supprimée, elle est utilisée dans une ou plusieurs fiches modèles.
+EnterCommentTooltip           = Saisit le commentaire sur les réponses de question
+ErrorQuestionUsedInSheet      = La question %s ne peut pas être supprimée, elle est utilisée dans une ou plusieurs modèles de contrôle.
 ErrorNoQuestionSelected       = Aucune question sélectionnée
 AddQuestionIntoCategory       = Assigner cette catégorie à la question
 ClonePhotos                   = Cloner les photos
@@ -84,40 +87,46 @@ ErrorDeleteAnswer             = Une erreur est survenue lors de la suppression d
 AnswerCreated                 = La réponse a été créée avec succès
 AnswerUpdated                 = La réponse a été mise à jour avec succès
 AnswerDeleted                 = La réponse a été supprimée avec succès
-AnswerMustBeCreated           = La question %s doit avoir au moins une réponse pour être verrouillé
+AnswerMustBeCreated           = La question %s doit avoir au moins une réponse pour passer au statut verrouillé
 
 #
 # Sheet
 #
 
+# Trigger - Déclencheur
+SheetAddQuestionTrigger = Question ajoutée
+
 # Data - Donnée
-Sheet       = Fiche modèle
-Sheets      = fiches modèles
-TheSheet    = la fiche modèle
-SheetList   = Liste des fiches modèles
-NewSheet    = Nouvelle fiche modèle
-ModifySheet = Modifier une fiche modèle
-AddSheet    = Ajouter une fiche modèle
-SheetLinked = Modèle de contrôle
-AllQuestionsMustHaveLocked = Tous les questions doivent être verrouillées pour verrouiller la fiche modèle
-NoLotForThisProduct = Pas de lot défini pour ce produit
-ModalAddPhoto = Bibliothèque de médias
-SheetManagement = Gestion des fiches modèles
-ActionsOnSheet = Événements liés au fiche modèle
-SheetsCategoriesArea = Espace des tags/catégories des fiches modèles
-ExtrafieldsSheetManagement = Gestion des attributs supplémentaires des fiches modèles
-SheetCategories = Catégories des fiches modèles
-GenerateCategories = Génération des catégories de fiche modèle par défaut
-AlreadyGenerated = Déjà généré(e)s
-NotCreated = Pas encore créé(e)s
-CategoriesGeneration = Cette option permet la génération des catégories par défaut des des fiches modèles. Les catégories créées seront : <br> - Qualité <br> - Hygiène <br> - Sécurité <br> - Environnement <br> - Sureté <br> - Réglementaire <br> - Bureau d'Etude <br> - Fournisseurs <br> - Commercial <br> - Production <br> - Méthodes <br> - Comptabilité <br> - Logistique <br> - Informatique <br>
-UniqueLinkedElement = Liaison unique sur les éléments de Dolibarr
-UniqueLinkedElementDescription = Lier un seul élément de Dolibarr à une fiche modèle
-ErrorMultipleLinkedElement = Erreur la fiche modèle est liée à plusieurs éléments <br> Veuillez désactiver l'option de configuration : "Liaison unique sur les éléments de Dolibarr" pour pouvoir faire cela
-ErrorSheetUsedInControl = La fiche modèle %s ne peut pas être supprimée, elle est utilisée dans un ou plusieurs contrôles.
-ConfigElementLinked = Vous n'avez pas configuré d'éléments liés, veuillez cliquer ici pour vous rendre sur la page de configuration
-ConfigSheet = Page de configuration des fiches modèles
-AddSheetIntoCategory = Assigner cette catégorie à la fiche modèle
+Sheet                          = Modèle de contrôle
+Sheets                         = modèles de contrôle
+TheSheet                       = le modèle de contrôle
+SheetList                      = Liste des modèles de contrôle
+NewSheet                       = Nouveau modèle de contrôle
+ModifySheet                    = Modifier un modèle de contrôle
+AddSheet                       = Ajouter un modèle de contrôle
+AllQuestionsMustHaveLocked     = Tous les questions doivent être verrouillées pour verrouiller le modèle de contrôle
+NoLotForThisProduct            = Pas de lot défini pour ce produit
+ModalAddPhoto                  = Bibliothèque de médias
+SheetManagement                = Gestion des modèles de contrôle
+ActionsOnSheet                 = Événements liés au modèle de contrôle
+SheetsCategoriesArea           = Espace des tags/catégories des modèles de contrôle
+ExtrafieldsSheetManagement     = Gestion des attributs supplémentaires des modèles de contrôle
+SheetCategories                = Catégories des modèles de contrôle
+GenerateCategories             = Génération des catégories de modèle de contrôle par défaut
+AlreadyGenerated               = Déjà généré(e)s
+NotCreated                     = Pas encore créé(e)s
+CategoriesGeneration           = Cette option permet la génération des catégories par défaut des des modèles de contrôle. Les catégories créées seront : <br> - Qualité <br> - Hygiène <br> - Sécurité <br> - Environnement <br> - Sureté <br> - Réglementaire <br> - Bureau d'Etude <br> - Fournisseurs <br> - Commercial <br> - Production <br> - Méthodes <br> - Comptabilité <br> - Logistique <br> - Informatique <br>
+UniqueLinkedElement            = Liaison unique sur les éléments de Dolibarr
+UniqueLinkedElementDescription = Lier un seul élément de Dolibarr à un modèle de contrôle
+ErrorSheetUsedInControl        = Le modèle de contrôle %s ne peut pas être supprimé, il est utilisé dans un ou plusieurs contrôles.
+ConfigElementLinked            = Vous n'avez pas configuré d'éléments liés, veuillez cliquer ici pour vous rendre sur la page de configuration
+ConfigSheet                    = Page de configuration des modèles de contrôle
+AddSheetIntoCategory           = Assigner cette catégorie au modèle de contrôle
+QuestionMandatorized           = La question %s a été rendue obligatoire
+QuestionUnMandatorized         = La question %s n'est plus obligatoire
+NoLinkedObjectSelected         = Veuillez sélectionner un type d'objet à contrôler
+
+
 
 # Tags - catégories
 Quality           = Qualité
@@ -141,129 +150,187 @@ ComputerScience   = Informatique
 
 # Trigger - Déclencheur
 ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
+ControlSetVerdictTrigger        = Verdict défini sur %s
+AnswerSaveTrigger               = Réponses sauvergardées
+ControlReminderTrigger          = %s doit être controlé(e) dans %s jours au plus tard
 
 # Data - Donnée
-Control = Contrôle
-ControlsMin = contrôles
-TheControl = le contrôle
-CreateControl = Créer un contrôle
-AddControl = Ajouter un contrôle
-NewControl = Nouveau contrôle
-ControlList = Liste des contrôles
-Controller = Contrôleur
-ControlDate = Date de contrôle
-Controls = Contrôles
-ControlMustBeDraft = Le contrôle doit être brouillon pour accéder à cette fonctionnalité
-ControlMustBeValidated = Le contrôle doit être validé pour le rouvrir
-ControlMustBeValidatedToLock = Le contrôle doit être validé et avoir un verdict pour le verrouiller
-ControlVerdictSelected = Le verdict a déjà été défini
-ControlMustBeValidatedToSetVerdict = Le contrôle doit être validé pour définir le verdict
-ControlMustBeValidatedToGenerated = Le contrôle doit être validé pour générer la fiche de contrôle
-SetOK/KO = Apte/Inapte
-Batch = Lot/Série
-BatchLinked = Lot/Série contrôlé
-VerdictControl = Choix du verdict
-ValidateControl = Valider le contrôle
-ReOpenControl = Rouvrir le contrôle
-LockControl = Verrouiller le contrôle
-ConfirmValidateControl = Êtes-vous sûr de vouloir valider le contrôle ?
-ConfirmReOpenControl = La réouverture supprime le verdict  du contrôle.
-ConfirmLockControl = Êtes-vous sûr de vouloir verrouiller le contrôle ? <br> Le verrouillage empêche toutes modifications du contrôle.
-ProjectLinked = Projet contrôlé
-ControlManagement = Gestion des contrôles
-ControlData = Données configurables des contrôles
-DisplayMedias = Afficher les médias dans le contrôle
-DisplayMediasDescription = Afficher les médias des questions dans le contrôle
-ChangeUserController = Changer l'utilisateur contrôleur
-TaskLinked = Tâche contrôlée
-ThirdPartyLinked = Tiers contrôlé
-ContactLinked = Contact/Adresse contrôlée
-InvoiceLinked = Facture contrôlée
-OrderLinked = Commande contrôlée
-ContractLinked = Contrat contrôlé
-TicketLinked = Ticket contrôlé
-LinkProduct = Activer le lien avec les produits
-LinkProductDescription = Permet la liaison entre les produits et les fiches modèles
-LinkProductLot = Activer le lien avec les numéros de lots/série
-LinkProductLotDescription = Permet la liaison entre les numéros de lots/série et les fiches modèles
-LinkUser = Activer le lien avec les utilisateurs
-LinkUserDescription = Permet la liaison entre les utilisateurs et les fiches modèles
-LinkThirdParty = Activer le lien avec les tiers
-LinkThirdPartyDescription = Permet la liaison entre les tiers et les fiches modèles
-LinkContact = Activer le lien avec les contacts/adresses
-LinkContactDescription = Permet la liaison entre les contacts/adresses et les fiches modèles
-LinkProject = Activer le lien avec les projets
-LinkProjectDescription = Permet la liaison entre les projets et les fiches modèles
-LinkTaskDoliSMQ = Activer le lien avec les tâches
-LinkTaskDescription = Permet la liaison entre les tâches et les fiches modèles
-LinkInvoice = Activer le lien avec les factures
-LinkInvoiceDescription = Permet la liaison entre les factures et les fiches modèles
-LinkOrder = Activer le lien avec les commandes
-LinkOrderDescription = Permet la liaison entre les commandes et les fiches modèles
-LinkContract = Activer le lien avec les contrats
-LinkContractDescription = Permet la liaison entre les contrats et les fiches modèles
-LinkTicket = Activer le lien avec les tickets
-LinkTicketDescription = Permet la liaison entre les tickets et les fiches modèles
-NoLotDefined = Pas de numéros de lots/série trouvé
-SelectAProductFirst = Sélectionnez d'abord un produit
-ActionsOnControl = Événements liés au contrôle
-RegulatoryScore = Score réglementaire
-ExtrafieldsControlManagement = Gestion des attributs supplémentaires des contrôles
-WithLastControl = Avec le dernier contrôle
-ControlMustBeLockedToSendEmail = Le contrôle doit être verrouillé pour pouvoir l'envoyer par e-mail
-SelectUser = Sélectionner un utilisateur
-ControlsCategoriesArea = Espace des tags/catégories des contrôles
-MediaGalleryQuestionAnswers = Galerie photo des réponses aux questions
-UseLargeSizeMedia = Utiliser la taille large des médias sur la galerie photo
-UseLargeSizeMediaDescription = Afficher la galerie photo en taille large plutôt que la taille moyenne
-ConfirmCloneControl = Êtes-vous sûr(e) de vouloir cloner ce contrôle ?
-UserLinked = Utilisateur contrôlé
-AddProduct = Créer produit ou service
-AddProductLot = Créer numéro de lot/série
-AddUser = Créer utilisateur
-AddControlIntoCategory = Assigner cette catégorie au contrôle
-ProductOrServiceLinked = Produit ou service contrôlé
-ConfigDatasInDoc = Configuration des médias dans les documents
-MediaSizeDocument = Taille des média
-MediaSizeDocumentDescription = Sélection de la taille des médias dans les documents
-MediaDocumentSizeSetWithSuccess = La taille des médias dans les documents a été modifiée avec succès
-MediaDocumentSizeSetWithFailure = Une erreur est survenue lors de la modification de la taille des médias dans les documents
-NoVerdict = Pas de verdict
-ControlsRepartition = Répartition des contrôles par verdict
-ControlsTagsRepartition = Répartition des contrôles par verdict par catégories
-ControlsByFiscalYear = Rapport des contrôles sur l'exercice fiscal
-OfControl = du contrôle
+Control                                 = Contrôle
+ControlsMin                             = contrôles
+TheControl                              = le contrôle
+CreateControl                           = Créer un contrôle
+AddControl                              = Ajouter un contrôle
+NewControl                              = Nouveau contrôle
+ControlList                             = Liste des contrôles
+Controller                              = Contrôleur
+ControlDate                             = Date de contrôle
+Controls                                = Contrôles
+ControlMustBeDraft                      = Le contrôle doit être brouillon pour accéder à cette fonctionnalité
+ControlMustBeValidated                  = Le contrôle doit être validé pour le rouvrir
+ControlMustBeValidatedToLock            = Le contrôle doit être validé et avoir un verdict pour le verrouiller
+ControlVerdictSelected                  = Le verdict a déjà été défini
+ControlMustBeValidatedToSetVerdict      = Le contrôle doit être validé pour définir le verdict
+ControlMustBeValidatedToGenerated       = Le contrôle doit être validé pour générer la fiche de contrôle
+SetOK/KO                                = Apte/Inapte
+Batch                                   = Lot/Série
+BatchLinked                             = Lot/Série contrôlé
+VerdictControl                          = Choix du verdict
+ValidateControl                         = Valider le contrôle
+ReOpenControl                           = Rouvrir le contrôle
+LockControl                             = Verrouiller le contrôle
+ConfirmValidateControl                  = Êtes-vous sûr de vouloir valider le contrôle ?
+ConfirmReOpenControl                    = La réouverture supprime le verdict  du contrôle.
+ConfirmLockControl                      = Êtes-vous sûr de vouloir verrouiller le contrôle ? <br> Le verrouillage empêchera toute modification du contrôle.
+ProjectLinked                           = Projet contrôlé
+ControlManagement                       = Gestion des contrôles
+ControlData                             = Données configurables des contrôles
+DisplayMedias                           = Afficher les médias dans le contrôle
+DisplayMediasDescription                = Afficher les médias des questions dans le contrôle
+ChangeUserController                    = Changer l'utilisateur contrôleur
+TaskLinked                              = Tâche contrôlée
+ThirdPartyLinked                        = Tiers contrôlé
+ContactLinked                           = Contact/Adresse contrôlée
+InvoiceLinked                           = Facture contrôlée
+OrderLinked                             = Commande contrôlée
+ContractLinked                          = Contrat contrôlé
+TicketLinked                            = Ticket contrôlé
+LinkProduct                             = Activer le lien avec les produits
+LinkProductDescription                  = Permet la liaison entre les produits et les modèles de contrôle
+LinkProductlot                          = Activer le lien avec les numéros de lots/série
+LinkProductlotDescription               = Permet la liaison entre les numéros de lots/série et les modèles de contrôle
+LinkUser                                = Activer le lien avec les utilisateurs
+LinkUserDescription                     = Permet la liaison entre les utilisateurs et les modèles de contrôle
+LinkThirdparty                          = Activer le lien avec les tiers
+LinkThirdpartyDescription               = Permet la liaison entre les tiers et les modèles de contrôle
+LinkContact                             = Activer le lien avec les contacts/adresses
+LinkContactDescription                  = Permet la liaison entre les contacts/adresses et les modèles de contrôle
+LinkProject                             = Activer le lien avec les projets
+LinkProjectDescription                  = Permet la liaison entre les projets et les modèles de contrôle
+LinkTask                                = Activer le lien avec les tâches
+LinkTaskDescription                     = Permet la liaison entre les tâches et les modèles de contrôle
+LinkInvoice                             = Activer le lien avec les factures
+LinkInvoiceDescription                  = Permet la liaison entre les factures et les modèles de contrôle
+LinkOrder                               = Activer le lien avec les commandes
+LinkOrderDescription                    = Permet la liaison entre les commandes et les modèles de contrôle
+LinkContract                            = Activer le lien avec les contrats
+LinkContractDescription                 = Permet la liaison entre les contrats et les modèles de contrôle
+LinkTicket                              = Activer le lien avec les tickets
+LinkTicketDescription                   = Permet la liaison entre les tickets et les modèles de contrôle
+LinkEntrepot                            = Activer le lien avec les entrepôts
+LinkEntrepotDescription                 = Permet la liaison entre les entrepôts et les modèles de contrôle
+LinkExpedition                          = Activer le lien avec les expéditons
+LinkExpeditionDescription               = Permet la liaison entre les expéditons et les modèles de contrôle
+LinkPropal                              = Activer le lien avec les propositions commerciales
+LinkPropalDescription                   = Permet la liaison entre les propositions commerciales et les modèles de contrôle
+NoLotDefined                            = Pas de numéro de lot/série trouvé
+SelectAProductFirst                     = Sélectionnez d'abord un produit
+ActionsOnControl                        = Événements liés au contrôle
+RegulatoryScore                         = Score réglementaire
+ExtrafieldsControlManagement            = Gestion des attributs supplémentaires des contrôles
+WithLastControl                         = Avec le dernier contrôle
+ControlMustBeLockedToSendEmail          = Le contrôle doit être verrouillé pour pouvoir envoyer par e-mail
+SelectUser                              = Sélectionner un utilisateur
+ControlsCategoriesArea                  = Espace des tags/catégories des contrôles
+MediaGalleryQuestionAnswers             = Galerie photo des réponses aux questions
+UseLargeSizeMedia                       = Utiliser la taille large des médias sur la galerie photo
+UseLargeSizeMediaDescription            = Afficher la galerie photo en taille large plutôt que la taille moyenne
+ConfirmCloneControl                     = Êtes-vous sûr(e) de vouloir cloner ce contrôle ?
+UserLinked                              = Utilisateur contrôlé
+AddProduct                              = Créer produit ou service
+AddProductLot                           = Créer numéro de lot/série
+AddUser                                 = Créer utilisateur
+AddControlIntoCategory                  = Assigner cette catégorie au contrôle
+ProductOrServiceLinked                  = Produit ou service contrôlé
+CanSetVerdict                           = Définir le verdict du contrôle
+ControlsRepartition                     = Répartition des contrôles par verdict
+ControlsTagsRepartition                 = Répartition des contrôles par verdict et par catégories
+ControlsByFiscalYear                    = Rapport des contrôles sur l'exercice fiscal
+OfControl                               = du contrôle
+OfAnswer                                = des réponses
+PublicControl                           = Interface publique de contrôle
+QcFrequency                             = Période de validité (en jours)
+ObjectLinked                            = Objet lié(s)
+NextControlDate                         = Prochaine date de contrôle
+NextControl                             = Prochain contrôle
+QuestionMustBeAnswered                  = Vous devez encore répondre à %s question(s) obligatoire(s)
+NoControlAnswersPhoto                   = Pas de photos sur les réponses du contrôle
+ControlEquipment                        = Moyens de contrôle
+ControlEquipmentList                    = Liste des moyens de contrôle utilisés
+AddEquipmentLink                        = Moyen de contrôle ajouté :
+UnlinkEquipmentLink                     = Moyen de contrôle retiré :
+ErrorNoEquipmentSelected                = Aucun moyen de contrôle sélectionné
+OptimalExpirationDate                   = DLUO/DDM
+OptimalExpirationDateDescription        = Date Limite d'Utilisation Optimale / Date de Durabilité Minimale
+LockControlOutdatedEquipment            = Permet de verrouiller le contrôle même si la DLUO/DDM est dépassée
+LockControlOutdatedEquipmentDescription = Le contrôle pourra être verouillé si la DLUO/DDM d'un ou plusieurs moyens de contrôle est dépassée
+ControlListsByNextControl               = Prochains contrôles à réaliser
+ControlEquipmentOutdated                = La DLUO/DDM d'un ou plusieurs moyens de contrôle est dépassée
+GoToEquipmentHours                      = Aller sur la page des moyens de contrôle
+ExpiredSince                            = Expiré depuis
+RemainingDays                           = Jours avant expiration
+NoEquipmentLinked                       = Aucun moyen de contrôle lié
+NoControlAnswersPhoto                   = Pas de photos sur les réponses du contrôle
+NeedObjectToControl                     = Vous devez sélectionner un objet à contrôler
+NeedFkSheet                             = Vous devez sélectionner une fiche modèle
+ControlReminder                         = Rappel d'événement de contrôle
+ControlReminderDescription              = Activer le rappel d'événement de contrôle
+ControlReminderFrequency                = Fréquence de rappel d'évènement de contrôle
+ControlReminderFrequencyDescription     = Choisir la fréquence de rappel d'évènement de contrôle <br> (par défaut : Un rappel 30 jours, 60 jours et 90 jours avant le contrôle)
+ControlReminderType                     = Type de rappel d'évènement de contrôle
+ControlReminderTypeDescription          = Choisir le type de rappel d'évènement de contrôle <br> (par défaut : navigateur)
+controlled                              = contrôlé(e)
+NextControlDateUpdated                  = La date de prochain contrôle a été mise à jour
+ErrorUpdatingNextControlDate            = La date de prochain contrôle n'a pas pu être mise à jour
+
 
 #
 # ControlDet
 #
 
 # Data - Donnée
-AnswerSaved = Les réponses ont été sauvegardées
-Repair = SAV
+AnswerSaved   = Les réponses ont été sauvegardées
+Repair        = SAV
 NotApplicable = NA
-AnswerPhoto = Photo
+AnswerPhoto   = Photo
 
 #
 # ControlDocument - Fiche de Contrôle
 #
 
 # Data - Donnée
-ControlDocument = Fiche de Contrôle
-ControlDocumentsMin = fiches de contôle
-ControlDocumentName = Afficher les médias dans la fiche de contrôle
-ControlDocumentDescription = Afficher les médias des questions dans la fiche de contrôle du document ODT
-ControlDocumentSentByMailTrigger = Email fiche de contrôle envoyée
-controldocument = fiche de controle
-controldocument.odt = Fiche de Contrôle
-controldocument_photo.odt = Fiche de Contrôle avec photos
-controldocument_photo = fiche de controle avec photos
+ControlDocument                         = Fiche de Contrôle
+Controldocument                         = Fiche de Contrôle
+ControlDocumentsMin                     = fiches de contôle
+ControlDocumentDisplayMedias            = Afficher les médias dans la fiche de contrôle
+ControlDocumentDisplayMediasDescription = Afficher les médias des questions dans la fiche de contrôle ODT
+ControlDocumentSentByMailTrigger        = Email fiche de contrôle envoyé
+controldocument                         = fiche de controle
+controldocument.odt                     = Fiche de Contrôle
+controldocument_photo.odt               = Fiche de Contrôle avec photos
+controldocument_photo                   = fiche de controle avec photos
+
+
+#
+# Tools - Outils
+#
+
+# Data - Donnée
+DataMigrationDoliSMQToFile        = Export des données de DoliSMQ
+DataMigrationExportSQA            = Export Fiche modèle/Question/Réponse vers ZIP
+DataMigrationExportSQADescription = Export des données des fiches modèles, questions et réponses en fichier ZIP
+DataMigrationExportQA             = Export Question/Réponse vers ZIP
+DataMigrationExportQADescription  = Export des données des questions et réponses en fichier ZIP
+DataMigrationFileToDolibarr       = Import des données vers DoliSMQ
+DataMigrationImportZIP            = Import fichier ZIP vers Dolibarr
+DataMigrationImportZIPDescription = Import des données des fiches modèles, des questions et des réponses d'un fichier ZIP
+ErrorArchiveNotWellFormattedZIP   = L'archive n'est pas pris en charge ou est vide. Vous devez joindre un archive d'import au format .zip
+ImportFinishWith                  = L'import des %s a été terminé avec %s erreur(s) sur %s importation(s)
 
 #
 # Other
 #
 
 # Data - Donnée
-SelectProducts = Sélectionner un produit
+SelectProducts           = Sélectionner un produit
 SelectProductsOrServices = Sélectionner un produit / service
-Contact = Contact/Adresse
+Contact                  = Contact/Adresse

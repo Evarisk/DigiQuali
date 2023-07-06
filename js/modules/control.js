@@ -31,10 +31,8 @@ window.dolismq.control.event = function() {
 	$( document ).on( 'click', '.answer:not(.disable)', window.dolismq.control.selectAnswer );
 	$( document ).on( 'input', '.input-answer:not(.disable)', window.dolismq.control.selectAnswer );
 	$( document ).on( 'keyup', '.question-comment', window.dolismq.control.writeComment );
+	$( document ).on( 'change', '.control-table.linked-objects select', window.dolismq.control.disableOtherSelectors );
 	$( document ).on( 'keyup', '.question-comment', window.dolismq.control.showCommentUnsaved );
-	$( document ).on( 'change', '#fk_product', window.dolismq.control.reloadProductLot );
-	$( document ).on( 'change', '#fk_project', window.dolismq.control.reloadTask );
-	$( document ).on( 'change', '#fk_soc', window.dolismq.control.reloadContact );
 	$( document ).on( 'click', '.validateButton', window.dolismq.control.getAnswerCounter);
 	$( document ).on( 'change', '#fk_sheet', window.dolismq.control.showSelectObjectLinked);
 	$( document ).on( 'click', '.toggleControlInfo', window.dolismq.control.toggleControlInfo );
@@ -52,11 +50,12 @@ window.dolismq.control.event = function() {
 window.dolismq.control.selectAnswer = function ( event ) {
 	let answerValue = $(this).hasClass('answer') ? $(this).attr('value') : $(this).val()
 	let answer = '';
+	let questionElement = $(this).closest('.select-answer.answer-cell')
 	if ($(this).closest('.table-cell').hasClass('select-answer')) {
 		if ($(this).hasClass('multiple-answers')) {
 			$(this).closest('span').toggleClass( 'active' );
 			let selectedValues = []
-			$('.multiple-answers.active').each(function() {
+			questionElement.find('.multiple-answers.active').each(function() {
 				selectedValues.push($(this).attr('value'))
 			})
 			answer = selectedValues
@@ -92,19 +91,38 @@ window.dolismq.control.writeComment = function ( event ) {
 
 	let postName = $(this).closest('.table-cell').find('.question-comment').attr('name')
 	let postValue = $(this).closest('.table-cell').find('.question-comment').val()
-	//let actualSavePost = $(this).closest('.tabBar').find('.saveButton').attr('href')
 	let actualValidatePost = $(this).closest('.tabBar').find('.validateButton').attr('href')
 
-	//if (actualSavePost.match('&' + postName + '=')) {
-	//	actualSavePost = actualSavePost.split('&' + postName + '=')[0]
-	//}
 	if (actualValidatePost.match('&' + postName + '=')) {
 		actualValidatePost = actualValidatePost.split('&' + postName + '=')[0]
 	}
 
-	//$(this).closest('.tabBar').find('.saveButton').attr('href', actualSavePost + '&' + postName + '=' + postValue)
 	$(this).closest('.tabBar').find('.validateButton').attr('href', actualValidatePost + '&' + postName + '=' + postValue)
 };
+
+/**
+ * Disable selectors on control object selection.
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.dolismq.control.disableOtherSelectors = function ( event ) {
+	var controlForm = document.getElementById('createControlForm');
+	var formData = new FormData(controlForm);
+
+	let selectorId = $(this).attr('id');
+	let selectorData = formData.get(selectorId)
+
+	if (selectorData >= 0) {
+		$('.control-table.linked-objects').find('select').not('#' + selectorId).attr('disabled', 1);
+	} else {
+		$('.control-table.linked-objects').find('select').not('#' + selectorId).removeAttr('disabled');
+	}
+};
+
 
 /**
  * Show a comment for a control question if focus out.
@@ -139,108 +157,6 @@ window.dolismq.control.updateButtonsStatus = function (  ) {
 
 	$('#validateButton').removeClass('butAction')
 	$('#validateButton').addClass('butActionRefused')
-};
-
-/**
- * Write a comment for a control question.
- *
- * @since   1.0.0
- * @version 1.0.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.dolismq.control.reloadProductLot = function ( event ) {
-	let token = $('.id-container').find('input[name="token"]').val();
-	let action = '?action=create'
-
-	var controlForm = document.getElementById('createControlForm');
-	var formData = new FormData(controlForm);
-
-	let sheetId = formData.get('fk_sheet')
-	let productId = formData.get('fk_product')
-
-	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_product=' + productId
-	$.ajax({
-		url: urlToGo,
-		type: "POST",
-		processData: false,
-		contentType: false,
-		success: function ( resp ) {
-			$('.lot-container').html($(resp).find('.lot-content'))
-		},
-		error: function ( ) {
-		}
-	});
-	//$(this).closest('.control-table').find('.lot-container').load(document.URL+'&productRef='+productRef + ' .lot-content')
-};
-
-/**
- * Write a comment for a control question.
- *
- * @since   1.0.0
- * @version 1.0.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.dolismq.control.reloadTask = function ( event ) {
-
-	var controlForm = document.getElementById('createControlForm');
-	var formData = new FormData(controlForm);
-
-	let sheetId = formData.get('fk_sheet')
-	let projectId = formData.get('fk_project')
-
-	let token = $('.id-container').find('input[name="token"]').val();
-	let action = '?action=create'
-	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_project=' + projectId
-
-	$.ajax({
-		url: urlToGo,
-		type: "POST",
-		processData: false,
-		contentType: false,
-		success: function ( resp ) {
-			$('.task-container').html($(resp).find('.task-content'))
-		},
-		error: function ( ) {
-		}
-	});
-};
-
-/**
- * Reload contact selector after company selection.
- *
- * @since   1.0.0
- * @version 1.0.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.dolismq.control.reloadContact = function ( event ) {
-
-	var controlForm = document.getElementById('createControlForm');
-	var formData = new FormData(controlForm);
-
-	let socId = formData.get('fk_soc')
-	let sheetId = formData.get('fk_sheet')
-
-	let token = $('.id-container').find('input[name="token"]').val();
-	let action = '?action=create'
-	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&token=' + token + '&fk_sheet=' + sheetId + '&fk_soc=' + socId
-
-	$.ajax({
-		url: urlToGo,
-		type: "POST",
-		processData: false,
-		contentType: false,
-		success: function ( resp ) {
-			$('#fk_contact').html($(resp).find('#fk_contact').children())
-		},
-		error: function ( ) {
-		}
-	});
 };
 
 /**

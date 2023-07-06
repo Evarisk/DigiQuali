@@ -36,6 +36,7 @@ require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 
 // Load DoliSMQ libraries.
 require_once __DIR__ . '/../lib/dolismq.lib.php';
+require_once __DIR__ . '/../lib/dolismq_sheet.lib.php';
 require_once __DIR__ . '/../class/sheet.class.php';
 
 // Global variables definitions.
@@ -45,10 +46,10 @@ global $conf, $db, $langs, $user;
 saturne_load_langs(['admin', 'accountancy']);
 
 // Get parameters
-$action     = GETPOST('action', 'alpha');
-$backtopage = GETPOST('backtopage', 'alpha');
-$value      = GETPOST('value', 'alpha');
-$attrname   = GETPOST('attrname', 'alpha');
+$action      = GETPOST('action', 'alpha');
+$backtopage  = GETPOST('backtopage', 'alpha');
+$value       = GETPOST('value', 'alpha');
+$attrname    = GETPOST('attrname', 'alpha');
 
 // Initialize technical objects.
 $object = new Sheet($db);
@@ -132,6 +133,11 @@ if ($action == 'generateCategories') {
 	$tags->type  = 'sheet';
 	$tags->create($user);
 
+	$tags->label = $langs->transnoentities('Default');
+	$tags->type  = 'sheet';
+	$tags->create($user);
+
+	dolibarr_set_const($db, 'DOLISMQ_SHEET_DEFAULT_TAG', $tags->id, 'integer', 0, '', $conf->entity);
 	dolibarr_set_const($db, 'DOLISMQ_SHEET_TAGS_SET', 1, 'integer', 0, '', $conf->entity);
 }
 
@@ -153,68 +159,19 @@ print dol_get_fiche_head($head, $object->element, $title, -1, 'dolismq_color@dol
 
 require_once __DIR__ . '/../../saturne/core/tpl/admin/object/object_numbering_module_view.tpl.php';
 
-$constArray['dolismq'] = [
-    'UniqueLinkedElement' => [
-        'name'        => 'UniqueLinkedElement',
-        'description' => 'UniqueLinkedElementDescription',
-        'code'        => 'DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT',
-    ],
-    'LinkProduct' => [
-        'name'        => 'LinkProduct',
-        'description' => 'LinkProductDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_PRODUCT',
-    ],
-    'LinkProductLot' => [
-        'name'        => 'LinkProductLot',
-        'description' => 'LinkProductLotDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_PRODUCTLOT',
-    ],
-    'LinkUser' => [
-        'name'        => 'LinkUser',
-        'description' => 'LinkUserDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_USER',
-    ],
-    'LinkThirdParty' => [
-        'name'        => 'LinkThirdParty',
-        'description' => 'LinkThirdPartyDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_THIRDPARTY',
-    ],
-    'LinkContact' => [
-        'name'        => 'LinkContact',
-        'description' => 'LinkContactDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_CONTACT',
-    ],
-    'LinkProject' => [
-        'name'        => 'LinkProject',
-        'description' => 'LinkProjectDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_PROJECT',
-    ],
-    'LinkTaskDoliSMQ' => [
-        'name'        => 'LinkTaskDoliSMQ',
-        'description' => 'LinkTaskDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_TASK',
-    ],
-    'LinkInvoice' => [
-        'name'        => 'LinkInvoice',
-        'description' => 'LinkInvoiceDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_INVOICE',
-    ],
-    'LinkOrder' => [
-        'name'        => 'LinkOrder',
-        'description' => 'LinkOrderDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_ORDER',
-    ],
-    'LinkContract' => [
-        'name'        => 'LinkContract',
-        'description' => 'LinkContractDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_CONTRACT',
-    ],
-    'LinkTicket' => [
-        'name'        => 'LinkTicket',
-        'description' => 'LinkTicketDescription',
-        'code'        => 'DOLISMQ_SHEET_LINK_TICKET',
-    ],
+$constArray[$moduleNameLowerCase] = [
+	'UniqueLinkedElement' => [
+		'name'        => 'UniqueLinkedElement',
+		'description' => 'UniqueLinkedElementDescription',
+		'code'        => 'DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT',
+	],
 ];
+
+$linkableObjects = get_sheet_linkable_objects();
+
+if (is_array($linkableObjects) && !empty($linkableObjects)) {
+	$constArray[$moduleNameLowerCase] = array_merge($constArray[$moduleNameLowerCase], $linkableObjects);
+}
 
 require_once __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
 

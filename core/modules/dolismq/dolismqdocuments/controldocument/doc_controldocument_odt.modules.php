@@ -37,6 +37,7 @@ require_once __DIR__ . '/../../../../../../saturne/core/modules/saturne/modules_
 
 // Load DoliSMQ libraries.
 require_once __DIR__ . '/mod_controldocument_standard.php';
+require_once __DIR__ . '/../../../../../lib/dolismq_sheet.lib.php';
 
 require_once __DIR__ . '/../../../../../class/question.class.php';
 require_once __DIR__ . '/../../../../../class/sheet.class.php';
@@ -172,7 +173,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
 
             if ($foundTagForLines) {
                 if (!empty($object)) {
-                    $object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet');
+                    $object->fetchObjectLinked($object->fk_sheet, 'dolismq_sheet','', '', 'OR', 1, 'sourcetype', 0);
                     $questionIds = $object->linkedObjectsIds;
                     if (is_array($questionIds['dolismq_question']) && !empty($questionIds['dolismq_question'])) {
                         $controldet = new ControlLine($this->db);
@@ -195,7 +196,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
                                 $answerResult = $questionAnswerLine->answer;
 
                                 $question->fetch($questionAnswerLine->fk_question);
-                                $answerList = $answer->fetchAll('ASC', 'position', '', '', ['fk_question' => $questionAnswerLine->fk_question]);
+                                $answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $questionAnswerLine->fk_question]);
 
                                 $answersArray = [];
                                 if (is_array($answerList) && !empty($answerList)) {
@@ -245,6 +246,53 @@ class doc_controldocument_odt extends SaturneDocumentModel
                         $odfHandler->mergeSegment($listLines);
                     }
                 }
+            }
+
+            // Get equipment.
+            $foundTagForLines = 1;
+            try {
+                $listLines = $odfHandler->setSegment('equipment');
+            } catch (OdfException $e) {
+                // We may arrive here if tags for lines not present into template.
+                $foundTagForLines = 0;
+                $listLines = '';
+                dol_syslog($e->getMessage());
+            }
+
+            if ($foundTagForLines) {
+                if (!empty($object)) {
+                    $controlEquipment  = new ControlEquipment($this->db);
+                    $product           = new Product($this->db);
+
+					$controlEquipments = $controlEquipment->fetchFromParent($object->id);
+					$controlEquipments = ((!is_array($controlEquipments) || empty($controlEquipments)) ? [$controlEquipment] : $controlEquipments);
+
+					foreach ($controlEquipments as $equipment) {
+						$product->fetch($equipment->fk_product);
+						$jsonArray = json_decode($equipment->json);
+
+						$creationDate   = strtotime($product->date_creation);
+						$expirationDate = dol_time_plus_duree($creationDate, $jsonArray->lifetime, 'd');
+
+						if (!empty($expirationDate)) {
+							$remainingDays  = num_between_day(dol_now(), $expirationDate, 1) ?: '- ' . num_between_day($expirationDate, dol_now(), 1);
+							$remainingDays .= ' ' . strtolower(dol_substr($langs->trans("Day"), 0, 1)) . '.';
+						} else {
+							$remainingDays = $langs->trans('NoData');
+						}
+
+						$tmpArray['equipment_ref']         = $equipment->ref;
+						$tmpArray['product_ref']           = $product->ref;
+						$tmpArray['equipment_label']       = $jsonArray->label;
+						$tmpArray['equipment_description'] = $jsonArray->description;
+						$tmpArray['dluo']                  = dol_print_date($expirationDate, 'day');
+						$tmpArray['lifetime']              = $remainingDays;
+						$tmpArray['qc_frequency']          = $jsonArray->qc_frenquecy;
+
+						$this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
+					}
+					$odfHandler->mergeSegment($listLines);
+				}
             }
 
             // Get answer photos.
@@ -319,7 +367,6 @@ class doc_controldocument_odt extends SaturneDocumentModel
         }
 
         $outputLangs->loadLangs(['products', 'bills', 'orders', 'contracts', 'projects', 'companies']);
-
         $sheet      = new Sheet($this->db);
         $usertmp    = new User($this->db);
         $projecttmp = new Project($this->db);
@@ -328,30 +375,39 @@ class doc_controldocument_odt extends SaturneDocumentModel
         $usertmp->fetch($object->fk_user_controller);
         $projecttmp->fetch($object->projectid);
 
-        $object->fetchObjectLinked('', '', '', 'dolismq_control');
-        foreach ($object->linkedObjectsIds as $key => $linkedObjects) {
-            // Special case
-            if ($key == 'productbatch') {
-                $productlot = new Productlot($this->db);
-                $productlot->fetch(array_shift($object->linkedObjectsIds['productbatch']));
-                $tmpArray['object_label_ref'] .= (!empty($productlot->batch) ? $outputLangs->transnoentities('Batch') . ' : ' . $productlot->batch . chr(0x0A) : '');
-            } elseif (!empty($object->linkedObjects[$key])) {
-                $linkedObject = array_values($object->linkedObjects[$key])[0];
-                $objectInfo = [
-                    'product'      => ['title' => 'Product',    'value' => $linkedObject->ref],
-                    'user'         => ['title' => 'User',       'value' => strtoupper($linkedObject->lastname) . ' ' . $linkedObject->firstname],
-                    'societe'      => ['title' => 'ThirdParty', 'value' => $linkedObject->name],
-                    'contact'      => ['title' => 'Contact',    'value' => strtoupper($linkedObject->lastname) . ' ' . $linkedObject->firstname],
-                    'project'      => ['title' => 'Project',    'value' => $linkedObject->ref . ' - ' . $linkedObject->title],
-                    'project_task' => ['title' => 'Task',       'value' => $linkedObject->ref . ' - ' . $linkedObject->label],
-                    'facture'      => ['title' => 'Bill',       'value' => $linkedObject->ref],
-                    'commande'     => ['title' => 'Order',      'value' => $linkedObject->ref],
-                    'contrat'      => ['title' => 'Contract',   'value' => $linkedObject->ref],
-                    'ticket'       => ['title' => 'Ticket',     'value' => $linkedObject->ref],
-                ];
-                $tmpArray['object_label_ref'] .= $outputLangs->transnoentities($objectInfo[$key]['title']) . ' : ' . $objectInfo[$key]['value'] . chr(0x0A);
-            }
-        }
+        $object->fetchObjectLinked('', '', $object->id, 'dolismq_control',  'OR', 1, 'sourcetype', 0);
+		$linkableElements = get_sheet_linkable_objects();
+
+		if (is_array($linkableElements) && !empty($linkableElements)) {
+			foreach ($linkableElements as $linkableElement) {
+				$nameField[$linkableElement['link_name']] = $linkableElement['name_field'];
+				$objectInfo[$linkableElement['link_name']] = [
+					'title' => $linkableElement['langs'],
+					'className' => $linkableElement['className']
+				];
+			}
+			foreach ($object->linkedObjectsIds as $linkedObjectType => $linkedObjectsIds) {
+				$className = $objectInfo[$linkedObjectType]['className'];
+				$linkedObject = new $className($this->db);
+				$result = $linkedObject->fetch(array_shift($object->linkedObjectsIds[$linkedObjectType]));
+				if ($result > 0) {
+					$objectName = '';
+					$objectNameField = $nameField[$linkedObjectType];
+					if (strstr($objectNameField, ',')) {
+						$nameFields = explode(', ', $objectNameField);
+						if (is_array($nameFields) && !empty($nameFields)) {
+							foreach ($nameFields as $subnameField) {
+								$objectName .= $linkedObject->$subnameField . ' ';
+							}
+						}
+					} else {
+						$objectName = $linkedObject->$objectNameField;
+					}
+					$tmpArray['object_label_ref'] .= $objectName . chr(0x0A);
+					$tmpArray['object_type'] = $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ';
+				}
+			}
+		}
 
         $tmpArray['control_ref']      = $object->ref;
         $tmpArray['object_label_ref'] = rtrim($tmpArray['object_label_ref'], chr(0x0A));

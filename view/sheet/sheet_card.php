@@ -60,6 +60,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 $object      = new Sheet($db);
 $question    = new Question($db);
 $extrafields = new ExtraFields($db);
+$category    = new Categorie($db);
 $refSheetMod = new $conf->global->DOLISMQ_SHEET_ADDON($db);
 
 // View objects
@@ -121,8 +122,8 @@ if (empty($reshook)) {
 			$questionIds     = $object->linkedObjectsIds['dolismq_question'];
 			$object->updateQuestionsPosition($questionIds);
 
+			$object->call_trigger('SHEET_ADDQUESTION', $user);
 			setEventMessages($langs->trans('addQuestionLink') . ' ' . $question->ref, array());
-
 			header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 			exit;
 		} else {
@@ -147,14 +148,25 @@ if (empty($reshook)) {
 		exit;
 	}
 
-	if ($action == 'add' && $permissiontoadd) {
+	if ($action == 'add' && $permissiontoadd && !$cancel) {
 		if (is_array(GETPOST('linked_object')) && !empty(GETPOST('linked_object'))) {
 			foreach (GETPOST('linked_object') as $linked_object_type) {
 				$showArray[$linked_object_type] = 1;
 			}
+		} else {
+			setEventMessages($langs->trans('NoLinkedObjectSelected'), null, 'errors');
+			if (dol_strlen(GETPOST('label')) > 0) {
+				header("Location: " . $_SERVER['PHP_SELF'] . '?action=create&label=' . GETPOST('label'));
+				exit;
+			}
 		}
-
 		$object->element_linked = json_encode($showArray);
+
+		if (empty(GETPOST('categories', 'array'))) {
+			$category->fetch($conf->global->DOLISMQ_SHEET_DEFAULT_TAG);
+			$defaultCategory[] = $category->id;
+			$_POST['categories'] = $defaultCategory;
+		}
 	}
 
 	if ($action == 'update' && $permissiontoadd) {
@@ -163,11 +175,15 @@ if (empty($reshook)) {
 				$showArray[$linked_object_type] = 1;
 			}
 		}
-
 		$object->element_linked = json_encode($showArray);
 
-		$categories = GETPOST('categories', 'array');
-		$object->setCategories(GETPOST('categories', 'array'));
+		if (empty(GETPOST('categories', 'array'))) {
+			$category->fetch($conf->global->DOLISMQ_SHEET_DEFAULT_TAG);
+			$defaultCategory[] = $category->id;
+			$_POST['categories'] = $defaultCategory;
+		} else {
+			$object->setCategories(GETPOST('categories', 'array'));
+		}
 	}
 
 	if ($action == 'moveLine' && $permissiontoadd) {
@@ -265,6 +281,35 @@ if (empty($reshook)) {
             }
         }
     }
+
+    if ($action == 'set_mandatory' && $permissiontoadd) {
+        $questionId = GETPOST('questionId', 'int');
+		$questionRef = GETPOST('questionRef', 'alpha');
+
+        if ($questionId > 0) {
+            $mandatoryArray = dol_strlen($object->mandatory_questions) > 0 ? json_decode($object->mandatory_questions, true) : [];
+
+            if (in_array($questionId, $mandatoryArray)) {
+                $mandatoryArray = array_diff($mandatoryArray, [$questionId]);
+				$successMessage = $langs->trans('QuestionUnMandatorized', $questionRef);
+			} else {
+				$mandatoryArray[] = $questionId;
+				$successMessage = $langs->trans('QuestionMandatorized', $questionRef);
+			}
+
+            $object->mandatory_questions = json_encode($mandatoryArray);
+            $result = $object->update($user);
+
+			if ($result > 0) {
+				setEventMessage($successMessage);
+				$urltogo = str_replace('__ID__', $result, $backtopage);
+				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
+				header('Location: ' . $urltogo . '#questionList');
+			} else {
+                setEventMessages('', $object->errors, 'errors');
+            }
+        }
+    }
 }
 
 /*
@@ -274,63 +319,7 @@ if (empty($reshook)) {
 $title    = $langs->trans('Sheet');
 $help_url = 'FR:Module_DoliSMQ';
 
-$elementArray = array(
-	'product' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_PRODUCT,
-		'langs' => 'ProductOrService',
-		'picto' => 'product'
-	),
-	'productlot' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT,
-		'langs' => 'Batch',
-		'picto' => 'lot'
-	),
-	'user' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_USER,
-		'langs' => 'User',
-		'picto' => 'user'
-	),
-	'thirdparty' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY,
-		'langs' => 'ThirdParty',
-		'picto' => 'building'
-	),
-	'contact' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_CONTACT,
-		'langs' => 'Contact',
-		'picto' => 'address'
-	),
-	'project' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_PROJECT,
-		'langs' => 'Project',
-		'picto' => 'project'
-	),
-	'task' => array(
-		'conf' => $conf->global->DOLISMQ_SHEET_LINK_TASK,
-		'langs' => 'Task',
-		'picto' => 'projecttask'
-	),
-    'invoice' => array(
-        'conf' => $conf->global->DOLISMQ_SHEET_LINK_INVOICE,
-        'langs' => 'Invoice',
-        'picto' => 'bill'
-    ),
-    'order' => array(
-        'conf' => $conf->global->DOLISMQ_SHEET_LINK_ORDER,
-        'langs' => 'Order',
-        'picto' => 'order'
-    ),
-    'contract' => array(
-        'conf' => $conf->global->DOLISMQ_SHEET_LINK_CONTRACT,
-        'langs' => 'Contract',
-        'picto' => 'contract'
-    ),
-    'ticket' => array(
-        'conf' => $conf->global->DOLISMQ_SHEET_LINK_TICKET,
-        'langs' => 'Ticket',
-        'picto' => 'ticket'
-    ),
-);
+$elementArray = get_sheet_linkable_objects();
 
 saturne_header(0,'', $title, $help_url);
 
@@ -360,10 +349,22 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	//FK Element
-	if (empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCT) && empty($conf->global->DOLISMQ_SHEET_LINK_PRODUCTLOT) && empty($conf->global->DOLISMQ_SHEET_LINK_USER)
-        && empty($conf->global->DOLISMQ_SHEET_LINK_THIRDPARTY) && empty($conf->global->DOLISMQ_SHEET_LINK_CONTACT) && empty($conf->global->DOLISMQ_SHEET_LINK_PROJECT)
-        && empty($conf->global->DOLISMQ_SHEET_LINK_TASK) && empty($conf->global->DOLISMQ_SHEET_LINK_INVOICE) && empty($conf->global->DOLISMQ_SHEET_LINK_ORDER)
-        && empty($conf->global->DOLISMQ_SHEET_LINK_CONTRACT) && empty($conf->global->DOLISMQ_SHEET_LINK_TICKET)) {
+	$linkableObject = 0;
+	foreach ($elementArray as $key => $element) {
+		if (!empty($element['conf'])) {
+			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
+			$linkedObjects = empty(GETPOST("linked_object")) ? [] : GETPOST("linked_object");
+			if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
+				print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
+			} else {
+				print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
+			}
+			print '</td></tr>';
+			$linkableObject++;
+		}
+	}
+
+	if ($linkableObject == 0) {
 		print '<div class="wpeo-notice notice-warning notice-red">';
 		print '<div class="notice-content">';
 		print '<a href="' . dol_buildpath('/custom/dolismq/admin/sheet.php', 2) . '">' . '<b><div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . ' : ' . $langs->trans('ConfigSheet') . '</b></a>';
@@ -372,24 +373,12 @@ if ($action == 'create') {
 		print '</div>';
 	}
 
-	foreach ($elementArray as $key => $element) {
-		if (!empty($element['conf'])) {
-			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
-            $linkedObjects = empty(GETPOST("linked_object")) ? [] : GETPOST("linked_object");
-            if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
-                print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
-            } else {
-                print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
-            }
-			print '</td></tr>';
-		}
-	}
-
 	if (!empty($conf->categorie->enabled)) {
 		// Categories
 		print '<tr><td>'.$langs->trans("Categories").'</td><td>';
 		$cate_arbo = $form->select_all_categories('sheet', '', 'parent', 64, 0, 1);
 		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $cate_arbo, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=sheet&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print "</td></tr>";
 	}
 
@@ -468,7 +457,8 @@ if (($id || $ref) && $action == 'edit') {
 				$arrayselected[] = $cat->id;
 			}
 		}
-		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $cate_arbo, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $cate_arbo, $object->getCategoriesCommon(436301002), '', 0, 'maxwidth500 widthcentpercentminusx');
+        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=sheet&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print "</td></tr>";
 	}
 
@@ -619,7 +609,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// QUESTIONS LINES
 	print '<div class="div-table-responsive-no-min">';
-	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '');
+	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '', 0, 'questionList');
 	print '<table id="tablelines" class="centpercent noborder noshadow">';
 
 	global $forceall, $forcetoshowtitlelines;
@@ -643,6 +633,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>' . $langs->trans('Label') . '</td>';
 	print '<td>' . $langs->trans('Description') . '</td>';
 	print '<td>' . $langs->trans('QuestionType') . '</td>';
+  	print '<td class="center">' . $langs->trans('Mandatory') . '</td>';
 	print '<td class="center">' . $langs->trans('PhotoOk') . '</td>';
 	print '<td class="center">' . $langs->trans('PhotoKo') . '</td>';
 	print '<td>' . $langs->trans('Status') . '</td>';
@@ -656,7 +647,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$item = $question;
 			$item->fetch($questionId);
 
-			print '<tr id="'. $item->id .'" class="line-row oddeven">';
+			print '<tr id="' . $item->id . '" class="line-row oddeven">';
 			print '<td>';
 			print $item->getNomUrl();
 			print '</td>';
@@ -673,16 +664,24 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print $langs->transnoentities($item->type);
 			print '</td>';
 
+			// Mandatory -- Rendre obligatoire
+			$mandatoryArray = json_decode($object->mandatory_questions, true);
+
 			print '<td class="center">';
-			if (dol_strlen($item->photo_ok) > 0) {
-				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ok', 1, '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $item->ref . '/photo_ok', $item, 'photo_ok', 0, 0, 1,1);
-			}
+			print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '">';
+			print '<input type="hidden" name="token" value="' . newToken() . '">';
+			print '<input type="hidden" name="action" value="set_mandatory">';
+			print '<input type="hidden" name="questionId" value="' . $item->id . '">';
+			print '<input type="hidden" name="questionRef" value="' . $item->ref . '">';
+			print '<input type="checkbox" onchange="submit();" id="mandatory" name="mandatory" value="' . $item->id . '"' . (in_array($item->id, $mandatoryArray) ? ' checked ' : '') . '" ' . ($object->status < Sheet::STATUS_LOCKED ? '>' : 'disabled>');
+			print '</form>';
 			print '</td>';
 
 			print '<td class="center">';
-			if (dol_strlen($item->photo_ko) > 0) {
-				print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ko', 1, '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $item->ref . '/photo_ko', $item, 'photo_ko', 0, 0, 1,1);
-			}
+			print saturne_show_medias_linked('dolismq',$conf->dolismq->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ok',1,'',0,0,0,50,50,0,0,0,'question/' . $item->ref . '/photo_ok',$item,'photo_ok',0,0,1,1);
+			print '</td>';
+			print '<td>';
+			print saturne_show_medias_linked('dolismq',$conf->dolismq->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ko',1,'',0,0,0,50,50,0,0,0,'question/' . $item->ref . '/photo_ko',$item,'photo_ko',0,0,1,1);
 			print '</td>';
 
 			print '<td>';
@@ -736,6 +735,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</td>';
 		print '<td>';
 		print '</td>';
+		print '<td>';
+		print '</td>';
 		print '</tr>';
 
 		print '</form>';
@@ -748,7 +749,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	$maxEvent = 10;
 
-	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliMeet&object_type=' . $object->element);
+	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element);
 
 	// List of actions on element
 	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
@@ -758,7 +759,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '</div>';
 	print dol_get_fiche_end();
 }
-
 // End of page
 llxFooter();
 $db->close();

@@ -259,7 +259,7 @@ class ActionsDolismq
 						$out .= '<tr class="oddeven"><td colspan="2" class="opacitymedium">'.$langs->trans("ThisCategoryHasNoItems").'</td></tr>';
 					}
 				}
-				
+
 				$out .= '</table>';
 			} ?>
 
@@ -325,6 +325,88 @@ class ActionsDolismq
             }
 
             $this->resprints = $morehtmlref;
+        }
+
+        return 0; // or return 1 to replace standard code.
+    }
+
+    /**
+     * Overloading the printMainArea function : replacing the parent's function with the one below.
+     *
+     * @param  array $parameters Hook metadatas (context, etc...).
+     * @return int               0 < on error, 0 on success, 1 to replace standard code.
+     */
+    public function printMainArea(array $parameters): int
+    {
+        global $conf, $mysoc;
+
+        // Do something only for the current context.
+        if ($parameters['currentcontext'] == 'publiccontrol') {
+            if (!empty($conf->global->SATURNE_SHOW_COMPANY_LOGO)) {
+                // Define logo and logoSmall.
+                $logoSmall = $mysoc->logo_small;
+                $logo      = $mysoc->logo;
+                // Define urlLogo.
+                $urlLogo = '';
+                if (!empty($logoSmall) && is_readable($conf->mycompany->dir_output . '/logos/thumbs/' . $logoSmall)) {
+                    $urlLogo = DOL_URL_ROOT . '/viewimage.php?modulepart=mycompany&entity=' . $conf->entity . '&file=' . urlencode('logos/thumbs/' . $logoSmall);
+                } elseif (!empty($logo) && is_readable($conf->mycompany->dir_output . '/logos/' . $logo)) {
+                    $urlLogo = DOL_URL_ROOT . '/viewimage.php?modulepart=mycompany&entity=' . $conf->entity . '&file=' . urlencode('logos/' . $logo);
+                }
+                // Output html code for logo.
+                if ($urlLogo) {
+                    print '<div class="center signature-logo">';
+                    print '<img src="' . $urlLogo . '">';
+                    print '</div>';
+                }
+                print '<div class="underbanner clearboth"></div>';
+            }
+        }
+
+        return 0; // or return 1 to replace standard code.
+    }
+
+    /**
+     * Overloading the SaturneAdminDocumentData function : replacing the parent's function with the one below.
+     *
+     * @param  array $parameters Hook metadatas (context, etc...).
+     * @return int               0 < on error, 0 on success, 1 to replace standard code.
+     */
+    public function SaturneAdminDocumentData($parameters)
+    {
+        // Do something only for the current context.
+        if ($parameters['currentcontext'] == 'dolismqadmindocuments') {
+            $types = [
+                'ControlDocument' => [
+                    'documentType' => 'controldocument',
+                    'picto'        => 'fontawesome_fa-tasks_fas_#d35968'
+                ]
+            ];
+            $this->results = $types;
+        }
+
+        return 0; // or return 1 to replace standard code.
+    }
+
+    /**
+     * Overloading the SaturneAdminObjectConst function : replacing the parent's function with the one below.
+     *
+     * @param  array $parameters Hook metadatas (context, etc...).
+     * @return int               0 < on error, 0 on success, 1 to replace standard code.
+     */
+    public function SaturneAdminObjectConst(array $parameters): int
+    {
+        // Do something only for the current context.
+        if ($parameters['currentcontext'] == 'dolismqadmindocuments') {
+            $constArray['dolismq'] = [
+                'controldocument' => [
+                    'name'        => 'ControlDocumentDisplayMedias',
+                    'description' => 'ControlDocumentDisplayMediasDescription',
+                    'code'        => 'DOLISMQ_CONTROLDOCUMENT_DISPLAY_MEDIAS'
+                ]
+            ];
+            $this->results = $constArray;
+            return 1;
         }
 
         return 0; // or return 1 to replace standard code.

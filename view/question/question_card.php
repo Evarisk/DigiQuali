@@ -345,6 +345,9 @@ if (empty($reshook)) {
 
 	// Action to update record
 	if ($action == 'update' && !empty($permissiontoadd)) {
+
+		$previousType = $object->type;
+
 		foreach ($object->fields as $key => $val) {
 			// Check if field was submited to be edited
 			if ($object->fields[$key]['type'] == 'duration') {
@@ -464,7 +467,55 @@ if (empty($reshook)) {
 					$object->$type = '';
 				}
 			}
-			$object->update($user);
+			$result = $object->update($user);
+
+			$newType = $object->type;
+
+			if ($result > 0) {
+				if ($newType != $previousType && $newType != 'MultipleChoices' && $newType != 'UniqueChoice') {
+					$answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $result]);
+
+					if (is_array($answerList) && !empty($answerList)) {
+						foreach($answerList as $linkedAnswer) {
+							$linkedAnswer->delete($user, true, false);
+						}
+					}
+
+					if ($object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
+						$answer->fk_question = $result;
+						$answer->value       = $langs->transnoentities('OK');
+						$answer->pictogram   = 'check';
+						$answer->color       = '#47e58e';
+
+						$answer->create($user);
+
+						$answer->fk_question = $result;
+						$answer->value       = $langs->transnoentities('KO');
+						$answer->pictogram   = 'times';
+						$answer->color       = '#e05353';
+
+						$answer->create($user);
+					}
+
+					if ($object->type == 'OkKoToFixNonApplicable') {
+						$answer->fk_question = $result;
+						$answer->value = $langs->transnoentities('ToFix');
+						$answer->pictogram = 'tools';
+						$answer->color = '#e9ad4f';
+
+						$answer->create($user);
+
+						$answer->fk_question = $result;
+						$answer->value = $langs->transnoentities('NonApplicable');
+						$answer->pictogram = 'N/A';
+						$answer->color = '#2b2b2b';
+
+						$answer->create($user);
+					}
+				}
+
+
+			}
 
 			$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
 			$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
@@ -685,7 +736,7 @@ if ($action == 'create') {
 
 	// Type -- Type
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'label', 'label', GETPOST('type') ?: $langs->transnoentities('OkKoToFixNonApplicable'));
+	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', GETPOST('type') ?: 'OkKoToFixNonApplicable');
 	print '</td></tr>';
 
 	// Description -- Description
@@ -722,11 +773,7 @@ if ($action == 'create') {
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo GETPOST('favorite_photo_ok') ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-		<input type="hidden" class="modal-to-open" value="media_gallery"/>
-		<input type="hidden" class="from-type" value="question"/>
-		<input type="hidden" class="from-subtype" value="photo_ok"/>
-		<input type="hidden" class="from-subdir" value="photo_ok"/>
-		<input type="hidden" class="from-id" value="<?php echo 0 ?>"/>
+		<input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo 0 ?>" data-from-type="question" data-from-subtype="photo_ok" data-from-subdir="photo_ok"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
@@ -746,11 +793,7 @@ if ($action == 'create') {
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo GETPOST('favorite_photo_ko') ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-		<input type="hidden" class="modal-to-open" value="media_gallery"/>
-		<input type="hidden" class="from-type" value="question"/>
-		<input type="hidden" class="from-subtype" value="photo_ko"/>
-		<input type="hidden" class="from-subdir" value="photo_ko"/>
-		<input type="hidden" class="from-id" value="<?php echo 0 ?>"/>
+        <input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo 0 ?>" data-from-type="question" data-from-subtype="photo_ko" data-from-subdir="photo_ko"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
@@ -762,6 +805,7 @@ if ($action == 'create') {
 		print '<tr><td>'.$langs->trans("Categories").'</td><td>';
 		$categoryArborescence = $form->select_all_categories('question', '', 'parent', 64, 0, 1);
 		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $categoryArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=question&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print "</td></tr>";
 	}
 
@@ -810,7 +854,7 @@ if (($id || $ref) && $action == 'edit') {
 
 	// Type -- Type
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'label', 'label', $langs->transnoentities($object->type));
+	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', $object->type);
 	print '</td></tr>';
 
 	//Description -- Description
@@ -856,11 +900,7 @@ if (($id || $ref) && $action == 'edit') {
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ok" name="photo_ok" value="<?php echo (dol_strlen($object->photo_ok) > 0 ? $object->photo_ok : GETPOST('favorite_photo_ok')) ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-		<input type="hidden" class="modal-to-open" value="media_gallery"/>
-		<input type="hidden" class="from-type" value="question"/>
-		<input type="hidden" class="from-subtype" value="photo_ok"/>
-		<input type="hidden" class="from-subdir" value="photo_ok"/>
-		<input type="hidden" class="from-id" value="<?php echo $object->id ?>"/>
+        <input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id ?>" data-from-type="question" data-from-subtype="photo_ok" data-from-subdir="photo_ok"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
@@ -880,11 +920,7 @@ if (($id || $ref) && $action == 'edit') {
 	</label>
 	<input type="hidden" class="favorite-photo" id="photo_ko" name="photo_ko" value="<?php echo (dol_strlen($object->photo_ko) > 0 ? $object->photo_ko : GETPOST('favorite_photo_ko')) ?>"/>
 	<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
-		<input type="hidden" class="modal-to-open" value="media_gallery"/>
-		<input type="hidden" class="from-type" value="question"/>
-		<input type="hidden" class="from-subtype" value="photo_ko"/>
-		<input type="hidden" class="from-subdir" value="photo_ko"/>
-		<input type="hidden" class="from-id" value="<?php echo $object->id ?>"/>
+        <input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id ?>" data-from-type="question" data-from-subtype="photo_ko" data-from-subdir="photo_ko"/>
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
@@ -904,6 +940,7 @@ if (($id || $ref) && $action == 'edit') {
 			}
 		}
 		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $categoryArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=question&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print "</td></tr>";
 	}
 
@@ -1041,7 +1078,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	$answerList = $answer->fetchAll('ASC','position','','', ['fk_question' => $object->id]);
+    $answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['customsql' => 't.status > ' . Answer::STATUS_DELETED . ' AND t.fk_question = ' . $object->id]);
 
 	// Buttons for actions
 	if ($action != 'presend') {
@@ -1129,7 +1166,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
 					print '<td>';
-					print $answerSingle->getNomUrl(1);
+					print img_picto('', $answerSingle->picto, 'class="pictofixedwidth"') . $answerSingle->ref;
 					print '</td>';
 
 					print '<td>';
@@ -1161,7 +1198,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 					//SHOW LINE
 					print '<tr id="'. $answerSingle->id .'" class="line-row oddeven">';
 					print '<td>';
-					print $answerSingle->getNomUrl(1);
+					print img_picto('', $answerSingle->picto, 'class="pictofixedwidth"') . $answerSingle->ref;
 					print '</td>';
 
 					print '<td>';
@@ -1246,7 +1283,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	$maxEvent = 10;
 
-	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliMeet&object_type=' . $object->element);
+	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element);
 
 	// List of actions on element
 	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';

@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2022 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,25 +13,30 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ * or see https://www.gnu.org/
  */
 
 /**
- * \file    lib/dolismq_question.lib.php
- * \ingroup dolismq
- * \brief   Library files with common functions for Question.
+ *	\file       core/modules/dolismq/controlequipment/mod_control_equipment_standard.php
+ * \ingroup     dolismq
+ *	\brief      File containing class for numbering module Standard
  */
 
 // Load Saturne libraries.
-require_once __DIR__ . '/../../saturne/lib/object.lib.php';
+require_once __DIR__ . '/../../../../../saturne/core/modules/saturne/modules_saturne.php';
 
 /**
- * Prepare array of tabs for question.
- *
- * @param  Question $object Question object.
- * @return array            Array of tabs.
- * @throws Exception
+ * 	Class to manage controlequipment numbering rules Standard
  */
-function question_prepare_head(Question $object): array
+class mod_control_equipment_standard extends ModeleNumRefSaturne
 {
-    return saturne_object_prepare_head($object);
+	/**
+	 * @var string Numbering module ref prefix
+	 */
+	public string $prefix = 'FCE';
+
+	/**
+	 * @var string model name
+	 */
+	public string $name = 'Fornjot';
 }
