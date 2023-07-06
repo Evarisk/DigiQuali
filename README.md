@@ -3,7 +3,7 @@
 ## Informations
 
 - Numéro du module : 436301
-- Dernière mise à jour : 05/07/2023
+- Dernière mise à jour : 06/07/2023
 - Éditeur : [Evarisk](https://evarisk.com)
 - Thème : Eldy Menu
 - Licence : GPLv3
