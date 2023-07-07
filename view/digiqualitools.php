@@ -148,7 +148,8 @@ if ($action == 'data_migration_export_global' && $permissionToRead) {
 
     $zip = new ZipArchive();
     if ($zip->open($exportBase . '.zip', ZipArchive::CREATE ) === TRUE) {
-        $zip->addFile($fileName, basename($fileName));
+		setEventMessage($langs->transnoentities("ExportWellDone"));
+		$zip->addFile($fileName, basename($fileName));
         $zip->close();
         $fileNameZip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export.zip';
         $filepath = DOL_URL_ROOT . '/document.php?modulepart=digiquali&file=' . urlencode('temp/'.$fileNameZip);
