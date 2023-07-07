@@ -221,7 +221,8 @@ class Answer extends SaturneObject
     {
         global $conf;
 
-        $refAnswerMod   = new $conf->global->DIGIQUALI_ANSWER_ADDON($this->db);
+		$refAnswerModName = empty($conf->global->DOLISMQ_ANSWER_ADDON) ? 'mod_answer_standard' : $conf->global->DOLISMQ_ANSWER_ADDON;
+        $refAnswerMod    = new $refAnswerModName($this->db);
         $this->ref      = $refAnswerMod->getNextValue($this);
         $this->position = $this->getMaxPosition() + 1;
 		$this->status   = $this->status ?: self::STATUS_VALIDATED;
