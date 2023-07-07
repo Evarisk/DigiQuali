@@ -125,8 +125,8 @@ AddSheetIntoCategory           = Assigner cette catégorie au modèle de contrô
 QuestionMandatorized           = La question %s a été rendue obligatoire
 QuestionUnMandatorized         = La question %s n'est plus obligatoire
 NoLinkedObjectSelected         = Veuillez sélectionner un type d'objet à contrôler
-ExportSheetData                = Export des données de la fiche modèle
-ExportSheetDataDescription     = Export des données de la fiche modèle et des questions associées
+ExportSheetData                = Export des données du modèle de contrôle
+ExportSheetDataDescription     = Export des données du modèle de contrôle et des questions associées
 ExportWellDone                 = L'export a été réalisé avec succès
 
 # Tags - catégories
