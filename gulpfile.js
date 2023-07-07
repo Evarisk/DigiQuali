@@ -8,21 +8,21 @@ var concat       = require('gulp-concat');
 
 var paths = {
 	scss_core : [ 'css/scss/**/*.scss', 'css/' ],
-	js_backend: [ 'js/dolismq.js', 'js/modules/*.js' ]
+	js_backend: [ 'js/digiquali.js', 'js/modules/*.js' ]
 };
 
 /** Core */
 gulp.task( 'scss_core', function() {
 	return gulp.src( paths.scss_core[0] )
 		.pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
-		.pipe(rename('./dolismq.min.css'))
+		.pipe(rename('./digiquali.min.css'))
 		.pipe(gulp.dest( paths.scss_core[1]));
 });
 
 
 gulp.task('js_backend', function () {
 	return gulp.src(paths.js_backend)
-		.pipe(concat('dolismq.min.js'))
+		.pipe(concat('digiquali.min.js'))
 		.pipe(uglify())
 		.pipe(gulp.dest('./js/'))
 });

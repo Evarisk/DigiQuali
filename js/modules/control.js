@@ -5,7 +5,7 @@
  * @since   1.0.0
  * @version 1.0.0
  */
-window.dolismq.control = {};
+window.digiquali.control = {};
 
 /**
  * La méthode appelée automatiquement par la bibliothèque EoxiaJS.
@@ -15,8 +15,8 @@ window.dolismq.control = {};
  *
  * @return {void}
  */
-window.dolismq.control.init = function() {
-	window.dolismq.control.event();
+window.digiquali.control.init = function() {
+	window.digiquali.control.event();
 };
 
 /**
@@ -27,15 +27,15 @@ window.dolismq.control.init = function() {
  *
  * @return {void}
  */
-window.dolismq.control.event = function() {
-	$( document ).on( 'click', '.answer:not(.disable)', window.dolismq.control.selectAnswer );
-	$( document ).on( 'input', '.input-answer:not(.disable)', window.dolismq.control.selectAnswer );
-	$( document ).on( 'keyup', '.question-comment', window.dolismq.control.writeComment );
-	$( document ).on( 'change', '.control-table.linked-objects select', window.dolismq.control.disableOtherSelectors );
-	$( document ).on( 'keyup', '.question-comment', window.dolismq.control.showCommentUnsaved );
-	$( document ).on( 'click', '.validateButton', window.dolismq.control.getAnswerCounter);
-	$( document ).on( 'change', '#fk_sheet', window.dolismq.control.showSelectObjectLinked);
-	$( document ).on( 'click', '.toggleControlInfo', window.dolismq.control.toggleControlInfo );
+window.digiquali.control.event = function() {
+	$( document ).on( 'click', '.answer:not(.disable)', window.digiquali.control.selectAnswer );
+	$( document ).on( 'input', '.input-answer:not(.disable)', window.digiquali.control.selectAnswer );
+	$( document ).on( 'keyup', '.question-comment', window.digiquali.control.writeComment );
+	$( document ).on( 'change', '.control-table.linked-objects select', window.digiquali.control.disableOtherSelectors );
+	$( document ).on( 'keyup', '.question-comment', window.digiquali.control.showCommentUnsaved );
+	$( document ).on( 'click', '.validateButton', window.digiquali.control.getAnswerCounter);
+	$( document ).on( 'change', '#fk_sheet', window.digiquali.control.showSelectObjectLinked);
+	$( document ).on( 'click', '.toggleControlInfo', window.digiquali.control.toggleControlInfo );
 };
 
 /**
@@ -47,7 +47,7 @@ window.dolismq.control.event = function() {
  * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.dolismq.control.selectAnswer = function ( event ) {
+window.digiquali.control.selectAnswer = function ( event ) {
 	let answerValue = $(this).hasClass('answer') ? $(this).attr('value') : $(this).val()
 	let answer = '';
 	let questionElement = $(this).closest('.select-answer.answer-cell')
@@ -75,7 +75,7 @@ window.dolismq.control.selectAnswer = function ( event ) {
 		$(this).closest('.answer-cell').find('.question-answer').val(answer)
 	}
 
-	window.dolismq.control.updateButtonsStatus()
+	window.digiquali.control.updateButtonsStatus()
 };
 
 /**
@@ -87,7 +87,7 @@ window.dolismq.control.selectAnswer = function ( event ) {
  * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.dolismq.control.writeComment = function ( event ) {
+window.digiquali.control.writeComment = function ( event ) {
 
 	let postName = $(this).closest('.table-cell').find('.question-comment').attr('name')
 	let postValue = $(this).closest('.table-cell').find('.question-comment').val()
@@ -109,7 +109,7 @@ window.dolismq.control.writeComment = function ( event ) {
  * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.dolismq.control.disableOtherSelectors = function ( event ) {
+window.digiquali.control.disableOtherSelectors = function ( event ) {
 	var controlForm = document.getElementById('createControlForm');
 	var formData = new FormData(controlForm);
 
@@ -133,12 +133,12 @@ window.dolismq.control.disableOtherSelectors = function ( event ) {
  * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.dolismq.control.showCommentUnsaved = function ( event ) {
+window.digiquali.control.showCommentUnsaved = function ( event ) {
 	if (!$(this).hasClass('show-comment-unsaved-message')) {
 		$(this).after('<p style="color:red">Commentaire non enregistré</p>');
 		$(this).addClass('show-comment-unsaved-message');
 	}
-	window.dolismq.control.updateButtonsStatus()
+	window.digiquali.control.updateButtonsStatus()
 };
 
 /**
@@ -150,7 +150,7 @@ window.dolismq.control.showCommentUnsaved = function ( event ) {
  * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.dolismq.control.updateButtonsStatus = function (  ) {
+window.digiquali.control.updateButtonsStatus = function (  ) {
 	$('#saveButton').removeClass('butActionRefused')
 	$('#saveButton').addClass('butAction')
 	$('#saveButton').attr('onclick','$("#saveControl").submit()');
@@ -168,7 +168,7 @@ window.dolismq.control.updateButtonsStatus = function (  ) {
  * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.dolismq.control.getAnswerCounter = function ( event ) {
+window.digiquali.control.getAnswerCounter = function ( event ) {
 	let answerCounter = 0
 	jQuery("#tablelines").children().each(function() {
 		if ($(this).find(".answer.active").length > 0) {
@@ -187,7 +187,7 @@ window.dolismq.control.getAnswerCounter = function ( event ) {
  * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.dolismq.control.showSelectObjectLinked = function ( event ) {
+window.digiquali.control.showSelectObjectLinked = function ( event ) {
 	var controlForm = document.getElementById('createControlForm');
 	var formData = new FormData(controlForm);
 
@@ -225,7 +225,7 @@ window.dolismq.control.showSelectObjectLinked = function ( event ) {
  * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.dolismq.control.toggleControlInfo = function ( event ) {
+window.digiquali.control.toggleControlInfo = function ( event ) {
 	if ($(this).hasClass('fa-minus-square')) {
 		$(this).removeClass('fa-minus-square').addClass('fa-caret-square-down')
 		$(this).closest('.fiche').find('.fichecenter.controlInfo').addClass('hidden')

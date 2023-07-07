@@ -1,9 +1,9 @@
-# DoliSMQ sur [DOLIBARR ERP CRM](https://dolibarr.org)
+# DigiQuali sur [DOLIBARR ERP CRM](https://dolibarr.org)
 
 ## Informations
 
 - Numéro du module : 436301
-- Dernière mise à jour : 06/07/2023
+- Dernière mise à jour : 07/07/2023
 - Éditeur : [Evarisk](https://evarisk.com)
 - Thème : Eldy Menu
 - Licence : GPLv3
@@ -11,16 +11,16 @@
 
 ### Version
 
-- Version :  1.7.0
-- Compatibilité : Dolibarr 16.0.0 - 17.0.2
-- Saturne Framework : 1.1.0
+- Version :  1.8.0
+- Compatibilité : Dolibarr 17.0.0 - 17.0.2
+- Saturne Framework : 1.1.1
 
 ## Liens
 
 - Support & Assistance : [Forum dolibarr.fr](https://dolibarr.fr) / Par mail à technique@evarisk.com
-- Demo : [Demo DoliSMQ](https://demodoli.digirisk.com) - ID: demo - Password: demo
-- Documentation : [Wiki DoliSMQ](https://wiki.dolibarr.org/index.php/Module_DoliSMQ)
-- Projet Github : [Projet DoliSMQ](https://github.com/Evarisk/dolismq/projects?type=classic)
+- Demo : [Demo DigiQuali](https://demodoli.digirisk.com) - ID: demo - Password: demo
+- Documentation : [Wiki DigiQuali](https://wiki.dolibarr.org/index.php/Module_DigiQuali)
+- Projet Github : [Projet DigiQuali](https://github.com/Evarisk/digiquali/projects?type=classic)
 - Saturne Framework : [Télécharger Saturne](https://dolistore.com/fr/modules/1906-Saturne.html)
 - D'autres modules développés par Evarisk disponibles sur [Dolistore.com](https://dolistore.com)
 
@@ -55,7 +55,7 @@ Génération du rapport de contrôle
 ### Méthode 1 :
 
 - Depuis le menu "Déployer/Installer un module externe" de Dolibarr :
-- Glisser l'archive ZIP 'module_dolismq-X.Y.Z' et cliquer sur "ENVOYER FICHIER"
+- Glisser l'archive ZIP 'module_digiquali-X.Y.Z' et cliquer sur "ENVOYER FICHIER"
 - Glisser l'archive ZIP 'module_saturne-X.Y.Z' et cliquer sur "ENVOYER FICHIER"
 - Activer le module dans la liste des Modules/Applications installés
 
@@ -63,6 +63,6 @@ Génération du rapport de contrôle
 
 - Dans le dossier "dolibarr/htdocs/custom" copier la ligne suivante :
 ``` 
-git clone https://github.com/Evarisk/dolismq.git
+git clone https://github.com/Evarisk/digiquali.git
 git clone https://github.com/Evarisk/saturne.git
 ```

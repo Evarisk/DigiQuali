@@ -17,23 +17,23 @@
 
 /**
  * \file    admin/question.php
- * \ingroup dolismq
- * \brief   DoliSMQ question config page.
+ * \ingroup digiquali
+ * \brief   DigiQuali question config page.
  */
 
-// Load DoliSMQ environment
-if (file_exists('../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../dolismq.main.inc.php';
-} elseif (file_exists('../../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../../dolismq.main.inc.php';
+// Load DigiQuali environment
+if (file_exists('../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../digiquali.main.inc.php';
+} elseif (file_exists('../../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../../digiquali.main.inc.php';
 } else {
-	die('Include of dolismq main fails');
+	die('Include of digiquali main fails');
 }
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 
-require_once __DIR__ . '/../lib/dolismq.lib.php';
+require_once __DIR__ . '/../lib/digiquali.lib.php';
 require_once __DIR__ . '/../class/question.class.php';
 
 // Global variables definitions
@@ -67,7 +67,7 @@ $elementtype = $moduleNameLowerCase . '_' . $objectType; // Must be the $table_e
 $form = new Form($db);
 
 // Access control
-$permissiontoread = $user->rights->dolismq->adminpage->read;
+$permissiontoread = $user->rights->digiquali->adminpage->read;
 saturne_check_access($permissiontoread);
 
 /*
@@ -79,7 +79,7 @@ require DOL_DOCUMENT_ROOT . '/core/actions_extrafields.inc.php';
 
 //Set numering modele for control object
 if ($action == 'setmod') {
-	$constforval = 'DOLISMQ_' . strtoupper('question') . "_ADDON";
+	$constforval = 'DIGIQUALI_' . strtoupper('question') . "_ADDON";
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
 
@@ -87,7 +87,7 @@ if ($action == 'setmod') {
  * View
  */
 
-$helpUrl = 'FR:Module_DoliSMQ';
+$helpUrl = 'FR:Module_DigiQuali';
 $title    = $langs->trans('ModuleSetup', $moduleName);
 
 saturne_header(0,'', $title, $helpUrl);
@@ -98,8 +98,8 @@ $linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?res
 print load_fiche_titre($title, $linkback, 'title_setup');
 
 // Configuration header
-$head = dolismq_admin_prepare_head();
-print dol_get_fiche_head($head, 'question', $title, -1, "dolismq_color@dolismq");
+$head = digiquali_admin_prepare_head();
+print dol_get_fiche_head($head, 'question', $title, -1, "digiquali_color@digiquali");
 
 require_once __DIR__ . '/../../saturne/core/tpl/admin/object/object_numbering_module_view.tpl.php';
 

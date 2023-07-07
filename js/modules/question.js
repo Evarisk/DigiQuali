@@ -5,7 +5,7 @@
  * @since   1.1.0
  * @version 1.1.0
  */
-window.dolismq.question = {};
+window.digiquali.question = {};
 
 /**
  * La méthode appelée automatiquement par la bibliothèque EoxiaJS.
@@ -15,8 +15,8 @@ window.dolismq.question = {};
  *
  * @return {void}
  */
-window.dolismq.question.init = function() {
-	window.dolismq.question.event();
+window.digiquali.question.init = function() {
+	window.digiquali.question.event();
 };
 
 /**
@@ -27,11 +27,11 @@ window.dolismq.question.init = function() {
  *
  * @return {void}
  */
-window.dolismq.question.event = function() {
-	$( document ).on( 'click', '.clicked-photo-preview', window.dolismq.question.previewPhoto );
-	$( document ).on( 'click', '.ui-dialog-titlebar-close', window.dolismq.question.closePreviewPhoto );
-	$( document ).on( 'click', '#show_photo', window.dolismq.question.showPhoto );
-	$( document ).on( 'click', '.answer-picto .item, .wpeo-table .item', window.dolismq.question.selectAnswerPicto );
+window.digiquali.question.event = function() {
+	$( document ).on( 'click', '.clicked-photo-preview', window.digiquali.question.previewPhoto );
+	$( document ).on( 'click', '.ui-dialog-titlebar-close', window.digiquali.question.closePreviewPhoto );
+	$( document ).on( 'click', '#show_photo', window.digiquali.question.showPhoto );
+	$( document ).on( 'click', '.answer-picto .item, .wpeo-table .item', window.digiquali.question.selectAnswerPicto );
 };
 
 /**
@@ -43,7 +43,7 @@ window.dolismq.question.event = function() {
  * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.dolismq.question.previewPhoto = function ( event ) {
+window.digiquali.question.previewPhoto = function ( event ) {
 	if ($(this).hasClass('photo-ok')) {
 		$("#dialogforpopup").attr('style', 'border: 10px solid #47e58e')
 	} else if ($(this).hasClass('photo-ko'))  {
@@ -60,7 +60,7 @@ window.dolismq.question.previewPhoto = function ( event ) {
  * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.dolismq.question.closePreviewPhoto = function ( event ) {
+window.digiquali.question.closePreviewPhoto = function ( event ) {
 	$("#dialogforpopup").attr('style', 'border:')
 };
 
@@ -72,7 +72,7 @@ window.dolismq.question.closePreviewPhoto = function ( event ) {
  *
  * @return {void}
  */
-window.dolismq.question.showPhoto = function() {
+window.digiquali.question.showPhoto = function() {
 	let photo = $(this).closest('.question-table').find('.linked-medias')
 
 	if (photo.hasClass('hidden')) {
@@ -93,7 +93,7 @@ window.dolismq.question.showPhoto = function() {
  * @param  {MouseEvent} event [description]
  * @return {void}
  */
-window.dolismq.question.selectAnswerPicto = function( event ) {
+window.digiquali.question.selectAnswerPicto = function( event ) {
 	var element = $(this).closest('.wpeo-dropdown');
 	$(this).closest('.content').removeClass('active');
 	element.find('.dropdown-toggle span').hide();
