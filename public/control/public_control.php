@@ -97,7 +97,7 @@ $elementArray = get_sheet_linkable_objects();
 $object->fetchObjectLinked('', '', '', 'digiquali_control');
 ?>
 
-	<div class="signature-container" style="max-width: 1000px;">
+<div class="signature-container" style="max-width: 1000px;">
 		<div class="wpeo-gridlayout grid-2">
 			<div style="display: flex; justify-content: center; align-items: center;"><?php echo saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/' . $object->element . '/'. $object->ref . '/photos/', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, $object->element . '/'. $object->ref . '/photos/', $object, 'photo', 0, 0,0, 1); ?></div>
 			<div class="informations">
