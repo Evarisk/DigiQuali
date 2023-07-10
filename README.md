@@ -12,7 +12,7 @@
 ### Version
 
 - Version :  1.8.0
-- Compatibilité : Dolibarr 17.0.0 - 17.0.2
+- Compatibilité : Dolibarr 16.0.0 - 17.0.2
 - Saturne Framework : 1.1.1
 
 ## Liens

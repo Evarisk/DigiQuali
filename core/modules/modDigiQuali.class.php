@@ -242,7 +242,8 @@ class modDigiQuali extends DolibarrModules
 			$i++ => ['DIGIQUALI_MEDIA_MAX_HEIGHT_LARGE', 'integer', 720, '', 0, 'current'],
 			$i++ => ['DIGIQUALI_DISPLAY_NUMBER_MEDIA_GALLERY', 'integer', 8, '', 0, 'current'],
             $i++ => ['DIGIQUALI_REDIRECT_AFTER_CONNECTION', 'integer', 0, '', 0, 'current'],
-            $i++ => ['DIGIQUALI_ADVANCED_TRIGGER', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DIGIQUALI_ADVANCED_TRIGGER', 'integer', 1, '', 0, 'current'],
+			$i++ => ['DIGIQUALI_DOCUMENT_DIRECTORIES_NAME_BACKWARD_COMPATIBILITY', 'integer', 0, '', 0, 'current'],
 
             $i++ => ['AGENDA_REMINDER_BROWSER', 'integer', 1, '', 0, 'current'],
             $i++ => ['AGENDA_REMINDER_EMAIL', 'integer', 1, '', 0, 'current'],
@@ -582,13 +583,24 @@ class modDigiQuali extends DolibarrModules
 			}
 		}
 
-		$ecmPath = DOL_DATA_ROOT . '/ecm' . ($conf->entity > 1 ? '/' . $conf->entity : '');
+		if (getDolGlobalInt('DIGIQUALI_DOCUMENT_DIRECTORIES_NAME_BACKWARD_COMPATIBILITY') == 0) {
+			$documentsPath = DOL_DATA_ROOT . ($conf->entity > 1 ? '/' . $conf->entity : '');
+			$ecmPath =  $documentsPath . '/ecm' ;
 
-		if (is_dir($ecmPath)) {
-			if (is_dir($ecmPath) . '/dolismq') {
-				rename($ecmPath . '/dolismq', $ecmPath . '/digiquali');
+			if (is_dir($ecmPath)) {
+				if (is_dir($ecmPath) . '/dolismq') {
+					rename($ecmPath . '/dolismq', $ecmPath . '/digiquali');
+				}
 			}
+
+			$moduleDocumentsPath = $documentsPath . '/dolismq';
+			if (is_dir($moduleDocumentsPath)) {
+				rename($moduleDocumentsPath, $documentsPath . '/digiquali');
+			}
+
+			dolibarr_set_const($this->db, 'DIGIQUALI_DOCUMENT_DIRECTORIES_NAME_BACKWARD_COMPATIBILITY', $this->version, 'integer', 1, '', $conf->entity);
 		}
+
 
 		dolibarr_set_const($this->db, 'DIGIQUALI_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
 		dolibarr_set_const($this->db, 'DIGIQUALI_DB_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
