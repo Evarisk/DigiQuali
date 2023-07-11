@@ -128,7 +128,7 @@ if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
 	?>
 	<div id="tablelines" class="control-audit signature-container" width="100%" style="max-width: 1000px;">
 		<?php
-			print $conf->global->DIGIQUALI_PUBLIC_SURVEY_TITLE;
+			print '<h2 class="center"><b>' . $conf->global->DIGIQUALI_PUBLIC_SURVEY_TITLE . '</b></h2>';
 			include_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';
 			print '<div class="center">';
 			print '<input class="wpeo-button" type="submit" value="'. $langs->trans('Submit') .'">';
