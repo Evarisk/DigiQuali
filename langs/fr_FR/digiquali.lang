@@ -281,7 +281,7 @@ ControlReminderTypeDescription          = Choisir le type de rappel d'évènemen
 controlled                              = contrôlé(e)
 NextControlDateUpdated                  = La date de prochain contrôle a été mise à jour
 ErrorUpdatingNextControlDate            = La date de prochain contrôle n'a pas pu être mise à jour
-
+DaysBeforeNextControl                   = Jours avant prochain contrôle
 
 #
 # ControlDet
