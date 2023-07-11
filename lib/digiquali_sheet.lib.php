@@ -35,7 +35,7 @@ function sheet_prepare_head(Sheet $object): array
 {
 	global $langs;
 
-	$head[100][0] = dol_buildpath('/dolismq/view/sheet/sheet_export.php', 1) . '?id=' . $object->id;
+	$head[100][0] = dol_buildpath('/digiquali/view/sheet/sheet_export.php', 1) . '?id=' . $object->id;
 	$head[100][1] = '<i class="fas fa-file-export pictofixedwidth"></i>' . $langs->trans('Export');
 	$head[100][2] = 'export';
 

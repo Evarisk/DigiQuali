@@ -17,17 +17,17 @@
 
 /**
  *   	\file       view/sheet/sheet_card.php
- *		\ingroup    dolismq
+ *		\ingroup    digiquali
  *		\brief      Page to create/edit/view sheet
  */
 
-// Load DoliSMQ environment
-if (file_exists('../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../dolismq.main.inc.php';
-} elseif (file_exists('../../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../../dolismq.main.inc.php';
+// Load DigiQuali environment
+if (file_exists('../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../digiquali.main.inc.php';
+} elseif (file_exists('../../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../../digiquali.main.inc.php';
 } else {
-	die('Include of dolismq main fails');
+	die('Include of digiquali main fails');
 }
 
 // Libraries
@@ -36,7 +36,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
 require_once __DIR__ . '/../../class/answer.class.php';
-require_once __DIR__ . '/../../lib/dolismq_sheet.lib.php';
+require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user;
@@ -60,16 +60,16 @@ $answer      = new Answer($db);
 // View objects
 $form = new Form($db);
 
-$upload_dir = $conf->dolismq->multidir_output[isset($conf->entity) ? $conf->entity : 1];
+$upload_dir = $conf->digiquali->multidir_output[isset($conf->entity) ? $conf->entity : 1];
 
 $hookmanager->initHooks(array('sheetcard', 'globalcard')); // Note that conf->hooks_modules contains array
 
 // Load object
 include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
 
-$permissionToRead   = $user->rights->dolismq->sheet->read;
-$permissionToAdd    = $user->rights->dolismq->sheet->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
-$permissionToDelete = $user->rights->dolismq->sheet->delete || ($permissionToAdd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
+$permissionToRead   = $user->rights->digiquali->sheet->read;
+$permissionToAdd    = $user->rights->digiquali->sheet->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
+$permissionToDelete = $user->rights->digiquali->sheet->delete || ($permissionToAdd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
 
 // Security check - Protection if external user
 saturne_check_access($permissionToRead, $object);
@@ -85,19 +85,19 @@ if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'e
 if (empty($reshook)) {
 	$error = 0;
 
-	$backurlforlist = dol_buildpath('/dolismq/view/sheet/sheet_list.php', 1);
+	$backurlforlist = dol_buildpath('/digiquali/view/sheet/sheet_list.php', 1);
 
 	if (empty($backtopage) || ($cancel && empty($id))) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) $backtopage = $backurlforlist;
-			else $backtopage = dol_buildpath('/dolismq/view/sheet/sheet_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
+			else $backtopage = dol_buildpath('/digiquali/view/sheet/sheet_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
 		}
 	}
 
 	if ($action == 'export_sheet_data' && $permissionToRead) {
 		$exportName = 'sheet_question_answer_export_sheet' . $object->id;
 
-		$dolismqExportArray = [];
+		$digiqualiExportArray = [];
 		$sheetExportArray['rowid']               = $object->id;
 		$sheetExportArray['ref']                 = $object->ref;
 		$sheetExportArray['status']              = $object->status;
@@ -106,15 +106,15 @@ if (empty($reshook)) {
 		$sheetExportArray['element_linked']      = $object->element_linked;
 		$sheetExportArray['mandatory_questions'] = $object->mandatory_questions;
 
-		$dolismqExportArray['sheets'][$object->id] = $sheetExportArray;
+		$digiqualiExportArray['sheets'][$object->id] = $sheetExportArray;
 
-		$object->fetchQuestionsLinked($object->id, 'dolismq_sheet');
-		$questionsLinked = $object->linkedObjects['dolismq_question'];
+		$object->fetchQuestionsLinked($object->id, 'digiquali_sheet');
+		$questionsLinked = $object->linkedObjects['digiquali_question'];
 
 		if (is_array($questionsLinked) && !empty($questionsLinked)) {
 			ksort($questionsLinked);
 			foreach ($questionsLinked as $questionSingle) {
-				$dolismqExportArray['element_element'][$object->id][] = $questionSingle->id;
+				$digiqualiExportArray['element_element'][$object->id][] = $questionSingle->id;
 				$questionExportArray['rowid']                  = $questionSingle->id;
 				$questionExportArray['ref']                    = $questionSingle->ref;
 				$questionExportArray['status']                 = $questionSingle->status;
@@ -125,7 +125,7 @@ if (empty($reshook)) {
 				$questionExportArray['authorize_answer_photo'] = $questionSingle->authorize_answer_photo;
 				$questionExportArray['enter_comment']          = $questionSingle->enter_comment;
 
-				$dolismqExportArray['questions'][$questionSingle->id] = $questionExportArray;
+				$digiqualiExportArray['questions'][$questionSingle->id] = $questionExportArray;
 
 				$answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $questionSingle->id]);
 
@@ -140,19 +140,19 @@ if (empty($reshook)) {
 						$answerExportArray['color']       = $answerSingle->color;
 						$answerExportArray['fk_question'] = $answerSingle->fk_question;
 
-						$dolismqExportArray['questions'][$answerSingle->fk_question]['answers'][$answerSingle->id] = $answerExportArray;
+						$digiqualiExportArray['questions'][$answerSingle->fk_question]['answers'][$answerSingle->id] = $answerExportArray;
 					}
 				}
 			}
 		}
 
-		$dolismqExportJSON = json_encode($dolismqExportArray, JSON_PRETTY_PRINT);
+		$digiqualiExportJSON = json_encode($digiqualiExportArray, JSON_PRETTY_PRINT);
 
 		$fileDir    = $upload_dir . '/temp/';
 		$exportBase = $fileDir . dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export';
 		$fileName   = $exportBase . '.json';
 
-		file_put_contents($fileName, $dolismqExportJSON);
+		file_put_contents($fileName, $digiqualiExportJSON);
 
 		$zip = new ZipArchive();
 		if ($zip->open($exportBase . '.zip', ZipArchive::CREATE ) === TRUE) {
@@ -160,7 +160,7 @@ if (empty($reshook)) {
 			$zip->addFile($fileName, basename($fileName));
 			$zip->close();
 			$fileNameZip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export.zip';
-			$filepath = DOL_URL_ROOT . '/document.php?modulepart=dolismq&file=' . urlencode('temp/'.$fileNameZip);
+			$filepath = DOL_URL_ROOT . '/document.php?modulepart=digiquali&file=' . urlencode('temp/'.$fileNameZip);
 			?>
 			<script>
 				var alink = document.createElement( 'a' );
@@ -178,8 +178,8 @@ if (empty($reshook)) {
  * View
  */
 
-$title    = $langs->trans('Tools', 'DoliSMQ');
-$help_url = 'FR:Module_DoliSMQ';
+$title    = $langs->trans('Tools', 'DigiQuali');
+$help_url = 'FR:Module_DigiQuali';
 
 saturne_header(0,'', $title);
 
@@ -212,6 +212,9 @@ print '</tr>';
 
 print '</tr>';
 print '</form>';
+print '</table>';
+
+print $langs->trans('ToImportDataGoToImportPage');
 
 // End of page
 llxFooter();
