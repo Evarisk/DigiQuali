@@ -249,7 +249,7 @@ function get_sheet_linkable_objects(): array
 
     if (isModEnabled('expedition')) {
         $linkableObjectTypes['expedition'] = [
-            'langs'      => 'Shipments',
+            'langs'      => 'Shipment',
             'langfile'   => 'sendings',
             'picto'      => 'dolly',
             'className'  => 'DigiQualiExpedition',
