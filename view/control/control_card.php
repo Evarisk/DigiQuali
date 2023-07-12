@@ -696,7 +696,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
   if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {
 	  print '<input hidden class="copy-to-clipboard" value="'. $publicControlInterfaceUrl .'">';
       print '<tr><td class="titlefield">' . $langs->trans('PublicControl') . ' <a href="' . $publicControlInterfaceUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
-	  print ' <button class="copy-to-clipboard-button"><i class="fas fa-clipboard clipboard-copy"></i></button>';
+	  print ' <i class="fas fa-clipboard clipboard-copy"></i>';
 	  print '<input hidden id="copyToClipboardTooltip" value="'. $langs->trans('CopiedToClipboard') .'">';
 	  print '</td>';
       print '<td>' . saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';

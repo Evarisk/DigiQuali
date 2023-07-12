@@ -248,13 +248,13 @@ window.digiquali.control.toggleControlInfo = function ( event ) {
 window.digiquali.control.copyToClipboard = function(  event ) {
 	let copyText = $(".copy-to-clipboard").attr('value')
 	navigator.clipboard.writeText(copyText).then(() => {
-			$('.copy-to-clipboard-button').animate({
+			$('.clipboard-copy').animate({
 				backgroundColor: "#59ed9c"
 			}, 200, () => {
-				$('.copy-to-clipboard-button').find('i').attr('class', 'fas fa-check  clipboard-copy')
-				$(this).tooltip({items : '.copy-to-clipboard-button', content: $('#copyToClipboardTooltip').val()});
+				$('.clipboard-copy').attr('class', 'fas fa-check  clipboard-copy')
+				$(this).tooltip({items : '.clipboard-copy', content: $('#copyToClipboardTooltip').val()});
 				$(this).tooltip("open");
-				$('.copy-to-clipboard-button').attr('style', '')
+				$('.clipboard-copy').attr('style', '')
 			})
 		}
 	)
