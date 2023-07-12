@@ -271,7 +271,7 @@ RemainingDays                           = Jours avant expiration
 NoEquipmentLinked                       = Aucun moyen de contrôle lié
 NoControlAnswersPhoto                   = Pas de photos sur les réponses du contrôle
 NeedObjectToControl                     = Vous devez sélectionner un objet à contrôler
-NeedFkSheet                             = Vous devez sélectionner une fiche modèle
+NeedFkSheet                             = Vous devez sélectionner un modèle de contrôle
 ControlReminder                         = Rappel d'événement de contrôle
 ControlReminderDescription              = Activer le rappel d'événement de contrôle
 ControlReminderFrequency                = Fréquence de rappel d'évènement de contrôle
@@ -316,13 +316,13 @@ controldocument_photo                   = fiche de controle avec photos
 
 # Data - Donnée
 DataMigrationDigiQualiToFile        = Export des données de DigiQuali
-DataMigrationExportSQA            = Export Fiche modèle/Question/Réponse vers ZIP
-DataMigrationExportSQADescription = Export des données des fiches modèles, questions et réponses en fichier ZIP
+DataMigrationExportSQA            = Export Modèle de contrôle/Question/Réponse vers ZIP
+DataMigrationExportSQADescription = Export des données des modèles de contrôle, questions et réponses en fichier ZIP
 DataMigrationExportQA             = Export Question/Réponse vers ZIP
 DataMigrationExportQADescription  = Export des données des questions et réponses en fichier ZIP
 DataMigrationFileToDolibarr       = Import des données vers DigiQuali
 DataMigrationImportZIP            = Import fichier ZIP vers Dolibarr
-DataMigrationImportZIPDescription = Import des données des fiches modèles, des questions et des réponses d'un fichier ZIP
+DataMigrationImportZIPDescription = Import des données des modèles de contrôle, des questions et des réponses d'un fichier ZIP
 ErrorArchiveNotWellFormattedZIP   = L'archive n'est pas pris en charge ou est vide. Vous devez joindre un archive d'import au format .zip
 ImportFinishWith                  = L'import des %s a été terminé avec %s erreur(s) sur %s importation(s)
 
