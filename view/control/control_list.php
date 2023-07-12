@@ -17,17 +17,17 @@
 
 /**
  *   	\file      view/control/control_list.php
- *		\ingroup    dolismq
+ *		\ingroup    digiquali
  *		\brief      List page for control
  */
 
-// Load DoliSMQ environment
-if (file_exists('../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../dolismq.main.inc.php';
-} elseif (file_exists('../../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../../dolismq.main.inc.php';
+// Load DigiQuali environment
+if (file_exists('../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../digiquali.main.inc.php';
+} elseif (file_exists('../../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../../digiquali.main.inc.php';
 } else {
-	die('Include of dolismq main fails');
+	die('Include of digiquali main fails');
 }
 
 // Libraries
@@ -54,11 +54,11 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/propal.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/supplier_proposal.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/fourn.lib.php';
 
-// load dolismq libraries
-require_once __DIR__ . '/../../lib/dolismq_sheet.lib.php';
+// load digiquali libraries
+require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
 
 require_once __DIR__.'/../../class/control.class.php';
-require_once __DIR__.'/../../core/boxes/dolismqwidget1.php';
+require_once __DIR__.'/../../core/boxes/digiqualiwidget1.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/control.class.php';
 
@@ -93,7 +93,7 @@ $pagenext = $page + 1;
 // Initialize objects
 // Technical objets
 $object         = new Control($db);
-$box            = new dolismqwidget1($db);
+$box            = new digiqualiwidget1($db);
 $categorystatic = new Categorie($db);
 $sheet          = new Sheet($db);
 $extrafields    = new ExtraFields($db);
@@ -188,9 +188,9 @@ include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_array_fields.tpl.php';
 $object->fields = dol_sort_array($object->fields, 'position');
 $arrayfields    = dol_sort_array($arrayfields, 'position');
 
-$permissiontoread   = $user->rights->dolismq->control->read;
-$permissiontoadd    = $user->rights->dolismq->control->write;
-$permissiontodelete = $user->rights->dolismq->control->delete;
+$permissiontoread   = $user->rights->digiquali->control->read;
+$permissiontoadd    = $user->rights->digiquali->control->write;
+$permissiontodelete = $user->rights->digiquali->control->delete;
 
 // Security check
 saturne_check_access($permissiontoread, $object);
@@ -229,7 +229,7 @@ if (empty($reshook)) {
 	// Mass actions
 	$objectclass = 'Control';
 	$objectlabel = 'Control';
-	$uploaddir = $conf->dolismq->dir_output;
+	$uploaddir = $conf->digiquali->dir_output;
 
 	if (!$error && ($massaction == 'delete' || ($action == 'delete' && $confirm == 'yes')) && $permissiontodelete) {
 		$db->begin();
@@ -308,7 +308,7 @@ if ($fromid) {
 
 	if (is_array($controls) && !empty($controls)) {
 		foreach ($controls as $control) {
-			$control->fetchObjectLinked('','', $control->id, 'dolismq_' . $control->element, 'OR', 1, 'sourcetype', 0);
+			$control->fetchObjectLinked('','', $control->id, 'digiquali_' . $control->element, 'OR', 1, 'sourcetype', 0);
 			if (!empty($control->linkedObjectsIds)) {
 				if (array_key_exists($fromtype, $control->linkedObjectsIds)) {
 					$linkedObjectsIds = array_values($control->linkedObjectsIds[$fromtype]);
@@ -334,9 +334,9 @@ if ($fromid) {
 	print '</div>';
 }
 
-$newcardbutton = dolGetButtonTitle($langs->trans('NewControl'), '', 'fa fa-plus-circle', dol_buildpath('/dolismq/view/control/control_card.php', 1).'?action=create', '', $permissiontoadd);
+$newcardbutton = dolGetButtonTitle($langs->trans('NewControl'), '', 'fa fa-plus-circle', dol_buildpath('/digiquali/view/control/control_card.php', 1).'?action=create', '', $permissiontoadd);
 
-include_once '../../core/tpl/dolismq_control_list.tpl.php';
+include_once '../../core/tpl/digiquali_control_list.tpl.php';
 
 // End of page
 llxFooter();

@@ -17,7 +17,7 @@
 
 /**
  * \file    class/control.class.php
- * \ingroup dolismq
+ * \ingroup digiquali
  * \brief   This file is a CRUD class file for Control (Create/Read/Update/Delete).
  */
 
@@ -35,7 +35,7 @@ class Control extends SaturneObject
     /**
      * @var string Module name.
      */
-    public $module = 'dolismq';
+    public $module = 'digiquali';
 
     /**
      * @var string Element type of object.
@@ -45,7 +45,7 @@ class Control extends SaturneObject
     /**
      * @var string Name of table without prefix where object is stored. This is also the key used for extrafields management.
      */
-    public $table_element = 'dolismq_control';
+    public $table_element = 'digiquali_control';
 
     /**
      * @var int Does this object support multicompany module ?
@@ -59,7 +59,7 @@ class Control extends SaturneObject
     public int $isextrafieldmanaged = 1;
 
     /**
-     * @var string Name of icon for control. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'control@dolismq' if picto is file 'img/object_control.png'.
+     * @var string Name of icon for control. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'control@digiquali' if picto is file 'img/object_control.png'.
      */
     public string $picto = 'fontawesome_fa-tasks_fas_#d35968';
 
@@ -127,7 +127,7 @@ class Control extends SaturneObject
         'track_id'           => ['type' => 'text',         'label' => 'TrackID',          'enabled' => 1, 'position' => 125, 'notnull' => 0, 'visible' => 0],
         'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserAuthor',  'picto' => 'user',                            'enabled' => 1, 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
         'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserModif',   'picto' => 'user',                            'enabled' => 1, 'position' => 140, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
-        'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php',      'label' => 'Sheet',       'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 11,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'dolismq_sheet.rowid'],
+        'fk_sheet'           => ['type' => 'integer:Sheet:digiquali/class/sheet.class.php',      'label' => 'Sheet',       'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 11,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_sheet.rowid'],
         'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1',         'label' => 'Controller',  'picto' => 'user',                            'enabled' => 1, 'position' => 12,  'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'user.rowid',   'positioncard' => 1],
         'projectid'          => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project',     'picto' => 'project',                         'enabled' => 1, 'position' => 13,  'notnull' => 0, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'projet.rowid', 'positioncard' => 2]
     ];
@@ -254,12 +254,12 @@ class Control extends SaturneObject
 
             require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
 
-            $url = dol_buildpath('custom/dolismq/public/control/public_control.php?track_id=' . $this->track_id, 3);
+            $url = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $this->track_id, 3);
 
             $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
 
-            dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/');
-            $file = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/' . 'barcode_' . $this->track_id . '.png';
+            dol_mkdir($conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/');
+            $file = $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/' . 'barcode_' . $this->track_id . '.png';
 
             $imageData = $barcode->getBarcodePngData();
             $imageData = imagecreatefromstring($imageData);
@@ -467,7 +467,7 @@ class Control extends SaturneObject
 
         $object->context = 'createfromclone';
 
-        $object->fetchObjectLinked('','', $object->id, 'dolismq_' . $object->element,  'OR', 1, 'sourcetype', 0);
+        $object->fetchObjectLinked('','', $object->id, 'digiquali_' . $object->element,  'OR', 1, 'sourcetype', 0);
 
         $controlID = $object->create($user);
 
@@ -516,7 +516,7 @@ class Control extends SaturneObject
 
             // Add Photos.
             if (!empty($options['photos'])) {
-                $dir  = $conf->dolismq->multidir_output[$conf->entity] . '/control';
+                $dir  = $conf->digiquali->multidir_output[$conf->entity] . '/control';
                 $path = $dir . '/' . $objectRef . '/photos';
                 dol_mkdir($dir . '/' . $objectFromClone->ref . '/photos');
                 dolCopyDir($path,$dir . '/' . $objectFromClone->ref . '/photos', 0, 1);
@@ -870,7 +870,7 @@ class Control extends SaturneObject
         $controls     = $this->fetchAll('ASC', 'next_control_date', 10, 0, ['customsql' => 't.status = ' . self::STATUS_LOCKED . ' AND t.next_control_date IS NOT NULL']);
         if (is_array($controls) && !empty($controls)) {
             foreach ($controls as $control) {
-                $control->fetchObjectLinked('', '', $control->id, 'dolismq_control', 'OR', 1, 'sourcetype', 0);
+                $control->fetchObjectLinked('', '', $control->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
                 $linkedObjectsInfos = $control->getLinkedObjectsWithQcFrequency($elementArray);
                 $linkedObjects      = $linkedObjectsInfos['linkedObjects'];
                 $qcFrequencyArray   = $linkedObjectsInfos['qcFrequencyArray'];
@@ -1000,7 +1000,7 @@ class ControlLine extends CommonObjectLine
 	/**
 	 * @var string Name of table without prefix where object is stored
 	 */
-	public $table_element = 'dolismq_controldet';
+	public $table_element = 'digiquali_controldet';
 
 	public $ref = '';
 
@@ -1060,7 +1060,7 @@ class ControlLine extends CommonObjectLine
 		global $db;
 
 		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
 		$sql .= ' WHERE t.rowid = ' . $rowid;
 		$sql .= ' AND entity IN (' . getEntity($this->table_element) . ')';
 
@@ -1098,7 +1098,7 @@ class ControlLine extends CommonObjectLine
 	{
 		global $db;
 		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 
 		$result = $db->query($sql);
@@ -1147,7 +1147,7 @@ class ControlLine extends CommonObjectLine
 	{
 		global $db;
 		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 		$sql .= ' AND fk_control = ' . $control_id;
 
@@ -1197,7 +1197,7 @@ class ControlLine extends CommonObjectLine
 	{
 		global $db;
 		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 		$sql .= ' AND fk_control = ' . $control_id .' AND fk_question ='. $question_id;
 
@@ -1257,7 +1257,7 @@ class ControlLine extends CommonObjectLine
 		$now = dol_now();
 
 		// Insertion dans base de la ligne
-		$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . 'dolismq_controldet';
+		$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . 'digiquali_controldet';
 		$sql .= ' ( ref, entity, status, date_creation, answer, answer_photo, comment, fk_question, fk_control, fk_user_creat';
 		$sql .= ')';
 		$sql .= ' VALUES (';
@@ -1316,7 +1316,7 @@ class ControlLine extends CommonObjectLine
 		$db->begin();
 
 		// Mise a jour ligne en base
-		$sql  = 'UPDATE ' . MAIN_DB_PREFIX . 'dolismq_controldet SET';
+		$sql  = 'UPDATE ' . MAIN_DB_PREFIX . 'digiquali_controldet SET';
 
 		$sql .= " ref='" . $db->escape($this->ref) . "',";
 		$sql .= " status='" . $db->escape($this->status) . "',";
@@ -1360,7 +1360,7 @@ class ControlLine extends CommonObjectLine
 
 		$db->begin();
 
-		$sql = 'DELETE FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet WHERE rowid = ' . $this->id;
+		$sql = 'DELETE FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet WHERE rowid = ' . $this->id;
 		dol_syslog(get_class($this) . '::delete', LOG_DEBUG);
 		if ($db->query($sql)) {
 			$db->commit();
@@ -1384,7 +1384,7 @@ class ControlEquipment extends SaturneObject
 	/**
 	 * @var string Module name.
 	 */
-	public $module = 'dolismq';
+	public $module = 'digiquali';
 
 	/**
 	 * @var string element to identify managed object
@@ -1394,10 +1394,10 @@ class ControlEquipment extends SaturneObject
 	/**
 	 * @var string Name of table without prefix where object is stored
 	 */
-	public $table_element = 'dolismq_control_equipment';
+	public $table_element = 'digiquali_control_equipment';
 
     /**
-     * @var string Name of icon for control_equipment. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'control_equipment@dolismq' if picto is file 'img/object_control_equipment.png'.
+     * @var string Name of icon for control_equipment. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'control_equipment@digiquali' if picto is file 'img/object_control_equipment.png'.
      */
     public string $picto = 'fontawesome_fa-toolbox_fas_#d35968';
 

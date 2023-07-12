@@ -17,7 +17,7 @@
 
 /**
  * \file    class/sheet.class.php
- * \ingroup dolismq
+ * \ingroup digiquali
  * \brief   This file is a CRUD class file for Sheet (Create/Read/Update/Delete).
  */
 
@@ -32,7 +32,7 @@ class Sheet extends SaturneObject
     /**
      * @var string Module name.
      */
-    public $module = 'dolismq';
+    public $module = 'digiquali';
 
     /**
      * @var string Element type of object.
@@ -42,7 +42,7 @@ class Sheet extends SaturneObject
     /**
      * @var string Name of table without prefix where object is stored. This is also the key used for extrafields management.
      */
-    public $table_element = 'dolismq_sheet';
+    public $table_element = 'digiquali_sheet';
 
     /**
      * @var int Does this object support multicompany module ?
@@ -56,7 +56,7 @@ class Sheet extends SaturneObject
     public int $isextrafieldmanaged = 1;
 
     /**
-     * @var string Name of icon for sheet. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'sheet@dolismq' if picto is file 'img/object_sheet.png'.
+     * @var string Name of icon for sheet. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'sheet@digiquali' if picto is file 'img/object_sheet.png'.
      */
     public string $picto = 'fontawesome_fa-list_fas_#d35968';
 
@@ -221,7 +221,7 @@ class Sheet extends SaturneObject
     {
         global $conf;
 
-        $refSheetMod               = new $conf->global->DOLISMQ_SHEET_ADDON($this->db);
+        $refSheetMod               = new $conf->global->DIGIQUALI_SHEET_ADDON($this->db);
 		$this->status              = $this->status ?: 1;
 		$this->ref                 = $refSheetMod->getNextValue($this);
 		$this->mandatory_questions = isset($this->mandatory_questions) ? $this->mandatory_questions : '{}';
@@ -283,8 +283,8 @@ class Sheet extends SaturneObject
 
 		$question = new Question($this->db);
 
-		$refSheetMod = new $conf->global->DOLISMQ_SHEET_ADDON($this->db);
-		require_once __DIR__ . '/../core/modules/dolismq/sheet/mod_sheet_standard.php';
+		$refSheetMod = new $conf->global->DIGIQUALI_SHEET_ADDON($this->db);
+		require_once __DIR__ . '/../core/modules/digiquali/sheet/mod_sheet_standard.php';
 
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
@@ -298,7 +298,7 @@ class Sheet extends SaturneObject
 		}
 
 		// Create clone
-		$object->fetchQuestionsLinked($object->id, 'dolismq_' . $object->element);
+		$object->fetchQuestionsLinked($object->id, 'digiquali_' . $object->element);
 		$object->context['createfromclone'] = 'createfromclone';
 		$object->ref = $refSheetMod->getNextValue($object);
 		$object->status = 1;
@@ -319,12 +319,12 @@ class Sheet extends SaturneObject
 		}
 
 		//add objects linked
-		if (is_array($object->linkedObjectsIds['dolismq_question']) && !empty($object->linkedObjectsIds['dolismq_question'])) {
-			foreach ($object->linkedObjectsIds['dolismq_question'] as $questionId) {
+		if (is_array($object->linkedObjectsIds['digiquali_question']) && !empty($object->linkedObjectsIds['digiquali_question'])) {
+			foreach ($object->linkedObjectsIds['digiquali_question'] as $questionId) {
 				$question->fetch($questionId);
-				$question->add_object_linked('dolismq_' . $object->element, $objectid);
+				$question->add_object_linked('digiquali_' . $object->element, $objectid);
 			}
-			$object->updateQuestionsPosition($object->linkedObjectsIds['dolismq_question']);
+			$object->updateQuestionsPosition($object->linkedObjectsIds['digiquali_question']);
 		}
 
 		unset($object->context['createfromclone']);
@@ -400,7 +400,7 @@ class Sheet extends SaturneObject
 		}
 		// On recherche les societes
 		$sql  = "SELECT *";
-		$sql .= " FROM " . MAIN_DB_PREFIX . "dolismq_sheet as s";
+		$sql .= " FROM " . MAIN_DB_PREFIX . "digiquali_sheet as s";
 
 		$sql              .= " WHERE s.entity IN (" . getEntity($this->table_element) . ")";
 		if ($filter) $sql .= " AND (" . $filter . ")";
@@ -617,7 +617,7 @@ class Sheet extends SaturneObject
 	 *
 	 */
 	public function getMaxPosition() {
-		$sql = "SELECT fk_source, sourcetype, targettype, position FROM ". MAIN_DB_PREFIX ."element_element WHERE fk_source = " . $this->id . " AND sourcetype = 'dolismq_sheet' ORDER BY position DESC LIMIT 1";
+		$sql = "SELECT fk_source, sourcetype, targettype, position FROM ". MAIN_DB_PREFIX ."element_element WHERE fk_source = " . $this->id . " AND sourcetype = 'digiquali_sheet' ORDER BY position DESC LIMIT 1";
 		$resql = $this->db->query($sql);
 
 		if ($resql) {
@@ -642,9 +642,9 @@ class Sheet extends SaturneObject
 			$sql = 'UPDATE '. MAIN_DB_PREFIX . 'element_element';
 			$sql .= ' SET position =' . $position;
 			$sql .= ' WHERE fk_source = ' . $this->id;
-			$sql .= ' AND sourcetype = "dolismq_sheet"';
+			$sql .= ' AND sourcetype = "digiquali_sheet"';
 			$sql .= ' AND fk_target =' . $questionId;
-			$sql .= ' AND targettype = "dolismq_question"';
+			$sql .= ' AND targettype = "digiquali_question"';
 			$res = $this->db->query($sql);
 
 			if (!$res) {

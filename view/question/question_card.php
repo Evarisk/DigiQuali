@@ -17,17 +17,17 @@
 
 /**
  *   	\file       view/question/question_card.php
- *		\ingroup    dolismq
+ *		\ingroup    digiquali
  *		\brief      Page to create/edit/view question
  */
 
-// Load DoliSMQ environment
-if (file_exists('../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../dolismq.main.inc.php';
-} elseif (file_exists('../../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../../dolismq.main.inc.php';
+// Load DigiQuali environment
+if (file_exists('../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../digiquali.main.inc.php';
+} elseif (file_exists('../../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../../digiquali.main.inc.php';
 } else {
-	die('Include of dolismq main fails');
+	die('Include of digiquali main fails');
 }
 
 // Libraries
@@ -41,10 +41,10 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 
 require_once '../../class/question.class.php';
 require_once '../../class/answer.class.php';
-require_once '../../core/modules/dolismq/question/mod_question_standard.php';
-require_once '../../core/modules/dolismq/answer/mod_answer_standard.php';
-require_once '../../lib/dolismq_question.lib.php';
-require_once '../../lib/dolismq_answer.lib.php';
+require_once '../../core/modules/digiquali/question/mod_question_standard.php';
+require_once '../../core/modules/digiquali/answer/mod_answer_standard.php';
+require_once '../../lib/digiquali_question.lib.php';
+require_once '../../lib/digiquali_answer.lib.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user, $langs;
@@ -68,7 +68,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 $object         = new Question($db);
 $answer         = new Answer($db);
 $extrafields    = new ExtraFields($db);
-$refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($db);
+$refQuestionMod = new $conf->global->DIGIQUALI_QUESTION_ADDON($db);
 
 // View objects
 $form = new Form($db);
@@ -92,9 +92,9 @@ if (empty($action) && empty($id) && empty($ref)) $action = 'view';
 // Load object
 include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
 
-$permissiontoread   = $user->rights->dolismq->question->read;
-$permissiontoadd    = $user->rights->dolismq->question->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
-$permissiontodelete = $user->rights->dolismq->question->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
+$permissiontoread   = $user->rights->digiquali->question->read;
+$permissiontoadd    = $user->rights->digiquali->question->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
+$permissiontodelete = $user->rights->digiquali->question->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
 
 // Security check - Protection if external user
 saturne_check_access($permissiontoread, $object);
@@ -110,12 +110,12 @@ if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'e
 if (empty($reshook)) {
 	$error = 0;
 
-	$backurlforlist = dol_buildpath('/dolismq/view/question/question_list.php', 1);
+	$backurlforlist = dol_buildpath('/digiquali/view/question/question_list.php', 1);
 
 	if (empty($backtopage) || ($cancel && empty($id))) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) $backtopage = $backurlforlist;
-			else $backtopage = dol_buildpath('/dolismq/view/question/question_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
+			else $backtopage = dol_buildpath('/digiquali/view/question/question_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
 		}
 	}
 
@@ -192,7 +192,7 @@ if (empty($reshook)) {
 		if ( ! $error && ! empty($conf->global->MAIN_UPLOAD_DOC)) {
 			// Define relativepath and upload_dir
 			$relativepath                                             = '/question/tmp/QU0/photo_ok';
-			$upload_dir                                               = $conf->dolismq->multidir_output[$conf->entity] . '/' . $relativepath;
+			$upload_dir                                               = $conf->digiquali->multidir_output[$conf->entity] . '/' . $relativepath;
 			if (is_array($_FILES['userfile']['tmp_name'])) $userfiles = $_FILES['userfile']['tmp_name'];
 			else $userfiles                                           = array($_FILES['userfile']['tmp_name']);
 
@@ -209,10 +209,10 @@ if (empty($reshook)) {
 
 			if ( ! $error) {
 				dol_add_file_process($upload_dir, 0, 1, 'userfile', '', null, '', 0);
-				$imgThumbMini   = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
-				$imgThumbSmall  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
-				$imgThumbMedium = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
-				$imgThumbLarge  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
+				$imgThumbMini   = vignette($upload_dir, $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_MINI, $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_MINI, '_mini');
+				$imgThumbSmall  = vignette($upload_dir, $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_SMALL, $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_SMALL, '_small');
+				$imgThumbMedium = vignette($upload_dir, $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+				$imgThumbLarge  = vignette($upload_dir, $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_LARGE, $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_LARGE, '_large');
 			}
 			$error = 0;
 		}
@@ -220,7 +220,7 @@ if (empty($reshook)) {
 		if ( ! $error && ! empty($conf->global->MAIN_UPLOAD_DOC)) {
 			// Define relativepath and upload_dir
 			$relativepath                                             = '/question/tmp/QU0/photo_ko';
-			$upload_dir                                               = $conf->dolismq->multidir_output[$conf->entity] . '/' . $relativepath;
+			$upload_dir                                               = $conf->digiquali->multidir_output[$conf->entity] . '/' . $relativepath;
 			if (is_array($_FILES['userfile2']['tmp_name'])) $userfiles = $_FILES['userfile2']['tmp_name'];
 			else $userfiles                                           = array($_FILES['userfile2']['tmp_name']);
 
@@ -237,10 +237,10 @@ if (empty($reshook)) {
 
 			if ( ! $error) {
 				dol_add_file_process($upload_dir, 0, 1, 'userfile2', '', null, '', 0);
-				$imgThumbMini   = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
-				$imgThumbSmall  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
-				$imgThumbMedium = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
-				$imgThumbLarge  = vignette($upload_dir, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
+				$imgThumbMini   = vignette($upload_dir, $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_MINI, $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_MINI, '_mini');
+				$imgThumbSmall  = vignette($upload_dir, $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_SMALL, $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_SMALL, '_small');
+				$imgThumbMedium = vignette($upload_dir, $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+				$imgThumbLarge  = vignette($upload_dir, $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_LARGE, $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_LARGE, '_large');
 			}
 			$error = 0;
 		}
@@ -249,15 +249,15 @@ if (empty($reshook)) {
 			$types = array('photo_ok', 'photo_ko');
 
 			foreach ($types as $type) {
-				$pathToTmpPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/' . $type;
-				$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type, 'files');
+				$pathToTmpPhoto = $conf->digiquali->multidir_output[$conf->entity] . '/question/tmp/QU0/' . $type;
+				$photoList = dol_dir_list($conf->digiquali->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type, 'files');
 				if (is_array($photoList) && !empty($photoList)) {
 					foreach ($photoList as $photo) {
-						$pathToQuestionPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object);
+						$pathToQuestionPhoto = $conf->digiquali->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object);
 						if (!is_dir($pathToQuestionPhoto)) {
 							mkdir($pathToQuestionPhoto);
 						}
-						$pathToQuestionPhotoType = $conf->dolismq->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object) . '/' . $type;
+						$pathToQuestionPhotoType = $conf->digiquali->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object) . '/' . $type;
 						if (!is_dir($pathToQuestionPhotoType)) {
 							mkdir($pathToQuestionPhotoType);
 						}
@@ -270,10 +270,10 @@ if (empty($reshook)) {
 							$object->$type = $photo['name'];
 						}
 
-						$imgThumbMini   = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI, '_mini');
-						$imgThumbSmall  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL, '_small');
-						$imgThumbMedium = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
-						$imgThumbLarge  = vignette($destfull, $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE, $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE, '_large');
+						$imgThumbMini   = vignette($destfull, $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_MINI, $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_MINI, '_mini');
+						$imgThumbSmall  = vignette($destfull, $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_SMALL, $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_SMALL, '_small');
+						$imgThumbMedium = vignette($destfull, $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_MEDIUM, $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_MEDIUM, '_medium');
+						$imgThumbLarge  = vignette($destfull, $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_LARGE, $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_LARGE, '_large');
 						unlink($photo['fullname']);
 					}
 				}
@@ -449,8 +449,8 @@ if (empty($reshook)) {
 			$types = array('photo_ok', 'photo_ko');
 
 			foreach ($types as $type) {
-				$pathToTmpPhoto = $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref .'/' . $type;
-				$photoList = dol_dir_list($conf->dolismq->multidir_output[$conf->entity] . '/question/' . $object->ref . '/' . $type, 'files');
+				$pathToTmpPhoto = $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $object->ref .'/' . $type;
+				$photoList = dol_dir_list($conf->digiquali->multidir_output[$conf->entity] . '/question/' . $object->ref . '/' . $type, 'files');
 				if (is_array($photoList) && !empty($photoList)) {
 					$favoriteExists = 0;
 					foreach ($photoList as $photo) {
@@ -711,7 +711,7 @@ if (empty($reshook)) {
  */
 
 $title    = $langs->trans(ucfirst($object->element));
-$help_url = 'FR:Module_DoliSMQ';
+$help_url = 'FR:Module_DigiQuali';
 
 saturne_header(1,'', $title, $help_url);
 
@@ -777,8 +777,8 @@ if ($action == 'create') {
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
-	$relativepath = 'dolismq/medias/thumbs';
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ok', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/tmp/QU0/photo_ok', $object, 'photo_ok', 1, $permissiontodelete);
+	$relativepath = 'digiquali/medias/thumbs';
+	print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ok', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/tmp/QU0/photo_ok', $object, 'photo_ok', 1, $permissiontodelete);
 	print '</td></tr>';
 
 	print '<tr></tr>';
@@ -797,7 +797,7 @@ if ($action == 'create') {
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ko', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/tmp/QU0/photo_ko', $object, 'photo_ko', 1, $permissiontodelete);
+	print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/tmp/QU0/photo_ko', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/tmp/QU0/photo_ko', $object, 'photo_ko', 1, $permissiontodelete);
 	print '</td></tr>';
 
 	// Categories
@@ -904,8 +904,8 @@ if (($id || $ref) && $action == 'edit') {
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
-	$relativepath = 'dolismq/medias/thumbs';
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ok', $object, 'photo_ok', 1, $permissiontodelete);
+	$relativepath = 'digiquali/medias/thumbs';
+	print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ok', $object, 'photo_ok', 1, $permissiontodelete);
 	print '</td></tr>';
 
 	print '<tr></tr>';
@@ -924,7 +924,7 @@ if (($id || $ref) && $action == 'edit') {
 		<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 	</div>
 	<?php
-	print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ko', $object, 'photo_ko', 1, $permissiontodelete);
+	print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ko', $object, 'photo_ko', 1, $permissiontodelete);
 	print '</td></tr>';
 
 	// Tags-Categories
@@ -1050,7 +1050,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print $langs->trans("PhotoOk");
 		print '</td>';
 		print '<td>';
-		print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ok', $object, 'photo_ok', 0, 0, 0,1);
+		print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ok', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ok', $object, 'photo_ok', 0, 0, 0,1);
 		print '</td></tr>';
 
 		//Photo KO -- Photo KO
@@ -1058,7 +1058,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print $langs->trans("PhotoKo");
 		print '</td>';
 		print '<td>';
-		print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ko', $object, 'photo_ko', 0, 0, 0,1);
+		print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $object->ref . '/photo_ko', 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'question/'. $object->ref . '/photo_ko', $object, 'photo_ko', 0, 0, 0,1);
 		print '</td></tr>';
 	}
 
@@ -1283,7 +1283,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	$maxEvent = 10;
 
-	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element);
+	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DigiQuali&object_type=' . $object->element);
 
 	// List of actions on element
 	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';

@@ -17,15 +17,15 @@
 
 /**
  * \file    class/answer.class.php
- * \ingroup dolismq
+ * \ingroup digiquali
  * \brief   This file is a CRUD class file for Answer (Create/Read/Update/Delete).
  */
 
 // Load Saturne libraries.
 require_once __DIR__ . '/../../saturne/class/saturneobject.class.php';
 
-// Load Dolismq librairies.
-require_once __DIR__ . '/../core/modules/dolismq/answer/mod_answer_standard.php';
+// Load Digiquali librairies.
+require_once __DIR__ . '/../core/modules/digiquali/answer/mod_answer_standard.php';
 
 /**
  * Class for Answer.
@@ -35,7 +35,7 @@ class Answer extends SaturneObject
     /**
      * @var string Module name.
      */
-    public $module = 'dolismq';
+    public $module = 'digiquali';
 
     /**
      * @var string Element type of object.
@@ -45,7 +45,7 @@ class Answer extends SaturneObject
     /**
      * @var string Name of table without prefix where object is stored. This is also the key used for extrafields management.
      */
-    public $table_element = 'dolismq_answer';
+    public $table_element = 'digiquali_answer';
 
     /**
      * @var int Does this object support multicompany module ?
@@ -59,7 +59,7 @@ class Answer extends SaturneObject
     public int $isextrafieldmanaged = 0;
 
     /**
-     * @var string Name of icon for answer. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'answer@dolismq' if picto is file 'img/object_answer.png'.
+     * @var string Name of icon for answer. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'answer@digiquali' if picto is file 'img/object_answer.png'.
      */
     public string $picto = 'fontawesome_fa-arrow-right_fas_#d35968';
 
@@ -120,7 +120,7 @@ class Answer extends SaturneObject
         'position'      => ['type' => 'integer',      'label' => 'Position',         'enabled' => 1, 'position' => 90,  'notnull' => 1, 'visible' => 0],
         'color'         => ['type' => 'varchar(255)', 'label' => 'Color',            'enabled' => 1, 'position' => 100, 'notnull' => 1, 'visible' => 0],
         'pictogram'     => ['type' => 'varchar(255)', 'label' => 'Pictogram',        'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 1],
-        'fk_question'   => ['type' => 'integer',      'label' => 'FkQuestion',       'enabled' => 1, 'position' => 120, 'notnull' => 1, 'visible' => 0, 'index' => 1, 'foreignkey' => 'dolismq_question.rowid'],
+        'fk_question'   => ['type' => 'integer',      'label' => 'FkQuestion',       'enabled' => 1, 'position' => 120, 'notnull' => 1, 'visible' => 0, 'index' => 1, 'foreignkey' => 'digiquali_question.rowid'],
         'fk_user_creat' => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'picto' => 'user', 'enabled' => 1, 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
         'fk_user_modif' => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif',  'picto' => 'user', 'enabled' => 1, 'position' => 140, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
     ];
@@ -221,7 +221,7 @@ class Answer extends SaturneObject
     {
         global $conf;
 
-        $refAnswerMod   = new $conf->global->DOLISMQ_ANSWER_ADDON($this->db);
+        $refAnswerMod   = new $conf->global->DIGIQUALI_ANSWER_ADDON($this->db);
         $this->ref      = $refAnswerMod->getNextValue($this);
         $this->position = $this->getMaxPosition() + 1;
 		$this->status   = $this->status ?: self::STATUS_VALIDATED;
@@ -236,7 +236,7 @@ class Answer extends SaturneObject
      */
     public function getMaxPosition(): ?int
     {
-        $sql   = "SELECT rowid, position FROM ". MAIN_DB_PREFIX ."dolismq_answer WHERE fk_question = " . $this->fk_question . " ORDER BY position DESC LIMIT 1";
+        $sql   = "SELECT rowid, position FROM ". MAIN_DB_PREFIX ."digiquali_answer WHERE fk_question = " . $this->fk_question . " ORDER BY position DESC LIMIT 1";
         $resql = $this->db->query($sql);
 
         if ($resql) {

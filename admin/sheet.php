@@ -17,26 +17,26 @@
 
 /**
  * \file    admin/sheet.php
- * \ingroup dolismq
- * \brief   DoliSMQ sheet config page.
+ * \ingroup digiquali
+ * \brief   DigiQuali sheet config page.
  */
 
-// Load DoliSMQ environment.
-if (file_exists('../dolismq.main.inc.php')) {
-    require_once __DIR__ . '/../dolismq.main.inc.php';
-} elseif (file_exists('../../dolismq.main.inc.php')) {
-    require_once __DIR__ . '/../../dolismq.main.inc.php';
+// Load DigiQuali environment.
+if (file_exists('../digiquali.main.inc.php')) {
+    require_once __DIR__ . '/../digiquali.main.inc.php';
+} elseif (file_exists('../../digiquali.main.inc.php')) {
+    require_once __DIR__ . '/../../digiquali.main.inc.php';
 } else {
-    die('Include of dolismq main fails');
+    die('Include of digiquali main fails');
 }
 
 // Load Dolibarr libraries.
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 
-// Load DoliSMQ libraries.
-require_once __DIR__ . '/../lib/dolismq.lib.php';
-require_once __DIR__ . '/../lib/dolismq_sheet.lib.php';
+// Load DigiQuali libraries.
+require_once __DIR__ . '/../lib/digiquali.lib.php';
+require_once __DIR__ . '/../lib/digiquali_sheet.lib.php';
 require_once __DIR__ . '/../class/sheet.class.php';
 
 // Global variables definitions.
@@ -65,11 +65,11 @@ foreach ($tmptype2label as $key => $val) {
     $type2label[$key] = $langs->transnoentitiesnoconv($val);
 }
 
-$elementtype = 'dolismq_sheet'; // Must be the $table_element of the class that manage extrafield.
+$elementtype = 'digiquali_sheet'; // Must be the $table_element of the class that manage extrafield.
 $error = 0; // Error counter.
 
 // Security check - Protection if external user.
-$permissiontoread = $user->rights->dolismq->adminpage->read;
+$permissiontoread = $user->rights->digiquali->adminpage->read;
 saturne_check_access($permissiontoread);
 
 /*
@@ -109,7 +109,7 @@ if ($action == 'generateCategories') {
 	$tags->type  = 'sheet';
 	$tags->create($user);
 
-	$tags->label = $langs->trans('CommercialDoliSMQ');
+	$tags->label = $langs->trans('CommercialDigiQuali');
 	$tags->type  = 'sheet';
 	$tags->create($user);
 
@@ -137,15 +137,15 @@ if ($action == 'generateCategories') {
 	$tags->type  = 'sheet';
 	$tags->create($user);
 
-	dolibarr_set_const($db, 'DOLISMQ_SHEET_DEFAULT_TAG', $tags->id, 'integer', 0, '', $conf->entity);
-	dolibarr_set_const($db, 'DOLISMQ_SHEET_TAGS_SET', 1, 'integer', 0, '', $conf->entity);
+	dolibarr_set_const($db, 'DIGIQUALI_SHEET_DEFAULT_TAG', $tags->id, 'integer', 0, '', $conf->entity);
+	dolibarr_set_const($db, 'DIGIQUALI_SHEET_TAGS_SET', 1, 'integer', 0, '', $conf->entity);
 }
 
 /*
  * View
  */
 $title    = $langs->trans('ModuleSetup', $moduleName);
-$help_url = 'FR:Module_DoliSMQ';
+$help_url = 'FR:Module_DigiQuali';
 
 saturne_header(0,'', $title, $help_url);
 
@@ -154,8 +154,8 @@ $linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?res
 print load_fiche_titre($title, $linkback, 'title_setup');
 
 // Configuration header.
-$head = dolismq_admin_prepare_head();
-print dol_get_fiche_head($head, $object->element, $title, -1, 'dolismq_color@dolismq');
+$head = digiquali_admin_prepare_head();
+print dol_get_fiche_head($head, $object->element, $title, -1, 'digiquali_color@digiquali');
 
 require_once __DIR__ . '/../../saturne/core/tpl/admin/object/object_numbering_module_view.tpl.php';
 
@@ -163,7 +163,7 @@ $constArray[$moduleNameLowerCase] = [
 	'UniqueLinkedElement' => [
 		'name'        => 'UniqueLinkedElement',
 		'description' => 'UniqueLinkedElementDescription',
-		'code'        => 'DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT',
+		'code'        => 'DIGIQUALI_SHEET_UNIQUE_LINKED_ELEMENT',
 	],
 ];
 
@@ -193,10 +193,10 @@ print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
 
 print '<tr><td>' . $langs->trans('GenerateCategories') . '</td>';
 print '<td class="center">';
-print $conf->global->DOLISMQ_SHEET_TAGS_SET ? $langs->trans('AlreadyGenerated') : $langs->trans('NotCreated');
+print $conf->global->DIGIQUALI_SHEET_TAGS_SET ? $langs->trans('AlreadyGenerated') : $langs->trans('NotCreated');
 print '</td>';
 print '<td class="center">';
-print $conf->global->DOLISMQ_SHEET_TAGS_SET ? '<a type="" class=" butActionRefused" value="">'.$langs->trans('Create') . '</a>' : '<input type="submit" class="button" value="'. $langs->trans('Create') .'">' ;
+print $conf->global->DIGIQUALI_SHEET_TAGS_SET ? '<a type="" class=" butActionRefused" value="">'.$langs->trans('Create') . '</a>' : '<input type="submit" class="button" value="'. $langs->trans('Create') .'">' ;
 print '</td>';
 
 print '<td class="center">';

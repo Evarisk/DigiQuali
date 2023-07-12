@@ -17,23 +17,23 @@
 
 /**
  * \file    admin/setup.php
- * \ingroup dolismq
- * \brief   DoliSMQ setup config page.
+ * \ingroup digiquali
+ * \brief   DigiQuali setup config page.
  */
 
-// Load DoliSMQ environment
-if (file_exists('../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../dolismq.main.inc.php';
-} elseif (file_exists('../../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../../dolismq.main.inc.php';
+// Load DigiQuali environment
+if (file_exists('../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../digiquali.main.inc.php';
+} elseif (file_exists('../../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../../digiquali.main.inc.php';
 } else {
-	die('Include of dolismq main fails');
+	die('Include of digiquali main fails');
 }
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 
-require_once __DIR__ . '/../lib/dolismq.lib.php';
+require_once __DIR__ . '/../lib/digiquali.lib.php';
 
 // Global variables definitions
 global $conf, $db, $langs, $user;
@@ -48,7 +48,8 @@ $backtopage = GETPOST('backtopage', 'alpha');
 $form       = new Form($db);
 
 // Security check - Protection if external user
-$permissiontoread = $user->rights->dolismq->adminpage->read;
+$permissiontoread = $user->rights->digiquali->adminpage->read;
+
 saturne_check_access($permissiontoread);
 /*
  * Actions
@@ -56,15 +57,15 @@ saturne_check_access($permissiontoread);
 
 if ($action == 'setMediaInfos') {
 	$error = 0;
-	$mediasMax['DOLISMQ_MEDIA_MAX_WIDTH_MINI']         = GETPOST('MediaMaxWidthMini', 'alpha');
-	$mediasMax['DOLISMQ_MEDIA_MAX_HEIGHT_MINI']        = GETPOST('MediaMaxHeightMini', 'alpha');
-	$mediasMax['DOLISMQ_MEDIA_MAX_WIDTH_SMALL']        = GETPOST('MediaMaxWidthSmall', 'alpha');
-	$mediasMax['DOLISMQ_MEDIA_MAX_HEIGHT_SMALL']       = GETPOST('MediaMaxHeightSmall', 'alpha');
-	$mediasMax['DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM']       = GETPOST('MediaMaxWidthMedium', 'alpha');
-	$mediasMax['DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM']      = GETPOST('MediaMaxHeightMedium', 'alpha');
-	$mediasMax['DOLISMQ_MEDIA_MAX_WIDTH_LARGE']        = GETPOST('MediaMaxWidthLarge', 'alpha');
-	$mediasMax['DOLISMQ_MEDIA_MAX_HEIGHT_LARGE']       = GETPOST('MediaMaxHeightLarge', 'alpha');
-	$mediasMax['DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY'] = GETPOST('DisplayNumberMediaGallery', 'alpha');
+	$mediasMax['DIGIQUALI_MEDIA_MAX_WIDTH_MINI']         = GETPOST('MediaMaxWidthMini', 'alpha');
+	$mediasMax['DIGIQUALI_MEDIA_MAX_HEIGHT_MINI']        = GETPOST('MediaMaxHeightMini', 'alpha');
+	$mediasMax['DIGIQUALI_MEDIA_MAX_WIDTH_SMALL']        = GETPOST('MediaMaxWidthSmall', 'alpha');
+	$mediasMax['DIGIQUALI_MEDIA_MAX_HEIGHT_SMALL']       = GETPOST('MediaMaxHeightSmall', 'alpha');
+	$mediasMax['DIGIQUALI_MEDIA_MAX_WIDTH_MEDIUM']       = GETPOST('MediaMaxWidthMedium', 'alpha');
+	$mediasMax['DIGIQUALI_MEDIA_MAX_HEIGHT_MEDIUM']      = GETPOST('MediaMaxHeightMedium', 'alpha');
+	$mediasMax['DIGIQUALI_MEDIA_MAX_WIDTH_LARGE']        = GETPOST('MediaMaxWidthLarge', 'alpha');
+	$mediasMax['DIGIQUALI_MEDIA_MAX_HEIGHT_LARGE']       = GETPOST('MediaMaxHeightLarge', 'alpha');
+	$mediasMax['DIGIQUALI_DISPLAY_NUMBER_MEDIA_GALLERY'] = GETPOST('DisplayNumberMediaGallery', 'alpha');
 
 	foreach($mediasMax as $key => $valueMax) {
 		if (empty($valueMax)) {
@@ -90,7 +91,7 @@ if ($action == 'setMediaInfos') {
  */
 
 $title    = $langs->trans('ModuleSetup', $moduleName);
-$help_url = 'FR:Module_DoliSMQ';
+$help_url = 'FR:Module_DigiQuali';
 
 saturne_header(0,'', $title);
 
@@ -99,8 +100,8 @@ $linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?res
 print load_fiche_titre($title, $linkback, 'title_setup');
 
 // Configuration header
-$head = dolismq_admin_prepare_head();
-print dol_get_fiche_head($head, 'settings', $title, -1, 'dolismq_color@dolismq');
+$head = digiquali_admin_prepare_head();
+print dol_get_fiche_head($head, 'settings', $title, -1, 'digiquali_color@digiquali');
 
 print load_fiche_titre($langs->trans('GeneralConfig'), '', '');
 
@@ -118,7 +119,7 @@ print $langs->trans('RedirectAfterConnectionDescription');
 print '</td>';
 
 print '<td class="center">';
-print ajax_constantonoff('DOLISMQ_REDIRECT_AFTER_CONNECTION');
+print ajax_constantonoff('DIGIQUALI_REDIRECT_AFTER_CONNECTION');
 print '</td>';
 print '</tr>';
 
@@ -129,7 +130,7 @@ print $langs->trans('AdvancedTriggersDescription');
 print '</td>';
 
 print '<td class="center">';
-print ajax_constantonoff('DOLISMQ_ADVANCED_TRIGGER');
+print ajax_constantonoff('DIGIQUALI_ADVANCED_TRIGGER');
 print '</td>';
 print '</tr>';
 
@@ -147,47 +148,47 @@ print '</tr>';
 
 print '<tr class="oddeven"><td><label for="MediaMaxWidthMini">' . $langs->trans('MediaMaxWidthMini') . '</label></td>';
 print '<td>' . $langs->trans('MediaMaxWidthMiniDescription') . '</td>';
-print '<td><input type="number" name="MediaMaxWidthMini" value="' . $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MINI . '"></td>';
+print '<td><input type="number" name="MediaMaxWidthMini" value="' . $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_MINI . '"></td>';
 print '</td></tr>';
 
 print '<tr class="oddeven"><td><label for="MediaMaxHeightMini">' . $langs->trans('MediaMaxHeightMini') . '</label></td>';
 print '<td>' . $langs->trans('MediaMaxHeightMiniDescription') . '</td>';
-print '<td><input type="number" name="MediaMaxHeightMini" value="' . $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MINI . '"></td>';
+print '<td><input type="number" name="MediaMaxHeightMini" value="' . $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_MINI . '"></td>';
 print '</td></tr>';
 
 print '<tr class="oddeven"><td><label for="MediaMaxWidthSmall">' . $langs->trans('MediaMaxWidthSmall') . '</label></td>';
 print '<td>' . $langs->trans('MediaMaxWidthSmallDescription') . '</td>';
-print '<td><input type="number" name="MediaMaxWidthSmall" value="' . $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_SMALL . '"></td>';
+print '<td><input type="number" name="MediaMaxWidthSmall" value="' . $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_SMALL . '"></td>';
 print '</td></tr>';
 
 print '<tr class="oddeven"><td><label for="MediaMaxHeightSmall">' . $langs->trans('MediaMaxHeightSmall') . '</label></td>';
 print '<td>' . $langs->trans('MediaMaxHeightSmallDescription') . '</td>';
-print '<td><input type="number" name="MediaMaxHeightSmall" value="' . $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_SMALL . '"></td>';
+print '<td><input type="number" name="MediaMaxHeightSmall" value="' . $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_SMALL . '"></td>';
 print '</td></tr>';
 
 print '<tr class="oddeven"><td><label for="MediaMaxWidthMedium">' . $langs->trans('MediaMaxWidthMedium') . '</label></td>';
 print '<td>' . $langs->trans('MediaMaxWidthMediumDescription') . '</td>';
-print '<td><input type="number" name="MediaMaxWidthMedium" value="' . $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_MEDIUM . '"></td>';
+print '<td><input type="number" name="MediaMaxWidthMedium" value="' . $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_MEDIUM . '"></td>';
 print '</td></tr>';
 
 print '<tr class="oddeven"><td><label for="MediaMaxHeightMedium">' . $langs->trans('MediaMaxHeightMedium') . '</label></td>';
 print '<td>' . $langs->trans('MediaMaxHeightMediumDescription') . '</td>';
-print '<td><input type="number" name="MediaMaxHeightMedium" value="' . $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_MEDIUM . '"></td>';
+print '<td><input type="number" name="MediaMaxHeightMedium" value="' . $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_MEDIUM . '"></td>';
 print '</td></tr>';
 
 print '<tr class="oddeven"><td><label for="MediaMaxWidthLarge">' . $langs->trans('MediaMaxWidthLarge') . '</label></td>';
 print '<td>' . $langs->trans('MediaMaxWidthLargeDescription') . '</td>';
-print '<td><input type="number" name="MediaMaxWidthLarge" value="' . $conf->global->DOLISMQ_MEDIA_MAX_WIDTH_LARGE . '"></td>';
+print '<td><input type="number" name="MediaMaxWidthLarge" value="' . $conf->global->DIGIQUALI_MEDIA_MAX_WIDTH_LARGE . '"></td>';
 print '</td></tr>';
 
 print '<tr class="oddeven"><td><label for="MediaMaxHeightLarge">' . $langs->trans('MediaMaxHeightLarge') . '</label></td>';
 print '<td>' . $langs->trans('MediaMaxHeightLargeDescription') . '</td>';
-print '<td><input type="number" name="MediaMaxHeightLarge" value="' . $conf->global->DOLISMQ_MEDIA_MAX_HEIGHT_LARGE . '"></td>';
+print '<td><input type="number" name="MediaMaxHeightLarge" value="' . $conf->global->DIGIQUALI_MEDIA_MAX_HEIGHT_LARGE . '"></td>';
 print '</td></tr>';
 
 print '<tr class="oddeven"><td><label for="DisplayNumberMediaGallery">' . $langs->trans('DisplayNumberMediaGallery') . '</label></td>';
 print '<td>' . $langs->trans('DisplayNumberMediaGalleryDescription') . '</td>';
-print '<td><input type="number" name="DisplayNumberMediaGallery" value="' . $conf->global->DOLISMQ_DISPLAY_NUMBER_MEDIA_GALLERY . '"></td>';
+print '<td><input type="number" name="DisplayNumberMediaGallery" value="' . $conf->global->DIGIQUALI_DISPLAY_NUMBER_MEDIA_GALLERY . '"></td>';
 print '</td></tr>';
 
 print '</table>';

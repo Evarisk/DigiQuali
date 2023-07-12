@@ -18,7 +18,7 @@
 
 /**
  * \file    public/control/public_control.php
- * \ingroup dolismq
+ * \ingroup digiquali
  * \brief   Public page to view control.
  */
 
@@ -47,22 +47,22 @@ if (!defined('NOBROWSERNOTIF')) {
 	define('NOBROWSERNOTIF', '1');
 }
 
-// Load DoliSMQ environment.
-if (file_exists('../../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../../dolismq.main.inc.php';
-} elseif (file_exists('../../../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../../../dolismq.main.inc.php';
+// Load DigiQuali environment.
+if (file_exists('../../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../../digiquali.main.inc.php';
+} elseif (file_exists('../../../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../../../digiquali.main.inc.php';
 } else {
-	die('Include of dolismq main fails');
+	die('Include of digiquali main fails');
 }
 
 // Load Dolibarr libraries.
 require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 
-// Load DoliSMQ libraries.
-require_once __DIR__ . '/../../../dolismq/class/control.class.php';
-require_once __DIR__ . '/../../../dolismq/lib/dolismq_sheet.lib.php';
+// Load DigiQuali libraries.
+require_once __DIR__ . '/../../../digiquali/class/control.class.php';
+require_once __DIR__ . '/../../../digiquali/lib/digiquali_sheet.lib.php';
 
 // Global variables definitions.
 global $conf, $db, $hookmanager, $langs;
@@ -94,12 +94,12 @@ saturne_header(0, '', $title);
 
 $elementArray = get_sheet_linkable_objects();
 
-$object->fetchObjectLinked('', '', '', 'dolismq_control');
+$object->fetchObjectLinked('', '', '', 'digiquali_control');
 ?>
 
 	<div class="signature-container" style="max-width: 1000px;">
 		<div class="wpeo-gridlayout grid-2">
-			<div style="display: flex; justify-content: center; align-items: center;"><?php echo saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/' . $object->element . '/'. $object->ref . '/photos/', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, $object->element . '/'. $object->ref . '/photos/', $object, 'photo', 0, 0,0, 1); ?></div>
+			<div style="display: flex; justify-content: center; align-items: center;"><?php echo saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/' . $object->element . '/'. $object->ref . '/photos/', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, $object->element . '/'. $object->ref . '/photos/', $object, 'photo', 0, 0,0, 1); ?></div>
 			<div class="informations">
 				<div style="margin-bottom: 10px"><strong><?php echo $object->getNomUrl(1, 'nolink'); ?></strong></div>
 				<div class="wpeo-table table-flex">

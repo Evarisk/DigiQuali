@@ -17,25 +17,25 @@
 
 /**
  *  \file       view/control/control_equipment.php
- *  \ingroup    dolismq
+ *  \ingroup    digiquali
  *  \brief      Tab for equipment on Control
  */
 
-// Load DoliSMQ environment
-if (file_exists('../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../dolismq.main.inc.php';
-} elseif (file_exists('../../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../../dolismq.main.inc.php';
+// Load DigiQuali environment
+if (file_exists('../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../digiquali.main.inc.php';
+} elseif (file_exists('../../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../../digiquali.main.inc.php';
 } else {
-	die('Include of dolismq main fails');
+	die('Include of digiquali main fails');
 }
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 
 require_once __DIR__ . '/../../class/control.class.php';
-require_once __DIR__ . '/../../lib/dolismq_control.lib.php';
-require_once __DIR__ . '/../../core/modules/dolismq/controlequipment/mod_control_equipment_standard.php';
+require_once __DIR__ . '/../../lib/digiquali_control.lib.php';
+require_once __DIR__ . '/../../core/modules/digiquali/controlequipment/mod_control_equipment_standard.php';
 require_once __DIR__ . '/../../../saturne/lib/object.lib.php';
 
 // Global variables definitions
@@ -55,7 +55,7 @@ $backtopage = GETPOST('backtopage', 'alpha');
 $object                 = new Control($db);
 $controlEquipment       = new ControlEquipment($db);
 $product                = new Product($db);
-$refControlEquipmentMod = new $conf->global->DOLISMQ_CONTROL_EQUIPMENT_ADDON($db);
+$refControlEquipmentMod = new $conf->global->DIGIQUALI_CONTROL_EQUIPMENT_ADDON($db);
 
 // Initialize view objects
 $form = new Form($db);
@@ -65,9 +65,9 @@ $hookmanager->initHooks(array('controlequipment', 'globalcard')); // Note that c
 // Load object
 include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php';
 
-$permissiontoread   = $user->rights->dolismq->control->read;
-$permissiontoadd    = $user->rights->dolismq->control->write;
-$permissiontodelete = $user->rights->dolismq->control->delete || ($permissiontoadd && isset($object->status));
+$permissiontoread   = $user->rights->digiquali->control->read;
+$permissiontoadd    = $user->rights->digiquali->control->write;
+$permissiontodelete = $user->rights->digiquali->control->delete || ($permissiontoadd && isset($object->status));
 
 // Security check (enable the most restrictive one)
 saturne_check_access($permissiontoread, $object);

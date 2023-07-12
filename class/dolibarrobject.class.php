@@ -17,7 +17,7 @@
 
 /**
  * \file    class/dolibarrobject.class.php
- * \ingroup dolismq
+ * \ingroup digiquali
  * \brief   This file is a CRUD class file for all DolibarrObject (Create/Read/Update/Delete).
  */
 
@@ -26,9 +26,9 @@ require_once DOL_DOCUMENT_ROOT . '/expedition/class/expedition.class.php';
 require_once DOL_DOCUMENT_ROOT . '/supplier_proposal/class/supplier_proposal.class.php';
 
 /**
- * Class for DoliSMQExpedition.
+ * Class for DigiQualiExpedition.
  */
-class DoliSMQExpedition extends Expedition
+class DigiQualiExpedition extends Expedition
 {
     /**
      * 'type' field format:
@@ -111,9 +111,9 @@ class DoliSMQExpedition extends Expedition
 }
 
 /**
- * Class for DoliSMQExpedition.
+ * Class for DigiQualiExpedition.
  */
-class DoliSMQSupplierProposal extends SupplierProposal
+class DigiQualiSupplierProposal extends SupplierProposal
 {
     /**
      * 'type' field format:
