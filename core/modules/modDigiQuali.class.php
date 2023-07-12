@@ -612,6 +612,7 @@ class modDigiQuali extends DolibarrModules
 
 		if (!empty($conf->global->DIGIQUALI_SHEET_TAGS_SET) && empty($conf->global->DIGIQUALI_SHEET_DEFAULT_TAG)) {
 			global $user, $langs;
+			require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 
 			$tags = new Categorie($this->db);
 			$tags->label = $langs->transnoentities('Default');
