@@ -99,3 +99,4 @@ UPDATE `llx_const` SET name = REPLACE(name, 'DOLISMQ', 'DIGIQUALI') WHERE name L
 UPDATE `llx_element_element` SET sourcetype = REPLACE(sourcetype, 'dolismq', 'digiquali') WHERE sourcetype LIKE '%dolismq%';
 UPDATE `llx_element_element` SET targettype = REPLACE(targettype, 'dolismq', 'digiquali') WHERE targettype LIKE '%dolismq%';
 DELETE FROM `llx_menu` WHERE module = 'dolismq';
+UPDATE `llx_rights_def` SET module = 'digiquali' WHERE module = 'dolismq';
