@@ -199,7 +199,7 @@ if (empty($reshook)) {
 		}
 	}
 
-	include_once __DIR__ . '/../../core/tpl/digiquali_control_answers_save_action.tpl.php';
+	require_once __DIR__ . '/../../core/tpl/digiquali_control_answers_save_action.tpl.php';
 
 	if ($action == 'save_next_control_date') {
 		$day    = GETPOST('reday');
@@ -940,7 +940,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Define colspan for the button 'Add'
 	$colspan = 3;
 
-	include_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';
+	require_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';
 
 	print '</div>';
 	print '</div>';

@@ -47,7 +47,7 @@ if (!defined('NOBROWSERNOTIF')) {
 	define('NOBROWSERNOTIF', '1');
 }
 
-// Load DoliSMQ environment.
+// Load DigiQuali environment.
 if (file_exists('../../digiquali.main.inc.php')) {
 	require_once __DIR__ . '/../../digiquali.main.inc.php';
 } elseif (file_exists('../../../digiquali.main.inc.php')) {
@@ -57,11 +57,9 @@ if (file_exists('../../digiquali.main.inc.php')) {
 }
 
 // Load Dolibarr libraries.
-require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
-require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT . '/user/class/user.class.php';
 
-// Load DoliSMQ libraries.
+// Load DigiQuali libraries.
 require_once __DIR__ . '/../../../digiquali/class/control.class.php';
 require_once __DIR__ . '/../../../digiquali/class/sheet.class.php';
 require_once __DIR__ . '/../../../digiquali/class/question.class.php';
@@ -74,7 +72,7 @@ require_once __DIR__ . '/../../core/modules/digiquali/controldet/mod_controldet_
 global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page.
-saturne_load_langs(['bills', 'contracts', 'orders', 'products', 'projects', 'companies']);
+saturne_load_langs();
 
 // Get parameters.
 $track_id = GETPOST('track_id', 'alpha');
@@ -97,7 +95,7 @@ $object->fetch(0, '', ' AND track_id =' . "'" . $track_id . "'");
  * Actions
 */
 
-include_once __DIR__ . '/../../core/tpl/digiquali_control_answers_save_action.tpl.php';
+require_once __DIR__ . '/../../core/tpl/digiquali_control_answers_save_action.tpl.php';
 
 /*
  * View
@@ -115,11 +113,8 @@ if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
 	print '<div class="center">' . $langs->trans('YourAnswersHaveBeenSaved') . '</div>';
 	print '</div>';
 } else {
-	//$sheet->fetch($object->fk_sheet);
 	$sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
 	$questionIds = $sheet->linkedObjectsIds['digiquali_question'];
-
-	$elementArray = get_sheet_linkable_objects();
 
 	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?action=save&id='.$object->id.'&track_id='. GETPOST('track_id') .'" id="saveControl" enctype="multipart/form-data">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
@@ -129,7 +124,8 @@ if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
 	<div id="tablelines" class="control-audit signature-container" width="100%" style="max-width: 1000px;">
 		<?php
 			print '<h2 class="center"><b>' . $conf->global->DIGIQUALI_PUBLIC_SURVEY_TITLE . '</b></h2>';
-			include_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';
+            print '<br>';
+			require_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';
 			print '<div class="center">';
 			print '<input class="wpeo-button" type="submit" value="'. $langs->trans('Submit') .'">';
 			print '</div>';
