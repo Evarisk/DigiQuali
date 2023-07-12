@@ -2,5 +2,6 @@ node_modules
 npm-debug.log
 .idea
 vendor
+.gitignore
 .gitattributes
 package-lock.json
