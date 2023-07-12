@@ -505,7 +505,7 @@ class Sheet extends SaturneObject
 		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
 		$sql .= " WHERE ";
 		$sql .= "(fk_source = ".((int) $sourceid)." AND sourcetype = '".$this->db->escape($sourcetype)."')";
-		$sql .= " AND targettype = 'dolismq_question'";
+		$sql .= " AND targettype = 'digiquali_question'";
 
 		$sql .= ' ORDER BY '.$orderby;
 

@@ -53,16 +53,16 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 
 // Initialize technical objects
 // Technical objets
-$object      = new Sheet($db);
-$question    = new Question($db);
-$answer      = new Answer($db);
+$object   = new Sheet($db);
+$question = new Question($db);
+$answer   = new Answer($db);
 
 // View objects
 $form = new Form($db);
 
 $upload_dir = $conf->digiquali->multidir_output[isset($conf->entity) ? $conf->entity : 1];
 
-$hookmanager->initHooks(array('sheetcard', 'globalcard')); // Note that conf->hooks_modules contains array
+$hookmanager->initHooks(array('sheetexport')); // Note that conf->hooks_modules contains array
 
 // Load object
 include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
@@ -112,7 +112,6 @@ if (empty($reshook)) {
 		$questionsLinked = $object->linkedObjects['digiquali_question'];
 
 		if (is_array($questionsLinked) && !empty($questionsLinked)) {
-			ksort($questionsLinked);
 			foreach ($questionsLinked as $questionSingle) {
 				$digiqualiExportArray['element_element'][$object->id][] = $questionSingle->id;
 				$questionExportArray['rowid']                  = $questionSingle->id;
@@ -211,10 +210,10 @@ print '</td>';
 print '</tr>';
 
 print '</tr>';
-print '</form>';
 print '</table>';
+print '</form>';
 
-print $langs->trans('ToImportDataGoToImportPage');
+print $langs->trans('ToImportDataGoToImportPage', '../digiqualitools.php', $langs->trans('ClickHere'));
 
 // End of page
 llxFooter();

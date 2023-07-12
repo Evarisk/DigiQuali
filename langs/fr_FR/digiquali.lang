@@ -128,7 +128,7 @@ NoLinkedObjectSelected         = Veuillez sélectionner un type d'objet à contr
 ExportSheetData                = Export des données du modèle de contrôle
 ExportSheetDataDescription     = Export des données du modèle de contrôle et des questions associées
 ExportWellDone                 = L'export a été réalisé avec succès
-ToImportDataGoToImportPage     = Pour importer des données, veuillez vous rendre sur la page :<br /><a href="https://www.service-public.fr/particuliers/vosdroits/F78" target="_blank">https://www.service-public.fr/particuliers/vosdroits/F78</a>
+ToImportDataGoToImportPage     = Pour importer des données, veuillez vous rendre sur la page d'import : <a href="%s"> %s </a>
 
 
 

@@ -94,7 +94,6 @@ if ($action == 'data_migration_export_global' && $permissionToRead) {
 				$sheetSingle->fetchQuestionsLinked($sheetSingle->id, 'digiquali_sheet', null, '', 'OR', 1, 'sourcetype', 0);
 				$questionsLinked = $sheetSingle->linkedObjectsIds['digiquali_question'];
 				if (is_array($questionsLinked) && !empty($questionsLinked)) {
-					ksort($questionsLinked);
 					foreach ($questionsLinked as $questionId) {
 						$digiqualiExportArray['element_element'][$sheetSingle->id][] = $questionId;
 					}
