@@ -400,7 +400,11 @@ while ($i < ($limit ? min($num, $limit) : $num))
 				print dol_strlen($object->$key) > 0 ? $object->fields[$key]['arrayofkeyval'][$object->$key] : "N/A";
 			}
 			elseif ($key == 'days_remaining_before_next_control') {
-				$nextControl      = max(floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24)), 0);
+                if (dol_strlen($object->next_control_date) > 0) {
+                    $nextControl = max(floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24)), 0);
+                } else {
+                    $nextControl = 0;
+                }
 				$nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
 
 				print '<div class="wpeo-button center button-'. $nextControlColor .'">' . $nextControl . '<br>' . $langs->trans('Days') . '</div>';
