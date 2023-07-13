@@ -38,10 +38,6 @@ require_once __DIR__ . '/../class/question.class.php';
 require_once __DIR__ . '/../class/sheet.class.php';
 require_once __DIR__ . '/../lib/digiquali.lib.php';
 
-require_once __DIR__ . '/../core/modules/digiquali/answer/mod_answer_standard.php';
-require_once __DIR__ . '/../core/modules/digiquali/question/mod_question_standard.php';
-require_once __DIR__ . '/../core/modules/digiquali/sheet/mod_sheet_standard.php';
-
 // Global variables definitions
 global $conf, $db, $langs, $user;
 

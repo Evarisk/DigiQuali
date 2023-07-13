@@ -41,8 +41,6 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 
 require_once '../../class/question.class.php';
 require_once '../../class/answer.class.php';
-require_once '../../core/modules/digiquali/question/mod_question_standard.php';
-require_once '../../core/modules/digiquali/answer/mod_answer_standard.php';
 require_once '../../lib/digiquali_question.lib.php';
 require_once '../../lib/digiquali_answer.lib.php';
 
@@ -68,7 +66,12 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 $object         = new Question($db);
 $answer         = new Answer($db);
 $extrafields    = new ExtraFields($db);
-$refQuestionMod = new $conf->global->DIGIQUALI_QUESTION_ADDON($db);
+
+//Numbering modules
+$numberingModulesNames = [
+    $object->element => $conf->global->DIGIQUALI_QUESTION_ADDON,
+];
+list($refQuestionMod) = saturne_require_objects_mod($numberingModulesNames);
 
 // View objects
 $form = new Form($db);

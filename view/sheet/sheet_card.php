@@ -37,7 +37,6 @@ require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
 require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
-require_once __DIR__ . '/../../core/modules/digiquali/sheet/mod_sheet_standard.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user;
@@ -61,7 +60,6 @@ $object      = new Sheet($db);
 $question    = new Question($db);
 $extrafields = new ExtraFields($db);
 $category    = new Categorie($db);
-$refSheetMod = new $conf->global->DIGIQUALI_SHEET_ADDON($db);
 
 // View objects
 $form = new Form($db);

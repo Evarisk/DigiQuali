@@ -27,6 +27,10 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/ticket.lib.php';
 // Load Saturne libraries.
 require_once __DIR__ . '/../../saturne/class/saturneobject.class.php';
 
+// Load Digiquali librairies.
+require_once __DIR__ . '/../core/modules/digiquali/control/mod_control_standard.php';
+
+
 /**
  * Class for Control.
  */

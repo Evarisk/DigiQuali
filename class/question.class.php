@@ -24,6 +24,9 @@
 // Load Saturne libraries.
 require_once __DIR__ . '/../../saturne/class/saturneobject.class.php';
 
+// Load Digiquali librairies.
+require_once __DIR__ . '/../core/modules/digiquali/question/mod_question_standard.php';
+
 /**
  * Class for Question.
  */

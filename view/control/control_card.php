@@ -52,8 +52,6 @@ require_once __DIR__ . '/../../class/digiqualidocuments/controldocument.class.ph
 require_once __DIR__ . '/../../lib/digiquali_control.lib.php';
 require_once __DIR__ . '/../../lib/digiquali_answer.lib.php';
 require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
-require_once __DIR__ . '/../../core/modules/digiquali/control/mod_control_standard.php';
-require_once __DIR__ . '/../../core/modules/digiquali/controldet/mod_controldet_standard.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user;
@@ -90,8 +88,12 @@ $extrafields      = new ExtraFields($db);
 $ecmfile          = new EcmFiles($db);
 $ecmdir           = new EcmDirectory($db);
 $category         = new Categorie($db);
-$refControlMod    = new $conf->global->DIGIQUALI_CONTROL_ADDON($db);
-$refControlDetMod = new $conf->global->DIGIQUALI_CONTROLDET_ADDON($db);
+
+//Numbering modules
+$numberingModulesNames = [
+    $controldet->element => $conf->global->DIGIQUALI_CONTROLDET_ADDON,
+];
+list($refControlDetMod) = saturne_require_objects_mod($numberingModulesNames);
 
 // View objects
 $form = new Form($db);
