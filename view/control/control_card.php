@@ -694,13 +694,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	unset($object->fields['projectid']); // Hide field already shown in banner
 
   if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {
+	  $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $object->track_id, 3);
 	  print '<input hidden class="copy-to-clipboard" value="'. $publicControlInterfaceUrl .'">';
       print '<tr><td class="titlefield">' . $langs->trans('PublicControl') . ' <a href="' . $publicControlInterfaceUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
 	  print ' <i class="fas fa-clipboard clipboard-copy"></i>';
 	  print '<input hidden id="copyToClipboardTooltip" value="'. $langs->trans('CopiedToClipboard') .'">';
 	  print '</td>';
       print '<td>' . saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
-	  $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $object->track_id, 3);
   }
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
