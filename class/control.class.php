@@ -26,10 +26,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/ticket.lib.php';
 
 // Load Saturne libraries.
 require_once __DIR__ . '/../../saturne/class/saturneobject.class.php';
-
-// Load Digiquali librairies.
-require_once __DIR__ . '/../core/modules/digiquali/control/mod_control_standard.php';
-
+require_once __DIR__ . '/../../saturne/lib/object.lib.php';
 
 /**
  * Class for Control.
@@ -994,7 +991,7 @@ class Control extends SaturneObject
 	}
 }
 
-class ControlLine extends CommonObjectLine
+class ControlLine extends SaturneObject
 {
 	/**
 	 * @var string ID to identify managed object
@@ -1059,13 +1056,13 @@ class ControlLine extends CommonObjectLine
 	 *	@param	int		$rowid      id of invoice line to get
 	 *	@return	int					<0 if KO, >0 if OK
 	 */
-	public function fetch($rowid)
+	public function fetch($id, ?string $ref = NULL, string $morewhere = ''): int
 	{
 		global $db;
 
 		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
 		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
-		$sql .= ' WHERE t.rowid = ' . $rowid;
+		$sql .= ' WHERE t.rowid = ' . $id;
 		$sql .= ' AND entity IN (' . getEntity($this->table_element) . ')';
 
 		$result = $db->query($sql);
@@ -1308,7 +1305,7 @@ class ControlLine extends CommonObjectLine
 	 * @return        int                    <0 if KO, >0 if OK
 	 * @throws Exception
 	 */
-	public function update(User $user, $notrigger = false)
+	public function update(User $user, $notrigger = false): int
 	{
 		global $user, $db;
 
@@ -1358,7 +1355,7 @@ class ControlLine extends CommonObjectLine
 	 * @return        int                   <0 if KO, >0 if OK
 	 * @throws Exception
 	 */
-	public function delete(User $user, $notrigger = false)
+	public function delete(User $user, $notrigger = false, bool $softDelete = true): int
 	{
 		global $user, $db;
 

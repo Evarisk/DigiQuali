@@ -41,7 +41,6 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
 // Load Saturne libraries.
-require_once __DIR__ . '/../../../saturne/lib/object.lib.php';
 require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
 
 require_once __DIR__ . '/../../class/control.class.php';
@@ -88,12 +87,6 @@ $extrafields      = new ExtraFields($db);
 $ecmfile          = new EcmFiles($db);
 $ecmdir           = new EcmDirectory($db);
 $category         = new Categorie($db);
-
-//Numbering modules
-$numberingModulesNames = [
-    $controldet->element => $conf->global->DIGIQUALI_CONTROLDET_ADDON,
-];
-list($refControlDetMod) = saturne_require_objects_mod($numberingModulesNames);
 
 // View objects
 $form = new Form($db);
@@ -202,7 +195,6 @@ if (empty($reshook)) {
 	}
 
 	require_once __DIR__ . '/../../core/tpl/digiquali_control_answers_save_action.tpl.php';
-
 	if ($action == 'save_next_control_date') {
 		$day    = GETPOST('reday');
 		$month  = GETPOST('remonth');

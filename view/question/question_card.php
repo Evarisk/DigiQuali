@@ -67,12 +67,6 @@ $object         = new Question($db);
 $answer         = new Answer($db);
 $extrafields    = new ExtraFields($db);
 
-//Numbering modules
-$numberingModulesNames = [
-    $object->element => $conf->global->DIGIQUALI_QUESTION_ADDON,
-];
-list($refQuestionMod) = saturne_require_objects_mod($numberingModulesNames);
-
 // View objects
 $form = new Form($db);
 
@@ -256,11 +250,11 @@ if (empty($reshook)) {
 				$photoList = dol_dir_list($conf->digiquali->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type, 'files');
 				if (is_array($photoList) && !empty($photoList)) {
 					foreach ($photoList as $photo) {
-						$pathToQuestionPhoto = $conf->digiquali->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object);
+						$pathToQuestionPhoto = $conf->digiquali->multidir_output[$conf->entity] . '/question/' . $object->getNextNumRef();
 						if (!is_dir($pathToQuestionPhoto)) {
 							mkdir($pathToQuestionPhoto);
 						}
-						$pathToQuestionPhotoType = $conf->digiquali->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object) . '/' . $type;
+						$pathToQuestionPhotoType = $conf->digiquali->multidir_output[$conf->entity] . '/question/' . $object->getNextNumRef() . '/' . $type;
 						if (!is_dir($pathToQuestionPhotoType)) {
 							mkdir($pathToQuestionPhotoType);
 						}
