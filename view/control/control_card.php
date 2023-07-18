@@ -432,7 +432,7 @@ if ($action == 'create') {
 
 			$objectArray    = [];
 			$objectPostName = $linkableElement['post_name'];
-			$objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $linkableElementType ? GETPOST('fromid') : '');
+			$objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $linkableElement['link_name'] ? GETPOST('fromid') : '');
 
 			if ((dol_strlen($linkableElement['fk_parent']) > 0 && GETPOST($linkableElement['parent_post']) > 0)) {
 				$objectFilter = [
@@ -441,7 +441,7 @@ if ($action == 'create') {
 			} else {
 				$objectFilter = [];
 			}
-			$objectList     = saturne_fetch_all_object_type($linkableElement['className'], '', '', 0, 0, $objectFilter);
+			$objectList = saturne_fetch_all_object_type($linkableElement['className'], '', '', 0, 0, $objectFilter);
 
 			if (is_array($objectList) && !empty($objectList)) {
 				foreach($objectList as $objectSingle) {

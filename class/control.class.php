@@ -218,9 +218,9 @@ class Control extends SaturneObject
     public int $fk_sheet;
 
     /**
-     * @var int User ID.
+     * @var int|string|null User ID.
      */
-    public int $fk_user_controller;
+    public $fk_user_controller;
 
     /**
      * @var int|string|null Project ID.
