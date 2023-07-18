@@ -1,10 +1,6 @@
 <?php
 
 if ($action == 'save') {
-	if (empty($user->id)) {
-		$user = new User($db);
-		$user->fetch(1);
-	}
 	$controldet = new ControlLine($db);
 	$sheet->fetch($object->fk_sheet);
 	$object->fetchObjectLinked($sheet->id, 'digiquali_sheet', '', '', 'OR', 1, 'sourcetype', 0);

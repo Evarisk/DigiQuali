@@ -84,6 +84,7 @@ $controldet       = new ControlLine($db);
 $question         = new Question($db);
 $answer           = new Answer($db);
 $sheet            = new Sheet($db);
+$user             = new User($db);
 $refControlDetMod = new $conf->global->DIGIQUALI_CONTROLDET_ADDON($db);
 
 $hookmanager->initHooks(['publicsurvey']); // Note that conf->hooks_modules contains array.
@@ -126,7 +127,8 @@ if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
 			print '<h2 class="center"><b>' . $conf->global->DIGIQUALI_PUBLIC_SURVEY_TITLE . '</b></h2>';
             print '<br>';
 			require_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';
-			print '<div class="center">';
+            print '<br>';
+            print '<div class="center">';
 			print '<input class="wpeo-button" type="submit" value="'. $langs->trans('Submit') .'">';
 			print '</div>';
 		?>
