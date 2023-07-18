@@ -14,7 +14,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/class/html.formprojet.class.php';
 
 require_once __DIR__.'/../../class/sheet.class.php';
 
-$sheet         = new Sheet($db);
+$sheet = new Sheet($db);
 // Build and execute select
 // --------------------------------------------------------------------
 $sql = 'SELECT DISTINCT ';
@@ -130,7 +130,11 @@ $sql .= $hookmanager->resPrint;
 if (array_key_exists($sortfield, $elementElementFields)) {
 	$sql .= ' ORDER BY '. $elementElementFields[$sortfield] .'.fk_source ' . $sortorder;
 } else {
-	$sql .= $db->order($sortfield, $sortorder);
+	if ($sortfield == 'days_remaining_before_next_control') {
+		$sql .= $db->order('next_control_date', $sortorder);
+	} else {
+		$sql .= $db->order($sortfield, $sortorder);
+	}
 }
 // Count total nb of records
 $nbtotalofrecords = '';
@@ -249,11 +253,21 @@ if (!empty($moreforfilter))
 
 $varpage = empty($contextpage) ? $_SERVER["PHP_SELF"] : $contextpage;
 
+$arrayfields['t.days_remaining_before_next_control'] = [
+	'label' => 'DaysBeforeNextControl',
+	'checked' => 1,
+	'enabled' => 1,
+//	'arrayofkeyval' => ['', '< 30', '< 60', '<90'],
+	'position' => 66
+];
+
 $selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage); // This also change content of $arrayfields
 $selectedfields .= (count($arrayofmassactions) ? $form->showCheckAddButtons('checkforselect', 1) : '');
 
 print '<div class="div-table-responsive">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
 print '<table class="tagtable nobottomiftotal liste'.($moreforfilter ? " listwithfilterbefore" : "").'">'."\n";
+
+$object->fields['days_remaining_before_next_control'] = $arrayfields['t.days_remaining_before_next_control'] ;
 
 $object->fields = dol_sort_array($object->fields, 'position');
 $arrayfields = dol_sort_array($arrayfields, 'position');
@@ -273,14 +287,16 @@ foreach ($object->fields as $key => $val)
 	{
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
 		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
-			print $form->selectarray('search_' . $key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
+			print $form->selectarray('search_' . $key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'minwidth200', 1);
 		}
 		elseif ($key == 'fk_sheet') {
 			print $sheet->selectSheetList(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : ($search['fk_sheet'] ?: 0), 'search_fk_sheet');
 		}
 		elseif (strpos($val['type'], 'integer:') === 0) {
 			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'minwidth100 maxwidth125 widthcentpercentminusxx', 1);
-		} elseif (!preg_match('/^(date|timestamp)/', $val['type'])) print '<input type="text" class="flat maxwidth75" name="search_'.$key.'" value="'.dol_escape_htmltag($search[$key]).'">';
+		} elseif (!preg_match('/^(date|timestamp)/', $val['type'])) {
+			print '<input type="text" class="flat maxwidth75" name="search_'.$key.'" value="'.dol_escape_htmltag($search[$key]).'">';
+		}
 
 		print '</td>';
 	}
@@ -382,6 +398,16 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'verdict') {
 				print dol_strlen($object->$key) > 0 ? $object->fields[$key]['arrayofkeyval'][$object->$key] : "N/A";
+			}
+			elseif ($key == 'days_remaining_before_next_control') {
+                if (dol_strlen($object->next_control_date) > 0) {
+                    $nextControl = max(floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24)), 0);
+                } else {
+                    $nextControl = 0;
+                }
+				$nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
+
+				print '<div class="wpeo-button center button-'. $nextControlColor .'">' . $nextControl . '<br>' . $langs->trans('Days') . '</div>';
 			}
 			elseif (in_array($key, $revertedElementFields)) {
 				$linkedElement = $linkNameElementCorrespondance[$elementElementFields[$key]];

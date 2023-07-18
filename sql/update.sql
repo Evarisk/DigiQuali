@@ -96,6 +96,7 @@ ALTER TABLE `llx_dolismq_controldet` RENAME TO `llx_digiquali_controldet`;
 ALTER TABLE `llx_dolismq_controldet_extrafields` RENAME TO `llx_digiquali_controldet_extrafields`;
 ALTER TABLE `llx_control_equipment` RENAME TO `llx_digiquali_control_equipment`;
 UPDATE `llx_const` SET name = REPLACE(name, 'DOLISMQ', 'DIGIQUALI') WHERE name LIKE '%DOLISMQ%';
+UPDATE `llx_const` SET value = REPLACE(value, 'dolismq', 'digiquali') WHERE value LIKE '%dolismq%';
 UPDATE `llx_element_element` SET sourcetype = REPLACE(sourcetype, 'dolismq', 'digiquali') WHERE sourcetype LIKE '%dolismq%';
 UPDATE `llx_element_element` SET targettype = REPLACE(targettype, 'dolismq', 'digiquali') WHERE targettype LIKE '%dolismq%';
 DELETE FROM `llx_menu` WHERE module = 'dolismq';

@@ -123,6 +123,7 @@ class modDigiQuali extends DolibarrModules
 				'mainloginpage',
                 'controlcard',
                 'publiccontrol',
+                'publicsurvey',
                 'digiqualiadmindocuments'
 			],
 			// Set this to 1 if features of module are opened to external users
@@ -588,13 +589,15 @@ class modDigiQuali extends DolibarrModules
 			$ecmPath =  $documentsPath . '/ecm' ;
 
 			if (is_dir($ecmPath)) {
-				if (is_dir($ecmPath) . '/dolismq') {
-					rename($ecmPath . '/dolismq', $ecmPath . '/digiquali');
+				if (is_dir($ecmPath . '/dolismq')) {
+                    chmod($ecmPath . '/dolismq', 0755);
+                    rename($ecmPath . '/dolismq', $ecmPath . '/digiquali');
 				}
 			}
 
 			$moduleDocumentsPath = $documentsPath . '/dolismq';
 			if (is_dir($moduleDocumentsPath)) {
+                chmod($moduleDocumentsPath, 0755);
 				rename($moduleDocumentsPath, $documentsPath . '/digiquali');
 			}
 
@@ -612,6 +615,7 @@ class modDigiQuali extends DolibarrModules
 
 		if (!empty($conf->global->DIGIQUALI_SHEET_TAGS_SET) && empty($conf->global->DIGIQUALI_SHEET_DEFAULT_TAG)) {
 			global $user, $langs;
+			require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 
 			$tags = new Categorie($this->db);
 			$tags->label = $langs->transnoentities('Default');

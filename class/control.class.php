@@ -115,7 +115,7 @@ class Control extends SaturneObject
         'ref'                => ['type' => 'varchar(128)', 'label' => 'Ref',              'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 4, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
         'ref_ext'            => ['type' => 'varchar(128)', 'label' => 'RefExt',           'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0],
         'entity'             => ['type' => 'integer',      'label' => 'Entity',           'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'index' => 1],
-        'date_creation'      => ['type' => 'datetime',     'label' => 'ControlDate',      'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 5, 'positioncard' => 10],
+        'date_creation'      => ['type' => 'datetime',     'label' => 'DateCreation',     'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 5, 'positioncard' => 10],
         'tms'                => ['type' => 'timestamp',    'label' => 'DateModification', 'enabled' => 1, 'position' => 50,  'notnull' => 0, 'visible' => 0],
         'import_key'         => ['type' => 'varchar(14)',  'label' => 'ImportId',         'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
         'next_control_date'  => ['type' => 'date',         'label' => 'NextControlDate',  'enabled' => 1, 'position' => 65,  'notnull' => 0, 'visible' => 5],
@@ -218,9 +218,9 @@ class Control extends SaturneObject
     public int $fk_sheet;
 
     /**
-     * @var int User ID.
+     * @var int|string|null User ID.
      */
-    public int $fk_user_controller;
+    public $fk_user_controller;
 
     /**
      * @var int|string|null Project ID.

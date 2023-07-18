@@ -125,6 +125,10 @@ AddSheetIntoCategory           = Assigner cette catégorie au modèle de contrô
 QuestionMandatorized           = La question %s a été rendue obligatoire
 QuestionUnMandatorized         = La question %s n'est plus obligatoire
 NoLinkedObjectSelected         = Veuillez sélectionner un type d'objet à contrôler
+ExportSheetData                = Export des données du modèle de contrôle
+ExportSheetDataDescription     = Export des données du modèle de contrôle et des questions associées
+ExportWellDone                 = L'export a été réalisé avec succès
+ToImportDataGoToImportPage     = Pour importer des données, veuillez vous rendre sur la page d'import : <a href="%s"> %s </a>
 
 
 
@@ -218,8 +222,8 @@ LinkTicket                              = Activer le lien avec les tickets
 LinkTicketDescription                   = Permet la liaison entre les tickets et les modèles de contrôle
 LinkEntrepot                            = Activer le lien avec les entrepôts
 LinkEntrepotDescription                 = Permet la liaison entre les entrepôts et les modèles de contrôle
-LinkExpedition                          = Activer le lien avec les expéditons
-LinkExpeditionDescription               = Permet la liaison entre les expéditons et les modèles de contrôle
+LinkExpedition                          = Activer le lien avec les expéditions
+LinkExpeditionDescription               = Permet la liaison entre les expéditions et les modèles de contrôle
 LinkPropal                              = Activer le lien avec les propositions commerciales
 LinkPropalDescription                   = Permet la liaison entre les propositions commerciales et les modèles de contrôle
 NoLotDefined                            = Pas de numéro de lot/série trouvé
@@ -271,7 +275,7 @@ RemainingDays                           = Jours avant expiration
 NoEquipmentLinked                       = Aucun moyen de contrôle lié
 NoControlAnswersPhoto                   = Pas de photos sur les réponses du contrôle
 NeedObjectToControl                     = Vous devez sélectionner un objet à contrôler
-NeedFkSheet                             = Vous devez sélectionner une fiche modèle
+NeedFkSheet                             = Vous devez sélectionner un modèle de contrôle
 ControlReminder                         = Rappel d'événement de contrôle
 ControlReminderDescription              = Activer le rappel d'événement de contrôle
 ControlReminderFrequency                = Fréquence de rappel d'évènement de contrôle
@@ -281,7 +285,11 @@ ControlReminderTypeDescription          = Choisir le type de rappel d'évènemen
 controlled                              = contrôlé(e)
 NextControlDateUpdated                  = La date de prochain contrôle a été mise à jour
 ErrorUpdatingNextControlDate            = La date de prochain contrôle n'a pas pu être mise à jour
-
+PublicSurvey                            = Interface publique de réponse au contrôle
+PublicSurveyTitle                       = Titre de l'interface publique de réponse au contrôle
+PublicSurveyTitleDescription            = Définir le titre de l'interface publique de réponse au contrôle
+YourAnswersHaveBeenSaved                = Vos réponses ont bien été sauvegardées
+DaysBeforeNextControl                   = Jours avant prochain contrôle
 
 #
 # ControlDet
@@ -316,13 +324,13 @@ controldocument_photo                   = fiche de controle avec photos
 
 # Data - Donnée
 DataMigrationDigiQualiToFile        = Export des données de DigiQuali
-DataMigrationExportSQA            = Export Fiche modèle/Question/Réponse vers ZIP
-DataMigrationExportSQADescription = Export des données des fiches modèles, questions et réponses en fichier ZIP
+DataMigrationExportSQA            = Export Modèle de contrôle/Question/Réponse vers ZIP
+DataMigrationExportSQADescription = Export des données des modèles de contrôle, questions et réponses en fichier ZIP
 DataMigrationExportQA             = Export Question/Réponse vers ZIP
 DataMigrationExportQADescription  = Export des données des questions et réponses en fichier ZIP
 DataMigrationFileToDolibarr       = Import des données vers DigiQuali
 DataMigrationImportZIP            = Import fichier ZIP vers Dolibarr
-DataMigrationImportZIPDescription = Import des données des fiches modèles, des questions et des réponses d'un fichier ZIP
+DataMigrationImportZIPDescription = Import des données des modèles de contrôle, des questions et des réponses d'un fichier ZIP
 ErrorArchiveNotWellFormattedZIP   = L'archive n'est pas pris en charge ou est vide. Vous devez joindre un archive d'import au format .zip
 ImportFinishWith                  = L'import des %s a été terminé avec %s erreur(s) sur %s importation(s)
 

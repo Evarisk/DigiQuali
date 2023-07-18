@@ -33,7 +33,13 @@ require_once __DIR__ . '/../../saturne/lib/object.lib.php';
  */
 function sheet_prepare_head(Sheet $object): array
 {
-    return saturne_object_prepare_head($object);
+	global $langs;
+
+	$head[100][0] = dol_buildpath('/digiquali/view/sheet/sheet_export.php', 1) . '?id=' . $object->id;
+	$head[100][1] = '<i class="fas fa-file-export pictofixedwidth"></i>' . $langs->trans('Export');
+	$head[100][2] = 'export';
+
+    return saturne_object_prepare_head($object, $head);
 }
 
 /**
@@ -45,12 +51,6 @@ function sheet_prepare_head(Sheet $object): array
 function get_sheet_linkable_objects(): array
 {
 	global $conf, $db, $hookmanager, $langs;
-
-    // Load Saturne libraries.
-	require_once __DIR__ . '/../../saturne/class/task/saturnetask.class.php';
-
-    // Load DigiQuali libraries.
-    require_once __DIR__ . '/../class/dolibarrobject.class.php';
 
 	//To add an object :
 
@@ -169,7 +169,7 @@ function get_sheet_linkable_objects(): array
 			'fk_parent'   => 'fk_projet',
 			'parent_post' => 'fk_project',
 			'create_url'  => 'projet/tasks.php',
-			'class_path'  => 'projet/class/task.class.php',
+			'class_path'  => 'custom/saturne/class/task/saturnetask.class.php',
 		];
 	}
 
@@ -249,7 +249,7 @@ function get_sheet_linkable_objects(): array
 
     if (isModEnabled('expedition')) {
         $linkableObjectTypes['expedition'] = [
-            'langs'      => 'Shipments',
+            'langs'      => 'Shipment',
             'langfile'   => 'sendings',
             'picto'      => 'dolly',
             'className'  => 'DigiQualiExpedition',
@@ -257,7 +257,7 @@ function get_sheet_linkable_objects(): array
             'link_name'  => 'expedition',
             'tab_type'   => 'delivery',
             'name_field' => 'ref',
-            'class_path' => 'expedition/class/expedition.class.php',
+            'class_path' => 'custom/digiquali/class/dolibarrobjects/digiqualiexpedition.class.php',
         ];
     }
 
@@ -287,7 +287,7 @@ function get_sheet_linkable_objects(): array
 //            'tab_type'   => 'supplier_proposal',
 //            'name_field' => 'ref',
 //            'create_url' => 'supplier_proposal/card.php',
-//            'class_path' => 'supplier_proposal/class/supplier_proposal.class.php',
+//            'class_path' => 'custom/digiquali/class/dolibarrobjects/digiqualisupplierproposal.class.php',
 //        ];
 //    }
 //
