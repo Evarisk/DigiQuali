@@ -32,7 +32,7 @@ if ($action == 'save') {
 		} else {
 			$controldettmp = $controldet;
 
-			$controldettmp->ref = $refControlDetMod->getNextValue($controldettmp);
+			$controldettmp->ref = $controldettmp->getNextNumRef();
 
 			$controldettmp->fk_control  = $object->id;
 			$controldettmp->fk_question = $questionId;

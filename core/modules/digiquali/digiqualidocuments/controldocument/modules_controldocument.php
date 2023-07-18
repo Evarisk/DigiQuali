@@ -22,6 +22,9 @@
  *  \brief   File that contains parent class for controldocuments document models.
  */
 
+// Load Saturne libraries
+require_once __DIR__ . '/../../../../../../saturne/core/modules/saturne/modules_saturne.php';
+
 /**
  * Parent class for documents models.
  */
