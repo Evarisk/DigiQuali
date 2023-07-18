@@ -175,7 +175,7 @@ function get_sheet_linkable_objects(): array
 			'fk_parent'   => 'fk_projet',
 			'parent_post' => 'fk_project',
 			'create_url'  => 'projet/tasks.php',
-			'class_path'  => 'projet/class/task.class.php',
+			'class_path'  => 'custom/saturne/class/task/saturnetask.class.php',
 		];
 	}
 
