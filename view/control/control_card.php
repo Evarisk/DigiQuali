@@ -41,7 +41,6 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
 // Load Saturne libraries.
-require_once __DIR__ . '/../../../saturne/lib/object.lib.php';
 require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
 
 require_once __DIR__ . '/../../class/control.class.php';
@@ -52,8 +51,6 @@ require_once __DIR__ . '/../../class/digiqualidocuments/controldocument.class.ph
 require_once __DIR__ . '/../../lib/digiquali_control.lib.php';
 require_once __DIR__ . '/../../lib/digiquali_answer.lib.php';
 require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
-require_once __DIR__ . '/../../core/modules/digiquali/control/mod_control_standard.php';
-require_once __DIR__ . '/../../core/modules/digiquali/controldet/mod_controldet_standard.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user;
@@ -90,8 +87,6 @@ $extrafields      = new ExtraFields($db);
 $ecmfile          = new EcmFiles($db);
 $ecmdir           = new EcmDirectory($db);
 $category         = new Categorie($db);
-$refControlMod    = new $conf->global->DIGIQUALI_CONTROL_ADDON($db);
-$refControlDetMod = new $conf->global->DIGIQUALI_CONTROLDET_ADDON($db);
 
 // View objects
 $form = new Form($db);
@@ -200,7 +195,6 @@ if (empty($reshook)) {
 	}
 
 	require_once __DIR__ . '/../../core/tpl/digiquali_control_answers_save_action.tpl.php';
-
 	if ($action == 'save_next_control_date') {
 		$day    = GETPOST('reday');
 		$month  = GETPOST('remonth');

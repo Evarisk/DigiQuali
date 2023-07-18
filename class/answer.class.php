@@ -24,9 +24,6 @@
 // Load Saturne libraries.
 require_once __DIR__ . '/../../saturne/class/saturneobject.class.php';
 
-// Load Digiquali librairies.
-require_once __DIR__ . '/../core/modules/digiquali/answer/mod_answer_standard.php';
-
 /**
  * Class for Answer.
  */
@@ -219,11 +216,7 @@ class Answer extends SaturneObject
      */
     public function create(User $user, bool $notrigger = false): int
     {
-        global $conf;
-
-		$refAnswerModName = empty($conf->global->DIGIQUALI_ANSWER_ADDON) ? 'mod_answer_standard' : $conf->global->DIGIQUALI_ANSWER_ADDON;
-        $refAnswerMod    = new $refAnswerModName($this->db);
-        $this->ref      = $refAnswerMod->getNextValue($this);
+        $this->ref      = $this->getNextNumRef();
         $this->position = $this->getMaxPosition() + 1;
 		$this->status   = $this->status ?: self::STATUS_VALIDATED;
 

@@ -219,11 +219,8 @@ class Sheet extends SaturneObject
      */
     public function create(User $user, bool $notrigger = false): int
     {
-        global $conf;
-
-        $refSheetMod               = new $conf->global->DIGIQUALI_SHEET_ADDON($this->db);
-		$this->status              = $this->status ?: 1;
-		$this->ref                 = $refSheetMod->getNextValue($this);
+        $this->ref                 = $this->getNextNumRef();
+        $this->status              = $this->status ?: 1;
 		$this->mandatory_questions = isset($this->mandatory_questions) ? $this->mandatory_questions : '{}';
 
         return parent::create($user, $notrigger);
@@ -283,9 +280,6 @@ class Sheet extends SaturneObject
 
 		$question = new Question($this->db);
 
-		$refSheetMod = new $conf->global->DIGIQUALI_SHEET_ADDON($this->db);
-		require_once __DIR__ . '/../core/modules/digiquali/sheet/mod_sheet_standard.php';
-
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
 		$object = new self($this->db);
@@ -300,7 +294,7 @@ class Sheet extends SaturneObject
 		// Create clone
 		$object->fetchQuestionsLinked($object->id, 'digiquali_' . $object->element);
 		$object->context['createfromclone'] = 'createfromclone';
-		$object->ref = $refSheetMod->getNextValue($object);
+		$object->ref = $object->getNextNumRef();
 		$object->status = 1;
 		$objectid = $object->create($user);
 

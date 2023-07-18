@@ -41,8 +41,6 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 
 require_once '../../class/question.class.php';
 require_once '../../class/answer.class.php';
-require_once '../../core/modules/digiquali/question/mod_question_standard.php';
-require_once '../../core/modules/digiquali/answer/mod_answer_standard.php';
 require_once '../../lib/digiquali_question.lib.php';
 require_once '../../lib/digiquali_answer.lib.php';
 
@@ -68,7 +66,6 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 $object         = new Question($db);
 $answer         = new Answer($db);
 $extrafields    = new ExtraFields($db);
-$refQuestionMod = new $conf->global->DIGIQUALI_QUESTION_ADDON($db);
 
 // View objects
 $form = new Form($db);
@@ -253,11 +250,11 @@ if (empty($reshook)) {
 				$photoList = dol_dir_list($conf->digiquali->multidir_output[$conf->entity] . '/question/tmp/' . 'QU0/' . $type, 'files');
 				if (is_array($photoList) && !empty($photoList)) {
 					foreach ($photoList as $photo) {
-						$pathToQuestionPhoto = $conf->digiquali->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object);
+						$pathToQuestionPhoto = $conf->digiquali->multidir_output[$conf->entity] . '/question/' . $object->getNextNumRef();
 						if (!is_dir($pathToQuestionPhoto)) {
 							mkdir($pathToQuestionPhoto);
 						}
-						$pathToQuestionPhotoType = $conf->digiquali->multidir_output[$conf->entity] . '/question/' . $refQuestionMod->getNextValue($object) . '/' . $type;
+						$pathToQuestionPhotoType = $conf->digiquali->multidir_output[$conf->entity] . '/question/' . $object->getNextNumRef() . '/' . $type;
 						if (!is_dir($pathToQuestionPhotoType)) {
 							mkdir($pathToQuestionPhotoType);
 						}

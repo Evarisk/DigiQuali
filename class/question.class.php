@@ -237,10 +237,7 @@ class Question extends SaturneObject
      */
     public function create(User $user, bool $notrigger = false): int
     {
-        global $conf;
-
-        $refQuestionMod = new $conf->global->DIGIQUALI_QUESTION_ADDON($this->db);
-        $this->ref      = $refQuestionMod->getNextValue($this);
+        $this->ref      = $this->getNextNumRef();
 		$this->status   = $this->status ?: 1;
 
         return parent::create($user, $notrigger);
@@ -345,9 +342,6 @@ class Question extends SaturneObject
 		global $conf;
 		$error = 0;
 
-		$refQuestionMod = new $conf->global->DIGIQUALI_QUESTION_ADDON($this->db);
-		require_once __DIR__ . '/../core/modules/digiquali/question/mod_question_standard.php';
-
 		$object = new self($this->db);
         $answer = new Answer($this->db);
 
@@ -365,7 +359,7 @@ class Question extends SaturneObject
 
 		// Clear fields
 		if (property_exists($object, 'ref')) {
-			$object->ref = $refQuestionMod->getNextValue($object);
+			$object->ref = $this->getNextNumRef();
 		}
 		if (!empty($options['label'])) {
 			if (property_exists($object, 'label')) {

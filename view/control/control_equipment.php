@@ -35,7 +35,6 @@ require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
 
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../lib/digiquali_control.lib.php';
-require_once __DIR__ . '/../../core/modules/digiquali/controlequipment/mod_control_equipment_standard.php';
 require_once __DIR__ . '/../../../saturne/lib/object.lib.php';
 
 // Global variables definitions
@@ -55,7 +54,13 @@ $backtopage = GETPOST('backtopage', 'alpha');
 $object                 = new Control($db);
 $controlEquipment       = new ControlEquipment($db);
 $product                = new Product($db);
-$refControlEquipmentMod = new $conf->global->DIGIQUALI_CONTROL_EQUIPMENT_ADDON($db);
+
+//Numbering modules
+$numberingModulesNames = [
+    $controlEquipment->element => $conf->global->DIGIQUALI_CONTROL_EQUIPMENT_ADDON,
+];
+list($refControlEquipmentMod) = saturne_require_objects_mod($numberingModulesNames);
+
 
 // Initialize view objects
 $form = new Form($db);
