@@ -84,6 +84,7 @@ $controldet       = new ControlLine($db);
 $question         = new Question($db);
 $answer           = new Answer($db);
 $sheet            = new Sheet($db);
+$user             = new User($db);
 $refControlDetMod = new $conf->global->DIGIQUALI_CONTROLDET_ADDON($db);
 
 $hookmanager->initHooks(['publicsurvey']); // Note that conf->hooks_modules contains array.
