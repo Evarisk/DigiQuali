@@ -3,7 +3,7 @@
 if (is_array($questionIds) && !empty($questionIds)) {
 	foreach ($questionIds as $questionId) {
 		$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
-		$questionAnswer = 0;
+		$questionAnswer = '';
 		$comment = '';
 		if ($result > 0 && is_array($result)) {
 			$itemControlDet = array_shift($result);
