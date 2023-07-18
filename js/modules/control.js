@@ -36,6 +36,7 @@ window.digiquali.control.event = function() {
 	$( document ).on( 'click', '.validateButton', window.digiquali.control.getAnswerCounter);
 	$( document ).on( 'change', '#fk_sheet', window.digiquali.control.showSelectObjectLinked);
 	$( document ).on( 'click', '.toggleControlInfo', window.digiquali.control.toggleControlInfo );
+	$( document ).on( 'click', '.clipboard-copy', window.digiquali.control.copyToClipboard );
 };
 
 /**
@@ -234,3 +235,27 @@ window.digiquali.control.toggleControlInfo = function ( event ) {
 		$(this).closest('.fiche').find('.fichecenter.controlInfo').removeClass('hidden')
 	}
 }
+
+/**
+ * Copy current link to clipboard
+ *
+ * @since   1.8.0
+ * @version 1.8.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.digiquali.control.copyToClipboard = function(  event ) {
+	let copyText = $(".copy-to-clipboard").attr('value')
+	navigator.clipboard.writeText(copyText).then(() => {
+			$('.clipboard-copy').animate({
+				backgroundColor: "#59ed9c"
+			}, 200, () => {
+				$('.clipboard-copy').attr('class', 'fas fa-check  clipboard-copy')
+				$(this).tooltip({items : '.clipboard-copy', content: $('#copyToClipboardTooltip').val()});
+				$(this).tooltip("open");
+				$('.clipboard-copy').attr('style', '')
+			})
+		}
+	)
+};
