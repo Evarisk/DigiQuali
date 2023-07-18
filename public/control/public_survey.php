@@ -69,7 +69,7 @@ require_once __DIR__ . '/../../../digiquali/lib/digiquali_answer.lib.php';
 require_once __DIR__ . '/../../core/modules/digiquali/controldet/mod_controldet_standard.php';
 
 // Global variables definitions.
-global $conf, $db, $hookmanager, $langs, $user;
+global $conf, $db, $hookmanager, $langs;
 
 // Load translation files required by the page.
 saturne_load_langs();
