@@ -52,12 +52,6 @@ function get_sheet_linkable_objects(): array
 {
 	global $conf, $db, $hookmanager, $langs;
 
-    // Load Saturne libraries.
-	require_once __DIR__ . '/../../saturne/class/task/saturnetask.class.php';
-
-    // Load DigiQuali libraries.
-    require_once __DIR__ . '/../class/dolibarrobject.class.php';
-
 	//To add an object :
 
 	//	'langs'         => Object translation
@@ -263,7 +257,7 @@ function get_sheet_linkable_objects(): array
             'link_name'  => 'expedition',
             'tab_type'   => 'delivery',
             'name_field' => 'ref',
-            'class_path' => 'expedition/class/expedition.class.php',
+            'class_path' => 'custom/digiquali/class/dolibarrobjects/digiqualiexpedition.class.php',
         ];
     }
 
@@ -293,7 +287,7 @@ function get_sheet_linkable_objects(): array
 //            'tab_type'   => 'supplier_proposal',
 //            'name_field' => 'ref',
 //            'create_url' => 'supplier_proposal/card.php',
-//            'class_path' => 'supplier_proposal/class/supplier_proposal.class.php',
+//            'class_path' => 'custom/digiquali/class/dolibarrobjects/digiqualisupplierproposal.class.php',
 //        ];
 //    }
 //
