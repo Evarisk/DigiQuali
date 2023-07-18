@@ -155,7 +155,7 @@ if (empty($reshook)) {
 		}
 	}
 
-	if ($action == 'add') {
+	if ($action == 'add' && !$cancel) {
 		$linkableElements = get_sheet_linkable_objects();
 		$controlledObjectSelected = 0;
 
