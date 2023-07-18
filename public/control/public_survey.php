@@ -66,7 +66,6 @@ require_once __DIR__ . '/../../../digiquali/class/question.class.php';
 require_once __DIR__ . '/../../../digiquali/class/answer.class.php';
 require_once __DIR__ . '/../../../digiquali/lib/digiquali_sheet.lib.php';
 require_once __DIR__ . '/../../../digiquali/lib/digiquali_answer.lib.php';
-require_once __DIR__ . '/../../core/modules/digiquali/controldet/mod_controldet_standard.php';
 
 // Global variables definitions.
 global $conf, $db, $hookmanager, $langs;
@@ -85,7 +84,6 @@ $question         = new Question($db);
 $answer           = new Answer($db);
 $sheet            = new Sheet($db);
 $user             = new User($db);
-$refControlDetMod = new $conf->global->DIGIQUALI_CONTROLDET_ADDON($db);
 
 $hookmanager->initHooks(['publicsurvey']); // Note that conf->hooks_modules contains array.
 

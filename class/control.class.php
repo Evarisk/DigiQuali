@@ -26,7 +26,6 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/ticket.lib.php';
 
 // Load Saturne libraries.
 require_once __DIR__ . '/../../saturne/class/saturneobject.class.php';
-require_once __DIR__ . '/../../saturne/lib/object.lib.php';
 
 /**
  * Class for Control.
@@ -993,7 +992,12 @@ class Control extends SaturneObject
 
 class ControlLine extends SaturneObject
 {
-	/**
+    /**
+     * @var string Module name.
+     */
+    public $module = 'digiquali';
+
+    /**
 	 * @var string ID to identify managed object
 	 */
 	public $element = 'controldet';
