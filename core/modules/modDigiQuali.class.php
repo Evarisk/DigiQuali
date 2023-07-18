@@ -123,6 +123,7 @@ class modDigiQuali extends DolibarrModules
 				'mainloginpage',
                 'controlcard',
                 'publiccontrol',
+                'publicsurvey',
                 'digiqualiadmindocuments'
 			],
 			// Set this to 1 if features of module are opened to external users

@@ -285,6 +285,10 @@ ControlReminderTypeDescription          = Choisir le type de rappel d'évènemen
 controlled                              = contrôlé(e)
 NextControlDateUpdated                  = La date de prochain contrôle a été mise à jour
 ErrorUpdatingNextControlDate            = La date de prochain contrôle n'a pas pu être mise à jour
+PublicSurvey                            = Interface publique de réponse au contrôle
+PublicSurveyTitle                       = Titre de l'interface publique de réponse au contrôle
+PublicSurveyTitleDescription            = Définir le titre de l'interface publique de réponse au contrôle
+YourAnswersHaveBeenSaved                = Vos réponses ont bien été sauvegardées
 DaysBeforeNextControl                   = Jours avant prochain contrôle
 
 #

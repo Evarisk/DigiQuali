@@ -84,13 +84,21 @@ if ($action == 'setmodControlDet') {
 }
 
 if ($action == 'update_control_reminder') {
-    $reminderFrequency = GETPOST('ControlReminderFrequency');
-    $reminderType      = GETPOST('ControlReminderType');
+    $reminderFrequency = GETPOST('control_reminder_frequency');
+    $reminderType      = GETPOST('control_reminder_type');
 
     dolibarr_set_const($db, 'DIGIQUALI_CONTROL_REMINDER_FREQUENCY', $reminderFrequency, 'chaine', 0, '', $conf->entity);
     dolibarr_set_const($db, 'DIGIQUALI_CONTROL_REMINDER_TYPE', $reminderType, 'chaine', 0, '', $conf->entity);
 
     setEventMessage('SavedConfig');
+}
+
+if ($action == 'update_public_survey_title') {
+	$publicSurveyTitle = GETPOST('public_survey_title');
+
+	dolibarr_set_const($db, 'DIGIQUALI_PUBLIC_SURVEY_TITLE', $publicSurveyTitle, 'chaine', 0, '', $conf->entity);
+
+	setEventMessage('SavedConfig');
 }
 
 
@@ -387,7 +395,25 @@ print '<td class="center">';
 print ajax_constantonoff('DIGIQUALI_CONTROL_USE_LARGE_MEDIA_IN_GALLERY');
 print '</td>';
 print '</tr>';
+
+print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '">';
+print '<input type="hidden" name="token" value="' . newToken() . '">';
+print '<input type="hidden" name="action" value="update_public_survey_title">';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('PublicSurveyTitle');
+print '</td><td>';
+print $langs->trans('PublicSurveyTitleDescription');
+print '</td>';
+
+print '<td class="center">';
+print '<input type="text" name="public_survey_title" value="' . $conf->global->DIGIQUALI_PUBLIC_SURVEY_TITLE . '">';
+print '</td></tr>';
 print '</table>';
+
+print '<div class="tabsAction"><input type="submit" class="butAction" name="save" value="' . $langs->trans('Save') . '"></div>';
+
+print '</form>';
 
 print load_fiche_titre($langs->trans('ControlReminder'), '', '');
 
@@ -418,7 +444,7 @@ print $langs->trans('ControlReminderFrequencyDescription');
 print '</td>';
 
 print '<td class="center">';
-print '<input type="text" name="ControlReminderFrequency" value="' . $conf->global->DIGIQUALI_CONTROL_REMINDER_FREQUENCY . '">';
+print '<input type="text" name="control_reminder_frequency" value="' . $conf->global->DIGIQUALI_CONTROL_REMINDER_FREQUENCY . '">';
 print '</td></tr>';
 
 print '<tr class="oddeven"><td>';
@@ -429,7 +455,7 @@ print '</td>';
 
 print '<td class="center">';
 $controlReminderType = ['browser' => 'Browser', 'email' => 'Email', 'sms' => 'SMS'];
-print Form::selectarray('ControlReminderType', $controlReminderType, (!empty($conf->global->DIGIQUALI_CONTROL_REMINDER_TYPE) ? $conf->global->DIGIQUALI_CONTROL_REMINDER_TYPE : $controlReminderType[0]), 0, 0, 0, '', 1);
+print Form::selectarray('control_reminder_type', $controlReminderType, (!empty($conf->global->DIGIQUALI_CONTROL_REMINDER_TYPE) ? $conf->global->DIGIQUALI_CONTROL_REMINDER_TYPE : $controlReminderType[0]), 0, 0, 0, '', 1);
 print '</td></tr>';
 
 print '</table>';

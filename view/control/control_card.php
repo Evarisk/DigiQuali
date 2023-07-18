@@ -199,72 +199,7 @@ if (empty($reshook)) {
 		}
 	}
 
-	if ($action == 'save') {
-		$controldet = new ControlLine($db);
-		$sheet->fetch($object->fk_sheet);
-		$object->fetchObjectLinked($sheet->id, 'digiquali_sheet', '', '', 'OR', 1, 'sourcetype', 0);
-		$questionIds = $object->linkedObjectsIds['digiquali_question'];
-
-		foreach ($questionIds as $questionId) {
-			$controldettmp = $controldet;
-			//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
-			$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
-
-			if ($result > 0 && is_array($result)) {
-				$controldettmp = array_shift($result);
-				//sauvegarder réponse
-				$questionAnswer = GETPOST('answer'.$questionId);
-
-				if (!empty($questionAnswer)) {
-					$controldettmp->answer = $questionAnswer;
-				}
-
-				//sauvegarder commentaire
-				$comment = GETPOST('comment'.$questionId);
-
-				if (dol_strlen($comment) > 0) {
-					$controldettmp->comment = $comment;
-				}
-
-				$question->fetch($questionId);
-				$controldettmp->update($user);
-			} else {
-				$controldettmp = $controldet;
-
-				$controldettmp->ref = $refControlDetMod->getNextValue($controldettmp);
-
-				$controldettmp->fk_control  = $object->id;
-				$controldettmp->fk_question = $questionId;
-
-				//sauvegarder réponse
-				$questionAnswer = GETPOST('answer'.$questionId);
-
-				if (!empty($questionAnswer)) {
-					$controldettmp->answer = $questionAnswer;
-				} else {
-					$controldettmp->answer = '';
-				}
-
-				//sauvegarder commentaire
-				$comment = GETPOST('comment'.$questionId);
-				if (dol_strlen($comment) > 0) {
-					$controldettmp->comment = $comment;
-				} else {
-					$controldettmp->comment = '';
-				}
-
-				$question->fetch($questionId);
-
-				$controldettmp->entity = $conf->entity;
-				$controldettmp->insert($user);
-			}
-		}
-
-		$object->call_trigger('CONTROL_SAVEANSWER', $user);
-		setEventMessages($langs->trans('AnswerSaved'), []);
-		header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
-		exit;
-	}
+	require_once __DIR__ . '/../../core/tpl/digiquali_control_answers_save_action.tpl.php';
 
 	if ($action == 'save_next_control_date') {
 		$day    = GETPOST('reday');
@@ -694,8 +629,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	unset($object->fields['projectid']); // Hide field already shown in banner
 
   if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {
-      print '<tr><td class="titlefield">' . $langs->trans('PublicControl') . ' <a href="' . dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $object->track_id, 3) . '" target="_blank"><i class="fas fa-qrcode"></i></a></td>';
+	  //Control public interface
+	  print '<tr><td class="titlefield">' . $langs->trans('PublicControl') . ' <a href="' . dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $object->track_id, 3) . '" target="_blank"><i class="fas fa-qrcode"></i></a></td>';
       print '<td>' . saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
+
+	  //Survey public interface
+	  print '<tr><td class="titlefield">' . $langs->trans('PublicSurvey') . ' <a href="' . dol_buildpath('custom/digiquali/public/control/public_survey.php?track_id=' . $object->track_id, 3) . '" target="_blank"><i class="fas fa-link"></i></a></td>';
+	  print '<td></td></tr>';
   }
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
@@ -1000,165 +940,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Define colspan for the button 'Add'
 	$colspan = 3;
 
-	// Lines
-	if (is_array($questionIds) && !empty($questionIds)) {
-		foreach ($questionIds as $questionId) {
-			$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
-			$questionAnswer = 0;
-			$comment = '';
-			if ($result > 0 && is_array($result)) {
-				$itemControlDet = array_shift($result);
-				$questionAnswer = $itemControlDet->answer;
-				$comment = $itemControlDet->comment;
-			}
-			$item = $question;
-			$item->fetch($questionId);
-			?>
-			<div class="wpeo-table table-flex table-3 table-id-<?php echo $item->id ?>">
-				<div class="table-row">
-					<!-- Contenu et commentaire -->
-					<div class="table-cell table-full">
-						<div class="label"><strong><?php print $item->ref . ' - ' . $item->label; ?></strong></div>
-						<div class="description"><?php print $item->description; ?></div>
-						<div class="question-comment-container">
-							<div class="question-ref">
-								<?php
-								if ( ! empty( $itemControlDet->ref ) ) {
-									print '<span class="question-ref-title">' . $itemControlDet->ref . '</span> :';
-								} ?>
-                            </div>
-                            <?php if ($item->type == 'Text') : ?>
-                            <div class="<?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-                                <?php
-                                print '<span>' . $langs->trans('Answer') . ' : </span>';
-                                $object->status > $object::STATUS_DRAFT ? print $questionAnswer :
-                                print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'"class="question-textarea input-answer ' . ($object->status > 0 ? 'disable' : '') . '" value="'. $questionAnswer .'">';
-                                ?>
-                            </div>
-                            <?php endif; ?>
-                            <?php if ($item->enter_comment > 0) : ?>
-                                <?php print $langs->trans('Comment') . ' : '; ?>
-                            <?php endif; ?>
-							<?php if ($item->enter_comment > 0) : ?>
-								<?php if ($object->status > 0 ) : ?>
-									<?php print $comment; ?>
-								<?php else : ?>
-									<?php print '<input class="question-textarea question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?>
-								<?php endif; ?>
-							<?php endif; ?>
-						</div>
-					</div>
-					<!-- Photo OK KO -->
-					<?php if ($item->show_photo > 0) : ?>
-						<div class="table-cell table-450 cell-photo-check wpeo-table">
-						<?php
-						if (!empty($conf->global->DIGIQUALI_CONTROL_DISPLAY_MEDIAS)) :
-							print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ok', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, 'question/'. $item->ref . '/photo_ok', $item, 'photo_ok', 0, 0, 0,1, 'photo-ok', 0);
-							print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ko', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, 'question/'. $item->ref . '/photo_ko', $item, 'photo_ko', 0, 0, 0,1, 'photo-ko', 0);
-						endif;
-						?>
-					</div>
-					<?php endif; ?>
-				</div>
-				<div class="table-row <?php echo ($onPhone ? 'center' : ''); ?>">
-					<!-- Galerie -->
-					<?php if ($item->authorize_answer_photo > 0) : ?>
-						<div class="table-cell table-full linked-medias answer_photo_<?php echo $item->id ?>">
-						<?php if ($object->status == 0 ) : ?>
-							<input hidden multiple class="fast-upload" id="fast-upload-answer-photo<?php echo $item->id ?>" type="file" name="userfile[]" capture="environment" accept="image/*">
-							<input type="hidden" class="question-answer-photo" id="answer_photo_<?php echo $item->id ?>" name="answer_photo_<?php echo $item->id ?>" value=""/>
-							<label for="fast-upload-answer-photo<?php echo $item->id ?>">
-								<div class="wpeo-button button-square-50">
-									<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
-								</div>
-							</label>
-							<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
-								<input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id ?>" data-from-type="<?php echo $object->element ?>" data-from-subtype="answer_photo_<?php echo $item->id ?>" data-from-subdir="answer_photo/<?php echo $item->ref ?>"/>
-								<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
-							</div>
-						<?php endif; ?>
-						<?php $relativepath = 'digiquali/medias/thumbs';
-						print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, $item, '', 0, $object->status == 0, 1);
-						?>
-					</div>
-					<?php endif; ?>
-					<?php
-					$pictosArray = get_answer_pictos_array();
-					?>
-					<?php if ($item->type == 'MultipleChoices') :
-						$answerList = $answer->fetchAll('ASC', 'position', 0, 0,  ['customsql' => 't.status > ' . Answer::STATUS_DELETED . ' AND t.fk_question = ' . $item->id]);
-						?>
-						<div class="table-cell table-end select-answer answer-cell" <?php echo ($object->status > 0) ? ' style="pointer-events: none"' : '' ?>>
-							<?php
-							if (preg_match('/,/', $questionAnswer)) {
-								$questionAnswers = preg_split('/,/', $questionAnswer);
-							} else {
-								$questionAnswers = [$questionAnswer];
-							}
-
-							print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
-							if (is_array($answerList) && !empty($answerList)) {
-								foreach($answerList as $answerLinked) {
-									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
-									print '<span style="'. (in_array($answerLinked->position, $questionAnswers) ? 'background:'. $answerLinked->color .'; ' : '') .'color:'. $answerLinked->color .';" class="answer multiple-answers square ' . ($object->status > 0 ? 'disable' : '') . ' ' . (in_array($answerLinked->position, $questionAnswers) ? 'active' : '') . '" value="'. $answerLinked->position .'">';
-									if (!empty($answerLinked->pictogram)) {
-										print $pictosArray[$answerLinked->pictogram]['picto_source'];
-									} else {
-										print $answerLinked->value;
-									}
-									print '</span>';
-								}
-							}
-							?>
-						</div>
-					<?php elseif ($item->type == 'UniqueChoice' || $item->type == 'OkKo' || $item->type == 'OkKoToFixNonApplicable') :
-						$answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['customsql' => 't.status > ' . Answer::STATUS_DELETED . ' AND t.fk_question = ' . $item->id]);
-						?>
-						<div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-							<?php
-							print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
-							if (is_array($answerList) && !empty($answerList)) {
-								foreach($answerList as $answerLinked) {
-									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
-									print '<span style="'. ($questionAnswer == $answerLinked->position ? 'background:'. $answerLinked->color .'; ' : '') .'color:'. $answerLinked->color .';" class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $answerLinked->position .'">';
-									if (!empty($answerLinked->pictogram)) {
-										print $pictosArray[$answerLinked->pictogram]['picto_source'];
-									} else {
-										print $answerLinked->value;
-									}
-									print '</span>';
-								}
-							}
-							?>
-						</div>
-                    <?php elseif ($item->type == 'Percentage') : ?>
-                        <div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-                            <?php
-                            print '<span class="table-cell" value="">';
-                            print $langs->transnoentities('Answer') . ' : ';
-                            print '</span>';
-                            print '<span class="table-cell" value="">';
-                            print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" min="0" max="100" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'"> %';
-                            print '</span>';
-                            ?>
-                        </div>
-                    <?php elseif ($item->type == 'Range') : ?>
-                        <div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-                            <?php
-                            print '<span class="table-cell" value="">';
-                            print $langs->transnoentities('Answer') . ' : ';
-                            print '</span>';
-                            print '<span class="table-cell" value="">';
-                            print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
-                            print '</span>';
-                            ?>
-                        </div>
-					<?php endif; ?>
-					</div>
-			    </div>
-			<?php
-		}
-	}
+	require_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';
 
 	print '</div>';
 	print '</div>';
