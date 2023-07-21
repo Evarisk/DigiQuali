@@ -51,7 +51,7 @@ if (is_array($questionIds) && !empty($questionIds)) {
 				<?php if ($item->show_photo > 0) : ?>
 					<div class="table-cell table-450 cell-photo-check wpeo-table">
 						<?php
-						if (!empty($conf->global->DOLISMQ_CONTROL_DISPLAY_MEDIAS)) :
+						if (!empty($conf->global->DIGIQUALI_CONTROL_DISPLAY_MEDIAS)) :
 							print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ok', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, 'question/'. $item->ref . '/photo_ok', $item, 'photo_ok', 0, 0, 0,1, 'photo-ok', 0);
 							print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ko', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, 'question/'. $item->ref . '/photo_ko', $item, 'photo_ko', 0, 0, 0,1, 'photo-ko', 0);
 						endif;
