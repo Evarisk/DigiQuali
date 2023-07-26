@@ -99,7 +99,6 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 		$now = dol_now();
 		$actioncomm = new ActionComm($this->db);
 
-		$object->fetch($object->id);
 		$actioncomm->elementtype  = $object->element . '@digiquali';
 		$actioncomm->type_code    = 'AC_OTH_AUTO';
 		$actioncomm->datep        = $now;
@@ -113,14 +112,16 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 
 		switch ($action) {
 			case 'QUESTION_CREATE' :
-			case 'SHEET_CREATE' :
+            case 'SHEET_CREATE' :
+                $object->fetch($object->id);
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
 				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
-				break;
+            break;
 
 			case 'ANSWER_CREATE' :
-				$actioncomm->elementtype = 'question@digiquali';
+                $object->fetch($object->id);
+                $actioncomm->elementtype = 'question@digiquali';
 				$actioncomm->fk_element  = $object->fk_question;
 				$actioncomm->code        = 'AC_' . strtoupper($object->element) . '_CREATE';
 				$actioncomm->label       = $langs->trans('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
