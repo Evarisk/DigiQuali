@@ -55,13 +55,6 @@ $object                 = new Control($db);
 $controlEquipment       = new ControlEquipment($db);
 $product                = new Product($db);
 
-//Numbering modules
-$numberingModulesNames = [
-    $controlEquipment->element => $conf->global->DIGIQUALI_CONTROL_EQUIPMENT_ADDON,
-];
-list($refControlEquipmentMod) = saturne_require_objects_mod($numberingModulesNames);
-
-
 // Initialize view objects
 $form = new Form($db);
 
@@ -95,7 +88,7 @@ if (empty($reshook)) {
 		if ($equipmentId > 0) {
 			$product->fetch($equipmentId);
 
-			$controlEquipment->ref        = $refControlEquipmentMod->getNextValue($controlEquipment);
+			$controlEquipment->ref        = $controlEquipment->getNextNumRef();
 			$controlEquipment->fk_product = $product->id;
 			$controlEquipment->fk_control = $object->id;
 
