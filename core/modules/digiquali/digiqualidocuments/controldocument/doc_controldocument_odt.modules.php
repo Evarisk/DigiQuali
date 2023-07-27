@@ -284,7 +284,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
 						$tmpArray['equipment_ref']         = $equipment->ref;
 						$tmpArray['product_ref']           = $product->ref;
 						$tmpArray['equipment_label']       = $jsonArray->label;
-						$tmpArray['equipment_description'] = $jsonArray->description;
+						$tmpArray['equipment_description'] = strip_tags($jsonArray->description);
 						$tmpArray['dluo']                  = dol_print_date($expirationDate, 'day');
 						$tmpArray['lifetime']              = $remainingDays;
 						$tmpArray['qc_frequency']          = $jsonArray->qc_frenquecy;
