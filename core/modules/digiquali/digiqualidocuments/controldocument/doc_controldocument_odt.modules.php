@@ -272,10 +272,10 @@ class doc_controldocument_odt extends SaturneDocumentModel
 						$jsonArray = json_decode($equipment->json);
 
 						$creationDate   = strtotime($product->date_creation);
-						$expirationDate = dol_time_plus_duree($creationDate, $jsonArray->lifetime, 'd');
 
-						if (!empty($expirationDate)) {
-							$remainingDays  = num_between_day(dol_now(), $expirationDate, 1) ?: '- ' . num_between_day($expirationDate, dol_now(), 1);
+						if (!empty($jsonArray->lifetime)) {
+                            $expirationDate = dol_time_plus_duree($creationDate, $jsonArray->lifetime, 'd');
+                            $remainingDays  = num_between_day(dol_now(), $expirationDate, 1) ?: '- ' . num_between_day($expirationDate, dol_now(), 1);
 							$remainingDays .= ' ' . strtolower(dol_substr($langs->trans("Day"), 0, 1)) . '.';
 						} else {
 							$remainingDays = $langs->trans('NoData');
