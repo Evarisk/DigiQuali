@@ -273,13 +273,11 @@ if (empty($reshook)) {
 						$controldettmp->update($user);
 					} else {
 						if (empty($controldettmp->ref)) {
-							$controldettmp->ref = $refControlDetMod->getNextValue($controldettmp);
+							$controldettmp->ref = $controldettmp->getNextNumRef();
 						}
-
 						$controldettmp->fk_control  = $object->id;
 						$controldettmp->fk_question = $questionId;
-
-						$controldettmp->entity = $conf->entity;
+						$controldettmp->entity      = $conf->entity;
 
 						$controldettmp->insert($user);
 					}
