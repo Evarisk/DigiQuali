@@ -32,6 +32,7 @@ if (file_exists('../digiquali.main.inc.php')) {
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/product/class/product.class.php';
+require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../lib/digiquali_control.lib.php';
@@ -54,6 +55,7 @@ $backtopage = GETPOST('backtopage', 'alpha');
 $object                 = new Control($db);
 $controlEquipment       = new ControlEquipment($db);
 $product                = new Product($db);
+$productLot             = new ProductLot($db);
 
 // Initialize view objects
 $form = new Form($db);
@@ -83,19 +85,24 @@ if ($reshook < 0) {
 if (empty($reshook)) {
 	// Action to add or link equipment to control
 	if ($action == 'add_equipment' && $permissiontoadd) {
-		$equipmentId = GETPOST('equipmentId');
+		$productLotId = GETPOST('productLotId');
 
-		if ($equipmentId > 0) {
-			$product->fetch($equipmentId);
+		if ($productLotId > 0) {
+			$productLot->fetch($productLotId);
+            $productLot->fetch_optionals();
+
+            if ($productLot->fk_product > 0) {
+                $product->fetch($productLot->fk_product);
+            }
 
 			$controlEquipment->ref        = $controlEquipment->getNextNumRef();
-			$controlEquipment->fk_product = $product->id;
+			$controlEquipment->fk_lot     = $productLot->id;
 			$controlEquipment->fk_control = $object->id;
 
             $jsonArray['label']        = $product->label;
             $jsonArray['description']  = $product->description;
-			$jsonArray['lifetime']     = $product->lifetime;
-			$jsonArray['qc_frenquecy'] = $product->qc_frequency;
+			$jsonArray['dluo']         = $productLot->eatby;
+			$jsonArray['qc_frequency'] = $productLot->array_options['qc_frequency'];
 
 			$controlEquipment->json    = json_encode($jsonArray);
 
@@ -147,18 +154,35 @@ if ($id > 0 || !empty($ref)) {
 	$controlEquipments = $controlEquipment->fetchFromParent($object->id);
 	if (is_array($controlEquipments) && !empty ($controlEquipments)) {
 		foreach ($controlEquipments as $equipment) {
-			$excludeFilter .= $equipment->fk_product . ',';
+			$excludeFilter .= $equipment->fk_lot . ',';
 		}
         $excludeFilter = rtrim($excludeFilter, ',');
 	}
 
-	$products      = saturne_fetch_all_object_type('Product', '', '', 0, 0, dol_strlen($excludeFilter) > 0 ? ['customsql' => '`rowid` NOT IN (' . $excludeFilter . ')'] : []);
+	$products      = saturne_fetch_all_object_type('Product');
 	$productsData  = [];
 	if (is_array($products) && !empty($products)) {
-		foreach ($products as $key => $value) {
-			$productsData[$value->id] = $value->label;
+		foreach ($products as $productSingle) {
+			$productsData[$productSingle->id] = $productSingle->label;
 		}
 	}
+
+    $productLotFilter = [];
+
+    if (GETPOST('fk_product') > 0) {
+        $productLotFilter['fk_product'] = GETPOST('fk_product');
+    }
+    if (dol_strlen($excludeFilter) > 0) {
+        $productLotFilter['customsql'] = '`rowid` NOT IN (' . $excludeFilter . ')';
+    }
+
+    $productLots      = saturne_fetch_all_object_type('ProductLot', '', '', 0, 0, $productLotFilter);
+    $productLotsData  = [];
+    if (is_array($productLots) && !empty($productLots)) {
+        foreach ($productLots as $productLotSingle) {
+            $productLotsData[$productLotSingle->id] = $productLotSingle->batch;
+        }
+    }
 
 	print '<div class="div-table-responsive-no-min">';
 	print load_fiche_titre($langs->trans("ControlEquipmentList"), '', '');
@@ -167,7 +191,8 @@ if ($id > 0 || !empty($ref)) {
 	// Lines
     print '<tr class="liste_titre">';
     print '<td>' . $langs->trans('Ref') . '</td>';
-    print '<td>' . $langs->trans('ProductRef') . '</td>';
+    print '<td>' . $langs->trans('Product') . '</td>';
+    print '<td>' . $langs->trans('Batch') . '</td>';
     print '<td>' . $langs->trans('Label') . '</td>';
     print '<td class="center">' . $langs->trans('OptimalExpirationDate');
     print $form->textwithpicto('', $langs->trans('OptimalExpirationDateDescription')) . '</td>';
@@ -175,17 +200,26 @@ if ($id > 0 || !empty($ref)) {
     print '<td class="center">' . $langs->trans('Action') . '</td>';
     print '</tr>';
 	if (is_array($controlEquipments) && !empty($controlEquipments)) {
-		foreach ($controlEquipments as $equipment) {
-			$product->fetch($equipment->fk_product);
-			$jsonArray = json_decode($equipment->json);
+		foreach ($controlEquipments as $controlEquipment) {
+			$productLot->fetch($controlEquipment->fk_lot);
 
-			print '<tr id="'. $product->id .'" class="line-row oddeven">';
+            if ($productLot->fk_product > 0) {
+                $product->fetch($productLot->fk_product);
+            }
+
+			$jsonArray = json_decode($controlEquipment->json);
+
+			print '<tr id="'. $productLot->id .'" class="line-row oddeven">';
 			print '<td>';
-			print img_picto('', $equipment->picto, 'class="pictofixedwidth"')  . $equipment->ref;
+			print img_picto('', $controlEquipment->picto, 'class="pictofixedwidth"')  . $controlEquipment->ref;
 			print '</td>';
 
-			print '<td>';
-			print $product->getNomUrl(1);
+            print '<td>';
+            print $product->getNomUrl(1);
+            print '</td>';
+
+            print '<td>';
+			print $productLot->getNomUrl(1);
 			print '</td>';
 
 			print '<td>';
@@ -193,53 +227,57 @@ if ($id > 0 || !empty($ref)) {
 			print '</td>';
 
 			print '<td class="center">';
-			$creationDate   = strtotime($product->date_creation);
-			$expirationDate = dol_time_plus_duree($creationDate, $jsonArray->lifetime, 'd');
-			print $jsonArray->lifetime ? dol_print_date($expirationDate, 'day') : $langs->trans('NoData');
+            print dol_print_date($jsonArray->dluo);
 			print '</td>';
 
 			print '<td class="center">';
-            $remainingDays = num_between_day(dol_now(), $expirationDate, 1) ?: '- ' . num_between_day($expirationDate, dol_now(), 1);
+            $remainingDays = num_between_day(dol_now(), $jsonArray->dluo, 1) ?: '- ' . num_between_day($jsonArray->dluo, dol_now(), 1);
             $remainingDays .= ' ' . strtolower(dol_substr($langs->trans("Day"), 0, 1)) . '.';
 
-			if (empty($jsonArray->lifetime) || $expirationDate <= dol_now()) {
-				print '<span style="color: red;">';
-			} elseif ($expirationDate <= dol_now() + 2592000) {
-				print '<span style="color: orange;">';
-			} else {
-				print '<span style="color: green;">';
-			}
-			print $jsonArray->lifetime ? $remainingDays : $langs->trans('NoData');
-			print '</span></td>';
+            if (empty($jsonArray->lifetime) || $jsonArray->dluo <= dol_now()) {
+                print '<span style="color: red;">';
+            } elseif ($jsonArray->dluo <= dol_now() + 2592000) {
+                print '<span style="color: orange;">';
+            } else {
+                print '<span style="color: green;">';
+            }
+            print $jsonArray->dluo > 0 ? $remainingDays : $langs->trans('NoData');
+            print '</span></td>';
+            print '</td>';
 
 			print '<td class="center">';
 			if ($object->status < Control::STATUS_LOCKED) {
-				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&action=unlink_equipment&equipmentId=' . $equipment->id . '">';
+				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&action=unlink_equipment&equipmentId=' . $controlEquipment->id . '">';
 				print img_delete();
 				print '</a>';
 			}
 			print '</td></tr>';
 		}
 	}  else {
-		print '<tr class="oddeven"><td colspan="6">';
+		print '<tr class="oddeven"><td colspan="7">';
         print '<span class="opacitymedium">' . $langs->trans('NoEquipmentLinked') . '</span>';
 		print '</td></tr>';
     }
+    print '</table>';
 
 	if ($object->status < Control::STATUS_LOCKED) {
-		print '<form method="POST" action="' . $_SERVER["PHP_SELF"] . '?id='. $id . '">';
-		print '<input type="hidden" name="token" value="' . newToken() . '">';
-		print '<input type="hidden" name="action" value="add_equipment">';
-		print '<tr class="oddeven"><td colspan="5">';
-		print img_object('', 'product') . ' ' . $form::selectarray('equipmentId', $productsData, '', $langs->transnoentities('SelectProducts'), '', '', '', '', '', '','', 'maxwidth200 widthcentpercentminusx');
+        print '<form id="add_control_equipment" method="POST" action="' . $_SERVER["PHP_SELF"] . '?id='. $id . '">';
+        print '<table class="centpercent noborder">';
+        print '<tr class="oddeven"><td>';
+        print img_object('', 'product') . ' ' . $form::selectarray('productId', $productsData, '', $langs->transnoentities('SelectProducts'), '', '', '', '', '', '','', 'maxwidth200 widthcentpercentminusx');
 		print '</td>';
+        print '<input type="hidden" name="token" value="' . newToken() . '">';
+        print '<input type="hidden" name="action" value="add_equipment">';
+        print '<td class="product-lot" colspan="5">';
+        print img_object('', 'object_lot') . ' ' . $form::selectarray('productLotId', $productLotsData, '', $langs->transnoentities('SelectProductLots'), '', '', '', '', '', '','', 'maxwidth200 widthcentpercentminusx');
+        print '</td>';
 		print '<td class="center">';
 		print '<input type="submit" id="add_equipment" class="button" name="add_equipment" value="' . $langs->trans('Add') . '">';
 		print '</td></tr>';
-		print '</form>';
-	}
+		print '</tr>';
+        print '</table></form>';
+    }
 
-	print '</table>';
 	print '</div>';
 	print dol_get_fiche_end();
 }

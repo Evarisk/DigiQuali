@@ -113,3 +113,5 @@ UPDATE `llx_saturne_object_documents` SET module_name = REPLACE(module_name, 'do
 UPDATE `llx_saturne_object_signature` SET module_name = REPLACE(module_name, 'dolismq', 'digiquali') WHERE module_name LIKE '%dolismq%';
 UPDATE `llx_bookmark` SET url = REPLACE(url, 'dolismq', 'digiquali') WHERE url LIKE '%dolismq%';
 UPDATE `llx_ecm_directories` SET label = REPLACE(label, 'dolismq', 'digiquali') WHERE label LIKE '%dolismq%';
+DELETE FROM `llx_digiquali_control_equipment` WHERE `fk_product` > 0;
+ALTER TABLE `llx_digiquali_control_equipment` CHANGE `fk_product` `fk_lot` integer NOT NULL;
