@@ -157,6 +157,8 @@ ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
 ControlSetVerdictTrigger        = Verdict défini sur %s
 AnswerSaveTrigger               = Réponses sauvergardées
 ControlReminderTrigger          = %s doit être controlé(e) dans %s jours au plus tard
+ObjectSetVerdictTrigger         = Le verdict du contrôle a été défini à %s
+
 
 # Data - Donnée
 Control                                 = Contrôle
