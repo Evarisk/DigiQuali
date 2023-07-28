@@ -85,24 +85,35 @@ if ($reshook < 0) {
 if (empty($reshook)) {
 	// Action to add or link equipment to control
 	if ($action == 'add_equipment' && $permissiontoadd) {
-		$productLotId = GETPOST('productLotId');
+        $productLotId = GETPOST('productLotId');
+        $productId = GETPOST('productId');
 
-		if ($productLotId > 0) {
-			$productLot->fetch($productLotId);
-            $productLot->fetch_optionals();
+        $productLotTmp = $productLot;
+        $productTmp    = $product;
 
-            if ($productLot->fk_product > 0) {
-                $product->fetch($productLot->fk_product);
+		if ($productLotId > 0 || $productId > 0) {
+
+            if ($productLotId > 0) {
+                $productLotTmp->fetch($productLotId);
+                $productLotTmp->fetch_optionals();
+            }
+
+            if ($productLotTmp->fk_product > 0) {
+                $productTmp->fetch($productLotTmp->fk_product);
+            } else if ($productId > 0) {
+                $productTmp->fetch($productId);
             }
 
 			$controlEquipment->ref        = $controlEquipment->getNextNumRef();
-			$controlEquipment->fk_lot     = $productLot->id;
+            $controlEquipment->fk_lot     = $productLotId;
+
+            $controlEquipment->fk_product = $productTmp->id;
 			$controlEquipment->fk_control = $object->id;
 
-            $jsonArray['label']        = $product->label;
-            $jsonArray['description']  = $product->description;
-			$jsonArray['dluo']         = $productLot->eatby;
-			$jsonArray['qc_frequency'] = $productLot->array_options['qc_frequency'];
+            $jsonArray['label']        = $productTmp->label;
+            $jsonArray['description']  = $productTmp->description;
+			$jsonArray['dluo']         = $productLotTmp->eatby;
+			$jsonArray['qc_frequency'] = $productLotTmp->array_options['qc_frequency'];
 
 			$controlEquipment->json    = json_encode($jsonArray);
 
@@ -201,11 +212,15 @@ if ($id > 0 || !empty($ref)) {
     print '</tr>';
 	if (is_array($controlEquipments) && !empty($controlEquipments)) {
 		foreach ($controlEquipments as $controlEquipment) {
-			$productLot->fetch($controlEquipment->fk_lot);
 
-            if ($productLot->fk_product > 0) {
-                $product->fetch($productLot->fk_product);
+            $product = new Product($db);
+            if ($controlEquipment->fk_lot > 0) {
+                $productLot->fetch($controlEquipment->fk_lot);
+            } else {
+                $productLot = new ProductLot($db);
             }
+
+            $product->fetch($controlEquipment->fk_product);
 
 			$jsonArray = json_decode($controlEquipment->json);
 
@@ -219,7 +234,11 @@ if ($id > 0 || !empty($ref)) {
             print '</td>';
 
             print '<td>';
-			print $productLot->getNomUrl(1);
+            if ($productLot->id > 0) {
+                print $productLot->getNomUrl(1);
+            } else {
+                print $langs->trans('NoProductLot');
+            }
 			print '</td>';
 
 			print '<td>';
@@ -231,10 +250,10 @@ if ($id > 0 || !empty($ref)) {
 			print '</td>';
 
 			print '<td class="center">';
-            $remainingDays = num_between_day(dol_now(), $jsonArray->dluo, 1) ?: '- ' . num_between_day($jsonArray->dluo, dol_now(), 1);
+            $remainingDays = num_between_day(dol_now(), $jsonArray->dluo > 0 ? $jsonArray->dluo : 0, 1) ?: '- ' . num_between_day($jsonArray->dluo > 0 ? $jsonArray->dluo : 0, dol_now(), 1);
             $remainingDays .= ' ' . strtolower(dol_substr($langs->trans("Day"), 0, 1)) . '.';
 
-            if (empty($jsonArray->lifetime) || $jsonArray->dluo <= dol_now()) {
+            if ($jsonArray->dluo <= dol_now()) {
                 print '<span style="color: red;">';
             } elseif ($jsonArray->dluo <= dol_now() + 2592000) {
                 print '<span style="color: orange;">';

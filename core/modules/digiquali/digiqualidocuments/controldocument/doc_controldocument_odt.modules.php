@@ -269,11 +269,15 @@ class doc_controldocument_odt extends SaturneDocumentModel
 					$controlEquipments = ((!is_array($controlEquipments) || empty($controlEquipments)) ? [$controlEquipment] : $controlEquipments);
 
 					foreach ($controlEquipments as $equipment) {
-                        $productLot->fetch($equipment->fk_lot);
 
-                        if ($productLot->fk_product >0) {
-                            $product->fetch($productLot->fk_product);
+                        if ($equipment->fk_lot > 0) {
+                            $productLot->fetch($equipment->fk_lot);
+                        } else {
+                            $productLot = new ProductLot($this->db);
                         }
+
+                        $product->fetch($equipment->fk_product);
+
 						$jsonArray = json_decode($equipment->json);
 
 						if (!empty($jsonArray->dluo)) {

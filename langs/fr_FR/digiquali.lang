@@ -293,7 +293,8 @@ PublicSurveyTitleDescription            = Définir le titre de l'interface publi
 YourAnswersHaveBeenSaved                = Vos réponses ont bien été sauvegardées
 DaysBeforeNextControl                   = Jours avant prochain contrôle
 SelectProductLots                       = Sélectionner un numéro de lot/série
-
+NoProductLot                            = Pas de numéro de lot/série
+ErrorEquipmentLink                      = L'équipement n'a pas pu être lié
 
 #
 # ControlDet

@@ -22,6 +22,7 @@ CREATE TABLE llx_digiquali_control_equipment(
     tms           timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     status        integer DEFAULT 1 NOT NULL,
     json          text,
-    fk_lot        integer NOT NULL,
+    fk_product    integer NOT NULL,
+    fk_lot        integer,
     fk_control    integer NOT NULL
 ) ENGINE=innodb;
