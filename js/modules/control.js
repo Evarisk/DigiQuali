@@ -28,15 +28,16 @@ window.digiquali.control.init = function() {
  * @return {void}
  */
 window.digiquali.control.event = function() {
-	$( document ).on( 'click', '.answer:not(.disable)', window.digiquali.control.selectAnswer );
-	$( document ).on( 'input', '.input-answer:not(.disable)', window.digiquali.control.selectAnswer );
-	$( document ).on( 'keyup', '.question-comment', window.digiquali.control.writeComment );
-	$( document ).on( 'change', '.control-table.linked-objects select', window.digiquali.control.disableOtherSelectors );
-	$( document ).on( 'keyup', '.question-comment', window.digiquali.control.showCommentUnsaved );
-	$( document ).on( 'click', '.validateButton', window.digiquali.control.getAnswerCounter);
-	$( document ).on( 'change', '#fk_sheet', window.digiquali.control.showSelectObjectLinked);
-	$( document ).on( 'click', '.toggleControlInfo', window.digiquali.control.toggleControlInfo );
-	$( document ).on( 'click', '.clipboard-copy', window.digiquali.control.copyToClipboard );
+  $( document ).on( 'click', '.answer:not(.disable)', window.digiquali.control.selectAnswer );
+  $( document ).on( 'input', '.input-answer:not(.disable)', window.digiquali.control.selectAnswer );
+  $( document ).on( 'keyup', '.question-comment', window.digiquali.control.writeComment );
+  $( document ).on( 'change', '.control-table.linked-objects select', window.digiquali.control.disableOtherSelectors );
+  $( document ).on( 'keyup', '.question-comment', window.digiquali.control.showCommentUnsaved );
+  $( document ).on( 'click', '.validateButton', window.digiquali.control.getAnswerCounter);
+  $( document ).on( 'change', '#fk_sheet', window.digiquali.control.showSelectObjectLinked);
+  $( document ).on( 'click', '.toggleControlInfo', window.digiquali.control.toggleControlInfo );
+  $( document ).on( 'click', '.clipboard-copy', window.digiquali.control.copyToClipboard );
+  $( document ).on( 'change', '#productId', window.digiquali.control.refreshLotSelector );
 };
 
 /**
@@ -258,4 +259,37 @@ window.digiquali.control.copyToClipboard = function(  event ) {
 			})
 		}
 	)
+};
+
+/**
+ * Refresh product lot selector
+ *
+ * @since   1.8.0
+ * @version 1.8.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.digiquali.control.refreshLotSelector = function(  event ) {
+
+  var controlEquipmentForm = document.getElementById('add_control_equipment');
+  var formData = new FormData(controlEquipmentForm);
+
+  let token = window.saturne.toolbox.getToken();
+
+  let productId = formData.get('productId')
+  let urlToGo = document.URL + '&token=' + token
+  urlToGo += '&fk_product=' + productId
+  window.saturne.loader.display($('.product-lot'))
+  $.ajax({
+    url: urlToGo,
+    type: "POST",
+    processData: false,
+    contentType: false,
+    success: function ( resp ) {
+      $('.product-lot').replaceWith($(resp).find('.product-lot'))
+    },
+    error: function ( ) {
+    }
+  });
 };

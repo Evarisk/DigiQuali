@@ -292,6 +292,9 @@ PublicSurveyTitle                       = Titre de l'interface publique de répo
 PublicSurveyTitleDescription            = Définir le titre de l'interface publique de réponse au contrôle
 YourAnswersHaveBeenSaved                = Vos réponses ont bien été sauvegardées
 DaysBeforeNextControl                   = Jours avant prochain contrôle
+SelectProductLots                       = Sélectionner un numéro de lot/série
+NoProductLot                            = Pas de numéro de lot/série
+ErrorEquipmentLink                      = L'équipement n'a pas pu être lié
 
 #
 # ControlDet

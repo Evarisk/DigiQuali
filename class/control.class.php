@@ -1421,7 +1421,8 @@ class ControlEquipment extends SaturneObject
 		'tms'           => ['type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 40, 'notnull' => 0, 'visible' => 0],
 		'status'        => ['type' => 'status', 'label' => 'Status', 'enabled' => '1', 'position' => 50, 'notnull' => 1, 'visible' => 0],
 		'json'          => ['type' => 'text', 'label' => 'JSON', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0],
-		'fk_product'    => ['type' => 'integer', 'label' => 'FkProduct', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 0],
+        'fk_product'    => ['type' => 'integer', 'label' => 'FkProduct', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 0],
+        'fk_lot'        => ['type' => 'integer', 'label' => 'FkLot', 'enabled' => '1', 'position' => 75, 'notnull' => 1, 'visible' => 0],
 		'fk_control'    => ['type' => 'integer', 'label' => 'FkControl', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0],
 	];
 
@@ -1474,6 +1475,12 @@ class ControlEquipment extends SaturneObject
      * @var int Fk_product.
      */
 	public $fk_product;
+
+    /**
+     * @var int Fk_lot.
+     */
+    public $fk_lot;
+
 
     /**
      * @var int Fk_control.

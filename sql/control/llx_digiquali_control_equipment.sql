@@ -23,5 +23,6 @@ CREATE TABLE llx_digiquali_control_equipment(
     status        integer DEFAULT 1 NOT NULL,
     json          text,
     fk_product    integer NOT NULL,
+    fk_lot        integer,
     fk_control    integer NOT NULL
 ) ENGINE=innodb;
