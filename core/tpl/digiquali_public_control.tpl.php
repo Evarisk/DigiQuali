@@ -8,8 +8,16 @@
                     <div class="table-cell"><?php echo '<i class="far fa-check-circle"></i> ' . $langs->trans('Verdict'); ?></div>
                     <?php
                     $verdictColor = $object->verdict == 1 ? 'green' : ($object->verdict == 2 ? 'red' : 'grey');
+                    print '<div class="table-cell table-end">';
+                    if ($object->status < $object::STATUS_LOCKED) {
+                        print $object->getLibStatut(5);
+                        print '<br>';
+                        print '<i class="fas fa-exclamation-triangle"></i> ' . $langs->trans('NonFinalVerdict');
+                    } else {
+                        print '<div class="wpeo-button button-'. $verdictColor .'">' . $object->fields['verdict']['arrayofkeyval'][(!empty($object->verdict)) ?: 3] . '</div>';
+                    }
+                    print '</div>';
                     ?>
-                    <div class="table-cell table-end"><?php print '<div class="wpeo-button button-'. $verdictColor .'">' . $object->fields['verdict']['arrayofkeyval'][(!empty($object->verdict)) ?: 3] . '</div>'; ?></div>
                 </div>
                 <div class="table-row">
                     <div class="wpeo-table table-cell table-full">
