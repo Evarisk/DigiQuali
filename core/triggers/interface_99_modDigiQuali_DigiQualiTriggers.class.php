@@ -212,7 +212,6 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                 $actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Locked') . '</br>';
                 $actioncomm->create($user);
 
-                $qcFrequency  = 0;
                 $actioncommID = 0;
                 $elementArray = get_sheet_linkable_objects();
                 $object->fetchObjectLinked('', '', '', 'digiquali_control', 'OR', 1, 'sourcetype', 0);

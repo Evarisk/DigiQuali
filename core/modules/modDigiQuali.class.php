@@ -124,7 +124,9 @@ class modDigiQuali extends DolibarrModules
                 'controlcard',
                 'publiccontrol',
                 'publicsurvey',
-                'digiqualiadmindocuments'
+                'digiqualiadmindocuments',
+                'globalcard',
+                'productlotcard'
 			],
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -635,7 +637,8 @@ class modDigiQuali extends DolibarrModules
 				$linkableObject = new $className($this->db);
 				$tableElement   = $linkableObject->table_element;
 
-				$extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, $tableElement, 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
+                $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, $tableElement, 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
+                $extraFields->addExtraField('control_history_link', 'ControlHistoryLink', 'varchar', 100, 255, $tableElement, 0, 0, '', '', 0, '', '1', '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
 			}
 		}
 

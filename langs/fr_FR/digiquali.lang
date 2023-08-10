@@ -295,6 +295,10 @@ DaysBeforeNextControl                   = Jours avant prochain contrôle
 SelectProductLots                       = Sélectionner un numéro de lot/série
 NoProductLot                            = Pas de numéro de lot/série
 ErrorEquipmentLink                      = L'équipement n'a pas pu être lié
+LastControl                             = Dernier contrôle
+ShowObjectControlHistory                = Voir l'historique de contrôle
+NoControlOnThisObject                   = Le contrôle initial n'a pas été réalisé, veuillez vous référer à la notice et contacter votre responsable qualité
+ControlHistoryLink                      = Historique de contrôle
 
 #
 # ControlDet
