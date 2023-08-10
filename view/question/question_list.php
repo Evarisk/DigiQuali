@@ -174,7 +174,7 @@ if (empty($reshook)) {
 			foreach ($toselect as $toselectedid) {
 				$object->fetch($toselectedid);
                 if ($object->type == 'UniqueChoice' || $object->type == 'MultipleChoices') {
-                        $answerList = $answer->fetchAll('ASC', 'position', '', '', ['fk_question' => $object->id]);
+                        $answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $object->id]);
                 }
                 if (($object->type != 'UniqueChoice' && $object->type != 'MultipleChoices') || !empty($answerList)) {
                     // Set locked OK
