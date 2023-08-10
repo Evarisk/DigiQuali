@@ -295,7 +295,7 @@ DaysBeforeNextControl                   = Jours avant prochain contrôle
 SelectProductLots                       = Sélectionner un numéro de lot/série
 NoProductLot                            = Pas de numéro de lot/série
 ErrorEquipmentLink                      = L'équipement n'a pas pu être lié
-
+GoToPublicSurveyPage                    = Voir l'interface publique de réponse
 #
 # ControlDet
 #
