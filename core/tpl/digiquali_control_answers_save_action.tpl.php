@@ -6,10 +6,6 @@ if ($action == 'save') {
 	$object->fetchObjectLinked($sheet->id, 'digiquali_sheet', '', '', 'OR', 1, 'sourcetype', 0);
 	$questionIds = $object->linkedObjectsIds['digiquali_question'];
 
-    if ($user->id <= 0) {
-        $user->fetch(1);
-    }
-
 	foreach ($questionIds as $questionId) {
 		$controldettmp = $controldet;
 		//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
@@ -61,7 +57,7 @@ if ($action == 'save') {
 			$question->fetch($questionId);
 
 			$controldettmp->entity = $conf->entity;
-			$test=  $controldettmp->insert($user);
+			$controldettmp->insert($user);
 		}
 	}
 

@@ -71,7 +71,7 @@ require_once __DIR__ . '/../../../digiquali/lib/digiquali_sheet.lib.php';
 require_once __DIR__ . '/../../../digiquali/lib/digiquali_answer.lib.php';
 
 // Global variables definitions.
-global $conf, $db, $hookmanager, $langs;
+global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page.
 saturne_load_langs();
