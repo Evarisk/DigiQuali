@@ -231,7 +231,8 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                                 if (!empty($linkedObject->array_options['options_qc_frequency'])) {
                                     $qcFrequency = $linkedObject->array_options['options_qc_frequency'];
 
-                                    $object->next_control_date = $this->db->idate(dol_time_plus_duree($object->date_creation, $qcFrequency, 'd'));
+                                    $object->control_date      = $this->db->idate($now);
+                                    $object->next_control_date = $this->db->idate(dol_time_plus_duree($now, $qcFrequency, 'd'));
                                     $object->status            = $object::STATUS_LOCKED;
                                     $object->update($user, true);
 

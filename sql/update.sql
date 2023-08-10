@@ -114,3 +114,4 @@ UPDATE `llx_saturne_object_signature` SET module_name = REPLACE(module_name, 'do
 UPDATE `llx_bookmark` SET url = REPLACE(url, 'dolismq', 'digiquali') WHERE url LIKE '%dolismq%';
 UPDATE `llx_ecm_directories` SET label = REPLACE(label, 'dolismq', 'digiquali') WHERE label LIKE '%dolismq%';
 ALTER TABLE `llx_digiquali_control_equipment` ADD `fk_lot` integer AFTER `fk_product`;
+ALTER TABLE `llx_digiquali_control` ADD `control_date` DATETIME AFTER `next_control_date`;
