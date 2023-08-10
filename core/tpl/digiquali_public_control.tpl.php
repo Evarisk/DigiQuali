@@ -66,7 +66,7 @@
                 </div>
                 <div class="table-row">
                     <div class="table-cell table-200"><?php echo img_picto('', 'calendar', 'class="pictofixedwidth"') . $langs->trans('ControlDate'); ?></div>
-                    <div class="table-cell table-end"><?php echo dol_print_date($object->date_creation, 'day'); ?></div>
+                    <div class="table-cell table-end"><?php echo dol_print_date($object->control_date, 'day'); ?></div>
                 </div>
                 <?php if (!empty($object->next_control_date)) : ?>
                     <div class="table-row">

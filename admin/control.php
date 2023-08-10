@@ -409,6 +409,29 @@ print '</td>';
 print '<td class="center">';
 print '<input type="text" name="public_survey_title" value="' . $conf->global->DIGIQUALI_PUBLIC_SURVEY_TITLE . '">';
 print '</td></tr>';
+
+print '<tr><td>';
+print $langs->trans('EnablePublicControlHistory');
+print '</td><td>';
+print $langs->trans('EnablePublicControlHistoryDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY');
+print '</td>';
+print '</tr>';
+
+print '<tr><td>';
+print $langs->trans('ShowLastControlFirstOnPublicHistory');
+print '</td><td>';
+print $langs->trans('ShowLastControlFirstOnPublicHistoryDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY');
+print '</td>';
+print '</tr>';
+
 print '</table>';
 
 print '<div class="tabsAction"><input type="submit" class="butAction" name="save" value="' . $langs->trans('Save') . '"></div>';

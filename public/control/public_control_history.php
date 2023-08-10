@@ -74,13 +74,12 @@ global $conf, $db, $hookmanager, $langs;
 saturne_load_langs(['bills', 'contracts', 'orders', 'products', 'projects', 'companies']);
 
 // Get parameters.
-$track_id = GETPOST('track_id', 'alpha');
+$track_id          = GETPOST('track_id', 'alpha');
+$show_last_control = GETPOST('show_last_control');
 
 // Initialize technical objects.
 $object  = new Control($db);
-$user    = new User($db);
-$project = new Project($db);
-$sheet   = new Sheet($db);
+
 
 $hookmanager->initHooks(['publiccontrol']); // Note that conf->hooks_modules contains array.
 
@@ -111,25 +110,31 @@ saturne_header(0, '', $title);
 $elementArray = get_sheet_linkable_objects();
 
 
-$objectControlList = $object->fetchAllWithLeftJoin('','',GETPOST('show_last_control') == 1,0, ['customsql' => 't.rowid = je.fk_target'], 'AND', true, 'LEFT JOIN llx_element_element as je on je.sourcetype = "' . $linkedObjectsData['link_name'] . '" AND je.fk_source = ' . $objectId . ' AND je.targettype = "digiquali_control" AND je.fk_target = t.rowid' );
+if (getDolGlobalInt('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY') == 0 || getDolGlobalInt('DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY') == 1) {
+    $show_last_control = 1;
+}
 
+$objectControlList = $object->fetchAllWithLeftJoin('DESC','t.control_date',$show_last_control == 1,0, ['customsql' => 't.rowid = je.fk_target AND t.status = ' . $object::STATUS_LOCKED], 'AND', true, 'LEFT JOIN llx_element_element as je on je.sourcetype = "' . $linkedObjectsData['link_name'] . '" AND je.fk_source = ' . $objectId . ' AND je.targettype = "digiquali_control" AND je.fk_target = t.rowid' );
 
 if (is_array($objectControlList) && !empty($objectControlList)) {
     print '<div id="publicControlHistory">';
+    print '<br>';
     print '<div class="center">';
-    print '<div class="wpeo-button switch-public-control-view '. (GETPOST('show_last_control') ? 'button-grey' : '') .'">';
-    print $langs->trans('ControlList');
-    print '</div>';
-    print '&nbsp';
-    print '<div class="wpeo-button switch-public-control-view '. (GETPOST('show_last_control') ? '' : 'button-grey') .'">';
+    if (getDolGlobalInt('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY') == 1) {
+        print '<div class="wpeo-button switch-public-control-view '. ($show_last_control ? 'button-grey' : '') .'">';
+        print $langs->trans('ControlList');
+        print '</div>';
+        print '&nbsp';
+    }
+    print '<div class="wpeo-button switch-public-control-view '. ($show_last_control ? '' : 'button-grey') .'">';
     print $langs->trans('LastControl');
     print '</div>';
     print '</div>';
 
-    print '<input hidden class="public-control-view" value="'. (GETPOST('show_last_control') ? 1 : 0) .'">';
+    print '<input hidden class="public-control-view" value="'. ($show_last_control ? 1 : 0) .'">';
     print '<input hidden name="token" value="'. newToken() .'">';
 
-    if (GETPOST('show_last_control') == 1) {
+    if ($show_last_control == 1) {
         $object = array_shift($objectControlList);
         $object->fetchObjectLinked('', '', '', 'digiquali_control');
         require_once __DIR__ . '/../../core/tpl/digiquali_public_control.tpl.php';
@@ -157,6 +162,9 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
 
         foreach($objectControlList as $objectControl) {
             $verdictColor = $objectControl->verdict == 1 ? 'green' : ($objectControl->verdict == 2 ? 'red' : 'grey');
+            $user         = new User($db);
+            $project      = new Project($db);
+            $sheet        = new Sheet($db);
 
             $user->fetch($objectControl->fk_user_controller);
             $project->fetch($objectControl->projectid);
