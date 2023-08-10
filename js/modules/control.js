@@ -306,10 +306,15 @@ window.digiquali.control.refreshLotSelector = function(  event ) {
  */
 window.digiquali.control.switchPublicControlView = function(  event ) {
 
-  var publicControlViewMode = $('.public-control-view').val()
+  var publicControlViewMode = $(this).find('.public-control-view').val()
   let token                 = window.saturne.toolbox.getToken();
   let urlToGo               = document.URL + '&token=' + token
-  urlToGo                  += '&show_last_control=' + Math.abs(publicControlViewMode - 1)
+
+  if (publicControlViewMode == 0) {
+    urlToGo += '&show_control_list=1'
+  } else {
+    urlToGo += '&show_last_control=1'
+  }
 
   window.saturne.loader.display($('.signature-container'))
 
