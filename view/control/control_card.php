@@ -1132,6 +1132,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         $formmail->param['id']        = $object->id;
         $formmail->param['returnurl'] = $_SERVER['PHP_SELF'] . '?id=' . $object->id;
         $formmail->param['fileinit']  = $files;
+        $formmail->trackid            = 'control' . $object->id;
 
         // Show form.
         print $formmail->get_form();
