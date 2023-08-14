@@ -1,5 +1,4 @@
 <?php
-
 /* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -17,9 +16,9 @@
  */
 
 /**
- * \file    public/control/public_control.php
+ * \file    public/control/public_control_history.php
  * \ingroup digiquali
- * \brief   Public page to view control.
+ * \brief   Public page to view control history.
  */
 
 if (!defined('NOREQUIREUSER')) {
@@ -74,15 +73,17 @@ global $conf, $db, $hookmanager, $langs;
 saturne_load_langs(['bills', 'contracts', 'orders', 'products', 'projects', 'companies']);
 
 // Get parameters.
-$trackId           = GETPOST('track_id', 'alpha');
-$showLastControl   = GETPOST('show_last_control');
-$showControlList   = GETPOST('show_control_list');
+$trackId         = GETPOST('track_id', 'alpha');
+$showLastControl = GETPOST('show_last_control');
+$showControlList = GETPOST('show_control_list');
 
 // Initialize technical objects.
 $object  = new Control($db);
+$sheet   = new Sheet($db);
+$project = new Project($db);
+$user    = new User($db);
 
-
-$hookmanager->initHooks(['publiccontrol']); // Note that conf->hooks_modules contains array.
+$hookmanager->initHooks(['publiccontrolhistory']); // Note that conf->hooks_modules contains array.
 
 // Load object.
 $objectDataJson = base64_decode($trackId);
@@ -167,9 +168,6 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
 
         foreach($objectControlList as $objectControl) {
             $verdictColor = $objectControl->verdict == 1 ? 'green' : ($objectControl->verdict == 2 ? 'red' : 'grey');
-            $user         = new User($db);
-            $project      = new Project($db);
-            $sheet        = new Sheet($db);
 
             $user->fetch($objectControl->fk_user_controller);
             $project->fetch($objectControl->projectid);
@@ -181,7 +179,7 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
             print '</td><td class="nowraponall tdoverflowmax200">';
             print $user->getNomUrl(1, 'nolink');
             print '</td><td class="nowraponall tdoverflowmax200">';
-            print $project->getNomUrl(1, 'nolink');
+            print ($objectControl->projectid > 0 ? img_picto($langs->trans('Project'), 'project', 'class="pictofixedwidth"') . $project->ref : '');
             print '</td><td class="nowraponall tdoverflowmax200">';
             print $sheet->getNomUrl(1, 'nolink');
             print '</td><td class="nowraponall tdoverflowmax200">';
