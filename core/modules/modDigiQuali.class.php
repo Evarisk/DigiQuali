@@ -124,7 +124,9 @@ class modDigiQuali extends DolibarrModules
                 'controlcard',
                 'publiccontrol',
                 'publicsurvey',
-                'digiqualiadmindocuments'
+                'digiqualiadmindocuments',
+                'globalcard',
+                'productlotcard'
 			],
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -210,7 +212,9 @@ class modDigiQuali extends DolibarrModules
 			$i++ => ['DIGIQUALI_CONTROL_REMINDER_TYPE', 'chaine', 'browser', '', 0, 'current'],
 			$i++ => ['DIGIQUALI_CONTROL_BACKWARD_COMPATIBILITY', 'integer', 0, '', 0, 'current'],
 			$i++ => ['PRODUCT_LOT_ENABLE_QUALITY_CONTROL', 'integer', 1, '', 0, 'current'],
-			$i++ => ['DIGIQUALI_LOCK_CONTROL_OUTDATED_EQUIPMENT', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DIGIQUALI_LOCK_CONTROL_OUTDATED_EQUIPMENT', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY', 'integer', 1, '', 0, 'current'],
+            $i++ => ['DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY', 'integer', 1, '', 0, 'current'],
 
             // CONST DIGIQUALI DOCUMENTS
             $i++ => ['DIGIQUALI_AUTOMATIC_PDF_GENERATION', 'integer', 0, '', 0, 'current'],
@@ -635,7 +639,8 @@ class modDigiQuali extends DolibarrModules
 				$linkableObject = new $className($this->db);
 				$tableElement   = $linkableObject->table_element;
 
-				$extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, $tableElement, 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
+                $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, $tableElement, 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
+                $extraFields->addExtraField('control_history_link', 'ControlHistoryLink', 'varchar', 100, 255, $tableElement, 0, 0, '', '', 0, '', '1', '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
 			}
 		}
 

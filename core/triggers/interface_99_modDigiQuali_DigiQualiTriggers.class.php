@@ -212,7 +212,6 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                 $actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Locked') . '</br>';
                 $actioncomm->create($user);
 
-                $qcFrequency  = 0;
                 $actioncommID = 0;
                 $elementArray = get_sheet_linkable_objects();
                 $object->fetchObjectLinked('', '', '', 'digiquali_control', 'OR', 1, 'sourcetype', 0);
@@ -232,7 +231,12 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                                 if (!empty($linkedObject->array_options['options_qc_frequency'])) {
                                     $qcFrequency = $linkedObject->array_options['options_qc_frequency'];
 
-                                    $object->next_control_date = $this->db->idate(dol_time_plus_duree($object->date_creation, $qcFrequency, 'd'));
+                                    $object->control_date      = $this->db->idate($now);
+                                    if ($object->verdict == 2) {
+                                        $object->next_control_date = $this->db->idate($now);
+                                    } else {
+                                        $object->next_control_date = $this->db->idate(dol_time_plus_duree($now, $qcFrequency, 'd'));
+                                    }
                                     $object->status            = $object::STATUS_LOCKED;
                                     $object->update($user, true);
 

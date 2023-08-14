@@ -118,6 +118,7 @@ class Control extends SaturneObject
         'date_creation'      => ['type' => 'datetime',     'label' => 'DateCreation',     'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 5, 'positioncard' => 10],
         'tms'                => ['type' => 'timestamp',    'label' => 'DateModification', 'enabled' => 1, 'position' => 50,  'notnull' => 0, 'visible' => 0],
         'import_key'         => ['type' => 'varchar(14)',  'label' => 'ImportId',         'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
+        'control_date'       => ['type' => 'date',         'label' => 'ControlDate',      'enabled' => 1, 'position' => 63,  'notnull' => 0, 'visible' => 5],
         'next_control_date'  => ['type' => 'date',         'label' => 'NextControlDate',  'enabled' => 1, 'position' => 65,  'notnull' => 0, 'visible' => 5],
         'status'             => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => 0, 'arrayofkeyval' => ['0' => 'Draft', 1 => 'Validated', '2' => 'Locked']],
         'note_public'        => ['type' => 'html',         'label' => 'NotePublic',       'enabled' => 1, 'position' => 80,  'notnull' => 0, 'visible' => 0],
@@ -201,6 +202,11 @@ class Control extends SaturneObject
      * @var int|string NextControlDate.
      */
     public $next_control_date;
+
+    /**
+     * @var int|string ControlDate.
+     */
+    public $control_date;
 
     /**
      * @var int User ID.
@@ -346,6 +352,90 @@ class Control extends SaturneObject
 			return -1;
 		}
 	}
+
+
+    /**
+     * Load list of objects in memory from the database.
+     *
+     * @param  string      $sortorder    Sort Order
+     * @param  string      $sortfield    Sort field
+     * @param  int         $limit        limit
+     * @param  int         $offset       Offset
+     * @param  array       $filter       Filter array. Example array('field'=>'valueforlike', 'customurl'=>...)
+     * @param  string      $filtermode   Filter mode (AND or OR)
+     * @return array|int                 int <0 if KO, array of pages if OK
+     */
+    public function fetchAllWithLeftJoin($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND', $fetchCategories = false, $leftJoin = '')
+    {
+        dol_syslog(__METHOD__, LOG_DEBUG);
+
+        $records = array();
+
+        $sql                                                                              = 'SELECT ';
+        $sql                                                                             .= $this->getFieldList('t');
+        $sql                                                                             .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
+        if (isModEnabled('categorie') && $fetchCategories) {
+            require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
+            $sql .= Categorie::getFilterJoinQuery('control', 't.rowid');
+        }
+        if (dol_strlen($leftJoin)) {
+            $sql .= ' ' . $leftJoin;
+        }
+        if (isset($this->ismultientitymanaged) && $this->ismultientitymanaged == 1) $sql .= ' WHERE t.entity IN (' . getEntity($this->table_element) . ')';
+        else $sql                                                                        .= ' WHERE 1 = 1';
+
+        // Manage filter
+        $sqlwhere = array();
+        if (count($filter) > 0) {
+            foreach ($filter as $key => $value) {
+                if ($key == 't.rowid') {
+                    $sqlwhere[] = $key . '=' . $value;
+                } elseif (in_array($this->fields[$key]['type'], array('date', 'datetime', 'timestamp'))) {
+                    $sqlwhere[] = $key . ' = \'' . $this->db->idate($value) . '\'';
+                } elseif ($key == 'customsql') {
+                    $sqlwhere[] = $value;
+                } elseif (strpos($value, '%') === false) {
+                    $sqlwhere[] = $key . ' IN (' . $this->db->sanitize($this->db->escape($value)) . ')';
+                } else {
+                    $sqlwhere[] = $key . ' LIKE \'%' . $this->db->escape($value) . '%\'';
+                }
+            }
+        }
+        if (count($sqlwhere) > 0) {
+            $sql .= ' AND (' . implode(' ' . $filtermode . ' ', $sqlwhere) . ')';
+        }
+
+        if ( ! empty($sortfield)) {
+            $sql .= $this->db->order($sortfield, $sortorder);
+        }
+        if ( ! empty($limit)) {
+            $sql .= ' ' . $this->db->plimit($limit, $offset);
+        }
+
+        $resql = $this->db->query($sql);
+        if ($resql) {
+            $num = $this->db->num_rows($resql);
+            $i   = 0;
+            while ($i < ($limit ? min($limit, $num) : $num)) {
+                $obj = $this->db->fetch_object($resql);
+
+                $record = new self($this->db);
+                $record->setVarsFromFetchObj($obj);
+
+                $records[$record->id] = $record;
+
+                $i++;
+            }
+            $this->db->free($resql);
+
+            return $records;
+        } else {
+            $this->errors[] = 'Error ' . $this->db->lasterror();
+            dol_syslog(__METHOD__ . ' ' . join(',', $this->errors), LOG_ERR);
+
+            return -1;
+        }
+    }
 
     /**
      * Set draft status.

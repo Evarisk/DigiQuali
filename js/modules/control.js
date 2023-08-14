@@ -38,6 +38,7 @@ window.digiquali.control.event = function() {
   $( document ).on( 'click', '.toggleControlInfo', window.digiquali.control.toggleControlInfo );
   $( document ).on( 'click', '.clipboard-copy', window.digiquali.control.copyToClipboard );
   $( document ).on( 'change', '#productId', window.digiquali.control.refreshLotSelector );
+  $( document ).on( 'click', '.switch-public-control-view', window.digiquali.control.switchPublicControlView );
 };
 
 /**
@@ -293,3 +294,40 @@ window.digiquali.control.refreshLotSelector = function(  event ) {
     }
   });
 };
+
+/**
+ * Switch public control history mode
+ *
+ * @since   1.8.0
+ * @version 1.8.0
+ *
+ * @param  {MouseEvent} event Les attributs lors du clic.
+ * @return {void}
+ */
+window.digiquali.control.switchPublicControlView = function(  event ) {
+
+  var publicControlViewMode = $(this).find('.public-control-view').val()
+  let token                 = window.saturne.toolbox.getToken();
+  let urlToGo               = document.URL + '&token=' + token
+
+  if (publicControlViewMode == 0) {
+    urlToGo += '&show_control_list=1'
+  } else {
+    urlToGo += '&show_last_control=1'
+  }
+
+  window.saturne.loader.display($('.signature-container'))
+
+  $.ajax({
+    url: urlToGo,
+    type: "POST",
+    processData: false,
+    contentType: false,
+    success: function ( resp ) {
+      $('#publicControlHistory').replaceWith($(resp).find('#publicControlHistory'))
+    },
+    error: function ( ) {
+    }
+  });
+};
+
