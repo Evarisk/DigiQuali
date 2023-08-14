@@ -58,6 +58,9 @@ if (file_exists('../../digiquali.main.inc.php')) {
 
 // Load Dolibarr libraries.
 require_once DOL_DOCUMENT_ROOT . '/user/class/user.class.php';
+require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmdirectory.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
 // Load DigiQuali libraries.
 require_once __DIR__ . '/../../../digiquali/class/control.class.php';
@@ -68,14 +71,15 @@ require_once __DIR__ . '/../../../digiquali/lib/digiquali_sheet.lib.php';
 require_once __DIR__ . '/../../../digiquali/lib/digiquali_answer.lib.php';
 
 // Global variables definitions.
-global $conf, $db, $hookmanager, $langs;
+global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page.
 saturne_load_langs();
 
 // Get parameters.
-$track_id = GETPOST('track_id', 'alpha');
-$action   = GETPOST('action');
+$track_id  = GETPOST('track_id', 'alpha');
+$action    = GETPOST('action');
+$subaction = GETPOST('subaction');
 
 // Initialize technical objects.
 $object           = new Control($db);
@@ -105,7 +109,7 @@ $title = $langs->trans('PublicControl');
 $conf->dol_hide_topmenu  = 1;
 $conf->dol_hide_leftmenu = 1;
 
-saturne_header(0, '', $title);
+saturne_header(1, '', $title);
 
 if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
 	print '<div class="signature-container" width="100%" style="max-width: 1000px;">';
