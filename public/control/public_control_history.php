@@ -127,14 +127,14 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
     print '<br>';
     if (getDolGlobalInt('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY') == 1) {
         print '<div class="center">';
-        print '<div class="wpeo-button switch-public-control-view '. ($show_last_control_first ? 'button-grey' : '') .'">';
-        print '<input hidden class="public-control-view" value="0">';
-        print $langs->trans('ControlList');
-        print '</div>';
-        print '&nbsp';
         print '<div class="wpeo-button switch-public-control-view '. ($show_last_control_first ? '' : 'button-grey') .'">';
         print '<input hidden class="public-control-view" value="1">';
         print $langs->trans('LastControl');
+        print '</div>';
+        print '&nbsp';
+        print '<div class="wpeo-button switch-public-control-view '. ($show_last_control_first ? 'button-grey' : '') .'">';
+        print '<input hidden class="public-control-view" value="0">';
+        print $langs->trans('ControlList');
         print '</div>';
         print '</div>';
     }
@@ -160,7 +160,7 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
         print '</td><td class="nowraponall tdoverflowmax200">';
         print $langs->trans('Sheet');
         print '</td><td class="nowraponall tdoverflowmax200">';
-        print $langs->trans('DateCreation');
+        print $langs->trans('ControlDate');
         print '</td><td class="nowraponall tdoverflowmax200">';
         print $langs->trans('Verdict');
         print '</td><td class="nowraponall tdoverflowmax200">';
@@ -187,7 +187,7 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
             print '</td><td class="nowraponall tdoverflowmax200">';
             print $sheet->getNomUrl(1, 'nolink');
             print '</td><td class="nowraponall tdoverflowmax200">';
-            print dol_print_date($objectControl->date_creation);
+            print dol_print_date($objectControl->control_date);
             print '</td><td class="nowraponall tdoverflowmax200">';
             print '<div class="wpeo-button button-'. $verdictColor .'">' . $objectControl->fields['verdict']['arrayofkeyval'][(!empty($objectControl->verdict)) ?: 3] . '</div>';
             print '</td><td class="nowraponall tdoverflowmax200">';

@@ -275,8 +275,9 @@ class ActionsDigiquali
                 $objectB64 = $productLot->array_options['options_control_history_link'];
                 $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control_history.php?track_id=' . $objectB64, 3);
 
-                $out = '<a target="_blank" href="'. $publicControlInterfaceUrl .'"><div class="butAction">';
-                $out .= $langs->trans('ShowObjectControlHistory');
+                $out = showValueWithClipboardCPButton($publicControlInterfaceUrl, 0, '&nbsp;');
+                $out .= '<a target="_blank" href="'. $publicControlInterfaceUrl .'"><div class="butAction">';
+                $out .= '<i class="fa fa-external-link"></i>';
                 $out .= '</div></a>';
 
                 ?>
