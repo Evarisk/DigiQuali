@@ -267,26 +267,21 @@ class ActionsDigiquali
 				jQuery('.fichecenter').last().after(<?php echo json_encode($out) ; ?>)
 			</script>
 			<?php
-		} elseif ($parameters['currentcontext'] == 'globalcard') {
-            if (preg_match('/productlotcard/', $parameters['context'])) {
+		} elseif ($parameters['currentcontext'] == 'productlotcard') {
+            $productLot = new ProductLot($this->db);
+            $productLot->fetch(GETPOST('id'));
+            $objectB64 = $productLot->array_options['options_control_history_link'];
+            $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control_history.php?track_id=' . $objectB64, 3);
 
-                $productLot = new ProductLot($this->db);
-                $productLot->fetch(GETPOST('id'));
-                $objectB64 = $productLot->array_options['options_control_history_link'];
-                $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control_history.php?track_id=' . $objectB64, 3);
+            $out = showValueWithClipboardCPButton($publicControlInterfaceUrl, 0, '&nbsp;');
+            $out .= '<a target="_blank" href="'. $publicControlInterfaceUrl .'"><div class="butAction">';
+            $out .= '<i class="fa fa-external-link"></i>';
+            $out .= '</div></a>'; ?>
 
-                $out = showValueWithClipboardCPButton($publicControlInterfaceUrl, 0, '&nbsp;');
-                $out .= '<a target="_blank" href="'. $publicControlInterfaceUrl .'"><div class="butAction">';
-                $out .= '<i class="fa fa-external-link"></i>';
-                $out .= '</div></a>';
-
-                ?>
-                    <script>
-                        $('[class*=extras_control_history_link]').html(<?php echo json_encode($out) ?>);
-                    </script>
-                <?php
-            }
-
+            <script>
+                $('[class*=extras_control_history_link]').html(<?php echo json_encode($out) ?>);
+            </script>
+            <?php
         }
 
 		if (!$error) {
@@ -298,19 +293,21 @@ class ActionsDigiquali
 		}
 	}
 
-    public function formObjectOptions($parameters, $object, $options) {
-        global $langs, $user;
-
-        if ($parameters['currentcontext'] == 'globalcard' && preg_match('/productlotcard/', $parameters['context'])) {
-            $objectData = [
-                'type' => $object->element,
-                'id' => $object->id
-            ];
+    /**
+     * Overloading the formObjectOptions function : replacing the parent's function with the one below
+     *
+     * @param array $parameters Hook metadata (context, etc...)
+     * @param object $object     Object
+     * @return void
+     */
+    public function formObjectOptions(array $parameters, object $object) {
+        if ($parameters['currentcontext'] == 'productlotcard') {
+            $objectData = ['type' => $object->element, 'id' => $object->id];
 
             $objectDataJson = json_encode($objectData);
             $objectDataB64  = base64_encode($objectDataJson);
 
-            if (dol_strlen($object)->array_options['options_control_history_link'] == 0 ) {
+            if (dol_strlen($object->array_options['options_control_history_link'] == 0 )) {
                 $object->array_options['options_control_history_link'] = $objectDataB64;
                 $object->updateExtrafield('control_history_link');
             }
