@@ -312,7 +312,7 @@ class ActionsDigiquali
 
             if (dol_strlen($object)->array_options['options_control_history_link'] == 0 ) {
                 $object->array_options['options_control_history_link'] = $objectDataB64;
-                $object->update($user, 1);
+                $object->updateExtrafield('control_history_link');
             }
         }
     }

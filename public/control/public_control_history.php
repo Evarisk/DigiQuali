@@ -74,9 +74,9 @@ global $conf, $db, $hookmanager, $langs;
 saturne_load_langs(['bills', 'contracts', 'orders', 'products', 'projects', 'companies']);
 
 // Get parameters.
-$track_id          = GETPOST('track_id', 'alpha');
-$show_last_control = GETPOST('show_last_control');
-$show_control_list = GETPOST('show_control_list');
+$trackId           = GETPOST('track_id', 'alpha');
+$showLastControl   = GETPOST('show_last_control');
+$showControlList   = GETPOST('show_control_list');
 
 // Initialize technical objects.
 $object  = new Control($db);
@@ -85,7 +85,7 @@ $object  = new Control($db);
 $hookmanager->initHooks(['publiccontrol']); // Note that conf->hooks_modules contains array.
 
 // Load object.
-$objectDataJson = base64_decode($track_id);
+$objectDataJson = base64_decode($trackId);
 $objectData     = json_decode($objectDataJson);
 
 $objectType = $objectData->type;
@@ -94,9 +94,6 @@ $objectId   = $objectData->id;
 $objectLinked = new $objectType($db);
 $objectLinked->fetch($objectId);
 
-$linkedObjects = get_sheet_linkable_objects();
-
-$linkedObjectsData = $linkedObjects[$objectType];
 /*
  * View
  */
@@ -109,30 +106,31 @@ $conf->dol_hide_leftmenu = 1;
 saturne_header(0, '', $title);
 
 $elementArray = get_sheet_linkable_objects();
+$linkedObjectsData = $elementArray[$objectType];
 
-if ($show_control_list == 1) {
-    $show_last_control_first = 0;
-} else if ($show_last_control == 1) {
-    $show_last_control_first = 1;
+if ($showControlList == 1) {
+    $showLastControlFirst = 0;
+} else if ($showLastControl == 1) {
+    $showLastControlFirst = 1;
 } else if (getDolGlobalInt('DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY') == 1) {
-    $show_last_control_first = 1;
+    $showLastControlFirst = 1;
 } else {
-    $show_last_control_first = 0;
+    $showLastControlFirst = 0;
 }
 
-$objectControlList = $object->fetchAllWithLeftJoin('DESC','t.control_date',$show_last_control_first == 1,0, ['customsql' => 't.rowid = je.fk_target AND t.status = ' . $object::STATUS_LOCKED], 'AND', true, 'LEFT JOIN llx_element_element as je on je.sourcetype = "' . $linkedObjectsData['link_name'] . '" AND je.fk_source = ' . $objectId . ' AND je.targettype = "digiquali_control" AND je.fk_target = t.rowid' );
+$objectControlList = $object->fetchAllWithLeftJoin('DESC','t.control_date',$showLastControlFirst == 1,0, ['customsql' => 't.rowid = je.fk_target AND t.status = ' . $object::STATUS_LOCKED], 'AND', true, 'LEFT JOIN llx_element_element as je on je.sourcetype = "' . $linkedObjectsData['link_name'] . '" AND je.fk_source = ' . $objectId . ' AND je.targettype = "digiquali_control" AND je.fk_target = t.rowid' );
 
 if (is_array($objectControlList) && !empty($objectControlList)) {
     print '<div id="publicControlHistory">';
     print '<br>';
     if (getDolGlobalInt('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY') == 1) {
         print '<div class="center">';
-        print '<div class="wpeo-button switch-public-control-view '. ($show_last_control_first ? '' : 'button-grey') .'">';
+        print '<div class="wpeo-button switch-public-control-view '. ($showLastControlFirst ? '' : 'button-grey') .'">';
         print '<input hidden class="public-control-view" value="1">';
         print $langs->trans('LastControl');
         print '</div>';
         print '&nbsp';
-        print '<div class="wpeo-button switch-public-control-view '. ($show_last_control_first ? 'button-grey' : '') .'">';
+        print '<div class="wpeo-button switch-public-control-view '. ($showLastControlFirst ? 'button-grey' : '') .'">';
         print '<input hidden class="public-control-view" value="0">';
         print $langs->trans('ControlList');
         print '</div>';
@@ -141,7 +139,7 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
 
     print '<input hidden name="token" value="'. newToken() .'">';
 
-    if ($show_last_control_first == 1) {
+    if ($showLastControlFirst == 1) {
         $object = array_shift($objectControlList);
         $object->fetchObjectLinked('', '', '', 'digiquali_control');
         require_once __DIR__ . '/../../core/tpl/digiquali_public_control.tpl.php';
