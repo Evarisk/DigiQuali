@@ -181,6 +181,8 @@ SetOK/KO                                       = Apte/Inapte
 Batch                                          = Lot/Série
 BatchLinked                                    = Lot/Série contrôlé
 VerdictControl                                 = Choix du verdict
+Verdict                                        = Verdict du contrôle
+VerdictObject                                  = Verdict
 ValidateControl                                = Valider le contrôle
 ReOpenControl                                  = Rouvrir le contrôle
 LockControl                                    = Verrouiller le contrôle
@@ -305,6 +307,11 @@ ShowLastControlFirstOnPublicHistory            = Afficher le dernier contrôle e
 ShowLastControlFirstOnPublicHistoryDescription = Force l'affichage du dernier contrôle à la place de la liste des contrôles de l'objet sur l'interface publique de contrôle
 NonFinalVerdict                                = Le contrôle n'étant pas verrouillé, le verdict peut encore changer
 GoToPublicSurveyPage                           = Voir l'interface publique de réponse
+BeCarefullVerdictKO                            = Attention si le statut de votre contrôle est KO. Il faudra refaire votre contrôle.
+ShowQcFrequencyPublicInterface                 = Afficher la période de validé (en jours) sur l'interface publique de contrôle
+ShowQcFrequencyPublicInterfaceDescription      = Option permettant l'affichage la période de validé (en jours) sur l'interface publique de contrôle
+
+
 
 #
 # ControlDet
