@@ -29,11 +29,11 @@
                             $objectName = $linkedObject->$objectNameField;
                         } ?>
 
-                        <div style="margin-bottom: 10px"><strong><?php echo img_picto('', $linkableObject['picto'], 'class="pictofixedwidth"') . $objectName; ?></strong></div>
+                        <div style="margin-bottom: 10px"><strong><?php echo img_picto('', $linkableObject['picto'], 'class="pictofixedwidth"') . $langs->transnoentities($linkableObject['langs']); ?></strong></div>
                         <div class="wpeo-table table-flex">
                             <div class="table-row">
                                 <div class="table-cell table-250">
-                                    <i class="far fa-check-circle pictofixedwidth"></i><?php echo $langs->trans('VerdictObject') . ' ' . $langs->transnoentities($linkableObject['langs']); ?>
+                                    <?php echo img_picto('', $linkableObject['picto'], 'class="pictofixedwidth"') . $objectName . '<br><i class="far fa-check-circle pictofixedwidth"></i>' . $langs->trans('VerdictObject'); ?>
                                         <?php if ($linkedObject->array_options['options_qc_frequency'] > 0 && getDolGlobalInt('SHOW_QC_FREQUENCY_PUBLIC_INTERFACE')) {
                                             print '<br>' . $langs->transnoentities('QcFrequency') . ' : ' . $linkedObject->array_options['options_qc_frequency'];
                                         } ?>
@@ -53,11 +53,12 @@
                 <?php }
                 }
             } ?>
-            <br><div style="margin-bottom: 10px"><strong><?php echo $object->getNomUrl(1, 'nolink') . ' - ' . $sheet->getNomUrl(1, 'nolink', 1); ?></strong></div>
+            <br><div style="margin-bottom: 10px"><strong><?php echo $sheet->getNomUrl(1, 'nolink', 1); ?></strong></div>
             <div class="wpeo-table table-flex">
                 <div class="table-row">
                     <div class="table-cell table-200">
-                        <?php echo '<i class="far fa-check-circle"></i> ' . $langs->trans('Verdict') . '<br>';
+                        <?php echo $object->getNomUrl(1, 'nolink') . '<br>';
+                        echo '<i class="far fa-check-circle"></i> ' . $langs->trans('Verdict') . '<br>';
                         echo img_picto('', 'calendar', 'class="pictofixedwidth"') . $langs->trans('ControlDate'); ?>
                     </div>
                     <div class="table-cell table-end">
