@@ -417,6 +417,17 @@ print $langs->trans('EnablePublicControlHistoryDescription');
 print '</td>';
 
 print '<td class="center">';
+print ajax_constantonoff('SHOW_QC_FREQUENCY_PUBLIC_INTERFACE');
+print '</td>';
+print '</tr>';
+
+print '<tr><td>';
+print $langs->trans('ShowQcFrequencyPublicInterface');
+print '</td><td>';
+print $langs->trans('ShowQcFrequencyPublicInterfaceDescription');
+print '</td>';
+
+print '<td class="center">';
 print ajax_constantonoff('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY');
 print '</td>';
 print '</tr>';

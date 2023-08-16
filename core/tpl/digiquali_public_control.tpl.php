@@ -34,7 +34,7 @@
                             <div class="table-row">
                                 <div class="table-cell table-250">
                                     <i class="far fa-check-circle pictofixedwidth"></i><?php echo $langs->trans('VerdictObject') . ' ' . $langs->transnoentities($linkableObject['langs']); ?>
-                                        <?php if ($linkedObject->array_options['options_qc_frequency'] > 0) {
+                                        <?php if ($linkedObject->array_options['options_qc_frequency'] > 0 && getDolGlobalInt('SHOW_QC_FREQUENCY_PUBLIC_INTERFACE')) {
                                             print '<br>' . $langs->transnoentities('QcFrequency') . ' : ' . $linkedObject->array_options['options_qc_frequency'];
                                         } ?>
                                 </div>
