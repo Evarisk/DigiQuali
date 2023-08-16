@@ -401,7 +401,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'days_remaining_before_next_control') {
                 if (dol_strlen($object->next_control_date) > 0) {
-                    $nextControl = max(floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24)), 0);
+                    $nextControl = floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24));
                 } else {
                     $nextControl = 0;
                 }
