@@ -62,6 +62,7 @@ require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 
 // Load DigiQuali libraries.
 require_once __DIR__ . '/../../../digiquali/class/control.class.php';
+require_once __DIR__ . '/../../../digiquali/class/sheet.class.php';
 require_once __DIR__ . '/../../../digiquali/lib/digiquali_sheet.lib.php';
 
 // Global variables definitions.
@@ -75,6 +76,7 @@ $track_id = GETPOST('track_id', 'alpha');
 
 // Initialize technical objects.
 $object = new Control($db);
+$sheet  = new Sheet($db);
 
 $hookmanager->initHooks(['publiccontrol']); // Note that conf->hooks_modules contains array.
 
@@ -95,6 +97,7 @@ saturne_header(0, '', $title);
 $elementArray = get_sheet_linkable_objects();
 
 $object->fetchObjectLinked('', '', '', 'digiquali_control');
+$sheet->fetch($object->fk_sheet);
 
 require_once __DIR__ . '/../../core/tpl/digiquali_public_control.tpl.php';
 
