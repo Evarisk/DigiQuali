@@ -308,6 +308,8 @@ ShowLastControlFirstOnPublicHistoryDescription = Force l'affichage du dernier co
 NonFinalVerdict                                = Le contrôle n'étant pas verrouillé, le verdict peut encore changer
 GoToPublicSurveyPage                           = Voir l'interface publique de réponse
 BeCarefullVerdictKO                            = Attention si le statut de votre contrôle est KO. Il faudra refaire votre contrôle.
+ShowQcFrequencyPublicInterface                 = Afficher la période de validé (en jours) sur l'interface publique de contrôle
+ShowQcFrequencyPublicInterfaceDescription      = Option permettant l'affichage la période de validé (en jours) sur l'interface publique de contrôle
 
 
 
