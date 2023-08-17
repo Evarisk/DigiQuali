@@ -39,7 +39,7 @@
                                         } ?>
                                 </div>
                                 <div class="table-cell table-end">
-                                    <?php if ($object->next_control_date - dol_now() < 0) {
+                                    <?php if (!empty($object->next_control_date) && $object->next_control_date - dol_now() < 0) {
                                         $verdictObjectColor = 'red';
                                     } elseif ($object->verdict > 1) {
                                         $verdictObjectColor = 'red';
