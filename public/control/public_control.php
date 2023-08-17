@@ -73,12 +73,19 @@ saturne_load_langs(['bills', 'contracts', 'orders', 'products', 'projects', 'com
 
 // Get parameters.
 $track_id = GETPOST('track_id', 'alpha');
+$entity   = GETPOST('entity');
 
 // Initialize technical objects.
 $object = new Control($db);
 $sheet  = new Sheet($db);
 
 $hookmanager->initHooks(['publiccontrol']); // Note that conf->hooks_modules contains array.
+
+if (!isModEnabled('multicompany')) {
+    $entity = $conf->entity;
+}
+
+$conf->setEntityValues($db, $entity);
 
 // Load object.
 $object->fetch(0, '', ' AND track_id =' . "'" . $track_id . "'");

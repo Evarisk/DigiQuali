@@ -621,7 +621,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	unset($object->fields['projectid']); // Hide field already shown in banner
 
   if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {
-      $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $object->track_id, 3);
+      $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $object->track_id . '&entity=' . $conf->entity, 3);
       print '<input hidden class="copy-to-clipboard" value="'. $publicControlInterfaceUrl .'">';
       print '<tr><td class="titlefield">' . $langs->trans('PublicControl') . ' <a href="' . $publicControlInterfaceUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
       print ' <i class="fas fa-clipboard clipboard-copy"></i>';
@@ -631,7 +631,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
       //Survey public interface
       print '<tr><td class="titlefield">';
-      $publicSurveyUrl = dol_buildpath('custom/digiquali/public/control/public_survey.php?track_id=' . $object->track_id, 3);
+      $publicSurveyUrl = dol_buildpath('custom/digiquali/public/control/public_survey.php?track_id=' . $object->track_id . '&entity=' . $conf->entity, 3);
       print $langs->trans('PublicSurvey');
       print ' <a href="' . $publicSurveyUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
       print showValueWithClipboardCPButton($publicSurveyUrl, 0, '&nbsp;');

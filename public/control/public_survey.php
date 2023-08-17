@@ -78,6 +78,7 @@ saturne_load_langs();
 
 // Get parameters.
 $track_id  = GETPOST('track_id', 'alpha');
+$entity    = GETPOST('entity');
 $action    = GETPOST('action');
 $subaction = GETPOST('subaction');
 
@@ -90,6 +91,12 @@ $sheet            = new Sheet($db);
 $user             = new User($db);
 
 $hookmanager->initHooks(['publicsurvey']); // Note that conf->hooks_modules contains array.
+
+if (!isModEnabled('multicompany')) {
+    $entity = $conf->entity;
+}
+
+$conf->setEntityValues($db, $entity);
 
 // Load object.
 $object->fetch(0, '', ' AND track_id =' . "'" . $track_id . "'");
