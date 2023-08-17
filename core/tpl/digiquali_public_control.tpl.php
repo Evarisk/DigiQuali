@@ -39,14 +39,23 @@
                                         } ?>
                                 </div>
                                 <div class="table-cell table-end">
-                                    <?php if (!empty($object->next_control_date) && $object->next_control_date - dol_now() < 0) {
+                                    <?php if ($object->status == $object::STATUS_DRAFT) {
+                                        $verdictObjectColor = 'primary';
+                                        $pictoObjectColor   = 'hourglass-start';
+                                    } elseif ($object->status == $object::STATUS_VALIDATED) {
+                                        $verdictObjectColor = 'primary';
+                                        $pictoObjectColor   = 'hourglass-half';
+                                    } elseif (!empty($object->next_control_date) && $object->next_control_date - dol_now() < 0) {
                                         $verdictObjectColor = 'red';
+                                        $pictoObjectColor   = 'exclamation';
                                     } elseif ($object->verdict > 1) {
                                         $verdictObjectColor = 'red';
+                                        $pictoObjectColor   = 'exclamation';
                                     } else {
                                         $verdictObjectColor = 'green';
+                                        $pictoObjectColor   = 'check';
                                     }
-                                    print '<div class="wpeo-button button-' . $verdictObjectColor . '  button-square-60"><i class="fas fa-2x fa-' . ($verdictObjectColor == 'green' ? 'check' : 'exclamation') . ' button-icon"></i></div><br>'; ?>
+                                    print '<div class="wpeo-button button-' . $verdictObjectColor . '  button-square-60"><i class="fas fa-2x fa-' . $pictoObjectColor . ' button-icon"></i></div><br>'; ?>
                                 </div>
                             </div>
                         </div>
