@@ -62,7 +62,7 @@
                 <?php }
                 }
             } ?>
-            <br><div style="margin-bottom: 10px"><strong><?php echo $sheet->getNomUrl(1, 'nolink', 1); ?></strong></div>
+            <br><div style="margin-bottom: 10px"><strong><?php echo $sheet->getNomUrl(1, 'nolink', 0, '', -1, 1); ?></strong></div>
             <div class="wpeo-table table-flex">
                 <div class="table-row">
                     <div class="table-cell table-200">
