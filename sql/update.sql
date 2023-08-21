@@ -82,3 +82,36 @@ UPDATE `llx_dolismq_question` SET type = 'OkKoToFixNonApplicable' WHERE type IS 
 UPDATE `llx_dolismq_sheet` SET mandatory_questions = '{}' WHERE mandatory_questions IS NULL;
 ALTER TABLE `llx_dolismq_sheet` CHANGE `mandatory_questions` `mandatory_questions` text;
 ALTER TABLE `llx_dolismq_control` ADD `next_control_date` DATETIME AFTER `track_id`;
+
+-- 1.8.0
+
+ALTER TABLE `llx_dolismq_answer` RENAME TO `llx_digiquali_answer`;
+ALTER TABLE `llx_dolismq_question` RENAME TO `llx_digiquali_question`;
+ALTER TABLE `llx_dolismq_question_extrafields` RENAME TO `llx_digiquali_question_extrafields`;
+ALTER TABLE `llx_dolismq_sheet` RENAME TO `llx_digiquali_sheet`;
+ALTER TABLE `llx_dolismq_sheet_extrafields` RENAME TO `llx_digiquali_sheet_extrafields`;
+ALTER TABLE `llx_dolismq_control` RENAME TO `llx_digiquali_control`;
+ALTER TABLE `llx_dolismq_control_extrafields` RENAME TO `llx_digiquali_control_extrafields`;
+ALTER TABLE `llx_dolismq_controldet` RENAME TO `llx_digiquali_controldet`;
+ALTER TABLE `llx_dolismq_controldet_extrafields` RENAME TO `llx_digiquali_controldet_extrafields`;
+ALTER TABLE `llx_control_equipment` RENAME TO `llx_digiquali_control_equipment`;
+UPDATE `llx_const` SET name = REPLACE(name, 'DOLISMQ', 'DIGIQUALI') WHERE name LIKE '%DOLISMQ%';
+UPDATE `llx_const` SET value = REPLACE(value, 'dolismq', 'digiquali') WHERE value LIKE '%dolismq%';
+UPDATE `llx_element_element` SET sourcetype = REPLACE(sourcetype, 'dolismq', 'digiquali') WHERE sourcetype LIKE '%dolismq%';
+UPDATE `llx_element_element` SET targettype = REPLACE(targettype, 'dolismq', 'digiquali') WHERE targettype LIKE '%dolismq%';
+DELETE FROM `llx_menu` WHERE module = 'dolismq';
+DELETE FROM `llx_menu` WHERE mainmenu LIKE '%dolismq%';
+UPDATE `llx_rights_def` SET module = 'digiquali' WHERE module = 'dolismq';
+UPDATE `llx_actioncomm` SET elementtype = REPLACE(elementtype, 'dolismq', 'digiquali') WHERE elementtype LIKE '%dolismq%';
+UPDATE `llx_extrafields` SET elementtype = REPLACE(elementtype, 'dolismq', 'digiquali') WHERE elementtype LIKE '%dolismq%';
+UPDATE `llx_extrafields` SET langs = REPLACE(langs, 'dolismq', 'digiquali') WHERE langs LIKE '%dolismq%';
+UPDATE `llx_extrafields` SET enabled = REPLACE(enabled, 'dolismq', 'digiquali') WHERE enabled LIKE '%dolismq%';
+UPDATE `llx_ecm_files` SET filepath = REPLACE(filepath, 'dolismq', 'digiquali') WHERE filepath LIKE '%dolismq%';
+UPDATE `llx_ecm_files` SET src_object_type = REPLACE(src_object_type, 'dolismq', 'digiquali') WHERE src_object_type LIKE '%dolismq%';
+UPDATE `llx_saturne_object_documents` SET ref_ext = REPLACE(ref_ext, 'dolismq', 'digiquali') WHERE ref_ext LIKE '%dolismq%';
+UPDATE `llx_saturne_object_documents` SET module_name = REPLACE(module_name, 'dolismq', 'digiquali') WHERE module_name LIKE '%dolismq%';
+UPDATE `llx_saturne_object_signature` SET module_name = REPLACE(module_name, 'dolismq', 'digiquali') WHERE module_name LIKE '%dolismq%';
+UPDATE `llx_bookmark` SET url = REPLACE(url, 'dolismq', 'digiquali') WHERE url LIKE '%dolismq%';
+UPDATE `llx_ecm_directories` SET label = REPLACE(label, 'dolismq', 'digiquali') WHERE label LIKE '%dolismq%';
+ALTER TABLE `llx_digiquali_control_equipment` ADD `fk_lot` integer AFTER `fk_product`;
+ALTER TABLE `llx_digiquali_control` ADD `control_date` DATETIME AFTER `next_control_date`;

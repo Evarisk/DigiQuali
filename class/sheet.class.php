@@ -17,7 +17,7 @@
 
 /**
  * \file    class/sheet.class.php
- * \ingroup dolismq
+ * \ingroup digiquali
  * \brief   This file is a CRUD class file for Sheet (Create/Read/Update/Delete).
  */
 
@@ -32,7 +32,7 @@ class Sheet extends SaturneObject
     /**
      * @var string Module name.
      */
-    public $module = 'dolismq';
+    public $module = 'digiquali';
 
     /**
      * @var string Element type of object.
@@ -42,7 +42,7 @@ class Sheet extends SaturneObject
     /**
      * @var string Name of table without prefix where object is stored. This is also the key used for extrafields management.
      */
-    public $table_element = 'dolismq_sheet';
+    public $table_element = 'digiquali_sheet';
 
     /**
      * @var int Does this object support multicompany module ?
@@ -56,7 +56,7 @@ class Sheet extends SaturneObject
     public int $isextrafieldmanaged = 1;
 
     /**
-     * @var string Name of icon for sheet. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'sheet@dolismq' if picto is file 'img/object_sheet.png'.
+     * @var string Name of icon for sheet. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'sheet@digiquali' if picto is file 'img/object_sheet.png'.
      */
     public string $picto = 'fontawesome_fa-list_fas_#d35968';
 
@@ -112,7 +112,7 @@ class Sheet extends SaturneObject
         'ref'                 => ['type' => 'varchar(128)', 'label' => 'Ref',                'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 4, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
         'ref_ext'             => ['type' => 'varchar(128)', 'label' => 'RefExt',             'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0],
         'entity'              => ['type' => 'integer',      'label' => 'Entity',             'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'index' => 1],
-        'date_creation'       => ['type' => 'datetime',     'label' => 'DateCreation',       'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 5],
+        'date_creation'       => ['type' => 'datetime',     'label' => 'DateCreation',       'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 2],
         'tms'                 => ['type' => 'timestamp',    'label' => 'DateModification',   'enabled' => 1, 'position' => 50,  'notnull' => 1, 'visible' => 0],
         'import_key'          => ['type' => 'varchar(14)',  'label' => 'ImportId',           'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
         'status'              => ['type' => 'smallint',     'label' => 'Status',             'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>1, 'arrayofkeyval' => ['0' => 'Draft', 1 => 'Enabled', '2' => 'Locked']],
@@ -219,11 +219,8 @@ class Sheet extends SaturneObject
      */
     public function create(User $user, bool $notrigger = false): int
     {
-        global $conf;
-
-        $refSheetMod               = new $conf->global->DOLISMQ_SHEET_ADDON($this->db);
-		$this->status              = $this->status ?: 1;
-		$this->ref                 = $refSheetMod->getNextValue($this);
+        $this->ref                 = $this->getNextNumRef();
+        $this->status              = $this->status ?: 1;
 		$this->mandatory_questions = isset($this->mandatory_questions) ? $this->mandatory_questions : '{}';
 
         return parent::create($user, $notrigger);
@@ -283,9 +280,6 @@ class Sheet extends SaturneObject
 
 		$question = new Question($this->db);
 
-		$refSheetMod = new $conf->global->DOLISMQ_SHEET_ADDON($this->db);
-		require_once __DIR__ . '/../core/modules/dolismq/sheet/mod_sheet_standard.php';
-
 		dol_syslog(__METHOD__, LOG_DEBUG);
 
 		$object = new self($this->db);
@@ -298,9 +292,9 @@ class Sheet extends SaturneObject
 		}
 
 		// Create clone
-		$object->fetchQuestionsLinked($object->id, 'dolismq_' . $object->element);
+		$object->fetchQuestionsLinked($object->id, 'digiquali_' . $object->element);
 		$object->context['createfromclone'] = 'createfromclone';
-		$object->ref = $refSheetMod->getNextValue($object);
+		$object->ref = $object->getNextNumRef();
 		$object->status = 1;
 		$objectid = $object->create($user);
 
@@ -319,12 +313,12 @@ class Sheet extends SaturneObject
 		}
 
 		//add objects linked
-		if (is_array($object->linkedObjectsIds['dolismq_question']) && !empty($object->linkedObjectsIds['dolismq_question'])) {
-			foreach ($object->linkedObjectsIds['dolismq_question'] as $questionId) {
+		if (is_array($object->linkedObjectsIds['digiquali_question']) && !empty($object->linkedObjectsIds['digiquali_question'])) {
+			foreach ($object->linkedObjectsIds['digiquali_question'] as $questionId) {
 				$question->fetch($questionId);
-				$question->add_object_linked('dolismq_' . $object->element, $objectid);
+				$question->add_object_linked('digiquali_' . $object->element, $objectid);
 			}
-			$object->updateQuestionsPosition($object->linkedObjectsIds['dolismq_question']);
+			$object->updateQuestionsPosition($object->linkedObjectsIds['digiquali_question']);
 		}
 
 		unset($object->context['createfromclone']);
@@ -400,7 +394,7 @@ class Sheet extends SaturneObject
 		}
 		// On recherche les societes
 		$sql  = "SELECT *";
-		$sql .= " FROM " . MAIN_DB_PREFIX . "dolismq_sheet as s";
+		$sql .= " FROM " . MAIN_DB_PREFIX . "digiquali_sheet as s";
 
 		$sql              .= " WHERE s.entity IN (" . getEntity($this->table_element) . ")";
 		if ($filter) $sql .= " AND (" . $filter . ")";
@@ -491,60 +485,22 @@ class Sheet extends SaturneObject
 	 */
 	public function fetchQuestionsLinked($sourceid = null, $sourcetype = '', $targetid = null, $targettype = '', $clause = 'OR', $alsosametype = 1, $orderby = 'sourcetype', $loadalsoobjects = 1)
 	{
-		global $conf;
-
 		$this->linkedObjectsIds = array();
 		$this->linkedObjects = array();
 
 		$justsource = false;
-		$justtarget = false;
-		$withtargettype = false;
 		$withsourcetype = false;
 
-		if (!empty($sourceid) && !empty($sourcetype) && empty($targetid)) {
-			$justsource = true; // the source (id and type) is a search criteria
-			if (!empty($targettype)) {
-				$withtargettype = true;
-			}
-		}
-		if (!empty($targetid) && !empty($targettype) && empty($sourceid)) {
-			$justtarget = true; // the target (id and type) is a search criteria
-			if (!empty($sourcetype)) {
-				$withsourcetype = true;
-			}
-		}
-
 		$sourceid = (!empty($sourceid) ? $sourceid : $this->id);
-		$targetid = (!empty($targetid) ? $targetid : $this->id);
 		$sourcetype = (!empty($sourcetype) ? $sourcetype : $this->element);
-		$targettype = (!empty($targettype) ? $targettype : $this->element);
-
-		/*if (empty($sourceid) && empty($targetid))
-		 {
-		 dol_syslog('Bad usage of function. No source nor target id defined (nor as parameter nor as object id)', LOG_ERR);
-		 return -1;
-		 }*/
 
 		// Links between objects are stored in table element_element
 		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype, position';
 		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
 		$sql .= " WHERE ";
-		if ($justsource || $justtarget) {
-			if ($justsource) {
-				$sql .= "fk_source = ".((int) $sourceid)." AND sourcetype = '".$this->db->escape($sourcetype)."'";
-				if ($withtargettype) {
-					$sql .= " AND targettype = '".$this->db->escape($targettype)."'";
-				}
-			} elseif ($justtarget) {
-				$sql .= "fk_target = ".((int) $targetid)." AND targettype = '".$this->db->escape($targettype)."'";
-				if ($withsourcetype) {
-					$sql .= " AND sourcetype = '".$this->db->escape($sourcetype)."'";
-				}
-			}
-		} else {
-			$sql .= "(fk_source = ".((int) $sourceid)." AND sourcetype = '".$this->db->escape($sourcetype)."')";
-			$sql .= " ".$clause." (fk_target = ".((int) $targetid)." AND targettype = '".$this->db->escape($targettype)."')";
-		}
+		$sql .= "(fk_source = ".((int) $sourceid)." AND sourcetype = '".$this->db->escape($sourcetype)."')";
+		$sql .= " AND targettype = 'digiquali_question'";
+
 		$sql .= ' ORDER BY '.$orderby;
 
 		dol_syslog(get_class($this)."::fetchObjectLink", LOG_DEBUG);
@@ -556,52 +512,21 @@ class Sheet extends SaturneObject
 			while ($i < $num) {
 				$maxPosition = $this->getMaxPosition();
 				$obj = $this->db->fetch_object($resql);
-
-				if ($justsource || $justtarget) {
-					if ($justsource) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: ($maxPosition+1)] = $obj->fk_target;
-					} elseif ($justtarget) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: ($maxPosition+1)] = $obj->fk_source;
-					}
-				} else {
-					if ($obj->fk_source == $sourceid && $obj->sourcetype == $sourcetype) {
-						$this->linkedObjectsIds[$obj->targettype][$obj->position ?: ($maxPosition+1)] = $obj->fk_target;
-					}
-					if ($obj->fk_target == $targetid && $obj->targettype == $targettype) {
-						$this->linkedObjectsIds[$obj->sourcetype][$obj->position ?: ($maxPosition+1)] = $obj->fk_source;
-					}
-				}
+				$this->linkedObjectsIds[$obj->targettype][$obj->position ?: ($maxPosition+1)] = $obj->fk_target;
 				$i++;
 			}
 			if (!empty($this->linkedObjectsIds)) {
 				$tmparray = $this->linkedObjectsIds;
 				foreach ($tmparray as $objecttype => $objectids) {       // $objecttype is a module name ('facture', 'mymodule', ...) or a module name with a suffix ('project_task', 'mymodule_myobj', ...)
-					// Parse element/subelement (ex: project_task, cabinetmed_consultation, ...)
-					$module = $element = $subelement = $objecttype;
-					$regs = array();
-					if ($objecttype != 'supplier_proposal' && $objecttype != 'order_supplier' && $objecttype != 'invoice_supplier'
-						&& preg_match('/^([^_]+)_([^_]+)/i', $objecttype, $regs)) {
-						$module = $element = $regs[1];
-
-						$subelement = $regs[2];
-					}
 					// Here $module, $classfile and $classname are set
-					if ((($element != $this->element) || $alsosametype)) {
-						if ($loadalsoobjects) {
-							dol_include_once('/'.$classpath.'/'.$classfile.'.class.php');
-							//print '/'.$classpath.'/'.$classfile.'.class.php '.class_exists($classname);
-							if (class_exists($classname)) {
-								foreach ($objectids as $i => $objectid) {	// $i is rowid into llx_element_element
-									$object = new $classname($this->db);
-									$ret = $object->fetch($objectid);
-									if ($ret >= 0) {
-										$this->linkedObjects[$objecttype][$i] = $object;
-									}
-								}
+					if ($loadalsoobjects) {
+						foreach ($objectids as $i => $objectid) {	// $i is rowid into llx_element_element
+							$object = new Question($this->db);
+							$ret = $object->fetch($objectid);
+							if ($ret >= 0) {
+								$this->linkedObjects[$objecttype][$i] = $object;
 							}
 						}
-					} else {
-						unset($this->linkedObjectsIds[$objecttype]);
 					}
 				}
 			}
@@ -617,7 +542,7 @@ class Sheet extends SaturneObject
 	 *
 	 */
 	public function getMaxPosition() {
-		$sql = "SELECT fk_source, sourcetype, targettype, position FROM ". MAIN_DB_PREFIX ."element_element WHERE fk_source = " . $this->id . " AND sourcetype = 'dolismq_sheet' ORDER BY position DESC LIMIT 1";
+		$sql = "SELECT fk_source, sourcetype, targettype, position FROM ". MAIN_DB_PREFIX ."element_element WHERE fk_source = " . $this->id . " AND sourcetype = 'digiquali_sheet' ORDER BY position DESC LIMIT 1";
 		$resql = $this->db->query($sql);
 
 		if ($resql) {
@@ -642,9 +567,9 @@ class Sheet extends SaturneObject
 			$sql = 'UPDATE '. MAIN_DB_PREFIX . 'element_element';
 			$sql .= ' SET position =' . $position;
 			$sql .= ' WHERE fk_source = ' . $this->id;
-			$sql .= ' AND sourcetype = "dolismq_sheet"';
+			$sql .= ' AND sourcetype = "digiquali_sheet"';
 			$sql .= ' AND fk_target =' . $questionId;
-			$sql .= ' AND targettype = "dolismq_question"';
+			$sql .= ' AND targettype = "digiquali_question"';
 			$res = $this->db->query($sql);
 
 			if (!$res) {

@@ -17,17 +17,17 @@
 
 /**
  *   	\file       view/question/question_list.php
- *		\ingroup    dolismq
+ *		\ingroup    digiquali
  *		\brief      List page for question
  */
 
-// Load DoliSMQ environment
-if (file_exists('../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../dolismq.main.inc.php';
-} elseif (file_exists('../../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../../dolismq.main.inc.php';
+// Load DigiQuali environment
+if (file_exists('../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../digiquali.main.inc.php';
+} elseif (file_exists('../../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../../digiquali.main.inc.php';
 } else {
-	die('Include of dolismq main fails');
+	die('Include of digiquali main fails');
 }
 
 // Libraries
@@ -37,7 +37,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcategory.class.php';
 require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
 
-// load dolismq libraries
+// load digiquali libraries
 require_once __DIR__ . '/../../class/question.class.php';
 require_once __DIR__ . '/../../class/answer.class.php';
 
@@ -129,9 +129,9 @@ include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_array_fields.tpl.php';
 $object->fields = dol_sort_array($object->fields, 'position');
 $arrayfields    = dol_sort_array($arrayfields, 'position');
 
-$permissiontoread   = $user->rights->dolismq->question->read;
-$permissiontoadd    = $user->rights->dolismq->question->write;
-$permissiontodelete = $user->rights->dolismq->question->delete;
+$permissiontoread   = $user->rights->digiquali->question->read;
+$permissiontoadd    = $user->rights->digiquali->question->write;
+$permissiontodelete = $user->rights->digiquali->question->delete;
 
 // Security check
 saturne_check_access($permissiontoread, $object);
@@ -174,7 +174,7 @@ if (empty($reshook)) {
 			foreach ($toselect as $toselectedid) {
 				$object->fetch($toselectedid);
                 if ($object->type == 'UniqueChoice' || $object->type == 'MultipleChoices') {
-                        $answerList = $answer->fetchAll('ASC', 'position', '', '', ['fk_question' => $object->id]);
+                        $answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $object->id]);
                 }
                 if (($object->type != 'UniqueChoice' && $object->type != 'MultipleChoices') || !empty($answerList)) {
                     // Set locked OK
@@ -198,7 +198,7 @@ if (empty($reshook)) {
 	// Mass actions
 	$objectclass = 'Question';
 	$objectlabel = 'Question';
-	$uploaddir = $conf->dolismq->dir_output;
+	$uploaddir = $conf->digiquali->dir_output;
 
 	if (!$error && ($massaction == 'delete' || ($action == 'delete' && $confirm == 'yes')) && $permissiontodelete) {
 		$db->begin();
@@ -346,7 +346,7 @@ if (is_numeric($nbtotalofrecords) && ($limit > $nbtotalofrecords || empty($limit
 if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $searchAll && !$page) {
 	$obj = $db->fetch_object($resql);
 	$id = $obj->rowid;
-	header("Location: ".dol_buildpath('/dolismq/view/question/question_card.php', 1).'?id='.$id);
+	header("Location: ".dol_buildpath('/digiquali/view/question/question_card.php', 1).'?id='.$id);
 	exit;
 }
 
@@ -393,7 +393,7 @@ print '<input type="hidden" name="sortfield" value="'.$sortfield.'">';
 print '<input type="hidden" name="sortorder" value="'.$sortorder.'">';
 print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
 
-$newcardbutton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/dolismq/view/question/question_card.php', 1).'?action=create', '', $permissiontoadd);
+$newcardbutton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/digiquali/view/question/question_card.php', 1).'?action=create', '', $permissiontoadd);
 
 print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'object_'.$object->picto, 0, $newcardbutton, '', $limit, 0, 0, 1);
 

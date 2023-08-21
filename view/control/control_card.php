@@ -17,17 +17,17 @@
 
 /**
  *   	\file       view/control/control_card.php
- *		\ingroup    dolismq
+ *		\ingroup    digiquali
  *		\brief      Page to create/edit/view control
  */
 
-// Load DoliSMQ environment
-if (file_exists('../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../dolismq.main.inc.php';
-} elseif (file_exists('../../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../../dolismq.main.inc.php';
+// Load DigiQuali environment
+if (file_exists('../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../digiquali.main.inc.php';
+} elseif (file_exists('../../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../../digiquali.main.inc.php';
 } else {
-	die('Include of dolismq main fails');
+	die('Include of digiquali main fails');
 }
 
 // Libraries
@@ -41,19 +41,16 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 
 // Load Saturne libraries.
-require_once __DIR__ . '/../../../saturne/lib/object.lib.php';
 require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
 
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
 require_once __DIR__ . '/../../class/answer.class.php';
-require_once __DIR__ . '/../../class/dolismqdocuments/controldocument.class.php';
-require_once __DIR__ . '/../../lib/dolismq_control.lib.php';
-require_once __DIR__ . '/../../lib/dolismq_answer.lib.php';
-require_once __DIR__ . '/../../lib/dolismq_sheet.lib.php';
-require_once __DIR__ . '/../../core/modules/dolismq/control/mod_control_standard.php';
-require_once __DIR__ . '/../../core/modules/dolismq/controldet/mod_controldet_standard.php';
+require_once __DIR__ . '/../../class/digiqualidocuments/controldocument.class.php';
+require_once __DIR__ . '/../../lib/digiquali_control.lib.php';
+require_once __DIR__ . '/../../lib/digiquali_answer.lib.php';
+require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user;
@@ -77,7 +74,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 $object           = new Control($db);
 $controldet       = new ControlLine($db);
 $document         = new ControlDocument($db);
-$signatory        = new SaturneSignature($db, 'dolismq');
+$signatory        = new SaturneSignature($db, 'digiquali');
 $controlEquipment = new ControlEquipment($db);
 $product          = new Product($db);
 $sheet            = new Sheet($db);
@@ -90,8 +87,6 @@ $extrafields      = new ExtraFields($db);
 $ecmfile          = new EcmFiles($db);
 $ecmdir           = new EcmDirectory($db);
 $category         = new Categorie($db);
-$refControlMod    = new $conf->global->DOLISMQ_CONTROL_ADDON($db);
-$refControlDetMod = new $conf->global->DOLISMQ_CONTROLDET_ADDON($db);
 
 // View objects
 $form = new Form($db);
@@ -115,11 +110,11 @@ if (empty($action) && empty($id) && empty($ref)) $action = 'view';
 // Load object
 include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
 
-$permissiontoread       = $user->rights->dolismq->control->read;
-$permissiontoadd        = $user->rights->dolismq->control->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
-$permissiontodelete     = $user->rights->dolismq->control->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
-$permissiontosetverdict = $user->rights->dolismq->control->setverdict;
-$upload_dir = $conf->dolismq->multidir_output[isset($object->entity) ? $object->entity : 1];
+$permissiontoread       = $user->rights->digiquali->control->read;
+$permissiontoadd        = $user->rights->digiquali->control->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
+$permissiontodelete     = $user->rights->digiquali->control->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
+$permissiontosetverdict = $user->rights->digiquali->control->setverdict;
+$upload_dir = $conf->digiquali->multidir_output[isset($object->entity) ? $object->entity : 1];
 
 // Security check - Protection if external user
 saturne_check_access($permissiontoread, $object);
@@ -135,12 +130,12 @@ if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'e
 if (empty($reshook)) {
 	$error = 0;
 
-	$backurlforlist = dol_buildpath('/dolismq/view/control/control_list.php', 1);
+	$backurlforlist = dol_buildpath('/digiquali/view/control/control_list.php', 1);
 
 	if (empty($backtopage) || ($cancel && empty($id))) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) $backtopage = $backurlforlist;
-			else $backtopage = dol_buildpath('/dolismq/view/control/control_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
+			else $backtopage = dol_buildpath('/digiquali/view/control/control_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
 		}
 	}
 
@@ -160,7 +155,7 @@ if (empty($reshook)) {
 		}
 	}
 
-	if ($action == 'add') {
+	if ($action == 'add' && !$cancel) {
 		$linkableElements = get_sheet_linkable_objects();
 		$controlledObjectSelected = 0;
 
@@ -199,73 +194,7 @@ if (empty($reshook)) {
 		}
 	}
 
-	if ($action == 'save') {
-		$controldet = new ControlLine($db);
-		$sheet->fetch($object->fk_sheet);
-		$object->fetchObjectLinked($sheet->id, 'dolismq_sheet', '', '', 'OR', 1, 'sourcetype', 0);
-		$questionIds = $object->linkedObjectsIds['dolismq_question'];
-
-		foreach ($questionIds as $questionId) {
-			$controldettmp = $controldet;
-			//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
-			$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
-
-			if ($result > 0 && is_array($result)) {
-				$controldettmp = array_shift($result);
-				//sauvegarder réponse
-				$questionAnswer = GETPOST('answer'.$questionId);
-
-				if (!empty($questionAnswer)) {
-					$controldettmp->answer = $questionAnswer;
-				}
-
-				//sauvegarder commentaire
-				$comment = GETPOST('comment'.$questionId);
-
-				if (dol_strlen($comment) > 0) {
-					$controldettmp->comment = $comment;
-				}
-
-				$question->fetch($questionId);
-				$controldettmp->update($user);
-			} else {
-				$controldettmp = $controldet;
-
-				$controldettmp->ref = $refControlDetMod->getNextValue($controldettmp);
-
-				$controldettmp->fk_control  = $object->id;
-				$controldettmp->fk_question = $questionId;
-
-				//sauvegarder réponse
-				$questionAnswer = GETPOST('answer'.$questionId);
-
-				if (!empty($questionAnswer)) {
-					$controldettmp->answer = $questionAnswer;
-				} else {
-					$controldettmp->answer = '';
-				}
-
-				//sauvegarder commentaire
-				$comment = GETPOST('comment'.$questionId);
-				if (dol_strlen($comment) > 0) {
-					$controldettmp->comment = $comment;
-				} else {
-					$controldettmp->comment = '';
-				}
-
-				$question->fetch($questionId);
-
-				$controldettmp->entity = $conf->entity;
-				$controldettmp->insert($user);
-			}
-		}
-
-		$object->call_trigger('CONTROL_SAVEANSWER', $user);
-		setEventMessages($langs->trans('AnswerSaved'), []);
-		header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
-		exit;
-	}
-
+	require_once __DIR__ . '/../../core/tpl/digiquali_control_answers_save_action.tpl.php';
 	if ($action == 'save_next_control_date') {
 		$day    = GETPOST('reday');
 		$month  = GETPOST('remonth');
@@ -319,9 +248,9 @@ if (empty($reshook)) {
 			if ($result > 0) {
 				$controldet = new ControlLine($db);
 				$sheet->fetch($object->fk_sheet);
-				$object->fetchObjectLinked($sheet->id, 'dolismq_sheet', '', '', 'OR', 1, 'sourcetype', 0);
+				$object->fetchObjectLinked($sheet->id, 'digiquali_sheet', '', '', 'OR', 1, 'sourcetype', 0);
 				$questionIds = $object->linkedObjectsIds;
-				foreach ($questionIds['dolismq_question'] as $questionId) {
+				foreach ($questionIds['digiquali_question'] as $questionId) {
 					$controldettmp = $controldet;
 					//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
 					$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
@@ -344,13 +273,11 @@ if (empty($reshook)) {
 						$controldettmp->update($user);
 					} else {
 						if (empty($controldettmp->ref)) {
-							$controldettmp->ref = $refControlDetMod->getNextValue($controldettmp);
+							$controldettmp->ref = $controldettmp->getNextNumRef();
 						}
-
 						$controldettmp->fk_control  = $object->id;
 						$controldettmp->fk_question = $questionId;
-
-						$controldettmp->entity = $conf->entity;
+						$controldettmp->entity      = $conf->entity;
 
 						$controldettmp->insert($user);
 					}
@@ -439,7 +366,7 @@ if (empty($reshook)) {
  */
 
 $title    = $langs->trans('Control');
-$help_url = 'FR:Module_DoliSMQ';
+$help_url = 'FR:Module_DigiQuali';
 
 saturne_header(1,'', $title, $help_url);
 $object->fetch(GETPOST('id'));
@@ -481,7 +408,7 @@ if ($action == 'create') {
 	//FK SHEET
 	print '<tr><td class="fieldrequired">' . $langs->trans('Sheet') . '</td><td>';
 	print img_picto('', 'list', 'class="pictofixedwidth"') . $sheet->selectSheetList(GETPOST('fk_sheet')?: $sheet->id);
-	print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/dolismq/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
+	print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
 	print '</td></tr></thead>';
 
 	print '</table>';
@@ -497,7 +424,7 @@ if ($action == 'create') {
 
 			$objectArray    = [];
 			$objectPostName = $linkableElement['post_name'];
-			$objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $linkableElementType ? GETPOST('fromid') : '');
+			$objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $linkableElement['link_name'] ? GETPOST('fromid') : '');
 
 			if ((dol_strlen($linkableElement['fk_parent']) > 0 && GETPOST($linkableElement['parent_post']) > 0)) {
 				$objectFilter = [
@@ -506,7 +433,7 @@ if ($action == 'create') {
 			} else {
 				$objectFilter = [];
 			}
-			$objectList     = saturne_fetch_all_object_type($linkableElement['className'], '', '', 0, 0, $objectFilter);
+			$objectList = saturne_fetch_all_object_type($linkableElement['className'], '', '', 0, 0, $objectFilter);
 
 			if (is_array($objectList) && !empty($objectList)) {
 				foreach($objectList as $objectSingle) {
@@ -557,7 +484,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$formconfirm = '';
 
 	$equipmentOutdated = false;
-	if (!empty($conf->global->DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT)) {
+	if (!empty($conf->global->DIGIQUALI_LOCK_CONTROL_OUTDATED_EQUIPMENT)) {
 		$controlEquipments = $controlEquipment->fetchFromParent($object->id);
 		if (is_array($controlEquipments) && !empty ($controlEquipments)) {
 			foreach ($controlEquipments as $equipmentControl) {
@@ -606,14 +533,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			array('type' => 'text', 'name' => 'noteControl', 'label' => '<div class="note-control" style="margin-top: 20px;">' . $langs->trans('NoteControl') . '</div>'),
 		);
 
-		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $text, 'confirm_setVerdict', $formquestion, '', 1, 300);
+		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $langs->transnoentities('BeCarefullVerdictKO'), 'confirm_setVerdict', $formquestion, '', 1, 300);
 	}
 
 	// SetValidated confirmation
 	if ($action == 'setValidated') {
 		$sheet->fetch($object->fk_sheet);
-		$sheet->fetchQuestionsLinked($object->fk_sheet, 'dolismq_' . $sheet->element);
-		$questionIds = $sheet->linkedObjectsIds['dolismq_question'];
+		$sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
+		$questionIds = $sheet->linkedObjectsIds['digiquali_question'];
 
 		if (!empty($questionIds)) {
 			$questionCounter = count($questionIds);
@@ -647,7 +574,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// SetLocked confirmation
 	if (($action == 'lock' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
-		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmLockObject', $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_lock', '', 'yes', 'actionButtonLock', 350, 600);
+		$formconfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmLockObject', $langs->transnoentities('The' . ucfirst($object->element))) . ($object->verdict == 2 ? '<br>' . $langs->transnoentities('BeCarefullVerdictKO') : ''), 'confirm_lock', '', 'yes', 'actionButtonLock', 350, 600);
 	}
 
 	// Clone confirmation
@@ -694,8 +621,24 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	unset($object->fields['projectid']); // Hide field already shown in banner
 
   if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {
-      print '<tr><td class="titlefield">' . $langs->trans('PublicControl') . ' <a href="' . dol_buildpath('custom/dolismq/public/control/public_control.php?track_id=' . $object->track_id, 3) . '" target="_blank"><i class="fas fa-qrcode"></i></a></td>';
-      print '<td>' . saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
+      $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $object->track_id . '&entity=' . $conf->entity, 3);
+      print '<input hidden class="copy-to-clipboard" value="'. $publicControlInterfaceUrl .'">';
+      print '<tr><td class="titlefield">' . $langs->trans('PublicControl') . ' <a href="' . $publicControlInterfaceUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
+      print ' <i class="fas fa-clipboard clipboard-copy"></i>';
+      print '<input hidden id="copyToClipboardTooltip" value="'. $langs->trans('CopiedToClipboard') .'">';
+      print '</td>';
+      print '<td>' . saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
+
+      //Survey public interface
+      print '<tr><td class="titlefield">';
+      $publicSurveyUrl = dol_buildpath('custom/digiquali/public/control/public_survey.php?track_id=' . $object->track_id . '&entity=' . $conf->entity, 3);
+      print $langs->trans('PublicSurvey');
+      print ' <a href="' . $publicSurveyUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
+      print showValueWithClipboardCPButton($publicSurveyUrl, 0, '&nbsp;');
+      print '</td>';
+      print '<td>';
+      print '<a href="' . $publicSurveyUrl . '" target="_blank">'. $langs->trans('GoToPublicSurveyPage') .' <i class="fa fa-external-link"></a>';
+      print '</td></tr>';
   }
 
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
@@ -753,7 +696,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</tr>';
 	}
 
-	$object->fetchObjectLinked('', '', $object->id, 'dolismq_control', 'OR', 1, 'sourcetype', 0);
+	$object->fetchObjectLinked('', '', $object->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
 
 	foreach($elementArray as $linkableElementType => $linkableElement) {
 		if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
@@ -786,7 +729,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 	print '<tr class="linked-medias photo question-table"><td class=""><label for="photos">' . $langs->trans("Photo") . '</label></td><td class="linked-medias-list">';
-    $pathPhotos = $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/';
+    $pathPhotos = $conf->digiquali->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/';
     $fileArray  = dol_dir_list($pathPhotos, 'files');
 	?>
 	<span class="add-medias" <?php echo ($object->status != Control::STATUS_LOCKED) ? '' : 'style="display:none"' ?>>
@@ -803,8 +746,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		</div>
 	</span>
 	<?php
-	$relativepath = 'dolismq/medias/thumbs';
-	print saturne_show_medias_linked('dolismq', $pathPhotos, 'small', 0, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
+	$relativepath = 'digiquali/medias/thumbs';
+	print saturne_show_medias_linked('digiquali', $pathPhotos, 'small', 0, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
 	print '</td></tr>';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
@@ -821,9 +764,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '</div>';
 
     $sheet->fetch($object->fk_sheet);
-    $sheet->fetchQuestionsLinked($object->fk_sheet, 'dolismq_' . $sheet->element);
+    $sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
 
-    $questionIds         = $sheet->linkedObjectsIds['dolismq_question'];
+    $questionIds         = $sheet->linkedObjectsIds['digiquali_question'];
     $cantValidateControl = 0;
     $mandatoryArray      = json_decode($sheet->mandatory_questions, true);
 
@@ -852,7 +795,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			<div class="notice-content">
 				<div class="notice-title"><?php echo $langs->trans('ControlEquipmentOutdated') ?></div>
 			</div>
-			<a class="butAction" style="width = 100%;margin-right:0" target="_blank" href="<?php echo DOL_URL_ROOT . '/custom/dolismq/view/control/control_equipment.php?id=' . $object->id?>"><?php echo $langs->trans("GoToEquipmentHours", $usertmp->getFullName($langs)) ?></a>
+			<a class="butAction" style="width = 100%;margin-right:0" target="_blank" href="<?php echo DOL_URL_ROOT . '/custom/digiquali/view/control/control_equipment.php?id=' . $object->id?>"><?php echo $langs->trans("GoToEquipmentHours", $usertmp->getFullName($langs)) ?></a>
 		</div>
 	<?php }
 
@@ -868,9 +811,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		if ($reshook < 0) {
 			setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 		}
-
-		$displayButton = $onPhone ? '<i class="fas fa-clone fa-2x"></i>' : '<i class="fas fa-clone"></i>' . ' ' . $langs->trans('ToClone');
-		print '<span class="butAction" id="actionButtonClone">' . $displayButton . '</span>';
 
 		if (empty($reshook)) {
 			// Save question answer
@@ -918,7 +858,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             // Sign
             $displayButton = $onPhone ? '<i class="fas fa-signature fa-2x"></i>' : '<i class="fas fa-signature"></i>' . ' ' . $langs->trans('Sign');
             if ($object->status == $object::STATUS_VALIDATED && !$signatory->checkSignatoriesSignatures($object->id, $object->element) && $object->verdict > 0) {
-                print '<a class="butAction" id="actionButtonSign" href="' . dol_buildpath('/custom/saturne/view/saturne_attendants.php?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element . '&document_type=ControlDocument&attendant_table_mode=simple', 3) . '">' . $displayButton . '</a>';
+                print '<a class="butAction" id="actionButtonSign" href="' . dol_buildpath('/custom/saturne/view/saturne_attendants.php?id=' . $object->id . '&module_name=DigiQuali&object_type=' . $object->element . '&document_type=ControlDocument&attendant_table_mode=simple', 3) . '">' . $displayButton . '</a>';
             } else {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeValidatedToSign', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '">' . $displayButton . '</span>';
             }
@@ -954,6 +894,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLockedToArchive', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '">' . $displayButton . '</span>';
             }
 
+            // Clone
+            $displayButton = $onPhone ? '<i class="fas fa-clone fa-2x"></i>' : '<i class="fas fa-clone"></i>' . ' ' . $langs->trans('ToClone');
+            print '<span class="butAction" id="actionButtonClone">' . $displayButton . '</span>';
+
 			// Delete (need delete permission, or if draft, just need create/modify permission)
 			$displayButton = $onPhone ? '<i class="fas fa-trash fa-2x"></i>' : '<i class="fas fa-trash"></i>' . ' ' . $langs->trans('Delete');
 			print dolGetButtonAction($displayButton, '', 'delete', $_SERVER['PHP_SELF'].'?id='.$object->id.'&action=delete&token='.newToken(), '', $permissiontodelete || ($object->status == $object::STATUS_DRAFT && $permissiontoadd));
@@ -965,8 +909,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
 
 	$sheet->fetch($object->fk_sheet);
-	$sheet->fetchQuestionsLinked($object->fk_sheet, 'dolismq_' . $sheet->element);
-	$questionIds = $sheet->linkedObjectsIds['dolismq_question'];
+	$sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
+	$questionIds = $sheet->linkedObjectsIds['digiquali_question'];
 
 	if (is_array($questionIds) && !empty($questionIds)) {
 		ksort($questionIds);
@@ -1000,165 +944,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// Define colspan for the button 'Add'
 	$colspan = 3;
 
-	// Lines
-	if (is_array($questionIds) && !empty($questionIds)) {
-		foreach ($questionIds as $questionId) {
-			$result = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
-			$questionAnswer = 0;
-			$comment = '';
-			if ($result > 0 && is_array($result)) {
-				$itemControlDet = array_shift($result);
-				$questionAnswer = $itemControlDet->answer;
-				$comment = $itemControlDet->comment;
-			}
-			$item = $question;
-			$item->fetch($questionId);
-			?>
-			<div class="wpeo-table table-flex table-3 table-id-<?php echo $item->id ?>">
-				<div class="table-row">
-					<!-- Contenu et commentaire -->
-					<div class="table-cell table-full">
-						<div class="label"><strong><?php print $item->ref . ' - ' . $item->label; ?></strong></div>
-						<div class="description"><?php print $item->description; ?></div>
-						<div class="question-comment-container">
-							<div class="question-ref">
-								<?php
-								if ( ! empty( $itemControlDet->ref ) ) {
-									print '<span class="question-ref-title">' . $itemControlDet->ref . '</span> :';
-								} ?>
-                            </div>
-                            <?php if ($item->type == 'Text') : ?>
-                            <div class="<?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-                                <?php
-                                print '<span>' . $langs->trans('Answer') . ' : </span>';
-                                $object->status > $object::STATUS_DRAFT ? print $questionAnswer :
-                                print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'"class="question-textarea input-answer ' . ($object->status > 0 ? 'disable' : '') . '" value="'. $questionAnswer .'">';
-                                ?>
-                            </div>
-                            <?php endif; ?>
-                            <?php if ($item->enter_comment > 0) : ?>
-                                <?php print $langs->trans('Comment') . ' : '; ?>
-                            <?php endif; ?>
-							<?php if ($item->enter_comment > 0) : ?>
-								<?php if ($object->status > 0 ) : ?>
-									<?php print $comment; ?>
-								<?php else : ?>
-									<?php print '<input class="question-textarea question-comment" name="comment'. $item->id .'" id="comment'. $item->id .'" value="'. $comment .'" '. ($object->status == 2 ? 'disabled' : '').'>'; ?>
-								<?php endif; ?>
-							<?php endif; ?>
-						</div>
-					</div>
-					<!-- Photo OK KO -->
-					<?php if ($item->show_photo > 0) : ?>
-						<div class="table-cell table-450 cell-photo-check wpeo-table">
-						<?php
-						if (!empty($conf->global->DOLISMQ_CONTROL_DISPLAY_MEDIAS)) :
-							print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ok', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, 'question/'. $item->ref . '/photo_ok', $item, 'photo_ok', 0, 0, 0,1, 'photo-ok', 0);
-							print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/question/'. $item->ref . '/photo_ko', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, 'question/'. $item->ref . '/photo_ko', $item, 'photo_ko', 0, 0, 0,1, 'photo-ko', 0);
-						endif;
-						?>
-					</div>
-					<?php endif; ?>
-				</div>
-				<div class="table-row <?php echo ($onPhone ? 'center' : ''); ?>">
-					<!-- Galerie -->
-					<?php if ($item->authorize_answer_photo > 0) : ?>
-						<div class="table-cell table-full linked-medias answer_photo_<?php echo $item->id ?>">
-						<?php if ($object->status == 0 ) : ?>
-							<input hidden multiple class="fast-upload" id="fast-upload-answer-photo<?php echo $item->id ?>" type="file" name="userfile[]" capture="environment" accept="image/*">
-							<input type="hidden" class="question-answer-photo" id="answer_photo_<?php echo $item->id ?>" name="answer_photo_<?php echo $item->id ?>" value=""/>
-							<label for="fast-upload-answer-photo<?php echo $item->id ?>">
-								<div class="wpeo-button button-square-50">
-									<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
-								</div>
-							</label>
-							<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="<?php echo $item->id ?>">
-								<input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id ?>" data-from-type="<?php echo $object->element ?>" data-from-subtype="answer_photo_<?php echo $item->id ?>" data-from-subdir="answer_photo/<?php echo $item->ref ?>"/>
-								<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
-							</div>
-						<?php endif; ?>
-						<?php $relativepath = 'dolismq/medias/thumbs';
-						print saturne_show_medias_linked('dolismq', $conf->dolismq->multidir_output[$conf->entity] . '/control/'. $object->ref . '/answer_photo/' . $item->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/answer_photo/' . $item->ref, $item, '', 0, $object->status == 0, 1);
-						?>
-					</div>
-					<?php endif; ?>
-					<?php
-					$pictosArray = get_answer_pictos_array();
-					?>
-					<?php if ($item->type == 'MultipleChoices') :
-						$answerList = $answer->fetchAll('ASC', 'position', 0, 0,  ['customsql' => 't.status > ' . Answer::STATUS_DELETED . ' AND t.fk_question = ' . $item->id]);
-						?>
-						<div class="table-cell table-end select-answer answer-cell" <?php echo ($object->status > 0) ? ' style="pointer-events: none"' : '' ?>>
-							<?php
-							if (preg_match('/,/', $questionAnswer)) {
-								$questionAnswers = preg_split('/,/', $questionAnswer);
-							} else {
-								$questionAnswers = [$questionAnswer];
-							}
-
-							print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
-							if (is_array($answerList) && !empty($answerList)) {
-								foreach($answerList as $answerLinked) {
-									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
-									print '<span style="'. (in_array($answerLinked->position, $questionAnswers) ? 'background:'. $answerLinked->color .'; ' : '') .'color:'. $answerLinked->color .';" class="answer multiple-answers square ' . ($object->status > 0 ? 'disable' : '') . ' ' . (in_array($answerLinked->position, $questionAnswers) ? 'active' : '') . '" value="'. $answerLinked->position .'">';
-									if (!empty($answerLinked->pictogram)) {
-										print $pictosArray[$answerLinked->pictogram]['picto_source'];
-									} else {
-										print $answerLinked->value;
-									}
-									print '</span>';
-								}
-							}
-							?>
-						</div>
-					<?php elseif ($item->type == 'UniqueChoice' || $item->type == 'OkKo' || $item->type == 'OkKoToFixNonApplicable') :
-						$answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['customsql' => 't.status > ' . Answer::STATUS_DELETED . ' AND t.fk_question = ' . $item->id]);
-						?>
-						<div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-							<?php
-							print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
-							if (is_array($answerList) && !empty($answerList)) {
-								foreach($answerList as $answerLinked) {
-									print '<input type="hidden" class="answer-color answer-color-'. $answerLinked->position .'" value="'. $answerLinked->color .'">';
-									print '<span style="'. ($questionAnswer == $answerLinked->position ? 'background:'. $answerLinked->color .'; ' : '') .'color:'. $answerLinked->color .';" class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $answerLinked->position .'">';
-									if (!empty($answerLinked->pictogram)) {
-										print $pictosArray[$answerLinked->pictogram]['picto_source'];
-									} else {
-										print $answerLinked->value;
-									}
-									print '</span>';
-								}
-							}
-							?>
-						</div>
-                    <?php elseif ($item->type == 'Percentage') : ?>
-                        <div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-                            <?php
-                            print '<span class="table-cell" value="">';
-                            print $langs->transnoentities('Answer') . ' : ';
-                            print '</span>';
-                            print '<span class="table-cell" value="">';
-                            print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" min="0" max="100" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'"> %';
-                            print '</span>';
-                            ?>
-                        </div>
-                    <?php elseif ($item->type == 'Range') : ?>
-                        <div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-                            <?php
-                            print '<span class="table-cell" value="">';
-                            print $langs->transnoentities('Answer') . ' : ';
-                            print '</span>';
-                            print '<span class="table-cell" value="">';
-                            print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer'. $item->id .'" id="answer'. $item->id .'" type="number" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="'. $questionAnswer .'">';
-                            print '</span>';
-                            ?>
-                        </div>
-					<?php endif; ?>
-					</div>
-			    </div>
-			<?php
-		}
-	}
+	require_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';
 
 	print '</div>';
 	print '</div>';
@@ -1177,14 +963,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		$defaultmodel = 'controldocument_odt';
 		$title = $langs->trans('WorkUnitDocument');
 
-		print saturne_show_documents('dolismq:ControlDocument', $dirFiles, $filedir, $urlsource, 1,1, '', 1, 0, 0, 0, 0, '', 0, '', empty($soc->default_lang) ? '' : $soc->default_lang, $object, 0, 'remove_file', (($object->status > $object::STATUS_DRAFT) ? 1 : 0), $langs->trans('ControlMustBeValidatedToGenerated'));
+		print saturne_show_documents('digiquali:ControlDocument', $dirFiles, $filedir, $urlsource, 1,1, '', 1, 0, 0, 0, 0, '', 0, '', empty($soc->default_lang) ? '' : $soc->default_lang, $object, 0, 'remove_file', (($object->status > $object::STATUS_DRAFT) ? 1 : 0), $langs->trans('ControlMustBeValidatedToGenerated'));
 		print '</div>';
 
 		print '</div><div class="fichehalfright">';
 
 		$maxEvent = 10;
 
-		$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element);
+		$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DigiQuali&object_type=' . $object->element);
 
 		// List of actions on element
 		include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
@@ -1354,6 +1140,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         $formmail->param['id']        = $object->id;
         $formmail->param['returnurl'] = $_SERVER['PHP_SELF'] . '?id=' . $object->id;
         $formmail->param['fileinit']  = $files;
+        $formmail->trackid            = 'control' . $object->id;
 
         // Show form.
         print $formmail->get_form();

@@ -17,23 +17,23 @@
 
 /**
  * \file    admin/control.php
- * \ingroup dolismq
- * \brief   DoliSMQ control config page.
+ * \ingroup digiquali
+ * \brief   DigiQuali control config page.
  */
 
-// Load DoliSMQ environment
-if (file_exists('../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../dolismq.main.inc.php';
-} elseif (file_exists('../../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../../dolismq.main.inc.php';
+// Load DigiQuali environment
+if (file_exists('../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../digiquali.main.inc.php';
+} elseif (file_exists('../../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../../digiquali.main.inc.php';
 } else {
-	die('Include of dolismq main fails');
+	die('Include of digiquali main fails');
 }
 
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 
-require_once '../lib/dolismq.lib.php';
+require_once '../lib/digiquali.lib.php';
 
 // Global variables definitions
 global $conf, $db, $langs, $user;
@@ -57,11 +57,11 @@ foreach ($tmptype2label as $key => $val) {
 	$type2label[$key] = $langs->transnoentitiesnoconv($val);
 }
 
-$elementtype = 'dolismq_control'; //Must be the $table_element of the class that manage extrafield
+$elementtype = 'digiquali_control'; //Must be the $table_element of the class that manage extrafield
 $error = 0; //Error counter
 
 // Security check - Protection if external user
-$permissiontoread = $user->rights->dolismq->adminpage->read;
+$permissiontoread = $user->rights->digiquali->adminpage->read;
 saturne_check_access($permissiontoread);
 
 /*
@@ -73,24 +73,32 @@ require DOL_DOCUMENT_ROOT . '/core/actions_extrafields.inc.php';
 
 //Set numering modele for control object
 if ($action == 'setmod') {
-	$constforval = 'DOLISMQ_' . strtoupper('control') . '_ADDON';
+	$constforval = 'DIGIQUALI_' . strtoupper('control') . '_ADDON';
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
 
 //Set numering modele for controldet object
 if ($action == 'setmodControlDet') {
-	$constforval = 'DOLISMQ_' . strtoupper('controldet') . '_ADDON';
+	$constforval = 'DIGIQUALI_' . strtoupper('controldet') . '_ADDON';
 	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
 }
 
 if ($action == 'update_control_reminder') {
-    $reminderFrequency = GETPOST('ControlReminderFrequency');
-    $reminderType      = GETPOST('ControlReminderType');
+    $reminderFrequency = GETPOST('control_reminder_frequency');
+    $reminderType      = GETPOST('control_reminder_type');
 
-    dolibarr_set_const($db, 'DOLISMQ_CONTROL_REMINDER_FREQUENCY', $reminderFrequency, 'chaine', 0, '', $conf->entity);
-    dolibarr_set_const($db, 'DOLISMQ_CONTROL_REMINDER_TYPE', $reminderType, 'chaine', 0, '', $conf->entity);
+    dolibarr_set_const($db, 'DIGIQUALI_CONTROL_REMINDER_FREQUENCY', $reminderFrequency, 'chaine', 0, '', $conf->entity);
+    dolibarr_set_const($db, 'DIGIQUALI_CONTROL_REMINDER_TYPE', $reminderType, 'chaine', 0, '', $conf->entity);
 
     setEventMessage('SavedConfig');
+}
+
+if ($action == 'update_public_survey_title') {
+	$publicSurveyTitle = GETPOST('public_survey_title');
+
+	dolibarr_set_const($db, 'DIGIQUALI_PUBLIC_SURVEY_TITLE', $publicSurveyTitle, 'chaine', 0, '', $conf->entity);
+
+	setEventMessage('SavedConfig');
 }
 
 
@@ -99,7 +107,7 @@ if ($action == 'update_control_reminder') {
  */
 
 $title   = $langs->trans('ModuleSetup', $moduleName);
-$helpUrl = 'FR:Module_DoliSMQ';
+$helpUrl = 'FR:Module_DigiQuali';
 
 saturne_header(0,'', $title, $helpUrl);
 
@@ -108,8 +116,8 @@ $linkback = '<a href="' . ($backtopage ?: DOL_URL_ROOT . '/admin/modules.php?res
 print load_fiche_titre($title, $linkback, 'title_setup');
 
 // Configuration header
-$head = dolismq_admin_prepare_head();
-print dol_get_fiche_head($head, 'control', $title, -1, 'dolismq_color@dolismq');
+$head = digiquali_admin_prepare_head();
+print dol_get_fiche_head($head, 'control', $title, -1, 'digiquali_color@digiquali');
 
 /*
  *  Numbering module
@@ -127,7 +135,7 @@ print '<td class="center">' . $langs->trans('ShortInfo') . '</td>';
 print '</tr>';
 
 clearstatcache();
-$dir = dol_buildpath('/custom/dolismq/core/modules/dolismq/control/');
+$dir = dol_buildpath('/custom/digiquali/core/modules/digiquali/control/');
 if (is_dir($dir)) {
 	$handle = opendir($dir);
 	if (is_resource($handle)) {
@@ -160,7 +168,7 @@ if (is_dir($dir)) {
 						print '</td>';
 
 						print '<td class="center">';
-						if ($conf->global->DOLISMQ_CONTROL_ADDON == $file || $conf->global->DOLISMQ_CONTROL_ADDON . '.php' == $file) {
+						if ($conf->global->DIGIQUALI_CONTROL_ADDON == $file || $conf->global->DIGIQUALI_CONTROL_ADDON . '.php' == $file) {
 							print img_picto($langs->trans('Activated'), 'switch_on');
 						} else {
 							print '<a class="reposition" href="' . $_SERVER['PHP_SELF'] . '?action=setmod&value=' . preg_replace('/\.php$/', '', $file) . '&scan_dir=' . $module->scandir . '&label=' . urlencode($module->name) . '" alt="' . $langs->trans('Default') . '">' . img_picto($langs->trans('Disabled'), 'switch_off') . '</a>';
@@ -184,7 +192,7 @@ if (is_dir($dir)) {
 
 						print '<td class="center">';
 						print $form->textwithpicto('', $htmltooltip, 1, 0);
-						if ($conf->global->DOLISMQ_CONTROL_ADDON . '.php' == $file) { // If module is the one used, we show existing errors
+						if ($conf->global->DIGIQUALI_CONTROL_ADDON . '.php' == $file) { // If module is the one used, we show existing errors
 							if ( ! empty($module->error)) dol_htmloutput_mesg($module->error, '', 'error', 1);
 						}
 						print '</td>';
@@ -217,7 +225,7 @@ print $langs->trans('DisplayMediasDescription');
 print '</td>';
 
 print '<td class="center">';
-print ajax_constantonoff('DOLISMQ_CONTROL_DISPLAY_MEDIAS');
+print ajax_constantonoff('DIGIQUALI_CONTROL_DISPLAY_MEDIAS');
 print '</td>';
 print '</tr>';
 
@@ -229,7 +237,7 @@ print $langs->trans('UseLargeSizeMediaDescription');
 print '</td>';
 
 print '<td class="center">';
-print ajax_constantonoff('DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY');
+print ajax_constantonoff('DIGIQUALI_CONTROL_USE_LARGE_MEDIA_IN_GALLERY');
 print '</td>';
 print '</tr>';
 
@@ -241,7 +249,7 @@ print $langs->trans('LockControlOutdatedEquipmentDescription');
 print '</td>';
 
 print '<td class="center">';
-print ajax_constantonoff('DOLISMQ_LOCK_CONTROL_OUTDATED_EQUIPMENT');
+print ajax_constantonoff('DIGIQUALI_LOCK_CONTROL_OUTDATED_EQUIPMENT');
 print '</td>';
 print '</tr>';
 print '</table>';
@@ -282,7 +290,7 @@ print '<td class="center">' . $langs->trans('ShortInfo') . '</td>';
 print '</tr>';
 
 clearstatcache();
-$dir = dol_buildpath('/custom/dolismq/core/modules/dolismq/controldet/');
+$dir = dol_buildpath('/custom/digiquali/core/modules/digiquali/controldet/');
 if (is_dir($dir)) {
 	$handle = opendir($dir);
 	if (is_resource($handle)) {
@@ -315,7 +323,7 @@ if (is_dir($dir)) {
 						print '</td>';
 
 						print '<td class="center">';
-						if ($conf->global->DOLISMQ_CONTROLDET_ADDON == $file || $conf->global->DOLISMQ_CONTROLDET_ADDON . '.php' == $file) {
+						if ($conf->global->DIGIQUALI_CONTROLDET_ADDON == $file || $conf->global->DIGIQUALI_CONTROLDET_ADDON . '.php' == $file) {
 							print img_picto($langs->trans('Activated'), 'switch_on');
 						} else {
 							print '<a class="reposition" href="' . $_SERVER['PHP_SELF'] . '?action=setmodControlDet&value=' . preg_replace('/\.php$/', '', $file) . '&scan_dir=' . $module->scandir . '&label=' . urlencode($module->name) . '" alt="' . $langs->trans('Default') . '">' . img_picto($langs->trans('Disabled'), 'switch_off') . '</a>';
@@ -339,7 +347,7 @@ if (is_dir($dir)) {
 
 						print '<td class="center">';
 						print $form->textwithpicto('', $htmltooltip, 1, 0);
-						if ($conf->global->DOLISMQ_CONTROLDET_ADDON . '.php' == $file) { // If module is the one used, we show existing errors
+						if ($conf->global->DIGIQUALI_CONTROLDET_ADDON . '.php' == $file) { // If module is the one used, we show existing errors
 							if ( ! empty($module->error)) dol_htmloutput_mesg($module->error, '', 'error', 1);
 						}
 						print '</td>';
@@ -372,7 +380,7 @@ print $langs->trans('DisplayMediasDescription');
 print '</td>';
 
 print '<td class="center">';
-print ajax_constantonoff('DOLISMQ_CONTROL_DISPLAY_MEDIAS');
+print ajax_constantonoff('DIGIQUALI_CONTROL_DISPLAY_MEDIAS');
 print '</td>';
 print '</tr>';
 
@@ -384,10 +392,62 @@ print $langs->trans('UseLargeSizeMediaDescription');
 print '</td>';
 
 print '<td class="center">';
-print ajax_constantonoff('DOLISMQ_CONTROL_USE_LARGE_MEDIA_IN_GALLERY');
+print ajax_constantonoff('DIGIQUALI_CONTROL_USE_LARGE_MEDIA_IN_GALLERY');
 print '</td>';
 print '</tr>';
+
+print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '">';
+print '<input type="hidden" name="token" value="' . newToken() . '">';
+print '<input type="hidden" name="action" value="update_public_survey_title">';
+
+print '<tr class="oddeven"><td>';
+print $langs->trans('PublicSurveyTitle');
+print '</td><td>';
+print $langs->trans('PublicSurveyTitleDescription');
+print '</td>';
+
+print '<td class="center">';
+print '<input type="text" name="public_survey_title" value="' . $conf->global->DIGIQUALI_PUBLIC_SURVEY_TITLE . '">';
+print '</td></tr>';
+
+print '<tr><td>';
+print $langs->trans('EnablePublicControlHistory');
+print '</td><td>';
+print $langs->trans('EnablePublicControlHistoryDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('SHOW_QC_FREQUENCY_PUBLIC_INTERFACE');
+print '</td>';
+print '</tr>';
+
+print '<tr><td>';
+print $langs->trans('ShowQcFrequencyPublicInterface');
+print '</td><td>';
+print $langs->trans('ShowQcFrequencyPublicInterfaceDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY');
+print '</td>';
+print '</tr>';
+
+print '<tr><td>';
+print $langs->trans('ShowLastControlFirstOnPublicHistory');
+print '</td><td>';
+print $langs->trans('ShowLastControlFirstOnPublicHistoryDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY');
+print '</td>';
+print '</tr>';
+
 print '</table>';
+
+print '<div class="tabsAction"><input type="submit" class="butAction" name="save" value="' . $langs->trans('Save') . '"></div>';
+
+print '</form>';
 
 print load_fiche_titre($langs->trans('ControlReminder'), '', '');
 
@@ -408,7 +468,7 @@ print $langs->trans('ControlReminderDescription');
 print '</td>';
 
 print '<td class="center">';
-print ajax_constantonoff('DOLISMQ_CONTROL_REMINDER_ENABLED');
+print ajax_constantonoff('DIGIQUALI_CONTROL_REMINDER_ENABLED');
 print '</td></tr>';
 
 print '<tr class="oddeven"><td>';
@@ -418,7 +478,7 @@ print $langs->trans('ControlReminderFrequencyDescription');
 print '</td>';
 
 print '<td class="center">';
-print '<input type="text" name="ControlReminderFrequency" value="' . $conf->global->DOLISMQ_CONTROL_REMINDER_FREQUENCY . '">';
+print '<input type="text" name="control_reminder_frequency" value="' . $conf->global->DIGIQUALI_CONTROL_REMINDER_FREQUENCY . '">';
 print '</td></tr>';
 
 print '<tr class="oddeven"><td>';
@@ -429,7 +489,7 @@ print '</td>';
 
 print '<td class="center">';
 $controlReminderType = ['browser' => 'Browser', 'email' => 'Email', 'sms' => 'SMS'];
-print Form::selectarray('ControlReminderType', $controlReminderType, (!empty($conf->global->DOLISMQ_CONTROL_REMINDER_TYPE) ? $conf->global->DOLISMQ_CONTROL_REMINDER_TYPE : $controlReminderType[0]), 0, 0, 0, '', 1);
+print Form::selectarray('control_reminder_type', $controlReminderType, (!empty($conf->global->DIGIQUALI_CONTROL_REMINDER_TYPE) ? $conf->global->DIGIQUALI_CONTROL_REMINDER_TYPE : $controlReminderType[0]), 0, 0, 0, '', 1);
 print '</td></tr>';
 
 print '</table>';

@@ -17,17 +17,17 @@
 
 /**
  *   	\file       view/sheet/sheet_list.php
- *		\ingroup    dolismq
+ *		\ingroup    digiquali
  *		\brief      List page for sheet
  */
 
-// Load DoliSMQ environment
-if (file_exists('../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../dolismq.main.inc.php';
-} elseif (file_exists('../../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../../dolismq.main.inc.php';
+// Load DigiQuali environment
+if (file_exists('../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../digiquali.main.inc.php';
+} elseif (file_exists('../../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../../digiquali.main.inc.php';
 } else {
-	die('Include of dolismq main fails');
+	die('Include of digiquali main fails');
 }
 
 // Libraries
@@ -37,7 +37,7 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcategory.class.php';
 require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
 
-// load dolismq libraries
+// load digiquali libraries
 require_once __DIR__.'/../../class/sheet.class.php';
 
 // Global variables definitions
@@ -128,9 +128,9 @@ include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_array_fields.tpl.php';
 $object->fields = dol_sort_array($object->fields, 'position');
 $arrayfields    = dol_sort_array($arrayfields, 'position');
 
-$permissiontoread   = $user->rights->dolismq->sheet->read;
-$permissiontoadd    = $user->rights->dolismq->sheet->write;
-$permissiontodelete = $user->rights->dolismq->sheet->delete;
+$permissiontoread   = $user->rights->digiquali->sheet->read;
+$permissiontoadd    = $user->rights->digiquali->sheet->write;
+$permissiontodelete = $user->rights->digiquali->sheet->delete;
 
 // Security check
 saturne_check_access($permissiontoread, $object);
@@ -168,7 +168,7 @@ if (empty($reshook)) {
 	// Mass actions
 	$objectclass = 'Sheet';
 	$objectlabel = 'Sheet';
-	$uploaddir = $conf->dolismq->dir_output;
+	$uploaddir = $conf->digiquali->dir_output;
 
 	if (!$error && ($massaction == 'delete' || ($action == 'delete' && $confirm == 'yes')) && $permissiontodelete) {
 		$db->begin();
@@ -317,7 +317,7 @@ if (is_numeric($nbtotalofrecords) && ($limit > $nbtotalofrecords || empty($limit
 if ($num == 1 && !empty($conf->global->MAIN_SEARCH_DIRECT_OPEN_IF_ONLY_ONE) && $searchAll && !$page) {
 	$obj = $db->fetch_object($resql);
 	$id = $obj->rowid;
-	header("Location: ".dol_buildpath('/dolismq/sheet_card.php', 1).'?id='.$id);
+	header("Location: ".dol_buildpath('/digiquali/sheet_card.php', 1).'?id='.$id);
 	exit;
 }
 
@@ -358,7 +358,7 @@ print '<input type="hidden" name="sortfield" value="'.$sortfield.'">';
 print '<input type="hidden" name="sortorder" value="'.$sortorder.'">';
 print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
 
-$newcardbutton = dolGetButtonTitle($langs->trans('NewSheet'), '', 'fa fa-plus-circle', dol_buildpath('/dolismq/view/sheet/sheet_card.php', 1).'?action=create', '', $permissiontoadd);
+$newcardbutton = dolGetButtonTitle($langs->trans('NewSheet'), '', 'fa fa-plus-circle', dol_buildpath('/digiquali/view/sheet/sheet_card.php', 1).'?action=create', '', $permissiontoadd);
 
 print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'object_'.$object->picto, 0, $newcardbutton, '', $limit, 0, 0, 1);
 

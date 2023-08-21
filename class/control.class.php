@@ -17,7 +17,7 @@
 
 /**
  * \file    class/control.class.php
- * \ingroup dolismq
+ * \ingroup digiquali
  * \brief   This file is a CRUD class file for Control (Create/Read/Update/Delete).
  */
 
@@ -35,7 +35,7 @@ class Control extends SaturneObject
     /**
      * @var string Module name.
      */
-    public $module = 'dolismq';
+    public $module = 'digiquali';
 
     /**
      * @var string Element type of object.
@@ -45,7 +45,7 @@ class Control extends SaturneObject
     /**
      * @var string Name of table without prefix where object is stored. This is also the key used for extrafields management.
      */
-    public $table_element = 'dolismq_control';
+    public $table_element = 'digiquali_control';
 
     /**
      * @var int Does this object support multicompany module ?
@@ -59,7 +59,7 @@ class Control extends SaturneObject
     public int $isextrafieldmanaged = 1;
 
     /**
-     * @var string Name of icon for control. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'control@dolismq' if picto is file 'img/object_control.png'.
+     * @var string Name of icon for control. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'control@digiquali' if picto is file 'img/object_control.png'.
      */
     public string $picto = 'fontawesome_fa-tasks_fas_#d35968';
 
@@ -115,19 +115,20 @@ class Control extends SaturneObject
         'ref'                => ['type' => 'varchar(128)', 'label' => 'Ref',              'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 4, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
         'ref_ext'            => ['type' => 'varchar(128)', 'label' => 'RefExt',           'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0],
         'entity'             => ['type' => 'integer',      'label' => 'Entity',           'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'index' => 1],
-        'date_creation'      => ['type' => 'datetime',     'label' => 'ControlDate',      'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 5, 'positioncard' => 10],
+        'date_creation'      => ['type' => 'datetime',     'label' => 'DateCreation',     'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 2, 'positioncard' => 10],
         'tms'                => ['type' => 'timestamp',    'label' => 'DateModification', 'enabled' => 1, 'position' => 50,  'notnull' => 0, 'visible' => 0],
         'import_key'         => ['type' => 'varchar(14)',  'label' => 'ImportId',         'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
+        'control_date'       => ['type' => 'date',         'label' => 'ControlDate',      'enabled' => 1, 'position' => 63,  'notnull' => 0, 'visible' => 5],
         'next_control_date'  => ['type' => 'date',         'label' => 'NextControlDate',  'enabled' => 1, 'position' => 65,  'notnull' => 0, 'visible' => 5],
-        'status'             => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => 0, 'arrayofkeyval' => ['0' => 'Draft', 1 => 'Validated', '2' => 'Locked']],
+        'status'             => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => 0, 'arrayofkeyval' => [0 => 'Draft', 1 => 'Validated', 2 => 'Locked']],
         'note_public'        => ['type' => 'html',         'label' => 'NotePublic',       'enabled' => 1, 'position' => 80,  'notnull' => 0, 'visible' => 0],
         'note_private'       => ['type' => 'html',         'label' => 'NotePrivate',      'enabled' => 1, 'position' => 90,  'notnull' => 0, 'visible' => 0],
-        'verdict'            => ['type' => 'smallint',     'label' => 'Verdict',          'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'positioncard' => 20, 'arrayofkeyval' => ['0' => '', 1 => 'OK', '2' => 'KO', '3' => 'N/A']],
+        'verdict'            => ['type' => 'smallint',     'label' => 'Verdict',          'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 5, 'index' => 1, 'positioncard' => 20, 'arrayofkeyval' => [0 => '', 1 => 'OK', 2 => 'KO', 3 => 'N/A']],
         'photo'              => ['type' => 'text',         'label' => 'Photo',            'enabled' => 1, 'position' => 120, 'notnull' => 0, 'visible' => 0],
         'track_id'           => ['type' => 'text',         'label' => 'TrackID',          'enabled' => 1, 'position' => 125, 'notnull' => 0, 'visible' => 0],
         'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserAuthor',  'picto' => 'user',                            'enabled' => 1, 'position' => 130, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
         'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserModif',   'picto' => 'user',                            'enabled' => 1, 'position' => 140, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
-        'fk_sheet'           => ['type' => 'integer:Sheet:dolismq/class/sheet.class.php',      'label' => 'Sheet',       'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 11,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'dolismq_sheet.rowid'],
+        'fk_sheet'           => ['type' => 'integer:Sheet:digiquali/class/sheet.class.php',    'label' => 'Sheet',       'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 11,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_sheet.rowid'],
         'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1',         'label' => 'Controller',  'picto' => 'user',                            'enabled' => 1, 'position' => 12,  'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'user.rowid',   'positioncard' => 1],
         'projectid'          => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project',     'picto' => 'project',                         'enabled' => 1, 'position' => 13,  'notnull' => 0, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'projet.rowid', 'positioncard' => 2]
     ];
@@ -203,6 +204,11 @@ class Control extends SaturneObject
     public $next_control_date;
 
     /**
+     * @var int|string ControlDate.
+     */
+    public $control_date;
+
+    /**
      * @var int User ID.
      */
     public int $fk_user_creat;
@@ -218,9 +224,9 @@ class Control extends SaturneObject
     public int $fk_sheet;
 
     /**
-     * @var int User ID.
+     * @var int|string|null User ID.
      */
-    public int $fk_user_controller;
+    public $fk_user_controller;
 
     /**
      * @var int|string|null Project ID.
@@ -254,12 +260,12 @@ class Control extends SaturneObject
 
             require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
 
-            $url = dol_buildpath('custom/dolismq/public/control/public_control.php?track_id=' . $this->track_id, 3);
+            $url = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $this->track_id . '&entity=' . $conf->entity, 3);
 
             $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
 
-            dol_mkdir($conf->dolismq->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/');
-            $file = $conf->dolismq->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/' . 'barcode_' . $this->track_id . '.png';
+            dol_mkdir($conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/');
+            $file = $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/' . 'barcode_' . $this->track_id . '.png';
 
             $imageData = $barcode->getBarcodePngData();
             $imageData = imagecreatefromstring($imageData);
@@ -346,6 +352,90 @@ class Control extends SaturneObject
 			return -1;
 		}
 	}
+
+
+    /**
+     * Load list of objects in memory from the database.
+     *
+     * @param  string      $sortorder    Sort Order
+     * @param  string      $sortfield    Sort field
+     * @param  int         $limit        limit
+     * @param  int         $offset       Offset
+     * @param  array       $filter       Filter array. Example array('field'=>'valueforlike', 'customurl'=>...)
+     * @param  string      $filtermode   Filter mode (AND or OR)
+     * @return array|int                 int <0 if KO, array of pages if OK
+     */
+    public function fetchAllWithLeftJoin($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND', $fetchCategories = false, $leftJoin = '')
+    {
+        dol_syslog(__METHOD__, LOG_DEBUG);
+
+        $records = array();
+
+        $sql                                                                              = 'SELECT ';
+        $sql                                                                             .= $this->getFieldList('t');
+        $sql                                                                             .= ' FROM ' . MAIN_DB_PREFIX . $this->table_element . ' as t';
+        if (isModEnabled('categorie') && $fetchCategories) {
+            require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
+            $sql .= Categorie::getFilterJoinQuery('control', 't.rowid');
+        }
+        if (dol_strlen($leftJoin)) {
+            $sql .= ' ' . $leftJoin;
+        }
+        if (isset($this->ismultientitymanaged) && $this->ismultientitymanaged == 1) $sql .= ' WHERE t.entity IN (' . getEntity($this->table_element) . ')';
+        else $sql                                                                        .= ' WHERE 1 = 1';
+
+        // Manage filter
+        $sqlwhere = array();
+        if (count($filter) > 0) {
+            foreach ($filter as $key => $value) {
+                if ($key == 't.rowid') {
+                    $sqlwhere[] = $key . '=' . $value;
+                } elseif (in_array($this->fields[$key]['type'], array('date', 'datetime', 'timestamp'))) {
+                    $sqlwhere[] = $key . ' = \'' . $this->db->idate($value) . '\'';
+                } elseif ($key == 'customsql') {
+                    $sqlwhere[] = $value;
+                } elseif (strpos($value, '%') === false) {
+                    $sqlwhere[] = $key . ' IN (' . $this->db->sanitize($this->db->escape($value)) . ')';
+                } else {
+                    $sqlwhere[] = $key . ' LIKE \'%' . $this->db->escape($value) . '%\'';
+                }
+            }
+        }
+        if (count($sqlwhere) > 0) {
+            $sql .= ' AND (' . implode(' ' . $filtermode . ' ', $sqlwhere) . ')';
+        }
+
+        if ( ! empty($sortfield)) {
+            $sql .= $this->db->order($sortfield, $sortorder);
+        }
+        if ( ! empty($limit)) {
+            $sql .= ' ' . $this->db->plimit($limit, $offset);
+        }
+
+        $resql = $this->db->query($sql);
+        if ($resql) {
+            $num = $this->db->num_rows($resql);
+            $i   = 0;
+            while ($i < ($limit ? min($limit, $num) : $num)) {
+                $obj = $this->db->fetch_object($resql);
+
+                $record = new self($this->db);
+                $record->setVarsFromFetchObj($obj);
+
+                $records[$record->id] = $record;
+
+                $i++;
+            }
+            $this->db->free($resql);
+
+            return $records;
+        } else {
+            $this->errors[] = 'Error ' . $this->db->lasterror();
+            dol_syslog(__METHOD__ . ' ' . join(',', $this->errors), LOG_ERR);
+
+            return -1;
+        }
+    }
 
     /**
      * Set draft status.
@@ -467,7 +557,7 @@ class Control extends SaturneObject
 
         $object->context = 'createfromclone';
 
-        $object->fetchObjectLinked('','', $object->id, 'dolismq_' . $object->element,  'OR', 1, 'sourcetype', 0);
+        $object->fetchObjectLinked('','', $object->id, 'digiquali_' . $object->element,  'OR', 1, 'sourcetype', 0);
 
         $controlID = $object->create($user);
 
@@ -516,7 +606,7 @@ class Control extends SaturneObject
 
             // Add Photos.
             if (!empty($options['photos'])) {
-                $dir  = $conf->dolismq->multidir_output[$conf->entity] . '/control';
+                $dir  = $conf->digiquali->multidir_output[$conf->entity] . '/control';
                 $path = $dir . '/' . $objectRef . '/photos';
                 dol_mkdir($dir . '/' . $objectFromClone->ref . '/photos');
                 dolCopyDir($path,$dir . '/' . $objectFromClone->ref . '/photos', 0, 1);
@@ -870,7 +960,7 @@ class Control extends SaturneObject
         $controls     = $this->fetchAll('ASC', 'next_control_date', 10, 0, ['customsql' => 't.status = ' . self::STATUS_LOCKED . ' AND t.next_control_date IS NOT NULL']);
         if (is_array($controls) && !empty($controls)) {
             foreach ($controls as $control) {
-                $control->fetchObjectLinked('', '', $control->id, 'dolismq_control', 'OR', 1, 'sourcetype', 0);
+                $control->fetchObjectLinked('', '', $control->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
                 $linkedObjectsInfos = $control->getLinkedObjectsWithQcFrequency($elementArray);
                 $linkedObjects      = $linkedObjectsInfos['linkedObjects'];
                 $qcFrequencyArray   = $linkedObjectsInfos['qcFrequencyArray'];
@@ -990,9 +1080,14 @@ class Control extends SaturneObject
 	}
 }
 
-class ControlLine extends CommonObjectLine
+class ControlLine extends SaturneObject
 {
-	/**
+    /**
+     * @var string Module name.
+     */
+    public $module = 'digiquali';
+
+    /**
 	 * @var string ID to identify managed object
 	 */
 	public $element = 'controldet';
@@ -1000,7 +1095,7 @@ class ControlLine extends CommonObjectLine
 	/**
 	 * @var string Name of table without prefix where object is stored
 	 */
-	public $table_element = 'dolismq_controldet';
+	public $table_element = 'digiquali_controldet';
 
 	public $ref = '';
 
@@ -1055,13 +1150,13 @@ class ControlLine extends CommonObjectLine
 	 *	@param	int		$rowid      id of invoice line to get
 	 *	@return	int					<0 if KO, >0 if OK
 	 */
-	public function fetch($rowid)
+	public function fetch($id, ?string $ref = NULL, string $morewhere = ''): int
 	{
 		global $db;
 
 		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
-		$sql .= ' WHERE t.rowid = ' . $rowid;
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
+		$sql .= ' WHERE t.rowid = ' . $id;
 		$sql .= ' AND entity IN (' . getEntity($this->table_element) . ')';
 
 		$result = $db->query($sql);
@@ -1098,7 +1193,7 @@ class ControlLine extends CommonObjectLine
 	{
 		global $db;
 		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 
 		$result = $db->query($sql);
@@ -1147,7 +1242,7 @@ class ControlLine extends CommonObjectLine
 	{
 		global $db;
 		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 		$sql .= ' AND fk_control = ' . $control_id;
 
@@ -1197,7 +1292,7 @@ class ControlLine extends CommonObjectLine
 	{
 		global $db;
 		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet as t';
+		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
 		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
 		$sql .= ' AND fk_control = ' . $control_id .' AND fk_question ='. $question_id;
 
@@ -1257,7 +1352,7 @@ class ControlLine extends CommonObjectLine
 		$now = dol_now();
 
 		// Insertion dans base de la ligne
-		$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . 'dolismq_controldet';
+		$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . 'digiquali_controldet';
 		$sql .= ' ( ref, entity, status, date_creation, answer, answer_photo, comment, fk_question, fk_control, fk_user_creat';
 		$sql .= ')';
 		$sql .= ' VALUES (';
@@ -1304,7 +1399,7 @@ class ControlLine extends CommonObjectLine
 	 * @return        int                    <0 if KO, >0 if OK
 	 * @throws Exception
 	 */
-	public function update(User $user, $notrigger = false)
+	public function update(User $user, $notrigger = false): int
 	{
 		global $user, $db;
 
@@ -1316,7 +1411,7 @@ class ControlLine extends CommonObjectLine
 		$db->begin();
 
 		// Mise a jour ligne en base
-		$sql  = 'UPDATE ' . MAIN_DB_PREFIX . 'dolismq_controldet SET';
+		$sql  = 'UPDATE ' . MAIN_DB_PREFIX . 'digiquali_controldet SET';
 
 		$sql .= " ref='" . $db->escape($this->ref) . "',";
 		$sql .= " status='" . $db->escape($this->status) . "',";
@@ -1354,13 +1449,13 @@ class ControlLine extends CommonObjectLine
 	 * @return        int                   <0 if KO, >0 if OK
 	 * @throws Exception
 	 */
-	public function delete(User $user, $notrigger = false)
+	public function delete(User $user, $notrigger = false, bool $softDelete = true): int
 	{
 		global $user, $db;
 
 		$db->begin();
 
-		$sql = 'DELETE FROM ' . MAIN_DB_PREFIX . 'dolismq_controldet WHERE rowid = ' . $this->id;
+		$sql = 'DELETE FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet WHERE rowid = ' . $this->id;
 		dol_syslog(get_class($this) . '::delete', LOG_DEBUG);
 		if ($db->query($sql)) {
 			$db->commit();
@@ -1384,7 +1479,7 @@ class ControlEquipment extends SaturneObject
 	/**
 	 * @var string Module name.
 	 */
-	public $module = 'dolismq';
+	public $module = 'digiquali';
 
 	/**
 	 * @var string element to identify managed object
@@ -1394,10 +1489,10 @@ class ControlEquipment extends SaturneObject
 	/**
 	 * @var string Name of table without prefix where object is stored
 	 */
-	public $table_element = 'dolismq_control_equipment';
+	public $table_element = 'digiquali_control_equipment';
 
     /**
-     * @var string Name of icon for control_equipment. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'control_equipment@dolismq' if picto is file 'img/object_control_equipment.png'.
+     * @var string Name of icon for control_equipment. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'control_equipment@digiquali' if picto is file 'img/object_control_equipment.png'.
      */
     public string $picto = 'fontawesome_fa-toolbox_fas_#d35968';
 
@@ -1416,7 +1511,8 @@ class ControlEquipment extends SaturneObject
 		'tms'           => ['type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 40, 'notnull' => 0, 'visible' => 0],
 		'status'        => ['type' => 'status', 'label' => 'Status', 'enabled' => '1', 'position' => 50, 'notnull' => 1, 'visible' => 0],
 		'json'          => ['type' => 'text', 'label' => 'JSON', 'enabled' => '1', 'position' => 60, 'notnull' => 1, 'visible' => 0],
-		'fk_product'    => ['type' => 'integer', 'label' => 'FkProduct', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 0],
+        'fk_product'    => ['type' => 'integer', 'label' => 'FkProduct', 'enabled' => '1', 'position' => 70, 'notnull' => 1, 'visible' => 0],
+        'fk_lot'        => ['type' => 'integer', 'label' => 'FkLot', 'enabled' => '1', 'position' => 75, 'notnull' => 1, 'visible' => 0],
 		'fk_control'    => ['type' => 'integer', 'label' => 'FkControl', 'enabled' => '1', 'position' => 80, 'notnull' => 0, 'visible' => 0],
 	];
 
@@ -1469,6 +1565,12 @@ class ControlEquipment extends SaturneObject
      * @var int Fk_product.
      */
 	public $fk_product;
+
+    /**
+     * @var int Fk_lot.
+     */
+    public $fk_lot;
+
 
     /**
      * @var int Fk_control.

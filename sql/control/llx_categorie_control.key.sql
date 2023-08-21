@@ -17,4 +17,4 @@ ALTER TABLE llx_categorie_control ADD PRIMARY KEY pk_categorie_control (fk_categ
 ALTER TABLE llx_categorie_control ADD INDEX idx_categorie_control_fk_categorie (fk_categorie);
 ALTER TABLE llx_categorie_control ADD INDEX idx_categorie_control_fk_control (fk_control);
 ALTER TABLE llx_categorie_control ADD CONSTRAINT fk_categorie_control_categorie_rowid FOREIGN KEY (fk_categorie) REFERENCES llx_categorie (rowid);
-ALTER TABLE llx_categorie_control ADD CONSTRAINT fk_categorie_control_dolismq_control_rowid FOREIGN KEY (fk_control) REFERENCES llx_dolismq_control (rowid);
+ALTER TABLE llx_categorie_control ADD CONSTRAINT fk_categorie_control_digiquali_control_rowid FOREIGN KEY (fk_control) REFERENCES llx_digiquali_control (rowid);

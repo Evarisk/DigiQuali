@@ -17,7 +17,7 @@
 
 /**
  * \file    class/question.class.php
- * \ingroup dolismq
+ * \ingroup digiquali
  * \brief   This file is a CRUD class file for Question (Create/Read/Update/Delete).
  */
 
@@ -32,7 +32,7 @@ class Question extends SaturneObject
     /**
      * @var string Module name.
      */
-    public $module = 'dolismq';
+    public $module = 'digiquali';
 
     /**
      * @var string Element type of object.
@@ -42,7 +42,7 @@ class Question extends SaturneObject
     /**
      * @var string Name of table without prefix where object is stored. This is also the key used for extrafields management.
      */
-    public $table_element = 'dolismq_question';
+    public $table_element = 'digiquali_question';
 
     /**
      * @var int Does this object support multicompany module ?
@@ -56,7 +56,7 @@ class Question extends SaturneObject
     public int $isextrafieldmanaged = 1;
 
     /**
-     * @var string Name of icon for control. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'control@dolismq' if picto is file 'img/object_control.png'.
+     * @var string Name of icon for control. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'control@digiquali' if picto is file 'img/object_control.png'.
      */
     public string $picto = 'fontawesome_fa-question_fas_#d35968';
 
@@ -112,7 +112,7 @@ class Question extends SaturneObject
         'ref'                    => ['type' => 'varchar(128)', 'label' => 'Ref',                  'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 4, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
         'ref_ext'                => ['type' => 'varchar(128)', 'label' => 'RefExt',               'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0],
         'entity'                 => ['type' => 'integer',      'label' => 'Entity',               'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'index' => 1],
-        'date_creation'          => ['type' => 'datetime',     'label' => 'DateCreation',         'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 5],
+        'date_creation'          => ['type' => 'datetime',     'label' => 'DateCreation',         'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 2],
         'tms'                    => ['type' => 'timestamp',    'label' => 'DateModification',     'enabled' => 1, 'position' => 50,  'notnull' => 0, 'visible' => 0],
         'import_key'             => ['type' => 'varchar(14)',  'label' => 'ImportId',             'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
         'status'                 => ['type' => 'smallint',     'label' => 'Status',               'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => 0, 'arrayofkeyval' => ['0' => 'Draft', 1 => 'Validated', '2' => 'Locked']],
@@ -237,10 +237,7 @@ class Question extends SaturneObject
      */
     public function create(User $user, bool $notrigger = false): int
     {
-        global $conf;
-
-        $refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($this->db);
-        $this->ref      = $refQuestionMod->getNextValue($this);
+        $this->ref      = $this->getNextNumRef();
 		$this->status   = $this->status ?: 1;
 
         return parent::create($user, $notrigger);
@@ -345,9 +342,6 @@ class Question extends SaturneObject
 		global $conf;
 		$error = 0;
 
-		$refQuestionMod = new $conf->global->DOLISMQ_QUESTION_ADDON($this->db);
-		require_once __DIR__ . '/../core/modules/dolismq/question/mod_question_standard.php';
-
 		$object = new self($this->db);
         $answer = new Answer($this->db);
 
@@ -365,7 +359,7 @@ class Question extends SaturneObject
 
 		// Clear fields
 		if (property_exists($object, 'ref')) {
-			$object->ref = $refQuestionMod->getNextValue($object);
+			$object->ref = $this->getNextNumRef();
 		}
 		if (!empty($options['label'])) {
 			if (property_exists($object, 'label')) {
@@ -396,7 +390,7 @@ class Question extends SaturneObject
 				}
 			}
 			if (!empty($options['photos'])) {
-				$dirFiles = $conf->dolismq->multidir_output[$object->entity ?? 1] . '/question/';
+				$dirFiles = $conf->digiquali->multidir_output[$object->entity ?? 1] . '/question/';
 				$oldDirFiles = $dirFiles . $oldRef;
 				$newDirFiles = $dirFiles . $object->ref;
 
@@ -512,7 +506,7 @@ class Question extends SaturneObject
 		}
 		// On recherche les societes
 		$sql  = "SELECT *";
-		$sql .= " FROM " . MAIN_DB_PREFIX . "dolismq_question as s";
+		$sql .= " FROM " . MAIN_DB_PREFIX . "digiquali_question as s";
 
 		$sql              .= " WHERE s.entity IN (" . getEntity($this->table_element) . ")";
 		if ($filter) $sql .= " AND (" . $filter . ")";
@@ -584,7 +578,7 @@ class Question extends SaturneObject
 		$this->db->begin();
 
 		foreach ($idsArray as $position => $answerId) {
-			$sql = 'UPDATE '. MAIN_DB_PREFIX . 'dolismq_answer';
+			$sql = 'UPDATE '. MAIN_DB_PREFIX . 'digiquali_answer';
 			$sql .= ' SET position =' . $position;
 			$sql .= ' WHERE fk_question = ' . $this->id;
 			$sql .= ' AND rowid =' . $answerId;

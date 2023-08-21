@@ -4,7 +4,7 @@
  * @since   1.3.0
  * @version 1.3.0
  */
-window.dolismq.sheet = {};
+window.digiquali.sheet = {};
 
 /**
  * La méthode appelée automatiquement par la bibliothèque EoxiaJS.
@@ -14,8 +14,8 @@ window.dolismq.sheet = {};
  *
  * @return {void}
  */
-window.dolismq.sheet.init = function() {
-	window.dolismq.sheet.event();
+window.digiquali.sheet.init = function() {
+	window.digiquali.sheet.event();
 };
 
 /**
@@ -26,5 +26,5 @@ window.dolismq.sheet.init = function() {
  *
  * @return {void}
  */
-window.dolismq.sheet.event = function() {
+window.digiquali.sheet.event = function() {
 };

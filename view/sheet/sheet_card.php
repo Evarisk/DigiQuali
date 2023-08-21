@@ -17,17 +17,17 @@
 
 /**
  *   	\file       view/sheet/sheet_card.php
- *		\ingroup    dolismq
+ *		\ingroup    digiquali
  *		\brief      Page to create/edit/view sheet
  */
 
-// Load DoliSMQ environment
-if (file_exists('../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../dolismq.main.inc.php';
-} elseif (file_exists('../../dolismq.main.inc.php')) {
-	require_once __DIR__ . '/../../dolismq.main.inc.php';
+// Load DigiQuali environment
+if (file_exists('../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../digiquali.main.inc.php';
+} elseif (file_exists('../../digiquali.main.inc.php')) {
+	require_once __DIR__ . '/../../digiquali.main.inc.php';
 } else {
-	die('Include of dolismq main fails');
+	die('Include of digiquali main fails');
 }
 
 // Libraries
@@ -36,8 +36,7 @@ require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 
 require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
-require_once __DIR__ . '/../../lib/dolismq_sheet.lib.php';
-require_once __DIR__ . '/../../core/modules/dolismq/sheet/mod_sheet_standard.php';
+require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user;
@@ -61,7 +60,6 @@ $object      = new Sheet($db);
 $question    = new Question($db);
 $extrafields = new ExtraFields($db);
 $category    = new Categorie($db);
-$refSheetMod = new $conf->global->DOLISMQ_SHEET_ADDON($db);
 
 // View objects
 $form = new Form($db);
@@ -85,9 +83,9 @@ if (empty($action) && empty($id) && empty($ref)) $action = 'view';
 // Load object
 include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
 
-$permissiontoread   = $user->rights->dolismq->sheet->read;
-$permissiontoadd    = $user->rights->dolismq->sheet->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
-$permissiontodelete = $user->rights->dolismq->sheet->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
+$permissiontoread   = $user->rights->digiquali->sheet->read;
+$permissiontoadd    = $user->rights->digiquali->sheet->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
+$permissiontodelete = $user->rights->digiquali->sheet->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
 
 // Security check - Protection if external user
 saturne_check_access($permissiontoread, $object);
@@ -103,12 +101,12 @@ if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'e
 if (empty($reshook)) {
 	$error = 0;
 
-	$backurlforlist = dol_buildpath('/dolismq/view/sheet/sheet_list.php', 1);
+	$backurlforlist = dol_buildpath('/digiquali/view/sheet/sheet_list.php', 1);
 
 	if (empty($backtopage) || ($cancel && empty($id))) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) $backtopage = $backurlforlist;
-			else $backtopage = dol_buildpath('/dolismq/view/sheet/sheet_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
+			else $backtopage = dol_buildpath('/digiquali/view/sheet/sheet_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
 		}
 	}
 
@@ -116,10 +114,10 @@ if (empty($reshook)) {
 		$questionId = GETPOST('questionId');
 		if ($questionId > 0) {
 			$question->fetch($questionId);
-			$test = $question->add_object_linked('dolismq_' . $object->element,$id);
+			$test = $question->add_object_linked('digiquali_' . $object->element,$id);
 
-			$questionsLinked = 	$object->fetchQuestionsLinked($id, 'dolismq_' . $object->element);
-			$questionIds     = $object->linkedObjectsIds['dolismq_question'];
+			$questionsLinked = 	$object->fetchQuestionsLinked($id, 'digiquali_' . $object->element);
+			$questionIds     = $object->linkedObjectsIds['digiquali_question'];
 			$object->updateQuestionsPosition($questionIds);
 
 			$object->call_trigger('SHEET_ADDQUESTION', $user);
@@ -135,11 +133,11 @@ if (empty($reshook)) {
 	if ($action == 'unlinkQuestion' && $permissiontoadd) {
 		$questionId = GETPOST('questionId');
 		$question->fetch($questionId);
-		$question->element = 'dolismq_'.$question->element;
-		$question->deleteObjectLinked($id, 'dolismq_' . $object->element);
+		$question->element = 'digiquali_'.$question->element;
+		$question->deleteObjectLinked($id, 'digiquali_' . $object->element);
 
-		$questionsLinked = 	$object->fetchQuestionsLinked($id, 'dolismq_' . $object->element);
-		$questionIds     = $object->linkedObjectsIds['dolismq_question'];
+		$questionsLinked = 	$object->fetchQuestionsLinked($id, 'digiquali_' . $object->element);
+		$questionIds     = $object->linkedObjectsIds['digiquali_question'];
 		$object->updateQuestionsPosition($questionIds);
 
 		setEventMessages($langs->trans('removeQuestionLink') . ' ' . $question->ref, array());
@@ -163,7 +161,7 @@ if (empty($reshook)) {
 		$object->element_linked = json_encode($showArray);
 
 		if (empty(GETPOST('categories', 'array'))) {
-			$category->fetch($conf->global->DOLISMQ_SHEET_DEFAULT_TAG);
+			$category->fetch($conf->global->DIGIQUALI_SHEET_DEFAULT_TAG);
 			$defaultCategory[] = $category->id;
 			$_POST['categories'] = $defaultCategory;
 		}
@@ -178,7 +176,7 @@ if (empty($reshook)) {
 		$object->element_linked = json_encode($showArray);
 
 		if (empty(GETPOST('categories', 'array'))) {
-			$category->fetch($conf->global->DOLISMQ_SHEET_DEFAULT_TAG);
+			$category->fetch($conf->global->DIGIQUALI_SHEET_DEFAULT_TAG);
 			$defaultCategory[] = $category->id;
 			$_POST['categories'] = $defaultCategory;
 		} else {
@@ -317,7 +315,7 @@ if (empty($reshook)) {
  */
 
 $title    = $langs->trans('Sheet');
-$help_url = 'FR:Module_DoliSMQ';
+$help_url = 'FR:Module_DigiQuali';
 
 $elementArray = get_sheet_linkable_objects();
 
@@ -354,7 +352,7 @@ if ($action == 'create') {
 		if (!empty($element['conf'])) {
 			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
 			$linkedObjects = empty(GETPOST("linked_object")) ? [] : GETPOST("linked_object");
-			if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
+			if ($conf->global->DIGIQUALI_SHEET_UNIQUE_LINKED_ELEMENT) {
 				print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
 			} else {
 				print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
@@ -367,7 +365,7 @@ if ($action == 'create') {
 	if ($linkableObject == 0) {
 		print '<div class="wpeo-notice notice-warning notice-red">';
 		print '<div class="notice-content">';
-		print '<a href="' . dol_buildpath('/custom/dolismq/admin/sheet.php', 2) . '">' . '<b><div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . ' : ' . $langs->trans('ConfigSheet') . '</b></a>';
+		print '<a href="' . dol_buildpath('/custom/digiquali/admin/sheet.php', 2) . '">' . '<b><div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . ' : ' . $langs->trans('ConfigSheet') . '</b></a>';
 		print '</div>';
 		print '</div>';
 		print '</div>';
@@ -404,7 +402,7 @@ if (($id || $ref) && $action == 'edit') {
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
-	print '<input type="hidden" name="conf_unique_linked_element" value="'.$conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT.'">';
+	print '<input type="hidden" name="conf_unique_linked_element" value="'.$conf->global->DIGIQUALI_SHEET_UNIQUE_LINKED_ELEMENT.'">';
 	print '<input type="hidden" name="action" value="update">';
 	print '<input type="hidden" name="id" value="'.$object->id.'">';
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
@@ -436,7 +434,7 @@ if (($id || $ref) && $action == 'edit') {
 	foreach ($elementArray as $key => $element) {
 		if (!empty($element['conf'])) {
 			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
-			if ($conf->global->DOLISMQ_SHEET_UNIQUE_LINKED_ELEMENT) {
+			if ($conf->global->DIGIQUALI_SHEET_UNIQUE_LINKED_ELEMENT) {
 				print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'"'.(($elementLinked->$key > 0) ? 'checked=checked' : '').'>';
 			} else {
 				print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'"'.(($elementLinked->$key > 0) ? 'checked=checked' : '').'>';
@@ -553,8 +551,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	$object->fetchQuestionsLinked($id, 'dolismq_' . $object->element);
-	$questionIds = $object->linkedObjectsIds['dolismq_question'];
+	$object->fetchQuestionsLinked($id, 'digiquali_' . $object->element);
+	$questionIds = $object->linkedObjectsIds['digiquali_question'];
 	if (is_array($questionIds) && !empty($questionIds)) {
 		ksort($questionIds);
 	}
@@ -572,7 +570,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		if (empty($reshook) && $permissiontoadd) {
 			// Create control
 			if ($object->status == $object::STATUS_LOCKED) {
-				print '<a class="butAction" id="actionButtonCreateControl" href="' . dol_buildpath('/custom/dolismq/view/control/control_card.php?action=create&fk_sheet=' . $object->id, 1) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('CreateControl') . '</a>';
+				print '<a class="butAction" id="actionButtonCreateControl" href="' . dol_buildpath('/custom/digiquali/view/control/control_card.php?action=create&fk_sheet=' . $object->id, 1) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('CreateControl') . '</a>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLocked', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('CreateControl') . '</span>';
 			}
@@ -678,10 +676,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '</td>';
 
 			print '<td class="center">';
-			print saturne_show_medias_linked('dolismq',$conf->dolismq->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ok',1,'',0,0,0,50,50,0,0,0,'question/' . $item->ref . '/photo_ok',$item,'photo_ok',0,0,1,1);
+			print saturne_show_medias_linked('digiquali',$conf->digiquali->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ok',1,'',0,0,0,50,50,0,0,0,'question/' . $item->ref . '/photo_ok',$item,'photo_ok',0,0,1,1);
 			print '</td>';
 			print '<td>';
-			print saturne_show_medias_linked('dolismq',$conf->dolismq->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ko',1,'',0,0,0,50,50,0,0,0,'question/' . $item->ref . '/photo_ko',$item,'photo_ko',0,0,1,1);
+			print saturne_show_medias_linked('digiquali',$conf->digiquali->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ko',1,'',0,0,0,50,50,0,0,0,'question/' . $item->ref . '/photo_ko',$item,'photo_ko',0,0,1,1);
 			print '</td>';
 
 			print '<td>';
@@ -749,7 +747,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	$maxEvent = 10;
 
-	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DoliSMQ&object_type=' . $object->element);
+	$morehtmlcenter = dolGetButtonTitle($langs->trans('SeeAll'), '', 'fa fa-bars imgforviewmode', dol_buildpath('/saturne/view/saturne_agenda.php', 1) . '?id=' . $object->id . '&module_name=DigiQuali&object_type=' . $object->element);
 
 	// List of actions on element
 	include_once DOL_DOCUMENT_ROOT.'/core/class/html.formactions.class.php';
