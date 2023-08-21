@@ -271,7 +271,7 @@ class ActionsDigiquali
             $productLot = new ProductLot($this->db);
             $productLot->fetch(GETPOST('id'));
             $objectB64 = $productLot->array_options['options_control_history_link'];
-            $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control_history.php?track_id=' . $objectB64, 3);
+            $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control_history.php?track_id=' . $objectB64 . '&entity=' . $conf->entity, 3);
 
             $out = showValueWithClipboardCPButton($publicControlInterfaceUrl, 0, '&nbsp;');
             $out .= '<a target="_blank" href="'. $publicControlInterfaceUrl .'"><div class="butAction">';

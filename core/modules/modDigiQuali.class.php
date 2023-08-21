@@ -658,7 +658,7 @@ class modDigiQuali extends DolibarrModules
                 $control->track_id = generate_random_id();
                 $control->update($user, true);
 
-                $url = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $control->track_id, 3);
+                $url = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $control->track_id . '&entity=' . $conf->entity, 3);
 
                 $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
                 dol_mkdir(DOL_DATA_ROOT . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'digiquali/control/' . $control->ref . '/qrcode/');

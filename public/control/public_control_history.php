@@ -74,6 +74,7 @@ saturne_load_langs(['bills', 'contracts', 'orders', 'products', 'projects', 'com
 
 // Get parameters.
 $trackId         = GETPOST('track_id', 'alpha');
+$entity          = GETPOST('entity');
 $showLastControl = GETPOST('show_last_control');
 $showControlList = GETPOST('show_control_list');
 
@@ -84,6 +85,12 @@ $project = new Project($db);
 $user    = new User($db);
 
 $hookmanager->initHooks(['publiccontrolhistory']); // Note that conf->hooks_modules contains array.
+
+if (!isModEnabled('multicompany')) {
+    $entity = $conf->entity;
+}
+
+$conf->setEntityValues($db, $entity);
 
 // Load object.
 $objectDataJson = base64_decode($trackId);
