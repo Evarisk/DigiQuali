@@ -52,7 +52,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
      * @var array Minimum version of PHP required by module.
      * e.g.: PHP ≥ 5.5 = array(5, 5)
      */
-    public array $phpmin = [7, 4];
+    public $phpmin = [7, 4];
 
     /**
      * @var string Dolibarr version of the loaded document.
