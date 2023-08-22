@@ -150,6 +150,7 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
     if ($showLastControlFirst == 1) {
         $object = array_shift($objectControlList);
         $object->fetchObjectLinked('', '', '', 'digiquali_control');
+        $sheet->fetch($object->fk_sheet);
         require_once __DIR__ . '/../../core/tpl/digiquali_public_control.tpl.php';
     } else {
 
