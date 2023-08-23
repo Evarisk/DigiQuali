@@ -52,7 +52,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
      * @var array Minimum version of PHP required by module.
      * e.g.: PHP ≥ 5.5 = array(5, 5)
      */
-    public array $phpmin = [7, 4];
+    public $phpmin = [7, 4];
 
     /**
      * @var string Dolibarr version of the loaded document.
@@ -172,9 +172,13 @@ class doc_controldocument_odt extends SaturneDocumentModel
             }
 
             if ($foundTagForLines) {
+
                 if (!empty($object)) {
-                    $object->fetchObjectLinked($object->fk_sheet, 'digiquali_sheet','', '', 'OR', 1, 'sourcetype', 0);
-                    $questionIds = $object->linkedObjectsIds;
+                    $sheet = new Sheet($this->db);
+
+                    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_sheet','', '', 'OR', 1, 'sourcetype', 0);
+                    $questionIds = $sheet->linkedObjectsIds;
+
                     if (is_array($questionIds['digiquali_question']) && !empty($questionIds['digiquali_question'])) {
                         $controldet = new ControlLine($this->db);
                         $question   = new Question($this->db);

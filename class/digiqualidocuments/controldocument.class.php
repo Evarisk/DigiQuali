@@ -32,7 +32,7 @@ class ControlDocument extends SaturneDocuments
     /**
      * @var string Module name.
      */
-    public string $module = 'digiquali';
+    public $module = 'digiquali';
 
     /**
      * @var string Element type of object.
