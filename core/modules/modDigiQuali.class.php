@@ -148,7 +148,7 @@ class modDigiQuali extends DolibarrModules
 		// A condition to hide module
 		$this->hidden = false;
 		// List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
-		$this->depends = ['modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM', 'modProjet', 'modCategorie', 'modSaturne', 'modTicket'];
+		$this->depends = ['modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM', 'modProjet', 'modCategorie', 'modSaturne', 'modTicket', 'modCron'];
 		$this->requiredby = []; // List of module class names as string to disable if this one is disabled. Example: array('modModuleToDisable1', ...)
 		$this->conflictwith = []; // List of module class names as string this module is in conflict with. Example: array('modModuleToDisable1', ...)
 
@@ -720,6 +720,12 @@ class modDigiQuali extends DolibarrModules
 
 			dolibarr_set_const($this->db, 'DIGIQUALI_QUESTION_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
 		}
+
+        require_once DOL_DOCUMENT_ROOT . '/cron/class/cronjob.class.php';
+
+        $cronJob = new Cronjob($this->db);
+        $cronJob->fetch(0, 'ActionComm', 'sendEmailsReminder');
+        $cronJob->reprogram_jobs($user->login, dol_now());
 
 		 return $result;
 	}
