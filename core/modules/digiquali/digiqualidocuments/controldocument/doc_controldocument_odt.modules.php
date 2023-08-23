@@ -172,9 +172,13 @@ class doc_controldocument_odt extends SaturneDocumentModel
             }
 
             if ($foundTagForLines) {
+
                 if (!empty($object)) {
-                    $object->fetchObjectLinked($object->fk_sheet, 'digiquali_sheet','', '', 'OR', 1, 'sourcetype', 0);
-                    $questionIds = $object->linkedObjectsIds;
+                    $sheet = new Sheet($this->db);
+
+                    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_sheet','', '', 'OR', 1, 'sourcetype', 0);
+                    $questionIds = $sheet->linkedObjectsIds;
+
                     if (is_array($questionIds['digiquali_question']) && !empty($questionIds['digiquali_question'])) {
                         $controldet = new ControlLine($this->db);
                         $question   = new Question($this->db);
