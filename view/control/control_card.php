@@ -732,7 +732,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     $pathPhotos = $conf->digiquali->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/';
     $fileArray  = dol_dir_list($pathPhotos, 'files');
 	?>
-	<span class="add-medias" <?php echo ($object->status != Control::STATUS_LOCKED) ? '' : 'style="display:none"' ?>>
+	<span class="add-medias" <?php echo ($object->status < Control::STATUS_LOCKED) ? '' : 'style="display:none"' ?>>
 		<input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
 		<label for="fast-upload-photo-default">
 			<div class="wpeo-button button-square-50">
@@ -747,7 +747,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	</span>
 	<?php
 	$relativepath = 'digiquali/medias/thumbs';
-	print saturne_show_medias_linked('digiquali', $pathPhotos, 'small', 0, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
+	print saturne_show_medias_linked('digiquali', $pathPhotos, 'small', 0, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status < Control::STATUS_LOCKED, $permissiontodelete && $object->status < Control::STATUS_LOCKED);
 	print '</td></tr>';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
