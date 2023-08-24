@@ -325,7 +325,7 @@ foreach ($object->fields as $key => $val)
 	$disableSortField = dol_strlen($fromtype) > 0 ? preg_match('/'. $invertedElementElementFields[$fromtype] .'/',$key) : 0;
 
 	$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? 'maxwidthsearch' : $val['css']) : $val['csslist']);
-	if ($key == 'status') $cssforfield .= ($cssforfield ? ' ' : '').'center';
+	if (in_array($key, ['days_remaining_before_next_control', 'status', 'verdict'])) $cssforfield .= ($cssforfield ? ' ' : '').'center';
 	elseif (in_array($val['type'], array('date', 'datetime', 'timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'center';
 	elseif (in_array($val['type'], array('timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'nowrap';
 	elseif (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && $val['label'] != 'TechnicalID') $cssforfield .= ($cssforfield ? ' ' : '').'right';
@@ -377,7 +377,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 	{
 		$cssforfield = (empty($val['css']) ? '' : $val['css']);
 		if (in_array($val['type'], array('date', 'datetime', 'timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'center';
-		elseif ($key == 'status') $cssforfield .= ($cssforfield ? ' ' : '').'center';
+		elseif (in_array($key, ['days_remaining_before_next_control', 'status', 'verdict'])) $cssforfield .= ($cssforfield ? ' ' : '').'center';
 
 		if (in_array($val['type'], array('timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'nowrap';
 		elseif ($key == 'ref') $cssforfield .= ($cssforfield ? ' ' : '').'nowrap';
@@ -397,17 +397,15 @@ while ($i < ($limit ? min($num, $limit) : $num))
 				print $sheet->getNomUrl(1);
 			}
 			elseif ($key == 'verdict') {
-				print dol_strlen($object->$key) > 0 ? $object->fields[$key]['arrayofkeyval'][$object->$key] : "N/A";
+                $verdictColor = $object->$key == 1 ? 'green' : ($object->$key == 2 ? 'red' : 'grey');
+                print dol_strlen($object->$key) > 0 ? '<div class="wpeo-button button-' . $verdictColor . '">' . $object->fields['verdict']['arrayofkeyval'][(!empty($object->$key)) ? $object->$key : 3] . '</div>' : "N/A";
 			}
 			elseif ($key == 'days_remaining_before_next_control') {
                 if (dol_strlen($object->next_control_date) > 0) {
                     $nextControl = floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24));
-                } else {
-                    $nextControl = 0;
+				    $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
+				    print '<div class="wpeo-button button-'. $nextControlColor .'">' . $nextControl . '</div>';
                 }
-				$nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
-
-				print '<div class="wpeo-button center button-'. $nextControlColor .'">' . $nextControl . '<br>' . $langs->trans('Days') . '</div>';
 			}
 			elseif (in_array($key, $revertedElementFields)) {
 				$linkedElement = $linkNameElementCorrespondance[$elementElementFields[$key]];
