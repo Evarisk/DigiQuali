@@ -231,7 +231,6 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                                 if (!empty($linkedObject->array_options['options_qc_frequency'])) {
                                     $qcFrequency = $linkedObject->array_options['options_qc_frequency'];
 
-                                    $object->control_date      = $this->db->idate($now);
                                     if ($object->verdict == 2) {
                                         $object->next_control_date = $this->db->idate($now);
                                     } else {
@@ -248,6 +247,10 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                                     $actioncomm->userownerid = $user->id;
                                     $actioncomm->percentage  = ActionComm::EVENT_TODO;
                                     $actioncommID            = $actioncomm->create($user);
+                                }
+                                if (dol_strlen($object->control_date) <= 0) {
+                                    $object->control_date = $this->db->idate($now);
+                                    $object->setValueFrom('control_date', $object->control_date, '', '', 'date', '', $user);
                                 }
                             }
                         }
