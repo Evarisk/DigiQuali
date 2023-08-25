@@ -377,7 +377,7 @@ class ActionsDigiquali
         global $conf, $mysoc;
 
         // Do something only for the current context.
-        if (in_array($parameters['currentcontext'], ['publiccontrol', 'publicsurvey'])) {
+        if (in_array($parameters['currentcontext'], ['publiccontrol', 'publicsurvey', 'publiccontrolhistory'])) {
             if (!empty($conf->global->SATURNE_SHOW_COMPANY_LOGO)) {
                 // Define logo and logoSmall.
                 $logoSmall = $mysoc->logo_small;

@@ -364,3 +364,4 @@ ImportFinishWith                  = L'import des %s a été terminé avec %s err
 SelectProducts           = Sélectionner un produit
 SelectProductsOrServices = Sélectionner un produit / service
 Contact                  = Contact/Adresse
+Remain                   = reste
