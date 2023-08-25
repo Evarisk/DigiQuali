@@ -355,7 +355,7 @@ class ActionsDigiquali
         // Do something only for the current context.
         if (preg_match('/controlcard/', $parameters['context'])) {
             if ($conf->browser->layout == 'phone') {
-                $morehtmlref = '<i class="toggleControlInfo far fa-caret-square-down"></i>' . ' ' . $langs->trans('DisplayMoreInfo');
+                $morehtmlref = '<br><div>' . img_picto('', 'fontawesome_fa-caret-square-down_far_#966EA2F2_fa-2em', 'class="toggleControlInfo pictofixedwidth valignmiddle" style="width: 35px;"') . $langs->trans('DisplayMoreInfo') . '</div>';
             } else {
                 $morehtmlref = '';
             }

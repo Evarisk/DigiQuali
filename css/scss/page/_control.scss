@@ -94,10 +94,10 @@
       transition: all 0.2s ease-out;
 
       @media ( max-width: $media__small ) {
-        width: 80px;
-        height: 80px;
-        line-height: 80px;
-        font-size: 30px;
+        width: 60px;
+        height: 60px;
+        line-height: 60px;
+        font-size: 25px;
       }
 
       &.square {
