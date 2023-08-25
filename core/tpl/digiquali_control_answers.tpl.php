@@ -17,7 +17,7 @@ if (is_array($questionIds) && !empty($questionIds)) {
 			<div class="table-row">
 				<!-- Contenu et commentaire -->
 				<div class="table-cell table-full">
-					<div class="label"><strong><?php print $item->ref . ' - ' . $item->label; ?></strong></div>
+					<div class="label"><strong><?php print $item->getNomUrl(1, isset($publicInterface) ? 'nolink' : '', 1, '', -1, 1); ?></strong></div>
 					<div class="description"><?php print $item->description; ?></div>
 					<div class="question-comment-container">
 						<div class="question-ref">
