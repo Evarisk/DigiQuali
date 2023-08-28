@@ -133,6 +133,8 @@ window.digiquali.control.showCommentUnsaved = function ( event ) {
 window.digiquali.control.updateButtonsStatus = function (  ) {
 	$('#saveButton').removeClass('butActionRefused')
 	$('#saveButton').addClass('butAction')
+  $('#saveButton').css('background', '#0d8aff')
+  $('.fa-circle').css('display', 'inline')
 	$('#saveButton').attr('onclick','$("#saveControl").submit()');
 
 	$('.validateButton').removeClass('butAction')
