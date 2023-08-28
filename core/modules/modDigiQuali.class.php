@@ -125,7 +125,7 @@ class modDigiQuali extends DolibarrModules
                 'publiccontrol',
                 'publicsurvey',
                 'digiqualiadmindocuments',
-                'productlotcard'
+                'projecttaskscard'
 			],
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -287,6 +287,9 @@ class modDigiQuali extends DolibarrModules
                     $objectType = $linkableElement['tab_type'];
                 }
 				$this->tabs[] = ['data' => $objectType . ':+control:' . $pictoDigiQuali . $langs->trans('Controls') . ':digiquali@digiquali:$user->rights->digiquali->control->read:/custom/digiquali/view/control/control_list.php?fromid=__ID__&fromtype=' . $linkableElement['link_name']];
+
+                $this->module_parts['hooks'][] = $linkableElement['hook_name_list'];
+                $this->module_parts['hooks'][] = $linkableElement['hook_name_card'];
 			}
 		}
 
