@@ -264,13 +264,15 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 
                     $reminderArray = explode(',' , getDolGlobalString('DIGIQUALI_CONTROL_REMINDER_FREQUENCY'));
                     foreach ($reminderArray as $reminder) {
-                        $dateReminder = dol_time_plus_duree($object->next_control_date, -$reminder, 'd');
+                        if ($qcFrequency <= $reminder) {
+                            $dateReminder = dol_time_plus_duree(dol_stringtotime($object->next_control_date), -$reminder, 'd');
 
-                        $actionCommReminder->dateremind  = $dateReminder;
-                        $actionCommReminder->offsetvalue = $reminder;
-                        $actionCommReminder->offsetunit  = 'd';
-                        $actionCommReminder->typeremind  = getDolGlobalString('DIGIQUALI_CONTROL_REMINDER_TYPE');
-                        $actionCommReminder->create($user);
+                            $actionCommReminder->dateremind  = $dateReminder;
+                            $actionCommReminder->offsetvalue = $reminder;
+                            $actionCommReminder->offsetunit  = 'd';
+                            $actionCommReminder->typeremind  = getDolGlobalString('DIGIQUALI_CONTROL_REMINDER_TYPE');
+                            $actionCommReminder->create($user);
+                        }
                     }
                 }
 				break;
