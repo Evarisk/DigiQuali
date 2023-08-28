@@ -170,7 +170,7 @@ class ActionsDigiquali
 	 */
 	public function printCommonFooter($parameters)
 	{
-		global $conf, $form, $langs, $user;
+		global $conf, $form, $langs, $object, $user;
 
 		$error = 0; // Error counter
 
@@ -282,6 +282,41 @@ class ActionsDigiquali
                 $('[class*=extras_control_history_link]').html(<?php echo json_encode($out) ?>);
             </script>
             <?php
+        }
+
+        require_once __DIR__ . '/../lib/digiquali_sheet.lib.php';
+
+        $linkableElements = get_sheet_linkable_objects();
+
+        if (!empty($linkableElements)) {
+            foreach($linkableElements as $linkableElement) {
+                if ($linkableElement['link_name'] == $object->element) {
+                    if ($parameters['currentcontext'] == $linkableElement['hook_name_card']) {
+                        $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
+                        $extrafieldsNames = ['qc_frequency', 'control_history_link'];
+                        foreach ($extrafieldsNames as $extrafieldsName) {
+                            $jQueryElement = 'td.' . $object->element . '_extras_' . $extrafieldsName; ?>
+                            <script>
+                                var objectElement = <?php echo "'" . $jQueryElement . "'"; ?>;
+                                jQuery(objectElement).prepend(<?php echo json_encode($picto); ?>);
+                            </script>
+                            <?php
+                        }
+                    } elseif (in_array($parameters['currentcontext'], [$linkableElement['hook_name_list'], 'projecttaskscard']) || preg_match($linkableElement['hook_name_list'], $parameters['context'])) {
+                        $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
+                        $extrafieldsNames = ['qc_frequency', 'control_history_link'];
+                        foreach ($extrafieldsNames as $extrafieldsName) { ?>
+                            <script>
+                                var objectElement = <?php echo "'" . $extrafieldsName . "'"; ?>;
+                                var outJS         = <?php echo json_encode($picto); ?>;
+                                var cell          = $('.liste > tbody > tr.liste_titre').find('th[data-titlekey="' + objectElement + '"]');
+                                cell.prepend(outJS);
+                            </script>
+                            <?php
+                        }
+                    }
+                }
+            }
         }
 
 		if (!$error) {

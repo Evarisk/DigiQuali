@@ -125,7 +125,7 @@ class modDigiQuali extends DolibarrModules
                 'publiccontrol',
                 'publicsurvey',
                 'digiqualiadmindocuments',
-                'productlotcard'
+                'projecttaskscard'
 			],
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -148,7 +148,7 @@ class modDigiQuali extends DolibarrModules
 		// A condition to hide module
 		$this->hidden = false;
 		// List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
-		$this->depends = ['modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM', 'modProjet', 'modCategorie', 'modSaturne', 'modTicket'];
+		$this->depends = ['modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM', 'modProjet', 'modCategorie', 'modSaturne', 'modTicket', 'modCron'];
 		$this->requiredby = []; // List of module class names as string to disable if this one is disabled. Example: array('modModuleToDisable1', ...)
 		$this->conflictwith = []; // List of module class names as string this module is in conflict with. Example: array('modModuleToDisable1', ...)
 
@@ -287,6 +287,9 @@ class modDigiQuali extends DolibarrModules
                     $objectType = $linkableElement['tab_type'];
                 }
 				$this->tabs[] = ['data' => $objectType . ':+control:' . $pictoDigiQuali . $langs->trans('Controls') . ':digiquali@digiquali:$user->rights->digiquali->control->read:/custom/digiquali/view/control/control_list.php?fromid=__ID__&fromtype=' . $linkableElement['link_name']];
+
+                $this->module_parts['hooks'][] = $linkableElement['hook_name_list'];
+                $this->module_parts['hooks'][] = $linkableElement['hook_name_card'];
 			}
 		}
 
@@ -720,6 +723,12 @@ class modDigiQuali extends DolibarrModules
 
 			dolibarr_set_const($this->db, 'DIGIQUALI_QUESTION_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
 		}
+
+        require_once DOL_DOCUMENT_ROOT . '/cron/class/cronjob.class.php';
+
+        $cronJob = new Cronjob($this->db);
+        $cronJob->fetch(0, 'ActionComm', 'sendEmailsReminder');
+        $cronJob->reprogram_jobs($user->login, dol_now());
 
 		 return $result;
 	}

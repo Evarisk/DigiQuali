@@ -195,23 +195,6 @@ if (empty($reshook)) {
 	}
 
 	require_once __DIR__ . '/../../core/tpl/digiquali_control_answers_save_action.tpl.php';
-	if ($action == 'save_next_control_date') {
-		$day    = GETPOST('reday');
-		$month  = GETPOST('remonth');
-		$year   = GETPOST('reyear');
-
-		$object->next_control_date = dol_mktime(0, 0, 0, $month, $day, $year);
-
-		$result = $object->update($user);
-
-		if ($result > 0) {
-			setEventMessages($langs->trans('NextControlDateUpdated'), []);
-		} else {
-			setEventMessages($langs->trans('ErrorUpdatingNextControlDate'), [], 'errors');
-		}
-		header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $id);
-		exit;
-	}
 
     // Actions builddoc, forcebuilddoc, remove_file.
     require_once __DIR__ . '/../../../saturne/core/tpl/documents/documents_action.tpl.php';
@@ -641,28 +624,19 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
       print '</td></tr>';
   }
 
-	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
+    print '<tr class="field_control_date"><td class="titlefield fieldname_control_date">';
+    print $form->editfieldkey('ControlDate', 'control_date', $object->control_date, $object, $permissiontoadd, 'datepicker');
+    print '</td><td class="valuefield fieldname_control_date">';
+    print $form->editfieldval('ControlDate', 'control_date', $object->control_date, $object, $permissiontoadd, 'datepicker', '', null, null, "id=$object->id");
+    print '</td>';
 
-  	if ($action != 'edit_next_control_date' && $object->status < $object::STATUS_LOCKED) :
-		?>
-			<script>
-				let pencil = ' <a href="'+ window.location.href + '&action=edit_next_control_date' +'"  <span class="fas fa-pencil-alt" style="color: #ccc"></span></a>'
-				$('.valuefield.fieldname_next_control_date').append(pencil)
-			</script>
-		<?php
-	elseif ($action == 'edit_next_control_date') :
-		$dateSelector = '<form method="post" action="'.$_SERVER["PHP_SELF"].'?id='.$id.'">';
-		$dateSelector .= '<input hidden name="action" value="save_next_control_date">';
-		$dateSelector .= '<input hidden name="token" value="'. newToken() .'">';
-		$dateSelector .= $form->selectDate($object->next_control_date, 're', 0, 0, 1, '', 1, 1);
-		$dateSelector .= '<button type="submit" class="butAction" id="saveNextControlDate"> <i class="fas fa-save"></i>' . ' ' . $langs->trans('Save') . '</button type=submit>';
-		$dateSelector .= '</form>';
-		?>
-		<script>
-			$('.valuefield.fieldname_next_control_date').html(<?php echo json_encode($dateSelector) ?>)
-		</script>
-	<?php
-	endif;
+    print '<tr class="field_next_control_date"><td class="titlefield fieldname_next_control_date">';
+    print $form->editfieldkey('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd, 'datepicker');
+    print '</td><td class="valuefield fieldname_next_control_date">';
+    print $form->editfieldval('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd, 'datepicker', '', null, null, "id=$object->id");
+    print '</td>';
+
+	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
 	// Categories
 	if ($conf->categorie->enabled) {
@@ -732,7 +706,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     $pathPhotos = $conf->digiquali->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/';
     $fileArray  = dol_dir_list($pathPhotos, 'files');
 	?>
-	<span class="add-medias" <?php echo ($object->status != Control::STATUS_LOCKED) ? '' : 'style="display:none"' ?>>
+	<span class="add-medias" <?php echo ($object->status < Control::STATUS_LOCKED) ? '' : 'style="display:none"' ?>>
 		<input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
 		<label for="fast-upload-photo-default">
 			<div class="wpeo-button <?php echo ($onPhone ? 'button-square-40' : 'button-square-50'); ?>">
@@ -747,7 +721,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	</span>
 	<?php
 	$relativepath = 'digiquali/medias/thumbs';
-	print saturne_show_medias_linked('digiquali', $pathPhotos, 'small', 0, 0, 0, 0, $onPhone ? 40 : 50, $onPhone ? 40 : 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
+	print saturne_show_medias_linked('digiquali', $pathPhotos, 'small', 0, 0, 0, 0, $onPhone ? 40 : 50, $onPhone ? 40 : 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status < Control::STATUS_LOCKED, $permissiontodelete && $object->status < Control::STATUS_LOCKED);
 	print '</td></tr>';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
