@@ -30,7 +30,6 @@ window.digiquali.control.init = function() {
 window.digiquali.control.event = function() {
   $( document ).on( 'click', '.answer:not(.disable)', window.digiquali.control.selectAnswer );
   $( document ).on( 'input', '.input-answer:not(.disable)', window.digiquali.control.selectAnswer );
-  $( document ).on( 'keyup', '.question-comment', window.digiquali.control.writeComment );
   $( document ).on( 'change', '.control-table.linked-objects select', window.digiquali.control.disableOtherSelectors );
   $( document ).on( 'keyup', '.question-comment', window.digiquali.control.showCommentUnsaved );
   $( document ).on( 'click', '.validateButton', window.digiquali.control.getAnswerCounter);
@@ -79,28 +78,6 @@ window.digiquali.control.selectAnswer = function ( event ) {
 	}
 
 	window.digiquali.control.updateButtonsStatus()
-};
-
-/**
- * Write a comment for a control question.
- *
- * @since   1.0.0
- * @version 1.0.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.digiquali.control.writeComment = function ( event ) {
-
-	let postName = $(this).closest('.table-cell').find('.question-comment').attr('name')
-	let postValue = $(this).closest('.table-cell').find('.question-comment').val()
-	let actualValidatePost = $(this).closest('.tabBar').find('.validateButton').attr('href')
-
-	if (actualValidatePost.match('&' + postName + '=')) {
-		actualValidatePost = actualValidatePost.split('&' + postName + '=')[0]
-	}
-
-	$(this).closest('.tabBar').find('.validateButton').attr('href', actualValidatePost + '&' + postName + '=' + postValue)
 };
 
 /**
@@ -158,8 +135,9 @@ window.digiquali.control.updateButtonsStatus = function (  ) {
 	$('#saveButton').addClass('butAction')
 	$('#saveButton').attr('onclick','$("#saveControl").submit()');
 
-	$('#validateButton').removeClass('butAction')
-	$('#validateButton').addClass('butActionRefused')
+	$('.validateButton').removeClass('butAction')
+	$('#dialog-confirm-actionButtonValidate').removeAttr('id');
+	$('.validateButton').addClass('butActionRefused')
 };
 
 /**

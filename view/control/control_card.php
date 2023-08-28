@@ -498,7 +498,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 	}
 
-	if ($action == 'setVerdict') {
+    if (($action == 'setVerdict' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
 //		//Form to close proposal (signed or not)
 //		$answersArray = $controldet->fetchFromParent($object->id);
 //		$answerOK = 0;
@@ -533,11 +533,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			array('type' => 'text', 'name' => 'noteControl', 'label' => '<div class="note-control" style="margin-top: 20px;">' . $langs->trans('NoteControl') . '</div>'),
 		);
 
-		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $langs->transnoentities('BeCarefullVerdictKO'), 'confirm_setVerdict', $formquestion, '', 1, 300);
+		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $langs->transnoentities('BeCarefullVerdictKO'), 'confirm_setVerdict', $formquestion, 'yes', 'actionButtonVerdict', 300);
 	}
 
 	// SetValidated confirmation
-	if ($action == 'setValidated') {
+    if (($action == 'setValidated' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
 		$sheet->fetch($object->fk_sheet);
 		$sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
 		$questionIds = $sheet->linkedObjectsIds['digiquali_question'];
@@ -564,7 +564,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		$questionConfirmInfo .= '<br><br><b>' . $langs->trans('ConfirmValidateControl') . '</b>';
-		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ValidateControl'), $questionConfirmInfo, 'confirm_setValidated', '', '', 1, 250);
+		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ValidateControl'), $questionConfirmInfo, 'confirm_setValidated', '', 'yes', 'actionButtonValidate', 250);
 	}
 
 	// SetReopened confirmation
@@ -824,11 +824,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			// Validate
 			$displayButton = $onPhone ? '<i class="fas fa-check fa-2x"></i>' : '<i class="fas fa-check"></i>' . ' ' . $langs->trans('Validate');
 			if ($object->status == $object::STATUS_DRAFT && empty($cantValidateControl) && !$equipmentOutdated) {
-				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . $displayButton . '</a>';
+				print '<span class="validateButton butAction" id="actionButtonValidate">' . $displayButton . '</span>';
             } else if ($cantValidateControl > 0) {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('QuestionMustBeAnswered', $cantValidateControl)) . '">' . $displayButton . '</span>';
 			} else if ($equipmentOutdated) {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . $displayButton . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $displayButton . '</span>';
 			}
@@ -836,7 +836,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			// ReOpen
 			$displayButton = $onPhone ? '<i class="fas fa-lock-open fa-2x"></i>' : '<i class="fas fa-lock-open"></i>' . ' ' . $langs->trans('ReOpenDoli');
 			if ($object->status == $object::STATUS_VALIDATED) {
-				print '<span class="butAction" id="actionButtonReOpen" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setDraft' . '">' . $displayButton . '</span>';
+				print '<span class="butAction" id="actionButtonReOpen">' . $displayButton . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidated')) . '">' . $displayButton . '</span>';
 			}
@@ -845,12 +845,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$displayButton = $onPhone ? '<i class="far fa-check-circle fa-2x"></i>' : '<i class="far fa-check-circle"></i>' . ' ' . $langs->trans('SetOK/KO');
 			if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null && !$equipmentOutdated) {
 				if ($permissiontosetverdict) {
-					print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setVerdict&token=' . newToken() . '">' . $displayButton . '</a>';
+					print '<span class="butAction" id="actionButtonVerdict">' . $displayButton . '</span>';
 				}
 			} elseif ($object->status == $object::STATUS_DRAFT) {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . $displayButton . '</span>';
 			} else if ($equipmentOutdated) {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . $displayButton . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . $displayButton . '</span>';
 			}
