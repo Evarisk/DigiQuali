@@ -34,10 +34,10 @@ require_once __DIR__ . '/../../saturne/lib/object.lib.php';
 function control_prepare_head(Control $object): array
 {
     // Global variables definitions.
-    global $db, $langs;
+    global $conf, $db, $langs;
 
     $head[1][0] = dol_buildpath('/digiquali/view/control/control_medias.php', 1) . '?id=' . $object->id;
-    $head[1][1] = '<i class="fas fa-file-image pictofixedwidth"></i>' . $langs->trans('Medias');
+    $head[1][1] = $conf->browser->layout != 'phone' ? '<i class="fas fa-file-image pictofixedwidth"></i>' . $langs->trans('Medias') : '<i class="fas fa-file-image"></i>';
     $head[1][2] = 'medias';
 
 	// Initialize technical objects
@@ -50,9 +50,10 @@ function control_prepare_head(Control $object): array
 		$nbEquipment = 0;
 	}
 
-	$head[2][0] = dol_buildpath('/digiquali/view/control/control_equipment.php', 1) . '?id=' . $object->id;
-	$head[2][1] = '<i class="fas fa-toolbox pictofixedwidth"></i>' . $langs->trans('ControlEquipment') . '<span class="badge marginleftonlyshort">' . $nbEquipment . '</span>';
-	$head[2][2] = 'equipment';
+	$head[2][0]  = dol_buildpath('/digiquali/view/control/control_equipment.php', 1) . '?id=' . $object->id;
+	$head[2][1]  = $conf->browser->layout != 'phone' ? '<i class="fas fa-toolbox pictofixedwidth"></i>' . $langs->trans('ControlEquipment') : '<i class="fas fa-toolbox"></i>';
+    $head[2][1] .= '<span class="badge marginleftonlyshort">' . $nbEquipment . '</span>';
+	$head[2][2]  = 'equipment';
 
 	$moreparam['documentType']       = 'ControlDocument';
     $moreparam['attendantTableMode'] = 'simple';
