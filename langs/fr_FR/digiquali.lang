@@ -29,9 +29,7 @@ DigiQualiDescriptionLong = Système de management de la qualité pour Dolibarr
 # Data - Donnée
 RedirectAfterConnection            = Redirection après la connexion au site
 RedirectAfterConnectionDescription = Redirection sur la page de bienvenue de DigiQuali par défaut au lieu de celle de Dolibarr.
-EnableDigiquali                      = Veuillez activer le module DigiQuali pour accéder à cette page
-AdvancedTriggers                   = Contenu des événéments avancé
-AdvancedTriggersDescription        = Active une description détaillée des événements de DigiQuali
+EnableDigiquali                    = Veuillez activer le module DigiQuali pour accéder à cette page
 
 #
 # Questions
