@@ -302,7 +302,7 @@ class ActionsDigiquali
                             </script>
                             <?php
                         }
-                    } elseif (in_array($parameters['currentcontext'], [$linkableElement['hook_name_list'], 'projecttaskscard']) || preg_match($linkableElement['hook_name_list'], $parameters['context'])) {
+                    } elseif (in_array($parameters['currentcontext'], [$linkableElement['hook_name_list'], 'projecttaskscard']) || preg_match('/' . $linkableElement['hook_name_list'] . '/', $parameters['context'])) {
                         $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
                         $extrafieldsNames = ['qc_frequency', 'control_history_link'];
                         foreach ($extrafieldsNames as $extrafieldsName) { ?>
