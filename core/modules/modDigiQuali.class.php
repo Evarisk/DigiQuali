@@ -231,6 +231,9 @@ class modDigiQuali extends DolibarrModules
 
 			// CONST CONTROL LINE
 			$i++ => ['DIGIQUALI_CONTROLDET_ADDON', 'chaine', 'mod_controldet_standard', '', 0, 'current'],
+			$i++ => ['DIGIQUALI_CONTROLDET_AUTO_SAVE_ACTION', 'integer', 1, '', 0, 'current'],
+
+			// CONST CONTROL EQUIPMENT
 			$i++ => ['DIGIQUALI_CONTROL_EQUIPMENT_ADDON', 'chaine', 'mod_control_equipment_standard', '', 0, 'current'],
 
 			// CONST MODULE

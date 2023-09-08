@@ -33,7 +33,7 @@
                         <table class="centpercent" style="background: rgba(0,0,0,.05); padding: 10px;">
                             <tr><td class="tdoverflowmax200" style="min-width: 125px;">
                                 <?php print img_picto('', $linkableObject['picto'], 'class="pictofixedwidth"') . $objectName . '<br><i class="far fa-check-circle pictofixedwidth"></i>' . $langs->trans('VerdictObject'); ?>
-                                <?php if ($linkedObject->array_options['options_qc_frequency'] > 0 && getDolGlobalInt('SHOW_QC_FREQUENCY_PUBLIC_INTERFACE')) {
+                                <?php if ($linkedObject->array_options['options_qc_frequency'] > 0 && getDolGlobalInt('DIGIQUALI_SHOW_QC_FREQUENCY_PUBLIC_INTERFACE')) {
                                     print '<br>' . $langs->transnoentities('QcFrequency') . ' : ' . $linkedObject->array_options['options_qc_frequency'];
                                 } ?>
                             </td>

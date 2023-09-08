@@ -315,10 +315,12 @@ ShowQcFrequencyPublicInterfaceDescription      = Option permettant l'affichage l
 #
 
 # Data - Donnée
-AnswerSaved   = Les réponses ont été sauvegardées
-Repair        = SAV
-NotApplicable = NA
-AnswerPhoto   = Photo
+AnswerSaved                             = Les réponses ont été sauvegardées
+Repair                                  = SAV
+NotApplicable                           = NA
+AnswerPhoto                             = Photo
+AutoSaveActionQuestionAnswer            = Sauvegarde automatique des réponses aux questions
+AutoSaveActionQuestionAnswerDescription = Sauvegarde automatiquement les réponses aux questions lors du choix de la réponse
 
 #
 # ControlDocument - Fiche de Contrôle

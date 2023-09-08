@@ -396,6 +396,18 @@ print ajax_constantonoff('DIGIQUALI_CONTROL_USE_LARGE_MEDIA_IN_GALLERY');
 print '</td>';
 print '</tr>';
 
+// Auto-save action on question answer
+print '<tr><td>';
+print $langs->trans('AutoSaveActionQuestionAnswer');
+print '</td><td>';
+print $langs->trans('AutoSaveActionQuestionAnswerDescription');
+print '</td>';
+
+print '<td class="center">';
+print ajax_constantonoff('DIGIQUALI_CONTROLDET_AUTO_SAVE_ACTION');
+print '</td>';
+print '</tr>';
+
 print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '">';
 print '<input type="hidden" name="token" value="' . newToken() . '">';
 print '<input type="hidden" name="action" value="update_public_survey_title">';
@@ -417,7 +429,7 @@ print $langs->trans('EnablePublicControlHistoryDescription');
 print '</td>';
 
 print '<td class="center">';
-print ajax_constantonoff('SHOW_QC_FREQUENCY_PUBLIC_INTERFACE');
+print ajax_constantonoff('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY');
 print '</td>';
 print '</tr>';
 
@@ -428,7 +440,7 @@ print $langs->trans('ShowQcFrequencyPublicInterfaceDescription');
 print '</td>';
 
 print '<td class="center">';
-print ajax_constantonoff('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY');
+print ajax_constantonoff('DIGIQUALI_SHOW_QC_FREQUENCY_PUBLIC_INTERFACE');
 print '</td>';
 print '</tr>';
 

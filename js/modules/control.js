@@ -51,9 +51,13 @@ window.digiquali.control.event = function() {
  * @return {void}
  */
 window.digiquali.control.selectAnswer = function ( event ) {
-	let answerValue = $(this).hasClass('answer') ? $(this).attr('value') : $(this).val()
-	let answer = '';
-	let questionElement = $(this).closest('.select-answer.answer-cell')
+  let questionElement = $(this).closest('.select-answer.answer-cell');
+  let questionId      = questionElement.attr('data-questionId');
+  let publicInterface = $(this).closest('.table-id-' + questionId).attr('data-publicInterface');
+  let autoSave        = $(this).closest('.table-id-' + questionId).attr('data-autoSave');
+  let answer          = '';
+  let answerValue     = $(this).hasClass('answer') ? $(this).attr('value') : $(this).val();
+  let comment         = $(this).closest('.table-id-' + questionId).find('#comment' + questionId).val();
 	if ($(this).closest('.table-cell').hasClass('select-answer')) {
 		if ($(this).hasClass('multiple-answers')) {
 			$(this).closest('span').toggleClass( 'active' );
@@ -78,7 +82,11 @@ window.digiquali.control.selectAnswer = function ( event ) {
 		$(this).closest('.answer-cell').find('.question-answer').val(answer)
 	}
 
-	window.digiquali.control.updateButtonsStatus()
+  if (!publicInterface && autoSave == 1 && !$(this).hasClass('multiple-answers')) {
+    window.digiquali.control.saveAnswer(questionId, answer, comment);
+  } else {
+    window.digiquali.control.updateButtonsStatus()
+  }
 };
 
 /**
@@ -343,6 +351,40 @@ window.digiquali.control.showOnlyQuestionsWithNoAnswer = function() {
     contentType: false,
     success: function(resp) {
       $('.questionLines').replaceWith($(resp).find('.questionLines'))
+    },
+    error: function() {}
+  });
+};
+
+/**
+ * Save answer after click event
+ *
+ * @since   1.9.0
+ * @version 1.9.0
+ *
+ * @param  {int}    questionId Question ID
+ * @param  {string} answer     Answer value
+ * @param  {string} comment    Comment value
+ * @return {void}
+ */
+window.digiquali.control.saveAnswer = function(questionId, answer, comment) {
+  let token          = window.saturne.toolbox.getToken();
+  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
+  window.saturne.loader.display($('.table-id-' + questionId));
+
+  $.ajax({
+    url: document.URL + querySeparator + 'action=save&token=' + token,
+    type: "POST",
+    data: JSON.stringify({
+      autoSave: true,
+      questionId: questionId,
+      answer: answer,
+      comment: comment
+    }),
+    processData: false,
+    contentType: false,
+    success: function(resp) {
+      $('.table-id-' + questionId).replaceWith($(resp).find('.table-id-' + questionId));
     },
     error: function() {}
   });
