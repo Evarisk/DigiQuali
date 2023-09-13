@@ -341,8 +341,8 @@ window.digiquali.control.showOnlyQuestionsWithNoAnswer = function() {
       showOnlyQuestionsWithNoAnswer: showOnlyQuestionsWithNoAnswer
     }),
     contentType: false,
-    success: function() {
-      window.location.reload();
+    success: function(resp) {
+      $('.questionLines').replaceWith($(resp).find('.questionLines'))
     },
     error: function() {}
   });

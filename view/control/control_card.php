@@ -891,7 +891,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 	// QUESTION LINES
-	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
+	print '<div class="div-table-responsive-no-min questionLines" style="overflow-x: unset !important">';
 
 	$sheet->fetch($object->fk_sheet);
 	$sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
@@ -920,11 +920,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     if ($object->status == $object::STATUS_DRAFT) {
         print ' <i class="fas fa-user-edit"></i>';
-        print '<input type="checkbox" class="show-only-questions-with-no-answer"' . (getDolUserInt('DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER') ? ' checked' : '') . '>';
+        print '<input type="checkbox" class="show-only-questions-with-no-answer"' . ($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? ' checked' : '') . '>';
         print $form->textwithpicto('', $langs->trans('ShowOnlyQuestionsWithNoAnswer'));
     }
 
-    if (!getDolUserInt('DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER') || $answerCounter != $questionCounter) {
+    if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
         print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', '');
         print '<div id="tablelines" class="control-audit noborder noshadow">';
         require_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';

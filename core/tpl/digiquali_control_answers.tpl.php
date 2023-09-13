@@ -10,7 +10,7 @@ if (is_array($questionIds) && !empty($questionIds)) {
 			$questionAnswer = $itemControlDet->answer;
 			$comment = $itemControlDet->comment;
 		}
-        if (!getDolUserInt('DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER') or empty($questionAnswer)) {
+        if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER or empty($questionAnswer)) {
             $item = $question;
             $item->fetch($questionId);
             ?>
