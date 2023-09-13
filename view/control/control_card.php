@@ -39,6 +39,7 @@ require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmdirectory.class.php';
 require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/functions2.lib.php';
 
 // Load Saturne libraries.
 require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
@@ -123,11 +124,13 @@ saturne_check_access($permissiontoread, $object);
  * Actions
  */
 
-$parameters = array();
-$reshook    = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
-if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+$parameters = ['id' => $id];
+$resHook    = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks.
+if ($resHook < 0) {
+    setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+}
 
-if (empty($reshook)) {
+if (empty($resHook)) {
 	$error = 0;
 
 	$backurlforlist = dol_buildpath('/digiquali/view/control/control_list.php', 1);
@@ -184,7 +187,8 @@ if (empty($reshook)) {
 	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
 	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
 
-	include __DIR__ . '/../../../saturne/core/tpl/actions/edit_project_action.tpl.php';
+    // Actions set_thirdparty, set_project
+    require_once __DIR__ . '/../../../saturne/core/tpl/actions/banner_actions.tpl.php';
 
 	if ($action == 'set_categories' && $permissiontoadd) {
 		if ($object->fetch($id) > 0) {
@@ -194,24 +198,17 @@ if (empty($reshook)) {
 		}
 	}
 
+    if ($action == 'show_only_questions_with_no_answer') {
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        $showOnlyQuestionsWithNoAnswer = $data['showOnlyQuestionsWithNoAnswer'];
+
+        $tabParam['DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER'] = $showOnlyQuestionsWithNoAnswer;
+
+        dol_set_user_param($db, $conf, $user, $tabParam);
+    }
+
 	require_once __DIR__ . '/../../core/tpl/digiquali_control_answers_save_action.tpl.php';
-	if ($action == 'save_next_control_date') {
-		$day    = GETPOST('reday');
-		$month  = GETPOST('remonth');
-		$year   = GETPOST('reyear');
-
-		$object->next_control_date = dol_mktime(0, 0, 0, $month, $day, $year);
-
-		$result = $object->update($user);
-
-		if ($result > 0) {
-			setEventMessages($langs->trans('NextControlDateUpdated'), []);
-		} else {
-			setEventMessages($langs->trans('ErrorUpdatingNextControlDate'), [], 'errors');
-		}
-		header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $id);
-		exit;
-	}
 
     // Actions builddoc, forcebuilddoc, remove_file.
     require_once __DIR__ . '/../../../saturne/core/tpl/documents/documents_action.tpl.php';
@@ -498,7 +495,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 	}
 
-	if ($action == 'setVerdict') {
+    if (($action == 'setVerdict' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
 //		//Form to close proposal (signed or not)
 //		$answersArray = $controldet->fetchFromParent($object->id);
 //		$answerOK = 0;
@@ -533,11 +530,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			array('type' => 'text', 'name' => 'noteControl', 'label' => '<div class="note-control" style="margin-top: 20px;">' . $langs->trans('NoteControl') . '</div>'),
 		);
 
-		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $langs->transnoentities('BeCarefullVerdictKO'), 'confirm_setVerdict', $formquestion, '', 1, 300);
+		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('SetOK/KO'), $langs->transnoentities('BeCarefullVerdictKO'), 'confirm_setVerdict', $formquestion, 'yes', 'actionButtonVerdict', 300);
 	}
 
 	// SetValidated confirmation
-	if ($action == 'setValidated') {
+    if (($action == 'setValidated' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
 		$sheet->fetch($object->fk_sheet);
 		$sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
 		$questionIds = $sheet->linkedObjectsIds['digiquali_question'];
@@ -564,7 +561,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		$questionConfirmInfo .= '<br><br><b>' . $langs->trans('ConfirmValidateControl') . '</b>';
-		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ValidateControl'), $questionConfirmInfo, 'confirm_setValidated', '', '', 1, 250);
+		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ValidateControl'), $questionConfirmInfo, 'confirm_setValidated', '', 'yes', 'actionButtonValidate', 250);
 	}
 
 	// SetReopened confirmation
@@ -641,28 +638,28 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
       print '</td></tr>';
   }
 
-	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
+    print '<tr class="field_control_date"><td class="titlefield fieldname_control_date">';
+    print $form->editfieldkey('ControlDate', 'control_date', $object->control_date, $object, $permissiontoadd, 'datepicker');
+    print '</td><td class="valuefield fieldname_control_date">';
+    print $form->editfieldval('ControlDate', 'control_date', $object->control_date, $object, $permissiontoadd, 'datepicker', '', null, null, "id=$object->id");
+    print '</td>';
 
-  	if ($action != 'edit_next_control_date' && $object->status < $object::STATUS_LOCKED) :
-		?>
-			<script>
-				let pencil = ' <a href="'+ window.location.href + '&action=edit_next_control_date' +'"  <span class="fas fa-pencil-alt" style="color: #ccc"></span></a>'
-				$('.valuefield.fieldname_next_control_date').append(pencil)
-			</script>
-		<?php
-	elseif ($action == 'edit_next_control_date') :
-		$dateSelector = '<form method="post" action="'.$_SERVER["PHP_SELF"].'?id='.$id.'">';
-		$dateSelector .= '<input hidden name="action" value="save_next_control_date">';
-		$dateSelector .= '<input hidden name="token" value="'. newToken() .'">';
-		$dateSelector .= $form->selectDate($object->next_control_date, 're', 0, 0, 1, '', 1, 1);
-		$dateSelector .= '<button type="submit" class="butAction" id="saveNextControlDate"> <i class="fas fa-save"></i>' . ' ' . $langs->trans('Save') . '</button type=submit>';
-		$dateSelector .= '</form>';
-		?>
-		<script>
-			$('.valuefield.fieldname_next_control_date').html(<?php echo json_encode($dateSelector) ?>)
-		</script>
-	<?php
-	endif;
+    print '<tr class="field_next_control_date"><td class="titlefield fieldname_next_control_date">';
+    print $form->editfieldkey('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd, 'datepicker');
+    print '</td><td class="valuefield fieldname_next_control_date">';
+    print $form->editfieldval('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd, 'datepicker', '', null, null, "id=$object->id");
+    print '</td>';
+
+    print '<tr class="field_verdict"><td class="titlefield fieldname_verdict">';
+    print $langs->trans('Verdict');
+    print '</td><td class="valuefield fieldname_verdict">';
+    $verdictColor = $object->verdict == 1 ? 'green' : ($object->verdict == 2 ? 'red' : 'grey');
+    print dol_strlen($object->verdict) > 0 ? '<div class="wpeo-button button-' . $verdictColor . '">' . $object->fields['verdict']['arrayofkeyval'][(!empty($object->verdict)) ? $object->verdict : 3] . '</div>' : 'N/A';
+    print '</td>';
+
+    unset($object->fields['verdict']); // Hide field already shown in view
+
+	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
 	// Categories
 	if ($conf->categorie->enabled) {
@@ -732,22 +729,22 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     $pathPhotos = $conf->digiquali->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/';
     $fileArray  = dol_dir_list($pathPhotos, 'files');
 	?>
-	<span class="add-medias" <?php echo ($object->status != Control::STATUS_LOCKED) ? '' : 'style="display:none"' ?>>
+	<span class="add-medias" <?php echo ($object->status < Control::STATUS_LOCKED) ? '' : 'style="display:none"' ?>>
 		<input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
 		<label for="fast-upload-photo-default">
-			<div class="wpeo-button button-square-50">
+			<div class="wpeo-button <?php echo ($onPhone ? 'button-square-40' : 'button-square-50'); ?>">
 				<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
 			</div>
 		</label>
 		<input type="hidden" class="favorite-photo" id="photo" name="photo" value="<?php echo $object->photo ?>"/>
-		<div class="wpeo-button button-square-50 open-media-gallery add-media modal-open" value="0">
+		<div class="wpeo-button <?php echo ($onPhone ? 'button-square-40' : 'button-square-50'); ?> 'open-media-gallery add-media modal-open" value="0">
 			<input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id?>" data-from-type="control" data-from-subtype="photo" data-from-subdir="photos"/>
 			<i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
 		</div>
 	</span>
 	<?php
 	$relativepath = 'digiquali/medias/thumbs';
-	print saturne_show_medias_linked('digiquali', $pathPhotos, 'small', 0, 0, 0, 0, 50, 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status != Control::STATUS_LOCKED, $permissiontodelete && $object->status != Control::STATUS_LOCKED);
+	print saturne_show_medias_linked('digiquali', $pathPhotos, 'small', 0, 0, 0, 0, $onPhone ? 40 : 50, $onPhone ? 40 : 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status < Control::STATUS_LOCKED, $permissiontodelete && $object->status < Control::STATUS_LOCKED);
 	print '</td></tr>';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
@@ -816,7 +813,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			// Save question answer
 			$displayButton = $onPhone ? '<i class="fas fa-save fa-2x"></i>' : '<i class="fas fa-save"></i>' . ' ' . $langs->trans('Save');
 			if ($object->status == $object::STATUS_DRAFT) {
-				print '<span class="butActionRefused" id="saveButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=save' . '">' . $displayButton . '</span>';
+				print '<span class="butActionRefused" id="saveButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=save' . '">' . $displayButton . ' <i class="fas fa-circle" style="color: red; display: none; ' . ($onPhone ? 'vertical-align: top;' : '') . '"></i></span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $displayButton . '</span>';
 			}
@@ -824,20 +821,20 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			// Validate
 			$displayButton = $onPhone ? '<i class="fas fa-check fa-2x"></i>' : '<i class="fas fa-check"></i>' . ' ' . $langs->trans('Validate');
 			if ($object->status == $object::STATUS_DRAFT && empty($cantValidateControl) && !$equipmentOutdated) {
-				print '<a class="validateButton butAction" id="validateButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setValidated&token=' . newToken() . '">' . $displayButton . '</a>';
+				print '<span class="validateButton butAction" id="actionButtonValidate">' . $displayButton . '</span>';
             } else if ($cantValidateControl > 0) {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('QuestionMustBeAnswered', $cantValidateControl)) . '">' . $displayButton . '</span>';
 			} else if ($equipmentOutdated) {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</span>';
-			} else {
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . $displayButton . '</span>';
+            } elseif ($object->status < $object::STATUS_DRAFT) {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeDraft')) . '">' . $displayButton . '</span>';
 			}
 
 			// ReOpen
 			$displayButton = $onPhone ? '<i class="fas fa-lock-open fa-2x"></i>' : '<i class="fas fa-lock-open"></i>' . ' ' . $langs->trans('ReOpenDoli');
 			if ($object->status == $object::STATUS_VALIDATED) {
-				print '<span class="butAction" id="actionButtonReOpen" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setDraft' . '">' . $displayButton . '</span>';
-			} else {
+                print '<span class="butAction" id="actionButtonReOpen">' . $displayButton . '</span>';
+            } elseif ($object->status > $object::STATUS_VALIDATED) {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidated')) . '">' . $displayButton . '</span>';
 			}
 
@@ -845,12 +842,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			$displayButton = $onPhone ? '<i class="far fa-check-circle fa-2x"></i>' : '<i class="far fa-check-circle"></i>' . ' ' . $langs->trans('SetOK/KO');
 			if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null && !$equipmentOutdated) {
 				if ($permissiontosetverdict) {
-					print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=setVerdict&token=' . newToken() . '">' . $displayButton . '</a>';
+					print '<span class="butAction" id="actionButtonVerdict">' . $displayButton . '</span>';
 				}
 			} elseif ($object->status == $object::STATUS_DRAFT) {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . $displayButton . '</span>';
 			} else if ($equipmentOutdated) {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . '<i class="fas fa-tasks"></i>' . ($conf->browser->layout == 'phone' ? '' : ' ' . $langs->trans('SetOK/KO')) . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . $displayButton . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . $displayButton . '</span>';
 			}
@@ -872,7 +869,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 
 			// Send email
-			$displayButton = $onPhone ? '<i class="fas fa-paper-plane fa-2x"></i>' : '<i class="fas fa-paper-plane"></i>' . ' ' . $langs->trans('SendMail') . ' ';
+			$displayButton = $onPhone ? '<i class="fas fa-envelope fa-2x"></i>' : '<i class="fas fa-envelope"></i>' . ' ' . $langs->trans('SendMail') . ' ';
 			if ($object->status == $object::STATUS_LOCKED) {
                 $fileparams = dol_most_recent_file($upload_dir . '/' . $object->element . 'document' . '/' . $object->ref);
                 $file       = $fileparams['fullname'];
@@ -906,7 +903,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 	// QUESTION LINES
-	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
+	print '<div class="div-table-responsive-no-min questionLines" style="overflow-x: unset !important">';
 
 	$sheet->fetch($object->fk_sheet);
 	$sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
@@ -933,21 +930,20 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter">'. $answerCounter .'</span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . $questionCounter;
 
-	print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', ''); ?>
+    if ($object->status == $object::STATUS_DRAFT) {
+        print ' <i class="fas fa-user-edit"></i>';
+        print '<input type="checkbox" class="show-only-questions-with-no-answer"' . ($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? ' checked' : '') . '>';
+        print $form->textwithpicto('', $langs->trans('ShowOnlyQuestionsWithNoAnswer'));
+    }
 
-	<?php print '<div id="tablelines" class="control-audit noborder noshadow" width="100%">';
+    if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
+        print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', '');
+        print '<div id="tablelines" class="control-audit noborder noshadow">';
+        require_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';
+        print '</div>';
+    }
 
-	global $forceall, $forcetoshowtitlelines;
-
-	if (empty($forceall)) $forceall = 0;
-
-	// Define colspan for the button 'Add'
-	$colspan = 3;
-
-	require_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';
-
-	print '</div>';
-	print '</div>';
+    print '</div>';
 	print '</form>';
 	print dol_get_fiche_end();
 

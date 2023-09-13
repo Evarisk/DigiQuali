@@ -30,7 +30,6 @@ window.digiquali.control.init = function() {
 window.digiquali.control.event = function() {
   $( document ).on( 'click', '.answer:not(.disable)', window.digiquali.control.selectAnswer );
   $( document ).on( 'input', '.input-answer:not(.disable)', window.digiquali.control.selectAnswer );
-  $( document ).on( 'keyup', '.question-comment', window.digiquali.control.writeComment );
   $( document ).on( 'change', '.control-table.linked-objects select', window.digiquali.control.disableOtherSelectors );
   $( document ).on( 'keyup', '.question-comment', window.digiquali.control.showCommentUnsaved );
   $( document ).on( 'click', '.validateButton', window.digiquali.control.getAnswerCounter);
@@ -39,6 +38,7 @@ window.digiquali.control.event = function() {
   $( document ).on( 'click', '.clipboard-copy', window.digiquali.control.copyToClipboard );
   $( document ).on( 'change', '#productId', window.digiquali.control.refreshLotSelector );
   $( document ).on( 'click', '.switch-public-control-view', window.digiquali.control.switchPublicControlView );
+  $(document).on('click', '.show-only-questions-with-no-answer', window.digiquali.control.showOnlyQuestionsWithNoAnswer);
 };
 
 /**
@@ -51,9 +51,13 @@ window.digiquali.control.event = function() {
  * @return {void}
  */
 window.digiquali.control.selectAnswer = function ( event ) {
-	let answerValue = $(this).hasClass('answer') ? $(this).attr('value') : $(this).val()
-	let answer = '';
-	let questionElement = $(this).closest('.select-answer.answer-cell')
+  let questionElement = $(this).closest('.select-answer.answer-cell');
+  let questionId      = questionElement.attr('data-questionId');
+  let publicInterface = $(this).closest('.table-id-' + questionId).attr('data-publicInterface');
+  let autoSave        = $(this).closest('.table-id-' + questionId).attr('data-autoSave');
+  let answer          = '';
+  let answerValue     = $(this).hasClass('answer') ? $(this).attr('value') : $(this).val();
+  let comment         = $(this).closest('.table-id-' + questionId).find('#comment' + questionId).val();
 	if ($(this).closest('.table-cell').hasClass('select-answer')) {
 		if ($(this).hasClass('multiple-answers')) {
 			$(this).closest('span').toggleClass( 'active' );
@@ -78,29 +82,11 @@ window.digiquali.control.selectAnswer = function ( event ) {
 		$(this).closest('.answer-cell').find('.question-answer').val(answer)
 	}
 
-	window.digiquali.control.updateButtonsStatus()
-};
-
-/**
- * Write a comment for a control question.
- *
- * @since   1.0.0
- * @version 1.0.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.digiquali.control.writeComment = function ( event ) {
-
-	let postName = $(this).closest('.table-cell').find('.question-comment').attr('name')
-	let postValue = $(this).closest('.table-cell').find('.question-comment').val()
-	let actualValidatePost = $(this).closest('.tabBar').find('.validateButton').attr('href')
-
-	if (actualValidatePost.match('&' + postName + '=')) {
-		actualValidatePost = actualValidatePost.split('&' + postName + '=')[0]
-	}
-
-	$(this).closest('.tabBar').find('.validateButton').attr('href', actualValidatePost + '&' + postName + '=' + postValue)
+  if (!publicInterface && autoSave == 1 && !$(this).hasClass('multiple-answers')) {
+    window.digiquali.control.saveAnswer(questionId, answer, comment);
+  } else {
+    window.digiquali.control.updateButtonsStatus()
+  }
 };
 
 /**
@@ -156,10 +142,13 @@ window.digiquali.control.showCommentUnsaved = function ( event ) {
 window.digiquali.control.updateButtonsStatus = function (  ) {
 	$('#saveButton').removeClass('butActionRefused')
 	$('#saveButton').addClass('butAction')
+  $('#saveButton').css('background', '#0d8aff')
+  $('.fa-circle').css('display', 'inline')
 	$('#saveButton').attr('onclick','$("#saveControl").submit()');
 
-	$('#validateButton').removeClass('butAction')
-	$('#validateButton').addClass('butActionRefused')
+	$('.validateButton').removeClass('butAction')
+	$('#dialog-confirm-actionButtonValidate').removeAttr('id');
+	$('.validateButton').addClass('butActionRefused')
 };
 
 /**
@@ -331,3 +320,72 @@ window.digiquali.control.switchPublicControlView = function(  event ) {
   });
 };
 
+/**
+ * Enables/disables the configuration to display only questions with no answer
+ *
+ * @memberof DigiQuali_Control
+ *
+ * @since   1.9.0
+ * @version 1.9.0
+ *
+ * @return {void}
+ */
+window.digiquali.control.showOnlyQuestionsWithNoAnswer = function() {
+  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL)
+  let token          = window.saturne.toolbox.getToken()
+
+  let showOnlyQuestionsWithNoAnswer;
+  if ($(this).is(':checked')) {
+    showOnlyQuestionsWithNoAnswer = 1;
+  } else {
+    showOnlyQuestionsWithNoAnswer = 0;
+  }
+
+  $.ajax({
+    url: document.URL + querySeparator + "action=show_only_questions_with_no_answer&token=" + token,
+    type: "POST",
+    processData: false,
+    data: JSON.stringify({
+      showOnlyQuestionsWithNoAnswer: showOnlyQuestionsWithNoAnswer
+    }),
+    contentType: false,
+    success: function(resp) {
+      $('.questionLines').replaceWith($(resp).find('.questionLines'))
+    },
+    error: function() {}
+  });
+};
+
+/**
+ * Save answer after click event
+ *
+ * @since   1.9.0
+ * @version 1.9.0
+ *
+ * @param  {int}    questionId Question ID
+ * @param  {string} answer     Answer value
+ * @param  {string} comment    Comment value
+ * @return {void}
+ */
+window.digiquali.control.saveAnswer = function(questionId, answer, comment) {
+  let token          = window.saturne.toolbox.getToken();
+  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
+  window.saturne.loader.display($('.table-id-' + questionId));
+
+  $.ajax({
+    url: document.URL + querySeparator + 'action=save&token=' + token,
+    type: "POST",
+    data: JSON.stringify({
+      autoSave: true,
+      questionId: questionId,
+      answer: answer,
+      comment: comment
+    }),
+    processData: false,
+    contentType: false,
+    success: function(resp) {
+      $('.table-id-' + questionId).replaceWith($(resp).find('.table-id-' + questionId));
+    },
+    error: function() {}
+  });
+};

@@ -1,6 +1,8 @@
 <?php
 
 if ($action == 'save') {
+	$data = json_decode(file_get_contents('php://input'), true);
+
 	$controldet = new ControlLine($db);
 	$sheet->fetch($object->fk_sheet);
 	$object->fetchObjectLinked($sheet->id, 'digiquali_sheet', '', '', 'OR', 1, 'sourcetype', 0);
@@ -14,14 +16,22 @@ if ($action == 'save') {
 		if ($result > 0 && is_array($result)) {
 			$controldettmp = array_shift($result);
 			//sauvegarder réponse
-			$questionAnswer = GETPOST('answer'.$questionId);
+			if ($data['autoSave'] && $questionId == $data['questionId']) {
+				$questionAnswer = $data['answer'];
+			} else {
+				$questionAnswer = GETPOST('answer' . $questionId);
+			}
 
 			if (!empty($questionAnswer)) {
 				$controldettmp->answer = $questionAnswer;
 			}
 
 			//sauvegarder commentaire
-			$comment = GETPOST('comment'.$questionId);
+			if ($data['autoSave'] && $questionId == $data['questionId']) {
+				$comment = $data['comment'];
+			} else {
+				$comment = GETPOST('comment' . $questionId);
+			}
 
 			if (dol_strlen($comment) > 0) {
 				$controldettmp->comment = $comment;
@@ -38,7 +48,11 @@ if ($action == 'save') {
 			$controldettmp->fk_question = $questionId;
 
 			//sauvegarder réponse
-			$questionAnswer = GETPOST('answer'.$questionId);
+			if ($data['autoSave'] && $questionId == $data['questionId']) {
+				$questionAnswer = $data['answer'];
+			} else {
+				$questionAnswer = GETPOST('answer' . $questionId);
+			}
 
 			if (!empty($questionAnswer)) {
 				$controldettmp->answer = $questionAnswer;
@@ -47,7 +61,12 @@ if ($action == 'save') {
 			}
 
 			//sauvegarder commentaire
-			$comment = GETPOST('comment'.$questionId);
+			if ($data['autoSave'] && $questionId == $data['questionId']) {
+				$comment = $data['comment'];
+			} else {
+				$comment = GETPOST('comment' . $questionId);
+			}
+
 			if (dol_strlen($comment) > 0) {
 				$controldettmp->comment = $comment;
 			} else {

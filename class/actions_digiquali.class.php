@@ -170,7 +170,7 @@ class ActionsDigiquali
 	 */
 	public function printCommonFooter($parameters)
 	{
-		global $conf, $form, $langs, $user;
+		global $conf, $form, $langs, $object, $user;
 
 		$error = 0; // Error counter
 
@@ -284,6 +284,41 @@ class ActionsDigiquali
             <?php
         }
 
+        require_once __DIR__ . '/../lib/digiquali_sheet.lib.php';
+
+        $linkableElements = get_sheet_linkable_objects();
+
+        if (!empty($linkableElements)) {
+            foreach($linkableElements as $linkableElement) {
+                if ($linkableElement['link_name'] == $object->element) {
+                    if ($parameters['currentcontext'] == $linkableElement['hook_name_card']) {
+                        $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
+                        $extrafieldsNames = ['qc_frequency', 'control_history_link'];
+                        foreach ($extrafieldsNames as $extrafieldsName) {
+                            $jQueryElement = 'td.' . $object->element . '_extras_' . $extrafieldsName; ?>
+                            <script>
+                                var objectElement = <?php echo "'" . $jQueryElement . "'"; ?>;
+                                jQuery(objectElement).prepend(<?php echo json_encode($picto); ?>);
+                            </script>
+                            <?php
+                        }
+                    } elseif (in_array($parameters['currentcontext'], [$linkableElement['hook_name_list'], 'projecttaskscard']) || preg_match('/' . $linkableElement['hook_name_list'] . '/', $parameters['context'])) {
+                        $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
+                        $extrafieldsNames = ['qc_frequency', 'control_history_link'];
+                        foreach ($extrafieldsNames as $extrafieldsName) { ?>
+                            <script>
+                                var objectElement = <?php echo "'" . $extrafieldsName . "'"; ?>;
+                                var outJS         = <?php echo json_encode($picto); ?>;
+                                var cell          = $('.liste > tbody > tr.liste_titre').find('th[data-titlekey="' + objectElement + '"]');
+                                cell.prepend(outJS);
+                            </script>
+                            <?php
+                        }
+                    }
+                }
+            }
+        }
+
 		if (!$error) {
 			$this->results   = array('myreturn' => 999);
 			return 0; // or return 1 to replace standard code
@@ -355,7 +390,7 @@ class ActionsDigiquali
         // Do something only for the current context.
         if (preg_match('/controlcard/', $parameters['context'])) {
             if ($conf->browser->layout == 'phone') {
-                $morehtmlref = '<i class="toggleControlInfo far fa-caret-square-down"></i>' . ' ' . $langs->trans('DisplayMoreInfo');
+                $morehtmlref = '<br><div>' . img_picto('', 'fontawesome_fa-caret-square-down_far_#966EA2F2_fa-2em', 'class="toggleControlInfo pictofixedwidth valignmiddle" style="width: 35px;"') . $langs->trans('DisplayMoreInfo') . '</div>';
             } else {
                 $morehtmlref = '';
             }
@@ -377,7 +412,7 @@ class ActionsDigiquali
         global $conf, $mysoc;
 
         // Do something only for the current context.
-        if (in_array($parameters['currentcontext'], ['publiccontrol', 'publicsurvey'])) {
+        if (in_array($parameters['currentcontext'], ['publiccontrol', 'publicsurvey', 'publiccontrolhistory'])) {
             if (!empty($conf->global->SATURNE_SHOW_COMPANY_LOGO)) {
                 // Define logo and logoSmall.
                 $logoSmall = $mysoc->logo_small;

@@ -150,28 +150,32 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
     if ($showLastControlFirst == 1) {
         $object = array_shift($objectControlList);
         $object->fetchObjectLinked('', '', '', 'digiquali_control');
+        $sheet->fetch($object->fk_sheet);
         require_once __DIR__ . '/../../core/tpl/digiquali_public_control.tpl.php';
-    } else {
-
-        print '<div class="signature-container" style="max-width: 1000px;">';
+    } elseif ($conf->browser->layout != 'phone') {
+        print '<div class="signature-container" style="max-width: 1600px;">';
         print load_fiche_titre($langs->trans('ControlList'), $objectLinked->getNomUrl(1, 'nolink'), $object->picto);
         print '<table class="noborder centpercent">';
         print '<tr class="liste_titre">';
-        print '<td class="nowraponall tdoverflowmax200">';
+        print '<td class="tdoverflowmax200">';
         print $langs->trans('Ref');
-        print '</td><td class="nowraponall tdoverflowmax200">';
+        print '<td class="tdoverflowmax200 center">';
+        print $langs->trans('QRCode');
+        print '</td><td class="tdoverflowmax200">';
         print $langs->trans('Controller');
-        print '</td><td class="nowraponall tdoverflowmax200">';
+        print '</td><td class="tdoverflowmax200">';
         print $langs->trans('Project');
-        print '</td><td class="nowraponall tdoverflowmax200">';
+        print '</td><td class="tdoverflowmax200">';
         print $langs->trans('Sheet');
-        print '</td><td class="nowraponall tdoverflowmax200">';
-        print $langs->trans('ControlDate');
-        print '</td><td class="nowraponall tdoverflowmax200">';
+        print '</td><td class="tdoverflowmax200 center">';
         print $langs->trans('Verdict');
-        print '</td><td class="nowraponall tdoverflowmax200">';
-        print $langs->trans('Status');
-        print '</tr>';
+        print '</td><td class="tdoverflowmax200 center">';
+        print $langs->trans('ControlDate');
+        print '</td><td class="tdoverflowmax200 center">';
+        print $langs->trans('NextControl');
+        print '</td><td class="tdoverflowmax200 center">';
+        print $langs->trans('NextControlDate');
+        print '</td></tr>';
 
         foreach($objectControlList as $objectControl) {
             $verdictColor = $objectControl->verdict == 1 ? 'green' : ($objectControl->verdict == 2 ? 'red' : 'grey');
@@ -181,21 +185,71 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
             $sheet->fetch($objectControl->fk_sheet);
 
             print '<tr class="oddeven">';
-            print '<td class="nowraponall tdoverflowmax200">';
-            print $objectControl->getNomUrl(1, 'nolink');
-            print '</td><td class="nowraponall tdoverflowmax200">';
+            print '<td class="tdoverflowmax200">';
+            print $objectControl->getNomUrl(1, 'nolink', 1);
+            $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $objectControl->track_id . '&entity=' . $conf->entity, 3);
+            print ' <a href="' . $publicControlInterfaceUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
+            print '<td class="tdoverflowmax200 center">';
+            print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $objectControl->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 1, 'control/'. $objectControl->ref . '/qrcode/', $objectControl, '', 0, 0);
+            print '</td><td class="tdoverflowmax200">';
             print $user->getNomUrl(1, 'nolink');
-            print '</td><td class="nowraponall tdoverflowmax200">';
+            print '</td><td class="tdoverflowmax200">';
             print ($objectControl->projectid > 0 ? img_picto($langs->trans('Project'), 'project', 'class="pictofixedwidth"') . $project->ref : '');
-            print '</td><td class="nowraponall tdoverflowmax200">';
-            print $sheet->getNomUrl(1, 'nolink');
-            print '</td><td class="nowraponall tdoverflowmax200">';
+            print '</td><td class="tdoverflowmax200">';
+            print $sheet->getNomUrl(1, 'nolink', 1);
+            print '</td><td class="tdoverflowmax200 center">';
+            print '<div class="wpeo-button button-' . $verdictColor . ' button-square-60">' . $objectControl->fields['verdict']['arrayofkeyval'][(!empty($objectControl->verdict)) ? $objectControl->verdict : 3] . '</div>';
+            print '</td><td class="tdoverflowmax200 center">';
             print dol_print_date($objectControl->control_date);
-            print '</td><td class="nowraponall tdoverflowmax200">';
-            print '<div class="wpeo-button button-'. $verdictColor .'">' . $objectControl->fields['verdict']['arrayofkeyval'][(!empty($objectControl->verdict)) ?: 3] . '</div>';
-            print '</td><td class="nowraponall tdoverflowmax200">';
-            print $objectControl->getLibStatut(5);
+            print '</td>';
+            if (dol_strlen($objectControl->next_control_date) > 0) {
+                print '<td class="tdoverflowmax200 center">';
+                $nextControl = floor(($objectControl->next_control_date - dol_now())/(3600 * 24));
+                $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
+                print '<div class="wpeo-button center button-' . $nextControlColor . '">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
+                print '</td><td class="tdoverflowmax200 center">';
+                print dol_print_date($objectControl->next_control_date);
+                print '</td>';
+            } else {
+                print '<td></td><td></td>';
+            }
             print '</tr>';
+        }
+        print '</table>';
+        print '</div>';
+    } else {
+        // Phone view
+        print '<div class="signature-container" style="max-width: 1400px;">';
+        print load_fiche_titre($langs->trans('ControlList'), $objectLinked->getNomUrl(1, 'nolink'), $object->picto);
+        print '<table class="noborder centpercent">';
+
+        foreach($objectControlList as $objectControl) {
+            $verdictColor = $objectControl->verdict == 1 ? 'green' : ($objectControl->verdict == 2 ? 'red' : 'grey');
+
+            $user->fetch($objectControl->fk_user_controller);
+            $project->fetch($objectControl->projectid);
+            $sheet->fetch($objectControl->fk_sheet);
+
+            print '<tr class="oddeven">';
+            print '<td class="tdoverflowmax200">';
+            print $objectControl->getNomUrl(1, 'nolink', 1);
+            $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $objectControl->track_id . '&entity=' . $conf->entity, 3);
+            print ' <a href="' . $publicControlInterfaceUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a><br>';
+            print $user->getNomUrl(1, 'nolink') . '<br>';
+            print ($objectControl->projectid > 0 ? img_picto($langs->trans('Project'), 'project', 'class="pictofixedwidth"') . $project->ref . '<br>' : '');
+            print $sheet->getNomUrl(1, 'nolink', 1) . '<br>';
+            print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $objectControl->ref . '/qrcode/', 'small', 1, 0, 0, 0, 70, 70, 0, 0, 1, 'control/'. $objectControl->ref . '/qrcode/', $objectControl, '', 0, 0);
+            print '</td><td class="tdoverflowmax200 center">';
+            print '<div class="wpeo-button button-' . $verdictColor . ' button-square-60">' . $objectControl->fields['verdict']['arrayofkeyval'][(!empty($objectControl->verdict)) ?: 3] . '</div><br>';
+            if (dol_strlen($objectControl->next_control_date) > 0) {
+                print '<hr><div style="font-size: 8px; font-weight: bold">' . $langs->trans('NextControl') . '<br>';
+                $nextControl = floor(($objectControl->next_control_date - dol_now())/(3600 * 24));
+                $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
+                print dol_print_date($objectControl->next_control_date, 'day') . '<br>' . $langs->trans('Remain') . '<br>';
+                print '</div>';
+                print '<div class="wpeo-button button-' . $nextControlColor . '" style="padding: 0; font-size: 10px;">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
+            }
+            print '</td></tr>';
         }
         print '</table>';
         print '</div>';

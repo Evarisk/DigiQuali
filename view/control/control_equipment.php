@@ -76,13 +76,16 @@ saturne_check_access($permissiontoread, $object);
  * Action
  */
 
-$parameters = [];
-$reshook    = $hookmanager->executeHooks('doActions', $parameters, $object, $action);
-if ($reshook < 0) {
-	setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+$parameters = ['id' => $id];
+$resHook    = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks.
+if ($resHook < 0) {
+    setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 }
 
-if (empty($reshook)) {
+if (empty($resHook)) {
+    // Actions set_thirdparty, set_project
+    require_once __DIR__ . '/../../../saturne/core/tpl/actions/banner_actions.tpl.php';
+
 	// Action to add or link equipment to control
 	if ($action == 'add_equipment' && $permissiontoadd) {
         $productLotId = GETPOST('productLotId');

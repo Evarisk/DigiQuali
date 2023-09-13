@@ -135,6 +135,7 @@ if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
 		<?php
 			print '<h2 class="center"><b>' . $conf->global->DIGIQUALI_PUBLIC_SURVEY_TITLE . '</b></h2>';
             print '<br>';
+            $publicInterface = true;
 			require_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';
             print '<br>';
             print '<div class="center">';

@@ -77,7 +77,7 @@ class modDigiQuali extends DolibarrModules
 		$this->editor_url = 'https://evarisk.com/';
 
 		// Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-		$this->version = '1.8.1';
+		$this->version = '1.9.0';
 		// Url to the file with your last numberversion of this module
 		//$this->url_last_version = 'http://www.example.com/versionmodule.txt';
 
@@ -125,7 +125,7 @@ class modDigiQuali extends DolibarrModules
                 'publiccontrol',
                 'publicsurvey',
                 'digiqualiadmindocuments',
-                'productlotcard'
+                'projecttaskscard'
 			],
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -148,7 +148,7 @@ class modDigiQuali extends DolibarrModules
 		// A condition to hide module
 		$this->hidden = false;
 		// List of module class names as string that must be enabled if this module is enabled. Example: array('always1'=>'modModuleToEnable1','always2'=>'modModuleToEnable2', 'FR1'=>'modModuleToEnableFR'...)
-		$this->depends = ['modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM', 'modProjet', 'modCategorie', 'modSaturne', 'modTicket'];
+		$this->depends = ['modFckeditor', 'modProduct', 'modProductBatch', 'modAgenda', 'modECM', 'modProjet', 'modCategorie', 'modSaturne', 'modTicket', 'modCron'];
 		$this->requiredby = []; // List of module class names as string to disable if this one is disabled. Example: array('modModuleToDisable1', ...)
 		$this->conflictwith = []; // List of module class names as string this module is in conflict with. Example: array('modModuleToDisable1', ...)
 
@@ -231,6 +231,9 @@ class modDigiQuali extends DolibarrModules
 
 			// CONST CONTROL LINE
 			$i++ => ['DIGIQUALI_CONTROLDET_ADDON', 'chaine', 'mod_controldet_standard', '', 0, 'current'],
+			$i++ => ['DIGIQUALI_CONTROLDET_AUTO_SAVE_ACTION', 'integer', 1, '', 0, 'current'],
+
+			// CONST CONTROL EQUIPMENT
 			$i++ => ['DIGIQUALI_CONTROL_EQUIPMENT_ADDON', 'chaine', 'mod_control_equipment_standard', '', 0, 'current'],
 
 			// CONST MODULE
@@ -287,6 +290,9 @@ class modDigiQuali extends DolibarrModules
                     $objectType = $linkableElement['tab_type'];
                 }
 				$this->tabs[] = ['data' => $objectType . ':+control:' . $pictoDigiQuali . $langs->trans('Controls') . ':digiquali@digiquali:$user->rights->digiquali->control->read:/custom/digiquali/view/control/control_list.php?fromid=__ID__&fromtype=' . $linkableElement['link_name']];
+
+                $this->module_parts['hooks'][] = $linkableElement['hook_name_list'];
+                $this->module_parts['hooks'][] = $linkableElement['hook_name_card'];
 			}
 		}
 
@@ -720,6 +726,12 @@ class modDigiQuali extends DolibarrModules
 
 			dolibarr_set_const($this->db, 'DIGIQUALI_QUESTION_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
 		}
+
+        require_once DOL_DOCUMENT_ROOT . '/cron/class/cronjob.class.php';
+
+        $cronJob = new Cronjob($this->db);
+        $cronJob->fetch(0, 'ActionComm', 'sendEmailsReminder');
+        $cronJob->reprogram_jobs($user->login, dol_now());
 
 		 return $result;
 	}

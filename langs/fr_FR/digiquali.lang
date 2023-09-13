@@ -29,9 +29,7 @@ DigiQualiDescriptionLong = Système de management de la qualité pour Dolibarr
 # Data - Donnée
 RedirectAfterConnection            = Redirection après la connexion au site
 RedirectAfterConnectionDescription = Redirection sur la page de bienvenue de DigiQuali par défaut au lieu de celle de Dolibarr.
-EnableDigiquali                      = Veuillez activer le module DigiQuali pour accéder à cette page
-AdvancedTriggers                   = Contenu des événéments avancé
-AdvancedTriggersDescription        = Active une description détaillée des événements de DigiQuali
+EnableDigiquali                    = Veuillez activer le module DigiQuali pour accéder à cette page
 
 #
 # Questions
@@ -88,6 +86,7 @@ AnswerCreated                 = La réponse a été créée avec succès
 AnswerUpdated                 = La réponse a été mise à jour avec succès
 AnswerDeleted                 = La réponse a été supprimée avec succès
 AnswerMustBeCreated           = La question %s doit avoir au moins une réponse pour passer au statut verrouillé
+ShowOnlyQuestionsWithNoAnswer = Afficher uniquement les questions qui n'ont pas de réponse
 
 #
 # Sheet
@@ -287,8 +286,6 @@ ControlReminderFrequencyDescription            = Choisir la fréquence de rappel
 ControlReminderType                            = Type de rappel d'évènement de contrôle
 ControlReminderTypeDescription                 = Choisir le type de rappel d'évènement de contrôle <br> (par défaut : navigateur)
 controlled                                     = contrôlé(e)
-NextControlDateUpdated                         = La date de prochain contrôle a été mise à jour
-ErrorUpdatingNextControlDate                   = La date de prochain contrôle n'a pas pu être mise à jour
 PublicSurvey                                   = Interface publique de réponse au contrôle
 PublicSurveyTitle                              = Titre de l'interface publique de réponse au contrôle
 PublicSurveyTitleDescription                   = Définir le titre de l'interface publique de réponse au contrôle
@@ -318,10 +315,12 @@ ShowQcFrequencyPublicInterfaceDescription      = Option permettant l'affichage l
 #
 
 # Data - Donnée
-AnswerSaved   = Les réponses ont été sauvegardées
-Repair        = SAV
-NotApplicable = NA
-AnswerPhoto   = Photo
+AnswerSaved                             = Les réponses ont été sauvegardées
+Repair                                  = SAV
+NotApplicable                           = NA
+AnswerPhoto                             = Photo
+AutoSaveActionQuestionAnswer            = Sauvegarde automatique des réponses aux questions
+AutoSaveActionQuestionAnswerDescription = Sauvegarde automatiquement les réponses aux questions lors du choix de la réponse
 
 #
 # ControlDocument - Fiche de Contrôle
@@ -364,3 +363,4 @@ ImportFinishWith                  = L'import des %s a été terminé avec %s err
 SelectProducts           = Sélectionner un produit
 SelectProductsOrServices = Sélectionner un produit / service
 Contact                  = Contact/Adresse
+Remain                   = reste

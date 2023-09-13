@@ -36,7 +36,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 require_once __DIR__ . '/../lib/digiquali.lib.php';
 
 // Global variables definitions
-global $conf, $db, $langs, $user;
+global $conf, $db, $langs, $moduleName, $user;
 
 // Load translation files required by the page
 saturne_load_langs(['admin']);
@@ -126,7 +126,7 @@ print '</tr>';
 print '<tr class="oddeven"><td>';
 print $langs->trans('AdvancedTriggers');
 print '</td><td>';
-print $langs->trans('AdvancedTriggersDescription');
+print $langs->trans('AdvancedTriggersDescription', $moduleName);
 print '</td>';
 
 print '<td class="center">';
