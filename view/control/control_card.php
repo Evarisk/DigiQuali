@@ -650,6 +650,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     print $form->editfieldval('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd, 'datepicker', '', null, null, "id=$object->id");
     print '</td>';
 
+    print '<tr class="field_verdict"><td class="titlefield fieldname_verdict">';
+    print $langs->trans('Verdict');
+    print '</td><td class="valuefield fieldname_verdict">';
+    $verdictColor = $object->verdict == 1 ? 'green' : ($object->verdict == 2 ? 'red' : 'grey');
+    print dol_strlen($object->verdict) > 0 ? '<div class="wpeo-button button-' . $verdictColor . '">' . $object->fields['verdict']['arrayofkeyval'][(!empty($object->verdict)) ? $object->verdict : 3] . '</div>' : 'N/A';
+    print '</td>';
+
+    unset($object->fields['verdict']); // Hide field already shown in view
+
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 
 	// Categories
