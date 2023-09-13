@@ -33,11 +33,12 @@ require_once __DIR__ . '/../../saturne/lib/object.lib.php';
  */
 function sheet_prepare_head(Sheet $object): array
 {
-	global $langs;
+    // Global variables definitions
+    global $conf, $langs;
 
-	$head[100][0] = dol_buildpath('/digiquali/view/sheet/sheet_export.php', 1) . '?id=' . $object->id;
-	$head[100][1] = '<i class="fas fa-file-export pictofixedwidth"></i>' . $langs->trans('Export');
-	$head[100][2] = 'export';
+    $head[2][0] = dol_buildpath('/digiquali/view/sheet/sheet_export.php', 1) . '?id=' . $object->id;
+    $head[2][1] = $conf->browser->layout != 'phone' ? '<i class="fas fa-file-export pictofixedwidth"></i>' . $langs->trans('Export') : '<i class="fas fa-file-export"></i>';
+    $head[2][2] = 'export';
 
     return saturne_object_prepare_head($object, $head);
 }
