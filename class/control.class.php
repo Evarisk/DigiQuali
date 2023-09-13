@@ -1058,6 +1058,9 @@ class Control extends SaturneObject
 	{
 		global $db, $langs;
 
+        // Load DigiQuali libraries
+        require_once __DIR__ . '/../class/sheet.class.php';
+
 		$sheet = new Sheet($db);
 		$sheet->fetch($object->fk_sheet);
 

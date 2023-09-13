@@ -84,6 +84,21 @@ if (empty($conf->digiquali->enabled)) accessforbidden();
 if (!$permissiontoread) accessforbidden();
 
 /*
+ * Action
+ */
+
+$parameters = ['id' => $id];
+$resHook    = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks.
+if ($resHook < 0) {
+    setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+}
+
+if (empty($resHook)) {
+    // Actions set_thirdparty, set_project
+    require_once __DIR__ . '/../../../saturne/core/tpl/actions/banner_actions.tpl.php';
+}
+
+/*
  * View
  */
 
