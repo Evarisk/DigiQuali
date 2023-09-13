@@ -39,6 +39,7 @@ require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmdirectory.class.php';
 require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/functions2.lib.php';
 
 // Load Saturne libraries.
 require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
@@ -196,6 +197,16 @@ if (empty($resHook)) {
 			exit();
 		}
 	}
+
+    if ($action == 'show_only_questions_with_no_answer') {
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        $showOnlyQuestionsWithNoAnswer = $data['showOnlyQuestionsWithNoAnswer'];
+
+        $tabParam['DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER'] = $showOnlyQuestionsWithNoAnswer;
+
+        dol_set_user_param($db, $conf, $user, $tabParam);
+    }
 
 	require_once __DIR__ . '/../../core/tpl/digiquali_control_answers_save_action.tpl.php';
 
@@ -883,7 +894,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	}
 
 	// QUESTION LINES
-	print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
+	print '<div class="div-table-responsive-no-min questionLines" style="overflow-x: unset !important">';
 
 	$sheet->fetch($object->fk_sheet);
 	$sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
@@ -910,21 +921,20 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter">'. $answerCounter .'</span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . $questionCounter;
 
-	print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', ''); ?>
+    if ($object->status == $object::STATUS_DRAFT) {
+        print ' <i class="fas fa-user-edit"></i>';
+        print '<input type="checkbox" class="show-only-questions-with-no-answer"' . ($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? ' checked' : '') . '>';
+        print $form->textwithpicto('', $langs->trans('ShowOnlyQuestionsWithNoAnswer'));
+    }
 
-	<?php print '<div id="tablelines" class="control-audit noborder noshadow" width="100%">';
+    if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
+        print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', '');
+        print '<div id="tablelines" class="control-audit noborder noshadow">';
+        require_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';
+        print '</div>';
+    }
 
-	global $forceall, $forcetoshowtitlelines;
-
-	if (empty($forceall)) $forceall = 0;
-
-	// Define colspan for the button 'Add'
-	$colspan = 3;
-
-	require_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';
-
-	print '</div>';
-	print '</div>';
+    print '</div>';
 	print '</form>';
 	print dol_get_fiche_end();
 

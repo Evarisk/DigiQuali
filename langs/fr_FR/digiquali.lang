@@ -86,6 +86,7 @@ AnswerCreated                 = La réponse a été créée avec succès
 AnswerUpdated                 = La réponse a été mise à jour avec succès
 AnswerDeleted                 = La réponse a été supprimée avec succès
 AnswerMustBeCreated           = La question %s doit avoir au moins une réponse pour passer au statut verrouillé
+ShowOnlyQuestionsWithNoAnswer = Afficher uniquement les questions qui n'ont pas de réponse
 
 #
 # Sheet

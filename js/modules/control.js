@@ -38,6 +38,7 @@ window.digiquali.control.event = function() {
   $( document ).on( 'click', '.clipboard-copy', window.digiquali.control.copyToClipboard );
   $( document ).on( 'change', '#productId', window.digiquali.control.refreshLotSelector );
   $( document ).on( 'click', '.switch-public-control-view', window.digiquali.control.switchPublicControlView );
+  $(document).on('click', '.show-only-questions-with-no-answer', window.digiquali.control.showOnlyQuestionsWithNoAnswer);
 };
 
 /**
@@ -311,3 +312,38 @@ window.digiquali.control.switchPublicControlView = function(  event ) {
   });
 };
 
+/**
+ * Enables/disables the configuration to display only questions with no answer
+ *
+ * @memberof DigiQuali_Control
+ *
+ * @since   1.9.0
+ * @version 1.9.0
+ *
+ * @return {void}
+ */
+window.digiquali.control.showOnlyQuestionsWithNoAnswer = function() {
+  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL)
+  let token          = window.saturne.toolbox.getToken()
+
+  let showOnlyQuestionsWithNoAnswer;
+  if ($(this).is(':checked')) {
+    showOnlyQuestionsWithNoAnswer = 1;
+  } else {
+    showOnlyQuestionsWithNoAnswer = 0;
+  }
+
+  $.ajax({
+    url: document.URL + querySeparator + "action=show_only_questions_with_no_answer&token=" + token,
+    type: "POST",
+    processData: false,
+    data: JSON.stringify({
+      showOnlyQuestionsWithNoAnswer: showOnlyQuestionsWithNoAnswer
+    }),
+    contentType: false,
+    success: function(resp) {
+      $('.questionLines').replaceWith($(resp).find('.questionLines'))
+    },
+    error: function() {}
+  });
+};
