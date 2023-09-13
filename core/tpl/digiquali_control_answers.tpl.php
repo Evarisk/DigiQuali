@@ -14,7 +14,7 @@ if (is_array($questionIds) && !empty($questionIds)) {
             $item = $question;
             $item->fetch($questionId);
             ?>
-            <div class="wpeo-table table-flex table-3 table-id-<?php echo $item->id ?>">
+            <div class="wpeo-table table-flex table-3 table-id-<?php echo $item->id ?>" data-publicInterface="<?php echo $publicInterface; ?>" data-autoSave="<?php echo getDolGlobalInt('DIGIQUALI_CONTROLDET_AUTO_SAVE_ACTION'); ?>">
                 <div class="table-row">
                     <!-- Contenu et commentaire -->
                     <div class="table-cell table-full">
@@ -88,7 +88,7 @@ if (is_array($questionIds) && !empty($questionIds)) {
                     <?php if ($item->type == 'MultipleChoices') :
                         $answerList = $answer->fetchAll('ASC', 'position', 0, 0,  ['customsql' => 't.status > ' . Answer::STATUS_DELETED . ' AND t.fk_question = ' . $item->id]);
                         ?>
-                        <div class="table-cell table-end select-answer answer-cell" <?php echo ($object->status > 0) ? ' style="pointer-events: none"' : '' ?>>
+                        <div class="table-cell table-end select-answer answer-cell" <?php echo ($object->status > 0) ? ' style="pointer-events: none"' : '' ?> data-questionId="<?php echo $item->id; ?>">
                             <?php
                             if (preg_match('/,/', $questionAnswer)) {
                                 $questionAnswers = preg_split('/,/', $questionAnswer);
@@ -114,7 +114,7 @@ if (is_array($questionIds) && !empty($questionIds)) {
                     <?php elseif ($item->type == 'UniqueChoice' || $item->type == 'OkKo' || $item->type == 'OkKoToFixNonApplicable') :
                         $answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['customsql' => 't.status > ' . Answer::STATUS_DELETED . ' AND t.fk_question = ' . $item->id]);
                         ?>
-                        <div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+                        <div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>" data-questionId="<?php echo $item->id; ?>">
                             <?php
                             print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
                             if (is_array($answerList) && !empty($answerList)) {
@@ -132,7 +132,7 @@ if (is_array($questionIds) && !empty($questionIds)) {
                             ?>
                         </div>
                     <?php elseif ($item->type == 'Percentage') : ?>
-                        <div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+                        <div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>" data-questionId="<?php echo $item->id; ?>">
                             <?php
                             print '<span class="table-cell" value="">';
                             print $langs->transnoentities('Answer') . ' : ';
@@ -143,7 +143,7 @@ if (is_array($questionIds) && !empty($questionIds)) {
                             ?>
                         </div>
                     <?php elseif ($item->type == 'Range') : ?>
-                        <div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+                        <div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>" data-questionId="<?php echo $item->id; ?>">
                             <?php
                             print '<span class="table-cell" value="">';
                             print $langs->transnoentities('Answer') . ' : ';
