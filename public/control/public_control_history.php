@@ -126,7 +126,7 @@ if ($showControlList == 1) {
     $showLastControlFirst = 0;
 }
 
-$objectControlList = $object->fetchAllWithLeftJoin('DESC','t.control_date',$showLastControlFirst == 1,0, ['customsql' => 't.rowid = je.fk_target AND t.status = ' . $object::STATUS_LOCKED], 'AND', true, 'LEFT JOIN llx_element_element as je on je.sourcetype = "' . $linkedObjectsData['link_name'] . '" AND je.fk_source = ' . $objectId . ' AND je.targettype = "digiquali_control" AND je.fk_target = t.rowid' );
+$objectControlList = $object->fetchAllWithLeftJoin('DESC','t.control_date',$showLastControlFirst == 1,0, ['customsql' => 't.rowid = je.fk_target AND t.status = ' . $object::STATUS_LOCKED], 'AND', true, 'LEFT JOIN '. MAIN_DB_PREFIX .'element_element as je on je.sourcetype = "' . $linkedObjectsData['link_name'] . '" AND je.fk_source = ' . $objectId . ' AND je.targettype = "digiquali_control" AND je.fk_target = t.rowid' );
 
 if (is_array($objectControlList) && !empty($objectControlList)) {
     print '<div id="publicControlHistory">';
