@@ -102,61 +102,12 @@ class doc_controldocument_odt extends SaturneDocumentModel
      */
     public function fillTagsLines(Odf $odfHandler, Translate $outputLangs, array $moreParam): int
     {
-        global $conf, $moduleNameLowerCase, $langs;
+        global $conf, $langs;
 
         $object = $moreParam['object'];
 
         // Replace tags of lines.
         try {
-            // Get attendants role controller.
-            $foundTagForLines = 1;
-            try {
-                $listLines = $odfHandler->setSegment('controllers');
-            } catch (OdfException $e) {
-                // We may arrive here if tags for lines not present into template.
-                $foundTagForLines = 0;
-                $listLines = '';
-                dol_syslog($e->getMessage());
-            }
-
-            if ($foundTagForLines) {
-                if (!empty($object)) {
-                    $signatory        = new SaturneSignature($this->db, $this->module, $object->element);
-                    $signatoriesArray = $signatory->fetchSignatory('Controller', $object->id, $object->element);
-                    if (!empty($signatoriesArray) && is_array($signatoriesArray)) {
-                        $tempDir = $conf->$moduleNameLowerCase->multidir_output[$object->entity ?? 1] . '/temp/';
-                        foreach ($signatoriesArray as $objectSignatory) {
-                            $tmpArray['controller_firstname']      = $objectSignatory->firstname;
-                            $tmpArray['controller_lastname']       = strtoupper($objectSignatory->lastname);
-                            $tmpArray['controller_signature_date'] = dol_print_date($objectSignatory->signature_date, 'dayhour', 'tzuser');
-                            if (dol_strlen($objectSignatory->signature) > 0 && $objectSignatory->signature != $langs->transnoentities('FileGenerated')) {
-                                if ($moreParam['specimen'] == 0 || ($moreParam['specimen'] == 1 && $conf->global->DIGIQUALI_SHOW_SIGNATURE_SPECIMEN == 1)) {
-                                    $encodedImage = explode(',', $objectSignatory->signature)[1];
-                                    $decodedImage = base64_decode($encodedImage);
-                                    file_put_contents($tempDir . 'signature' . $objectSignatory->id . '.png', $decodedImage);
-                                    $tmpArray['controller_signature'] = $tempDir . 'signature' . $objectSignatory->id . '.png';
-                                } else {
-                                    $tmpArray['controller_signature'] = '';
-                                }
-                            } else {
-                                $tmpArray['controller_signature'] = '';
-
-                            }
-                            $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
-                            dol_delete_file($tempDir . 'signature' . $objectSignatory->id . '.png');
-                        }
-                    } else {
-                        $tmpArray['controller_firstname']      = '';
-                        $tmpArray['controller_lastname']       = '';
-                        $tmpArray['controller_signature_date'] = '';
-                        $tmpArray['controller_signature']      = '';
-                        $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
-                    }
-                    $odfHandler->mergeSegment($listLines);
-                }
-            }
-
-            $moreParam['excludeAttendantsRole'] = ['Controller'];
             $this->setAttendantsSegment($odfHandler, $outputLangs, $moreParam);
 
             // Get questions.
@@ -446,7 +397,8 @@ class doc_controldocument_odt extends SaturneDocumentModel
         $tmpArray['mycompany_mail']    = (!empty($conf->global->MAIN_INFO_SOCIETE_MAIL) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_MAIL : '');
         $tmpArray['mycompany_phone']   = (!empty($conf->global->MAIN_INFO_SOCIETE_PHONE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_PHONE : '');
 
-        $moreParam['tmparray'] = $tmpArray;
+        $moreParam['tmparray']               = $tmpArray;
+        $moreParam['multipleAttendantsRole'] = 1;
 
         return parent::write_file($objectDocument, $outputLangs, $srcTemplatePath, $hideDetails, $hideDesc, $hideRef, $moreParam);
     }
