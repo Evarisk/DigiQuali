@@ -926,15 +926,20 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				$answerCounter++;
 			}
 		}
-	}
+	} ?>
 
-	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter">'. $answerCounter .'</span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . $questionCounter;
+    <div class="progress-info">
+        <span class="badge badge-info" style="margin-right: 10px;"><?php print $answerCounter; ?></span>
+        <div class="progress-bar">
+            <div class="progress progress-bar-success" style="width:<?php print ($answerCounter/$questionCounter) * 100 . '%'; ?>;" title="<?php print $answerCounter . '/' . $questionCounter; ?>"></div>
+        </div>
+        <span class="badge badge-info" style="margin-left: 10px; margin-right: 10px;"><?php print $questionCounter; ?></span>
 
-    if ($object->status == $object::STATUS_DRAFT) {
-        print ' <i class="fas fa-user-edit"></i>';
-        print '<input type="checkbox" class="show-only-questions-with-no-answer"' . ($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? ' checked' : '') . '>';
-        print $form->textwithpicto('', $langs->trans('ShowOnlyQuestionsWithNoAnswer'));
+    <?php if ($object->status == $object::STATUS_DRAFT) {
+        print $user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? img_picto($langs->trans('Enabled'), 'switch_on', 'class="show-only-questions-with-no-answer marginrightonly"') : img_picto($langs->trans('Disabled'), 'switch_off', 'class="show-only-questions-with-no-answer marginrightonly"');
+        print $form->textwithpicto($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>', $langs->trans('ShowOnlyQuestionsWithNoAnswer'));
     }
+    print '</div>';
 
     if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
         print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', '');
