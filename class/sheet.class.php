@@ -115,7 +115,7 @@ class Sheet extends SaturneObject
         'date_creation'       => ['type' => 'datetime',     'label' => 'DateCreation',       'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 2],
         'tms'                 => ['type' => 'timestamp',    'label' => 'DateModification',   'enabled' => 1, 'position' => 50,  'notnull' => 1, 'visible' => 0],
         'import_key'          => ['type' => 'varchar(14)',  'label' => 'ImportId',           'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
-        'status'              => ['type' => 'smallint',     'label' => 'Status',             'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>1, 'arrayofkeyval' => ['0' => 'Draft', 1 => 'Enabled', '2' => 'Locked']],
+        'status'              => ['type' => 'smallint',     'label' => 'Status',             'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>1, 'arrayofkeyval' => [1 => 'Enabled', 2 => 'Locked', 3 => 'Archived']],
         'type'                => ['type' => 'varchar(128)', 'label' => 'Type',               'enabled' => 1, 'position' => 80,  'notnull' => 0, 'visible' => 0,],
         'label'               => ['type' => 'varchar(255)', 'label' => 'Label',              'enabled' => 1, 'position' => 11,  'notnull' => 1, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200'],
         'description'         => ['type' => 'html',         'label' => 'Description',        'enabled' => 1, 'position' => 15,  'notnull' => 0, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200'],
