@@ -397,8 +397,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
         $tmpArray['mycompany_mail']    = (!empty($conf->global->MAIN_INFO_SOCIETE_MAIL) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_MAIL : '');
         $tmpArray['mycompany_phone']   = (!empty($conf->global->MAIN_INFO_SOCIETE_PHONE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_PHONE : '');
 
-        $moreParam['tmparray']               = $tmpArray;
-        $moreParam['multipleAttendantsRole'] = 1;
+        $moreParam['tmparray'] = $tmpArray;
 
         return parent::write_file($objectDocument, $outputLangs, $srcTemplatePath, $hideDetails, $hideDesc, $hideRef, $moreParam);
     }
