@@ -124,18 +124,27 @@ $objectPosition = 20;
 foreach($linkableElements as $linkableElementType => $linkableElement) {
 	$className  = $linkableElement['className'];
 
-	if (!empty($fromtype) && $fromtype == $linkableElement['link_name']) {
-		$objectLinked = new $className($db);
-		$objectLinked->fetch($fromid);
-        $arrayfields['t.'.$linkableElement['post_name']] = [
-            'type' => 'integer:'. $className .':' . $linkableElement['class_path'], 'label' => $langs->trans($linkableElement['langs']) . ' ' . $langs->trans('controlled') , 'enabled' => '1', 'position' => $objectPosition, 'notnull' => 0, 'visible' => 5, 'checked' => 1
+    if ((empty($fromtype) && $linkableElement['conf'] > 0) || ($fromtype == $linkableElement['link_name'])) {
+        $arrayfields['t.' . $linkableElement['post_name']] = [
+            'type'     => 'integer:' . $className . ':' . $linkableElement['class_path'],
+            'label'    => $langs->trans($linkableElement['langs']) . ' ' . $langs->trans('controlled'),
+            'enabled'  => '1',
+            'position' => $objectPosition,
+            'notnull'  => 0,
+            'visible'  => 5,
+            'checked'  => 1
         ];
 
-        $object->fields[$linkableElement['post_name']] = $arrayfields['t.'.$linkableElement['post_name']];
-        $elementElementFields[$linkableElement['post_name']] = $linkableElement['link_name'];
-        $linkNameElementCorrespondance[$linkableElement['link_name']] = $linkableElement;
+        $object->fields[$linkableElement['post_name']]                = $arrayfields['t.' . $linkableElement['post_name']];
+        $elementElementFields[$linkableElement['post_name']]          = $linkableElement['link_name'];
+        $linkNameElementCorrespondence[$linkableElement['link_name']] = $linkableElement;
         $objectPosition++;
-	}
+
+        if (!empty($fromtype)) {
+            $objectLinked = new $className($db);
+            $objectLinked->fetch($fromid);
+        }
+    }
 }
 
 // Initialize array of search criterias

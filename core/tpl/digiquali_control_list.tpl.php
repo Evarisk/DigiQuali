@@ -408,7 +408,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
                 }
 			}
 			elseif (in_array($key, $revertedElementFields)) {
-				$linkedElement = $linkNameElementCorrespondance[$elementElementFields[$key]];
+				$linkedElement = $linkNameElementCorrespondence[$elementElementFields[$key]];
 
 				if (is_array($linkedObjects[$obj->rowid]) && !empty($linkedElement['conf']) && (!empty($linkedObjects[$obj->rowid][$linkedElement['link_name']]))) {
 					$className    = $linkedElement['className'];
