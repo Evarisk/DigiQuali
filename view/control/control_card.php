@@ -69,6 +69,7 @@ $cancel              = GETPOST('cancel', 'aZ09');
 $contextpage         = GETPOST('contextpage', 'aZ') ?GETPOST('contextpage', 'aZ') : 'controlcard'; // To manage different context of search
 $backtopage          = GETPOST('backtopage', 'alpha');
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
+$source              = GETPOST('source', 'alpha'); // source PWA
 
 // Initialize objects
 // Technical objets
@@ -133,12 +134,12 @@ if ($resHook < 0) {
 if (empty($resHook)) {
 	$error = 0;
 
-	$backurlforlist = dol_buildpath('/digiquali/view/control/control_list.php', 1);
+	$backurlforlist = dol_buildpath('/digiquali/view/control/control_list.php?source=' . $source, 1);
 
 	if (empty($backtopage) || ($cancel && empty($id))) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) $backtopage = $backurlforlist;
-			else $backtopage = dol_buildpath('/digiquali/view/control/control_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
+			else $backtopage = dol_buildpath('/digiquali/view/control/control_card.php', 1) . '?id=' . ($id > 0 ? $id : '__ID__') . '&source=' . $source;
 		}
 	}
 
@@ -173,12 +174,12 @@ if (empty($resHook)) {
 		if (GETPOST('fk_sheet') > 0) {
 			if ($controlledObjectSelected == 0) {
 				setEventMessages($langs->trans('NeedObjectToControl'), [], 'errors');
-				header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&fk_sheet=' . GETPOST('fk_sheet'));
+				header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&fk_sheet=' . GETPOST('fk_sheet') . '&source=' . $source);
 				exit;
 			}
 		} else {
 			setEventMessages($langs->trans('NeedFkSheet'), [], 'errors');
-			header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create');
+			header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&source=' . $source);
 			exit;
 		}
 
@@ -365,6 +366,11 @@ if (empty($resHook)) {
 $title    = $langs->trans('Control');
 $help_url = 'FR:Module_DigiQuali';
 
+if ($source == 'pwa') {
+    $conf->dol_hide_topmenu  = 1;
+    $conf->dol_hide_leftmenu = 1;
+}
+
 saturne_header(1,'', $title, $help_url);
 $object->fetch(GETPOST('id'));
 
@@ -372,104 +378,120 @@ $elementArray = get_sheet_linkable_objects();
 
 // Part to create
 if ($action == 'create') {
-	print load_fiche_titre($langs->trans('NewControl'), '', 'object_' . $object->picto);
+    print load_fiche_titre($langs->trans('NewControl'), '', 'object_' . $object->picto);
 
-	print '<form method="POST" id="createControlForm" action="'.$_SERVER['PHP_SELF'].'">';
-	print '<input type="hidden" name="token" value="'.newToken().'">';
-	print '<input type="hidden" name="action" value="add">';
-	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
-	if ($backtopageforcancel) print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
+    print '<form method="POST" id="createControlForm" action="' . $_SERVER['PHP_SELF'] . '?source=' . $source . '">';
+    print '<input type="hidden" name="token" value="' . newToken() . '">';
+    print '<input type="hidden" name="action" value="add">';
+    if ($backtopage) {
+        print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
+    }
+    if ($backtopageforcancel) {
+        print '<input type="hidden" name="backtopageforcancel" value="' . $backtopageforcancel . '">';
+    }
+    print dol_get_fiche_head();
 
-	print dol_get_fiche_head();
+    print '<table class="border centpercent tableforfieldcreate control-table">';
 
-	print '<table class="border centpercent tableforfieldcreate control-table"><thead>'."\n";
+    $object->fields['fk_user_controller']['default'] = $user->id;
 
-	$object->fields['fk_user_controller']['default'] = $user->id;
+    if (!empty(GETPOST('fk_sheet'))) {
+        $sheet->fetch(GETPOST('fk_sheet'));
+    }
 
-	if (!empty(GETPOST('fk_sheet'))) {
-		$sheet->fetch(GETPOST('fk_sheet'));
-	}
+    //FK SHEET
+    print '<tr><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('Sheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
+    print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet')?: $sheet->id);
+    if ($source != 'pwa') {
+        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
+    }
+    print '</td></tr></thead>';
 
-	// Common attributes
-	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_add.tpl.php';
+    if ($source == 'pwa') {
+        $object->fields['fk_user_controller']['type']  = 'integer:User:user/class/user.class.php';
+        $object->fields['fk_user_controller']['label'] = img_picto('', 'fontawesome_fa-user_fas_#79633f_2em', 'class="pictofixedwidth"');
+        $object->fields['fk_user_controller']['picto'] = '';
+        $object->fields['projectid']['type']           = 'integer:Project:projet/class/project.class.php';
+        $object->fields['projectid']['label']          = img_picto('', 'fontawesome_fa-project-diagram_fas_#6c6aa8_2em', 'class="pictofixedwidth"');
+        $object->fields['projectid']['picto']          = '';
+    }
 
-	// Categories
-	if (!empty($conf->categorie->enabled)) {
-		print '<tr><td>'.$langs->trans('Categories').'</td><td>';
-		$categoryArborescence = $form->select_all_categories('control', '', 'parent', 64, 0, 1);
-		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $categoryArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
-		print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=control&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
-		print '</td></tr>';
-	}
+    // Common attributes
+    require_once DOL_DOCUMENT_ROOT . '/core/tpl/commonfields_add.tpl.php';
 
-	//FK SHEET
-	print '<tr><td class="fieldrequired">' . $langs->trans('Sheet') . '</td><td>';
-	print img_picto('', 'list', 'class="pictofixedwidth"') . $sheet->selectSheetList(GETPOST('fk_sheet')?: $sheet->id);
-	print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
-	print '</td></tr></thead>';
+    // Categories
+    if (!empty($conf->categorie->enabled)) {
+        print '<tr><td>' . ($source != 'pwa' ? $langs->trans('Categories') : img_picto('', 'fontawesome_fa-tags_fas_#000000_2em', 'class="pictofixedwidth"')) . '</td><td>';
+        $categoryArborescence = $form->select_all_categories('control', '', 'parent', 64, 0, 1);
+        print ($source != 'pwa' ? img_picto('', 'category', 'class="pictofixedwidth"') : '') . $form->multiselectarray('categories', $categoryArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusxx');
+        if ($source != 'pwa') {
+            print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=control&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
+        }
+        print '</td></tr>';
+    }
 
-	print '</table>';
-	print '<hr>';
+    print '</table>';
+    print '<hr>';
 
-	print '<table class="border centpercent tableforfieldcreate control-table linked-objects">'."\n";
+    print '<table class="centpercent tableforfieldcreate control-table linked-objects">';
 
-	print '<tr><td>';
-	print '<div class="fields-content">';
+    print '<tr><td>';
+    print '<div class="fields-content">';
 
-	foreach($elementArray as $linkableElementType => $linkableElement) {
-		if (!empty($linkableElement['conf'] && preg_match('/"'. $linkableElementType .'":1/',$sheet->element_linked))) {
+    foreach($elementArray as $linkableElementType => $linkableElement) {
+        if (!empty($linkableElement['conf'] && preg_match('/"'. $linkableElementType .'":1/',$sheet->element_linked))) {
 
-			$objectArray    = [];
-			$objectPostName = $linkableElement['post_name'];
-			$objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $linkableElement['link_name'] ? GETPOST('fromid') : '');
+            $objectArray    = [];
+            $objectPostName = $linkableElement['post_name'];
+            $objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $linkableElement['link_name'] ? GETPOST('fromid') : '');
 
-			if ((dol_strlen($linkableElement['fk_parent']) > 0 && GETPOST($linkableElement['parent_post']) > 0)) {
-				$objectFilter = [
-					'customsql' => $linkableElement['fk_parent'] . ' = ' . GETPOST($linkableElement['parent_post'])
-				];
-			} else {
-				$objectFilter = [];
-			}
-			$objectList = saturne_fetch_all_object_type($linkableElement['className'], '', '', 0, 0, $objectFilter);
+            if ((dol_strlen($linkableElement['fk_parent']) > 0 && GETPOST($linkableElement['parent_post']) > 0)) {
+                $objectFilter = ['customsql' => $linkableElement['fk_parent'] . ' = ' . GETPOST($linkableElement['parent_post'])];
+            } else {
+                $objectFilter = [];
+            }
+            $objectList = saturne_fetch_all_object_type($linkableElement['className'], '', '', 0, 0, $objectFilter);
 
-			if (is_array($objectList) && !empty($objectList)) {
-				foreach($objectList as $objectSingle) {
-					$objectName = '';
-					$nameField = $linkableElement['name_field'];
-					if (strstr($nameField, ',')) {
-						$nameFields = explode(', ', $nameField);
-						if (is_array($nameFields) && !empty($nameFields)) {
-							foreach($nameFields as $subnameField) {
-								$objectName .= $objectSingle->$subnameField . ' ';
-							}
-						}
-					} else {
-						$objectName = $objectSingle->$nameField;
-					}
-					$objectArray[$objectSingle->id] = $objectName;
-				}
-			}
+            if (is_array($objectList) && !empty($objectList)) {
+                foreach($objectList as $objectSingle) {
+                    $objectName = '';
+                    $nameField = $linkableElement['name_field'];
+                    if (strstr($nameField, ',')) {
+                        $nameFields = explode(', ', $nameField);
+                        if (is_array($nameFields) && !empty($nameFields)) {
+                            foreach($nameFields as $subnameField) {
+                                $objectName .= $objectSingle->$subnameField . ' ';
+                            }
+                        }
+                    } else {
+                        $objectName = $objectSingle->$nameField;
+                    }
+                    $objectArray[$objectSingle->id] = $objectName;
+                }
+            }
 
-			print '<tr><td class="titlefieldcreate">' . $langs->transnoentities($linkableElement['langs']) . '</td><td>';
-			print img_picto('', $linkableElement['picto'], 'class="pictofixedwidth"');
-			print $form->selectArray($objectPostName, $objectArray, $objectPost, $langs->trans('Select') . ' ' . strtolower($langs->trans($linkableElement['langs'])), 0, 0, '', 0, 0, dol_strlen(GETPOST('fromtype')) > 0 && GETPOST('fromtype') != $linkableElement['link_name'], '', 'maxwidth500 widthcentpercentminusxx');
-			print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/' . $linkableElement['create_url'] . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('Create') . ' ' . strtolower($langs->trans($linkableElement['langs'])) . '"></span></a>';
-			print '</td></tr>';
-		}
-	}
+            print '<tr><td class="titlefieldcreate">' . ($source != 'pwa' ? $langs->transnoentities($linkableElement['langs']) : img_picto('', $linkableElement['picto'], 'class="pictofixedwidth fa-3x"')) . '</td><td>';
+            print ($source != 'pwa' ? img_picto('', $linkableElement['picto'], 'class="pictofixedwidth"') : '');
+            print $form->selectArray($objectPostName, $objectArray, $objectPost, $langs->trans('Select') . ' ' . strtolower($langs->trans($linkableElement['langs'])), 0, 0, '', 0, 0, dol_strlen(GETPOST('fromtype')) > 0 && GETPOST('fromtype') != $linkableElement['link_name'], '', 'maxwidth500 widthcentpercentminusxx');
+            if ($source != 'pwa') {
+                print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/' . $linkableElement['create_url'] . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('Create') . ' ' . strtolower($langs->trans($linkableElement['langs'])) . '"></span></a>';
+            }
+            print '</td></tr>';
+        }
+    }
 
     print '</div>';
 
-	// Other attributes
-	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_add.tpl.php';
+    // Other attributes
+    include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_add.tpl.php';
 
-	print '</table>';
+    print '</table>';
 
-	print dol_get_fiche_end();
+    print dol_get_fiche_end();
 
-	print $form->buttonsSaveCancel('Create', 'Cancel', [], 0, 'wpeo-button');
+    print $form->buttonsSaveCancel('Create', 'Cancel', [], 0, 'wpeo-button');
 
-	print '</form>';
+    print '</form>';
 }
 
 // Part to show record

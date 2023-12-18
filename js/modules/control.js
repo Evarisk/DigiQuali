@@ -174,39 +174,30 @@ window.digiquali.control.getAnswerCounter = function ( event ) {
  * Show select objects depending on sheet controllable objects
  *
  * @since   1.0.0
- * @version 1.0.0
+ * @version 1.10.0
  *
- * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.digiquali.control.showSelectObjectLinked = function ( event ) {
-	var controlForm = document.getElementById('createControlForm');
-	var formData = new FormData(controlForm);
+window.digiquali.control.showSelectObjectLinked = function() {
+  let sheetID        = $(this).val();
+  let token          = window.saturne.toolbox.getToken();
+  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
 
-	let token = $('.id-container').find('input[name="token"]').val();
-	let action = '?action=create'
+  let url = document.URL + querySeparator + 'fk_sheet=' + sheetID + '&token=' + token;
 
-	let sheetId = formData.get('fk_sheet')
-	let userController = formData.get('fk_user_controller')
-	let projectId = formData.get('fk_project')
-	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&fk_sheet=' + sheetId + '&token=' + token
-	urlToGo += '&fk_project=' + projectId
-	urlToGo += '&fk_user_controller=' + userController
+  window.saturne.loader.display($('.linked-objects'));
 
-	window.saturne.loader.display($('.tabBar.tabBarWithBottom tbody'))
-	$.ajax({
-		url: urlToGo,
-		type: "POST",
-		processData: false,
-		contentType: false,
-		success: function ( resp ) {
-			$('.tabBar.tabBarWithBottom tbody').html($(resp).find('.tabBar.tabBarWithBottom tbody').children())
-			$('.wpeo-loader').removeClass('wpeo-loader')
-		},
-		error: function ( ) {
-		}
-	});
-}
+  $.ajax({
+    url: url,
+    type: 'POST',
+    processData: false,
+    contentType: false,
+    success: function(resp) {
+      $('.linked-objects').replaceWith($(resp).find('.linked-objects'));
+    },
+    error: function() {}
+  });
+};
 
 /**
  * Show control info if toggle control info is on.
