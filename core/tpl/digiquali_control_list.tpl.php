@@ -210,12 +210,15 @@ print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
 if (GETPOSTISSET('id')) {
 	print '<input type="hidden" name="id" value="'.GETPOST('id','int').'">';
 }
-if (!empty($fromtype)) {
-	$fromurl = '&fromtype='.$fromtype.'&fromid='.$fromid;
-}
-$newcardbutton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/digiquali/view/control/control_card.php', 1).'?action=create'.$fromurl, '', $permissiontoadd);
 
-print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'object_'.$object->picto, 0, $newcardbutton, '', $limit, 0, 0, 1);
+$fromurl = '';
+if (!empty($fromtype)) {
+    $fromurl = '&fromtype=' . $fromtype . '&fromid=' . $fromid;
+}
+
+$newCardButton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/digiquali/view/control/control_card.php', 1) . '?action=create&source=' . $source . $fromurl, '', $permissiontoadd);
+
+print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'object_'.$object->picto, 0, $newCardButton, '', $limit, 0, 0, 1);
 
 if ($massaction == 'prearchive') {
     print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans('ConfirmMassArchive'), $langs->trans('ConfirmMassArchivingQuestion', count($toselect)), 'archive', null, '', 0, 200, 500, 1);
@@ -237,7 +240,7 @@ if ($searchAll)
 $moreforfilter = '';
 
 // Filter on categories
-if (!empty($conf->categorie->enabled) && $user->rights->categorie->lire) {
+if (!empty($conf->categorie->enabled) && $user->rights->categorie->lire && $source != 'pwa') {
 	$formcategory = new FormCategory($db);
 	$moreforfilter .= $formcategory->getFilterBox('control', $search_category_array);
 }
