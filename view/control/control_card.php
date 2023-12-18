@@ -639,15 +639,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
   }
 
     print '<tr class="field_control_date"><td class="titlefield fieldname_control_date">';
-    print $form->editfieldkey('ControlDate', 'control_date', $object->control_date, $object, $permissiontoadd, 'datepicker');
+    print $form->editfieldkey('ControlDate', 'control_date', $object->control_date, $object, $permissiontoadd && $object->status < Control::STATUS_LOCKED, 'datepicker');
     print '</td><td class="valuefield fieldname_control_date">';
-    print $form->editfieldval('ControlDate', 'control_date', $object->control_date, $object, $permissiontoadd, 'datepicker', '', null, null, "id=$object->id");
+    print $form->editfieldval('ControlDate', 'control_date', $object->control_date, $object, $permissiontoadd && $object->status < Control::STATUS_LOCKED, 'datepicker', '', null, null, "id=$object->id");
     print '</td>';
 
     print '<tr class="field_next_control_date"><td class="titlefield fieldname_next_control_date">';
-    print $form->editfieldkey('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd, 'datepicker');
+    print $form->editfieldkey('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd && $object->status < Control::STATUS_LOCKED, 'datepicker');
     print '</td><td class="valuefield fieldname_next_control_date">';
-    print $form->editfieldval('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd, 'datepicker', '', null, null, "id=$object->id");
+    print $form->editfieldval('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd && $object->status < Control::STATUS_LOCKED, 'datepicker', '', null, null, "id=$object->id");
     print '</td>';
 
     print '<tr class="field_verdict"><td class="titlefield fieldname_verdict">';
