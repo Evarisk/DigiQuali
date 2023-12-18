@@ -3,7 +3,7 @@
 ## Informations
 
 - Numéro du module : 436301
-- Dernière mise à jour : 13/09/2023
+- Dernière mise à jour : 22/12/2023
 - Éditeur : [Evarisk](https://evarisk.com)
 - Thème : Eldy Menu
 - Licence : GPLv3
@@ -11,9 +11,9 @@
 
 ### Version
 
-- Version : 1.9.0
-- Compatibilité : Dolibarr 16.0.0 - 18.0.1
-- Saturne Framework : 1.1.2
+- Version : 1.9.1
+- Compatibilité : Dolibarr 16.0.0 - 18.0.4
+- Saturne Framework : 1.2.1
 
 ## Liens
 
