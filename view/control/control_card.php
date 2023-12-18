@@ -70,6 +70,7 @@ $contextpage         = GETPOST('contextpage', 'aZ') ?GETPOST('contextpage', 'aZ'
 $backtopage          = GETPOST('backtopage', 'alpha');
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 $source              = GETPOST('source', 'alpha'); // source PWA
+$viewmode            = (GETPOSTISSET('viewmode') ? GETPOST('viewmode', 'alpha') : 'list'); // view mode for new control
 
 // Initialize objects
 // Technical objets
@@ -174,12 +175,12 @@ if (empty($resHook)) {
 		if (GETPOST('fk_sheet') > 0) {
 			if ($controlledObjectSelected == 0) {
 				setEventMessages($langs->trans('NeedObjectToControl'), [], 'errors');
-				header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&fk_sheet=' . GETPOST('fk_sheet') . '&source=' . $source);
+				header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&fk_sheet=' . GETPOST('fk_sheet') . '&viewmode=' . $viewmode . '&source=' . $source);
 				exit;
 			}
 		} else {
 			setEventMessages($langs->trans('NeedFkSheet'), [], 'errors');
-			header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&source=' . $source);
+			header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&viewmode=' . $viewmode . '&source=' . $source);
 			exit;
 		}
 
@@ -378,9 +379,11 @@ $elementArray = get_sheet_linkable_objects();
 
 // Part to create
 if ($action == 'create') {
-    print load_fiche_titre($langs->trans('NewControl'), '', 'object_' . $object->picto);
+    $moreHtmlRight  = '<a class="btnTitle butActionNew ' . (($viewmode == 'list') ? '' : 'btnTitleSelected') . '" href="' . $_SERVER['PHP_SELF'] . '?action=create&viewmode=images&source=' . $source . '"><span class="fas fa-3x fa-images valignmiddle paddingleft" title="' . $langs->trans('ViewModeImages') . '"></span></a>';
+    $moreHtmlRight .= '<a class="btnTitle butActionNew ' . (($viewmode == 'list') ? 'btnTitleSelected' : '') . '" href="' . $_SERVER['PHP_SELF'] . '?action=create&viewmode=list&source=' . $source . '"><span class="fas fa-3x fa-list valignmiddle paddingleft" title="' . $langs->trans('ViewModeList') . '"></span></a>';
+    print load_fiche_titre($langs->trans('NewControl'), $moreHtmlRight, 'object_' . $object->picto);
 
-    print '<form method="POST" id="createControlForm" action="' . $_SERVER['PHP_SELF'] . '?source=' . $source . '">';
+    print '<form method="POST" id="createControlForm" action="' . $_SERVER['PHP_SELF'] . '?viewmode=' . $viewmode . '&source=' . $source . '">';
     print '<input type="hidden" name="token" value="' . newToken() . '">';
     print '<input type="hidden" name="action" value="add">';
     if ($backtopage) {
@@ -399,13 +402,37 @@ if ($action == 'create') {
         $sheet->fetch(GETPOST('fk_sheet'));
     }
 
-    //FK SHEET
-    print '<tr><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('Sheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
-    print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet')?: $sheet->id);
-    if ($source != 'pwa') {
-        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
+    if ($viewmode == 'images') {
+        print '<div class="sheet-images-container">';
+        print '<div class="titre center">' . $langs->trans('SheetCategories') . '</div>';
+        print '<div class="wpeo-gridlayout grid-5 sheet-categories">';
+        $sheetCategories = $form->select_all_categories('sheet', '', 'sheet-categories', 64, 0, 1);
+        if (!empty($sheetCategories)) {
+            foreach ($sheetCategories as $sheetCategoryID => $sheetCategoryLabel) {
+                $category->fetch($sheetCategoryID);
+                saturne_show_category_image($category, 0, 'photo-sheet-category');
+            }
+        }
+        print '</div>';
+        print '<div class="titre center">' . $langs->trans('Sheet') . '</div>';
+        print '<div class="wpeo-gridlayout grid-5 sheet-elements">';
+        print '<input type="hidden" name="fk_sheet" value="' . GETPOST('fk_sheet') . '">';
+        $sheets = saturne_fetch_all_object_type('Sheet', '', '', 0, 0, ['customsql' => 'cp.fk_categorie = ' . GETPOST('sheetCategoryID')], 'AND', false, true, true);
+        if (is_array($sheets) && !empty($sheets)) {
+            foreach ($sheets as $sheet) {
+                print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/sheet/' . $sheet->ref, 'small', '', 0, 0, 0, 50, 50, 1, 1, 0, 'sheet/' . $sheet->ref, $sheet, '', 0, 0, 0, 0, 'photo-sheet');
+            }
+        }
+        print '</div></div>';
+    } else {
+        //FK SHEET
+        print '<tr><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('Sheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
+        print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet')?: $sheet->id);
+        if ($source != 'pwa') {
+            print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
+        }
+        print '</td></tr>';
     }
-    print '</td></tr></thead>';
 
     if ($source == 'pwa') {
         $object->fields['fk_user_controller']['type']  = 'integer:User:user/class/user.class.php';

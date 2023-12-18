@@ -39,6 +39,8 @@ window.digiquali.control.event = function() {
   $( document ).on( 'change', '#productId', window.digiquali.control.refreshLotSelector );
   $( document ).on( 'click', '.switch-public-control-view', window.digiquali.control.switchPublicControlView );
   $(document).on('click', '.show-only-questions-with-no-answer', window.digiquali.control.showOnlyQuestionsWithNoAnswer);
+  $(document).on('click', '.photo-sheet-category', window.digiquali.control.getSheetCategoryID);
+  $(document).on('click', '.photo-sheet', window.digiquali.control.getSheetID);
 };
 
 /**
@@ -378,6 +380,65 @@ window.digiquali.control.saveAnswer = function(questionId, answer, comment) {
     contentType: false,
     success: function(resp) {
       $('.fiche').replaceWith($(resp).find('.fiche'));
+    },
+    error: function() {}
+  });
+};
+
+/**
+ * Get sheet category ID after click event
+ *
+ * @since   1.10.0
+ * @version 1.10.0
+ *
+ * @return {void}
+ */
+window.digiquali.control.getSheetCategoryID = function() {
+  let sheetCategoryID = $(this).attr('value');
+  let token           = window.saturne.toolbox.getToken();
+  let querySeparator  = window.saturne.toolbox.getQuerySeparator(document.URL);
+  window.saturne.loader.display($('.sheet-images-container'));
+
+  $.ajax({
+    url: document.URL + querySeparator + 'sheetCategoryID=' + sheetCategoryID + '&token=' + token,
+    type: 'POST',
+    processData: false,
+    contentType: false,
+    success: function(resp) {
+      $('.sheet-images-container').replaceWith($(resp).find('.sheet-images-container'));
+      $('.photo-sheet-category[value=' + sheetCategoryID + ']').css('border', '3px solid #0d8aff');
+      $('.photo-sheet-category[value=' + sheetCategoryID + ']').addClass('photo-sheet-category-active');
+    },
+    error: function() {}
+  });
+};
+
+/**
+ * Get sheet ID after click event
+ *
+ * @since   1.10.0
+ * @version 1.10.0
+ *
+ * @return {void}
+ */
+window.digiquali.control.getSheetID = function() {
+  let sheetID         = $(this).attr('data-object-id');
+  let sheetCategoryID = $('.photo-sheet-category-active').attr('value');
+  let token           = window.saturne.toolbox.getToken();
+  let querySeparator  = window.saturne.toolbox.getQuerySeparator(document.URL);
+
+  window.saturne.loader.display($('.sheet-elements'));
+  window.saturne.loader.display($('.linked-objects'));
+
+  $.ajax({
+    url: document.URL + querySeparator + 'fk_sheet=' + sheetID + '&sheetCategoryID=' + sheetCategoryID + '&token=' + token,
+    type: 'POST',
+    processData: false,
+    contentType: false,
+    success: function(resp) {
+      $('.sheet-elements').replaceWith($(resp).find('.sheet-elements'));
+      $('.photo-sheet[data-object-id=' + sheetID + ']').css('border', '3px solid #0d8aff');
+      $('.linked-objects').replaceWith($(resp).find('.linked-objects'));
     },
     error: function() {}
   });
