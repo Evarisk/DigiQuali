@@ -115,8 +115,13 @@ if (!empty($conf->categorie->enabled)) {
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
 // Default sort order (if not yet defined by previous GETPOST)
-if (!$sortfield) { reset($object->fields); $sortfield="t.".key($object->fields); }   // Set here default search field. By default 1st field in definition. Reset is required to avoid key() to return null.
-if (!$sortorder) $sortorder = "ASC";
+if (!$sortfield) {
+    reset($object->fields);   // Reset is required to avoid key() to return null
+    $sortfield = 't.date_creation'; // Set here default search field. By default, date_creation
+}
+if (!$sortorder) {
+    $sortorder = 'DESC';
+}
 
 $linkableElements = get_sheet_linkable_objects();
 
