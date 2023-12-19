@@ -386,8 +386,7 @@ window.digiquali.control.saveAnswer = function(questionId, answer, comment) {
     processData: false,
     contentType: false,
     success: function(resp) {
-      $('.progress-info').replaceWith($(resp).find('.progress-info'));
-      $('.table-id-' + questionId).replaceWith($(resp).find('.table-id-' + questionId));
+      $('.fiche').replaceWith($(resp).find('.fiche'));
     },
     error: function() {}
   });
