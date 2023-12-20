@@ -120,36 +120,9 @@ class ActionsDigiquali
 		$error = 0; // Error counter
 
 		if (preg_match('/categorycard/', $parameters['context'])) {
-			$id = GETPOST('id');
-			$elementId = GETPOST('element_id');
-			$type = GETPOST('type');
-			if ($id > 0 && $elementId > 0 && ($type == 'question' || $type == 'sheet' || $type == 'control') && $user->rights->digiquali->$type->write) {
-				require_once __DIR__ . '/' . $type . '.class.php';
-				$classname = ucfirst($type);
-				$newobject = new $classname($this->db);
-
-				$newobject->fetch($elementId);
-
-				if (GETPOST('action') == 'addintocategory') {
-					$result = $object->add_type($newobject, $type);
-					if ($result >= 0) {
-						setEventMessages($langs->trans("WasAddedSuccessfully", $newobject->ref), array());
-
-					} else {
-						if ($object->error == 'DB_ERROR_RECORD_ALREADY_EXISTS') {
-							setEventMessages($langs->trans("ObjectAlreadyLinkedToCategory"), array(), 'warnings');
-						} else {
-							setEventMessages($object->error, $object->errors, 'errors');
-						}
-					}
-				} elseif (GETPOST('action') == 'delintocategory') {
-					$result = $object->del_type($newobject, $type);
-					if ($result < 0) {
-						dol_print_error('', $object->error);
-					}
-					$action = '';
-				}
-			}
+            require_once __DIR__ . '/../class/question.class.php';
+            require_once __DIR__ . '/../class/sheet.class.php';
+            require_once __DIR__ . '/../class/control.class.php';
 		}
 
 		if (!$error) {
@@ -176,11 +149,7 @@ class ActionsDigiquali
 
 		if (preg_match('/categoryindex/', $parameters['context'])) {	    // do something only for the context 'somecontext1' or 'somecontext2'
 			print '<script src="../custom/digiquali/js/digiquali.js"></script>';
-		} elseif (preg_match('/categorycard/', $parameters['context']) && preg_match('/viewcat.php/', $_SERVER["PHP_SELF"])) {
-            require_once __DIR__ . '/../class/question.class.php';
-            require_once __DIR__ . '/../class/sheet.class.php';
-            require_once __DIR__ . '/../class/control.class.php';
-        } elseif ($parameters['currentcontext'] == 'productlotcard') {
+		} elseif ($parameters['currentcontext'] == 'productlotcard') {
             $productLot = new ProductLot($this->db);
             $productLot->fetch(GETPOST('id'));
             $objectB64 = $productLot->array_options['options_control_history_link'];
