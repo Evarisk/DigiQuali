@@ -33,7 +33,8 @@ if (file_exists('../digiquali.main.inc.php')) {
 // Libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 
-require_once '../lib/digiquali.lib.php';
+require_once __DIR__ . '/../lib/digiquali.lib.php';
+require_once __DIR__ . '/../class/control.class.php';
 
 // Global variables definitions
 global $conf, $db, $langs, $user;
@@ -57,7 +58,12 @@ foreach ($tmptype2label as $key => $val) {
 	$type2label[$key] = $langs->transnoentitiesnoconv($val);
 }
 
-$elementtype = 'digiquali_control'; //Must be the $table_element of the class that manage extrafield
+// Initialize objects
+$object      = new Control($db);
+$elementType = $object->element;
+$objectType  = $object->element;
+$elementtype = $moduleNameLowerCase . '_' . $objectType; // Must be the $table_element of the class that manage extrafield.
+
 $error = 0; //Error counter
 
 // Security check - Protection if external user
@@ -123,89 +129,9 @@ print dol_get_fiche_head($head, 'control', $title, -1, 'digiquali_color@digiqual
  *  Numbering module
  */
 
-print load_fiche_titre($langs->transnoentities('NumberingModule', $langs->transnoentities('OfControl')), '', '');
+require __DIR__ . '/../../saturne/core/tpl/admin/object/object_numbering_module_view.tpl.php';
 
-print '<table class="noborder centpercent">';
-print '<tr class="liste_titre">';
-print '<td>' . $langs->trans('Name') . '</td>';
-print '<td>' . $langs->trans('Description') . '</td>';
-print '<td>' . $langs->trans('Example') . '</td>';
-print '<td class="center">' . $langs->trans('Status') . '</td>';
-print '<td class="center">' . $langs->trans('ShortInfo') . '</td>';
-print '</tr>';
-
-clearstatcache();
-$dir = dol_buildpath('/custom/digiquali/core/modules/digiquali/control/');
-if (is_dir($dir)) {
-	$handle = opendir($dir);
-	if (is_resource($handle)) {
-		while (($file = readdir($handle)) !== false ) {
-			if ( ! is_dir($dir . $file) || (substr($file, 0, 1) <> '.' && substr($file, 0, 3) <> 'CVS')) {
-				$filebis = $file;
-
-				$classname = preg_replace('/\.php$/', '', $file);
-				$classname = preg_replace('/\-.*$/', '', $classname);
-
-				if ( ! class_exists($classname) && is_readable($dir . $filebis) && (preg_match('/mod_/', $filebis) || preg_match('/mod_/', $classname)) && substr($filebis, dol_strlen($filebis) - 3, 3) == 'php') {
-					// Charging the numbering class
-					require_once $dir . $filebis;
-
-					$module = new $classname($db);
-
-					if ($module->isEnabled()) {
-						print '<tr class="oddeven"><td>';
-						print $langs->trans($module->name);
-						print '</td><td>';
-						print $module->info();
-						print '</td>';
-
-						// Show example of numbering module
-						print '<td class="nowrap">';
-						$tmp = $module->getExample();
-						if (preg_match('/^Error/', $tmp)) print '<div class="error">' . $langs->trans($tmp) . '</div>';
-						elseif ($tmp == 'NotConfigured') print $langs->trans($tmp);
-						else print $tmp;
-						print '</td>';
-
-						print '<td class="center">';
-						if ($conf->global->DIGIQUALI_CONTROL_ADDON == $file || $conf->global->DIGIQUALI_CONTROL_ADDON . '.php' == $file) {
-							print img_picto($langs->trans('Activated'), 'switch_on');
-						} else {
-							print '<a class="reposition" href="' . $_SERVER['PHP_SELF'] . '?action=setmod&value=' . preg_replace('/\.php$/', '', $file) . '&scan_dir=' . $module->scandir . '&label=' . urlencode($module->name) . '" alt="' . $langs->trans('Default') . '">' . img_picto($langs->trans('Disabled'), 'switch_off') . '</a>';
-						}
-						print '</td>';
-
-						// Example for listing risks action
-						$htmltooltip  = '';
-						$htmltooltip .= '' . $langs->trans('Version') . ': <b>' . $module->getVersion() . '</b><br>';
-						$nextval      = $module->getNextValue($module);
-						if ("$nextval" != $langs->trans('NotAvailable')) {  // Keep " on nextval
-							$htmltooltip .= $langs->trans('NextValue') . ': ';
-							if ($nextval) {
-								if (preg_match('/^Error/', $nextval) || $nextval == 'NotConfigured')
-									$nextval  = $langs->trans($nextval);
-								$htmltooltip .= $nextval . '<br>';
-							} else {
-								$htmltooltip .= $langs->trans($module->error) . '<br>';
-							}
-						}
-
-						print '<td class="center">';
-						print $form->textwithpicto('', $htmltooltip, 1, 0);
-						if ($conf->global->DIGIQUALI_CONTROL_ADDON . '.php' == $file) { // If module is the one used, we show existing errors
-							if ( ! empty($module->error)) dol_htmloutput_mesg($module->error, '', 'error', 1);
-						}
-						print '</td>';
-						print '</tr>';
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-
-print '</table>';
+require __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
 
 //Control data
 print load_fiche_titre($langs->trans('ConfigData', $langs->transnoentities('ControlsMin')), '', '');
@@ -254,113 +180,11 @@ print '</td>';
 print '</tr>';
 print '</table>';
 
-//Extrafields control management
-print load_fiche_titre($langs->trans('ExtrafieldsControlManagement'), '', '');
+$object = new ControlLine($db);
 
-require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_view.tpl.php';
+require __DIR__ . '/../../saturne/core/tpl/admin/object/object_numbering_module_view.tpl.php';
 
-// Buttons
-if ($action != 'create' && $action != 'edit') {
-	print '<div class="tabsAction">';
-	print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER['PHP_SELF'].'?action=create">'.$langs->trans('NewAttribute').'</a></div>';
-	print '</div>';
-}
-
-// Creation of an optional field
-if ($action == 'create') {
-	print load_fiche_titre($langs->trans('NewAttribute'));
-	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_add.tpl.php';
-}
-
-// Edition of an optional field
-if ($action == 'edit' && !empty($attrname)) {
-	print load_fiche_titre($langs->trans('FieldEdition', $attrname));
-	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_edit.tpl.php';
-}
-
-print load_fiche_titre($langs->transnoentities('NumberingModuleDet'), '', '');
-
-print '<table class="noborder centpercent">';
-print '<tr class="liste_titre">';
-print '<td>' . $langs->trans('Name') . '</td>';
-print '<td>' . $langs->trans('Description') . '</td>';
-print '<td>' . $langs->trans('Example') . '</td>';
-print '<td class="center">' . $langs->trans('Status') . '</td>';
-print '<td class="center">' . $langs->trans('ShortInfo') . '</td>';
-print '</tr>';
-
-clearstatcache();
-$dir = dol_buildpath('/custom/digiquali/core/modules/digiquali/controldet/');
-if (is_dir($dir)) {
-	$handle = opendir($dir);
-	if (is_resource($handle)) {
-		while (($file = readdir($handle)) !== false ) {
-			if ( ! is_dir($dir . $file) || (substr($file, 0, 1) <> '.' && substr($file, 0, 3) <> 'CVS')) {
-				$filebis = $file;
-
-				$classname = preg_replace('/\.php$/', '', $file);
-				$classname = preg_replace('/\-.*$/', '', $classname);
-
-				if ( ! class_exists($classname) && is_readable($dir . $filebis) && (preg_match('/mod_/', $filebis) || preg_match('/mod_/', $classname)) && substr($filebis, dol_strlen($filebis) - 3, 3) == 'php') {
-					// Charging the numbering class
-					require_once $dir . $filebis;
-
-					$module = new $classname($db);
-
-					if ($module->isEnabled()) {
-						print '<tr class="oddeven"><td>';
-						print $langs->trans($module->name);
-						print '</td><td>';
-						print $module->info();
-						print '</td>';
-
-						// Show example of numbering module
-						print '<td class="nowrap">';
-						$tmp = $module->getExample();
-						if (preg_match('/^Error/', $tmp)) print '<div class="error">' . $langs->trans($tmp) . '</div>';
-						elseif ($tmp == 'NotConfigured') print $langs->trans($tmp);
-						else print $tmp;
-						print '</td>';
-
-						print '<td class="center">';
-						if ($conf->global->DIGIQUALI_CONTROLDET_ADDON == $file || $conf->global->DIGIQUALI_CONTROLDET_ADDON . '.php' == $file) {
-							print img_picto($langs->trans('Activated'), 'switch_on');
-						} else {
-							print '<a class="reposition" href="' . $_SERVER['PHP_SELF'] . '?action=setmodControlDet&value=' . preg_replace('/\.php$/', '', $file) . '&scan_dir=' . $module->scandir . '&label=' . urlencode($module->name) . '" alt="' . $langs->trans('Default') . '">' . img_picto($langs->trans('Disabled'), 'switch_off') . '</a>';
-						}
-						print '</td>';
-
-						// Example for listing risks action
-						$htmltooltip  = '';
-						$htmltooltip .= '' . $langs->trans('Version') . ': <b>' . $module->getVersion() . '</b><br>';
-						$nextval      = $module->getNextValue($module);
-						if ("$nextval" != $langs->trans('NotAvailable')) {  // Keep " on nextval
-							$htmltooltip .= $langs->trans('NextValue') . ': ';
-							if ($nextval) {
-								if (preg_match('/^Error/', $nextval) || $nextval == 'NotConfigured')
-									$nextval  = $langs->trans($nextval);
-								$htmltooltip .= $nextval . '<br>';
-							} else {
-								$htmltooltip .= $langs->trans($module->error) . '<br>';
-							}
-						}
-
-						print '<td class="center">';
-						print $form->textwithpicto('', $htmltooltip, 1, 0);
-						if ($conf->global->DIGIQUALI_CONTROLDET_ADDON . '.php' == $file) { // If module is the one used, we show existing errors
-							if ( ! empty($module->error)) dol_htmloutput_mesg($module->error, '', 'error', 1);
-						}
-						print '</td>';
-						print '</tr>';
-					}
-				}
-			}
-		}
-		closedir($handle);
-	}
-}
-
-print '</table>';
+require __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
 
 //Control data
 print load_fiche_titre($langs->trans('ConfigData', $langs->transnoentities('ControlsMin')), '', '');
