@@ -231,12 +231,14 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                                 if (!empty($linkedObject->array_options['options_qc_frequency'])) {
                                     $qcFrequency = $linkedObject->array_options['options_qc_frequency'];
 
-                                    if ($object->verdict == 2) {
-                                        $object->next_control_date = $this->db->idate($now);
-                                    } else {
-                                        $object->next_control_date = $this->db->idate(dol_time_plus_duree($now, $qcFrequency, 'd'));
+                                    if (dol_strlen($object->next_control_date) <= 0) {
+                                        if ($object->verdict == 2) {
+                                            $object->next_control_date = $this->db->idate($now);
+                                        } else {
+                                            $object->next_control_date = $this->db->idate(dol_time_plus_duree($now, $qcFrequency, 'd'));
+                                        }
                                     }
-                                    $object->status            = $object::STATUS_LOCKED;
+                                    $object->status = $object::STATUS_LOCKED;
                                     $object->update($user, true);
 
                                     $actioncomm->code        = 'AC_' . strtoupper($object->element) . '_REMINDER';
@@ -268,7 +270,7 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                     $reminderArray = explode(',' , getDolGlobalString('DIGIQUALI_CONTROL_REMINDER_FREQUENCY'));
                     foreach ($reminderArray as $reminder) {
                         if ($qcFrequency <= $reminder) {
-                            $dateReminder = dol_time_plus_duree(dol_stringtotime($object->next_control_date), -$reminder, 'd');
+                            $dateReminder = dol_time_plus_duree(is_int($object->next_control_date) ? $object->next_control_date : dol_stringtotime($object->next_control_date), -$reminder, 'd');
 
                             $actionCommReminder->dateremind  = $dateReminder;
                             $actionCommReminder->offsetvalue = $reminder;
