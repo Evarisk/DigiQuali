@@ -54,6 +54,9 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/propal.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/supplier_proposal.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/fourn.lib.php';
 
+// Load Saturne libraries
+require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
+
 // load digiquali libraries
 require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
 
@@ -93,11 +96,17 @@ $pagenext = $page + 1;
 // Initialize objects
 // Technical objets
 $object         = new Control($db);
+$signatory      = new SaturneSignature($db, 'digiquali', $object->element);
 $box            = new digiqualiwidget1($db);
 $categorystatic = new Categorie($db);
 $sheet          = new Sheet($db);
 $extrafields    = new ExtraFields($db);
 $controlstatic  = new Control($db);
+$userTmp        = new User($db);
+if (isModEnabled('societe')) {
+    $thirdparty = new Societe($db);
+    $contact    = new Contact($db);
+}
 
 // View objects
 $form = new Form($db);
@@ -115,8 +124,13 @@ if (!empty($conf->categorie->enabled)) {
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
 // Default sort order (if not yet defined by previous GETPOST)
-if (!$sortfield) { reset($object->fields); $sortfield="t.".key($object->fields); }   // Set here default search field. By default 1st field in definition. Reset is required to avoid key() to return null.
-if (!$sortorder) $sortorder = "ASC";
+if (!$sortfield) {
+    reset($object->fields);   // Reset is required to avoid key() to return null
+    $sortfield = 't.date_creation'; // Set here default search field. By default, date_creation
+}
+if (!$sortorder) {
+    $sortorder = 'DESC';
+}
 
 $linkableElements = get_sheet_linkable_objects();
 
