@@ -261,16 +261,34 @@ $arrayfields['t.days_remaining_before_next_control'] = [
 	'position' => 66
 ];
 
+$signatoriesInDictionary = saturne_fetch_dictionary('c_' . $object->element . '_attendants_role');
+if (is_array($signatoriesInDictionary) && !empty($signatoriesInDictionary)) {
+    $customFieldsPosition = 111;
+    foreach ($signatoriesInDictionary as $signatoryInDictionary) {
+        $arrayfields[$signatoryInDictionary->ref] = ['label' => $signatoryInDictionary->ref, 'checked' => 1, 'position' => $customFieldsPosition++, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusxx'];
+    }
+}
+
+$arrayfields['SocietyAttendants'] = ['label' => 'SocietyAttendants', 'checked' => 1, 'position' => 115, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusxx'];
+
 $selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage); // This also change content of $arrayfields
 $selectedfields .= (count($arrayofmassactions) ? $form->showCheckAddButtons('checkforselect', 1) : '');
 
-print '<div class="div-table-responsive">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
-print '<table class="tagtable nobottomiftotal liste'.($moreforfilter ? " listwithfilterbefore" : "").'">'."\n";
-
-$object->fields['days_remaining_before_next_control'] = $arrayfields['t.days_remaining_before_next_control'] ;
+$object->fields['days_remaining_before_next_control'] = $arrayfields['t.days_remaining_before_next_control'];
 
 $object->fields = dol_sort_array($object->fields, 'position');
-$arrayfields = dol_sort_array($arrayfields, 'position');
+
+$signatoriesInDictionary = saturne_fetch_dictionary('c_' . $object->element . '_attendants_role');
+if (is_array($signatoriesInDictionary) && !empty($signatoriesInDictionary)) {
+    foreach ($signatoriesInDictionary as $signatoryInDictionary) {
+        $object->fields['Custom'][$signatoryInDictionary->ref] = $arrayfields[$signatoryInDictionary->ref];
+    }
+}
+
+$object->fields['Custom']['SocietyAttendants'] = $arrayfields['SocietyAttendants'];
+
+print '<div class="div-table-responsive">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
+print '<table class="tagtable nobottomiftotal liste'.($moreforfilter ? " listwithfilterbefore" : "").'">'."\n";
 
 // Fields title search
 // --------------------------------------------------------------------
@@ -297,9 +315,20 @@ foreach ($object->fields as $key => $val)
 		} elseif (!preg_match('/^(date|timestamp)/', $val['type'])) {
 			print '<input type="text" class="flat maxwidth75" name="search_'.$key.'" value="'.dol_escape_htmltag($search[$key]).'">';
 		}
-
 		print '</td>';
-	}
+	} elseif ($key == 'Custom') {
+        foreach ($val as $resource) {
+            if ($resource['checked']) {
+                if ($resource['label'] == 'SocietyAttendants') {
+                    print '<td class="liste_titre ' . $resource['css'] . '">';
+                    //print $form->select_company($searchSocietyAttendants, 'search_society_attendants', '', 1);
+                    print '</td>';
+                } else {
+                    print '<td class="liste_titre ' . $resource['css'] . '"></td>';
+                }
+            }
+        }
+    }
 }
 // Extra fields
 include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_search_input.tpl.php';
@@ -332,7 +361,15 @@ foreach ($object->fields as $key => $val)
 	if (!empty($arrayfields['t.'.$key]['checked']))
 	{
 		print getTitleFieldOfList($arrayfields['t.'.$key]['label'], 0, $_SERVER['PHP_SELF'], $key, '', $param, ($cssforfield ? 'class="'.$cssforfield.'"' : ''), $sortfield, $sortorder, ($cssforfield ? $cssforfield.' ' : ''), $disableSortField)."\n";
-	}
+	} elseif ($key == 'Custom') {
+        foreach ($val as $resource) {
+            if ($resource['checked']) {
+                print '<th class="wrapcolumntitle ' . $resource['css'] . ' liste_titre">';
+                print $langs->trans($resource['label']);
+                print '</th>';
+            }
+        }
+    }
 }
 // Extra fields
 include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_search_title.tpl.php';
@@ -371,6 +408,9 @@ while ($i < ($limit ? min($num, $limit) : $num))
 	// Store properties in $object
 	$object->setVarsFromFetchObj($obj);
 
+    $filter      = ['customsql' => 'fk_object=' . $object->id . ' AND status > 0 AND object_type="' . $object->element . '"'];
+    $signatories = $signatory->fetchAll('', 'role', 0, 0, $filter);
+
 	// Show here line of result
 	print '<tr class="oddeven">';
 	foreach ($object->fields as $key => $val)
@@ -384,7 +424,6 @@ while ($i < ($limit ? min($num, $limit) : $num))
 
 		if (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && !in_array($key, array('rowid', 'status'))) $cssforfield .= ($cssforfield ? ' ' : '').'right';
 		//if (in_array($key, array('fk_soc', 'fk_user', 'fk_warehouse'))) $cssforfield = 'tdoverflowmax100';
-
 		if (!empty($arrayfields['t.'.$key]['checked']))
 		{
 			print '<td'.($cssforfield ? ' class="'.$cssforfield.'"' : '').'>';
@@ -428,7 +467,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 						print $linkedObject->getNomUrl(1);
 					}
 				}
-			}
+            }
 			else print $object->showOutputField($val, $key, $object->$key, '');
 			print '</td>';
 			if (!$i) $totalarray['nbfield']++;
@@ -437,7 +476,73 @@ while ($i < ($limit ? min($num, $limit) : $num))
 				if (!$i) $totalarray['pos'][$totalarray['nbfield']] = 't.'.$key;
 				$totalarray['val']['t.'.$key] += $object->$key;
 			}
-		}
+		} elseif ($key == 'Custom') {
+            foreach ($val as $resource) {
+                if ($resource['checked']) {
+                    if ($resource['label'] == 'SocietyAttendants') {
+                        print '<td class="' . $resource['css'] . '">';
+                        if (is_array($signatories) && !empty($signatories)) {
+                            $alreadyAddedThirdParties = [];
+                            foreach ($signatories as $objectSignatory) {
+                                if ($objectSignatory->element_type == 'socpeople') {
+                                    $contact->fetch($objectSignatory->element_id);
+                                    $thirdparty->fetch($contact->fk_soc);
+                                    if (!in_array($thirdparty->id, $alreadyAddedThirdParties)) {
+                                        print $thirdparty->getNomUrl(1);
+                                        print '<br>';
+                                    }
+                                } else {
+                                    $userTmp->fetch($objectSignatory->element_id);
+                                    if ($userTmp->contact_id > 0) {
+                                        $contact->fetch($userTmp->contact_id);
+                                        $thirdparty->fetch($contact->fk_soc);
+                                        if (!in_array($thirdparty->id, $alreadyAddedThirdParties)) {
+                                            print $thirdparty->getNomUrl(1);
+                                            print '<br>';
+                                        }
+                                    }
+                                }
+                                $alreadyAddedThirdParties[] = $thirdparty->id;
+                            }
+                        }
+                        print '</td>';
+                    } else {
+                        print '<td class="' . $resource['css'] . '">';
+                        if (is_array($signatories) && !empty($signatories) && $signatories > 0) {
+                            foreach ($signatories as $objectSignatory) {
+                                switch ($objectSignatory->attendance) {
+                                    case 1:
+                                        $cssButton = '#0d8aff';
+                                        $userIcon  = 'fa-user-clock';
+                                        break;
+                                    case 2:
+                                        $cssButton = '#e05353';
+                                        $userIcon  = 'fa-user-slash';
+                                        break;
+                                    default:
+                                        $cssButton = '#47e58e';
+                                        $userIcon  = 'fa-user';
+                                        break;
+                                }
+                                if ($objectSignatory->element_type == 'user' && $objectSignatory->role == $resource['label']) {
+                                    $userTmp = $user;
+                                    $userTmp->fetch($objectSignatory->element_id);
+                                    print $userTmp->getNomUrl(1, '', 0, 0, 24, 1) . ' - ' . $objectSignatory->getLibStatut(3);
+                                    print ' - <i class="fas ' . $userIcon . '" style="color: ' . $cssButton . '"></i>';
+                                    print '<br>';
+                                } elseif ($objectSignatory->element_type == 'socpeople' && $objectSignatory->role == $resource['label']) {
+                                    $contact->fetch($objectSignatory->element_id);
+                                    print $contact->getNomUrl(1) . ' - ' . $objectSignatory->getLibStatut(3);
+                                    print ' - <i class="fas ' . $userIcon . '" style="color: ' . $cssButton . '"></i>';
+                                    print '<br>';
+                                }
+                            }
+                        }
+                        print '</td>';
+                    }
+                }
+            }
+        }
 	}
 	// Extra fields
 	include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_print_fields.tpl.php';
