@@ -303,6 +303,9 @@ if (empty($reshook)) {
 	}
 
 //	include DOL_DOCUMENT_ROOT . '/core/actions_massactions.inc.php';
+
+    // Mass actions archive
+    require_once __DIR__ . '/../../../saturne/core/tpl/actions/list_massactions.tpl.php';
 }
 
 /*
