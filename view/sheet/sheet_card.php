@@ -701,7 +701,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<input type="hidden" name="id" value="' . $id . '">';
 
 		print '<tr class="add-line"><td class="maxwidth300 widthcentpercentminusx">';
-		print img_picto('', $question->picto, 'class="pictofixedwidth"') . $question->selectQuestionList(0, 'questionId', 's.status = ' . Question::STATUS_LOCKED, '1', 0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds);
+		print img_picto('', $question->picto, 'class="pictofixedwidth"') . $question->selectQuestionList(0, 'questionId', 's.status = ' . Question::STATUS_LOCKED, '1', 0, 0, array(), '', 0, 0, 'disabled maxwidth300 widthcentpercentminusx', '', false, $questionIds);
 		print '</td>';
 		print '<td>';
 		print '<input type="submit" id="actionButtonAdd" class="button wpeo-button" name="add" value="' . $langs->trans("Add") . '">';

@@ -532,7 +532,7 @@ class Question extends SaturneObject
 			if ($num) {
 				while ($i < $num) {
 					$obj   = $this->db->fetch_object($resql);
-					$label = $obj->ref . ' - ' . $obj->label;
+					$label = $obj->ref . ' - ' . dol_trunc($obj->label, 64);
 
 
 					if (empty($outputmode)) {
