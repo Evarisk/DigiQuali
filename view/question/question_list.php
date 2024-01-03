@@ -98,6 +98,7 @@ if (!$sortorder) $sortorder = "ASC";
 // Initialize array of search criterias
 $searchAll = GETPOST('search_all', 'alphanohtml') ? GETPOST('search_all', 'alphanohtml') : GETPOST('sall', 'alphanohtml');
 $search = [];
+$search['status'] = 'specialCase';
 foreach ($object->fields as $key => $val) {
 	if (GETPOST('search_'.$key, 'alpha') !== '') $search[$key] = GETPOST('search_'.$key, 'alpha');
 }
@@ -292,7 +293,15 @@ else $sql .= " WHERE 1 = 1";
 $sql .= ' AND status > -1';
 
 foreach ($search as $key => $val) {
-	if ($key == 'status' && $search[$key] == -1) continue;
+    if ($key == 'status' && $val == 'specialCase') {
+        $newStatus = [Question::STATUS_VALIDATED, Question::STATUS_LOCKED];
+        if (!empty($newStatus)) {
+            $sql .= natural_search($key, implode(',', $newStatus), 2);
+        }
+        continue;
+    } elseif ($key == 'status' && $val == -1) {
+        continue;
+    }
 	$mode_search = (($object->isInt($object->fields[$key]) || $object->isFloat($object->fields[$key])) ? 1 : 0);
 	if (strpos($object->fields[$key]['type'], 'integer:') === 0) {
 		if ($search[$key] == '-1') $search[$key] = '';
@@ -442,7 +451,7 @@ foreach ($object->fields as $key => $val) {
 	if (!empty($arrayfields['t.'.$key]['checked']))
 	{
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
-		if (is_array($val['arrayofkeyval']) && !empty($val['arrayofkeyval'])) print $form->selectarray('search_'.$key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
+		if (is_array($val['arrayofkeyval']) && !empty($val['arrayofkeyval'])) print $form->selectarray('search_'.$key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', (($key != 'status') ? 'maxwidth100' : 'maxwidth200'), 1);
 		elseif (strpos($val['type'], 'integer:') === 0) {
 			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'maxwidth125', 1);
 		} elseif (!preg_match('/^(date|timestamp)/', $val['type'])) print '<input type="text" class="flat maxwidth75" name="search_'.$key.'" value="'.dol_escape_htmltag($search[$key]).'">';
