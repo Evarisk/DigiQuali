@@ -254,6 +254,9 @@ if (empty($reshook)) {
 			$db->rollback();
 		}
 	}
+
+    // Mass actions archive
+    require_once __DIR__ . '/../../../saturne/core/tpl/actions/list_massactions.tpl.php';
 }
 
 /*
@@ -385,10 +388,8 @@ $reshook = $hookmanager->executeHooks('printFieldListSearchParam', $parameters, 
 $param .= $hookmanager->resPrint;
 
 // List of mass actions available
-$arrayofmassactions = array(
-	'lock'=>$langs->trans("Lock"),
-);
-
+$arrayofmassactions['prelock']    = '<span class="fas fa-lock paddingrightonly"></span>' . $langs->trans('Lock');
+$arrayofmassactions['prearchive'] = '<span class="fas fa-archive paddingrightonly"></span>' . $langs->trans('Archive');
 if ($permissiontodelete) $arrayofmassactions['predelete'] = '<span class="fa fa-trash paddingrightonly"></span>'.$langs->trans("Delete");
 if (GETPOST('nomassaction', 'int') || in_array($massaction, array('presend', 'predelete'))) $arrayofmassactions = [];
 $massactionbutton = $form->selectMassAction('', $arrayofmassactions);
@@ -405,6 +406,14 @@ print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
 $newcardbutton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/digiquali/view/question/question_card.php', 1).'?action=create', '', $permissiontoadd);
 
 print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'object_'.$object->picto, 0, $newcardbutton, '', $limit, 0, 0, 1);
+
+if ($massaction == 'prelock') {
+    print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans('ConfirmMassLock'), $langs->trans('ConfirmMassLockingQuestion', count($toselect)), 'lock', null, '', 0, 200, 500, 1);
+}
+
+if ($massaction == 'prearchive') {
+    print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans('ConfirmMassArchive'), $langs->trans('ConfirmMassArchivingQuestion', count($toselect)), 'archive', null, '', 0, 200, 500, 1);
+}
 
 include DOL_DOCUMENT_ROOT.'/core/tpl/massactions_pre.tpl.php';
 
