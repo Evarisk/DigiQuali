@@ -405,7 +405,7 @@ if ($action == 'create') {
     if ($viewmode == 'images') {
         print '<div class="sheet-images-container">';
         print '<div class="titre center">' . $langs->trans('SheetCategories') . '</div>';
-        print '<div class="wpeo-gridlayout grid-5 sheet-categories">';
+        print '<div class="sheet-grid-images sheet-categories">';
         $sheetCategories = $form->select_all_categories('sheet', '', 'sheet-categories', 64, 0, 1);
         if (!empty($sheetCategories)) {
             foreach ($sheetCategories as $sheetCategoryID => $sheetCategoryLabel) {
@@ -415,7 +415,7 @@ if ($action == 'create') {
         }
         print '</div>';
         print '<div class="titre center">' . $langs->trans('Sheet') . '</div>';
-        print '<div class="wpeo-gridlayout grid-5 sheet-elements">';
+        print '<div class="sheet-grid-images sheet-elements">';
         print '<input type="hidden" name="fk_sheet" value="' . GETPOST('fk_sheet') . '">';
         $sheets = saturne_fetch_all_object_type('Sheet', '', '', 0, 0, ['customsql' => 'cp.fk_categorie = ' . GETPOST('sheetCategoryID')], 'AND', false, true, true);
         if (is_array($sheets) && !empty($sheets)) {

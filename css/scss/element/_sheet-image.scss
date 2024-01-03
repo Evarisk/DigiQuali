@@ -1,0 +1,18 @@
+.sheet-images-container {
+    .sheet-grid-images {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8em;
+
+        img {
+            object-fit: cover;
+            border: 3px solid #fff;
+            transition: all 0.2s ease-out;
+
+            &:hover {
+                cursor: pointer;
+                opacity: 0.6;
+            }
+        }
+    }
+}
