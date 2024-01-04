@@ -929,11 +929,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	} ?>
 
     <div class="progress-info">
-        <span class="badge badge-info" style="margin-right: 10px;">0</span>
-        <div class="progress-bar">
+        <span class="badge badge-info" style="margin-right: 10px;"><?php print $answerCounter . '/' . $questionCounter; ?></span>
+        <div class="progress-bar" style="margin-right: 10px;">
             <div class="progress progress-bar-success" style="width:<?php print ($questionCounter > 0 ? ($answerCounter/$questionCounter) * 100 : 0) . '%'; ?>;" title="<?php print ($questionCounter > 0 ? $answerCounter . '/' . $questionCounter : 0); ?>"></div>
         </div>
-        <span class="badge badge-info" style="margin-left: 10px; margin-right: 10px;"><?php print $questionCounter; ?></span>
 
     <?php print $user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? img_picto($langs->trans('Enabled'), 'switch_on', 'class="show-only-questions-with-no-answer marginrightonly"') : img_picto($langs->trans('Disabled'), 'switch_off', 'class="show-only-questions-with-no-answer marginrightonly"');
     print $form->textwithpicto($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>', $langs->trans('ShowOnlyQuestionsWithNoAnswer'));
