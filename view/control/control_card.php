@@ -810,6 +810,32 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print saturne_show_medias_linked('digiquali', $pathPhotos, 'small', 0, 0, 0, 0, $onPhone ? 40 : 50, $onPhone ? 40 : 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status < Control::STATUS_LOCKED, $permissiontodelete && $object->status < Control::STATUS_LOCKED);
 	print '</td></tr>';
 
+    print '<tr class="field_threshold"><td class="titlefield fieldname_threshold">';
+    print $form->editfieldkey('Threshold', 'threshold', $object->threshold, $object, $permissiontoadd && $object->status < Control::STATUS_LOCKED);
+    print '</td><td class="valuefield fieldname_threshold">';
+    print $form->editfieldval('Threshold', 'threshold', $object->threshold, $object, $permissiontoadd && $object->status < Control::STATUS_LOCKED, 'string', '', null, null, "id=$object->id");
+    print '</td></tr>';
+
+    $average = 0;
+    foreach ($sheet->linkedObjects['digiquali_question'] as $questionLinked) {
+        if ($questionLinked->type == 'Percentage') {
+            foreach ($object->lines as $line) {
+                if ($line->fk_question == $questionLinked->id) {
+                    $average += $line->answer;
+                }
+            }
+        }
+    }
+    $average = $average / $questionCounter;
+
+    if ($average > 0) {
+        print '<tr class="field_average"><td class="titlefield fieldname_average">';
+        print $langs->trans('Average');
+        print '</td><td class="valuefield fieldname_average">';
+        print '<span class="badge badge-' . ($object->threshold > $average ? 'status8' : 'status4') . ' badge-status' . '">' . price2num($average) . ' %</div>';
+        print '</td></tr>';
+    }
+
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	if ($permissiontoadd > 0 && $object->status < 1) {
 		$user->rights->control = new stdClass();
