@@ -54,6 +54,9 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/propal.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/supplier_proposal.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/fourn.lib.php';
 
+// Load Saturne libraries
+require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
+
 // load digiquali libraries
 require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
 
@@ -93,11 +96,17 @@ $pagenext = $page + 1;
 // Initialize objects
 // Technical objets
 $object         = new Control($db);
+$signatory      = new SaturneSignature($db, 'digiquali', $object->element);
 $box            = new digiqualiwidget1($db);
 $categorystatic = new Categorie($db);
 $sheet          = new Sheet($db);
 $extrafields    = new ExtraFields($db);
 $controlstatic  = new Control($db);
+$userTmp        = new User($db);
+if (isModEnabled('societe')) {
+    $thirdparty = new Societe($db);
+    $contact    = new Contact($db);
+}
 
 // View objects
 $form = new Form($db);
@@ -115,8 +124,13 @@ if (!empty($conf->categorie->enabled)) {
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
 // Default sort order (if not yet defined by previous GETPOST)
-if (!$sortfield) { reset($object->fields); $sortfield="t.".key($object->fields); }   // Set here default search field. By default 1st field in definition. Reset is required to avoid key() to return null.
-if (!$sortorder) $sortorder = "ASC";
+if (!$sortfield) {
+    reset($object->fields);   // Reset is required to avoid key() to return null
+    $sortfield = 't.date_creation'; // Set here default search field. By default, date_creation
+}
+if (!$sortorder) {
+    $sortorder = 'DESC';
+}
 
 $linkableElements = get_sheet_linkable_objects();
 
@@ -124,19 +138,27 @@ $objectPosition = 20;
 foreach($linkableElements as $linkableElementType => $linkableElement) {
 	$className  = $linkableElement['className'];
 
-	if (!empty($fromtype) && $fromtype == $linkableElement['link_name']) {
-		$objectLinked = new $className($db);
-		$objectLinked->fetch($fromid);
-	}
+    if ((empty($fromtype) && $linkableElement['conf'] > 0) || ($fromtype == $linkableElement['link_name'])) {
+        $arrayfields['t.' . $linkableElement['post_name']] = [
+            'type'     => 'integer:' . $className . ':' . $linkableElement['class_path'],
+            'label'    => $langs->trans($linkableElement['langs']) . ' ' . $langs->trans('controlled'),
+            'enabled'  => '1',
+            'position' => $objectPosition,
+            'notnull'  => 0,
+            'visible'  => 5,
+            'checked'  => 1
+        ];
 
-	$arrayfields['t.'.$linkableElement['post_name']] = [
-		'type' => 'integer:'. $className .':' . $linkableElement['class_path'], 'label' => $langs->trans($linkableElement['langs']) . ' ' . $langs->trans('controlled') , 'enabled' => '1', 'position' => $objectPosition, 'notnull' => 0, 'visible' => 5, 'checked' => 1
-	];
+        $object->fields[$linkableElement['post_name']]                = $arrayfields['t.' . $linkableElement['post_name']];
+        $elementElementFields[$linkableElement['post_name']]          = $linkableElement['link_name'];
+        $linkNameElementCorrespondence[$linkableElement['link_name']] = $linkableElement;
+        $objectPosition++;
 
-	$object->fields[$linkableElement['post_name']] = $arrayfields['t.'.$linkableElement['post_name']];
-	$elementElementFields[$linkableElement['post_name']] = $linkableElement['link_name'];
-	$linkNameElementCorrespondance[$linkableElement['link_name']] = $linkableElement;
-	$objectPosition++;
+        if (!empty($fromtype)) {
+            $objectLinked = new $className($db);
+            $objectLinked->fetch($fromid);
+        }
+    }
 }
 
 // Initialize array of search criterias
@@ -281,6 +303,9 @@ if (empty($reshook)) {
 	}
 
 //	include DOL_DOCUMENT_ROOT . '/core/actions_massactions.inc.php';
+
+    // Mass actions archive
+    require_once __DIR__ . '/../../../saturne/core/tpl/actions/list_massactions.tpl.php';
 }
 
 /*
@@ -297,7 +322,7 @@ if (!empty($fromtype)) {
 
 	$linkback = '<a href="'.DOL_URL_ROOT.'/'.$fromtype.'/list.php?restore_lastsearch_values=1">'.$langs->trans("BackToList").'</a>';
 
-	saturne_banner_tab($objectLinked, 'ref', '', 0);
+	saturne_banner_tab($objectLinked, 'fromtype=' . $fromtype . '&fromid', '', 1, 'rowid', ($fromtype == 'productbatch' ? 'batch' : 'ref'));
 }
 
 if ($fromid) {

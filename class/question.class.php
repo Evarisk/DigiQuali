@@ -115,7 +115,7 @@ class Question extends SaturneObject
         'date_creation'          => ['type' => 'datetime',     'label' => 'DateCreation',         'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 2],
         'tms'                    => ['type' => 'timestamp',    'label' => 'DateModification',     'enabled' => 1, 'position' => 50,  'notnull' => 0, 'visible' => 0],
         'import_key'             => ['type' => 'varchar(14)',  'label' => 'ImportId',             'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
-        'status'                 => ['type' => 'smallint',     'label' => 'Status',               'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => 0, 'arrayofkeyval' => ['0' => 'Draft', 1 => 'Validated', '2' => 'Locked']],
+        'status'                 => ['type' => 'smallint',     'label' => 'Status',               'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => 0, 'arrayofkeyval' => ['specialCase' => 'InProgressAndLocked', 1 => 'InProgress', 2 => 'Locked', 3 => 'Archived'], 'css' => 'minwidth200'],
 		'type'                   => ['type' => 'varchar(128)', 'label' => 'Type',                 'enabled' => 1, 'position' => 80,  'notnull' => 1, 'visible' => 1],
 		'label'                  => ['type' => 'varchar(255)', 'label' => 'Label',                'enabled' => 1, 'position' => 11,  'notnull' => 1, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200', 'showoncombobox' => 1],
 		'description'            => ['type' => 'html',         'label' => 'Description',          'enabled' => 1, 'position' => 100, 'notnull' => 0, 'visible' => 3],
@@ -300,13 +300,13 @@ class Question extends SaturneObject
         if (empty($this->labelStatus) || empty($this->labelStatusShort)) {
             global $langs;
             $this->labelStatus[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
-            $this->labelStatus[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
+            $this->labelStatus[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('InProgress');
             $this->labelStatus[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
             $this->labelStatus[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
             $this->labelStatus[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
 
             $this->labelStatusShort[self::STATUS_DRAFT]     = $langs->transnoentitiesnoconv('StatusDraft');
-            $this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('Enabled');
+            $this->labelStatusShort[self::STATUS_VALIDATED] = $langs->transnoentitiesnoconv('InProgress');
             $this->labelStatusShort[self::STATUS_LOCKED]    = $langs->transnoentitiesnoconv('Locked');
             $this->labelStatusShort[self::STATUS_ARCHIVED]  = $langs->transnoentitiesnoconv('Archived');
             $this->labelStatusShort[self::STATUS_DELETED]   = $langs->transnoentitiesnoconv('Deleted');
@@ -532,7 +532,7 @@ class Question extends SaturneObject
 			if ($num) {
 				while ($i < $num) {
 					$obj   = $this->db->fetch_object($resql);
-					$label = $obj->ref . ' - ' . $obj->label;
+					$label = $obj->ref . ' - ' . dol_trunc($obj->label, 64);
 
 
 					if (empty($outputmode)) {

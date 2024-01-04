@@ -114,7 +114,7 @@ if (is_array($questionIds) && !empty($questionIds)) {
                     <?php elseif ($item->type == 'UniqueChoice' || $item->type == 'OkKo' || $item->type == 'OkKoToFixNonApplicable') :
                         $answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['customsql' => 't.status > ' . Answer::STATUS_DELETED . ' AND t.fk_question = ' . $item->id]);
                         ?>
-                        <div class="table-cell table-end select-answer answer-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>" data-questionId="<?php echo $item->id; ?>">
+                        <div class="table-cell table-end select-answer answer-cell table-300" <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?> data-questionId="<?php echo $item->id; ?>">
                             <?php
                             print '<input type="hidden" class="question-answer" name="answer'. $item->id .'" id="answer'. $item->id .'" value="0">';
                             if (is_array($answerList) && !empty($answerList)) {

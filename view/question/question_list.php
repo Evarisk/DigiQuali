@@ -98,6 +98,7 @@ if (!$sortorder) $sortorder = "ASC";
 // Initialize array of search criterias
 $searchAll = GETPOST('search_all', 'alphanohtml') ? GETPOST('search_all', 'alphanohtml') : GETPOST('sall', 'alphanohtml');
 $search = [];
+$search['status'] = 'specialCase';
 foreach ($object->fields as $key => $val) {
 	if (GETPOST('search_'.$key, 'alpha') !== '') $search[$key] = GETPOST('search_'.$key, 'alpha');
 }
@@ -253,6 +254,9 @@ if (empty($reshook)) {
 			$db->rollback();
 		}
 	}
+
+    // Mass actions archive
+    require_once __DIR__ . '/../../../saturne/core/tpl/actions/list_massactions.tpl.php';
 }
 
 /*
@@ -292,7 +296,15 @@ else $sql .= " WHERE 1 = 1";
 $sql .= ' AND status > -1';
 
 foreach ($search as $key => $val) {
-	if ($key == 'status' && $search[$key] == -1) continue;
+    if ($key == 'status' && $val == 'specialCase') {
+        $newStatus = [Question::STATUS_VALIDATED, Question::STATUS_LOCKED];
+        if (!empty($newStatus)) {
+            $sql .= natural_search($key, implode(',', $newStatus), 2);
+        }
+        continue;
+    } elseif ($key == 'status' && $val == -1) {
+        continue;
+    }
 	$mode_search = (($object->isInt($object->fields[$key]) || $object->isFloat($object->fields[$key])) ? 1 : 0);
 	if (strpos($object->fields[$key]['type'], 'integer:') === 0) {
 		if ($search[$key] == '-1') $search[$key] = '';
@@ -376,10 +388,8 @@ $reshook = $hookmanager->executeHooks('printFieldListSearchParam', $parameters, 
 $param .= $hookmanager->resPrint;
 
 // List of mass actions available
-$arrayofmassactions = array(
-	'lock'=>$langs->trans("Lock"),
-);
-
+$arrayofmassactions['prelock']    = '<span class="fas fa-lock paddingrightonly"></span>' . $langs->trans('Lock');
+$arrayofmassactions['prearchive'] = '<span class="fas fa-archive paddingrightonly"></span>' . $langs->trans('Archive');
 if ($permissiontodelete) $arrayofmassactions['predelete'] = '<span class="fa fa-trash paddingrightonly"></span>'.$langs->trans("Delete");
 if (GETPOST('nomassaction', 'int') || in_array($massaction, array('presend', 'predelete'))) $arrayofmassactions = [];
 $massactionbutton = $form->selectMassAction('', $arrayofmassactions);
@@ -396,6 +406,14 @@ print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
 $newcardbutton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/digiquali/view/question/question_card.php', 1).'?action=create', '', $permissiontoadd);
 
 print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'object_'.$object->picto, 0, $newcardbutton, '', $limit, 0, 0, 1);
+
+if ($massaction == 'prelock') {
+    print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans('ConfirmMassLock'), $langs->trans('ConfirmMassLockingQuestion', count($toselect)), 'lock', null, '', 0, 200, 500, 1);
+}
+
+if ($massaction == 'prearchive') {
+    print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans('ConfirmMassArchive'), $langs->trans('ConfirmMassArchivingQuestion', count($toselect)), 'archive', null, '', 0, 200, 500, 1);
+}
 
 include DOL_DOCUMENT_ROOT.'/core/tpl/massactions_pre.tpl.php';
 
@@ -442,7 +460,7 @@ foreach ($object->fields as $key => $val) {
 	if (!empty($arrayfields['t.'.$key]['checked']))
 	{
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
-		if (is_array($val['arrayofkeyval']) && !empty($val['arrayofkeyval'])) print $form->selectarray('search_'.$key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'maxwidth100', 1);
+		if (is_array($val['arrayofkeyval']) && !empty($val['arrayofkeyval'])) print $form->selectarray('search_'.$key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', (($key != 'status') ? 'maxwidth100' : 'maxwidth200'), 1);
 		elseif (strpos($val['type'], 'integer:') === 0) {
 			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'maxwidth125', 1);
 		} elseif (!preg_match('/^(date|timestamp)/', $val['type'])) print '<input type="text" class="flat maxwidth75" name="search_'.$key.'" value="'.dol_escape_htmltag($search[$key]).'">';

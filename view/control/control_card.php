@@ -639,15 +639,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
   }
 
     print '<tr class="field_control_date"><td class="titlefield fieldname_control_date">';
-    print $form->editfieldkey('ControlDate', 'control_date', $object->control_date, $object, $permissiontoadd, 'datepicker');
+    print $form->editfieldkey('ControlDate', 'control_date', $object->control_date, $object, $permissiontoadd && $object->status < Control::STATUS_LOCKED, 'datepicker');
     print '</td><td class="valuefield fieldname_control_date">';
-    print $form->editfieldval('ControlDate', 'control_date', $object->control_date, $object, $permissiontoadd, 'datepicker', '', null, null, "id=$object->id");
+    print $form->editfieldval('ControlDate', 'control_date', $object->control_date, $object, $permissiontoadd && $object->status < Control::STATUS_LOCKED, 'datepicker', '', null, null, "id=$object->id");
     print '</td>';
 
     print '<tr class="field_next_control_date"><td class="titlefield fieldname_next_control_date">';
-    print $form->editfieldkey('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd, 'datepicker');
+    print $form->editfieldkey('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd && $object->status < Control::STATUS_LOCKED, 'datepicker');
     print '</td><td class="valuefield fieldname_next_control_date">';
-    print $form->editfieldval('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd, 'datepicker', '', null, null, "id=$object->id");
+    print $form->editfieldval('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd && $object->status < Control::STATUS_LOCKED, 'datepicker', '', null, null, "id=$object->id");
     print '</td>';
 
     print '<tr class="field_verdict"><td class="titlefield fieldname_verdict">';
@@ -926,15 +926,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 				$answerCounter++;
 			}
 		}
-	}
+	} ?>
 
-	print $langs->trans('YouAnswered') . ' ' . '<span class="answerCounter">'. $answerCounter .'</span>' . ' ' . $langs->trans('question(s)') . ' ' . $langs->trans('On') . ' ' . $questionCounter;
+    <div class="progress-info">
+        <span class="badge badge-info" style="margin-right: 10px;"><?php print $answerCounter . '/' . $questionCounter; ?></span>
+        <div class="progress-bar" style="margin-right: 10px;">
+            <div class="progress progress-bar-success" style="width:<?php print ($questionCounter > 0 ? ($answerCounter/$questionCounter) * 100 : 0) . '%'; ?>;" title="<?php print ($questionCounter > 0 ? $answerCounter . '/' . $questionCounter : 0); ?>"></div>
+        </div>
 
-    if ($object->status == $object::STATUS_DRAFT) {
-        print ' <i class="fas fa-user-edit"></i>';
-        print '<input type="checkbox" class="show-only-questions-with-no-answer"' . ($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? ' checked' : '') . '>';
-        print $form->textwithpicto('', $langs->trans('ShowOnlyQuestionsWithNoAnswer'));
-    }
+    <?php print $user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? img_picto($langs->trans('Enabled'), 'switch_on', 'class="show-only-questions-with-no-answer marginrightonly"') : img_picto($langs->trans('Disabled'), 'switch_off', 'class="show-only-questions-with-no-answer marginrightonly"');
+    print $form->textwithpicto($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>', $langs->trans('ShowOnlyQuestionsWithNoAnswer'));
+    print '</div>';
 
     if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
         print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', '');

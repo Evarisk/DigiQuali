@@ -331,15 +331,17 @@ window.digiquali.control.switchPublicControlView = function(  event ) {
  * @return {void}
  */
 window.digiquali.control.showOnlyQuestionsWithNoAnswer = function() {
-  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL)
-  let token          = window.saturne.toolbox.getToken()
+  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
+  let token          = window.saturne.toolbox.getToken();
 
   let showOnlyQuestionsWithNoAnswer;
-  if ($(this).is(':checked')) {
+  if ($(this).hasClass('fa-toggle-off')) {
     showOnlyQuestionsWithNoAnswer = 1;
   } else {
     showOnlyQuestionsWithNoAnswer = 0;
   }
+
+  window.saturne.loader.display($(this));
 
   $.ajax({
     url: document.URL + querySeparator + "action=show_only_questions_with_no_answer&token=" + token,
@@ -384,7 +386,7 @@ window.digiquali.control.saveAnswer = function(questionId, answer, comment) {
     processData: false,
     contentType: false,
     success: function(resp) {
-      $('.table-id-' + questionId).replaceWith($(resp).find('.table-id-' + questionId));
+      $('.fiche').replaceWith($(resp).find('.fiche'));
     },
     error: function() {}
   });

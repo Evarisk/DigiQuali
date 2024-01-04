@@ -455,7 +455,7 @@ if (($id || $ref) && $action == 'edit') {
 				$arrayselected[] = $cat->id;
 			}
 		}
-		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $cate_arbo, $object->getCategoriesCommon(436301002), '', 0, 'maxwidth500 widthcentpercentminusx');
+		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $cate_arbo, (GETPOSTISSET('categories') ? GETPOST('categories', 'array') : $arrayselected), '', 0, 'maxwidth500 widthcentpercentminusx');
         print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=sheet&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print "</td></tr>";
 	}
@@ -608,15 +608,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// QUESTIONS LINES
 	print '<div class="div-table-responsive-no-min">';
 	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '', 0, 'questionList');
-	print '<table id="tablelines" class="centpercent noborder noshadow">';
-
-	global $forceall, $forcetoshowtitlelines;
-
-	if (empty($forceall)) $forceall = 0;
-
-	// Define colspan for the button 'Add'
-	$colspan = 3;
-	?>
+	print '<table id="tablelines" class="centpercent noborder noshadow">'; ?>
 	<script>
 		$(document).ready(function(){
 			$(".move-line").css("background-image",'url(<?php echo DOL_URL_ROOT.'/theme/'.$conf->theme.'/img/grip.png'; ?>)');
@@ -627,27 +619,26 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	<?php
 	// Lines
 	print '<thead><tr class="liste_titre">';
-	print '<td>' . $langs->trans('Ref') . '</td>';
+	print '<td class="maxwidth300 widthcentpercentminusx">' . $langs->trans('Ref') . '</td>';
 	print '<td>' . $langs->trans('Label') . '</td>';
 	print '<td>' . $langs->trans('Description') . '</td>';
 	print '<td>' . $langs->trans('QuestionType') . '</td>';
   	print '<td class="center">' . $langs->trans('Mandatory') . '</td>';
 	print '<td class="center">' . $langs->trans('PhotoOk') . '</td>';
 	print '<td class="center">' . $langs->trans('PhotoKo') . '</td>';
-	print '<td>' . $langs->trans('Status') . '</td>';
+	print '<td class="center">' . $langs->trans('Status') . '</td>';
 	print '<td class="center">' . $langs->trans('Action') . '</td>';
 	print '<td class="center"></td>';
 	print '</tr></thead>';
 
 	if (is_array($questionIds) && !empty($questionIds)) {
-		print '<tbody><tr>';
 		foreach ($questionIds as $questionId) {
 			$item = $question;
 			$item->fetch($questionId);
 
 			print '<tr id="' . $item->id . '" class="line-row oddeven">';
 			print '<td>';
-			print $item->getNomUrl();
+			print $item->getNomUrl(1);
 			print '</td>';
 
 			print '<td>';
@@ -678,11 +669,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			print '<td class="center">';
 			print saturne_show_medias_linked('digiquali',$conf->digiquali->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ok',1,'',0,0,0,50,50,0,0,0,'question/' . $item->ref . '/photo_ok',$item,'photo_ok',0,0,1,1);
 			print '</td>';
-			print '<td>';
+            print '<td class="center">';
 			print saturne_show_medias_linked('digiquali',$conf->digiquali->multidir_output[$conf->entity] . '/question/' . $item->ref . '/photo_ko',1,'',0,0,0,50,50,0,0,0,'question/' . $item->ref . '/photo_ko',$item,'photo_ko',0,0,1,1);
 			print '</td>';
 
-			print '<td>';
+			print '<td class="center">';
 			print $item->getLibStatut(5);
 			print '</td>';
 
@@ -699,12 +690,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			} else {
 				print '<td>';
 			}
-			print '</td>';
-			print '</tr>';
-			// Other attributes
-			include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php';
+			print '</td></tr>';
 		}
-		print '</tr></tbody>';
 	}
 
 	if ($object->status < $object::STATUS_LOCKED) {
@@ -713,30 +700,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '<input type="hidden" name="action" value="addQuestion">';
 		print '<input type="hidden" name="id" value="' . $id . '">';
 
-		print '<tr class="add-line"><td class="">';
-		print $question->selectQuestionList(0, 'questionId', 's.status = ' . Question::STATUS_LOCKED, '1', 0, 0, array(), '', 0, 0, 'disabled', '', false, $questionIds);
+		print '<tr class="add-line"><td class="maxwidth300 widthcentpercentminusx">';
+		print img_picto('', $question->picto, 'class="pictofixedwidth"') . $question->selectQuestionList(0, 'questionId', 's.status = ' . Question::STATUS_LOCKED, '1', 0, 0, array(), '', 0, 0, 'disabled maxwidth300 widthcentpercentminusx', '', false, $questionIds);
 		print '</td>';
 		print '<td>';
-		print ' &nbsp; <input type="submit" id="actionButtonAdd" class="button wpeo-button" name="add" value="' . $langs->trans("Add") . '">';
-		print '</td>';
-		print '<td>';
-		print '</td>';
-		print '<td>';
-		print '</td>';
-		print '<td>';
-		print '</td>';
-		print '<td>';
-		print '</td>';
-		print '<td>';
-		print '</td>';
-		print '<td>';
-		print '</td>';
-		print '<td>';
-		print '</td>';
-		print '<td>';
-		print '</td>';
-		print '</tr>';
-
+		print '<input type="submit" id="actionButtonAdd" class="button wpeo-button" name="add" value="' . $langs->trans("Add") . '">';
+        print '</td><td colspan="8">';
+		print '</td></tr>';
 		print '</form>';
 	}
 
