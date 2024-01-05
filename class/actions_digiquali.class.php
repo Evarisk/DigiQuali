@@ -73,7 +73,7 @@ class ActionsDigiquali
 	{
 		$error = 0; // Error counter
 
-		if (($parameters['currentcontext'] == 'category')) {
+		if (strpos($parameters['context'], 'category') !== false) {
 			$tags = [
 				'question' => [
 					'id'        => 436301001,
@@ -119,7 +119,7 @@ class ActionsDigiquali
 
 		$error = 0; // Error counter
 
-		if (preg_match('/categorycard/', $parameters['context'])) {
+		if (strpos($parameters['context'], 'categorycard') !== false) {
             require_once __DIR__ . '/../class/question.class.php';
             require_once __DIR__ . '/../class/sheet.class.php';
             require_once __DIR__ . '/../class/control.class.php';
@@ -168,9 +168,9 @@ class ActionsDigiquali
 
 		$error = 0; // Error counter
 
-		if (preg_match('/categoryindex/', $parameters['context'])) {	    // do something only for the context 'somecontext1' or 'somecontext2'
+		if (strpos($parameters['context'], 'categoryindex') !== false) {	    // do something only for the context 'somecontext1' or 'somecontext2'
 			print '<script src="../custom/digiquali/js/digiquali.js"></script>';
-		} elseif ($parameters['currentcontext'] == 'productlotcard') {
+		} elseif (strpos($parameters['context'], 'productlotcard') !== false) {
             $productLot = new ProductLot($this->db);
             $productLot->fetch(GETPOST('id'));
             $objectB64 = $productLot->array_options['options_control_history_link'];
@@ -194,7 +194,7 @@ class ActionsDigiquali
         if (!empty($linkableElements)) {
             foreach($linkableElements as $linkableElement) {
                 if ($linkableElement['link_name'] == $object->element) {
-                    if ($parameters['currentcontext'] == $linkableElement['hook_name_card']) {
+                    if (strpos($parameters['context'], $linkableElement['hook_name_card']) !== false) {
                         $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
                         $extrafieldsNames = ['qc_frequency', 'control_history_link'];
                         foreach ($extrafieldsNames as $extrafieldsName) {
@@ -205,7 +205,7 @@ class ActionsDigiquali
                             </script>
                             <?php
                         }
-                    } elseif (in_array($parameters['currentcontext'], [$linkableElement['hook_name_list'], 'projecttaskscard']) || preg_match('/' . $linkableElement['hook_name_list'] . '/', $parameters['context'])) {
+                    } elseif (preg_match('/' . $linkableElement['hook_name_list'] . '|projecttaskscard/', $parameters['context'])) {
                         $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
                         $extrafieldsNames = ['qc_frequency', 'control_history_link'];
                         foreach ($extrafieldsNames as $extrafieldsName) { ?>
@@ -239,7 +239,7 @@ class ActionsDigiquali
      * @return void
      */
     public function formObjectOptions(array $parameters, object $object) {
-        if ($parameters['currentcontext'] == 'productlotcard') {
+        if (strpos($parameters['context'], 'productlotcard') !== false) {
             $objectData = ['type' => $object->element, 'id' => $object->id];
 
             $objectDataJson = json_encode($objectData);
@@ -262,7 +262,7 @@ class ActionsDigiquali
 	{
 		global $conf;
 
-		if ($parameters['currentcontext'] == 'mainloginpage') {
+		if (strpos($parameters['context'], 'mainloginpage') !== false) {
 			if ($conf->global->DIGIQUALI_REDIRECT_AFTER_CONNECTION) {
 				$value = dol_buildpath('/custom/digiquali/digiqualiindex.php?mainmenu=digiquali', 1);
 			} else {
@@ -291,7 +291,7 @@ class ActionsDigiquali
         global $conf, $langs;
 
         // Do something only for the current context.
-        if (preg_match('/controlcard/', $parameters['context'])) {
+        if (strpos($parameters['context'], 'controlcard') !== false) {
             if ($conf->browser->layout == 'phone') {
                 $morehtmlref = '<br><div>' . img_picto('', 'fontawesome_fa-caret-square-down_far_#966EA2F2_fa-2em', 'class="toggleControlInfo pictofixedwidth valignmiddle" style="width: 35px;"') . $langs->trans('DisplayMoreInfo') . '</div>';
             } else {
@@ -315,7 +315,7 @@ class ActionsDigiquali
         global $conf, $mysoc;
 
         // Do something only for the current context.
-        if (in_array($parameters['currentcontext'], ['publiccontrol', 'publicsurvey', 'publiccontrolhistory'])) {
+        if (preg_match('/publiccontrol|publicsurvey|publiccontrolhistory/', $parameters['context'])) {
             if (!empty($conf->global->SATURNE_SHOW_COMPANY_LOGO)) {
                 // Define logo and logoSmall.
                 $logoSmall = $mysoc->logo_small;
@@ -349,7 +349,7 @@ class ActionsDigiquali
     public function saturneAdminDocumentData(array $parameters): int
     {
         // Do something only for the current context.
-        if ($parameters['currentcontext'] == 'digiqualiadmindocuments') {
+        if (strpos($parameters['context'], 'digiqualiadmindocuments') !== false) {
             $types = [
                 'ControlDocument' => [
                     'documentType' => 'controldocument',
@@ -371,7 +371,7 @@ class ActionsDigiquali
     public function saturneAdminObjectConst(array $parameters): int
     {
         // Do something only for the current context.
-        if ($parameters['currentcontext'] == 'digiqualiadmindocuments') {
+        if (strpos($parameters['context'], 'digiqualiadmindocuments') !== false) {
             $constArray['digiquali'] = [
                 'controldocument' => [
                     'name'        => 'ControlDocumentDisplayMedias',
