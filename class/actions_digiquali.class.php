@@ -135,6 +135,27 @@ class ActionsDigiquali
 		}
 	}
 
+    /**
+     * Overloading the addHtmlHeader function : replacing the parent's function with the one below
+     *
+     * @param  array $parameters Hook metadata (context, etc...)
+     * @return int               0 < on error, 0 on success, 1 to replace standard code
+     */
+    public function addHtmlHeader(array $parameters): int
+    {
+        if (strpos($_SERVER['PHP_SELF'], 'digiquali') !== false) {
+            ?>
+            <script>
+                console.log($('link[rel="manifest"]').remove());
+            </script>
+            <?php
+
+            $this->resprints = '<link rel="manifest" href="' . DOL_URL_ROOT . '/custom/digiquali/manifest.json.php' . '" />';
+        }
+
+        return 0; // or return 1 to replace standard code-->
+    }
+
 	/**
 	 * Overloading the printCommonFooter function : replacing the parent's function with the one below
 	 *
