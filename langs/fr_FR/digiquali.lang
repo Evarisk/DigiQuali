@@ -360,6 +360,63 @@ controldocument_photo.odt               = Fiche de Contrôle avec photos
 controldocument_photo                   = fiche de controle avec photos
 
 
+
+#
+# Survey - Questionnaire
+#
+
+# Data - Donnée
+Survey                                        = Questionnaire
+SurveysMin                                     = contrôles
+TheSurvey                                     = le contrôle
+CreateControl                                  = Créer un contrôle
+AddControl                                     = Ajouter un contrôle
+NewSurvey                                     = Nouveau contrôle
+ControlList                                    = Liste des contrôles
+Controls                                       = Contrôles
+ActionsOnControl                               = Événements liés au contrôle
+SurveysCategoriesArea                          = Espace des tags/catégories des contrôles
+ControlsRepartition                            = Répartition des contrôles par verdict
+ControlsTagsRepartition                        = Répartition des contrôles par verdict et par catégories
+ControlsByFiscalYear                           = Rapport des contrôles sur l'exercice fiscal
+OfControl                                      = du contrôle
+PublicControl                                  = Interface publique de contrôle
+PublicSurveyTitle                              = Titre de l'interface publique de réponse au contrôle
+PublicSurveyTitleDescription                   = Définir le titre de l'interface publique de réponse au contrôle
+YourAnswersHaveBeenSaved                       = Vos réponses ont bien été sauvegardées
+DaysBeforeNextControl                          = Jours avant prochain contrôle
+SelectProductLots                              = Sélectionner un numéro de lot/série
+NoProductLot                                   = Pas de numéro de lot/série
+ErrorEquipmentLink                             = L'équipement n'a pas pu être lié
+LastControl                                    = Dernier contrôle
+ShowObjectControlHistory                       = Voir l'historique de contrôle
+NoControlOnThisObject                          = Le contrôle initial n'a pas été réalisé, veuillez vous référer à la notice et contacter votre responsable qualité
+ControlHistoryLink                             = Historique de contrôle
+EnablePublicControlHistory                     = Afficher l'historique public de contrôle
+EnablePublicControlHistoryDescription          = Permet l'affichage de l'historique de contrôle sur l'interface publique de contrôle
+ShowLastControlFirstOnPublicHistory            = Afficher le dernier contrôle en priorité sur l'interface publique de contrôle
+ShowLastControlFirstOnPublicHistoryDescription = Force l'affichage du dernier contrôle à la place de la liste des contrôles de l'objet sur l'interface publique de contrôle
+NonFinalVerdict                                = Le contrôle n'étant pas verrouillé, le verdict peut encore changer
+GoToPublicSurveyPage                           = Voir l'interface publique de réponse
+BeCarefullVerdictKO                            = Attention si le statut de votre contrôle est KO. Il faudra refaire votre contrôle.
+ShowQcFrequencyPublicInterface                 = Afficher la période de validé (en jours) sur l'interface publique de contrôle
+ShowQcFrequencyPublicInterfaceDescription      = Option permettant l'affichage la période de validé (en jours) sur l'interface publique de contrôle
+
+#
+# SurveyDocument - Fiche du Questionnaire
+#
+
+# Data - Donnée
+SurveyDocument           = Fiche du Questionnaire
+Surveydocument           = Fiche du Questionnaire
+SurveyDocumentsMin       = fiches du questionnaire
+surveydocument           = fiche du questionnaire
+surveydocument.odt       = Fiche du Questionnaire
+surveydocument_photo.odt = Fiche du Questionnaire avec photos
+surveydocument_photo     = fiche du questionnaire avec photos
+
+
+
 #
 # Tools - Outils
 #

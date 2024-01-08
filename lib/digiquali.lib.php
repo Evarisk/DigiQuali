@@ -58,6 +58,11 @@ function digiquali_admin_prepare_head(): array
     $head[$h][2] = 'control';
     $h++;
 
+    $head[$h][0] = dol_buildpath('/saturne/admin/object.php', 1) . '?module_name=DigiQuali&object_type=survey';
+    $head[$h][1] = $conf->browser->layout != 'phone' ? '<i class="fas fa-marker pictofixedwidth"></i>' . $langs->trans('Survey') : '<i class="fas fa-marker"></i>';
+    $head[$h][2] = 'survey';
+    $h++;
+
     $head[$h][0] = dol_buildpath('/saturne/admin/documents.php?module_name=DigiQuali', 1);
     $head[$h][1] = $conf->browser->layout != 'phone' ? '<i class="fas fa-file-alt pictofixedwidth"></i>' . $langs->trans('YourDocuments') : '<i class="fas fa-file-alt"></i>';
     $head[$h][2] = 'documents';
