@@ -92,7 +92,13 @@ class ActionsDigiquali
 					'code'      => 'control',
 					'obj_class' => 'Control',
 					'obj_table' => 'digiquali_control',
-				]
+				],
+                'survey' => [
+                    'id'        => 436301004,
+                    'code'      => 'survey',
+                    'obj_class' => 'Survey',
+                    'obj_table' => 'digiquali_survey',
+                ]
 			];
 		}
 
@@ -123,6 +129,7 @@ class ActionsDigiquali
             require_once __DIR__ . '/../class/question.class.php';
             require_once __DIR__ . '/../class/sheet.class.php';
             require_once __DIR__ . '/../class/control.class.php';
+            require_once __DIR__ . '/../class/survey.class.php';
 		}
 
 		if (!$error) {
