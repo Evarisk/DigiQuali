@@ -73,7 +73,7 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Initialize objects
 // Technical objets
 $object           = new Control($db);
-$controldet       = new ControlLine($db);
+$objectLine       = new ControlLine($db);
 $document         = new ControlDocument($db);
 $signatory        = new SaturneSignature($db, 'digiquali');
 $controlEquipment = new ControlEquipment($db);
@@ -208,7 +208,7 @@ if (empty($resHook)) {
         dol_set_user_param($db, $conf, $user, $tabParam);
     }
 
-	require_once __DIR__ . '/../../core/tpl/digiquali_control_answers_save_action.tpl.php';
+	require_once __DIR__ . '/../../core/tpl/digiquali_answers_save_action.tpl.php';
 
     // Actions builddoc, forcebuilddoc, remove_file.
     require_once __DIR__ . '/../../../saturne/core/tpl/documents/documents_action.tpl.php';
@@ -237,61 +237,6 @@ if (empty($resHook)) {
 		}
 	}
 
-	// Action to set status STATUS_VALIDATED
-	if ($action == 'confirm_setValidated') {
-		$object->fetch($id);
-		if ( ! $error) {
-			$result = $object->validate($user, false);
-			if ($result > 0) {
-				$controldet = new ControlLine($db);
-				$sheet->fetch($object->fk_sheet);
-				$object->fetchObjectLinked($sheet->id, 'digiquali_sheet', '', '', 'OR', 1, 'sourcetype', 0);
-				$questionIds = $object->linkedObjectsIds;
-				foreach ($questionIds['digiquali_question'] as $questionId) {
-					$controldettmp = $controldet;
-					//fetch controldet avec le fk_question et fk_control, s'il existe on l'update sinon on le crée
-					$result = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
-
-					//sauvegarder réponse
-					$questionAnswer = GETPOST('answer'.$questionId);
-					if (!empty($questionAnswer)) {
-						$controldettmp->answer = $questionAnswer;
-					}
-
-					//sauvegarder commentaire
-					$comment = GETPOST('comment'.$questionId);
-					if (dol_strlen($comment) > 0) {
-						$controldettmp->comment = $comment;
-					}
-
-					if ($result > 0 && is_array($result)) {
-						$controldettmp = array_shift($result);
-
-						$controldettmp->update($user);
-					} else {
-						if (empty($controldettmp->ref)) {
-							$controldettmp->ref = $controldettmp->getNextNumRef();
-						}
-						$controldettmp->fk_control  = $object->id;
-						$controldettmp->fk_question = $questionId;
-						$controldettmp->entity      = $conf->entity;
-
-						$controldettmp->insert($user);
-					}
-				}
-				// Set validated OK
-				$urltogo = str_replace('__ID__', $result, $backtopage);
-				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-				header('Location: ' . $urltogo);
-				exit;
-			} else {
-				// Set validated KO
-				if ( ! empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
-				else setEventMessages($object->error, null, 'errors');
-			}
-		}
-	}
-
 	// Action to set status STATUS_REOPENED
 	if ($action == 'confirm_setReopened') {
 		$object->fetch($id);
@@ -313,43 +258,8 @@ if (empty($resHook)) {
 		}
 	}
 
-	// Action to set status STATUS_LOCKED
-	if ($action == 'confirm_lock') {
-		$object->fetch($id);
-		if (!$error) {
-			$result = $object->setLocked($user);
-			if ($result > 0) {
-				// Set Locked OK
-				$urltogo = str_replace('__ID__', $result, $backtopage);
-				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-				header('Location: ' . $urltogo);
-				exit;
-			} elseif (!empty($object->errors)) { // Set Locked KO.
-				setEventMessages('', $object->errors, 'errors');
-			} else {
-				setEventMessages($object->error, [], 'errors');
-			}
-		}
-	}
-
-	// Action to set status STATUS_ARCHIVED.
-	if ($action == 'confirm_archive' && $permissiontoadd) {
-		$object->fetch($id);
-		if (!$error) {
-			$result = $object->setArchived($user);
-			if ($result > 0) {
-				// Set Archived OK.
-				$urltogo = str_replace('__ID__', $result, $backtopage);
-				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation.
-				header('Location: ' . $urltogo);
-				exit;
-			} elseif (!empty($object->errors)) { // Set Archived KO.
-				setEventMessages('', $object->errors, 'errors');
-			} else {
-				setEventMessages($object->error, [], 'errors');
-			}
-		}
-	}
+    // Actions confirm_lock, confirm_archive
+    require_once __DIR__ . '/../../../saturne/core/tpl/object/object_action_workflow.tpl.php';
 
 	// Actions to send emails
 	$triggersendname = 'CONTROL_SENTBYMAIL';
@@ -374,7 +284,7 @@ $elementArray = get_sheet_linkable_objects();
 if ($action == 'create') {
 	print load_fiche_titre($langs->trans('NewControl'), '', 'object_' . $object->picto);
 
-	print '<form method="POST" id="createControlForm" action="'.$_SERVER['PHP_SELF'].'">';
+	print '<form method="POST" id="createObjectForm" action="'.$_SERVER['PHP_SELF'].'">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="add">';
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
@@ -411,7 +321,7 @@ if ($action == 'create') {
 	print '</table>';
 	print '<hr>';
 
-	print '<table class="border centpercent tableforfieldcreate control-table linked-objects">'."\n";
+	print '<table class="border centpercent tableforfieldcreate object-table linked-objects">'."\n";
 
 	print '<tr><td>';
 	print '<div class="fields-content">';
@@ -561,7 +471,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		$questionConfirmInfo .= '<br><br><b>' . $langs->trans('ConfirmValidateControl') . '</b>';
-		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ValidateControl'), $questionConfirmInfo, 'confirm_setValidated', '', 'yes', 'actionButtonValidate', 250);
+		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ValidateControl'), $questionConfirmInfo, 'confirm_validate', '', 'yes', 'actionButtonValidate', 250);
 	}
 
 	// SetReopened confirmation
@@ -610,7 +520,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', '', !empty($object->photo));
 
-	print '<div class="fichecenter controlInfo' . ($onPhone ? ' hidden' : '') . '">';
+	print '<div class="fichecenter object-infos' . ($onPhone ? ' hidden' : '') . '">';
 	print '<div class="fichehalfleft">';
 	print '<table class="border centpercent tableforfield">'."\n";
 
@@ -618,23 +528,23 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	unset($object->fields['projectid']); // Hide field already shown in banner
 
   if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {
-      $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $object->track_id . '&entity=' . $conf->entity, 3);
-      print '<input hidden class="copy-to-clipboard" value="'. $publicControlInterfaceUrl .'">';
-      print '<tr><td class="titlefield">' . $langs->trans('PublicControl') . ' <a href="' . $publicControlInterfaceUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
+      $publicInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $object->track_id . '&entity=' . $conf->entity, 3);
+      print '<input hidden class="copy-to-clipboard" value="'. $publicInterfaceUrl .'">';
+      print '<tr><td class="titlefield">' . $langs->trans('PublicInterface') . ' <a href="' . $publicInterfaceUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
       print ' <i class="fas fa-clipboard clipboard-copy"></i>';
       print '<input hidden id="copyToClipboardTooltip" value="'. $langs->trans('CopiedToClipboard') .'">';
       print '</td>';
       print '<td>' . saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
 
-      //Survey public interface
+      // Answer public interface
       print '<tr><td class="titlefield">';
-      $publicSurveyUrl = dol_buildpath('custom/digiquali/public/control/public_survey.php?track_id=' . $object->track_id . '&entity=' . $conf->entity, 3);
-      print $langs->trans('PublicSurvey');
-      print ' <a href="' . $publicSurveyUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
-      print showValueWithClipboardCPButton($publicSurveyUrl, 0, '&nbsp;');
+      $publicAnswerUrl = dol_buildpath('custom/digiquali/public/public_answer.php?track_id=' . $object->track_id . '&object_type=' . $object->element . '&entity=' . $conf->entity, 3);
+      print $langs->trans('PublicAnswer');
+      print ' <a href="' . $publicAnswerUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
+      print showValueWithClipboardCPButton($publicAnswerUrl, 0, '&nbsp;');
       print '</td>';
       print '<td>';
-      print '<a href="' . $publicSurveyUrl . '" target="_blank">'. $langs->trans('GoToPublicSurveyPage') .' <i class="fa fa-external-link"></a>';
+      print '<a href="' . $publicAnswerUrl . '" target="_blank">' . $langs->trans('GoToPublicAnswerPage') . ' <i class="fa fa-external-link"></a>';
       print '</td></tr>';
   }
 
@@ -770,7 +680,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     if (is_array($mandatoryArray) && !empty($mandatoryArray) && is_array($questionIds) && !empty($questionIds)) {
         foreach ($questionIds as $questionId) {
             if (in_array($questionId, $mandatoryArray)) {
-                $controldettmp = $controldet;
+                $controldettmp = $objectLine;
                 $resultQuestion = $question->fetch($questionId);
                 $resultAnswer = $controldettmp->fetchFromParentWithQuestion($object->id, $questionId);
                 if (($resultAnswer > 0 && is_array($resultAnswer)) || !empty($controldettmp)) {
@@ -796,7 +706,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		</div>
 	<?php }
 
-	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?action=save&id='.$object->id.'" id="saveControl" enctype="multipart/form-data">';
+	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?action=save&id='.$object->id.'" id="saveObject" enctype="multipart/form-data">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="save">';
 
@@ -940,8 +850,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
         print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', '');
-        print '<div id="tablelines" class="control-audit noborder noshadow">';
-        require_once __DIR__ . '/../../core/tpl/digiquali_control_answers.tpl.php';
+        print '<div id="tablelines" class="question-answer-container noborder noshadow">';
+        require_once __DIR__ . '/../../core/tpl/digiquali_answers.tpl.php';
         print '</div>';
     }
 
