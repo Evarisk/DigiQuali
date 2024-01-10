@@ -36,7 +36,7 @@ function survey_prepare_head(Survey $object): array
     // Global variables definitions
     global $conf, $langs;
 
-    $head[1][0] = dol_buildpath('/digiquali/view/survey/survey_medias.php', 1) . '?id=' . $object->id;
+    $head[1][0] = dol_buildpath('/digiquali/view/object_medias.php', 1) . '?id=' . $object->id . '&object_type=survey';
     $head[1][1] = $conf->browser->layout != 'phone' ? '<i class="fas fa-file-image pictofixedwidth"></i>' . $langs->trans('Medias') : '<i class="fas fa-file-image"></i>';
     $head[1][2] = 'medias';
 

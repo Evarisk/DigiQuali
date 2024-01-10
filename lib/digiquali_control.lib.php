@@ -36,7 +36,7 @@ function control_prepare_head(Control $object): array
     // Global variables definitions.
     global $conf, $db, $langs;
 
-    $head[1][0] = dol_buildpath('/digiquali/view/control/control_medias.php', 1) . '?id=' . $object->id;
+    $head[1][0] = dol_buildpath('/digiquali/view/object_medias.php', 1) . '?id=' . $object->id . '&object_type=control';
     $head[1][1] = $conf->browser->layout != 'phone' ? '<i class="fas fa-file-image pictofixedwidth"></i>' . $langs->trans('Medias') : '<i class="fas fa-file-image"></i>';
     $head[1][2] = 'medias';
 
