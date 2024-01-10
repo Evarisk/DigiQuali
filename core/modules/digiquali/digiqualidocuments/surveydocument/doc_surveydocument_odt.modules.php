@@ -81,6 +81,7 @@ class doc_surveydocument_odt extends SaturneDocumentModel
         return parent::info($langs);
     }
 
+    //@todo
     /**
      * Fill all odt tags for segments lines
      *
@@ -223,6 +224,7 @@ class doc_surveydocument_odt extends SaturneDocumentModel
         return 0;
     }
 
+    //@todo
     /**
      * Function to build a document on disk
      *
