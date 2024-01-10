@@ -23,20 +23,10 @@
  */
 
 // Load Dolibarr libraries
-require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
-require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
-require_once DOL_DOCUMENT_ROOT . '/core/lib/company.lib.php';
-
 require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
-require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
-require_once DOL_DOCUMENT_ROOT . '/projet/class/task.class.php';
-
-// Load Saturne libraries
-require_once __DIR__ . '/../../../../../../saturne/class/saturnesignature.class.php';
-require_once __DIR__ . '/../../../../../../saturne/core/modules/saturne/modules_saturne.php';
 
 // Load DigiQuali libraries
-require_once __DIR__ . '/mod_controldocument_standard.php';
+require_once __DIR__ . '/mod_surveydocument_standard.php';
 require_once __DIR__ . '/../../../../../lib/digiquali_sheet.lib.php';
 
 require_once __DIR__ . '/../../../../../class/question.class.php';
@@ -90,6 +80,7 @@ class doc_surveydocument_odt extends SaturneDocumentModel
         return parent::info($langs);
     }
 
+    //@todo
     /**
      * Fill all odt tags for segments lines
      *
@@ -131,7 +122,7 @@ class doc_surveydocument_odt extends SaturneDocumentModel
                     $questionIds = $sheet->linkedObjectsIds;
 
                     if (is_array($questionIds['digiquali_question']) && !empty($questionIds['digiquali_question'])) {
-                        $controldet = new ControlLine($this->db);
+                        $controldet = new SurveyLine($this->db);
                         $question   = new Question($this->db);
                         $answer     = new Answer($this->db);
                         foreach ($questionIds['digiquali_question'] as $questionId) {
@@ -185,7 +176,7 @@ class doc_surveydocument_odt extends SaturneDocumentModel
                                         $tmpArray['answer'] = '';
                                 }
 
-                                $path     = $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/answer_photo/' . $question->ref;
+                                $path     = $conf->digiquali->multidir_output[$conf->entity] . '/survey/' . $object->ref . '/answer_photo/' . $question->ref;
                                 $fileList = dol_dir_list($path, 'files');
                                 // Fill an array with photo path and ref of the answer for next loop.
                                 if (is_array($fileList) && !empty($fileList)) {
@@ -245,6 +236,7 @@ class doc_surveydocument_odt extends SaturneDocumentModel
         return 0;
     }
 
+    //@todo
     /**
      * Function to build a document on disk
      *
@@ -323,18 +315,6 @@ class doc_surveydocument_odt extends SaturneDocumentModel
         $tmpArray['project_label']    = $projecttmp->ref . ' - ' . $projecttmp->title;
         $tmpArray['sheet_ref']        = $sheet->ref;
         $tmpArray['sheet_label']      = $sheet->label;
-
-        switch ($object->verdict) {
-            case 1:
-                $tmpArray['verdict'] = 'OK';
-                break;
-            case 2:
-                $tmpArray['verdict'] = 'KO';
-                break;
-            default:
-                $tmpArray['verdict'] = '';
-                break;
-        }
 
         $tmpArray['public_note'] = $object->note_public;
 

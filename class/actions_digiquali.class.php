@@ -354,6 +354,10 @@ class ActionsDigiquali
                 'ControlDocument' => [
                     'documentType' => 'controldocument',
                     'picto'        => 'fontawesome_fa-tasks_fas_#d35968'
+                ],
+                'SurveyDocument' => [
+                    'documentType' => 'surveydocument',
+                    'picto'        => 'fontawesome_fa-marker_fas_#d35968'
                 ]
             ];
             $this->results = $types;
