@@ -41,7 +41,13 @@ MainSheetCategoriesDescription = Cette option permet la génération des catégo
 SheetMainCategory              = Choix de la catégorie principale du modèle de contrôle
 SheetMainCategoryDescription   = Cette option permet de choisir quelle catégorie sera utilisée lors du choix de catégorie pendant la création d'un contrôle
 
-#
+# Survey - Questionnaire
+DisplayMediasSample            = Afficher les médias d'exemple des questions
+DisplayMediasSampleDescription = Afficher les médias d'exemple des questions dans le questionnaire
+ExtrafieldsSurveyManagement    = Gestion des attributs supplémentaires des questionnaires
+
+
+
 # Questions
 #
 

@@ -126,7 +126,8 @@ class modDigiQuali extends DolibarrModules
                 'publicsurvey',
                 'digiqualiadmindocuments',
                 'projecttaskscard',
-                'main'
+                'main',
+                'surveyadmin'
 			],
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,

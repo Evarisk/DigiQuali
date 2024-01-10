@@ -374,20 +374,42 @@ class ActionsDigiquali
     }
 
     /**
-     * Overloading the saturneAdminObjectConst function : replacing the parent's function with the one below.
+     * Overloading the saturneAdminObjectConst function : replacing the parent's function with the one below
      *
-     * @param  array $parameters Hook metadatas (context, etc...).
-     * @return int               0 < on error, 0 on success, 1 to replace standard code.
+     * @param  array $parameters Hook metadatas (context, etc...)
+     * @return int               0 < on error, 0 on success, 1 to replace standard code
      */
     public function saturneAdminObjectConst(array $parameters): int
     {
-        // Do something only for the current context.
-        if (strpos($parameters['context'], 'digiqualiadmindocuments') !== false) {
+        // Do something only for the current context
+//        if ($parameters['currentcontext'] == 'digiqualiadmindocuments') {
+//            $constArray['digiquali'] = [
+////                'controldocument' => [
+////                    'name'        => 'ControlDocumentDisplayMedias',
+////                    'description' => 'ControlDocumentDisplayMediasDescription',
+////                    'code'        => 'DIGIQUALI_CONTROLDOCUMENT_DISPLAY_MEDIAS'
+////                ]
+//            ];
+//            $this->results = $constArray;
+//            return 1;
+//        }
+
+        if (strpos($parameters['context'], 'surveyadmin') !== false) {
             $constArray['digiquali'] = [
-                'controldocument' => [
-                    'name'        => 'ControlDocumentDisplayMedias',
-                    'description' => 'ControlDocumentDisplayMediasDescription',
-                    'code'        => 'DIGIQUALI_CONTROLDOCUMENT_DISPLAY_MEDIAS'
+                'DisplayMedias' => [
+                    'name'        => 'DisplayMediasSample',
+                    'description' => 'DisplayMediasSampleDescription',
+                    'code'        => 'DIGIQUALI_SURVEY_DISPLAY_MEDIAS',
+                ],
+                'UseLargeSizeMedia' => [
+                    'name'        => 'UseLargeSizeMedia',
+                    'description' => 'UseLargeSizeMediaDescription',
+                    'code'        => 'DIGIQUALI_SURVEY_USE_LARGE_MEDIA_IN_GALLERY',
+                ],
+                'AutoSaveActionQuestionAnswer' => [
+                    'name'        => 'AutoSaveActionQuestionAnswer',
+                    'description' => 'AutoSaveActionQuestionAnswerDescription',
+                    'code'        => 'DIGIQUALI_SURVEYDET_AUTO_SAVE_ACTION',
                 ]
             ];
             $this->results = $constArray;
