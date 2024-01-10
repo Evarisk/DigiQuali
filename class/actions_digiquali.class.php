@@ -333,6 +333,10 @@ class ActionsDigiquali
                 'ControlDocument' => [
                     'documentType' => 'controldocument',
                     'picto'        => 'fontawesome_fa-tasks_fas_#d35968'
+                ],
+                'SurveyDocument' => [
+                    'documentType' => 'surveydocument',
+                    'picto'        => 'fontawesome_fa-marker_fas_#d35968'
                 ]
             ];
             $this->results = $types;
@@ -350,17 +354,17 @@ class ActionsDigiquali
     public function saturneAdminObjectConst(array $parameters): int
     {
         // Do something only for the current context.
-        if ($parameters['currentcontext'] == 'digiqualiadmindocuments') {
-            $constArray['digiquali'] = [
-                'controldocument' => [
-                    'name'        => 'ControlDocumentDisplayMedias',
-                    'description' => 'ControlDocumentDisplayMediasDescription',
-                    'code'        => 'DIGIQUALI_CONTROLDOCUMENT_DISPLAY_MEDIAS'
-                ]
-            ];
-            $this->results = $constArray;
-            return 1;
-        }
+//        if ($parameters['currentcontext'] == 'digiqualiadmindocuments') {
+//            $constArray['digiquali'] = [
+//                'controldocument' => [
+//                    'name'        => 'ControlDocumentDisplayMedias',
+//                    'description' => 'ControlDocumentDisplayMediasDescription',
+//                    'code'        => 'DIGIQUALI_CONTROLDOCUMENT_DISPLAY_MEDIAS'
+//                ]
+//            ];
+//            $this->results = $constArray;
+//            return 1;
+//        }
 
         return 0; // or return 1 to replace standard code.
     }
