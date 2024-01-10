@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2021-2023 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2021-2024 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,23 +18,23 @@
 /**
  * \file    class/digiqualidashboard.class.php
  * \ingroup digiquali
- * \brief   Class file for manage DigiqualiDashboard.
+ * \brief   Class file for manage DigiqualiDashboard
  */
 
 /**
- * Class for DigiqualiDashboard.
+ * Class for DigiqualiDashboard
  */
 class DigiqualiDashboard
 {
     /**
-     * @var DoliDB Database handler.
+     * @var DoliDB Database handler
      */
     public DoliDB $db;
 
     /**
-     * Constructor.
+     * Constructor
      *
-     * @param DoliDB $db Database handler.
+     * @param DoliDB $db Database handler
      */
     public function __construct(DoliDB $db)
     {
@@ -42,7 +42,7 @@ class DigiqualiDashboard
     }
 
     /**
-     * Load dashboard info.
+     * Load dashboard info
      *
      * @return array
      * @throws Exception
@@ -50,10 +50,13 @@ class DigiqualiDashboard
     public function load_dashboard(): array
     {
         require_once __DIR__ . '/control.class.php';
+        require_once __DIR__ . '/survey.class.php';
 
         $control = new Control($this->db);
+        $survey = new Survey($this->db);
 
         $array['control'] = $control->load_dashboard();
+        $array['survey']  = $survey->load_dashboard();
 
         return $array;
     }

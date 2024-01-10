@@ -220,6 +220,7 @@ class modDigiQuali extends DolibarrModules
 
             // CONST SURVEY
             $i++ => ['DIGIQUALI_SURVEY_ADDON', 'chaine', 'mod_survey_standard', '', 0, 'current'],
+            $i++ => ['DIGIQUALI_SURVEY_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
 
             // CONST DIGIQUALI DOCUMENTS
             $i++ => ['DIGIQUALI_AUTOMATIC_PDF_GENERATION', 'integer', 0, '', 0, 'current'],
@@ -306,6 +307,7 @@ class modDigiQuali extends DolibarrModules
                     $objectType = $linkableElement['tab_type'];
                 }
 				$this->tabs[] = ['data' => $objectType . ':+control:' . $pictoDigiQuali . $langs->trans('Controls') . ':digiquali@digiquali:$user->rights->digiquali->control->read:/custom/digiquali/view/control/control_list.php?fromid=__ID__&fromtype=' . $linkableElement['link_name']];
+				$this->tabs[] = ['data' => $objectType . ':+survey:' . $pictoDigiQuali . $langs->trans('Surveys') . ':digiquali@digiquali:$user->rights->digiquali->survey->read:/custom/digiquali/view/survey/survey_list.php?fromid=__ID__&fromtype=' . $linkableElement['link_name']];
 
                 $this->module_parts['hooks'][] = $linkableElement['hook_name_list'];
                 $this->module_parts['hooks'][] = $linkableElement['hook_name_card'];
@@ -452,17 +454,17 @@ class modDigiQuali extends DolibarrModules
 
         /* SURVEY PERMISSSIONS */
         $this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-        $this->rights[$r][1] = $langs->transnoentities('ReadObjects',$langs->transnoentities('Surveys')); // Permission label
+        $this->rights[$r][1] = $langs->transnoentities('ReadObjects', dol_strtolower($langs->transnoentities('Surveys'))); // Permission label
         $this->rights[$r][4] = 'survey'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
         $this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
         $r++;
         $this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-        $this->rights[$r][1] = $langs->transnoentities('CreateObjects', $langs->transnoentities('Surveys')); // Permission label
+        $this->rights[$r][1] = $langs->transnoentities('CreateObjects', dol_strtolower($langs->transnoentities('Surveys'))); // Permission label
         $this->rights[$r][4] = 'survey'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
         $this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
         $r++;
         $this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
-        $this->rights[$r][1] = $langs->transnoentities('DeleteObjects', $langs->transnoentities('Surveys')); // Permission label
+        $this->rights[$r][1] = $langs->transnoentities('DeleteObjects', dol_strtolower($langs->transnoentities('Surveys'))); // Permission label
         $this->rights[$r][4] = 'survey'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
         $this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
         $r++;
