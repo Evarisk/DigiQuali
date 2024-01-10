@@ -287,7 +287,6 @@ ObjectLinked                                   = Objet lié(s)
 NextControlDate                                = Prochaine date de contrôle
 NextControl                                    = Prochain contrôle
 QuestionMustBeAnswered                         = Vous devez encore répondre à %s question(s) obligatoire(s)
-NoControlAnswersPhoto                          = Pas de photos sur les réponses du contrôle
 ControlEquipment                               = Moyens de contrôle
 ControlEquipmentList                           = Liste des moyens de contrôle utilisés
 AddEquipmentLink                               = Moyen de contrôle ajouté :
@@ -303,7 +302,6 @@ GoToEquipmentHours                             = Aller sur la page des moyens de
 ExpiredSince                                   = Expiré depuis
 RemainingDays                                  = Jours avant expiration
 NoEquipmentLinked                              = Aucun moyen de contrôle lié
-NoControlAnswersPhoto                          = Pas de photos sur les réponses du contrôle
 NeedObjectToControl                            = Vous devez sélectionner un objet à contrôler
 NeedFkSheet                                    = Vous devez sélectionner un modèle de contrôle
 ControlReminder                                = Rappel d'événement de contrôle
@@ -313,7 +311,7 @@ ControlReminderFrequencyDescription            = Choisir la fréquence de rappel
 ControlReminderType                            = Type de rappel d'évènement de contrôle
 ControlReminderTypeDescription                 = Choisir le type de rappel d'évènement de contrôle <br> (par défaut : navigateur)
 controlled                                     = contrôlé(e)
-PublicSurvey                                   = Interface publique de réponse au contrôle
+PublicAnswer                                   = Interface publique de réponse
 PublicSurveyTitle                              = Titre de l'interface publique de réponse au contrôle
 PublicSurveyTitleDescription                   = Définir le titre de l'interface publique de réponse au contrôle
 YourAnswersHaveBeenSaved                       = Vos réponses ont bien été sauvegardées
@@ -330,7 +328,7 @@ EnablePublicControlHistoryDescription          = Permet l'affichage de l'histori
 ShowLastControlFirstOnPublicHistory            = Afficher le dernier contrôle en priorité sur l'interface publique de contrôle
 ShowLastControlFirstOnPublicHistoryDescription = Force l'affichage du dernier contrôle à la place de la liste des contrôles de l'objet sur l'interface publique de contrôle
 NonFinalVerdict                                = Le contrôle n'étant pas verrouillé, le verdict peut encore changer
-GoToPublicSurveyPage                           = Voir l'interface publique de réponse
+GoToPublicAnswerPage                           = Voir l'interface publique de réponse
 BeCarefullVerdictKO                            = Attention si le statut de votre contrôle est KO. Il faudra refaire votre contrôle.
 ShowQcFrequencyPublicInterface                 = Afficher la période de validé (en jours) sur l'interface publique de contrôle
 ShowQcFrequencyPublicInterfaceDescription      = Option permettant l'affichage la période de validé (en jours) sur l'interface publique de contrôle
@@ -348,6 +346,7 @@ NotApplicable                           = NA
 AnswerPhoto                             = Photo
 AutoSaveActionQuestionAnswer            = Sauvegarde automatique des réponses aux questions
 AutoSaveActionQuestionAnswerDescription = Sauvegarde automatiquement les réponses aux questions lors du choix de la réponse
+NoObjectLineAnswersPhoto                = Pas de photos sur les réponses du %s
 
 #
 # ControlDocument - Fiche de Contrôle
@@ -372,41 +371,13 @@ controldocument_photo                   = fiche de controle avec photos
 #
 
 # Data - Donnée
-Survey                                        = Questionnaire
-SurveysMin                                     = contrôles
-TheSurvey                                     = le contrôle
-CreateControl                                  = Créer un contrôle
-AddControl                                     = Ajouter un contrôle
-NewSurvey                                     = Nouveau contrôle
-ControlList                                    = Liste des contrôles
-Controls                                       = Contrôles
-ActionsOnControl                               = Événements liés au contrôle
-SurveysCategoriesArea                          = Espace des tags/catégories des contrôles
-ControlsRepartition                            = Répartition des contrôles par verdict
-ControlsTagsRepartition                        = Répartition des contrôles par verdict et par catégories
-ControlsByFiscalYear                           = Rapport des contrôles sur l'exercice fiscal
-OfControl                                      = du contrôle
-PublicControl                                  = Interface publique de contrôle
-PublicSurveyTitle                              = Titre de l'interface publique de réponse au contrôle
-PublicSurveyTitleDescription                   = Définir le titre de l'interface publique de réponse au contrôle
-YourAnswersHaveBeenSaved                       = Vos réponses ont bien été sauvegardées
-DaysBeforeNextControl                          = Jours avant prochain contrôle
-SelectProductLots                              = Sélectionner un numéro de lot/série
-NoProductLot                                   = Pas de numéro de lot/série
-ErrorEquipmentLink                             = L'équipement n'a pas pu être lié
-LastControl                                    = Dernier contrôle
-ShowObjectControlHistory                       = Voir l'historique de contrôle
-NoControlOnThisObject                          = Le contrôle initial n'a pas été réalisé, veuillez vous référer à la notice et contacter votre responsable qualité
-ControlHistoryLink                             = Historique de contrôle
-EnablePublicControlHistory                     = Afficher l'historique public de contrôle
-EnablePublicControlHistoryDescription          = Permet l'affichage de l'historique de contrôle sur l'interface publique de contrôle
-ShowLastControlFirstOnPublicHistory            = Afficher le dernier contrôle en priorité sur l'interface publique de contrôle
-ShowLastControlFirstOnPublicHistoryDescription = Force l'affichage du dernier contrôle à la place de la liste des contrôles de l'objet sur l'interface publique de contrôle
-NonFinalVerdict                                = Le contrôle n'étant pas verrouillé, le verdict peut encore changer
-GoToPublicSurveyPage                           = Voir l'interface publique de réponse
-BeCarefullVerdictKO                            = Attention si le statut de votre contrôle est KO. Il faudra refaire votre contrôle.
-ShowQcFrequencyPublicInterface                 = Afficher la période de validé (en jours) sur l'interface publique de contrôle
-ShowQcFrequencyPublicInterfaceDescription      = Option permettant l'affichage la période de validé (en jours) sur l'interface publique de contrôle
+Survey     = Questionnaire
+Surveys    = Questionnaires
+SurveyList = Liste des questionnaires
+NewSurvey  = Nouveau questionnaire
+TheSurvey  = le questionnaire
+
+
 
 #
 # SurveyDocument - Fiche du Questionnaire
@@ -414,12 +385,11 @@ ShowQcFrequencyPublicInterfaceDescription      = Option permettant l'affichage l
 
 # Data - Donnée
 SurveyDocument           = Fiche du Questionnaire
-Surveydocument           = Fiche du Questionnaire
-SurveyDocumentsMin       = fiches du questionnaire
+Surveydocument           = Fiche du questionnaire
 surveydocument           = fiche du questionnaire
 surveydocument.odt       = Fiche du Questionnaire
-surveydocument_photo.odt = Fiche du Questionnaire avec photos
 surveydocument_photo     = fiche du questionnaire avec photos
+surveydocument_photo.odt = Fiche du Questionnaire avec photos
 
 
 
