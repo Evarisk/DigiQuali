@@ -277,9 +277,9 @@ class ActionsDigiquali
         global $conf, $langs;
 
         // Do something only for the current context.
-        if (preg_match('/controlcard/', $parameters['context'])) {
+        if (preg_match('/controlcard|surveycard/', $parameters['context'])) {
             if ($conf->browser->layout == 'phone') {
-                $morehtmlref = '<br><div>' . img_picto('', 'fontawesome_fa-caret-square-down_far_#966EA2F2_fa-2em', 'class="toggleControlInfo pictofixedwidth valignmiddle" style="width: 35px;"') . $langs->trans('DisplayMoreInfo') . '</div>';
+                $morehtmlref = '<br><div>' . img_picto('', 'fontawesome_fa-caret-square-down_far_#966EA2F2_fa-2em', 'class="toggle-object-infos pictofixedwidth valignmiddle" style="width: 35px;"') . $langs->trans('DisplayMoreInfo') . '</div>';
             } else {
                 $morehtmlref = '';
             }
@@ -301,7 +301,7 @@ class ActionsDigiquali
         global $conf, $mysoc;
 
         // Do something only for the current context.
-        if (in_array($parameters['currentcontext'], ['publiccontrol', 'publicsurvey', 'publiccontrolhistory'])) {
+        if (in_array($parameters['currentcontext'], ['publiccontrol', 'publicsurvey', 'publicanswer', 'publiccontrolhistory'])) {
             if (!empty($conf->global->SATURNE_SHOW_COMPANY_LOGO)) {
                 // Define logo and logoSmall.
                 $logoSmall = $mysoc->logo_small;

@@ -210,6 +210,16 @@ class Survey extends SaturneObject
     public $projectid;
 
     /**
+     * @var string Name of subtable line
+     */
+    public $table_element_line = 'digiquali_surveydet';
+
+    /**
+     * @var SurveyLine[] Array of subtable lines
+     */
+    public $lines = [];
+
+    /**
      * Constructor
      *
      * @param DoliDb $db Database handler
@@ -251,7 +261,6 @@ class Survey extends SaturneObject
         return $result;
     }
 
-    // @todo pas fait
     /**
      * Set draft status
      *
@@ -262,15 +271,9 @@ class Survey extends SaturneObject
      */
     public function setDraft(User $user, int $notrigger = 0): int
     {
-        // Protection
-        if ($this->status <= self::STATUS_DRAFT) {
-            return 0;
-        }
-
-        $signatory = new SaturneSignature($this->db);
-        $signatory->deleteSignatoriesSignatures($this->id, 'control');
-
-        return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'CONTROL_UNVALIDATE');
+        $signatory = new SaturneSignature($this->db, $this->module, $this->element);
+        $signatory->deleteSignatoriesSignatures($this->id, $this->element);
+        return parent::setDraft($user, $notrigger);
     }
 
     /**
@@ -316,14 +319,13 @@ class Survey extends SaturneObject
         }
     }
 
-    // @todo pas fait
     /**
-     * Clone an object into another one.
+     * Clone an object into another one
      *
      * @param  User      $user    User that creates
-     * @param  int       $fromID  ID of object to clone.
-     * @param  array     $options Options array.
-     * @return int                New object created, <0 if KO.
+     * @param  int       $fromID  ID of object to clone
+     * @param  array     $options Options array
+     * @return int                New object created, <0 if KO
      * @throws Exception
      */
     public function createFromClone(User $user, int $fromID, array $options): int
@@ -337,19 +339,19 @@ class Survey extends SaturneObject
         $object = new self($this->db);
         $this->db->begin();
 
-        // Load source object.
+        // Load source object
         $result = $object->fetchCommon($fromID);
-        if ($result > 0 && ! empty($object->table_element_line)) {
+        if ($result > 0 && !empty($object->table_element_line)) {
             $object->fetchLines();
         }
 
         $objectRef = $object->ref;
 
-        // Reset some properties.
+        // Reset some properties
         unset($object->fk_user_creat);
         unset($object->import_key);
 
-        // Clear fields.
+        // Clear fields
         if (property_exists($object, 'ref')) {
             $object->ref = '';
         }
@@ -359,32 +361,22 @@ class Survey extends SaturneObject
         if (property_exists($object, 'status')) {
             $object->status = 0;
         }
-        if (property_exists($object, 'verdict')) {
-            $object->verdict = 0;
-        }
         if (empty($options['photos'])) {
             $object->photo = '';
-        }
-        if (property_exists($object, 'control_date')) {
-            $object->control_date = '';
-        }
-        if (property_exists($object, 'next_control_date')) {
-            $object->next_control_date = '';
         }
 
         $object->context = 'createfromclone';
 
         $object->fetchObjectLinked('','', $object->id, 'digiquali_' . $object->element,  'OR', 1, 'sourcetype', 0);
 
-        $controlID = $object->create($user);
-
-        if ($controlID > 0) {
+        $surveyID = $object->create($user);
+        if ($surveyID > 0) {
             $objectFromClone = new self($this->db);
-            $objectFromClone->fetch($controlID);
+            $objectFromClone->fetch($surveyID);
 
-            // Categories.
+            // Categories
             $cat = new Categorie($this->db);
-            $categories = $cat->containing($fromID, 'control');
+            $categories = $cat->containing($fromID, 'survey');
             if (is_array($categories) && !empty($categories)) {
                 foreach($categories as $cat) {
                     $categoryIds[] = $cat->id;
@@ -392,38 +384,35 @@ class Survey extends SaturneObject
                 $object->setCategories($categoryIds);
             }
 
-            // Add objects linked.
-			$linkableElements = get_sheet_linkable_objects();
-
-			if (!empty($linkableElements)) {
-				foreach($linkableElements as $linkableElement) {
+            // Add objects linked
+            $linkableElements = get_sheet_linkable_objects();
+            if (!empty($linkableElements)) {
+                foreach($linkableElements as $linkableElement) {
                     if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-						foreach($object->linkedObjectsIds[$linkableElement['link_name']] as $linkedElementId) {
-							$objectFromClone->add_object_linked($linkableElement['link_name'], $linkedElementId);
-						}
-					}
-				}
-			}
+                        foreach($object->linkedObjectsIds[$linkableElement['link_name']] as $linkedElementId) {
+                            $objectFromClone->add_object_linked($linkableElement['link_name'], $linkedElementId);
+                        }
+                    }
+                }
+            }
 
-            // Add Attendants.
+            // Add Attendants
             $signatory = new SaturneSignature($this->db);
             if (!empty($options['attendants'])) {
-                // Load signatory from source object.
+                // Load signatory from source object
                 $signatories = $signatory->fetchSignatory('', $fromID, $this->element);
                 if (is_array($signatories) && !empty($signatories)) {
                     foreach ($signatories as $arrayRole) {
                         foreach ($arrayRole as $signatoryRole) {
-                            $signatory->createFromClone($user, $signatoryRole->id, $controlID);
+                            $signatory->createFromClone($user, $signatoryRole->id, $surveyID);
                         }
                     }
                 }
-            } else {
-                $signatory->setSignatory($objectFromClone->id, $this->element, 'user', [$objectFromClone->fk_user_controller], 'Controller', 1);
             }
 
-            // Add Photos.
+            // Add Photos
             if (!empty($options['photos'])) {
-                $dir  = $conf->digiquali->multidir_output[$conf->entity] . '/control';
+                $dir  = $conf->digiquali->multidir_output[$conf->entity] . '/survey';
                 $path = $dir . '/' . $objectRef . '/photos';
                 dol_mkdir($dir . '/' . $objectFromClone->ref . '/photos');
                 dolCopyDir($path,$dir . '/' . $objectFromClone->ref . '/photos', 0, 1);
@@ -434,17 +423,16 @@ class Survey extends SaturneObject
             $this->errors = $object->errors;
         }
 
-        // End.
+        // End
         if (!$error) {
             $this->db->commit();
-            return $controlID;
+            return $surveyID;
         } else {
             $this->db->rollback();
             return -1;
         }
     }
 
-    // @todo pas fait
     /**
      * Return the status
      *
@@ -499,29 +487,6 @@ class Survey extends SaturneObject
     }
 
     /**
-     * Create an array of lines
-     *
-     * 	@return array|int array of lines if OK, < 0 if KO
-     */
-    public function getLinesArray()
-    {
-        $this->lines = [];
-
-        $objectLine = new SurveyLine($this->db);
-        $result     = $objectLine->fetchAll('ASC', 'position', 0, 0, ['customsql' => 'fk_survey = ' . $this->id]);
-
-        if (is_numeric($result)) {
-            $this->error  = $objectLine->error;
-            $this->errors = $objectLine->errors;
-            return $result;
-        } else {
-            $this->lines = $result;
-            return $this->lines;
-        }
-    }
-
-    // @todo pas fait
-    /**
      * Load dashboard info
      *
      * @return array
@@ -529,140 +494,20 @@ class Survey extends SaturneObject
      */
     public function load_dashboard(): array
     {
-        $getNbControlsTagsByVerdict   = $this->getNbControlsTagsByVerdict();
-        $getNbControlsByVerdict       = $this->getNbControlsByVerdict();
-        $getNbControlsByMonth         = $this->getNbControlsByMonth();
-        $getControlListsByNextControl = $this->getControlListsByNextControl();
+        $getNbSurveysByMonth = $this->getNbSurveysByMonth();
 
-        $array['graphs'] = [$getNbControlsTagsByVerdict, $getNbControlsByVerdict, $getNbControlsByMonth];
-        $array['lists']  = [$getControlListsByNextControl];
+        $array['graphs'] = [$getNbSurveysByMonth];
 
         return $array;
     }
 
-    // @todo pas fait
     /**
-     * Get controls by verdict.
+     * Get surveys by month
      *
-     * @return array     Graph datas (label/color/type/title/data etc..).
+     * @return array     Graph datas (label/color/type/title/data etc..)
      * @throws Exception
      */
-    public function getNbControlsByVerdict(): array
-    {
-        global $langs;
-
-        // Graph Title parameters.
-        $array['title'] = $langs->transnoentities('ControlsRepartition');
-        $array['picto'] = $this->picto;
-
-        // Graph parameters.
-        $array['width']   = '100%';
-        $array['height']  = 400;
-        $array['type']    = 'pie';
-        $array['dataset'] = 1;
-
-        $array['labels'] = [
-            0 => [
-                'label' => 'N/A',
-                'color' => '#999999'
-            ],
-            1 => [
-                'label' => $langs->transnoentities('OK'),
-                'color' => '#47e58e'
-            ],
-            2 => [
-                'label' => $langs->transnoentities('KO'),
-                'color' => '#e05353'
-            ],
-        ];
-
-        $arrayNbControlByVerdict = [0 => 0, 1 => 0, 2 => 0];
-        $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 't.status >= 0']);
-        if (is_array($controls) && !empty($controls)) {
-            foreach ($controls as $control) {
-                if (empty($control->verdict)) {
-                    $arrayNbControlByVerdict[0]++;
-                } else {
-                    $arrayNbControlByVerdict[$control->verdict]++;
-                }
-            }
-            ksort($arrayNbControlByVerdict);
-        }
-
-        $array['data'] = $arrayNbControlByVerdict;
-
-        return $array;
-    }
-
-    // @todo pas fait
-    /**
-     * Get controls with tags by verdict.
-     *
-     * @return array     Graph datas (label/color/type/title/data etc..).
-     * @throws Exception
-     */
-    public function getNbControlsTagsByVerdict(): array
-    {
-        global $db, $langs;
-
-        require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
-
-        $category = new Categorie($db);
-
-        // Graph Title parameters.
-        $array['title'] = $langs->transnoentities('ControlsTagsRepartition');
-        $array['picto'] = $this->picto;
-
-        // Graph parameters.
-        $array['width']   = '100%';
-        $array['height']  = 400;
-        $array['type']    = 'bar';
-        $array['dataset'] = 3;
-
-        $array['labels'] = [
-            0 => [
-                'label' => 'N/A',
-                'color' => '#999999'
-            ],
-            1 => [
-                'label' => $langs->transnoentities('OK'),
-                'color' => '#47e58e'
-            ],
-            2 => [
-                'label' => $langs->transnoentities('KO'),
-                'color' => '#e05353'
-            ]
-        ];
-
-        $categories = $category->get_all_categories('control');
-        if (is_array($categories) && !empty($categories)) {
-            foreach ($categories as $category) {
-                $arrayNbControlByVerdict = [];
-                $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'cp.fk_categorie = ' . $category->id . ' AND t.status >= 0'], 'AND', true);
-                if (is_array($controls) && !empty($controls)) {
-                    foreach ($controls as $control) {
-                        if (empty($control->verdict)) {
-                            $arrayNbControlByVerdict[0]++;
-                        } else {
-                            $arrayNbControlByVerdict[$control->verdict]++;
-                        }
-                    }
-                    $array['data'][] = [$category->label, $arrayNbControlByVerdict[0],  $arrayNbControlByVerdict[1], $arrayNbControlByVerdict[2]];
-                }
-            }
-        }
-
-        return $array;
-    }
-
-    // @todo pas fait
-    /**
-     * Get controls by month.
-     *
-     * @return array     Graph datas (label/color/type/title/data etc..).
-     * @throws Exception
-     */
-    public function getNbControlsByMonth(): array
+    public function getNbSurveysByMonth(): array
     {
         global $conf, $langs;
 
@@ -670,118 +515,47 @@ class Survey extends SaturneObject
         $currentYear = date('Y', dol_now());
         $years       = [0 => $currentYear - 2, 1 => $currentYear - 1, 2 => $currentYear];
 
-        // Graph Title parameters.
-        $array['title'] = $langs->transnoentities('ControlsByFiscalYear');
+        // Graph Title parameters
+        $array['title'] = $langs->transnoentities('SurveysByFiscalYear');
         $array['picto'] = $this->picto;
 
-        // Graph parameters.
-        $array['width']   = '100%';
-        $array['height']  = 400;
-        $array['type']    = 'bars';
-        $array['dataset'] = 3;
+        // Graph parameters
+        $array['width']      = '100%';
+        $array['height']     = 400;
+        $array['type']       = 'bars';
+        $array['showlegend'] = 1;
+        $array['dataset']    = 3;
 
         $array['labels'] = [
             0 => [
-                'label' => $langs->trans("$years[0]"),
+                'label' => $langs->trans($years[0]),
                 'color' => '#9567AA'
             ],
             1 => [
-                'label' => $langs->trans("$years[1]"),
+                'label' => $langs->trans($years[1]),
                 'color' => '#4F9EBE'
             ],
             2 => [
-                'label' => $langs->trans("$years[2]"),
+                'label' => $langs->trans($years[2]),
                 'color' => '#FAC461'
             ]
         ];
 
-        $arrayNbControls = [];
+        $arrayNbSurveys = [];
         for ($i = 1; $i < 13; $i++) {
             foreach ($years as $key => $year) {
-                $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'MONTH (t.date_creation) = ' . $i . ' AND YEAR (t.date_creation) = ' . $year . ' AND t.status >= 0']);
-                if (is_array($controls) && !empty($controls)) {
-                    $arrayNbControls[$key][$i] = count($controls);
+                $surveys = $this->fetchAll('', '', 0, 0, ['customsql' => 'MONTH (t.date_creation) = ' . $i . ' AND YEAR (t.date_creation) = ' . $year . ' AND t.status >= 0']);
+                if (is_array($surveys) && !empty($surveys)) {
+                    $arrayNbSurveys[$key][$i] = count($surveys);
                 }
             }
 
-            $month    = $langs->transnoentitiesnoconv('MonthShort'.sprintf('%02d', $i));
+            $month    = $langs->transnoentitiesnoconv('MonthShort' . sprintf('%02d', $i));
             $arrayKey = $i - $startMonth;
             $arrayKey = $arrayKey >= 0 ? $arrayKey : $arrayKey + 12;
-            $array['data'][$arrayKey] = [$month, $arrayNbControls[0][$i], $arrayNbControls[1][$i], $arrayNbControls[2][$i]];
+            $array['data'][$arrayKey] = [$month, $arrayNbSurveys[0][$i], $arrayNbSurveys[1][$i], $arrayNbSurveys[2][$i]];
         }
         ksort($array['data']);
-
-        return $array;
-    }
-
-    // @todo pas fait
-    /**
-     * Get controls list by next control.
-     *
-     * @return array     Graph datas (label/color/type/title/data etc..).
-     * @throws Exception
-     */
-    public function getControlListsByNextControl(): array
-    {
-        global $langs;
-
-        // Graph Title parameters.
-        $array['title'] = $langs->transnoentities('ControlListsByNextControl');
-        $array['picto'] = $this->picto;
-
-        // Graph parameters.
-        $array['type']   = 'list';
-        $array['labels'] = ['Ref', 'LinkedObject', 'Controller', 'Project', 'Sheet', 'ControlDate', 'NextControl', 'Verdict'];
-
-        $arrayControlListsByNextControl = [];
-
-        $elementArray = get_sheet_linkable_objects();
-        $controls     = $this->fetchAll('ASC', 'next_control_date', 10, 0, ['customsql' => 't.status = ' . self::STATUS_LOCKED . ' AND t.next_control_date IS NOT NULL']);
-        if (is_array($controls) && !empty($controls)) {
-            foreach ($controls as $control) {
-                $control->fetchObjectLinked('', '', $control->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
-                $linkedObjectsInfos = $control->getLinkedObjectsWithQcFrequency($elementArray);
-                $linkedObjects      = $linkedObjectsInfos['linkedObjects'];
-                $qcFrequencyArray   = $linkedObjectsInfos['qcFrequencyArray'];
-                foreach ($elementArray as $linkableObjectType => $linkableObject) {
-                    if (is_object($linkedObjects[$linkableObjectType])) {
-                        if ($linkableObject['conf'] > 0 && (!empty($control->linkedObjectsIds[$linkableObject['link_name']]))) {
-                            $currentObject = $linkedObjects[$linkableObjectType];
-                            if ($qcFrequencyArray[$linkableObjectType] > 0) {
-                                require_once __DIR__ . '/sheet.class.php';
-
-                                $userTmp = new User($this->db);
-                                $project = new Project($this->db);
-                                $sheet   = new Sheet($this->db);
-
-                                $userTmp->fetch($control->fk_user_controller);
-                                $project->fetch($control->projectid);
-                                $sheet->fetch($control->fk_sheet);
-
-                                if (!empty($control->next_control_date)) {
-                                    $nextControl      = floor(($control->next_control_date - dol_now('tzuser'))/(3600 * 24));
-                                    $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
-
-                                    $verdictColor = $control->verdict == 1 ? 'green' : ($control->verdict == 2 ? 'red' : 'grey');
-
-                                    $arrayControlListsByNextControl[$control->id]['Ref']['value']            = $control->getNomUrl(1);
-                                    $arrayControlListsByNextControl[$control->id]['LinkedObject']['value']   = $currentObject->getNomUrl(1);
-                                    $arrayControlListsByNextControl[$control->id]['UserController']['value'] = $userTmp->getNomUrl(1);
-                                    $arrayControlListsByNextControl[$control->id]['Project']['value']        = $project->id > 0 ? $project->getNomUrl(1) : '';
-                                    $arrayControlListsByNextControl[$control->id]['Sheet']['value']          = $sheet->getNomUrl(1);
-                                    $arrayControlListsByNextControl[$control->id]['ControlDate']['value']    = dol_print_date($control->date_creation, 'day');
-                                    $arrayControlListsByNextControl[$control->id]['NextControl']['value']    = '<div class="wpeo-button button-'. $nextControlColor .'">' . $nextControl . '<br>' . $langs->trans('Days') . '</div>';
-                                    $arrayControlListsByNextControl[$control->id]['NextControl']['morecss']  = 'dashboard-control';
-                                    $arrayControlListsByNextControl[$control->id]['Verdict']['value']        = '<div class="wpeo-button button-'. $verdictColor .'">' . $control->fields['verdict']['arrayofkeyval'][(!empty($control->verdict)) ?: 3] . '</div>';
-                                    $arrayControlListsByNextControl[$control->id]['Verdict']['morecss']      = 'dashboard-control';
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        $array['data'] = $arrayControlListsByNextControl;
 
         return $array;
     }
@@ -816,6 +590,9 @@ class Survey extends SaturneObject
     }
 }
 
+/**
+ * Class for SurveyLine
+ */
 class SurveyLine extends SaturneObject
 {
     /**
@@ -824,46 +601,165 @@ class SurveyLine extends SaturneObject
     public $module = 'digiquali';
 
     /**
-     * @var string ID to identify managed object
+     * @var string Element type of object
      */
     public $element = 'surveydet';
 
     /**
-     * @var string Name of table without prefix where object is stored
+     * @var string Name of table without prefix where object is stored. This is also the key used for extrafields management
      */
     public $table_element = 'digiquali_surveydet';
 
-	public $ref = '';
+    /**
+     * @var int Does this object support multicompany module ?
+     * 0 = No test on entity, 1 = Test with field entity, 'field@table' = Test with link by field@table
+     */
+    public $ismultientitymanaged = 1;
 
-	public $date_creation = '';
+    /**
+     * @var int Does object support extrafields ? 0 = No, 1 = Yes
+     */
+    public int $isextrafieldmanaged = 1;
 
-	public $comment = '';
+    /**
+     * 'type' field format:
+     *      'integer', 'integer:ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter[:Sortfield]]]',
+     *      'select' (list of values are in 'options'),
+     *      'sellist:TableName:LabelFieldName[:KeyFieldName[:KeyFieldParent[:Filter[:Sortfield]]]]',
+     *      'chkbxlst:...',
+     *      'varchar(x)',
+     *      'text', 'text:none', 'html',
+     *      'double(24,8)', 'real', 'price',
+     *      'date', 'datetime', 'timestamp', 'duration',
+     *      'boolean', 'checkbox', 'radio', 'array',
+     *      'mail', 'phone', 'url', 'password', 'ip'
+     *      Note: Filter can be a string like "(t.ref:like:'SO-%') or (t.date_creation:<:'20160101') or (t.nature:is:NULL)"
+     * 'label' the translation key.
+     * 'picto' is code of a picto to show before value in forms
+     * 'enabled' is a condition when the field must be managed (Example: 1 or '$conf->global->MY_SETUP_PARAM' or '!empty($conf->multicurrency->enabled)' ...)
+     * 'position' is the sort order of field.
+     * 'notnull' is set to 1 if not null in database. Set to -1 if we must set data to null if empty '' or 0.
+     * 'visible' says if field is visible in list (Examples: 0=Not visible, 1=Visible on list and create/update/view forms, 2=Visible on list only, 3=Visible on create/update/view form only (not list), 4=Visible on list and update/view form only (not create). 5=Visible on list and view only (not create/not update). Using a negative value means field is not shown by default on list but can be selected for viewing)
+     * 'noteditable' says if field is not editable (1 or 0)
+     * 'default' is a default value for creation (can still be overwroted by the Setup of Default Values if field is editable in creation form). Note: If default is set to '(PROV)' and field is 'ref', the default value will be set to '(PROVid)' where id is rowid when a new record is created.
+     * 'index' if we want an index in database.
+     * 'foreignkey'=>'tablename.field' if the field is a foreign key (it is recommanded to name the field fk_...).
+     * 'searchall' is 1 if we want to search in this field when making a search from the quick search button.
+     * 'isameasure' must be set to 1 or 2 if field can be used for measure. Field type must be summable like integer or double(24,8). Use 1 in most cases, or 2 if you don't want to see the column total into list (for example for percentage)
+     * 'css' and 'cssview' and 'csslist' is the CSS style to use on field. 'css' is used in creation and update. 'cssview' is used in view mode. 'csslist' is used for columns in lists. For example: 'css'=>'minwidth300 maxwidth500 widthcentpercentminusx', 'cssview'=>'wordbreak', 'csslist'=>'tdoverflowmax200'
+     * 'help' is a 'TranslationString' to use to show a tooltip on field. You can also use 'TranslationString:keyfortooltiponlick' for a tooltip on click.
+     * 'showoncombobox' if value of the field must be visible into the label of the combobox that list record
+     * 'disabled' is 1 if we want to have the field locked by a 'disabled' attribute. In most cases, this is never set into the definition of $fields into class, but is set dynamically by some part of code.
+     * 'arrayofkeyval' to set a list of values if type is a list of predefined values. For example: array("0"=>"Draft","1"=>"Active","-1"=>"Cancel"). Note that type can be 'integer' or 'varchar'
+     * 'autofocusoncreate' to have field having the focus on a create form. Only 1 field should have this property set to 1.
+     * 'comment' is not used. You can store here any text of your choice. It is not used by application.
+     * 'validate' is 1 if you need to validate with $this->validateField()
+     * 'copytoclipboard' is 1 or 2 to allow to add a picto to copy value into clipboard (1=picto after label, 2=picto after value)
+     *
+     * Note: To have value dynamic, you can set value to 0 in definition and edit the value on the fly into the constructor
+     */
 
-	public $answer = '';
+    /**
+     * @var array Array with all fields and their property. Do not use it as a static var. It may be modified by constructor
+     */
+    public $fields = [
+        'rowid'         => ['type' => 'integer',      'label' => 'TechnicalID',      'enabled' => 1, 'position' => 1,   'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'Id'],
+        'ref'           => ['type' => 'varchar(128)', 'label' => 'Ref',              'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 1, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
+        'ref_ext'       => ['type' => 'varchar(128)', 'label' => 'RefExt',           'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0],
+        'entity'        => ['type' => 'integer',      'label' => 'Entity',           'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'index' => 1],
+        'date_creation' => ['type' => 'datetime',     'label' => 'DateCreation',     'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 0],
+        'tms'           => ['type' => 'timestamp',    'label' => 'DateModification', 'enabled' => 1, 'position' => 50,  'notnull' => 0, 'visible' => 0],
+        'import_key'    => ['type' => 'varchar(14)',  'label' => 'ImportId',         'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
+        'status'        => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 0, 'index' => 1, 'default' => 1],
+        'type'          => ['type' => 'varchar(128)', 'label' => 'Type',             'enabled' => 0, 'position' => 80,  'notnull' => 0, 'visible' => 0],
+        'answer'        => ['type' => 'text',         'label' => 'Answer',           'enabled' => 1, 'position' => 90,  'notnull' => 0, 'visible' => 0],
+        'answer_photo'  => ['type' => 'text',         'label' => 'AnswerPhoto',      'enabled' => 0, 'position' => 100, 'notnull' => 0, 'visible' => 0],
+        'comment'       => ['type' => 'text',         'label' => 'Comment',          'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 0],
+        'fk_user_creat' => ['type' => 'integer:User:user/class/user.class.php',              'label' => 'UserAuthor', 'picto' => 'user',                                'enabled' => 1, 'position' => 120, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
+        'fk_user_modif' => ['type' => 'integer:User:user/class/user.class.php',              'label' => 'UserModif',  'picto' => 'user',                                'enabled' => 1, 'position' => 130, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
+        'fk_survey'     => ['type' => 'integer:Survey:digiquali/class/survey.class.php',     'label' => 'Survey',     'picto' => 'fontawesome_fa-marker_fas_#d35968',   'enabled' => 1, 'position' => 140,  'notnull' => 1, 'visible' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_survey.rowid'],
+        'fk_question'   => ['type' => 'integer:Question:digiquali/class/question.class.php', 'label' => 'Question',   'picto' => 'fontawesome_fa-question_fas_#d35968', 'enabled' => 1, 'position' => 150,  'notnull' => 1, 'visible' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_question.rowid'],
+    ];
 
-	public $answer_photo = '';
+    /**
+     * @var int ID
+     */
+    public int $rowid;
 
-	public $fk_control = '';
+    /**
+     * @var string Ref
+     */
+    public $ref;
 
-	public $fk_question = '';
+    /**
+     * @var string Ref ext
+     */
+    public $ref_ext;
 
-	/**
-	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
-	 */
-	public $fields = array(
-		'rowid'             => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'comment' => 'Id'),
-		'ref'               => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 1, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => 'Reference of object'),
-		'ref_ext'           => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 0, 'visible' => 0,),
-		'entity'            => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
-		'date_creation'     => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 0,),
-		'tms'               => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
-		'status'            => array('type' => 'status', 'label' => 'Status', 'enabled' => '1', 'position' => 55, 'notnull' => 0, 'visible' => 0,),
-		'answer'            => array('type' => 'text', 'label' => 'Answer', 'enabled' => '1', 'position' => 60, 'notnull' => -1, 'visible' => 0,),
-		'answer_photo'      => array('type' => 'text', 'label' => 'AnswerPhoto', 'enabled' => '1', 'position' => 70, 'notnull' => -1, 'visible' => 0,),
-		'comment'           => array('type' => 'text', 'label' => 'Comment', 'enabled' => '1', 'position' => 80, 'notnull' => -1, 'visible' => 0,),
-		'fk_question'       => array('type' => 'integer', 'label' => 'FkQuestion', 'enabled' => '1', 'position' => 90, 'notnull' => 1, 'visible' => 0,),
-		'fk_survey'        => array('type' => 'integer', 'label' => 'FkControl', 'enabled' => '1', 'position' => 100, 'notnull' => 1, 'visible' => 0,),
-	);
+    /**
+     * @var int Entity
+     */
+    public $entity;
+
+    /**
+     * @var int|string Creation date
+     */
+    public $date_creation;
+
+    /**
+     * @var int|string Timestamp
+     */
+    public $tms;
+
+    /**
+     * @var string Import key
+     */
+    public $import_key;
+
+    /**
+     * @var int Status
+     */
+    public $status;
+
+    /**
+     * @var string|null Type
+     */
+    public ?string $type;
+
+    /**
+     * @var string|null Answer
+     */
+    public ?string $answer = '';
+
+    /**
+     * @var string|null Answer photo
+     */
+    public ?string $answer_photo;
+
+    /**
+     * @var string|null Comment
+     */
+    public ?string $comment = '';
+
+    /**
+     * @var int User ID
+     */
+    public int $fk_user_creat;
+
+    /**
+     * @var int|null User ID
+     */
+    public ?int $fk_user_modif;
+
+    /**
+     * @var int Survey ID
+     */
+    public int $fk_survey;
+
+    /**
+     * @var ?int|null Question ID
+     */
+    public int $fk_question;
 
     /**
      * Constructor
@@ -875,107 +771,16 @@ class SurveyLine extends SaturneObject
         parent::__construct($db, $this->module, $this->element);
     }
 
-    // @todo pas fait
-	/**
-	 *    Load control line from database and from parent
-	 *
-	 * @param int $parent_id
-	 * @param int $limit
-	 * @return int <0 if KO, >0 if OK
-	 */
-	public function fetchFromParent($control_id, $limit = 0)
-	{
-		global $db;
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
-		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
-		$sql .= ' AND fk_control = ' . $control_id;
-
-		$result = $db->query($sql);
-
-		if ($result) {
-			$num = $db->num_rows($result);
-
-			$i = 0;
-			while ($i < ($limit ? min($limit, $num) : $num)) {
-				$obj = $db->fetch_object($result);
-
-				$record = new self($db);
-
-				$record->id            = $obj->rowid;
-				$record->ref           = $obj->ref;
-				$record->date_creation = $obj->date_creation;
-				$record->status        = $obj->status;
-				$record->answer        = $obj->answer;
-				$record->answer_photo  = $obj->answer_photo;
-				$record->comment       = $obj->comment;
-				$record->fk_question   = $obj->fk_question;
-				$record->fk_control    = $obj->fk_control;
-
-				$records[$record->id] = $record;
-
-				$i++;
-			}
-
-			$db->free($result);
-
-			return $records;
-		} else {
-			$this->error = $db->lasterror();
-			return -1;
-		}
-	}
-
-    // @todo pas fait
-	/**
-	 *    Load control line from database form parent with question
-	 *
-	 * @param int $control_id
-	 * @param int $question_id
-	 * @return int <0 if KO, >0 if OK
-	 */
-	public function fetchFromParentWithQuestion($control_id, $question_id, $limit = 0)
-	{
-		global $db;
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
-		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
-		$sql .= ' AND fk_control = ' . $control_id .' AND fk_question ='. $question_id;
-
-
-		$result = $db->query($sql);
-
-		if ($result) {
-			$num = $db->num_rows($result);
-
-			$i = 0;
-			while ($i < ($limit ? min($limit, $num) : $num)) {
-				$obj = $db->fetch_object($result);
-
-				$record = new self($db);
-
-				$record->id            = $obj->rowid;
-				$record->ref           = $obj->ref;
-				$record->date_creation = $obj->date_creation;
-				$record->status        = $obj->status;
-				$record->answer        = $obj->answer;
-				$record->answer_photo  = $obj->answer_photo;
-				$record->comment       = $obj->comment;
-				$record->fk_question   = $obj->fk_question;
-				$record->fk_control    = $obj->fk_control;
-
-				$records[$record->id] = $record;
-
-				$i++;
-			}
-
-			$db->free($result);
-
-			return $records;
-		} else {
-			$this->error = $db->lasterror();
-			return -1;
-		}
-
-	}
+    /**
+     * Load survey line from database form parent with question
+     *
+     * @param  int        $surveyID   Survey id
+     * @param  int        $questionID Question id
+     * @return array|int              Int <0 if KO, array of pages if OK
+     * @throws Exception
+     */
+    public function fetchFromParentWithQuestion(int $surveyID, int $questionID)
+    {
+        return $this->fetchAll('', '', 1, 0, ['customsql' => 't.fk_survey = ' . $surveyID . ' AND t.fk_question = ' . $questionID . ' AND t.status > 0']);
+    }
 }
