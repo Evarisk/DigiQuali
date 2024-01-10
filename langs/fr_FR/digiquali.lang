@@ -32,6 +32,15 @@ RedirectAfterConnectionDescription = Redirection sur la page de bienvenue de Dig
 EnableDigiquali                    = Veuillez activer le module DigiQuali pour accéder à cette page
 
 #
+# Config page - Page d'administration
+#
+
+# Survey - Questionnaire
+DisplayMediasSample            = Afficher les médias d'exemple des questions
+DisplayMediasSampleDescription = Afficher les médias d'exemple des questions dans le questionnaire
+ExtrafieldsSurveyManagement    = Gestion des attributs supplémentaires des questionnaires
+
+#
 # Questions
 #
 
