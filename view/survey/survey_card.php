@@ -209,7 +209,7 @@ if (empty($resHook)) {
     require_once __DIR__ . '/../../../saturne/core/tpl/documents/saturne_manual_pdf_generation_action.tpl.php';
 
     // Actions confirm_lock, confirm_archive
-    require_once __DIR__ . '/../../../saturne/core/tpl/object/object_action_workflow.tpl.php';
+    require_once __DIR__ . '/../../../saturne/core/tpl/actions/object_workflow_actions.tpl.php';
 
     // Actions to send emails
     $triggersendname = 'SURVEY_SENTBYMAIL';
