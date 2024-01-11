@@ -93,7 +93,7 @@ class doc_surveydocument_odt extends SaturneDocumentModel
      */
     public function fillTagsLines(Odf $odfHandler, Translate $outputLangs, array $moreParam): int
     {
-        global $conf, $langs;
+        global $conf;
 
         $object = $moreParam['object'];
 
@@ -194,18 +194,18 @@ class doc_surveydocument_odt extends SaturneDocumentModel
                 }
             }
 
-            // Get answer photos.
+            // Get answer photos
             $foundTagForLines = 1;
             try {
                 $listLines = $odfHandler->setSegment('photos');
             } catch (OdfException $e) {
-                // We may arrive here if tags for lines not present into template.
+                // We may arrive here if tags for lines not present into template
                 $foundTagForLines = 0;
                 $listLines = '';
                 dol_syslog($e->getMessage());
             }
 
-            // Loop on previous photos array.
+            // Loop on previous photos array
             if ($foundTagForLines) {
                 if (is_array($photoArray) && !empty($photoArray)) {
                     foreach ($photoArray as $photoPath => $answerRef) {
@@ -236,7 +236,6 @@ class doc_surveydocument_odt extends SaturneDocumentModel
         return 0;
     }
 
-    //@todo
     /**
      * Function to build a document on disk
      *
@@ -267,65 +266,56 @@ class doc_surveydocument_odt extends SaturneDocumentModel
         }
 
         $outputLangs->loadLangs(['products', 'bills', 'orders', 'contracts', 'projects', 'companies']);
-        $sheet      = new Sheet($this->db);
-        $usertmp    = new User($this->db);
-        $projecttmp = new Project($this->db);
+
+        $sheet   = new Sheet($this->db);
+        $project = new Project($this->db);
 
         $sheet->fetch($object->fk_sheet);
-        $usertmp->fetch($object->fk_user_controller);
-        $projecttmp->fetch($object->projectid);
+        $project->fetch($object->projectid);
 
-        $object->fetchObjectLinked('', '', $object->id, 'digiquali_control',  'OR', 1, 'sourcetype', 0);
-		$linkableElements = get_sheet_linkable_objects();
+        $object->fetchObjectLinked('', '', $object->id, 'digiquali_survey',  'OR', 1, 'sourcetype', 0);
 
-		if (is_array($linkableElements) && !empty($linkableElements)) {
-			foreach ($linkableElements as $linkableElement) {
-				$nameField[$linkableElement['link_name']] = $linkableElement['name_field'];
-				$objectInfo[$linkableElement['link_name']] = [
-					'title' => $linkableElement['langs'],
-					'className' => $linkableElement['className']
-				];
-			}
-			foreach ($object->linkedObjectsIds as $linkedObjectType => $linkedObjectsIds) {
-				$className = $objectInfo[$linkedObjectType]['className'];
-				$linkedObject = new $className($this->db);
-				$result = $linkedObject->fetch(array_shift($object->linkedObjectsIds[$linkedObjectType]));
-				if ($result > 0) {
-					$objectName = '';
-					$objectNameField = $nameField[$linkedObjectType];
-					if (strstr($objectNameField, ',')) {
-						$nameFields = explode(', ', $objectNameField);
-						if (is_array($nameFields) && !empty($nameFields)) {
-							foreach ($nameFields as $subnameField) {
-								$objectName .= $linkedObject->$subnameField . ' ';
-							}
-						}
-					} else {
-						$objectName = $linkedObject->$objectNameField;
-					}
-					$tmpArray['object_label_ref'] .= $objectName . chr(0x0A);
-					$tmpArray['object_type'] = $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ';
-				}
-			}
-		}
+        $linkableElements = get_sheet_linkable_objects();
+        if (is_array($linkableElements) && !empty($linkableElements)) {
+            foreach ($linkableElements as $linkableElement) {
+                $nameField[$linkableElement['link_name']]  = $linkableElement['name_field'];
+                $objectInfo[$linkableElement['link_name']] = ['title' => $linkableElement['langs'], 'className' => $linkableElement['className']];
+            }
+            foreach ($object->linkedObjectsIds as $linkedObjectType => $linkedObjectsIds) {
+                $className    = $objectInfo[$linkedObjectType]['className'];
+                $linkedObject = new $className($this->db);
+                $result        = $linkedObject->fetch(array_shift($object->linkedObjectsIds[$linkedObjectType]));
+                if ($result > 0) {
+                    $objectName = '';
+                    $objectNameField = $nameField[$linkedObjectType];
+                    if (strstr($objectNameField, ',')) {
+                        $nameFields = explode(', ', $objectNameField);
+                        if (is_array($nameFields) && !empty($nameFields)) {
+                            foreach ($nameFields as $subnameField) {
+                                $objectName .= $linkedObject->$subnameField . ' ';
+                            }
+                        }
+                    } else {
+                        $objectName = $linkedObject->$objectNameField;
+                    }
+                    $tmpArray['object_label_ref'] .= $objectName . chr(0x0A);
+                    $tmpArray['object_type'] = $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ';
+                }
+            }
+        }
 
-        $tmpArray['control_ref']      = $object->ref;
-        $tmpArray['object_label_ref'] = rtrim($tmpArray['object_label_ref'], chr(0x0A));
-        $tmpArray['control_date']     = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
-        $tmpArray['project_label']    = $projecttmp->ref . ' - ' . $projecttmp->title;
-        $tmpArray['sheet_ref']        = $sheet->ref;
-        $tmpArray['sheet_label']      = $sheet->label;
+        $tmpArray['object_ref']              = $object->ref;
+        $tmpArray['object_label_ref']        = rtrim($tmpArray['object_label_ref'], chr(0x0A));
+        // @todo
+        //$tmpArray['actioncom_creation_date'] = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+        //$tmpArray['average'] = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+        $tmpArray['project_label']           = $project->ref . ' - ' . $project->title;
+        $tmpArray['sheet_ref']               = $sheet->ref;
+        $tmpArray['sheet_label']             = $sheet->label;
 
         $tmpArray['public_note'] = $object->note_public;
 
-        $tmpArray['mycompany_name']    = $conf->global->MAIN_INFO_SOCIETE_NOM;
-        $tmpArray['mycompany_address'] = (!empty($conf->global->MAIN_INFO_SOCIETE_ADRESS) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_ADRESS : '');
-        $tmpArray['mycompany_website'] = (!empty($conf->global->MAIN_INFO_SOCIETE_WEBSITE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_WEBSITE : '');
-        $tmpArray['mycompany_mail']    = (!empty($conf->global->MAIN_INFO_SOCIETE_MAIL) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_MAIL : '');
-        $tmpArray['mycompany_phone']   = (!empty($conf->global->MAIN_INFO_SOCIETE_PHONE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_PHONE : '');
-
-        $moreParam['tmparray']                  = $tmpArray;
-        $moreParam['multipleAttendantsSegment'] = ['controller', 'attendant'];
+        $moreParam['tmparray'] = $tmpArray;
 
         return parent::write_file($objectDocument, $outputLangs, $srcTemplatePath, $hideDetails, $hideDesc, $hideRef, $moreParam);
     }
