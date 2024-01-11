@@ -33,6 +33,7 @@ if (file_exists('../digiquali.main.inc.php')) {
 // Load Dolibarr libraries.
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
+require_once DOL_DOCUMENT_ROOT . '/core/class/html.formother.class.php';
 
 // Load DigiQuali libraries.
 require_once __DIR__ . '/../lib/digiquali.lib.php';
@@ -56,7 +57,8 @@ $object = new Sheet($db);
 $tags   = new Categorie($db);
 
 // Initialize view objects.
-$form = new Form($db);
+$form      = new Form($db);
+$formOther = new FormOther($db);
 
 // List of supported format.
 $tmptype2label = ExtraFields::$type2label;
@@ -141,6 +143,68 @@ if ($action == 'generateCategories') {
 	dolibarr_set_const($db, 'DIGIQUALI_SHEET_TAGS_SET', 1, 'integer', 0, '', $conf->entity);
 }
 
+if ($action == 'generate_main_categories') {
+    $tags->label = $langs->transnoentities('Control');
+    $tags->type  = 'sheet';
+    $tagParentID = $tags->create($user);
+
+    $tags->label     = $langs->transnoentities('Quality');
+    $tags->type      = 'sheet';
+    $tags->fk_parent = $tagParentID;
+    $tags->create($user);
+
+    $tags->label     = $langs->transnoentities('HealthSecurity');
+    $tags->type      = 'sheet';
+    $tags->fk_parent = $tagParentID;
+    $tagID = $tags->create($user);
+
+    $tags->label     = $langs->transnoentities('FirstAidKits');
+    $tags->type      = 'sheet';
+    $tags->fk_parent = $tagID;
+    $tags->create($user);
+
+    $tags->label     = $langs->transnoentities('Materials');
+    $tags->type      = 'sheet';
+    $tags->fk_parent = $tagParentID;
+    $tagID = $tags->create($user);
+
+    $tags->label     = $langs->transnoentities('Mask');
+    $tags->type      = 'sheet';
+    $tags->fk_parent = $tagID;
+    $tags->create($user);
+
+    $tags->label     = $langs->transnoentities('Vehicles');
+    $tags->type      = 'sheet';
+    $tags->fk_parent = $tagParentID;
+    $tagID = $tags->create($user);
+
+    $tags->label     = $langs->transnoentities('Car');
+    $tags->type      = 'sheet';
+    $tags->fk_parent = $tagID;
+    $tags->create($user);
+
+    $tags->label     = $langs->transnoentities('IndustrialVehicles');
+    $tags->type      = 'sheet';
+    $tags->fk_parent = $tagID;
+    $tags->create($user);
+
+    dolibarr_set_const($db, 'DIGIQUALI_SHEET_MAIN_CATEGORY', $tagParentID, 'integer', 0, '', $conf->entity);
+    dolibarr_set_const($db, 'DIGIQUALI_SHEET_MAIN_CATEGORIES_SET', 1, 'integer', 0, '', $conf->entity);
+
+    setEventMessage('SavedConfig');
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit;
+}
+
+if ($action == 'set_main_category') {
+    $categoryID = GETPOST('main_category');
+    dolibarr_set_const($db, 'DIGIQUALI_SHEET_MAIN_CATEGORY', $categoryID, 'integer', 0, '', $conf->entity);
+
+    setEventMessage('SavedConfig');
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit;
+}
+
 /*
  * View
  */
@@ -198,11 +262,38 @@ print '</td>';
 print '<td class="center">';
 print $conf->global->DIGIQUALI_SHEET_TAGS_SET ? '<a type="" class=" butActionRefused" value="">'.$langs->trans('Create') . '</a>' : '<input type="submit" class="button" value="'. $langs->trans('Create') .'">' ;
 print '</td>';
-
 print '<td class="center">';
 print $form->textwithpicto('', $langs->trans('CategoriesGeneration'));
-print '</td>';
-print '</tr>';
+print '</td></tr>';
+print '</form>';
+
+print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '">';
+print '<input type="hidden" name="token" value="' . newToken() . '">';
+print '<input type="hidden" name="action" value="generate_main_categories">';
+
+print '<tr class="oddeven"><td>' . $langs->transnoentities('GenerateMainSheetCategories') . '</td>';
+print '<td class="center">';
+print $conf->global->DIGIQUALI_SHEET_MAIN_CATEGORIES_SET ? $langs->transnoentities('AlreadyGenerated') : $langs->transnoentities('NotCreated');
+print '</td><td class="center">';
+print $conf->global->DIGIQUALI_SHEET_MAIN_CATEGORIES_SET ? '<a type="" class=" butActionRefused" value="">' . $langs->transnoentities('Create') . '</a>' : '<input type="submit" class="button" value="' . $langs->transnoentities('Create') . '">';
+print '</td><td class="center">';
+print $form->textwithpicto('', $langs->trans('MainSheetCategoriesDescription'));
+print '</td></tr>';
+print '</form>';
+
+print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '">';
+print '<input type="hidden" name="token" value="' . newToken() . '">';
+print '<input type="hidden" name="action" value="set_main_category">';
+
+// Set default main category
+print '<tr class="oddeven"><td>' . $langs->transnoentities('SheetMainCategory') . '</td>';
+print '<td class="center">';
+print $formOther->select_categories('sheet', $conf->global->DIGIQUALI_SHEET_MAIN_CATEGORY, 'main_category');
+print '</td><td class="center">';
+print '<div><input type="submit" class="butAction" name="save" value="' . $langs->trans('Save') . '"></div>';
+print '</td><td class="center">';
+print $form->textwithpicto('', $langs->trans('SheetMainCategoryDescription'));
+print '</td></tr>';
 print '</form>';
 print '</table>';
 

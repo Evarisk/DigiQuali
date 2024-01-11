@@ -406,7 +406,7 @@ if ($action == 'create') {
         print '<div class="sheet-images-container">';
         print '<div class="titre center">' . $langs->trans('SheetCategories') . '</div>';
         print '<div class="sheet-grid-images sheet-categories">';
-        $sheetCategories = $form->select_all_categories('sheet', '', 'sheet-categories', 64, 0, 1);
+        $sheetCategories = $form->select_all_categories('sheet', '', 'sheet-categories', 64, $conf->global->DIGIQUALI_SHEET_MAIN_CATEGORY, 1, 1);
         if (!empty($sheetCategories)) {
             foreach ($sheetCategories as $sheetCategoryID => $sheetCategoryLabel) {
                 $category->fetch($sheetCategoryID);

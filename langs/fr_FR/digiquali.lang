@@ -32,6 +32,16 @@ RedirectAfterConnectionDescription = Redirection sur la page de bienvenue de Dig
 EnableDigiquali                    = Veuillez activer le module DigiQuali pour accéder à cette page
 
 #
+# Config page - Page d'administration
+#
+
+# Sheet - Modèle de contrôle
+GenerateMainSheetCategories    = Génération des catégories principales du modèle de contrôle
+MainSheetCategoriesDescription = Cette option permet la génération des catégories principales du modèle de contrôle. <br> Les catégories créées seront : <ul><li>Contrôle</li><ul><li>Qualité</li><ul><li>Hygiène et Sécurité</li><ul><li>Trousses de premier secours</li></ul></ul><li>Matériels</li><ul><li>Masque</li></ul><li>Véhicules</li><ul><li>Voiture</li><li>Véhicule industriel</li></ul></ul></ul>
+SheetMainCategory              = Choix de la catégorie principale du modèle de contrôle
+SheetMainCategoryDescription   = Cette option permet de choisir quelle catégorie sera utilisée lors du choix de catégorie pendant la création d'un contrôle
+
+#
 # Questions
 #
 
@@ -130,18 +140,24 @@ ToImportDataGoToImportPage     = Pour importer des données, veuillez vous rendr
 
 
 # Tags - catégories
-Quality           = Qualité
-HealthSecurity    = Hygiène et sécurité
-Environment       = Environnement
-Safety            = Sureté
-Regulatory        = Réglementaire
-DesignOffice      = Bureau d'Etude
-Suppliers         = Fournisseurs
+Quality             = Qualité
+HealthSecurity      = Hygiène et sécurité
+Environment         = Environnement
+Safety              = Sureté
+Regulatory          = Réglementaire
+DesignOffice        = Bureau d'Etude
+Suppliers           = Fournisseurs
 CommercialDigiQuali = Commercial
-Production        = Production
-Methods           = Méthodes
-Logistics         = Logistique
-ComputerScience   = Informatique
+Production          = Production
+Methods             = Méthodes
+Logistics           = Logistique
+ComputerScience     = Informatique
+FirstAidKits        = Trousses de premier secours
+Materials           = Matériels
+Mask                = Masque
+Vehicles            = Véhicules
+Car                 = Voiture
+IndustrialVehicles  = Véhicule industriel
 
 
 
