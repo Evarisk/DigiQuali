@@ -71,7 +71,7 @@ require_once __DIR__ . '/../../../digiquali/lib/digiquali_sheet.lib.php';
 require_once __DIR__ . '/../../../digiquali/lib/digiquali_answer.lib.php';
 
 // Global variables definitions.
-global $conf, $db, $hookmanager, $langs, $user;
+global $conf, $db, $hookmanager, $langs;
 
 // Load translation files required by the page.
 saturne_load_langs();
@@ -105,6 +105,9 @@ $object->fetch(0, '', ' AND track_id =' . "'" . $track_id . "'");
  * Actions
 */
 
+// Set user for action update and insert for prevent error on public interface
+$user->id = 1;
+
 require_once __DIR__ . '/../../core/tpl/digiquali_control_answers_save_action.tpl.php';
 
 /*
@@ -126,7 +129,7 @@ if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
 	$sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
 	$questionIds = $sheet->linkedObjectsIds['digiquali_question'];
 
-	print '<form method="POST" action="'.$_SERVER['PHP_SELF'].'?action=save&id='.$object->id.'&track_id='. GETPOST('track_id') .'" id="saveControl" enctype="multipart/form-data">';
+	print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '?action=save&id=' . $object->id . '&track_id=' . GETPOST('track_id') . '&entity=' . $conf->entity . '" id="saveControl" enctype="multipart/form-data">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="save">';
 
