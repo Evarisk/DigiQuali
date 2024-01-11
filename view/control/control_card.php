@@ -261,7 +261,7 @@ if (empty($resHook)) {
 	}
 
     // Actions confirm_lock, confirm_archive
-    require_once __DIR__ . '/../../../saturne/core/tpl/object/object_action_workflow.tpl.php';
+    require_once __DIR__ . '/../../../saturne/core/tpl/actions/object_workflow_actions.tpl.php';
 
 	// Actions to send emails
 	$triggersendname = 'CONTROL_SENTBYMAIL';
