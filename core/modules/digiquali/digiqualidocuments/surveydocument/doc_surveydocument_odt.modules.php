@@ -224,7 +224,6 @@ class doc_surveydocument_odt extends SaturneDocumentModel
         return 0;
     }
 
-    //@todo
     /**
      * Function to build a document on disk
      *
