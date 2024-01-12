@@ -135,7 +135,8 @@ if (!$sortorder) {
 
 $linkableElements = get_sheet_linkable_objects();
 
-$objectPosition = 20;
+$nbLinkableElements = 0;
+$objectPosition     = 20;
 foreach($linkableElements as $linkableElementType => $linkableElement) {
 	$className  = $linkableElement['className'];
 
@@ -154,6 +155,7 @@ foreach($linkableElements as $linkableElementType => $linkableElement) {
         $elementElementFields[$linkableElement['post_name']]          = $linkableElement['link_name'];
         $linkNameElementCorrespondence[$linkableElement['link_name']] = $linkableElement;
         $objectPosition++;
+        $nbLinkableElements++;
 
         if (!empty($fromtype)) {
             $objectLinked = new $className($db);
@@ -371,7 +373,16 @@ if ($fromid) {
 	print '</div>';
 }
 
-include_once '../../core/tpl/digiquali_control_list.tpl.php';
+if ($nbLinkableElements == 0) {
+    print '<div class="wpeo-notice notice-warning notice-red">';
+    print '<div class="notice-content">';
+    print '<a href="' . dol_buildpath('/custom/digiquali/admin/sheet.php', 2) . '">' . '<b><div class="notice-subtitle">'.$langs->trans('ConfigElementLinked') . ' : ' . $langs->trans('ConfigSheet') . '</b></a>';
+    print '</div>';
+    print '</div>';
+    print '</div>';
+} else {
+    include_once '../../core/tpl/digiquali_control_list.tpl.php';
+}
 
 // End of page
 llxFooter();
