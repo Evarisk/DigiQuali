@@ -332,7 +332,7 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 				break;
 
 			case 'OBJECT_SAVEANSWER' :
-				$actioncomm->code  = 'AC_' . strtoupper($object->element) . 'SAVEANSWER';
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_SAVEANSWER';
 				$actioncomm->label = $langs->transnoentities('AnswerSaveTrigger');
 				$actioncomm->create($user);
 				break;
