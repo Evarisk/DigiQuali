@@ -23,7 +23,7 @@
 
 /**
  * The following vars must be defined:
- * Global     : $conf, $db, $langs, $user
+ * Global     : $conf, $langs, $user
  * Parameters : $action
  * Objects    : $object, $objectLine, $sheet
  */
@@ -32,68 +32,70 @@ if ($action == 'save') {
     $data = json_decode(file_get_contents('php://input'), true);
 
     $sheet->fetch($object->fk_sheet);
-    $object->fetchObjectLinked($sheet->id, 'digiquali_sheet', '', '', 'OR', 1, 'sourcetype', 0);
-    $questionIds = $object->linkedObjectsIds['digiquali_question'];
-    foreach ($questionIds as $questionId) {
-        $objectLineTmp = $objectLine->fetchFromParentWithQuestion($object->id, $questionId);
-        if (is_array($objectLineTmp) && !empty($objectLineTmp)) {
-            $objectLineTmp = array_shift($objectLineTmp);
+    $sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
+    if (!empty($sheet->linkedObjects['digiquali_question'])) {
+        foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
+            if (!empty($object->lines)) {
+                foreach ($object->lines as $line) {
+                    if ($line->fk_question === $question->id) {
+                        // Save answer value
+                        if ($data['autoSave'] && $question->id == $data['questionId']) {
+                            $questionAnswer = $data['answer'];
+                        } else {
+                            $questionAnswer = GETPOST('answer' . $question->id);
+                        }
+                        if (!empty($questionAnswer)) {
+                            $line->answer = $questionAnswer;
+                        }
 
-            // Save answer value
-            if ($data['autoSave'] && $questionId == $data['questionId']) {
-                $questionAnswer = $data['answer'];
+                        // Save answer comment
+                        if ($data['autoSave'] && $question->id == $data['questionId']) {
+                            $comment = $data['comment'];
+                        } else {
+                            $comment = GETPOST('comment' . $question->id);
+                        }
+                        if (dol_strlen($comment) > 0) {
+                            $line->comment = $comment;
+                        }
+
+                        $line->update($user);
+                    }
+                }
             } else {
-                $questionAnswer = GETPOST('answer' . $questionId);
-            }
-            if (!empty($questionAnswer)) {
-                $objectLineTmp->answer = $questionAnswer;
-            }
+                $objectLine->ref         = $objectLine->getNextNumRef();
+                $fk_element              = 'fk_'. $object->element;
+                $objectLine->$fk_element = $object->id;
+                $objectLine->fk_question = $question->id;
 
-            // Save answer comment
-            if ($data['autoSave'] && $questionId == $data['questionId']) {
-                $comment = $data['comment'];
-            } else {
-                $comment = GETPOST('comment' . $questionId);
-            }
-            if (dol_strlen($comment) > 0) {
-                $objectLineTmp->comment = $comment;
-            } else {
-                $objectLine->comment = '';
-            }
+                // Save answer value
+                if ($data['autoSave'] && $question->id == $data['questionId']) {
+                    $questionAnswer = $data['answer'];
+                } else {
+                    $questionAnswer = GETPOST('answer' . $question->id);
+                }
+                if (!empty($questionAnswer)) {
+                    $objectLine->answer = $questionAnswer;
+                } else {
+                    $objectLine->answer = '';
+                }
 
-            $objectLineTmp->update($user);
-        } else {
-            $objectLine->ref = $objectLine->getNextNumRef();
-            $fk_element = 'fk_'. $object->element;
-            $objectLine->$fk_element = $object->id;
-            $objectLine->fk_question = $questionId;
+                // Save answer comment
+                if ($data['autoSave'] && $question->id == $data['questionId']) {
+                    $comment = $data['comment'];
+                } else {
+                    $comment = GETPOST('comment' . $question->id);
+                }
+                if (dol_strlen($comment) > 0) {
+                    $objectLine->comment = $comment;
+                } else {
+                    $objectLine->comment = '';
+                }
 
-            // Save answer value
-            if ($data['autoSave'] && $questionId == $data['questionId']) {
-                $questionAnswer = $data['answer'];
-            } else {
-                $questionAnswer = GETPOST('answer' . $questionId);
-            }
-            if (!empty($questionAnswer)) {
-                $objectLine->answer = $questionAnswer;
-            }
+                $objectLine->entity = $conf->entity;
+                $objectLine->status = 1;
 
-            // Save answer comment
-            if ($data['autoSave'] && $questionId == $data['questionId']) {
-                $comment = $data['comment'];
-            } else {
-                $comment = GETPOST('comment' . $questionId);
+                $objectLine->create($user);
             }
-            if (dol_strlen($comment) > 0) {
-                $objectLine->comment = $comment;
-            } else {
-                $objectLine->comment = '';
-            }
-
-            $objectLine->entity = $conf->entity;
-            $objectLine->status = 1;
-
-            $objectLine->create($user);
         }
     }
 
