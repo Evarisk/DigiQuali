@@ -24,6 +24,7 @@
 
 // Load Dolibarr libraries
 require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
+require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
 
 // Load DigiQuali libraries
 require_once __DIR__ . '/mod_surveydocument_standard.php';
@@ -80,7 +81,6 @@ class doc_surveydocument_odt extends SaturneDocumentModel
         return parent::info($langs);
     }
 
-    //@todo
     /**
      * Fill all odt tags for segments lines
      *
@@ -109,85 +109,72 @@ class doc_surveydocument_odt extends SaturneDocumentModel
             } catch (OdfException $e) {
                 // We may arrive here if tags for lines not present into template
                 $foundTagForLines = 0;
-                $listLines = '';
+                $listLines        = '';
                 dol_syslog($e->getMessage());
             }
 
             if ($foundTagForLines) {
-
                 if (!empty($object)) {
-                    $sheet = new Sheet($this->db);
+                    $sheet  = new Sheet($this->db);
+                    $answer = new Answer($this->db);
 
-                    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_sheet','', '', 'OR', 1, 'sourcetype', 0);
-                    $questionIds = $sheet->linkedObjectsIds;
+                    $sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
+                    if (!empty($sheet->linkedObjects['digiquali_question'])) {
+                        foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
+                            foreach ($object->lines as $line) {
+                                if ($line->fk_question === $question->id) {
+                                    $tmpArray['ref']         = $question->ref;
+                                    $tmpArray['label']       = $question->label;
+                                    $tmpArray['description'] = strip_tags($question->description);
+                                    $tmpArray['ref_answer']  = $line->ref;
+                                    $tmpArray['comment']     = dol_htmlentitiesbr_decode(strip_tags($line->comment, '<br>'));
 
-                    if (is_array($questionIds['digiquali_question']) && !empty($questionIds['digiquali_question'])) {
-                        $controldet = new SurveyLine($this->db);
-                        $question   = new Question($this->db);
-                        $answer     = new Answer($this->db);
-                        foreach ($questionIds['digiquali_question'] as $questionId) {
-                            $question->fetch($questionId);
-
-                            $controldets = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
-
-                            $tmpArray['ref']         = $question->ref;
-                            $tmpArray['label']       = $question->label;
-                            $tmpArray['description'] = strip_tags($question->description);
-
-                            if (is_array($controldets) && !empty($controldets)) {
-                                $questionAnswerLine     = array_shift($controldets);
-                                $tmpArray['ref_answer'] = $questionAnswerLine->ref;
-                                $tmpArray['comment']    = dol_htmlentitiesbr_decode(strip_tags($questionAnswerLine->comment, '<br>'));
-
-                                $answerResult = $questionAnswerLine->answer;
-
-                                $question->fetch($questionAnswerLine->fk_question);
-                                $answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $questionAnswerLine->fk_question]);
-
-                                $answersArray = [];
-                                if (is_array($answerList) && !empty($answerList)) {
-                                    foreach ($answerList as $answerSingle) {
-                                        $answersArray[$answerSingle->position] = $answerSingle->value;
-                                    }
-                                }
-
-                                switch ($question->type) {
-                                    case 'OkKo' :
-                                    case 'OkKoToFixNonApplicable' :
-                                    case 'UniqueChoice' :
-                                        $tmpArray['answer'] = $answersArray[$answerResult];
-                                        break;
-                                    case 'Text' :
-                                    case 'Range' :
-                                        $tmpArray['answer'] = $answerResult;
-                                        break;
-                                    case 'Percentage' :
-                                        $tmpArray['answer'] = $answerResult . ' %';
-                                        break;
-                                    case 'MultipleChoices' :
-                                        $answers = explode(',', $answerResult);
-                                        $tmpArray['answer'] = '';
-                                        foreach ($answers as $answerId) {
-                                            $tmpArray['answer'] .= $answersArray[$answerId] . ', ';
+                                    $answersArray = [];
+                                    $answers      = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $line->fk_question]);
+                                    if (is_array($answers) && !empty($answers)) {
+                                        foreach ($answers as $answer) {
+                                            $answersArray[$answer->position] = $answer->value;
                                         }
-                                        $tmpArray['answer'] = rtrim($tmpArray['answer'], ', ');
-                                        break;
-                                    default:
-                                        $tmpArray['answer'] = '';
-                                }
-
-                                $path     = $conf->digiquali->multidir_output[$conf->entity] . '/survey/' . $object->ref . '/answer_photo/' . $question->ref;
-                                $fileList = dol_dir_list($path, 'files');
-                                // Fill an array with photo path and ref of the answer for next loop.
-                                if (is_array($fileList) && !empty($fileList)) {
-                                    foreach ($fileList as $singleFile) {
-                                        $fileSmall          = saturne_get_thumb_name($singleFile['name']);
-                                        $image              = $path . '/thumbs/' . $fileSmall;
-                                        $photoArray[$image] = $questionAnswerLine->ref;
                                     }
+
+                                    switch ($question->type) {
+                                        case 'OkKo' :
+                                        case 'OkKoToFixNonApplicable' :
+                                        case 'UniqueChoice' :
+                                            $tmpArray['answer'] = $answersArray[$line->answer];
+                                            break;
+                                        case 'Text' :
+                                        case 'Range' :
+                                            $tmpArray['answer'] = $line->answer;
+                                            break;
+                                        case 'Percentage' :
+                                            $tmpArray['answer'] = $line->answer . ' %';
+                                            break;
+                                        case 'MultipleChoices' :
+                                            $tmpArray['answer'] = '';
+                                            $answers            = explode(',', $line->answer);
+                                            foreach ($answers as $answerValue) {
+                                                $tmpArray['answer'] .= $answersArray[$answerValue] . ', ';
+                                            }
+                                            $tmpArray['answer'] = rtrim($tmpArray['answer'], ', ');
+                                            break;
+                                        default:
+                                            $tmpArray['answer'] = '';
+                                    }
+
+                                    $path     = $conf->digiquali->multidir_output[$conf->entity] . '/survey/' . $object->ref . '/answer_photo/' . $question->ref;
+                                    $fileList = dol_dir_list($path, 'files');
+                                    // Fill an array with photo path and ref of the answer for next loop
+                                    if (is_array($fileList) && !empty($fileList)) {
+                                        foreach ($fileList as $singleFile) {
+                                            $fileSmall          = saturne_get_thumb_name($singleFile['name']);
+                                            $image              = $path . '/thumbs/' . $fileSmall;
+                                            $photoArray[$image] = $line->ref;
+                                        }
+                                    }
+                                    $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
                                 }
                             }
-                            $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
                         }
                         $odfHandler->mergeSegment($listLines);
                     }
@@ -201,7 +188,7 @@ class doc_surveydocument_odt extends SaturneDocumentModel
             } catch (OdfException $e) {
                 // We may arrive here if tags for lines not present into template
                 $foundTagForLines = 0;
-                $listLines = '';
+                $listLines        = '';
                 dol_syslog($e->getMessage());
             }
 
@@ -267,8 +254,9 @@ class doc_surveydocument_odt extends SaturneDocumentModel
 
         $outputLangs->loadLangs(['products', 'bills', 'orders', 'contracts', 'projects', 'companies']);
 
-        $sheet   = new Sheet($this->db);
-        $project = new Project($this->db);
+        $sheet      = new Sheet($this->db);
+        $project    = new Project($this->db);
+        $actionComm = new ActionComm($this->db);
 
         $sheet->fetch($object->fk_sheet);
         $project->fetch($object->projectid);
@@ -276,7 +264,9 @@ class doc_surveydocument_odt extends SaturneDocumentModel
         $object->fetchObjectLinked('', '', $object->id, 'digiquali_survey',  'OR', 1, 'sourcetype', 0);
 
         $linkableElements = get_sheet_linkable_objects();
-        if (is_array($linkableElements) && !empty($linkableElements)) {
+        if (!empty($linkableElements)) {
+            $nameField  = [];
+            $objectInfo = [];
             foreach ($linkableElements as $linkableElement) {
                 $nameField[$linkableElement['link_name']]  = $linkableElement['name_field'];
                 $objectInfo[$linkableElement['link_name']] = ['title' => $linkableElement['langs'], 'className' => $linkableElement['className']];
@@ -284,7 +274,7 @@ class doc_surveydocument_odt extends SaturneDocumentModel
             foreach ($object->linkedObjectsIds as $linkedObjectType => $linkedObjectsIds) {
                 $className    = $objectInfo[$linkedObjectType]['className'];
                 $linkedObject = new $className($this->db);
-                $result        = $linkedObject->fetch(array_shift($object->linkedObjectsIds[$linkedObjectType]));
+                $result       = $linkedObject->fetch(array_shift($object->linkedObjectsIds[$linkedObjectType]));
                 if ($result > 0) {
                     $objectName = '';
                     $objectNameField = $nameField[$linkedObjectType];
@@ -298,22 +288,44 @@ class doc_surveydocument_odt extends SaturneDocumentModel
                     } else {
                         $objectName = $linkedObject->$objectNameField;
                     }
+                    $tmpArray['object_type']       = $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ';
                     $tmpArray['object_label_ref'] .= $objectName . chr(0x0A);
-                    $tmpArray['object_type'] = $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ';
                 }
             }
         }
 
-        $tmpArray['object_ref']              = $object->ref;
-        $tmpArray['object_label_ref']        = rtrim($tmpArray['object_label_ref'], chr(0x0A));
-        // @todo
-        //$tmpArray['actioncom_creation_date'] = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
-        //$tmpArray['average'] = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
-        $tmpArray['project_label']           = $project->ref . ' - ' . $project->title;
-        $tmpArray['sheet_ref']               = $sheet->ref;
-        $tmpArray['sheet_label']             = $sheet->label;
+        $tmpArray['object_ref']       = $object->ref;
+        $tmpArray['object_label_ref'] = rtrim($tmpArray['object_label_ref'], chr(0x0A));
 
-        $tmpArray['public_note'] = $object->note_public;
+        $actionComms = $actionComm->getActions(0, $object->id,$object->element . '@digiquali', " AND code = 'AC_SURVEY_SAVEANSWER'", 'id','DESC', 1);
+        if (is_array($actionComms) && !empty($actionComms)) {
+            $tmpArray['actioncomm_creation_date'] = dol_print_date($actionComms[0]->datec, 'dayhour', 'tzuser');
+        }
+
+        $sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
+
+        $questionCounter = count($sheet->linkedObjectsIds['digiquali_question']);
+
+        $average = 0;
+        foreach ($sheet->linkedObjects['digiquali_question'] as $questionLinked) {
+            if ($questionLinked->type !== 'Percentage') {
+                continue; // Skip non-percentage questions
+            }
+
+            foreach ($object->lines as $line) {
+                if ($line->fk_question === $questionLinked->id) {
+                    $average += $line->answer;
+                }
+            }
+        }
+
+        $average = ($questionCounter > 0) ? ($average / $questionCounter) : 0;
+
+        $tmpArray['average']            = price2num($average) . ' %';
+        $tmpArray['project_label']      = $project->ref . ' - ' . $project->title;
+        $tmpArray['sheet_ref']          = $sheet->ref;
+        $tmpArray['sheet_label']        = $sheet->label;
+        $tmpArray['object_note_public'] = $object->note_public;
 
         $moreParam['tmparray'] = $tmpArray;
 
