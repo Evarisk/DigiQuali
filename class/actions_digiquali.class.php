@@ -146,7 +146,7 @@ class ActionsDigiquali
         if (strpos($_SERVER['PHP_SELF'], 'digiquali') !== false) {
             ?>
             <script>
-                console.log($('link[rel="manifest"]').remove());
+                $('link[rel="manifest"]').remove();
             </script>
             <?php
 
