@@ -84,7 +84,7 @@ $sheet      = new Sheet($db);
 $question   = new Question($db);
 $answer     = new Answer($db);
 
-$hookmanager->initHooks(['publicsurvey']); // Note that conf->hooks_modules contains array
+$hookmanager->initHooks(['publicanswer']); // Note that conf->hooks_modules contains array
 
 if (!isModEnabled('multicompany')) {
     $entity = $conf->entity;
