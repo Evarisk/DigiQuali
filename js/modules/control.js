@@ -40,6 +40,7 @@ window.digiquali.control.event = function() {
   $( document ).on( 'click', '.switch-public-control-view', window.digiquali.control.switchPublicControlView );
   $(document).on('click', '.show-only-questions-with-no-answer', window.digiquali.control.showOnlyQuestionsWithNoAnswer);
   $(document).on('click', '.photo-sheet-category', window.digiquali.control.getSheetCategoryID);
+  $(document).on('click', '.photo-sheet-sub-category', window.digiquali.control.getSheetSubCategoryID);
   $(document).on('click', '.photo-sheet', window.digiquali.control.getSheetID);
 };
 
@@ -408,6 +409,39 @@ window.digiquali.control.getSheetCategoryID = function() {
       $('.sheet-images-container').replaceWith($(resp).find('.sheet-images-container'));
       $('.photo-sheet-category[value=' + sheetCategoryID + ']').css('border', '3px solid #0d8aff');
       $('.photo-sheet-category[value=' + sheetCategoryID + ']').addClass('photo-sheet-category-active');
+      $('.linked-objects').replaceWith($(resp).find('.linked-objects'));
+    },
+    error: function() {}
+  });
+};
+
+/**
+ * Get sheet sub category ID after click event
+ *
+ * @since   1.10.0
+ * @version 1.10.0
+ *
+ * @return {void}
+ */
+window.digiquali.control.getSheetSubCategoryID = function() {
+  let sheetCategoryID    = $('.photo-sheet-category-active').attr('value');
+  let sheetSubCategoryID = $(this).attr('value');
+  let token              = window.saturne.toolbox.getToken();
+  let querySeparator     = window.saturne.toolbox.getQuerySeparator(document.URL);
+  window.saturne.loader.display($('.sheet-images-container'));
+
+  $.ajax({
+    url: document.URL + querySeparator + 'sheetCategoryID=' + sheetCategoryID + '&sheetSubCategoryID=' + sheetSubCategoryID + '&token=' + token,
+    type: 'POST',
+    processData: false,
+    contentType: false,
+    success: function(resp) {
+      $('.sheet-images-container').replaceWith($(resp).find('.sheet-images-container'));
+      $('.photo-sheet-category[value=' + sheetCategoryID + ']').css('border', '3px solid #0d8aff');
+      $('.photo-sheet-category[value=' + sheetCategoryID + ']').addClass('photo-sheet-category-active');
+      $('.photo-sheet-sub-category[value=' + sheetSubCategoryID + ']').css('border', '3px solid #0d8aff');
+      $('.photo-sheet-sub-category[value=' + sheetSubCategoryID + ']').addClass('photo-sheet-sub-category-active');
+      $('.linked-objects').replaceWith($(resp).find('.linked-objects'));
     },
     error: function() {}
   });
@@ -422,16 +456,17 @@ window.digiquali.control.getSheetCategoryID = function() {
  * @return {void}
  */
 window.digiquali.control.getSheetID = function() {
-  let sheetID         = $(this).attr('data-object-id');
-  let sheetCategoryID = $('.photo-sheet-category-active').attr('value');
-  let token           = window.saturne.toolbox.getToken();
-  let querySeparator  = window.saturne.toolbox.getQuerySeparator(document.URL);
+  let sheetID            = $(this).attr('data-object-id');
+  let sheetCategoryID    = $('.photo-sheet-category-active').attr('value');
+  let sheetSubCategoryID = $('.photo-sheet-sub-category-active').attr('value');
+  let token              = window.saturne.toolbox.getToken();
+  let querySeparator     = window.saturne.toolbox.getQuerySeparator(document.URL);
 
   window.saturne.loader.display($('.sheet-elements'));
   window.saturne.loader.display($('.linked-objects'));
 
   $.ajax({
-    url: document.URL + querySeparator + 'fk_sheet=' + sheetID + '&sheetCategoryID=' + sheetCategoryID + '&token=' + token,
+    url: document.URL + querySeparator + 'fk_sheet=' + sheetID + '&sheetCategoryID=' + sheetCategoryID + '&sheetSubCategoryID=' + sheetSubCategoryID + '&token=' + token,
     type: 'POST',
     processData: false,
     contentType: false,

@@ -119,6 +119,7 @@ ActionsOnSheet                 = Événements liés au modèle de contrôle
 SheetsCategoriesArea           = Espace des tags/catégories des modèles de contrôle
 ExtrafieldsSheetManagement     = Gestion des attributs supplémentaires des modèles de contrôle
 SheetCategories                = Catégories des modèles de contrôle
+SheetSubCategories             = Sous-catégories des modèles de contrôle
 GenerateCategories             = Génération des catégories de modèle de contrôle par défaut
 AlreadyGenerated               = Déjà généré(e)s
 NotCreated                     = Pas encore créé(e)s

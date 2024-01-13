@@ -144,49 +144,19 @@ if ($action == 'generateCategories') {
 }
 
 if ($action == 'generate_main_categories') {
-    $tags->label = $langs->transnoentities('Control');
-    $tags->type  = 'sheet';
-    $tagParentID = $tags->create($user);
+    $tagParentID = saturne_create_category($langs->transnoentities('Control'), 'sheet');
 
-    $tags->label     = $langs->transnoentities('Quality');
-    $tags->type      = 'sheet';
-    $tags->fk_parent = $tagParentID;
-    $tags->create($user);
+    saturne_create_category($langs->transnoentities('Quality'), 'sheet', $tagParentID, 'pictogram_Quality_64px.png');
 
-    $tags->label     = $langs->transnoentities('HealthSecurity');
-    $tags->type      = 'sheet';
-    $tags->fk_parent = $tagParentID;
-    $tagID = $tags->create($user);
+    $tagID = saturne_create_category($langs->transnoentities('HealthSecurity'), 'sheet', $tagParentID, 'pictogram_HealthSecurity_64px.png');
+    saturne_create_category($langs->transnoentities('FirstAidKits'), 'sheet', $tagID, 'pictogram_FirstAidKits_64px.png');
 
-    $tags->label     = $langs->transnoentities('FirstAidKits');
-    $tags->type      = 'sheet';
-    $tags->fk_parent = $tagID;
-    $tags->create($user);
+    $tagID = saturne_create_category($langs->transnoentities('Materials'), 'sheet', $tagParentID, 'pictogram_Materials_64px.png');
+    saturne_create_category($langs->transnoentities('Mask'), 'sheet', $tagID, 'pictogram_Mask_64px.png');
 
-    $tags->label     = $langs->transnoentities('Materials');
-    $tags->type      = 'sheet';
-    $tags->fk_parent = $tagParentID;
-    $tagID = $tags->create($user);
-
-    $tags->label     = $langs->transnoentities('Mask');
-    $tags->type      = 'sheet';
-    $tags->fk_parent = $tagID;
-    $tags->create($user);
-
-    $tags->label     = $langs->transnoentities('Vehicles');
-    $tags->type      = 'sheet';
-    $tags->fk_parent = $tagParentID;
-    $tagID = $tags->create($user);
-
-    $tags->label     = $langs->transnoentities('Car');
-    $tags->type      = 'sheet';
-    $tags->fk_parent = $tagID;
-    $tags->create($user);
-
-    $tags->label     = $langs->transnoentities('IndustrialVehicles');
-    $tags->type      = 'sheet';
-    $tags->fk_parent = $tagID;
-    $tags->create($user);
+    $tagID = saturne_create_category($langs->transnoentities('Vehicles'), 'sheet', $tagParentID, 'pictogram_Vehicles_64px.png');
+    saturne_create_category($langs->transnoentities('Car'), 'sheet', $tagID, 'pictogram_Car_64px.png');
+    saturne_create_category($langs->transnoentities('IndustrialVehicles'), 'sheet', $tagID, 'pictogram_IndustrialVehicles_64px.png');
 
     dolibarr_set_const($db, 'DIGIQUALI_SHEET_MAIN_CATEGORY', $tagParentID, 'integer', 0, '', $conf->entity);
     dolibarr_set_const($db, 'DIGIQUALI_SHEET_MAIN_CATEGORIES_SET', 1, 'integer', 0, '', $conf->entity);

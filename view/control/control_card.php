@@ -406,22 +406,34 @@ if ($action == 'create') {
         print '<div class="sheet-images-container">';
         print '<div class="titre center">' . $langs->trans('SheetCategories') . '</div>';
         print '<div class="sheet-grid-images sheet-categories">';
-        $sheetCategories = $form->select_all_categories('sheet', '', 'sheet-categories', 64, $conf->global->DIGIQUALI_SHEET_MAIN_CATEGORY, 1, 1);
-        if (!empty($sheetCategories)) {
-            foreach ($sheetCategories as $sheetCategoryID => $sheetCategoryLabel) {
-                $category->fetch($sheetCategoryID);
-                saturne_show_category_image($category, 0, 'photo-sheet-category');
+        $category->fetch($conf->global->DIGIQUALI_SHEET_MAIN_CATEGORY);
+        $mainCategories = $category->get_filles();
+        if (is_array($mainCategories) && !empty($mainCategories)) {
+            foreach ($mainCategories as $mainCategory) {
+                saturne_show_category_image($mainCategory, 0, 'photo-sheet-category');
             }
         }
         print '</div>';
+        if (GETPOSTISSET('sheetCategoryID')) {
+            $category->fetch(GETPOST('sheetCategoryID'));
+            $mainSubCategories = $category->get_filles();
+            if (is_array($mainSubCategories) && !empty($mainSubCategories)) {
+                print '<div class="titre center">' . $langs->trans('SheetSubCategories') . '</div>';
+                print '<div class="sheet-grid-images sheet-sub-categories">';
+                foreach ($mainSubCategories as $mainSubCategory) {
+                    saturne_show_category_image($mainSubCategory, 0, 'photo-sheet-sub-category');
+                }
+                print '</div>';
+            }
+        }
         print '<div class="titre center">' . $langs->trans('Sheet') . '</div>';
         print '<div class="sheet-grid-images sheet-elements">';
         print '<input type="hidden" name="fk_sheet" value="' . GETPOST('fk_sheet') . '">';
-        if (GETPOSTISSET('sheetCategoryID')) {
-            $sheets = saturne_fetch_all_object_type('Sheet', '', '', 0, 0, ['customsql' => 'cp.fk_categorie = ' . GETPOST('sheetCategoryID')], 'AND', false, true, true);
+        if (GETPOSTISSET('sheetCategoryID') || (GETPOSTISSET('sheetSubCategoryID') && GETPOST('sheetSubCategoryID') != 'undefined')) {
+            $sheets = saturne_fetch_all_object_type('Sheet', '', '', 0, 0, ['customsql' => 'cp.fk_categorie = ' . ((GETPOSTISSET('sheetSubCategoryID') && GETPOST('sheetSubCategoryID') != 'undefined') ? GETPOST('sheetSubCategoryID') : GETPOST('sheetCategoryID'))], 'AND', false, true, true);
             if (is_array($sheets) && !empty($sheets)) {
-                foreach ($sheets as $sheet) {
-                    print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/sheet/' . $sheet->ref, 'small', '', 0, 0, 0, 50, 50, 1, 1, 0, 'sheet/' . $sheet->ref, $sheet, '', 0, 0, 0, 0, 'photo-sheet');
+                foreach ($sheets as $sheetSingle) {
+                    print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/sheet/' . $sheetSingle->ref . '/photos/', 'small', '', 0, 0, 0, 50, 50, 1, 1, 0, 'sheet/' . $sheetSingle->ref . '/photos/', $sheetSingle, '', 0, 0, 0, 0, 'photo-sheet');
                 }
             }
         }
