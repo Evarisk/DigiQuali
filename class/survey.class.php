@@ -528,15 +528,15 @@ class Survey extends SaturneObject
 
         $array['labels'] = [
             0 => [
-                'label' => $langs->trans($years[0]),
+                'label' => $years[0],
                 'color' => '#9567AA'
             ],
             1 => [
-                'label' => $langs->trans($years[1]),
+                'label' => $years[1],
                 'color' => '#4F9EBE'
             ],
             2 => [
-                'label' => $langs->trans($years[2]),
+                'label' => $years[2],
                 'color' => '#FAC461'
             ]
         ];

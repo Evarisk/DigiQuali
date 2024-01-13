@@ -895,22 +895,23 @@ class Control extends SaturneObject
         $array['picto'] = $this->picto;
 
         // Graph parameters.
-        $array['width']   = '100%';
-        $array['height']  = 400;
-        $array['type']    = 'bars';
-        $array['dataset'] = 3;
+        $array['width']      = '100%';
+        $array['height']     = 400;
+        $array['type']       = 'bars';
+        $array['showlegend'] = 1;
+        $array['dataset']    = 3;
 
         $array['labels'] = [
             0 => [
-                'label' => $langs->trans("$years[0]"),
+                'label' => $years[0],
                 'color' => '#9567AA'
             ],
             1 => [
-                'label' => $langs->trans("$years[1]"),
+                'label' => $years[1],
                 'color' => '#4F9EBE'
             ],
             2 => [
-                'label' => $langs->trans("$years[2]"),
+                'label' => $years[2],
                 'color' => '#FAC461'
             ]
         ];
