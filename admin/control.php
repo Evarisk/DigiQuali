@@ -99,15 +99,6 @@ if ($action == 'update_control_reminder') {
     setEventMessage('SavedConfig');
 }
 
-if ($action == 'update_public_survey_title') {
-	$publicSurveyTitle = GETPOST('public_survey_title');
-
-	dolibarr_set_const($db, 'DIGIQUALI_PUBLIC_SURVEY_TITLE', $publicSurveyTitle, 'chaine', 0, '', $conf->entity);
-
-	setEventMessage('SavedConfig');
-}
-
-
 /*
  * View
  */
@@ -232,20 +223,6 @@ print ajax_constantonoff('DIGIQUALI_CONTROLDET_AUTO_SAVE_ACTION');
 print '</td>';
 print '</tr>';
 
-print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '">';
-print '<input type="hidden" name="token" value="' . newToken() . '">';
-print '<input type="hidden" name="action" value="update_public_survey_title">';
-
-print '<tr class="oddeven"><td>';
-print $langs->trans('PublicSurveyTitle');
-print '</td><td>';
-print $langs->trans('PublicSurveyTitleDescription');
-print '</td>';
-
-print '<td class="center">';
-print '<input type="text" name="public_survey_title" value="' . $conf->global->DIGIQUALI_PUBLIC_SURVEY_TITLE . '">';
-print '</td></tr>';
-
 print '<tr><td>';
 print $langs->trans('EnablePublicControlHistory');
 print '</td><td>';
@@ -280,10 +257,6 @@ print '</td>';
 print '</tr>';
 
 print '</table>';
-
-print '<div class="tabsAction"><input type="submit" class="butAction" name="save" value="' . $langs->trans('Save') . '"></div>';
-
-print '</form>';
 
 print load_fiche_titre($langs->trans('ControlReminder'), '', '');
 

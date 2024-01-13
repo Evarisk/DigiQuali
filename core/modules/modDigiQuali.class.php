@@ -97,7 +97,7 @@ class modDigiQuali extends DolibarrModules
 			// Set this to 1 if module has its own login method file (core/login)
 			'login' => 0,
 			// Set this to 1 if module has its own substitution function file (core/substitutions)
-			'substitutions' => 0,
+			'substitutions' => 1,
 			// Set this to 1 if module has its own menus handler directory (core/menus)
 			'menus' => 0,
 			// Set this to 1 if module overwrite template dir (core/tpl)
@@ -271,6 +271,7 @@ class modDigiQuali extends DolibarrModules
             $i++ => ['DIGIQUALI_REDIRECT_AFTER_CONNECTION', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DIGIQUALI_ADVANCED_TRIGGER', 'integer', 1, '', 0, 'current'],
 			$i++ => ['DIGIQUALI_DOCUMENT_DIRECTORIES_NAME_BACKWARD_COMPATIBILITY', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DIGIQUALI_ANSWER_PUBLIC_INTERFACE_TITLE', 'chaine', $langs->trans('AnswerPublicInterface'), '', 0, 'current'],
 
             $i++ => ['AGENDA_REMINDER_BROWSER', 'integer', 1, '', 0, 'current'],
             $i++ => ['AGENDA_REMINDER_EMAIL', 'integer', 1, '', 0, 'current'],

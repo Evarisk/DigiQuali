@@ -125,7 +125,10 @@ if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
     print '<input type="hidden" name="action" value="save">'; ?>
 
     <div id="tablelines" class="question-answer-container signature-container" style="max-width: 1000px;">
-        <?php print '<h2 class="center"><b>' . $conf->global->DIGIQUALI_PUBLIC_SURVEY_TITLE . '</b></h2>';
+        <?php $substitutionArray = getCommonSubstitutionArray($langs, 0, null, $object);
+        complete_substitutions_array($substitutionArray, $langs, $object);
+        $answerPublicInterfaceTitle = make_substitutions($langs->transnoentities($conf->global->DIGIQUALI_ANSWER_PUBLIC_INTERFACE_TITLE), $substitutionArray);
+        print '<h2 class="center">' . (dol_strlen($answerPublicInterfaceTitle) > 0 ? $answerPublicInterfaceTitle : $langs->transnoentities('AnswerPublicInterface')) . '</h2>';
         print '<br>';
         $publicInterface = true;
         $sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);

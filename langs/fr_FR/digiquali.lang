@@ -46,8 +46,14 @@ DisplayMediasSample            = Afficher les médias d'exemple des questions
 DisplayMediasSampleDescription = Afficher les médias d'exemple des questions dans le questionnaire
 ExtrafieldsSurveyManagement    = Gestion des attributs supplémentaires des questionnaires
 
+# Public interface - Interface publique
+AnswerPublicInterface             = Interface publique de réponse au questions pour __OBJECT_ELEMENT_REF__
+AnswerPublicInterfaceTitle        = Titre de l'interface publique de réponse au questions
+AnswerPublicInterfaceSubstitution = Traduction générique "TheObject" __REF__
 
 
+
+#
 # Questions
 #
 
@@ -312,8 +318,6 @@ ControlReminderType                            = Type de rappel d'évènement de
 ControlReminderTypeDescription                 = Choisir le type de rappel d'évènement de contrôle <br> (par défaut : navigateur)
 controlled                                     = contrôlé(e)
 PublicAnswer                                   = Interface publique de réponse
-PublicSurveyTitle                              = Titre de l'interface publique de réponse au contrôle
-PublicSurveyTitleDescription                   = Définir le titre de l'interface publique de réponse au contrôle
 YourAnswersHaveBeenSaved                       = Vos réponses ont bien été sauvegardées
 DaysBeforeNextControl                          = Jours avant prochain contrôle
 SelectProductLots                              = Sélectionner un numéro de lot/série
