@@ -346,6 +346,11 @@ if ($action == 'create') {
 	$doleditor->Create();
 	print '</td></tr>';
 
+    // Type -- Type
+    print '<tr><td class="fieldrequired">' . $langs->trans('Type') . '</td><td>';
+    print $form::selectarray('type', $object->fields['type']['arrayofkeyval'], GETPOST('type'));
+    print '</td></tr>';
+
 	//FK Element
 	$linkableObject = 0;
 	foreach ($elementArray as $key => $element) {
@@ -428,7 +433,12 @@ if (($id || $ref) && $action == 'edit') {
 	$doleditor->Create();
 	print '</td></tr>';
 
-	//FK Element
+    // Type -- Type
+    print '<tr><td class="fieldrequired">' . $langs->trans('Type') . '</td><td>';
+    print $form::selectarray('type', $object->fields['type']['arrayofkeyval'], $object->type);
+    print '</td></tr>';
+
+    //FK Element
 	$elementLinked = json_decode($object->element_linked);
 
 	foreach ($elementArray as $key => $element) {
@@ -568,11 +578,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		if (empty($reshook) && $permissiontoadd) {
-			// Create control
+			// Create object depending on sheet type
 			if ($object->status == $object::STATUS_LOCKED) {
-				print '<a class="butAction" id="actionButtonCreateControl" href="' . dol_buildpath('/custom/digiquali/view/control/control_card.php?action=create&fk_sheet=' . $object->id, 1) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('CreateControl') . '</a>';
+				print '<a class="butAction" href="' . dol_buildpath('/custom/digiquali/view/' . $object->type . '/' . $object->type . '_card.php?action=create&fk_sheet=' . $object->id, 1) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('New' . ucfirst($object->type)) . '</a>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLocked', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('CreateControl') . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLocked', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('New' . ucfirst($object->type)) . '</span>';
 			}
 
 			// Modify

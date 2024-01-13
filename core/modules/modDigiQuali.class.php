@@ -197,6 +197,7 @@ class modDigiQuali extends DolibarrModules
 //            $i++ => ['DIGIQUALI_SHEET_LINK_SUPPLIER_ORDER', 'integer', 0, '', 0, 'current'],
 //            $i++ => ['DIGIQUALI_SHEET_LINK_SUPPLIER_INVOICE', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DIGIQUALI_SHEET_DEFAULT_TAG', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DIGIQUALI_SHEET_BACKWARD_COMPATIBILITY', 'integer', 0, '', 0, 'current'],
 
 			// CONST QUESTION
 			$i++ => ['DIGIQUALI_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'],
@@ -755,6 +756,20 @@ class modDigiQuali extends DolibarrModules
 
         dolibarr_set_const($this->db, 'DIGIQUALI_CONTROL_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
     }
+
+        if (getDolGlobalInt('DIGIQUALI_SHEET_BACKWARD_COMPATIBILITY') == 0) {
+            require_once __DIR__ . '/../../class/sheet.class.php';
+            $sheet  = new Sheet($this->db);
+            $sheets = $sheet->fetchAll();
+            if (is_array($sheets) && !empty($sheets)) {
+                foreach ($sheets as $sheet) {
+                    $sheet->type = 'control';
+                    $sheet->setValueFrom('type', $sheet->type, '', '', 'text', '', $user, strtoupper($sheet->element) . '_MODIFY');
+                }
+            }
+
+            dolibarr_set_const($this->db, 'DIGIQUALI_SHEET_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
+        }
 
 		// Permissions
 		$this->remove($options);
