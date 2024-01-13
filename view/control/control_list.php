@@ -147,7 +147,7 @@ foreach($linkableElements as $linkableElementType => $linkableElement) {
             'position' => $objectPosition,
             'notnull'  => 0,
             'visible'  => 5,
-            'checked'  => 1
+            'checked'  => $source == 'pwa' ? 0 : 1
         ];
 
         $object->fields[$linkableElement['post_name']]                = $arrayfields['t.' . $linkableElement['post_name']];
