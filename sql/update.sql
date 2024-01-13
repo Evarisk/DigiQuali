@@ -115,3 +115,6 @@ UPDATE `llx_bookmark` SET url = REPLACE(url, 'dolismq', 'digiquali') WHERE url L
 UPDATE `llx_ecm_directories` SET label = REPLACE(label, 'dolismq', 'digiquali') WHERE label LIKE '%dolismq%';
 ALTER TABLE `llx_digiquali_control_equipment` ADD `fk_lot` integer AFTER `fk_product`;
 ALTER TABLE `llx_digiquali_control` ADD `control_date` DATETIME AFTER `next_control_date`;
+
+-- 1.10.0
+ALTER TABLE `llx_digiquali_sheet` ADD `photo` TEXT NULL AFTER `element_linked`;
