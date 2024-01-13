@@ -53,7 +53,7 @@ class DigiqualiDashboard
         require_once __DIR__ . '/survey.class.php';
 
         $control = new Control($this->db);
-        $survey = new Survey($this->db);
+        $survey  = new Survey($this->db);
 
         $array['control'] = $control->load_dashboard();
         $array['survey']  = $survey->load_dashboard();

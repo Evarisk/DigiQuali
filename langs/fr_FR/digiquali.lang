@@ -351,11 +351,15 @@ controldocument_photo                   = fiche de controle avec photos
 #
 
 # Data - Donnée
-Survey     = Questionnaire
-Surveys    = Questionnaires
-SurveyList = Liste des questionnaires
-NewSurvey  = Nouveau questionnaire
-TheSurvey  = le questionnaire
+Survey                = Questionnaire
+Surveys               = Questionnaires
+SurveyList            = Liste des questionnaires
+NewSurvey             = Nouveau questionnaire
+TheSurvey             = le questionnaire
+SurveysCategoriesArea = Espace des tags/catégories des questionnaires
+SurveysByFiscalYear   = Rapport des questionnaires sur l'exercice fiscal
+NeedObjectToLink      = Vous devez sélectionner un objet à lié
+ConfirmValidateSurvey = Êtes-vous sûr de vouloir valider le questionnaire ?
 
 
 
