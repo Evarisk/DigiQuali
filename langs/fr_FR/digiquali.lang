@@ -363,3 +363,4 @@ SelectProductsOrServices = Sélectionner un produit / service
 Contact                  = Contact/Adresse
 Remain                   = reste
 InProgressAndLocked      = -- (En cours + vérrouillé) --
+NoObservations           = Pas d'observations
