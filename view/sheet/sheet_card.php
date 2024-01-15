@@ -48,6 +48,7 @@ saturne_load_langs(["other", "product", 'bills', 'orders']);
 $id                  = GETPOST('id', 'int');
 $ref                 = GETPOST('ref', 'alpha');
 $action              = GETPOST('action', 'aZ09');
+$subaction           = GETPOST('subaction', 'aZ09');
 $confirm             = GETPOST('confirm', 'alpha');
 $cancel              = GETPOST('cancel', 'aZ09');
 $contextpage         = GETPOST('contextpage', 'aZ') ?GETPOST('contextpage', 'aZ') : 'sheetcard'; // To manage different context of search
@@ -319,7 +320,7 @@ $help_url = 'FR:Module_DigiQuali';
 
 $elementArray = get_sheet_linkable_objects();
 
-saturne_header(0,'', $title, $help_url);
+saturne_header(1,'', $title, $help_url);
 
 // Part to create
 if ($action == 'create') {
@@ -479,7 +480,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$res = $object->fetch_optionals();
 
 	saturne_get_fiche_head($object, 'card', $title);
-	saturne_banner_tab($object);
+	saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', '', !empty($object->photo));
 
 	$formconfirm = '';
 
@@ -509,6 +510,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// Print form confirm
 	print $formconfirm;
+
+    if ($conf->browser->layout == 'phone') {
+        $onPhone = 1;
+    } else {
+        $onPhone = 0;
+    }
 
 	// Object card
 	// ------------------------------------------------------------
@@ -541,6 +548,26 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 		}
 	}
+
+    print '<tr class="linked-medias photo question-table"><td class=""><label for="photos">' . $langs->trans('Photo') . '</label></td><td class="linked-medias-list">';
+    $pathPhotos = $conf->digiquali->multidir_output[$conf->entity] . '/sheet/'. $object->ref . '/photos/';
+    $fileArray  = dol_dir_list($pathPhotos, 'files'); ?>
+    <span class="add-medias" <?php echo ($object->status < Sheet::STATUS_LOCKED) ? '' : 'style="display:none"' ?>>
+        <input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
+        <label for="fast-upload-photo-default">
+            <div class="wpeo-button <?php echo ($onPhone ? 'button-square-40' : 'button-square-50'); ?>">
+                <i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
+            </div>
+        </label>
+        <input type="hidden" class="favorite-photo" id="photo" name="photo" value="<?php echo $object->photo ?>"/>
+        <div class="wpeo-button <?php echo ($onPhone ? 'button-square-40' : 'button-square-50'); ?> 'open-media-gallery add-media modal-open" value="0">
+            <input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id?>" data-from-type="sheet" data-from-subtype="photo" data-from-subdir="photos"/>
+            <i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
+        </div>
+    </span>
+    <?php
+    print saturne_show_medias_linked('digiquali', $pathPhotos, 'small', 0, 0, 0, 0, $onPhone ? 40 : 50, $onPhone ? 40 : 50, 0, 0, 0, 'sheet/'. $object->ref . '/photos/', $object, 'photo', $object->status < Sheet::STATUS_LOCKED, $permissiontodelete && $object->status < Sheet::STATUS_LOCKED);
+    print '</td></tr>';
 
 	// Other attributes. Fields from hook formObjectOptions and Extrafields.
 	include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_view.tpl.php';
