@@ -526,6 +526,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	unset($object->fields['label']); // Hide field already shown in banner
 
+    print '<tr class="field_threshold"><td class="titlefield fieldname_threshold">';
+    print $form->editfieldkey('Threshold', 'threshold', $object->threshold, $object, $permissiontoadd && $object->status < Sheet::STATUS_LOCKED);
+    print '</td><td class="valuefield fieldname_threshold">';
+    print $form->editfieldval('Threshold', 'threshold', $object->threshold, $object, $permissiontoadd && $object->status < Sheet::STATUS_LOCKED, 'string', '', null, null, "id=$object->id");
+    print '</td></tr>';
+
 	// Common attributes
 	include DOL_DOCUMENT_ROOT.'/core/tpl/commonfields_view.tpl.php';
 

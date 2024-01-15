@@ -27,6 +27,7 @@ CREATE TABLE llx_digiquali_sheet(
   description         text,
   element_linked      text,
   photo               text,
+  threshold           double(24,8),
   mandatory_questions text,
   fk_user_creat       integer NOT NULL,
   fk_user_modif       integer

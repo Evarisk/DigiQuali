@@ -129,6 +129,17 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 				break;
 
 			case 'CONTROL_CREATE' :
+                // Load Digiquali libraries
+                require_once __DIR__ . '/../../class/sheet.class.php';
+
+                $sheet = new Sheet($this->db);
+
+                $sheet->fetch($object->fk_sheet);
+                if ($sheet->threshold > 0) {
+                    $object->threshold = $sheet->threshold;
+                    $object->setValueFrom('threshold', $object->threshold, '', '', 'text', '', $user);
+                }
+
                 $elementArray = [];
                 if ($object->context != 'createfromclone') {
 					$elementArray = get_sheet_linkable_objects();
