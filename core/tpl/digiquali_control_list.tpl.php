@@ -186,6 +186,9 @@ foreach ($search as $key => $val)
 	else $param .= '&search_'.$key.'='.urlencode($search[$key]);
 }
 if ($optioncss != '')     $param .= '&optioncss='.urlencode($optioncss);
+if ($source != '') {
+    $param .= '&source=' . urlencode($source);
+}
 // Add $param from extra fields
 include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_list_search_param.tpl.php';
 // Add $param from hooks
@@ -207,15 +210,19 @@ print '<input type="hidden" name="action" value="list">';
 print '<input type="hidden" name="sortfield" value="'.$sortfield.'">';
 print '<input type="hidden" name="sortorder" value="'.$sortorder.'">';
 print '<input type="hidden" name="contextpage" value="'.$contextpage.'">';
+print '<input type="hidden" name="source" value="' . $source . '">';
 if (GETPOSTISSET('id')) {
 	print '<input type="hidden" name="id" value="'.GETPOST('id','int').'">';
 }
-if (!empty($fromtype)) {
-	$fromurl = '&fromtype='.$fromtype.'&fromid='.$fromid;
-}
-$newcardbutton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/digiquali/view/control/control_card.php', 1).'?action=create'.$fromurl, '', $permissiontoadd);
 
-print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'object_'.$object->picto, 0, $newcardbutton, '', $limit, 0, 0, 1);
+$fromurl = '';
+if (!empty($fromtype)) {
+    $fromurl = '&fromtype=' . $fromtype . '&fromid=' . $fromid;
+}
+
+$newCardButton = dolGetButtonTitle($langs->trans('New'), '', 'fa fa-plus-circle', dol_buildpath('/digiquali/view/control/control_card.php', 1) . '?action=create&source=' . $source . $fromurl, '', $permissiontoadd);
+
+print_barre_liste($title, $page, $_SERVER["PHP_SELF"], $param, $sortfield, $sortorder, $massactionbutton, $num, $nbtotalofrecords, 'object_'.$object->picto, 0, $newCardButton, '', $limit, 0, 0, 1);
 
 if ($massaction == 'prearchive') {
     print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans('ConfirmMassArchive'), $langs->trans('ConfirmMassArchivingQuestion', count($toselect)), 'archive', null, '', 0, 200, 500, 1);
@@ -237,7 +244,7 @@ if ($searchAll)
 $moreforfilter = '';
 
 // Filter on categories
-if (!empty($conf->categorie->enabled) && $user->rights->categorie->lire) {
+if (!empty($conf->categorie->enabled) && $user->rights->categorie->lire && $source != 'pwa') {
 	$formcategory = new FormCategory($db);
 	$moreforfilter .= $formcategory->getFilterBox('control', $search_category_array);
 }
@@ -256,23 +263,15 @@ if (!empty($moreforfilter))
 
 $varpage = empty($contextpage) ? $_SERVER["PHP_SELF"] : $contextpage;
 
-$arrayfields['t.days_remaining_before_next_control'] = [
-	'label' => 'DaysBeforeNextControl',
-	'checked' => 1,
-	'enabled' => 1,
-//	'arrayofkeyval' => ['', '< 30', '< 60', '<90'],
-	'position' => 66
-];
-
 $signatoriesInDictionary = saturne_fetch_dictionary('c_' . $object->element . '_attendants_role');
 if (is_array($signatoriesInDictionary) && !empty($signatoriesInDictionary)) {
     $customFieldsPosition = 111;
     foreach ($signatoriesInDictionary as $signatoryInDictionary) {
-        $arrayfields[$signatoryInDictionary->ref] = ['label' => $signatoryInDictionary->ref, 'checked' => 1, 'position' => $customFieldsPosition++, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusxx'];
+        $arrayfields[$signatoryInDictionary->ref] = ['label' => $signatoryInDictionary->ref, 'checked' => $source == 'pwa' ? 0 : 1, 'position' => $customFieldsPosition++, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusxx'];
     }
 }
 
-$arrayfields['SocietyAttendants'] = ['label' => 'SocietyAttendants', 'checked' => 1, 'position' => 115, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusxx'];
+$arrayfields['SocietyAttendants'] = ['label' => 'SocietyAttendants', 'checked' => $source == 'pwa' ? 0 : 1, 'position' => 115, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusxx'];
 
 $selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage); // This also change content of $arrayfields
 $selectedfields .= (count($arrayofmassactions) ? $form->showCheckAddButtons('checkforselect', 1) : '');
