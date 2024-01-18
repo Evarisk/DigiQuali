@@ -30,7 +30,7 @@ CREATE TABLE llx_digiquali_control(
     track_id           varchar(128) NOT NULL,
     control_date       datetime,
     next_control_date  datetime,
-    threshold          double(24,8),
+    success_rate       double(24,8),
     fk_user_creat      integer NOT NULL,
     fk_user_modif      integer,
     fk_sheet           integer NOT NULL,

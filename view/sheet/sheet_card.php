@@ -526,10 +526,20 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	unset($object->fields['label']); // Hide field already shown in banner
 
-    print '<tr class="field_threshold"><td class="titlefield fieldname_threshold">';
-    print $form->editfieldkey('Threshold', 'threshold', $object->threshold, $object, $permissiontoadd && $object->status < Sheet::STATUS_LOCKED);
-    print '</td><td class="valuefield fieldname_threshold">';
-    print $form->editfieldval('Threshold', 'threshold', $object->threshold, $object, $permissiontoadd && $object->status < Sheet::STATUS_LOCKED, 'string', '', null, null, "id=$object->id");
+    print '<tr class="field_success_rate"><td class="titlefield fieldname_success_rate">';
+    print $form->editfieldkey('SuccessScore', 'success_rate', $object->success_rate, $object, $permissiontoadd && $object->status < Sheet::STATUS_LOCKED, 'string', '', 0, 0,'id', $langs->trans('PercentageValue'));
+    print '</td><td class="valuefield fieldname_success_rate">';
+    if ($action == 'editsuccess_rate') {
+        print '<form action="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '" method="post">';
+        print '<input type="hidden" name="token" value="' . newToken() . '">';
+        print '<input type="hidden" name="action" value="setsuccess_rate">';
+        print '<table class="nobordernopadding centpercent">';
+        print '<tbody><tr><td><input type="number" id="success_rate" name="success_rate" min="0" max="100" onkeyup=window.saturne.utils.enforceMinMax(this) value="' . $object->success_rate . '">';
+        print '</td><td class="left"><input type="submit" class="smallpaddingimp button" name="modify" value="' . $langs->trans('Modify') . '"><input type="submit" class="smallpaddingimp button button-cancel" name="cancel" value="' . $langs->trans('Cancel') . '"></td></tr></tbody></table>';
+        print '</form>';
+    } else {
+        print price2num($object->success_rate) . ' %';
+    }
     print '</td></tr>';
 
 	// Common attributes
