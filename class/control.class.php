@@ -120,7 +120,7 @@ class Control extends SaturneObject
         'import_key'         => ['type' => 'varchar(14)',  'label' => 'ImportId',         'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'showinpwa' => 0, 'index' => 0],
         'control_date'       => ['type' => 'date',         'label' => 'ControlDate',      'enabled' => 1, 'position' => 63,  'notnull' => 0, 'visible' => 2, 'showinpwa' => 0],
         'next_control_date'  => ['type' => 'date',         'label' => 'NextControlDate',  'enabled' => 1, 'position' => 65,  'notnull' => 0, 'visible' => 2, 'showinpwa' => 0],
-        'threshold'          => ['type' => 'real',         'label' => 'Threshold',        'enabled' => 1, 'position' => 67,  'notnull' => 0, 'visible' => 2, 'showinpwa' => 0],
+        'success_rate'       => ['type' => 'real',         'label' => 'SuccessScore',     'enabled' => 1, 'position' => 67,  'notnull' => 0, 'visible' => 2, 'showinpwa' => 0, 'help' => 'PercentageValue'],
         'status'             => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 5, 'showinpwa' => 0, 'index' => 1, 'default' => 0, 'arrayofkeyval' => [0 => 'StatusDraft', 1 => 'Validated', 2 => 'Locked', 3 => 'Archived']],
         'note_public'        => ['type' => 'html',         'label' => 'NotePublic',       'enabled' => 1, 'position' => 80,  'notnull' => 0, 'visible' => 0, 'showinpwa' => 0],
         'note_private'       => ['type' => 'html',         'label' => 'NotePrivate',      'enabled' => 1, 'position' => 90,  'notnull' => 0, 'visible' => 0, 'showinpwa' => 0],
@@ -211,9 +211,9 @@ class Control extends SaturneObject
     public $control_date;
 
     /**
-     * @var float|string|null Threshold
+     * @var float|string|null Success rate
      */
-    public $threshold;
+    public $success_rate;
 
     /**
      * @var int User ID.

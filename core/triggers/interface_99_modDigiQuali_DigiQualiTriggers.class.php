@@ -135,9 +135,9 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                 $sheet = new Sheet($this->db);
 
                 $sheet->fetch($object->fk_sheet);
-                if ($sheet->threshold > 0) {
-                    $object->threshold = $sheet->threshold;
-                    $object->setValueFrom('threshold', $object->threshold, '', '', 'text', '', $user);
+                if ($sheet->success_rate > 0) {
+                    $object->success_rate = $sheet->success_rate;
+                    $object->setValueFrom('success_rate', $object->success_rate, '', '', 'text', '', $user);
                 }
 
                 $elementArray = [];

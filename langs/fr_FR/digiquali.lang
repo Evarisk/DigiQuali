@@ -95,6 +95,9 @@ AnswerUpdated                 = La réponse a été mise à jour avec succès
 AnswerDeleted                 = La réponse a été supprimée avec succès
 AnswerMustBeCreated           = La question %s doit avoir au moins une réponse pour passer au statut verrouillé
 ShowOnlyQuestionsWithNoAnswer = Afficher uniquement les questions qui n'ont pas de réponse
+AveragePercentageQuestions    = Moyenne des questions
+
+
 
 #
 # Sheet
@@ -138,6 +141,8 @@ ExportSheetDataDescription     = Export des données du modèle de contrôle et 
 ExportWellDone                 = L'export a été réalisé avec succès
 ToImportDataGoToImportPage     = Pour importer des données, veuillez vous rendre sur la page d'import : <a href="%s"> %s </a>
 NbQuestions                    = Nombre de questions
+SuccessScore                   = Score de réussite
+PercentageValue                = Valeur en pourcentage
 
 
 

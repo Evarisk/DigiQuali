@@ -119,5 +119,5 @@ ALTER TABLE `llx_digiquali_control` ADD `control_date` DATETIME AFTER `next_cont
 
 -- 1.10.0
 ALTER TABLE `llx_digiquali_sheet` ADD `photo` TEXT NULL AFTER `element_linked`;
-ALTER TABLE `llx_digiquali_sheet` ADD `threshold` DOUBLE(24,8) NULL AFTER `photo`;
-ALTER TABLE `llx_digiquali_control` ADD `threshold` DOUBLE(24,8) NULL AFTER `next_control_date`;
+ALTER TABLE `llx_digiquali_sheet` ADD `success_rate` DOUBLE(24,8) NULL AFTER `photo`;
+ALTER TABLE `llx_digiquali_control` ADD `success_rate` DOUBLE(24,8) NULL AFTER `next_control_date`;
