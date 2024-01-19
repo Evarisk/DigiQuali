@@ -49,7 +49,7 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 		$this->name        = preg_replace('/^Interface/i', '', get_class($this));
 		$this->family      = 'demo';
 		$this->description = 'DigiQuali triggers.';
-		$this->version     = '1.9.1';
+		$this->version     = '1.10.0';
 		$this->picto       = 'digiquali@digiquali';
 	}
 
@@ -129,6 +129,17 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 				break;
 
 			case 'CONTROL_CREATE' :
+                // Load Digiquali libraries
+                require_once __DIR__ . '/../../class/sheet.class.php';
+
+                $sheet = new Sheet($this->db);
+
+                $sheet->fetch($object->fk_sheet);
+                if ($sheet->success_rate > 0) {
+                    $object->success_rate = $sheet->success_rate;
+                    $object->setValueFrom('success_rate', $object->success_rate, '', '', 'text', '', $user);
+                }
+
                 $elementArray = [];
                 if ($object->context != 'createfromclone') {
 					$elementArray = get_sheet_linkable_objects();

@@ -3,7 +3,7 @@
 ## Informations
 
 - Numéro du module : 436301
-- Dernière mise à jour : 22/12/2023
+- Dernière mise à jour : 15/01/2023
 - Éditeur : [Evarisk](https://evarisk.com)
 - Thème : Eldy Menu
 - Licence : GPLv3
@@ -11,8 +11,9 @@
 
 ### Version
 
-- Version : 1.9.1
-- Compatibilité : Dolibarr 16.0.0 - 18.0.4
+- Version : 1.10.0
+- PHP : 7.4.33
+- Compatibilité : Dolibarr 17.0.0 - 18.0.4
 - Saturne Framework : 1.2.1
 
 ## Liens
@@ -20,7 +21,7 @@
 - Support & Assistance : [Forum dolibarr.fr](https://dolibarr.fr) / Par mail à technique@evarisk.com
 - Demo : [Demo DigiQuali](https://demodoli.digirisk.com) - ID: demo - Password: demo
 - Documentation : [Wiki DigiQuali](https://wiki.dolibarr.org/index.php/Module_DigiQuali)
-- Projet Github : [Projet DigiQuali](https://github.com/Evarisk/digiquali/projects?type=classic)
+- Projet Github : [Projet DigiQuali](https://github.com/Evarisk/digiquali/projects?query=is%3Aopen)
 - Saturne Framework : [Télécharger Saturne](https://dolistore.com/fr/modules/1906-Saturne.html)
 - D'autres modules développés par Evarisk disponibles sur [Dolistore.com](https://dolistore.com)
 
@@ -44,6 +45,8 @@ Contrôle qualité des éléments de Dolibarr :
 - Proposition commerciale
 
 Génération du rapport de contrôle
+
+Réalisation de contrôle avec une PWA
 
 ## Traductions
 

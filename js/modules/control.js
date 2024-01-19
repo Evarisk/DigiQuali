@@ -39,6 +39,9 @@ window.digiquali.control.event = function() {
   $( document ).on( 'change', '#productId', window.digiquali.control.refreshLotSelector );
   $( document ).on( 'click', '.switch-public-control-view', window.digiquali.control.switchPublicControlView );
   $(document).on('click', '.show-only-questions-with-no-answer', window.digiquali.control.showOnlyQuestionsWithNoAnswer);
+  $(document).on('click', '.photo-sheet-category', window.digiquali.control.getSheetCategoryID);
+  $(document).on('click', '.photo-sheet-sub-category', window.digiquali.control.getSheetSubCategoryID);
+  $(document).on('click', '.photo-sheet', window.digiquali.control.getSheetID);
 };
 
 /**
@@ -174,39 +177,30 @@ window.digiquali.control.getAnswerCounter = function ( event ) {
  * Show select objects depending on sheet controllable objects
  *
  * @since   1.0.0
- * @version 1.0.0
+ * @version 1.10.0
  *
- * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.digiquali.control.showSelectObjectLinked = function ( event ) {
-	var controlForm = document.getElementById('createControlForm');
-	var formData = new FormData(controlForm);
+window.digiquali.control.showSelectObjectLinked = function() {
+  let sheetID        = $(this).val();
+  let token          = window.saturne.toolbox.getToken();
+  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
 
-	let token = $('.id-container').find('input[name="token"]').val();
-	let action = '?action=create'
+  let url = document.URL + querySeparator + 'fk_sheet=' + sheetID + '&token=' + token;
 
-	let sheetId = formData.get('fk_sheet')
-	let userController = formData.get('fk_user_controller')
-	let projectId = formData.get('fk_project')
-	let urlToGo = document.URL + (document.URL.match(/\?action=create/) ? '' : action) + '&fk_sheet=' + sheetId + '&token=' + token
-	urlToGo += '&fk_project=' + projectId
-	urlToGo += '&fk_user_controller=' + userController
+  window.saturne.loader.display($('.linked-objects'));
 
-	window.saturne.loader.display($('.tabBar.tabBarWithBottom tbody'))
-	$.ajax({
-		url: urlToGo,
-		type: "POST",
-		processData: false,
-		contentType: false,
-		success: function ( resp ) {
-			$('.tabBar.tabBarWithBottom tbody').html($(resp).find('.tabBar.tabBarWithBottom tbody').children())
-			$('.wpeo-loader').removeClass('wpeo-loader')
-		},
-		error: function ( ) {
-		}
-	});
-}
+  $.ajax({
+    url: url,
+    type: 'POST',
+    processData: false,
+    contentType: false,
+    success: function(resp) {
+      $('.linked-objects').replaceWith($(resp).find('.linked-objects'));
+    },
+    error: function() {}
+  });
+};
 
 /**
  * Show control info if toggle control info is on.
@@ -387,6 +381,99 @@ window.digiquali.control.saveAnswer = function(questionId, answer, comment) {
     contentType: false,
     success: function(resp) {
       $('.fiche').replaceWith($(resp).find('.fiche'));
+    },
+    error: function() {}
+  });
+};
+
+/**
+ * Get sheet category ID after click event
+ *
+ * @since   1.10.0
+ * @version 1.10.0
+ *
+ * @return {void}
+ */
+window.digiquali.control.getSheetCategoryID = function() {
+  let sheetCategoryID = $(this).attr('value');
+  let token           = window.saturne.toolbox.getToken();
+  let querySeparator  = window.saturne.toolbox.getQuerySeparator(document.URL);
+  window.saturne.loader.display($('.sheet-images-container'));
+
+  $.ajax({
+    url: document.URL + querySeparator + 'sheetCategoryID=' + sheetCategoryID + '&token=' + token,
+    type: 'POST',
+    processData: false,
+    contentType: false,
+    success: function(resp) {
+      $('.sheet-images-container').replaceWith($(resp).find('.sheet-images-container'));
+      $('.photo-sheet-category[value=' + sheetCategoryID + ']').css('border', '3px solid #0d8aff');
+      $('.photo-sheet-category[value=' + sheetCategoryID + ']').addClass('photo-sheet-category-active');
+      $('.linked-objects').replaceWith($(resp).find('.linked-objects'));
+    },
+    error: function() {}
+  });
+};
+
+/**
+ * Get sheet sub category ID after click event
+ *
+ * @since   1.10.0
+ * @version 1.10.0
+ *
+ * @return {void}
+ */
+window.digiquali.control.getSheetSubCategoryID = function() {
+  let sheetCategoryID    = $('.photo-sheet-category-active').attr('value');
+  let sheetSubCategoryID = $(this).attr('value');
+  let token              = window.saturne.toolbox.getToken();
+  let querySeparator     = window.saturne.toolbox.getQuerySeparator(document.URL);
+  window.saturne.loader.display($('.sheet-images-container'));
+
+  $.ajax({
+    url: document.URL + querySeparator + 'sheetCategoryID=' + sheetCategoryID + '&sheetSubCategoryID=' + sheetSubCategoryID + '&token=' + token,
+    type: 'POST',
+    processData: false,
+    contentType: false,
+    success: function(resp) {
+      $('.sheet-images-container').replaceWith($(resp).find('.sheet-images-container'));
+      $('.photo-sheet-category[value=' + sheetCategoryID + ']').css('border', '3px solid #0d8aff');
+      $('.photo-sheet-category[value=' + sheetCategoryID + ']').addClass('photo-sheet-category-active');
+      $('.photo-sheet-sub-category[value=' + sheetSubCategoryID + ']').css('border', '3px solid #0d8aff');
+      $('.photo-sheet-sub-category[value=' + sheetSubCategoryID + ']').addClass('photo-sheet-sub-category-active');
+      $('.linked-objects').replaceWith($(resp).find('.linked-objects'));
+    },
+    error: function() {}
+  });
+};
+
+/**
+ * Get sheet ID after click event
+ *
+ * @since   1.10.0
+ * @version 1.10.0
+ *
+ * @return {void}
+ */
+window.digiquali.control.getSheetID = function() {
+  let sheetID            = $(this).attr('data-object-id');
+  let sheetCategoryID    = $('.photo-sheet-category-active').attr('value');
+  let sheetSubCategoryID = $('.photo-sheet-sub-category-active').attr('value');
+  let token              = window.saturne.toolbox.getToken();
+  let querySeparator     = window.saturne.toolbox.getQuerySeparator(document.URL);
+
+  window.saturne.loader.display($('.sheet-elements'));
+  window.saturne.loader.display($('.linked-objects'));
+
+  $.ajax({
+    url: document.URL + querySeparator + 'fk_sheet=' + sheetID + '&sheetCategoryID=' + sheetCategoryID + '&sheetSubCategoryID=' + sheetSubCategoryID + '&token=' + token,
+    type: 'POST',
+    processData: false,
+    contentType: false,
+    success: function(resp) {
+      $('.sheet-elements').replaceWith($(resp).find('.sheet-elements'));
+      $('.photo-sheet[data-object-id=' + sheetID + ']').css('border', '3px solid #0d8aff');
+      $('.linked-objects').replaceWith($(resp).find('.linked-objects'));
     },
     error: function() {}
   });

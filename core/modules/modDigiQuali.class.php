@@ -77,7 +77,7 @@ class modDigiQuali extends DolibarrModules
 		$this->editor_url = 'https://evarisk.com/';
 
 		// Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-		$this->version = '1.9.1';
+		$this->version = '1.10.0';
 		// Url to the file with your last numberversion of this module
 		//$this->url_last_version = 'http://www.example.com/versionmodule.txt';
 
@@ -125,7 +125,8 @@ class modDigiQuali extends DolibarrModules
                 'publiccontrol',
                 'publicsurvey',
                 'digiqualiadmindocuments',
-                'projecttaskscard'
+                'projecttaskscard',
+                'main'
 			],
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -157,7 +158,7 @@ class modDigiQuali extends DolibarrModules
 
 		// Prerequisites
 		$this->phpmin = [7, 4]; // Minimum version of PHP required by module
-		$this->need_dolibarr_version = [15, 0]; // Minimum version of Dolibarr required by module
+		$this->need_dolibarr_version = [17, 0]; // Minimum version of Dolibarr required by module
 
 		// Messages at activation
 		$this->warnings_activation = []; // Warning to show when we activate module. array('always'='text') or array('FR'='textfr','ES'='textes'...)

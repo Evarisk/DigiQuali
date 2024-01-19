@@ -90,8 +90,13 @@ if (!empty($conf->categorie->enabled)) {
 $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 
 // Default sort order (if not yet defined by previous GETPOST)
-if (!$sortfield) { reset($object->fields); $sortfield="t.".key($object->fields); }   // Set here default search field. By default 1st field in definition. Reset is required to avoid key() to return null.
-if (!$sortorder) $sortorder = "ASC";
+if (!$sortfield || $sortfield == 't.nb_questions') {
+    reset($object->fields);   // Reset is required to avoid key() to return null
+    $sortfield = 't.date_creation'; // Set here default search field. By default, date_creation
+}
+if (!$sortorder) {
+    $sortorder = 'DESC';
+}
 
 // Initialize array of search criterias
 $searchAll = GETPOST('search_all', 'alphanohtml') ? GETPOST('search_all', 'alphanohtml') : GETPOST('sall', 'alphanohtml');
@@ -108,7 +113,7 @@ foreach ($object->fields as $key => $val) {
 }
 
 // Definition of array of fields for columns
-$arrayfields = array();
+$arrayfields['t.nb_questions'] = ['label' => 'NbQuestions', 'checked' => 1, 'enabled' => 1, 'position' => 16];
 foreach ($object->fields as $key => $val) {
 	// If $val['visible']==0, then we never show the field
 	if (!empty($val['visible'])) {
@@ -394,6 +399,10 @@ if (!empty($conf->categorie->enabled) && $user->rights->categorie->lire) {
 	$moreforfilter .= $formcategory->getFilterBox('sheet', $search_category_array);
 }
 
+$object->fields['nb_questions'] = $arrayfields['t.nb_questions'];
+
+$object->fields = dol_sort_array($object->fields, 'position');
+
 $parameters    = array();
 $reshook       = $hookmanager->executeHooks('printFieldPreListTitle', $parameters, $object); // Note that $action and $object may have been modified by hook
 if (empty($reshook)) $moreforfilter .= $hookmanager->resPrint;
@@ -417,7 +426,7 @@ print '<table class="tagtable nobottomiftotal liste'.($moreforfilter ? " listwit
 print '<tr class="liste_titre">';
 foreach ($object->fields as $key => $val) {
 	$cssforfield = (empty($val['css']) ? '' : $val['css']);
-	if ($key == 'status') $cssforfield .= ($cssforfield ? ' ' : '').'center';
+	if ($key == 'status' || $key == 'nb_questions') $cssforfield .= ($cssforfield ? ' ' : '').'center';
 	elseif (in_array($val['type'], array('date', 'datetime', 'timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'center';
 	elseif (in_array($val['type'], array('timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'nowrap';
 	elseif (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && $val['label'] != 'TechnicalID') $cssforfield .= ($cssforfield ? ' ' : '').'right';
@@ -449,8 +458,8 @@ print '</tr>'."\n";
 // --------------------------------------------------------------------
 print '<tr class="liste_titre">';
 foreach ($object->fields as $key => $val) {
-	$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? '' : $val['css']) : $val['csslist']);
-	if ($key == 'status') $cssforfield .= ($cssforfield ? ' ' : '').'center';
+	$cssforfield = (empty($val['csslist']) ? (empty($val['css']) ? 'maxwidthsearch' : $val['css']) : $val['csslist']);
+	if ($key == 'status' || $key == 'nb_questions') $cssforfield .= ($cssforfield ? ' ' : '').'center';
 	elseif (in_array($val['type'], array('date', 'datetime', 'timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'center';
 	elseif (in_array($val['type'], array('timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'nowrap';
 	elseif (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && $val['label'] != 'TechnicalID') $cssforfield .= ($cssforfield ? ' ' : '').'right';
@@ -497,18 +506,25 @@ while ($i < ($limit ? min($num, $limit) : $num)) {
 	foreach ($object->fields as $key => $val) {
 		$cssforfield = (empty($val['css']) ? '' : $val['css']);
 		if (in_array($val['type'], array('date', 'datetime', 'timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'center';
-		elseif ($key == 'status') $cssforfield .= ($cssforfield ? ' ' : '').'center';
+		elseif ($key == 'status' || $key == 'nb_questions') $cssforfield .= ($cssforfield ? ' ' : '').'center';
 
 		if (in_array($val['type'], array('timestamp'))) $cssforfield .= ($cssforfield ? ' ' : '').'nowrap';
 		elseif ($key == 'ref') $cssforfield .= ($cssforfield ? ' ' : '').'nowrap';
 
 		if (in_array($val['type'], array('double(24,8)', 'double(6,3)', 'integer', 'real', 'price')) && !in_array($key, array('rowid', 'status'))) $cssforfield .= ($cssforfield ? ' ' : '').'right';
 		//if (in_array($key, array('fk_soc', 'fk_user', 'fk_warehouse'))) $cssforfield = 'tdoverflowmax100';
-
 		if (!empty($arrayfields['t.'.$key]['checked'])) {
 			print '<td'.($cssforfield ? ' class="'.$cssforfield.'"' : '').'>';
 			if ($key == 'status') print $object->getLibStatut(5);
 			elseif ($key == 'ref') print $object->getNomUrl(1);
+            elseif ($key == 'nb_questions') {
+                $object->fetchQuestionsLinked($object->id, 'digiquali_sheet', null, '', 'OR', 1, 'sourcetype', 0);
+                if (isset($object->linkedObjectsIds['digiquali_question']) && is_array($object->linkedObjectsIds['digiquali_question'])) {
+                    print count($object->linkedObjectsIds['digiquali_question']);
+                } else {
+                    print 0;
+                }
+            }
 			else print $object->showOutputField($val, $key, $object->$key, '');
 			print '</td>';
 			if (!$i) $totalarray['nbfield']++;

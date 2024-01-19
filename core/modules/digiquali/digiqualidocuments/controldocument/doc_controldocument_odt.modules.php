@@ -146,7 +146,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
                             if (is_array($controldets) && !empty($controldets)) {
                                 $questionAnswerLine     = array_shift($controldets);
                                 $tmpArray['ref_answer'] = $questionAnswerLine->ref;
-                                $tmpArray['comment']    = dol_htmlentitiesbr_decode(strip_tags($questionAnswerLine->comment, '<br>'));
+                                $tmpArray['comment']    = $questionAnswerLine->comment ? dol_htmlentitiesbr_decode(strip_tags($questionAnswerLine->comment, '<br>')) : $langs->transnoentities('NoObservations');
 
                                 $answerResult = $questionAnswerLine->answer;
 

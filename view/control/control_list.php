@@ -82,6 +82,7 @@ $backtopage  = GETPOST('backtopage', 'alpha'); // Go back to a dedicated page
 $optioncss   = GETPOST('optioncss', 'aZ'); // Option for the css output (always '' except when 'print')
 $fromtype    = GETPOST('fromtype', 'alpha'); // element type
 $fromid      = GETPOST('fromid', 'int'); //element id
+$source      = GETPOST('source', 'alpha'); // source PWA
 
 // Load variable for pagination
 $limit     = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
@@ -134,7 +135,8 @@ if (!$sortorder) {
 
 $linkableElements = get_sheet_linkable_objects();
 
-$objectPosition = 20;
+$nbLinkableElements = 0;
+$objectPosition     = 20;
 foreach($linkableElements as $linkableElementType => $linkableElement) {
 	$className  = $linkableElement['className'];
 
@@ -146,13 +148,14 @@ foreach($linkableElements as $linkableElementType => $linkableElement) {
             'position' => $objectPosition,
             'notnull'  => 0,
             'visible'  => 5,
-            'checked'  => 1
+            'checked'  => $source == 'pwa' ? 0 : 1
         ];
 
         $object->fields[$linkableElement['post_name']]                = $arrayfields['t.' . $linkableElement['post_name']];
         $elementElementFields[$linkableElement['post_name']]          = $linkableElement['link_name'];
         $linkNameElementCorrespondence[$linkableElement['link_name']] = $linkableElement;
         $objectPosition++;
+        $nbLinkableElements++;
 
         if (!empty($fromtype)) {
             $objectLinked = new $className($db);
@@ -188,20 +191,26 @@ foreach ($object->fields as $key => $val) {
 }
 
 // Definition of array of fields for columns
-$arrayfields = array();
+$arrayfields['t.days_remaining_before_next_control'] = [
+    'label'   => 'DaysBeforeNextControl',
+    'checked' => $source == 'pwa' ? 0 : 1,
+    'enabled' => 1,
+    //'arrayofkeyval' => ['', '< 30', '< 60', '<90'],
+    'position' => 66
+];
 foreach ($object->fields as $key => $val) {
-	// If $val['visible']==0, then we never show the field
-	if (!empty($val['visible'])) {
-		$visible = (int) dol_eval($val['visible'], 1);
-		$arrayfields['t.'.$key] = array(
-			'label'=>$val['label'],
-			'checked'=>(($visible < 0) ? 0 : 1),
-			'enabled'=>($visible != 3 && dol_eval($val['enabled'], 1)),
-			'position'=>$val['position'],
-			'help'=>$val['help'],
-            'css' => $val['css']
-		);
-	}
+    // If $val['visible'] == 0, then we never show the field
+    if (!empty($val['visible'])) {
+        $visible = (int) dol_eval($val['visible'], 1);
+        $arrayfields['t.' . $key] = [
+            'label'   => $val['label'],
+            'checked' => (($visible < 0 || ($val['showinpwa'] == 0 && $source == 'pwa')) ? 0 : 1),
+            'enabled' => ($visible != 3 && dol_eval($val['enabled'], 1)),
+            'position'=> $val['position'],
+            'help'    => $val['help'],
+            'css'     => $val['css']
+        ];
+    }
 }
 
 // Extra fields
@@ -316,6 +325,11 @@ $now      = dol_now();
 $help_url = '';
 $title    = $langs->trans("ControlList");
 
+if ($source == 'pwa') {
+    $conf->dol_hide_topmenu  = 1;
+    $conf->dol_hide_leftmenu = 1;
+}
+
 saturne_header(0,'', $title, $help_url);
 if (!empty($fromtype)) {
 	print saturne_get_fiche_head($objectLinked, 'control', $langs->trans("Control"));
@@ -359,9 +373,16 @@ if ($fromid) {
 	print '</div>';
 }
 
-$newcardbutton = dolGetButtonTitle($langs->trans('NewControl'), '', 'fa fa-plus-circle', dol_buildpath('/digiquali/view/control/control_card.php', 1).'?action=create', '', $permissiontoadd);
-
-include_once '../../core/tpl/digiquali_control_list.tpl.php';
+if ($nbLinkableElements == 0) {
+    print '<div class="wpeo-notice notice-warning notice-red">';
+    print '<div class="notice-content">';
+    print '<a href="' . dol_buildpath('/custom/digiquali/admin/sheet.php', 2) . '">' . '<b><div class="notice-subtitle">'.$langs->trans('ConfigElementLinked') . ' : ' . $langs->trans('ConfigSheet') . '</b></a>';
+    print '</div>';
+    print '</div>';
+    print '</div>';
+} else {
+    include_once '../../core/tpl/digiquali_control_list.tpl.php';
+}
 
 // End of page
 llxFooter();
