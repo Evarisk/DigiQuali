@@ -241,6 +241,16 @@ class Control extends SaturneObject
     public $projectid;
 
     /**
+     * @var string Name of subtable line
+     */
+    public $table_element_line = 'digiquali_controldet';
+
+    /**
+     * @var ControlLine[] Array of subtable lines
+     */
+    public $lines = [];
+
+    /**
      * Constructor.
      *
      * @param DoliDb $db Database handler.
@@ -735,28 +745,6 @@ class Control extends SaturneObject
     }
 
     /**
-     * 	Create an array of lines
-     *
-     * 	@return array|int		array of lines if OK, <0 if KO
-     */
-    public function getLinesArray()
-    {
-        $this->lines = [];
-
-        $objectline = new ControlLine($this->db);
-        $result     = $objectline->fetchAll('ASC', 'position', 0, 0, ['customsql' => 'fk_control = ' . $this->id]);
-
-        if (is_numeric($result)) {
-            $this->error  = $this->error;
-            $this->errors = $this->errors;
-            return $result;
-        } else {
-            $this->lines = $result;
-            return $this->lines;
-        }
-    }
-
-    /**
      * Load dashboard info.
      *
      * @return array
@@ -907,22 +895,23 @@ class Control extends SaturneObject
         $array['picto'] = $this->picto;
 
         // Graph parameters.
-        $array['width']   = '100%';
-        $array['height']  = 400;
-        $array['type']    = 'bars';
-        $array['dataset'] = 3;
+        $array['width']      = '100%';
+        $array['height']     = 400;
+        $array['type']       = 'bars';
+        $array['showlegend'] = 1;
+        $array['dataset']    = 3;
 
         $array['labels'] = [
             0 => [
-                'label' => $langs->trans("$years[0]"),
+                'label' => $years[0],
                 'color' => '#9567AA'
             ],
             1 => [
-                'label' => $langs->trans("$years[1]"),
+                'label' => $years[1],
                 'color' => '#4F9EBE'
             ],
             2 => [
-                'label' => $langs->trans("$years[2]"),
+                'label' => $years[2],
                 'color' => '#FAC461'
             ]
         ];
@@ -1093,398 +1082,199 @@ class Control extends SaturneObject
 	}
 }
 
+/**
+ * Class for ControlLine
+ */
 class ControlLine extends SaturneObject
 {
     /**
-     * @var string Module name.
+     * @var string Module name
      */
     public $module = 'digiquali';
 
     /**
-	 * @var string ID to identify managed object
-	 */
-	public $element = 'controldet';
-
-	/**
-	 * @var string Name of table without prefix where object is stored
-	 */
-	public $table_element = 'digiquali_controldet';
-
-	public $ref = '';
-
-	public $date_creation = '';
-
-	public $comment = '';
-
-	public $answer = '';
-
-	public $answer_photo = '';
-
-	public $fk_control = '';
-
-	public $fk_question = '';
-
-	/**
-	 * @var array  Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
-	 */
-	public $fields = array(
-		'rowid'             => array('type' => 'integer', 'label' => 'TechnicalID', 'enabled' => '1', 'position' => 1, 'notnull' => 1, 'visible' => 0, 'noteditable' => '1', 'index' => 1, 'comment' => 'Id'),
-		'ref'               => array('type' => 'varchar(128)', 'label' => 'Ref', 'enabled' => '1', 'position' => 10, 'notnull' => 1, 'visible' => 1, 'noteditable' => '1', 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => '1', 'comment' => 'Reference of object'),
-		'ref_ext'           => array('type' => 'varchar(128)', 'label' => 'RefExt', 'enabled' => '1', 'position' => 20, 'notnull' => 0, 'visible' => 0,),
-		'entity'            => array('type' => 'integer', 'label' => 'Entity', 'enabled' => '1', 'position' => 30, 'notnull' => 1, 'visible' => 0,),
-		'date_creation'     => array('type' => 'datetime', 'label' => 'DateCreation', 'enabled' => '1', 'position' => 40, 'notnull' => 1, 'visible' => 0,),
-		'tms'               => array('type' => 'timestamp', 'label' => 'DateModification', 'enabled' => '1', 'position' => 50, 'notnull' => 0, 'visible' => 0,),
-		'status'            => array('type' => 'status', 'label' => 'Status', 'enabled' => '1', 'position' => 55, 'notnull' => 0, 'visible' => 0,),
-		'answer'            => array('type' => 'text', 'label' => 'Answer', 'enabled' => '1', 'position' => 60, 'notnull' => -1, 'visible' => 0,),
-		'answer_photo'      => array('type' => 'text', 'label' => 'AnswerPhoto', 'enabled' => '1', 'position' => 70, 'notnull' => -1, 'visible' => 0,),
-		'comment'           => array('type' => 'text', 'label' => 'Comment', 'enabled' => '1', 'position' => 80, 'notnull' => -1, 'visible' => 0,),
-		'fk_question'       => array('type' => 'integer', 'label' => 'FkQuestion', 'enabled' => '1', 'position' => 90, 'notnull' => 1, 'visible' => 0,),
-		'fk_control'        => array('type' => 'integer', 'label' => 'FkControl', 'enabled' => '1', 'position' => 100, 'notnull' => 1, 'visible' => 0,),
-	);
-
-	/**
-	 * Constructor
-	 *
-	 * @param DoliDb $db Database handler
-	 */
-	public function __construct(DoliDB $db)
-	{
-		global $conf;
-
-		$this->db = $db;
-
-		if (empty($conf->global->MAIN_SHOW_TECHNICAL_ID) && isset($this->fields['rowid'])) $this->fields['rowid']['visible'] = 0;
-		if (empty($conf->multicompany->enabled) && isset($this->fields['entity'])) $this->fields['entity']['enabled']        = 0;
-	}
-
-	/**
-	 *	Load prevention plan line from database
-	 *
-	 *	@param	int		$rowid      id of invoice line to get
-	 *	@return	int					<0 if KO, >0 if OK
-	 */
-	public function fetch($id, ?string $ref = NULL, string $morewhere = ''): int
-	{
-		global $db;
-
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
-		$sql .= ' WHERE t.rowid = ' . $id;
-		$sql .= ' AND entity IN (' . getEntity($this->table_element) . ')';
-
-		$result = $db->query($sql);
-		if ($result) {
-			$objp = $db->fetch_object($result);
-
-			$this->id            = $objp->rowid;
-			$this->ref           = $objp->ref;
-			$this->date_creation = $objp->date_creation;
-			$this->status        = $objp->status;
-			$this->answer        = $objp->answer;
-			$this->answer_photo  = $objp->answer_photo;
-			$this->comment       = $objp->comment;
-			$this->fk_question   = $objp->fk_question;
-			$this->fk_control    = $objp->fk_control;
-
-			$db->free($result);
-
-			return $this->id;
-		} else {
-			$this->error = $db->lasterror();
-			return -1;
-		}
-	}
-
-	/**
-	 *    Load control line from database
-	 *
-	 * @param int $parent_id
-	 * @param int $limit
-	 * @return int <0 if KO, >0 if OK
-	 */
-	public function fetchAll($sortorder = '', $sortfield = '', $limit = 0, $offset = 0, array $filter = array(), $filtermode = 'AND')
-	{
-		global $db;
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
-		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
-
-		$result = $db->query($sql);
-
-		if ($result) {
-			$num = $db->num_rows($result);
-
-			$i = 0;
-			while ($i < ($limit ? min($limit, $num) : $num)) {
-				$obj = $db->fetch_object($result);
-
-				$record = new self($db);
-
-				$record->id            = $obj->rowid;
-				$record->ref           = $obj->ref;
-				$record->date_creation = $obj->date_creation;
-				$record->status        = $obj->status;
-				$record->answer        = $obj->answer;
-				$record->answer_photo  = $obj->answer_photo;
-				$record->comment       = $obj->comment;
-				$record->fk_question   = $obj->fk_question;
-				$record->fk_control    = $obj->fk_control;
-
-				$records[$record->id] = $record;
-
-				$i++;
-			}
-
-			$db->free($result);
-
-			return $records;
-		} else {
-			$this->error = $db->lasterror();
-			return -1;
-		}
-	}
-
-	/**
-	 *    Load control line from database and from parent
-	 *
-	 * @param int $parent_id
-	 * @param int $limit
-	 * @return int <0 if KO, >0 if OK
-	 */
-	public function fetchFromParent($control_id, $limit = 0)
-	{
-		global $db;
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
-		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
-		$sql .= ' AND fk_control = ' . $control_id;
-
-		$result = $db->query($sql);
-
-		if ($result) {
-			$num = $db->num_rows($result);
-
-			$i = 0;
-			while ($i < ($limit ? min($limit, $num) : $num)) {
-				$obj = $db->fetch_object($result);
-
-				$record = new self($db);
-
-				$record->id            = $obj->rowid;
-				$record->ref           = $obj->ref;
-				$record->date_creation = $obj->date_creation;
-				$record->status        = $obj->status;
-				$record->answer        = $obj->answer;
-				$record->answer_photo  = $obj->answer_photo;
-				$record->comment       = $obj->comment;
-				$record->fk_question   = $obj->fk_question;
-				$record->fk_control    = $obj->fk_control;
-
-				$records[$record->id] = $record;
-
-				$i++;
-			}
-
-			$db->free($result);
-
-			return $records;
-		} else {
-			$this->error = $db->lasterror();
-			return -1;
-		}
-	}
-
-	/**
-	 *    Load control line from database form parent with question
-	 *
-	 * @param int $control_id
-	 * @param int $question_id
-	 * @return int <0 if KO, >0 if OK
-	 */
-	public function fetchFromParentWithQuestion($control_id, $question_id, $limit = 0)
-	{
-		global $db;
-		$sql  = 'SELECT  t.rowid, t.ref, t.date_creation, t.status, t.answer, t.answer_photo, t.comment, t.fk_question, t.fk_control ';
-		$sql .= ' FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet as t';
-		$sql .= ' WHERE entity IN (' . getEntity($this->table_element) . ')';
-		$sql .= ' AND fk_control = ' . $control_id .' AND fk_question ='. $question_id;
-
-
-		$result = $db->query($sql);
-
-		if ($result) {
-			$num = $db->num_rows($result);
-
-			$i = 0;
-			while ($i < ($limit ? min($limit, $num) : $num)) {
-				$obj = $db->fetch_object($result);
-
-				$record = new self($db);
-
-				$record->id            = $obj->rowid;
-				$record->ref           = $obj->ref;
-				$record->date_creation = $obj->date_creation;
-				$record->status        = $obj->status;
-				$record->answer        = $obj->answer;
-				$record->answer_photo  = $obj->answer_photo;
-				$record->comment       = $obj->comment;
-				$record->fk_question   = $obj->fk_question;
-				$record->fk_control    = $obj->fk_control;
-
-				$records[$record->id] = $record;
-
-				$i++;
-			}
-
-			$db->free($result);
-
-			return $records;
-		} else {
-			$this->error = $db->lasterror();
-			return -1;
-		}
-
-	}
-
-	/**
-	 *    Insert line into database
-	 *
-	 * @param User $user
-	 * @param bool $notrigger 1 no triggers
-	 * @return        int                                         <0 if KO, >0 if OK
-	 * @throws Exception
-	 */
-	public function insert(User $user, $notrigger = false)
-	{
-		global $db, $user;
-
-		// Clean parameters
-		$this->description = trim($this->description);
-
-		$db->begin();
-		$now = dol_now();
-
-		// Insertion dans base de la ligne
-		$sql  = 'INSERT INTO ' . MAIN_DB_PREFIX . 'digiquali_controldet';
-		$sql .= ' ( ref, entity, status, date_creation, answer, answer_photo, comment, fk_question, fk_control, fk_user_creat';
-		$sql .= ')';
-		$sql .= ' VALUES (';
-		$sql .= "'" . $db->escape($this->ref) . "'" . ', ';
-		$sql .= $this->entity . ', ';
-		$sql .= 1 . ', ';
-		$sql .= "'" . $db->escape($db->idate($now)) . "'" . ', ';
-		$sql .= "'" . $db->escape($this->answer) . "'" . ', ';
-		$sql .= "'" . $db->escape($this->answer_photo) . "'" . ', ';
-		$sql .= "'" . $db->escape($this->comment) . "'" . ', ';
-		$sql .= $this->fk_question . ', ';
-		$sql .= $this->fk_control . ', ';
-		$sql .= $user->id;
-
-		$sql .= ')';
-
-		dol_syslog(get_class($this) . '::insert', LOG_DEBUG);
-		$resql = $db->query($sql);
-
-		if ($resql) {
-			$this->id    = $db->last_insert_id(MAIN_DB_PREFIX . 'controldet');
-			$this->rowid = $this->id; // For backward compatibility
-
-			$db->commit();
-			// Triggers
-			if ( ! $notrigger) {
-				// Call triggers
-				$this->call_trigger(strtoupper(get_class($this)) . '_CREATE', $user);
-				// End call triggers
-			}
-			return $this->id;
-		} else {
-			$this->error = $db->lasterror();
-			$db->rollback();
-			return -2;
-		}
-	}
-
-	/**
-	 *    Update line into database
-	 *
-	 * @param User $user User object
-	 * @param int $notrigger Disable triggers
-	 * @return        int                    <0 if KO, >0 if OK
-	 * @throws Exception
-	 */
-	public function update(User $user, $notrigger = false): int
-	{
-		global $user, $db;
-
-		$error = 0;
-
-		// Clean parameters
-		$this->description = trim($this->description);
-
-		$db->begin();
-
-		// Mise a jour ligne en base
-		$sql  = 'UPDATE ' . MAIN_DB_PREFIX . 'digiquali_controldet SET';
-
-		$sql .= " ref='" . $db->escape($this->ref) . "',";
-		$sql .= " status='" . $db->escape($this->status) . "',";
-		$sql .= " answer='" . $db->escape($this->answer) . "',";
-		$sql .= ' answer_photo=' . '"' . $db->escape($this->answer_photo) . '"' . ',';
-		$sql .= ' comment=' . '"' . $db->escape($this->comment) . '"' . ',';
-		$sql .= ' fk_question=' . $db->escape($this->fk_question). ',';
-		$sql .= ' fk_control=' . $db->escape($this->fk_control);
-
-		$sql .= ' WHERE rowid = ' . $this->id;
-
-		dol_syslog(get_class($this) . '::update', LOG_DEBUG);
-
-		$resql = $db->query($sql);
-
-		if ($resql) {
-			$db->commit();
-			// Triggers
-			if ( ! $notrigger) {
-				// Call triggers
-				$this->call_trigger(strtoupper(get_class($this)) . '_MODIFY', $user);
-				// End call triggers
-			}
-			return $this->id;
-		} else {
-			$this->error = $db->error();
-			$db->rollback();
-			return -2;
-		}
-	}
-
-	/**
-	 *    Delete line in database
-	 *
-	 * @return        int                   <0 if KO, >0 if OK
-	 * @throws Exception
-	 */
-	public function delete(User $user, $notrigger = false, bool $softDelete = true): int
-	{
-		global $user, $db;
-
-		$db->begin();
-
-		$sql = 'DELETE FROM ' . MAIN_DB_PREFIX . 'digiquali_controldet WHERE rowid = ' . $this->id;
-		dol_syslog(get_class($this) . '::delete', LOG_DEBUG);
-		if ($db->query($sql)) {
-			$db->commit();
-			// Triggers
-			if ( ! $notrigger) {
-				// Call trigger
-				$this->call_trigger(strtoupper(get_class($this)) . '_DELETE', $user);
-				// End call triggers
-			}
-			return 1;
-		} else {
-			$this->error = $db->error() . ' sql=' . $sql;
-			$db->rollback();
-			return -1;
-		}
-	}
+     * @var string Element type of object
+     */
+    public $element = 'controldet';
+
+    /**
+     * @var string Name of table without prefix where object is stored. This is also the key used for extrafields management
+     */
+    public $table_element = 'digiquali_controldet';
+
+    /**
+     * @var int Does this object support multicompany module ?
+     * 0 = No test on entity, 1 = Test with field entity, 'field@table' = Test with link by field@table
+     */
+    public $ismultientitymanaged = 1;
+
+    /**
+     * @var int Does object support extrafields ? 0 = No, 1 = Yes
+     */
+    public int $isextrafieldmanaged = 1;
+
+    /**
+     * 'type' field format:
+     *      'integer', 'integer:ObjectClass:PathToClass[:AddCreateButtonOrNot[:Filter[:Sortfield]]]',
+     *      'select' (list of values are in 'options'),
+     *      'sellist:TableName:LabelFieldName[:KeyFieldName[:KeyFieldParent[:Filter[:Sortfield]]]]',
+     *      'chkbxlst:...',
+     *      'varchar(x)',
+     *      'text', 'text:none', 'html',
+     *      'double(24,8)', 'real', 'price',
+     *      'date', 'datetime', 'timestamp', 'duration',
+     *      'boolean', 'checkbox', 'radio', 'array',
+     *      'mail', 'phone', 'url', 'password', 'ip'
+     *      Note: Filter can be a string like "(t.ref:like:'SO-%') or (t.date_creation:<:'20160101') or (t.nature:is:NULL)"
+     * 'label' the translation key.
+     * 'picto' is code of a picto to show before value in forms
+     * 'enabled' is a condition when the field must be managed (Example: 1 or '$conf->global->MY_SETUP_PARAM' or '!empty($conf->multicurrency->enabled)' ...)
+     * 'position' is the sort order of field.
+     * 'notnull' is set to 1 if not null in database. Set to -1 if we must set data to null if empty '' or 0.
+     * 'visible' says if field is visible in list (Examples: 0=Not visible, 1=Visible on list and create/update/view forms, 2=Visible on list only, 3=Visible on create/update/view form only (not list), 4=Visible on list and update/view form only (not create). 5=Visible on list and view only (not create/not update). Using a negative value means field is not shown by default on list but can be selected for viewing)
+     * 'noteditable' says if field is not editable (1 or 0)
+     * 'default' is a default value for creation (can still be overwroted by the Setup of Default Values if field is editable in creation form). Note: If default is set to '(PROV)' and field is 'ref', the default value will be set to '(PROVid)' where id is rowid when a new record is created.
+     * 'index' if we want an index in database.
+     * 'foreignkey'=>'tablename.field' if the field is a foreign key (it is recommanded to name the field fk_...).
+     * 'searchall' is 1 if we want to search in this field when making a search from the quick search button.
+     * 'isameasure' must be set to 1 or 2 if field can be used for measure. Field type must be summable like integer or double(24,8). Use 1 in most cases, or 2 if you don't want to see the column total into list (for example for percentage)
+     * 'css' and 'cssview' and 'csslist' is the CSS style to use on field. 'css' is used in creation and update. 'cssview' is used in view mode. 'csslist' is used for columns in lists. For example: 'css'=>'minwidth300 maxwidth500 widthcentpercentminusx', 'cssview'=>'wordbreak', 'csslist'=>'tdoverflowmax200'
+     * 'help' is a 'TranslationString' to use to show a tooltip on field. You can also use 'TranslationString:keyfortooltiponlick' for a tooltip on click.
+     * 'showoncombobox' if value of the field must be visible into the label of the combobox that list record
+     * 'disabled' is 1 if we want to have the field locked by a 'disabled' attribute. In most cases, this is never set into the definition of $fields into class, but is set dynamically by some part of code.
+     * 'arrayofkeyval' to set a list of values if type is a list of predefined values. For example: array("0"=>"Draft","1"=>"Active","-1"=>"Cancel"). Note that type can be 'integer' or 'varchar'
+     * 'autofocusoncreate' to have field having the focus on a create form. Only 1 field should have this property set to 1.
+     * 'comment' is not used. You can store here any text of your choice. It is not used by application.
+     * 'validate' is 1 if you need to validate with $this->validateField()
+     * 'copytoclipboard' is 1 or 2 to allow to add a picto to copy value into clipboard (1=picto after label, 2=picto after value)
+     *
+     * Note: To have value dynamic, you can set value to 0 in definition and edit the value on the fly into the constructor
+     */
+
+    /**
+     * @var array Array with all fields and their property. Do not use it as a static var. It may be modified by constructor
+     */
+    public $fields = [
+        'rowid'         => ['type' => 'integer',      'label' => 'TechnicalID',      'enabled' => 1, 'position' => 1,   'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'Id'],
+        'ref'           => ['type' => 'varchar(128)', 'label' => 'Ref',              'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 1, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
+        'ref_ext'       => ['type' => 'varchar(128)', 'label' => 'RefExt',           'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0],
+        'entity'        => ['type' => 'integer',      'label' => 'Entity',           'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'index' => 1],
+        'date_creation' => ['type' => 'datetime',     'label' => 'DateCreation',     'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 0],
+        'tms'           => ['type' => 'timestamp',    'label' => 'DateModification', 'enabled' => 1, 'position' => 50,  'notnull' => 0, 'visible' => 0],
+        'import_key'    => ['type' => 'varchar(14)',  'label' => 'ImportId',         'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
+        'status'        => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 0, 'index' => 1, 'default' => 1],
+        'type'          => ['type' => 'varchar(128)', 'label' => 'Type',             'enabled' => 0, 'position' => 80,  'notnull' => 0, 'visible' => 0],
+        'answer'        => ['type' => 'text',         'label' => 'Answer',           'enabled' => 1, 'position' => 90,  'notnull' => 0, 'visible' => 0],
+        'answer_photo'  => ['type' => 'text',         'label' => 'AnswerPhoto',      'enabled' => 0, 'position' => 100, 'notnull' => 0, 'visible' => 0],
+        'comment'       => ['type' => 'text',         'label' => 'Comment',          'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 0],
+        'fk_user_creat' => ['type' => 'integer:User:user/class/user.class.php',              'label' => 'UserAuthor', 'picto' => 'user',                                'enabled' => 1, 'position' => 120, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
+        'fk_user_modif' => ['type' => 'integer:User:user/class/user.class.php',              'label' => 'UserModif',  'picto' => 'user',                                'enabled' => 1, 'position' => 130, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
+        'fk_control'    => ['type' => 'integer:Control:digiquali/class/survey.class.php',    'label' => 'Control',    'picto' => 'fontawesome_fa-tasks_fas_#d35968',    'enabled' => 1, 'position' => 140,  'notnull' => 1, 'visible' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_survey.rowid'],
+        'fk_question'   => ['type' => 'integer:Question:digiquali/class/question.class.php', 'label' => 'Question',   'picto' => 'fontawesome_fa-question_fas_#d35968', 'enabled' => 1, 'position' => 150,  'notnull' => 1, 'visible' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_question.rowid'],
+    ];
+
+    /**
+     * @var int ID
+     */
+    public int $rowid;
+
+    /**
+     * @var string Ref
+     */
+    public $ref;
+
+    /**
+     * @var string Ref ext
+     */
+    public $ref_ext;
+
+    /**
+     * @var int Entity
+     */
+    public $entity;
+
+    /**
+     * @var int|string Creation date
+     */
+    public $date_creation;
+
+    /**
+     * @var int|string Timestamp
+     */
+    public $tms;
+
+    /**
+     * @var string Import key
+     */
+    public $import_key;
+
+    /**
+     * @var int Status
+     */
+    public $status;
+
+    /**
+     * @var string|null Type
+     */
+    public ?string $type;
+
+    /**
+     * @var string|null Answer
+     */
+    public ?string $answer = '';
+
+    /**
+     * @var string|null Answer photo
+     */
+    public ?string $answer_photo;
+
+    /**
+     * @var string|null Comment
+     */
+    public ?string $comment = '';
+
+    /**
+     * @var int User ID
+     */
+    public int $fk_user_creat;
+
+    /**
+     * @var int|null User ID
+     */
+    public ?int $fk_user_modif;
+
+    /**
+     * @var int Control ID
+     */
+    public int $fk_control;
+
+    /**
+     * @var ?int|null Question ID
+     */
+    public int $fk_question;
+
+    /**
+     * Constructor
+     *
+     * @param DoliDb $db Database handler
+     */
+    public function __construct(DoliDB $db)
+    {
+        parent::__construct($db, $this->module, $this->element);
+    }
+
+    /**
+     * Load control line from database form parent with question
+     *
+     * @param  int        $controlID  Control id
+     * @param  int        $questionID Question id
+     * @return array|int              Int <0 if KO, array of pages if OK
+     * @throws Exception
+     */
+    public function fetchFromParentWithQuestion(int $controlID, int $questionID)
+    {
+        return $this->fetchAll('', '', 1, 0, ['customsql' => 't.fk_control = ' . $controlID . ' AND t.fk_question = ' . $questionID . ' AND t.status > 0']);
+    }
 }
 
 class ControlEquipment extends SaturneObject

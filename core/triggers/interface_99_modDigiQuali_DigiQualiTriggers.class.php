@@ -163,9 +163,27 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                 $actioncomm->create($user);
 				break;
 
+            case 'SURVEY_CREATE' :
+                if ($object->context != 'createfromclone') {
+                    $elementArray = get_sheet_linkable_objects();
+                    if (!empty($elementArray)) {
+                        foreach ($elementArray as $linkableElement) {
+                            if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
+                                $object->add_object_linked($linkableElement['link_name'], GETPOST($linkableElement['post_name']));
+                            }
+                        }
+                    }
+                }
+
+                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
+                $actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
+                $actioncomm->create($user);
+                break;
+
 			case 'QUESTION_MODIFY' :
 			case 'SHEET_MODIFY' :
             case 'CONTROL_MODIFY' :
+            case 'SURVEY_MODIFY' :
                 $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_MODIFY';
 				$actioncomm->label = $langs->transnoentities('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
@@ -182,6 +200,7 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 			case 'QUESTION_DELETE' :
 			case 'SHEET_DELETE' :
 			case 'CONTROL_DELETE' :
+            case 'SURVEY_DELETE' :
 				$actioncomm->code  = 'AC_ ' . strtoupper($object->element) . '_DELETE';
 				$actioncomm->label = $langs->transnoentities('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
@@ -198,12 +217,14 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 			case 'QUESTION_VALIDATE' :
 			case 'SHEET_VALIDATE' :
 			case 'CONTROL_VALIDATE' :
+            case 'SURVEY_VALIDATE' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_VALIDATE';
 				$actioncomm->label = $langs->transnoentities('ObjectValidateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
 				break;
 
 			case 'CONTROL_UNVALIDATE' :
+            case 'SURVEY_UNVALIDATE' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_UNVALIDATE';
 				$actioncomm->label = $langs->transnoentities('ObjectUnValidateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
@@ -211,6 +232,7 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 
 			case 'QUESTION_LOCK' :
 			case 'SHEET_LOCK' :
+            case 'SURVEY_LOCK' :
                 $actioncomm->code          = 'AC_' . strtoupper($object->element) . '_LOCK';
                 $actioncomm->label         = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
                 $actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Locked') . '</br>';
@@ -296,6 +318,7 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
             case 'QUESTION_ARCHIVE' :
             case 'SHEET_ARCHIVE' :
             case 'CONTROL_ARCHIVE' :
+            case 'SURVEY_ARCHIVE' :
                 $actioncomm->code          = 'AC_' . strtoupper($object->element) . '_ARCHIVE';
 				$actioncomm->label         = $langs->transnoentities('ObjectArchivedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Archived') . '</br>';
@@ -308,8 +331,8 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 				$actioncomm->create($user);
 				break;
 
-			case 'CONTROL_SAVEANSWER' :
-				$actioncomm->code  = 'AC_' . strtoupper($object->element) . 'SAVEANSWER';
+			case 'OBJECT_SAVEANSWER' :
+				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_SAVEANSWER';
 				$actioncomm->label = $langs->transnoentities('AnswerSaveTrigger');
 				$actioncomm->create($user);
 				break;
@@ -321,12 +344,14 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 				break;
 
 			case 'CONTROL_SENTBYMAIL' :
+            case 'SURVEY_SENTBYMAIL' :
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_SENTBYMAIL';
 				$actioncomm->label = $langs->transnoentities('ObjectSentByMailTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
 				$actioncomm->create($user);
 				break;
 
             case 'CONTROLDOCUMENT_GENERATE' :
+            case 'SURVEYDOCUMENT_GENERATE' :
                 $actioncomm->elementtype = $object->parent_type . '@digiquali';
                 $actioncomm->fk_element  = $object->parent_id;
                 $actioncomm->code        = 'AC_' . strtoupper($object->element) . '_GENERATE';

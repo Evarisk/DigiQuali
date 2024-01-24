@@ -92,7 +92,13 @@ class ActionsDigiquali
 					'code'      => 'control',
 					'obj_class' => 'Control',
 					'obj_table' => 'digiquali_control',
-				]
+				],
+                'survey' => [
+                    'id'        => 436301004,
+                    'code'      => 'survey',
+                    'obj_class' => 'Survey',
+                    'obj_table' => 'digiquali_survey',
+                ]
 			];
 		}
 
@@ -123,6 +129,7 @@ class ActionsDigiquali
             require_once __DIR__ . '/../class/question.class.php';
             require_once __DIR__ . '/../class/sheet.class.php';
             require_once __DIR__ . '/../class/control.class.php';
+            require_once __DIR__ . '/../class/survey.class.php';
 		}
 
 		if (!$error) {
@@ -291,9 +298,9 @@ class ActionsDigiquali
         global $conf, $langs;
 
         // Do something only for the current context.
-        if (strpos($parameters['context'], 'controlcard') !== false) {
+        if (preg_match('/controlcard|surveycard/', $parameters['context'])) {
             if ($conf->browser->layout == 'phone') {
-                $morehtmlref = '<br><div>' . img_picto('', 'fontawesome_fa-caret-square-down_far_#966EA2F2_fa-2em', 'class="toggleControlInfo pictofixedwidth valignmiddle" style="width: 35px;"') . $langs->trans('DisplayMoreInfo') . '</div>';
+                $morehtmlref = '<br><div>' . img_picto('', 'fontawesome_fa-caret-square-down_far_#966EA2F2_fa-2em', 'class="toggle-object-infos pictofixedwidth valignmiddle" style="width: 35px;"') . $langs->trans('DisplayMoreInfo') . '</div>';
             } else {
                 $morehtmlref = '';
             }
@@ -315,7 +322,7 @@ class ActionsDigiquali
         global $conf, $mysoc;
 
         // Do something only for the current context.
-        if (preg_match('/publiccontrol|publicsurvey|publiccontrolhistory/', $parameters['context'])) {
+        if (preg_match('/publiccontrol|publicsurvey|publicanswer|publiccontrolhistory/', $parameters['context'])) {
             if (!empty($conf->global->SATURNE_SHOW_COMPANY_LOGO)) {
                 // Define logo and logoSmall.
                 $logoSmall = $mysoc->logo_small;
@@ -367,20 +374,42 @@ class ActionsDigiquali
     }
 
     /**
-     * Overloading the saturneAdminObjectConst function : replacing the parent's function with the one below.
+     * Overloading the saturneAdminObjectConst function : replacing the parent's function with the one below
      *
-     * @param  array $parameters Hook metadatas (context, etc...).
-     * @return int               0 < on error, 0 on success, 1 to replace standard code.
+     * @param  array $parameters Hook metadatas (context, etc...)
+     * @return int               0 < on error, 0 on success, 1 to replace standard code
      */
     public function saturneAdminObjectConst(array $parameters): int
     {
-        // Do something only for the current context.
-        if (strpos($parameters['context'], 'digiqualiadmindocuments') !== false) {
+        // Do something only for the current context
+//        if ($parameters['currentcontext'] == 'digiqualiadmindocuments') {
+//            $constArray['digiquali'] = [
+////                'controldocument' => [
+////                    'name'        => 'ControlDocumentDisplayMedias',
+////                    'description' => 'ControlDocumentDisplayMediasDescription',
+////                    'code'        => 'DIGIQUALI_CONTROLDOCUMENT_DISPLAY_MEDIAS'
+////                ]
+//            ];
+//            $this->results = $constArray;
+//            return 1;
+//        }
+
+        if (strpos($parameters['context'], 'surveyadmin') !== false) {
             $constArray['digiquali'] = [
-                'controldocument' => [
-                    'name'        => 'ControlDocumentDisplayMedias',
-                    'description' => 'ControlDocumentDisplayMediasDescription',
-                    'code'        => 'DIGIQUALI_CONTROLDOCUMENT_DISPLAY_MEDIAS'
+                'DisplayMedias' => [
+                    'name'        => 'DisplayMediasSample',
+                    'description' => 'DisplayMediasSampleDescription',
+                    'code'        => 'DIGIQUALI_SURVEY_DISPLAY_MEDIAS',
+                ],
+                'UseLargeSizeMedia' => [
+                    'name'        => 'UseLargeSizeMedia',
+                    'description' => 'UseLargeSizeMediaDescription',
+                    'code'        => 'DIGIQUALI_SURVEY_USE_LARGE_MEDIA_IN_GALLERY',
+                ],
+                'AutoSaveActionQuestionAnswer' => [
+                    'name'        => 'AutoSaveActionQuestionAnswer',
+                    'description' => 'AutoSaveActionQuestionAnswerDescription',
+                    'code'        => 'DIGIQUALI_SURVEYDET_AUTO_SAVE_ACTION',
                 ]
             ];
             $this->results = $constArray;

@@ -41,6 +41,18 @@ MainSheetCategoriesDescription = Cette option permet la génération des catégo
 SheetMainCategory              = Choix de la catégorie principale du modèle de contrôle
 SheetMainCategoryDescription   = Cette option permet de choisir quelle catégorie sera utilisée lors du choix de catégorie pendant la création d'un contrôle
 
+# Survey - Questionnaire
+DisplayMediasSample            = Afficher les médias d'exemple des questions
+DisplayMediasSampleDescription = Afficher les médias d'exemple des questions dans le questionnaire
+ExtrafieldsSurveyManagement    = Gestion des attributs supplémentaires des questionnaires
+
+# Public interface - Interface publique
+AnswerPublicInterface             = Interface publique de réponse au questions pour __OBJECT_ELEMENT_REF__
+AnswerPublicInterfaceTitle        = Titre de l'interface publique de réponse au questions
+AnswerPublicInterfaceSubstitution = Traduction générique "TheObject" __REF__
+
+
+
 #
 # Questions
 #
@@ -53,8 +65,8 @@ QuestionList                  = Liste des questions
 NewQuestion                   = Nouvelle question
 ModifyQuestion                = Modifier une question
 LinkedQuestionsList           = Liste des questions liées
-addQuestionLink               = Question ajoutée au modèle de contrôle :
-removeQuestionLink            = Question retirée de le modèle de contrôle :
+addQuestionLink               = Question ajoutée au modèle :
+removeQuestionLink            = Question retirée de le modèle :
 LockQuestion                  = La question %s est passée au statut verrouillé
 LockQuestions                 = Toutes les questions sélectionnées sont passées au statut verrouillé
 ThereAre                      = Il y a
@@ -72,7 +84,7 @@ AuthorizeAnswerPhotoTooltip   = Autorise l'envoi de photos sur les réponses de 
 NoteControl                   = Note publique
 EnterComment                  = Saisir les commentaires
 EnterCommentTooltip           = Saisit le commentaire sur les réponses de question
-ErrorQuestionUsedInSheet      = La question %s ne peut pas être supprimée, elle est utilisée dans une ou plusieurs modèles de contrôle.
+ErrorQuestionUsedInSheet      = La question %s ne peut pas être supprimée, elle est utilisée dans une ou plusieurs modèles.
 ErrorNoQuestionSelected       = Aucune question sélectionnée
 AddQuestionIntoCategory       = Assigner cette catégorie à la question
 QuestionType                  = Type de question
@@ -107,37 +119,37 @@ AveragePercentageQuestions    = Moyenne des questions
 SheetAddQuestionTrigger = Question ajoutée
 
 # Data - Donnée
-Sheet                          = Modèle de contrôle
-Sheets                         = modèles de contrôle
-TheSheet                       = le modèle de contrôle
-SheetList                      = Liste des modèles de contrôle
-NewSheet                       = Nouveau modèle de contrôle
-ModifySheet                    = Modifier un modèle de contrôle
-AddSheet                       = Ajouter un modèle de contrôle
-AllQuestionsMustHaveLocked     = Tous les questions doivent être verrouillées pour verrouiller le modèle de contrôle
+Sheet                          = Modèle
+Sheets                         = modèles
+TheSheet                       = le modèle
+SheetList                      = Liste des modèles
+NewSheet                       = Nouveau modèle
+ModifySheet                    = Modifier un modèle
+AddSheet                       = Ajouter un modèle
+AllQuestionsMustHaveLocked     = Tous les questions doivent être verrouillées pour verrouiller le modèle
 NoLotForThisProduct            = Pas de lot défini pour ce produit
 ModalAddPhoto                  = Bibliothèque de médias
-SheetManagement                = Gestion des modèles de contrôle
-ActionsOnSheet                 = Événements liés au modèle de contrôle
-SheetsCategoriesArea           = Espace des tags/catégories des modèles de contrôle
-ExtrafieldsSheetManagement     = Gestion des attributs supplémentaires des modèles de contrôle
-SheetCategories                = Catégories des modèles de contrôle
-SheetSubCategories             = Sous-catégories des modèles de contrôle
-GenerateCategories             = Génération des catégories de modèle de contrôle par défaut
+SheetManagement                = Gestion des modèles
+ActionsOnSheet                 = Événements liés au modèle
+SheetsCategoriesArea           = Espace des tags/catégories des modèles
+ExtrafieldsSheetManagement     = Gestion des attributs supplémentaires des modèles
+SheetCategories                = Catégories des modèles
+SheetSubCategories             = Sous-catégories des modèles
+GenerateCategories             = Génération des catégories de modèle par défaut
 AlreadyGenerated               = Déjà généré(e)s
 NotCreated                     = Pas encore créé(e)s
-CategoriesGeneration           = Cette option permet la génération des catégories par défaut des des modèles de contrôle. Les catégories créées seront : <br> - Qualité <br> - Hygiène <br> - Sécurité <br> - Environnement <br> - Sureté <br> - Réglementaire <br> - Bureau d'Etude <br> - Fournisseurs <br> - Commercial <br> - Production <br> - Méthodes <br> - Comptabilité <br> - Logistique <br> - Informatique <br>
+CategoriesGeneration           = Cette option permet la génération des catégories par défaut des des modèles. Les catégories créées seront : <br> - Qualité <br> - Hygiène <br> - Sécurité <br> - Environnement <br> - Sureté <br> - Réglementaire <br> - Bureau d'Etude <br> - Fournisseurs <br> - Commercial <br> - Production <br> - Méthodes <br> - Comptabilité <br> - Logistique <br> - Informatique <br>
 UniqueLinkedElement            = Liaison unique sur les éléments de Dolibarr
-UniqueLinkedElementDescription = Lier un seul élément de Dolibarr à un modèle de contrôle
-ErrorSheetUsedInControl        = Le modèle de contrôle %s ne peut pas être supprimé, il est utilisé dans un ou plusieurs contrôles.
+UniqueLinkedElementDescription = Lier un seul élément de Dolibarr à un modèle
+ErrorSheetUsedInControl        = Le modèle %s ne peut pas être supprimé, il est utilisé dans un ou plusieurs contrôles.
 ConfigElementLinked            = Vous n'avez pas configuré d'éléments liés, veuillez cliquer ici pour vous rendre sur la page de configuration
-ConfigSheet                    = Page de configuration des modèles de contrôle
-AddSheetIntoCategory           = Assigner cette catégorie au modèle de contrôle
+ConfigSheet                    = Page de configuration des modèles
+AddSheetIntoCategory           = Assigner cette catégorie au modèle
 QuestionMandatorized           = La question %s a été rendue obligatoire
 QuestionUnMandatorized         = La question %s n'est plus obligatoire
 NoLinkedObjectSelected         = Veuillez sélectionner un type d'objet à contrôler
-ExportSheetData                = Export des données du modèle de contrôle
-ExportSheetDataDescription     = Export des données du modèle de contrôle et des questions associées
+ExportSheetData                = Export des données du modèle
+ExportSheetDataDescription     = Export des données du modèle et des questions associées
 ExportWellDone                 = L'export a été réalisé avec succès
 ToImportDataGoToImportPage     = Pour importer des données, veuillez vous rendre sur la page d'import : <a href="%s"> %s </a>
 NbQuestions                    = Nombre de questions
@@ -223,33 +235,33 @@ OrderLinked                                    = Commande contrôlée
 ContractLinked                                 = Contrat contrôlé
 TicketLinked                                   = Ticket contrôlé
 LinkProduct                                    = Activer le lien avec les produits
-LinkProductDescription                         = Permet la liaison entre les produits et les modèles de contrôle
+LinkProductDescription                         = Permet la liaison entre les produits et les modèles
 LinkProductlot                                 = Activer le lien avec les numéros de lots/série
-LinkProductlotDescription                      = Permet la liaison entre les numéros de lots/série et les modèles de contrôle
+LinkProductlotDescription                      = Permet la liaison entre les numéros de lots/série et les modèles
 LinkUser                                       = Activer le lien avec les utilisateurs
-LinkUserDescription                            = Permet la liaison entre les utilisateurs et les modèles de contrôle
+LinkUserDescription                            = Permet la liaison entre les utilisateurs et les modèles
 LinkThirdparty                                 = Activer le lien avec les tiers
-LinkThirdpartyDescription                      = Permet la liaison entre les tiers et les modèles de contrôle
+LinkThirdpartyDescription                      = Permet la liaison entre les tiers et les modèles
 LinkContact                                    = Activer le lien avec les contacts/adresses
-LinkContactDescription                         = Permet la liaison entre les contacts/adresses et les modèles de contrôle
+LinkContactDescription                         = Permet la liaison entre les contacts/adresses et les modèles
 LinkProject                                    = Activer le lien avec les projets
-LinkProjectDescription                         = Permet la liaison entre les projets et les modèles de contrôle
+LinkProjectDescription                         = Permet la liaison entre les projets et les modèles
 LinkTask                                       = Activer le lien avec les tâches
-LinkTaskDescription                            = Permet la liaison entre les tâches et les modèles de contrôle
+LinkTaskDescription                            = Permet la liaison entre les tâches et les modèles
 LinkInvoice                                    = Activer le lien avec les factures
-LinkInvoiceDescription                         = Permet la liaison entre les factures et les modèles de contrôle
+LinkInvoiceDescription                         = Permet la liaison entre les factures et les modèles
 LinkOrder                                      = Activer le lien avec les commandes
-LinkOrderDescription                           = Permet la liaison entre les commandes et les modèles de contrôle
+LinkOrderDescription                           = Permet la liaison entre les commandes et les modèles
 LinkContract                                   = Activer le lien avec les contrats
-LinkContractDescription                        = Permet la liaison entre les contrats et les modèles de contrôle
+LinkContractDescription                        = Permet la liaison entre les contrats et les modèles
 LinkTicket                                     = Activer le lien avec les tickets
-LinkTicketDescription                          = Permet la liaison entre les tickets et les modèles de contrôle
+LinkTicketDescription                          = Permet la liaison entre les tickets et les modèles
 LinkEntrepot                                   = Activer le lien avec les entrepôts
-LinkEntrepotDescription                        = Permet la liaison entre les entrepôts et les modèles de contrôle
+LinkEntrepotDescription                        = Permet la liaison entre les entrepôts et les modèles
 LinkExpedition                                 = Activer le lien avec les expéditions
-LinkExpeditionDescription                      = Permet la liaison entre les expéditions et les modèles de contrôle
+LinkExpeditionDescription                      = Permet la liaison entre les expéditions et les modèles
 LinkPropal                                     = Activer le lien avec les propositions commerciales
-LinkPropalDescription                          = Permet la liaison entre les propositions commerciales et les modèles de contrôle
+LinkPropalDescription                          = Permet la liaison entre les propositions commerciales et les modèles
 NoLotDefined                                   = Pas de numéro de lot/série trouvé
 SelectAProductFirst                            = Sélectionnez d'abord un produit
 ActionsOnControl                               = Événements liés au contrôle
@@ -281,7 +293,6 @@ ObjectLinked                                   = Objet lié(s)
 NextControlDate                                = Prochaine date de contrôle
 NextControl                                    = Prochain contrôle
 QuestionMustBeAnswered                         = Vous devez encore répondre à %s question(s) obligatoire(s)
-NoControlAnswersPhoto                          = Pas de photos sur les réponses du contrôle
 ControlEquipment                               = Moyens de contrôle
 ControlEquipmentList                           = Liste des moyens de contrôle utilisés
 AddEquipmentLink                               = Moyen de contrôle ajouté :
@@ -297,9 +308,8 @@ GoToEquipmentHours                             = Aller sur la page des moyens de
 ExpiredSince                                   = Expiré depuis
 RemainingDays                                  = Jours avant expiration
 NoEquipmentLinked                              = Aucun moyen de contrôle lié
-NoControlAnswersPhoto                          = Pas de photos sur les réponses du contrôle
 NeedObjectToControl                            = Vous devez sélectionner un objet à contrôler
-NeedFkSheet                                    = Vous devez sélectionner un modèle de contrôle
+NeedFkSheet                                    = Vous devez sélectionner un modèle
 ControlReminder                                = Rappel d'événement de contrôle
 ControlReminderDescription                     = Activer le rappel d'événement de contrôle
 ControlReminderFrequency                       = Fréquence de rappel d'évènement de contrôle
@@ -307,9 +317,7 @@ ControlReminderFrequencyDescription            = Choisir la fréquence de rappel
 ControlReminderType                            = Type de rappel d'évènement de contrôle
 ControlReminderTypeDescription                 = Choisir le type de rappel d'évènement de contrôle <br> (par défaut : navigateur)
 controlled                                     = contrôlé(e)
-PublicSurvey                                   = Interface publique de réponse au contrôle
-PublicSurveyTitle                              = Titre de l'interface publique de réponse au contrôle
-PublicSurveyTitleDescription                   = Définir le titre de l'interface publique de réponse au contrôle
+PublicAnswer                                   = Interface publique de réponse
 YourAnswersHaveBeenSaved                       = Vos réponses ont bien été sauvegardées
 DaysBeforeNextControl                          = Jours avant prochain contrôle
 SelectProductLots                              = Sélectionner un numéro de lot/série
@@ -324,7 +332,7 @@ EnablePublicControlHistoryDescription          = Permet l'affichage de l'histori
 ShowLastControlFirstOnPublicHistory            = Afficher le dernier contrôle en priorité sur l'interface publique de contrôle
 ShowLastControlFirstOnPublicHistoryDescription = Force l'affichage du dernier contrôle à la place de la liste des contrôles de l'objet sur l'interface publique de contrôle
 NonFinalVerdict                                = Le contrôle n'étant pas verrouillé, le verdict peut encore changer
-GoToPublicSurveyPage                           = Voir l'interface publique de réponse
+GoToPublicAnswerPage                           = Voir l'interface publique de réponse
 BeCarefullVerdictKO                            = Attention si le statut de votre contrôle est KO. Il faudra refaire votre contrôle.
 ShowQcFrequencyPublicInterface                 = Afficher la période de validé (en jours) sur l'interface publique de contrôle
 ShowQcFrequencyPublicInterfaceDescription      = Option permettant l'affichage la période de validé (en jours) sur l'interface publique de contrôle
@@ -342,6 +350,7 @@ NotApplicable                           = NA
 AnswerPhoto                             = Photo
 AutoSaveActionQuestionAnswer            = Sauvegarde automatique des réponses aux questions
 AutoSaveActionQuestionAnswerDescription = Sauvegarde automatiquement les réponses aux questions lors du choix de la réponse
+NoObjectLineAnswersPhoto                = Pas de photos sur les réponses du %s
 
 #
 # ControlDocument - Fiche de Contrôle
@@ -360,19 +369,51 @@ controldocument_photo.odt               = Fiche de Contrôle avec photos
 controldocument_photo                   = fiche de controle avec photos
 
 
+
+#
+# Survey - Questionnaire
+#
+
+# Data - Donnée
+Survey                = Questionnaire
+Surveys               = Questionnaires
+SurveyList            = Liste des questionnaires
+NewSurvey             = Nouveau questionnaire
+TheSurvey             = le questionnaire
+SurveysCategoriesArea = Espace des tags/catégories des questionnaires
+SurveysByFiscalYear   = Rapport des questionnaires sur l'exercice fiscal
+NeedObjectToLink      = Vous devez sélectionner un objet à lié
+ConfirmValidateSurvey = Êtes-vous sûr de vouloir valider le questionnaire ?
+
+
+
+#
+# SurveyDocument - Fiche du Questionnaire
+#
+
+# Data - Donnée
+SurveyDocument           = Fiche du Questionnaire
+Surveydocument           = Fiche du questionnaire
+surveydocument           = fiche du questionnaire
+surveydocument.odt       = Fiche du Questionnaire
+surveydocument_photo     = fiche du questionnaire avec photos
+surveydocument_photo.odt = Fiche du Questionnaire avec photos
+
+
+
 #
 # Tools - Outils
 #
 
 # Data - Donnée
 DataMigrationDigiQualiToFile        = Export des données de DigiQuali
-DataMigrationExportSQA            = Export Modèle de contrôle/Question/Réponse vers ZIP
-DataMigrationExportSQADescription = Export des données des modèles de contrôle, questions et réponses en fichier ZIP
+DataMigrationExportSQA            = Export Modèle/Question/Réponse vers ZIP
+DataMigrationExportSQADescription = Export des données des modèles, questions et réponses en fichier ZIP
 DataMigrationExportQA             = Export Question/Réponse vers ZIP
 DataMigrationExportQADescription  = Export des données des questions et réponses en fichier ZIP
 DataMigrationFileToDolibarr       = Import des données vers DigiQuali
 DataMigrationImportZIP            = Import fichier ZIP vers Dolibarr
-DataMigrationImportZIPDescription = Import des données des modèles de contrôle, des questions et des réponses d'un fichier ZIP
+DataMigrationImportZIPDescription = Import des données des modèles, des questions et des réponses d'un fichier ZIP
 ErrorArchiveNotWellFormattedZIP   = L'archive n'est pas pris en charge ou est vide. Vous devez joindre un archive d'import au format .zip
 ImportFinishWith                  = L'import des %s a été terminé avec %s erreur(s) sur %s importation(s)
 
