@@ -139,7 +139,8 @@ class modDigiQuali extends DolibarrModules
 			'/digiquali/question',
 			'/ecm/digiquali',
 			'/ecm/digiquali/medias',
-			'/ecm/digiquali/controldocument'
+			'/ecm/digiquali/controldocument',
+			'/ecm/digiquali/surveydocument'
 		];
 
 		// Config pages. Put here list of php page, stored into digiquali/admin directory, to use to set up module.
@@ -227,7 +228,7 @@ class modDigiQuali extends DolibarrModules
 			$i++ => ['DIGIQUALI_CONTROLDOCUMENT_ADDON_ODT_PATH', 'chaine', 'DOL_DOCUMENT_ROOT/custom/digiquali/documents/doctemplates/controldocument/', '', 0, 'current'],
 			$i++ => ['DIGIQUALI_CONTROLDOCUMENT_CUSTOM_ADDON_ODT_PATH', 'chaine', 'DOL_DATA_ROOT' . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'ecm/digiquali/controldocument/', '', 0, 'current'],
 			$i++ => ['DIGIQUALI_CONTROLDOCUMENT_DEFAULT_MODEL', 'chaine', 'template_controldocument_photo' ,'', 0, 'current'],
-			$i++ => ['DIGIQUALI_CONTROLDOCUMENT_DISPLAY_MEDIAS', 'integer', 1,'', 0, 'current'],
+			//$i++ => ['DIGIQUALI_CONTROLDOCUMENT_DISPLAY_MEDIAS', 'integer', 1,'', 0, 'current'],
 			$i++ => ['DIGIQUALI_DOCUMENT_MEDIA_VIGNETTE_USED', 'chaine', 'small','', 0, 'current'],
 
 			// CONST CONTROL LINE
@@ -620,9 +621,11 @@ class modDigiQuali extends DolibarrModules
 		dolibarr_set_const($this->db, 'DIGIQUALI_DB_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
 
 		delDocumentModel('controldocument_odt', 'controldocument');
+        delDocumentModel('surveydocument_odt', 'surveydocument');
 		delDocumentModel('calypso_controldocument', 'controldocument');
 
 		addDocumentModel('controldocument_odt', 'controldocument', 'ODT templates', 'DIGIQUALI_CONTROLDOCUMENT_ADDON_ODT_PATH');
+		addDocumentModel('surveydocument_odt', 'surveydocument', 'ODT templates', 'DIGIQUALI_SURVEYDOCUMENT_ADDON_ODT_PATH');
 
 		if (!empty($conf->global->DIGIQUALI_SHEET_TAGS_SET) && empty($conf->global->DIGIQUALI_SHEET_DEFAULT_TAG)) {
 			global $user, $langs;
