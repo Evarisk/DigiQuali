@@ -348,15 +348,15 @@ if ($action == 'create') {
             }
         }
         print '</div></div>';
-    } else {
-        //FK SHEET
-        print '<tr><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('Sheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
-        print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet')?: $sheet->id);
-        if ($source != 'pwa') {
-            print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
-        }
-        print '</td></tr>';
     }
+
+    //FK SHEET
+    print '<tr><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('Sheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
+    print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet')?: $sheet->id);
+    if ($source != 'pwa') {
+        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
+    }
+    print '</td></tr>';
 
     if ($source == 'pwa') {
         $object->fields['fk_user_controller']['type']  = 'integer:User:user/class/user.class.php';
