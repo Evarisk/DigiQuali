@@ -47,8 +47,8 @@ DisplayMediasSampleDescription = Afficher les médias d'exemple des questions da
 ExtrafieldsSurveyManagement    = Gestion des attributs supplémentaires des questionnaires
 
 # Public interface - Interface publique
-AnswerPublicInterface             = Interface publique de réponse au questions pour __OBJECT_ELEMENT_REF__
-AnswerPublicInterfaceTitle        = Titre de l'interface publique de réponse au questions
+AnswerPublicInterface             = Interface publique de réponse aux questions pour __OBJECT_ELEMENT_REF__
+AnswerPublicInterfaceTitle        = Titre de l'interface publique de réponse aux questions
 AnswerPublicInterfaceSubstitution = Traduction générique "TheObject" __REF__
 
 
@@ -66,7 +66,7 @@ NewQuestion                   = Nouvelle question
 ModifyQuestion                = Modifier une question
 LinkedQuestionsList           = Liste des questions liées
 addQuestionLink               = Question ajoutée au modèle :
-removeQuestionLink            = Question retirée de le modèle :
+removeQuestionLink            = Question retirée du modèle :
 LockQuestion                  = La question %s est passée au statut verrouillé
 LockQuestions                 = Toutes les questions sélectionnées sont passées au statut verrouillé
 ThereAre                      = Il y a
@@ -84,7 +84,7 @@ AuthorizeAnswerPhotoTooltip   = Autorise l'envoi de photos sur les réponses de 
 NoteControl                   = Note publique
 EnterComment                  = Saisir les commentaires
 EnterCommentTooltip           = Saisit le commentaire sur les réponses de question
-ErrorQuestionUsedInSheet      = La question %s ne peut pas être supprimée, elle est utilisée dans une ou plusieurs modèles.
+ErrorQuestionUsedInSheet      = La question %s ne peut pas être supprimée, elle est utilisée dans un ou plusieurs modèles.
 ErrorNoQuestionSelected       = Aucune question sélectionnée
 AddQuestionIntoCategory       = Assigner cette catégorie à la question
 QuestionType                  = Type de question
@@ -126,7 +126,7 @@ SheetList                      = Liste des modèles
 NewSheet                       = Nouveau modèle
 ModifySheet                    = Modifier un modèle
 AddSheet                       = Ajouter un modèle
-AllQuestionsMustHaveLocked     = Tous les questions doivent être verrouillées pour verrouiller le modèle
+AllQuestionsMustHaveLocked     = Toutes les questions doivent être verrouillées pour verrouiller le modèle
 NoLotForThisProduct            = Pas de lot défini pour ce produit
 ModalAddPhoto                  = Bibliothèque de médias
 SheetManagement                = Gestion des modèles
@@ -138,10 +138,10 @@ SheetSubCategories             = Sous-catégories des modèles
 GenerateCategories             = Génération des catégories de modèle par défaut
 AlreadyGenerated               = Déjà généré(e)s
 NotCreated                     = Pas encore créé(e)s
-CategoriesGeneration           = Cette option permet la génération des catégories par défaut des des modèles. Les catégories créées seront : <br> - Qualité <br> - Hygiène <br> - Sécurité <br> - Environnement <br> - Sureté <br> - Réglementaire <br> - Bureau d'Etude <br> - Fournisseurs <br> - Commercial <br> - Production <br> - Méthodes <br> - Comptabilité <br> - Logistique <br> - Informatique <br>
+CategoriesGeneration           = Cette option permet la génération des catégories par défaut des modèles. Les catégories créées seront : <br> - Qualité <br> - Hygiène <br> - Sécurité <br> - Environnement <br> - Sureté <br> - Réglementaire <br> - Bureau d'Etude <br> - Fournisseurs <br> - Commercial <br> - Production <br> - Méthodes <br> - Comptabilité <br> - Logistique <br> - Informatique <br>
 UniqueLinkedElement            = Liaison unique sur les éléments de Dolibarr
 UniqueLinkedElementDescription = Lier un seul élément de Dolibarr à un modèle
-ErrorSheetUsedInControl        = Le modèle %s ne peut pas être supprimé, il est utilisé dans un ou plusieurs contrôles.
+ErrorSheetUsedInControl        = Le modèle %s ne peut pas être supprimé, il est utilisé dans un ou plusieurs contrôles/questionnaires.
 ConfigElementLinked            = Vous n'avez pas configuré d'éléments liés, veuillez cliquer ici pour vous rendre sur la page de configuration
 ConfigSheet                    = Page de configuration des modèles
 AddSheetIntoCategory           = Assigner cette catégorie au modèle
@@ -299,7 +299,7 @@ AddEquipmentLink                               = Moyen de contrôle ajouté :
 UnlinkEquipmentLink                            = Moyen de contrôle retiré :
 ErrorNoEquipmentSelected                       = Aucun moyen de contrôle sélectionné
 OptimalExpirationDate                          = DLUO/DDM
-OptimalExpirationDateDescription               = Date Limite d'Utilisation Optimale / Date de Durabilité Minimale
+OptimalExpirationDateDescription               = Date Limite d'Utilisation Optimale/Date de Durabilité Minimale
 LockControlOutdatedEquipment                   = Permet de verrouiller le contrôle même si la DLUO/DDM est dépassée
 LockControlOutdatedEquipmentDescription        = Le contrôle pourra être verouillé si la DLUO/DDM d'un ou plusieurs moyens de contrôle est dépassée
 ControlListsByNextControl                      = Prochains contrôles à réaliser
@@ -382,7 +382,7 @@ NewSurvey             = Nouveau questionnaire
 TheSurvey             = le questionnaire
 SurveysCategoriesArea = Espace des tags/catégories des questionnaires
 SurveysByFiscalYear   = Rapport des questionnaires sur l'exercice fiscal
-NeedObjectToLink      = Vous devez sélectionner un objet à lié
+NeedObjectToLink      = Vous devez sélectionner un objet à lier
 ConfirmValidateSurvey = Êtes-vous sûr de vouloir valider le questionnaire ?
 
 
@@ -423,8 +423,8 @@ ImportFinishWith                  = L'import des %s a été terminé avec %s err
 
 # Data - Donnée
 SelectProducts           = Sélectionner un produit
-SelectProductsOrServices = Sélectionner un produit / service
+SelectProductsOrServices = Sélectionner un produit/service
 Contact                  = Contact/Adresse
 Remain                   = reste
-InProgressAndLocked      = -- (En cours + vérrouillé) --
+InProgressAndLocked      = -- (En cours + verrouillé) --
 NoObservations           = Pas d'observations
