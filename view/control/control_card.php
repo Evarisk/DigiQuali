@@ -313,6 +313,13 @@ if ($action == 'create') {
     }
 
     if ($viewmode == 'images') {
+        if (getDolGlobalInt('DIGIQUALI_SHEET_MAIN_CATEGORIES_SET') <= 0) {
+            print '<div class="wpeo-notice notice-warning notice-red">';
+            print '<div class="notice-content">';
+            print '<a href="' . dol_buildpath('/custom/digiquali/admin/sheet.php#generateCategories', 2) . '">' . '<b><div class="notice-subtitle">'.$langs->trans('GenerateSheetTags') . ' : ' . $langs->trans('ConfigSheet') . '</b></a>';
+            print '</div></div></div>';
+        }
+
         print '<div class="sheet-images-container">';
         print '<div class="titre center">' . $langs->trans('SheetCategories') . '</div>';
         print '<div class="sheet-grid-images sheet-categories">';
