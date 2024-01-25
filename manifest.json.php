@@ -103,7 +103,7 @@ $manifest->display          = 'standalone';
 $manifest->display_override = ['window-controls-overlay'];
 $manifest->scope            = dol_buildpath('/custom/digiquali/', 1);
 $manifest->theme_color      = '#ffffff';
-$manifest->description      = 'DigiQualiDescription';
+$manifest->description      = 'Système de management de la qualité pour Dolibarr';
 
 $img                     = new stdClass();
 $img->src                = dol_buildpath('/custom/digiquali/img/digiquali_color_512.png', 1);
