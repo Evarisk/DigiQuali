@@ -210,7 +210,7 @@ if (is_array($linkableObjects) && !empty($linkableObjects)) {
 require_once __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
 
 // Generate categories.
-print load_fiche_titre($langs->trans('SheetCategories'), '', '');
+print load_fiche_titre($langs->trans('SheetCategories'), '', '', 0, 'sheetCategories');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
@@ -225,7 +225,7 @@ print '<input type="hidden" name="token" value="' . newToken() . '">';
 print '<input type="hidden" name="action" value="generateCategories">';
 print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
 
-print '<tr id="generateCategories"><td>' . $langs->trans('GenerateCategories') . '</td>';
+print '<tr><td>' . $langs->trans('GenerateCategories') . '</td>';
 print '<td class="center">';
 print $conf->global->DIGIQUALI_SHEET_TAGS_SET ? $langs->trans('AlreadyGenerated') : $langs->trans('NotCreated');
 print '</td>';
