@@ -225,7 +225,7 @@ print '<input type="hidden" name="token" value="' . newToken() . '">';
 print '<input type="hidden" name="action" value="generateCategories">';
 print '<input type="hidden" name="backtopage" value="' . $backtopage . '">';
 
-print '<tr><td>' . $langs->trans('GenerateCategories') . '</td>';
+print '<tr id="generateCategories"><td>' . $langs->trans('GenerateCategories') . '</td>';
 print '<td class="center">';
 print $conf->global->DIGIQUALI_SHEET_TAGS_SET ? $langs->trans('AlreadyGenerated') : $langs->trans('NotCreated');
 print '</td>';
