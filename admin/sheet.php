@@ -210,7 +210,7 @@ if (is_array($linkableObjects) && !empty($linkableObjects)) {
 require_once __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
 
 // Generate categories.
-print load_fiche_titre($langs->trans('SheetCategories'), '', '');
+print load_fiche_titre($langs->trans('SheetCategories'), '', '', 0, 'sheetCategories');
 
 print '<table class="noborder centpercent">';
 print '<tr class="liste_titre">';
