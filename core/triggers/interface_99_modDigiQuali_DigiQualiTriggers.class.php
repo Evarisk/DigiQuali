@@ -164,6 +164,17 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 				break;
 
             case 'SURVEY_CREATE' :
+                // Load Digiquali libraries
+                require_once __DIR__ . '/../../class/sheet.class.php';
+
+                $sheet = new Sheet($this->db);
+
+                $sheet->fetch($object->fk_sheet);
+                if ($sheet->success_rate > 0) {
+                    $object->success_rate = $sheet->success_rate;
+                    $object->setValueFrom('success_rate', $object->success_rate, '', '', 'text', '', $user);
+                }
+
                 if ($object->context != 'createfromclone') {
                     $elementArray = get_sheet_linkable_objects();
                     if (!empty($elementArray)) {

@@ -26,6 +26,7 @@ CREATE TABLE llx_digiquali_survey(
   note_private  text,
   type          varchar(128),
   photo         text,
+  success_rate  double(24,8),
   track_id      varchar(128) NOT NULL,
   fk_user_creat integer NOT NULL,
   fk_user_modif integer,
