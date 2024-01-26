@@ -30,20 +30,18 @@ if (file_exists('../digiquali.main.inc.php')) {
 	die('Include of digiquali main fails');
 }
 
-// Libraries
+// Load Dolibarr libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/admin.lib.php';
 
-require_once __DIR__ . '/../lib/digiquali.lib.php';
+// Load DigiQuali libraries
 require_once __DIR__ . '/../class/control.class.php';
+require_once __DIR__ . '/../lib/digiquali.lib.php';
 
 // Global variables definitions
-global $conf, $db, $langs, $user;
+global $conf, $db, $hookmanager, $langs, $moduleName, $moduleNameLowerCase, $user;
 
 // Load translation files required by the page
 saturne_load_langs(['admin']);
-
-// Initialize view objects
-$form = new Form($db);
 
 // Get parameters
 $action     = GETPOST('action', 'alpha');
@@ -59,15 +57,14 @@ foreach ($tmptype2label as $key => $val) {
 }
 
 // Initialize objects
-$object      = new Control($db);
-$elementType = $object->element;
-$objectType  = $object->element;
-$elementtype = $moduleNameLowerCase . '_' . $objectType; // Must be the $table_element of the class that manage extrafield.
+$object = new Control($db);
 
-$error = 0; //Error counter
+$hookmanager->initHooks(['controladmin', 'globalcard']); // Note that conf->hooks_modules contains array
+
+$elementtype = $moduleNameLowerCase . '_' . $object->element; // Must be the $table_element of the class that manage extrafield.
 
 // Security check - Protection if external user
-$permissiontoread = $user->rights->digiquali->adminpage->read;
+$permissiontoread = $user->rights->$moduleNameLowerCase->adminpage->read;
 saturne_check_access($permissiontoread);
 
 /*
@@ -76,18 +73,6 @@ saturne_check_access($permissiontoread);
 
 //Extrafields actions
 require DOL_DOCUMENT_ROOT . '/core/actions_extrafields.inc.php';
-
-//Set numering modele for control object
-if ($action == 'setmod') {
-	$constforval = 'DIGIQUALI_' . strtoupper('control') . '_ADDON';
-	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
-}
-
-//Set numering modele for controldet object
-if ($action == 'setmodControlDet') {
-	$constforval = 'DIGIQUALI_' . strtoupper('controldet') . '_ADDON';
-	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
-}
 
 if ($action == 'update_control_reminder') {
     $reminderFrequency = GETPOST('control_reminder_frequency');
@@ -124,139 +109,9 @@ require __DIR__ . '/../../saturne/core/tpl/admin/object/object_numbering_module_
 
 require __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
 
-//Control data
-print load_fiche_titre($langs->trans('ConfigData', $langs->transnoentities('ControlsMin')), '', '');
-
-print '<table class="noborder centpercent">';
-print '<tr class="liste_titre">';
-print '<td>' . $langs->trans('Name') . '</td>';
-print '<td>' . $langs->trans('Description') . '</td>';
-print '<td class="center">' . $langs->trans('Status') . '</td>';
-print '</tr>';
-
-//Display medias conf
-print '<tr><td>';
-print $langs->trans('DisplayMedias');
-print '</td><td>';
-print $langs->trans('DisplayMediasDescription');
-print '</td>';
-
-print '<td class="center">';
-print ajax_constantonoff('DIGIQUALI_CONTROL_DISPLAY_MEDIAS');
-print '</td>';
-print '</tr>';
-
-//Use large size media in gallery
-print '<tr><td>';
-print $langs->trans('UseLargeSizeMedia');
-print '</td><td>';
-print $langs->trans('UseLargeSizeMediaDescription');
-print '</td>';
-
-print '<td class="center">';
-print ajax_constantonoff('DIGIQUALI_CONTROL_USE_LARGE_MEDIA_IN_GALLERY');
-print '</td>';
-print '</tr>';
-
-//Lock control if DMD/DLUO outdated
-print '<tr><td>';
-print $langs->trans('LockControlOutdatedEquipment');
-print '</td><td>';
-print $langs->trans('LockControlOutdatedEquipmentDescription');
-print '</td>';
-
-print '<td class="center">';
-print ajax_constantonoff('DIGIQUALI_LOCK_CONTROL_OUTDATED_EQUIPMENT');
-print '</td>';
-print '</tr>';
-print '</table>';
-
 $object = new ControlLine($db);
 
 require __DIR__ . '/../../saturne/core/tpl/admin/object/object_numbering_module_view.tpl.php';
-
-require __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
-
-//Control data
-print load_fiche_titre($langs->trans('ConfigData', $langs->transnoentities('ControlsMin')), '', '');
-
-print '<table class="noborder centpercent">';
-print '<tr class="liste_titre">';
-print '<td>' . $langs->trans('Name') . '</td>';
-print '<td>' . $langs->trans('Description') . '</td>';
-print '<td class="center">' . $langs->trans('Status') . '</td>';
-print '</tr>';
-
-//Display medias conf
-print '<tr><td>';
-print $langs->trans('DisplayMedias');
-print '</td><td>';
-print $langs->trans('DisplayMediasDescription');
-print '</td>';
-
-print '<td class="center">';
-print ajax_constantonoff('DIGIQUALI_CONTROL_DISPLAY_MEDIAS');
-print '</td>';
-print '</tr>';
-
-//Use large size media in gallery
-print '<tr><td>';
-print $langs->trans('UseLargeSizeMedia');
-print '</td><td>';
-print $langs->trans('UseLargeSizeMediaDescription');
-print '</td>';
-
-print '<td class="center">';
-print ajax_constantonoff('DIGIQUALI_CONTROL_USE_LARGE_MEDIA_IN_GALLERY');
-print '</td>';
-print '</tr>';
-
-// Auto-save action on question answer
-print '<tr><td>';
-print $langs->trans('AutoSaveActionQuestionAnswer');
-print '</td><td>';
-print $langs->trans('AutoSaveActionQuestionAnswerDescription');
-print '</td>';
-
-print '<td class="center">';
-print ajax_constantonoff('DIGIQUALI_CONTROLDET_AUTO_SAVE_ACTION');
-print '</td>';
-print '</tr>';
-
-print '<tr><td>';
-print $langs->trans('EnablePublicControlHistory');
-print '</td><td>';
-print $langs->trans('EnablePublicControlHistoryDescription');
-print '</td>';
-
-print '<td class="center">';
-print ajax_constantonoff('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY');
-print '</td>';
-print '</tr>';
-
-print '<tr><td>';
-print $langs->trans('ShowQcFrequencyPublicInterface');
-print '</td><td>';
-print $langs->trans('ShowQcFrequencyPublicInterfaceDescription');
-print '</td>';
-
-print '<td class="center">';
-print ajax_constantonoff('DIGIQUALI_SHOW_QC_FREQUENCY_PUBLIC_INTERFACE');
-print '</td>';
-print '</tr>';
-
-print '<tr><td>';
-print $langs->trans('ShowLastControlFirstOnPublicHistory');
-print '</td><td>';
-print $langs->trans('ShowLastControlFirstOnPublicHistoryDescription');
-print '</td>';
-
-print '<td class="center">';
-print ajax_constantonoff('DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY');
-print '</td>';
-print '</tr>';
-
-print '</table>';
 
 print load_fiche_titre($langs->trans('ControlReminder'), '', '');
 
@@ -270,6 +125,7 @@ print '<td>' . $langs->trans('Description') . '</td>';
 print '<td class="center">' . $langs->trans('Value') . '</td>';
 print '</tr>';
 
+// Enable control reminder
 print '<tr class="oddeven"><td>';
 print $langs->trans('ControlReminder');
 print '</td><td>';
@@ -280,6 +136,7 @@ print '<td class="center">';
 print ajax_constantonoff('DIGIQUALI_CONTROL_REMINDER_ENABLED');
 print '</td></tr>';
 
+// Define control reminder frequency in days (ex: 30,60,90)
 print '<tr class="oddeven"><td>';
 print $langs->trans('ControlReminderFrequency');
 print '</td><td>';
@@ -290,6 +147,7 @@ print '<td class="center">';
 print '<input type="text" name="control_reminder_frequency" value="' . $conf->global->DIGIQUALI_CONTROL_REMINDER_FREQUENCY . '">';
 print '</td></tr>';
 
+// Define control reminder type
 print '<tr class="oddeven"><td>';
 print $langs->trans('ControlReminderType');
 print '</td><td>';
@@ -309,6 +167,7 @@ print '</table>';
 //Extrafields control management
 print load_fiche_titre($langs->trans('ExtrafieldsControlManagement'), '', '');
 
+$textobject = dol_strtolower($langs->transnoentities('Control'));
 require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_view.tpl.php';
 
 // Buttons

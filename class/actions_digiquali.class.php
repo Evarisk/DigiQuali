@@ -416,6 +416,48 @@ class ActionsDigiquali
             return 1;
         }
 
+        if (strpos($parameters['context'], 'controladmin') !== false) {
+            $constArray['digiquali'] = [
+                'DisplayMedias' => [
+                    'name'        => 'DisplayMediasSample',
+                    'description' => 'DisplayMediasSampleDescription',
+                    'code'        => 'DIGIQUALI_CONTROL_DISPLAY_MEDIAS',
+                ],
+                'UseLargeSizeMedia' => [
+                    'name'        => 'UseLargeSizeMedia',
+                    'description' => 'UseLargeSizeMediaDescription',
+                    'code'        => 'DIGIQUALI_CONTROL_USE_LARGE_MEDIA_IN_GALLERY',
+                ],
+                'LockControlOutdatedEquipment' => [
+                    'name'        => 'LockControlOutdatedEquipment',
+                    'description' => 'LockControlOutdatedEquipmentDescription',
+                    'code'        => 'DIGIQUALI_LOCK_CONTROL_OUTDATED_EQUIPMENT',
+                ],
+                'AutoSaveActionQuestionAnswer' => [
+                    'name'        => 'AutoSaveActionQuestionAnswer',
+                    'description' => 'AutoSaveActionQuestionAnswerDescription',
+                    'code'        => 'DIGIQUALI_CONTROLDET_AUTO_SAVE_ACTION',
+                ],
+                'EnablePublicControlHistory' => [
+                    'name'        => 'EnablePublicControlHistory',
+                    'description' => 'EnablePublicControlHistoryDescription',
+                    'code'        => 'DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY',
+                ],
+                'ShowQcFrequencyPublicInterface' => [
+                    'name'        => 'ShowQcFrequencyPublicInterface',
+                    'description' => 'ShowQcFrequencyPublicInterfaceDescription',
+                    'code'        => 'DIGIQUALI_SHOW_QC_FREQUENCY_PUBLIC_INTERFACE',
+                ],
+                'ShowLastControlFirstOnPublicHistory' => [
+                    'name'        => 'ShowLastControlFirstOnPublicHistory',
+                    'description' => 'ShowLastControlFirstOnPublicHistoryDescription',
+                    'code'        => 'DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY',
+                ]
+            ];
+            $this->results = $constArray;
+            return 1;
+        }
+
         return 0; // or return 1 to replace standard code.
     }
 }
