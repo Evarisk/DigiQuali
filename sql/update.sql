@@ -122,4 +122,5 @@ ALTER TABLE `llx_digiquali_sheet` ADD `success_rate` DOUBLE(24,8) NULL AFTER `ph
 ALTER TABLE `llx_digiquali_control` ADD `success_rate` DOUBLE(24,8) NULL AFTER `next_control_date`;
 
 -- 1.11.0
+ALTER TABLE `llx_digiquali_sheet` CHANGE `type` `type` VARCHAR(128) NOT NULL;
 ALTER TABLE `llx_digiquali_survey` ADD `success_rate` DOUBLE(24,8) NULL AFTER `photo`;
