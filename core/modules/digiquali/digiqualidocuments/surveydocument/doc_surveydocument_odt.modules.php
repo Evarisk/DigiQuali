@@ -304,24 +304,28 @@ class doc_surveydocument_odt extends SaturneDocumentModel
 
         $sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
 
-        $questionCounter = count($sheet->linkedObjectsIds['digiquali_question']);
-
-        $average = 0;
+        $averagePercentageQuestions = 0;
+        $percentQuestionCounter     = 0;
         foreach ($sheet->linkedObjects['digiquali_question'] as $questionLinked) {
             if ($questionLinked->type !== 'Percentage') {
                 continue; // Skip non-percentage questions
             }
 
+            $percentQuestionCounter++;
             foreach ($object->lines as $line) {
                 if ($line->fk_question === $questionLinked->id) {
-                    $average += $line->answer;
+                    $averagePercentageQuestions += $line->answer;
                 }
             }
         }
 
-        $average = ($questionCounter > 0) ? ($average / $questionCounter) : 0;
+        $averagePercentageQuestions = ($percentQuestionCounter > 0) ? ($averagePercentageQuestions / $percentQuestionCounter) : 0;
 
-        $tmpArray['average']            = price2num($average) . ' %';
+        if ($percentQuestionCounter > 0) {
+            $tmpArray['average'] = price2num($averagePercentageQuestions) . ' %';
+        } else {
+            $tmpArray['average'] = '';
+        }
         $tmpArray['project_label']      = $project->ref . ' - ' . $project->title;
         $tmpArray['sheet_ref']          = $sheet->ref;
         $tmpArray['sheet_label']        = $sheet->label;
