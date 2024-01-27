@@ -41,10 +41,14 @@ MainSheetCategoriesDescription = Cette option permet la génération des catégo
 SheetMainCategory              = Choix de la catégorie principale du modèle de contrôle
 SheetMainCategoryDescription   = Cette option permet de choisir quelle catégorie sera utilisée lors du choix de catégorie pendant la création d'un contrôle
 
+# Control - Contrôle
+DisplayMediasSample                   = Afficher les médias d'exemple des questions
+DisplayControlMediasSampleDescription = Afficher les médias d'exemple des questions dans le contrôle
+ExtrafieldsControlManagement          = Gestion des attributs supplémentaires des contrôles
+
 # Survey - Questionnaire
-DisplayMediasSample            = Afficher les médias d'exemple des questions
-DisplayMediasSampleDescription = Afficher les médias d'exemple des questions dans le questionnaire
-ExtrafieldsSurveyManagement    = Gestion des attributs supplémentaires des questionnaires
+DisplaySurveyMediasSampleDescription = Afficher les médias d'exemple des questions dans le questionnaire
+ExtrafieldsSurveyManagement          = Gestion des attributs supplémentaires des questionnaires
 
 # Public interface - Interface publique
 AnswerPublicInterface             = Interface publique de réponse aux questions pour __OBJECT_ELEMENT_REF__
@@ -266,7 +270,6 @@ NoLotDefined                                   = Pas de numéro de lot/série tr
 SelectAProductFirst                            = Sélectionnez d'abord un produit
 ActionsOnControl                               = Événements liés au contrôle
 RegulatoryScore                                = Score réglementaire
-ExtrafieldsControlManagement                   = Gestion des attributs supplémentaires des contrôles
 WithLastControl                                = Avec le dernier contrôle
 ControlMustBeLockedToSendEmail                 = Le contrôle doit être verrouillé pour pouvoir envoyer par e-mail
 SelectUser                                     = Sélectionner un utilisateur

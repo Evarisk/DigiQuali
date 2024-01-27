@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2022-2024 EVARISK <technique@evarisk.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,16 +18,16 @@
 /**
  * \file    admin/control.php
  * \ingroup digiquali
- * \brief   DigiQuali control config page.
+ * \brief   DigiQuali control config page
  */
 
 // Load DigiQuali environment
 if (file_exists('../digiquali.main.inc.php')) {
-	require_once __DIR__ . '/../digiquali.main.inc.php';
+    require_once __DIR__ . '/../digiquali.main.inc.php';
 } elseif (file_exists('../../digiquali.main.inc.php')) {
-	require_once __DIR__ . '/../../digiquali.main.inc.php';
+    require_once __DIR__ . '/../../digiquali.main.inc.php';
 } else {
-	die('Include of digiquali main fails');
+    die('Include of digiquali main fails');
 }
 
 // Load Dolibarr libraries
@@ -53,7 +53,7 @@ $attrname   = GETPOST('attrname', 'alpha');
 $tmptype2label = ExtraFields::$type2label;
 $type2label    = [''];
 foreach ($tmptype2label as $key => $val) {
-	$type2label[$key] = $langs->transnoentitiesnoconv($val);
+    $type2label[$key] = $langs->transnoentitiesnoconv($val);
 }
 
 // Initialize objects
@@ -61,7 +61,7 @@ $object = new Control($db);
 
 $hookmanager->initHooks(['controladmin', 'globalcard']); // Note that conf->hooks_modules contains array
 
-$elementtype = $moduleNameLowerCase . '_' . $object->element; // Must be the $table_element of the class that manage extrafield.
+$elementtype = $moduleNameLowerCase . '_' . $object->element; // Must be the $table_element of the class that manage extrafield
 
 // Security check - Protection if external user
 $permissiontoread = $user->rights->$moduleNameLowerCase->adminpage->read;
@@ -82,6 +82,8 @@ if ($action == 'update_control_reminder') {
     dolibarr_set_const($db, 'DIGIQUALI_CONTROL_REMINDER_TYPE', $reminderType, 'chaine', 0, '', $conf->entity);
 
     setEventMessage('SavedConfig');
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit;
 }
 
 /*
@@ -99,7 +101,7 @@ print load_fiche_titre($title, $linkback, 'title_setup');
 
 // Configuration header
 $head = digiquali_admin_prepare_head();
-print dol_get_fiche_head($head, 'control', $title, -1, 'digiquali_color@digiquali');
+print dol_get_fiche_head($head, $object->element, $title, -1, 'digiquali_color@digiquali');
 
 /*
  *  Numbering module
@@ -109,10 +111,15 @@ require __DIR__ . '/../../saturne/core/tpl/admin/object/object_numbering_module_
 
 require __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
 
+/*
+ * Numbering module line
+ */
+
 $object = new ControlLine($db);
 
 require __DIR__ . '/../../saturne/core/tpl/admin/object/object_numbering_module_view.tpl.php';
 
+// Control reminder
 print load_fiche_titre($langs->trans('ControlReminder'), '', '');
 
 print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '">';
@@ -164,33 +171,32 @@ print '<div class="tabsAction"><input type="submit" class="butAction" name="save
 print '</form>';
 print '</table>';
 
-//Extrafields control management
+// Extrafields control management
 print load_fiche_titre($langs->trans('ExtrafieldsControlManagement'), '', '');
 
 $textobject = dol_strtolower($langs->transnoentities('Control'));
-require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_view.tpl.php';
+require DOL_DOCUMENT_ROOT . '/core/tpl/admin_extrafields_view.tpl.php';
 
 // Buttons
 if ($action != 'create' && $action != 'edit') {
-	print '<div class="tabsAction">';
-	print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER['PHP_SELF'].'?action=create">'.$langs->trans('NewAttribute').'</a></div>';
-	print '</div>';
+    print '<div class="tabsAction">';
+    print '<div class="inline-block divButAction"><a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?action=create">' . $langs->trans('NewAttribute') . '</a></div>';
+    print '</div>';
 }
 
 // Creation of an optional field
 if ($action == 'create') {
-	print load_fiche_titre($langs->trans('NewAttribute'));
-	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_add.tpl.php';
+    print load_fiche_titre($langs->trans('NewAttribute'));
+    require DOL_DOCUMENT_ROOT . '/core/tpl/admin_extrafields_add.tpl.php';
 }
 
 // Edition of an optional field
 if ($action == 'edit' && !empty($attrname)) {
-	print load_fiche_titre($langs->trans('FieldEdition', $attrname));
-	require DOL_DOCUMENT_ROOT.'/core/tpl/admin_extrafields_edit.tpl.php';
+    print load_fiche_titre($langs->trans('FieldEdition', $attrname));
+    require DOL_DOCUMENT_ROOT . '/core/tpl/admin_extrafields_edit.tpl.php';
 }
 
 // Page end
 print dol_get_fiche_end();
 llxFooter();
 $db->close();
-

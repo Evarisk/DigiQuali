@@ -381,24 +381,11 @@ class ActionsDigiquali
      */
     public function saturneAdminObjectConst(array $parameters): int
     {
-        // Do something only for the current context
-//        if ($parameters['currentcontext'] == 'digiqualiadmindocuments') {
-//            $constArray['digiquali'] = [
-////                'controldocument' => [
-////                    'name'        => 'ControlDocumentDisplayMedias',
-////                    'description' => 'ControlDocumentDisplayMediasDescription',
-////                    'code'        => 'DIGIQUALI_CONTROLDOCUMENT_DISPLAY_MEDIAS'
-////                ]
-//            ];
-//            $this->results = $constArray;
-//            return 1;
-//        }
-
         if (strpos($parameters['context'], 'surveyadmin') !== false) {
             $constArray['digiquali'] = [
                 'DisplayMedias' => [
                     'name'        => 'DisplayMediasSample',
-                    'description' => 'DisplayMediasSampleDescription',
+                    'description' => 'DisplaySurveyMediasSampleDescription',
                     'code'        => 'DIGIQUALI_SURVEY_DISPLAY_MEDIAS',
                 ],
                 'UseLargeSizeMedia' => [
