@@ -278,7 +278,7 @@ foreach ($search as $key => $val) {
             $sql .= natural_search($key, implode(',', $newStatus), 2);
         }
         continue;
-    } elseif ($key == 'status' && $val == -1) {
+    } elseif (($key == 'status' || $key == 'type') && $val == -1) {
         continue;
     }
 	$mode_search = (($object->isInt($object->fields[$key]) || $object->isFloat($object->fields[$key])) ? 1 : 0);
