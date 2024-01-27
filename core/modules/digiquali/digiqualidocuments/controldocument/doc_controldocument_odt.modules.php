@@ -108,6 +108,12 @@ class doc_controldocument_odt extends SaturneDocumentModel
 
         // Replace tags of lines.
         try {
+            $moreParam['segmentName']           = 'controller';
+            $moreParam['excludeAttendantsRole'] = ['attendant'];
+            $this->setAttendantsSegment($odfHandler, $outputLangs, $moreParam);
+
+            $moreParam['segmentName']           = 'attendant';
+            $moreParam['excludeAttendantsRole'] = ['controller'];
             $this->setAttendantsSegment($odfHandler, $outputLangs, $moreParam);
 
             // Get questions.
@@ -397,8 +403,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
         $tmpArray['mycompany_mail']    = (!empty($conf->global->MAIN_INFO_SOCIETE_MAIL) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_MAIL : '');
         $tmpArray['mycompany_phone']   = (!empty($conf->global->MAIN_INFO_SOCIETE_PHONE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_PHONE : '');
 
-        $moreParam['tmparray']                  = $tmpArray;
-        $moreParam['multipleAttendantsSegment'] = ['controller', 'attendant'];
+        $moreParam['tmparray'] = $tmpArray;
 
         return parent::write_file($objectDocument, $outputLangs, $srcTemplatePath, $hideDetails, $hideDesc, $hideRef, $moreParam);
     }
