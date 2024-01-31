@@ -274,15 +274,16 @@ if (empty($resHook)) {
  * View
  */
 
-$title    = $langs->trans('Control');
-$help_url = 'FR:Module_DigiQuali';
+$title   = $langs->trans('Control');
+$helpUrl = 'FR:Module_DigiQuali';
+$moreJS  = ['/saturne/js/includes/signature-pad.min.js'];
 
 if ($source == 'pwa') {
     $conf->dol_hide_topmenu  = 1;
     $conf->dol_hide_leftmenu = 1;
 }
 
-saturne_header(1,'', $title, $help_url);
+saturne_header(1,'', $title, $helpUrl, '', 0, 0, $moreJS);
 $object->fetch(GETPOST('id'));
 
 $elementArray = get_sheet_linkable_objects();
@@ -717,6 +718,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		<input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
 		<label for="fast-upload-photo-default">
 			<div class="wpeo-button <?php echo ($onPhone ? 'button-square-40' : 'button-square-50'); ?>">
+                <input type="hidden" class="fast-upload-options" data-from-subdir="photos" />
 				<i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
 			</div>
 		</label>

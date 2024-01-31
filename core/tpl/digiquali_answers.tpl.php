@@ -95,6 +95,7 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                                 <input type="hidden" class="question-answer-photo" id="answer_photo_<?php echo $question->id ?>" name="answer_photo_<?php echo $question->id ?>" value=""/>
                                 <label for="fast-upload-answer-photo<?php echo $question->id ?>">
                                     <div class="wpeo-button button-square-50">
+                                        <input type="hidden" class="fast-upload-options" data-from-subdir="answer_photo/<?php echo $question->ref ?>" />
                                         <i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
                                     </div>
                                 </label>
