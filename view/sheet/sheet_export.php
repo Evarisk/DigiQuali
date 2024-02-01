@@ -108,7 +108,7 @@ if (empty($reshook)) {
 
 		$digiqualiExportArray['sheets'][$object->id] = $sheetExportArray;
 
-		$object->fetchQuestionsLinked($object->id, 'digiquali_sheet');
+        $object->fetchObjectLinked($object->id, 'digiquali_' . $object->element);
 		$questionsLinked = $object->linkedObjects['digiquali_question'];
 
 		if (is_array($questionsLinked) && !empty($questionsLinked)) {

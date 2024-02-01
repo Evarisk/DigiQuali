@@ -518,7 +518,7 @@ while ($i < ($limit ? min($num, $limit) : $num)) {
 			if ($key == 'status') print $object->getLibStatut(5);
 			elseif ($key == 'ref') print $object->getNomUrl(1);
             elseif ($key == 'nb_questions') {
-                $object->fetchQuestionsLinked($object->id, 'digiquali_sheet', null, '', 'OR', 1, 'sourcetype', 0);
+                $object->fetchObjectLinked($object->id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position', 0);
                 if (isset($object->linkedObjectsIds['digiquali_question']) && is_array($object->linkedObjectsIds['digiquali_question'])) {
                     print count($object->linkedObjectsIds['digiquali_question']);
                 } else {

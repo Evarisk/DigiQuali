@@ -87,7 +87,7 @@ if ($action == 'data_migration_export_global' && $permissionToRead) {
 
 				$digiqualiExportArray['sheets'][$sheetSingle->id] = $sheetExportArray;
 
-				$sheetSingle->fetchQuestionsLinked($sheetSingle->id, 'digiquali_sheet', null, '', 'OR', 1, 'sourcetype', 0);
+                $sheetSingle->fetchObjectLinked($sheetSingle->id, 'digiquali_' . $sheetSingle->element, null, '', 'OR', 1, 'position', 0);
 				$questionsLinked = $sheetSingle->linkedObjectsIds['digiquali_question'];
 				if (is_array($questionsLinked) && !empty($questionsLinked)) {
 					foreach ($questionsLinked as $questionId) {
@@ -292,7 +292,7 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
 							$question->add_object_linked('digiquali_sheet', $newSheetId);
 
 							$sheet->fetch($newSheetId);
-							$questionsLinked = $sheet->fetchQuestionsLinked($newSheetId, 'digiquali_sheet', null, '', 'OR', 1, 'sourcetype', 0);
+                            $questionsLinked = $sheet->fetchObjectLinked($newSheetId, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position', 0);
 							$questionIds     = $sheet->linkedObjectsIds['digiquali_question'];
 
 							$sheet->updateQuestionsPosition($questionIds);

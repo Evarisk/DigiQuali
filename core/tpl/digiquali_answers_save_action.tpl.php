@@ -32,7 +32,7 @@ if ($action == 'save') {
     $data = json_decode(file_get_contents('php://input'), true);
 
     $sheet->fetch($object->fk_sheet);
-    $sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
+    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
     if (!empty($sheet->linkedObjects['digiquali_question'])) {
         foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
             if (!empty($object->lines)) {

@@ -118,7 +118,7 @@ class doc_surveydocument_odt extends SaturneDocumentModel
                     $sheet  = new Sheet($this->db);
                     $answer = new Answer($this->db);
 
-                    $sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
+                    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
                     if (!empty($sheet->linkedObjects['digiquali_question'])) {
                         foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
                             foreach ($object->lines as $line) {
@@ -302,7 +302,7 @@ class doc_surveydocument_odt extends SaturneDocumentModel
             $tmpArray['actioncomm_creation_date'] = dol_print_date($actionComms[0]->datec, 'dayhour', 'tzuser');
         }
 
-        $sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
+        $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
 
         $averagePercentageQuestions = 0;
         $percentQuestionCounter     = 0;
