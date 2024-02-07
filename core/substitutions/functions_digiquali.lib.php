@@ -32,7 +32,7 @@
  * @return void                           The entry parameter $substitutionarray is modified
  * @throws Exception
  */
-function digiquali_completesubstitutionarray(array &$substitutionarray, Translate $langs, ?object $object)
+function digiquali_completesubstitutionarray(array &$substitutionarray, Translate $langs, $object)
 {
     $substitutionarray['__OBJECT_ELEMENT_REF__'] = $langs->transnoentities('The' . ucfirst($object->element)) . ' ' . $object->ref;
 }
