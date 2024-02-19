@@ -124,6 +124,16 @@ $dolEditor = new DolEditor('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_TITLE', $answerPub
 $dolEditor->Create();
 print '</td></tr>';
 
+// Use signatory
+print '<tr class="oddeven"><td>';
+print $langs->transnoentities('AnswerPublicInterfaceUseSignatory');
+print '</td><td>';
+print $langs->transnoentities('AnswerPublicInterfaceUseSignatoryDescription');
+print '</td>';
+print '<td class="center">';
+print ajax_constantonoff('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY');
+print '</td><td></td></tr>';
+
 print '</table>';
 print $form->buttonsSaveCancel('Save', '');
 print '</form>';
