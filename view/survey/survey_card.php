@@ -345,7 +345,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', '', !empty($object->photo));
 
     $sheet->fetch($object->fk_sheet);
-    $sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
+    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
     $questionIds = $sheet->linkedObjectsIds['digiquali_question'];
 
     $questionCounter = 0;

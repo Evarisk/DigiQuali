@@ -133,7 +133,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
                 if (!empty($object)) {
                     $sheet = new Sheet($this->db);
 
-                    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_sheet','', '', 'OR', 1, 'sourcetype', 0);
+                    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_sheet', null, '', 'OR', 1, 'position', 0);
                     $questionIds = $sheet->linkedObjectsIds;
 
                     if (is_array($questionIds['digiquali_question']) && !empty($questionIds['digiquali_question'])) {
@@ -201,6 +201,10 @@ class doc_controldocument_odt extends SaturneDocumentModel
                                         $photoArray[$image] = $questionAnswerLine->ref;
                                     }
                                 }
+                            } else {
+                                $tmpArray['ref_answer'] = '';
+                                $tmpArray['comment']    = '';
+                                $tmpArray['answer']     = ' ';
                             }
                             $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
                         }

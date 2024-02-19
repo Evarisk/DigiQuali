@@ -117,7 +117,7 @@ if (empty($reshook)) {
 			$question->fetch($questionId);
 			$test = $question->add_object_linked('digiquali_' . $object->element,$id);
 
-			$questionsLinked = 	$object->fetchQuestionsLinked($id, 'digiquali_' . $object->element);
+			$questionsLinked = $object->fetchObjectLinked($id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position', 0);
 			$questionIds     = $object->linkedObjectsIds['digiquali_question'];
 			$object->updateQuestionsPosition($questionIds);
 
@@ -137,7 +137,7 @@ if (empty($reshook)) {
 		$question->element = 'digiquali_'.$question->element;
 		$question->deleteObjectLinked($id, 'digiquali_' . $object->element);
 
-		$questionsLinked = 	$object->fetchQuestionsLinked($id, 'digiquali_' . $object->element);
+		$questionsLinked = $object->fetchObjectLinked($id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position', 0);
 		$questionIds     = $object->linkedObjectsIds['digiquali_question'];
 		$object->updateQuestionsPosition($questionIds);
 
@@ -604,7 +604,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	$object->fetchQuestionsLinked($id, 'digiquali_' . $object->element);
+	$object->fetchObjectLinked($id, 'digiquali_' . $object->element);
 	$questionIds = $object->linkedObjectsIds['digiquali_question'];
 	if (is_array($questionIds) && !empty($questionIds)) {
 		ksort($questionIds);

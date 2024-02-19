@@ -131,7 +131,7 @@ if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
         print '<h2 class="center">' . (dol_strlen($answerPublicInterfaceTitle) > 0 ? $answerPublicInterfaceTitle : $langs->transnoentities('AnswerPublicInterface')) . '</h2>';
         print '<br>';
         $publicInterface = true;
-        $sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
+        $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
         require_once __DIR__ . '/../core/tpl/digiquali_answers.tpl.php';
         print '<br>';
         print '<div class="center">';

@@ -520,7 +520,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	// SetValidated confirmation
     if (($action == 'setValidated' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
 		$sheet->fetch($object->fk_sheet);
-		$sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
+        $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position', 0);
 		$questionIds = $sheet->linkedObjectsIds['digiquali_question'];
 
 		if (!empty($questionIds)) {
@@ -786,7 +786,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '</div>';
 
     $sheet->fetch($object->fk_sheet);
-    $sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
+    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
 
     $questionIds         = $sheet->linkedObjectsIds['digiquali_question'];
     $cantValidateControl = 0;
@@ -931,7 +931,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<div class="div-table-responsive-no-min questionLines" style="overflow-x: unset !important">';
 
 	$sheet->fetch($object->fk_sheet);
-	$sheet->fetchQuestionsLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
+    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
 	$questionIds = $sheet->linkedObjectsIds['digiquali_question'];
 
 	if (is_array($questionIds) && !empty($questionIds)) {
