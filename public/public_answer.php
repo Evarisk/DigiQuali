@@ -55,6 +55,11 @@ if (file_exists('../digiquali.main.inc.php')) {
 // Get module parameters
 $objectType = GETPOST('object_type', 'alpha');
 
+// Load Saturne libraries
+if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY')) {
+    require_once __DIR__ . '/../../saturne/class/saturnesignature.class.php';
+}
+
 // Load DigiQuali libraries
 require_once __DIR__ . '/../class/' . $objectType . '.class.php';
 require_once __DIR__ . '/../class/sheet.class.php';
@@ -64,13 +69,13 @@ require_once __DIR__ . '/../lib/digiquali_sheet.lib.php';
 require_once __DIR__ . '/../lib/digiquali_answer.lib.php';
 
 // Global variables definitions
-global $conf, $db, $hookmanager, $langs, $user;
+global $conf, $db, $hookmanager, $moduleNameLowerCase, $langs, $user;
 
 // Load translation files required by the page
 saturne_load_langs();
 
 // Get parameters
-$track_id  = GETPOST('track_id', 'alpha');
+$trackID   = GETPOST('track_id', 'alpha');
 $entity    = GETPOST('entity');
 $action    = GETPOST('action');
 $subaction = GETPOST('subaction');
@@ -83,8 +88,11 @@ $objectLine = new $className($db);
 $sheet      = new Sheet($db);
 $question   = new Question($db);
 $answer     = new Answer($db);
+if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY')) {
+    $signatory = new SaturneSignature($db, $moduleNameLowerCase, $object->element);
+}
 
-$hookmanager->initHooks(['publicanswer']); // Note that conf->hooks_modules contains array
+$hookmanager->initHooks(['publicanswer', 'saturnepublicinterface']); // Note that conf->hooks_modules contains array
 
 if (!isModEnabled('multicompany')) {
     $entity = $conf->entity;
@@ -93,27 +101,45 @@ if (!isModEnabled('multicompany')) {
 $conf->setEntityValues($db, $entity);
 
 // Load object
-$object->fetch(0, '', ' AND track_id =' . "'" . $track_id . "'");
+$object->fetch(0, '', ' AND track_id =' . "'" . $trackID . "'");
+if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY')) {
+    $signatory->fetch(0, '', ' AND fk_object =' . "'" . $object->id . "'");
+}
 
 /*
  * Actions
-*/
+ */
 
-// Set user for action update and insert for prevent error on public interface
-$user->id = 1;
+$parameters = [];
+$resHook    = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
+if ($resHook < 0) {
+    setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+}
 
-require_once __DIR__ . '/../core/tpl/digiquali_answers_save_action.tpl.php';
+if (empty($resHook)) {
+    if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY')) {
+        // Actions add_signature, builddoc, remove_file
+        require_once __DIR__ . '/../../saturne/core/tpl/actions/signature_actions.tpl.php';
+    }
+
+    // Set user for action update and insert for prevent error on public interface
+    $user->id = 1;
+
+    require_once __DIR__ . '/../core/tpl/digiquali_answers_save_action.tpl.php';
+}
 
 /*
  * View
  */
 
-$title = $langs->trans('PublicAnswer');
+$title   = $langs->trans('PublicAnswer');
+$moreJS  = ['/saturne/js/includes/signature-pad.min.js'];
+$moreCSS = ['/saturne/css/saturne.min.css'];
 
 $conf->dol_hide_topmenu  = 1;
 $conf->dol_hide_leftmenu = 1;
 
-saturne_header(1, '', $title);
+saturne_header(1,'', $title, '', '', 0, 0, $moreJS, $moreCSS);
 
 if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
     print '<div class="signature-container" style="max-width: 1000px;">';
@@ -122,9 +148,10 @@ if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
 } else {
     print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '?action=save&id=' . $object->id . '&track_id=' . GETPOST('track_id') . '&object_type=' . $object->element . '&entity=' . $conf->entity . '" id="saveObject" enctype="multipart/form-data">';
     print '<input type="hidden" name="token" value="' . newToken() . '">';
+    print '<input type="hidden" name="public_interface" value="true">';
     print '<input type="hidden" name="action" value="save">'; ?>
 
-    <div id="tablelines" class="question-answer-container signature-container" style="max-width: 1000px;">
+    <div id="tablelines" class="question-answer-container" style="max-width: 1000px;">
         <?php $substitutionArray = getCommonSubstitutionArray($langs, 0, null, $object);
         complete_substitutions_array($substitutionArray, $langs, $object);
         $answerPublicInterfaceTitle = make_substitutions($langs->transnoentities($conf->global->DIGIQUALI_ANSWER_PUBLIC_INTERFACE_TITLE), $substitutionArray);
@@ -133,6 +160,11 @@ if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
         $publicInterface = true;
         $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
         require_once __DIR__ . '/../core/tpl/digiquali_answers.tpl.php';
+        if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY')) {
+            $fileExists     = 0;
+            $object->status = $object::STATUS_VALIDATED; // Special case because public answer need draft status object to complete question
+            require_once __DIR__ . '/../../saturne/core/tpl/signature/public_signature_view.tpl.php';
+        }
         print '<br>';
         print '<div class="center">';
         print '<input class="wpeo-button" type="submit" value="'. $langs->trans('Submit') .'">';
