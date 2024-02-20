@@ -151,7 +151,7 @@ if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
     print '<input type="hidden" name="public_interface" value="true">';
     print '<input type="hidden" name="action" value="save">'; ?>
 
-    <div id="tablelines" class="question-answer-container" style="max-width: 1000px;">
+    <div id="tablelines" class="question-answer-container signature-container" style="max-width: 1000px;">
         <?php $substitutionArray = getCommonSubstitutionArray($langs, 0, null, $object);
         complete_substitutions_array($substitutionArray, $langs, $object);
         $answerPublicInterfaceTitle = make_substitutions($langs->transnoentities($conf->global->DIGIQUALI_ANSWER_PUBLIC_INTERFACE_TITLE), $substitutionArray);
@@ -163,11 +163,12 @@ if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
         if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY')) {
             $fileExists     = 0;
             $object->status = $object::STATUS_VALIDATED; // Special case because public answer need draft status object to complete question
+            $moreParams['moreCSS'] = 'hidden'; // Needed for prevent click on signature button action
             require_once __DIR__ . '/../../saturne/core/tpl/signature/public_signature_view.tpl.php';
         }
         print '<br>';
         print '<div class="center">';
-        print '<input class="wpeo-button" type="submit" value="'. $langs->trans('Submit') .'">';
+        print '<input class="wpeo-button' . (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY') ? 'signature-validate' : '') . '" type="submit" value="'. $langs->trans('Submit') .'">';
         print '</div>'; ?>
     </div>
     <?php
