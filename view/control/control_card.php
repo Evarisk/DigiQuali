@@ -485,7 +485,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     // If conf activated we check that at least one control equipment is outdated
     $equipmentOutdated = false;
-    if (!empty($conf->global->DIGIQUALI_LOCK_CONTROL_OUTDATED_EQUIPMENT)) {
+    if (getDolGlobalInt('DIGIQUALI_LOCK_CONTROL_OUTDATED_EQUIPMENT')) {
         $controlEquipments = $controlEquipment->fetchFromParent($object->id);
         if (is_array($controlEquipments) && !empty($controlEquipments)) {
             foreach ($controlEquipments as $equipmentControl) {
