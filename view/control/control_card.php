@@ -483,14 +483,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     $formConfirm = '';
 
+    // If conf activated we check that at least one control equipment is outdated
     $equipmentOutdated = false;
-    if (!empty($conf->global->DIGIQUALI_LOCK_CONTROL_OUTDATED_EQUIPMENT)) {
+    if (getDolGlobalInt('DIGIQUALI_LOCK_CONTROL_OUTDATED_EQUIPMENT')) {
         $controlEquipments = $controlEquipment->fetchFromParent($object->id);
-        if (is_array($controlEquipments) && !empty ($controlEquipments)) {
+        if (is_array($controlEquipments) && !empty($controlEquipments)) {
             foreach ($controlEquipments as $equipmentControl) {
-                $product->fetch($equipmentControl->fk_product);
-                $creationDate = strtotime($product->date_creation);
-                if (!empty($product->lifetime) && dol_time_plus_duree($creationDate, $product->lifetime, 'd') <= dol_now()) {
+                $data = json_decode($equipmentControl->json, true);
+                $dluo = $data['dluo'];
+                if (!empty($dluo) && $dluo <= dol_now()) {
                     $equipmentOutdated = true;
                     break;
                 }
@@ -764,7 +765,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             <div class="notice-content">
                 <div class="notice-title"><?php echo $langs->trans('ControlEquipmentOutdated') ?></div>
             </div>
-            <a class="butAction" style="width = 100%;margin-right:0" target="_blank" href="<?php echo DOL_URL_ROOT . '/custom/digiquali/view/control/control_equipment.php?id=' . $object->id?>"><?php echo $langs->trans("GoToEquipmentHours", $usertmp->getFullName($langs)) ?></a>
+            <a class="butAction" href="<?php echo DOL_URL_ROOT . '/custom/digiquali/view/control/control_equipment.php?id=' . $object->id?>"><?php echo $langs->trans("GoToEquipmentHours", $usertmp->getFullName($langs)) ?></a>
         </div>
     <?php }
 
