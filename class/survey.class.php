@@ -123,7 +123,7 @@ class Survey extends SaturneObject
         'note_private'  => ['type' => 'html',         'label' => 'NotePrivate',      'enabled' => 1, 'position' => 90,  'notnull' => 0, 'visible' => 0],
         'photo'         => ['type' => 'text',         'label' => 'Photo',            'enabled' => 1, 'position' => 100, 'notnull' => 0, 'visible' => 0],
         'success_rate'  => ['type' => 'real',         'label' => 'SuccessScore',     'enabled' => 1, 'position' => 35,  'notnull' => 0, 'visible' => 2, 'help' => 'PercentageValue'],
-        'track_id'      => ['type' => 'text',         'label' => 'TrackID',          'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 0],
+        'track_id'      => ['type' => 'text',         'label' => 'TrackID',          'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 2],
         'fk_user_creat' => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserAuthor',  'picto' => 'user',                            'enabled' => 1, 'position' => 120, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
         'fk_user_modif' => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserModif',   'picto' => 'user',                            'enabled' => 1, 'position' => 130, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
         'fk_sheet'      => ['type' => 'integer:Sheet:digiquali/class/sheet.class.php',    'label' => 'Sheet',       'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 11,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_sheet.rowid'],
