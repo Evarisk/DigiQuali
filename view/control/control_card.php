@@ -310,6 +310,7 @@ if ($action == 'create') {
 
     if (!empty(GETPOST('fk_sheet'))) {
         $sheet->fetch(GETPOST('fk_sheet'));
+        $_POST['label'] = $sheet->label;
     }
 
     if ($viewmode == 'images') {
