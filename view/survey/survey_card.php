@@ -258,7 +258,7 @@ if ($action == 'create') {
 
     //FK SHEET
     print '<tr><td class="fieldrequired">' . $langs->trans('Sheet') . '</td><td>';
-    print img_picto('', $sheet->picto, 'class="pictofixedwidth"') . $sheet->selectSheetList(GETPOST('fk_sheet') ?: $sheet->id, 'fk_sheet', 's.type = ' . '"' . $object->element . '"');
+    print img_picto('', $sheet->picto, 'class="pictofixedwidth"') . $sheet->selectSheetList(GETPOST('fk_sheet') ?: $sheet->id, 'fk_sheet', 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED);
     print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
     print '</td></tr>';
 
@@ -269,7 +269,7 @@ if ($action == 'create') {
     if (isModEnabled('categorie')) {
         print '<tr><td>' . $langs->trans('Categories') . '</td><td>';
         $categoriesArborescence = $form->select_all_categories($object->element, '', 'parent', 64, 0, 1);
-        print img_picto('', 'category', 'class="pictofixedwidth"').$form::multiselectarray('categories', $categoriesArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+        print img_picto('', 'category', 'class="pictofixedwidth"').$form::multiselectarray('categories', $categoriesArborescence, GETPOST('categories', 'array'), '', 0, 'minwidth100imp maxwidth500 widthcentpercentminusxx');
         print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=' . $object->element . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
         print '</td></tr>';
     }
@@ -466,7 +466,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                         $arraySelected[] = $cat->id;
                     }
                 }
-                print img_picto('', 'category') . $form::multiselectarray('categories', $categoriesArborescence, (GETPOSTISSET('categories') ? GETPOST('categories', 'array') : $arraySelected), '', 0, 'quatrevingtpercent widthcentpercentminusx');
+                print img_picto('', 'category') . $form::multiselectarray('categories', $categoriesArborescence, (GETPOSTISSET('categories') ? GETPOST('categories', 'array') : $arraySelected), '', 0, 'minwidth100imp quatrevingtpercent widthcentpercentminusxx');
                 print '<input type="submit" class="button button-edit small" value="'.$langs->trans('Save').'">';
                 print '</form>';
                 print '</td>';

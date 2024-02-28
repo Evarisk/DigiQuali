@@ -362,7 +362,7 @@ if ($action == 'create') {
     } else {
         //FK SHEET
         print '<tr><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('Sheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
-        print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet')?: $sheet->id);
+        print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet')?: $sheet->id, 'fk_sheet', 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED);
         if ($source != 'pwa') {
             print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
         }
@@ -385,7 +385,7 @@ if ($action == 'create') {
     if (!empty($conf->categorie->enabled)) {
         print '<tr><td>' . ($source != 'pwa' ? $langs->trans('Categories') : img_picto('', 'fontawesome_fa-tags_fas_#000000_2em', 'class="pictofixedwidth"')) . '</td><td>';
         $categoryArborescence = $form->select_all_categories('control', '', 'parent', 64, 0, 1);
-        print ($source != 'pwa' ? img_picto('', 'category', 'class="pictofixedwidth"') : '') . $form->multiselectarray('categories', $categoryArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusxx');
+        print ($source != 'pwa' ? img_picto('', 'category', 'class="pictofixedwidth"') : '') . $form::multiselectarray('categories', $categoryArborescence, GETPOST('categories', 'array'), '', 0, 'minwidth100imp maxwidth500 widthcentpercentminusxx');
         if ($source != 'pwa') {
             print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=control&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
         }
@@ -629,7 +629,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                         $arraySelected[] = $cat->id;
                     }
                 }
-                print img_picto('', 'category') . $form->multiselectarray('categories', $categoryArborescence, (GETPOSTISSET('categories') ? GETPOST('categories', 'array') : $arraySelected), '', 0, 'quatrevingtpercent widthcentpercentminusx');
+                print img_picto('', 'category') . $form->multiselectarray('categories', $categoryArborescence, (GETPOSTISSET('categories') ? GETPOST('categories', 'array') : $arraySelected), '', 0, 'minwidth100imp quatrevingtpercent widthcentpercentminusx');
                 print '<input type="submit" class="button button-edit small" value="' . $langs->trans('Save') . '">';
                 print '</form>';
                 print '</td>';
@@ -637,8 +637,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         }
         print '</tr>';
     }
-
-    $object->fetchObjectLinked('', '', $object->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
 
     foreach($elementArray as $linkableElementType => $linkableElement) {
         if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
