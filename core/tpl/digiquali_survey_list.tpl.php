@@ -285,7 +285,9 @@ if (is_array($signatoriesInDictionary) && !empty($signatoriesInDictionary)) {
     }
 }
 
+$arrayfields['QuestionAnswered']  = ['label' => 'QuestionAnswered', 'position' => 66, 'css' => 'center minwidth200 maxwidth250 widthcentpercentminusxx'];
 $arrayfields['SocietyAttendants'] = ['label' => 'SocietyAttendants', 'checked' => 1, 'position' => 115, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusxx'];
+$arrayfields['DifferentDate']     = ['label' => 'DifferentDate', 'position' => 67, 'css' => 'center minwidth200 maxwidth300 widthcentpercentminusxx'];
 
 $selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage, getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN')); // This also change content of $arrayfields
 $selectedfields .= (count($arrayofmassactions) ? $form->showCheckAddButtons('checkforselect', 1) : '');
@@ -297,7 +299,9 @@ if (is_array($signatoriesInDictionary) && !empty($signatoriesInDictionary)) {
     }
 }
 
+$object->fields['Custom']['QuestionAnswered']  = $arrayfields['QuestionAnswered'];
 $object->fields['Custom']['SocietyAttendants'] = $arrayfields['SocietyAttendants'];
+$object->fields['Custom']['DifferentDate']     = $arrayfields['DifferentDate'];
 
 print '<div class="div-table-responsive">'; // You can use div-table-responsive-no-min if you don't need reserved height for your table
 print '<table class="tagtable nobottomiftotal liste' . ($moreforfilter ? ' listwithfilterbefore' : '') . '">';
@@ -340,6 +344,12 @@ foreach ($object->fields as $key => $val)
                 if ($resource['label'] == 'SocietyAttendants') {
                     print '<td class="liste_titre ' . $resource['css'] . '">';
                     //print $form->select_company($searchSocietyAttendants, 'search_society_attendants', '', 1);
+                    print '</td>';
+                } else if ($resource['label'] == 'QuestionAnswered') {
+                    print '<td class="liste_titre ' . $resource['css'] . '">';
+                    print '</td>';
+                } else if ($resource['label'] == 'DifferentDate') {
+                    print '<td class="liste_titre ' . $resource['css'] . '">';
                     print '</td>';
                 } else {
                     print '<td class="liste_titre ' . $resource['css'] . '"></td>';
@@ -563,6 +573,44 @@ while ($i < $imaxinloop) {
                                     $alreadyAddedThirdParties[] = $thirdparty->id;
                                 }
                             }
+                            print '</td>';
+                        } else if ($resource['label'] == 'QuestionAnswered') {
+                            $object->fetchLines();
+
+                            $questionCounter = 0;
+                            $sheet->fetch($object->fk_sheet);
+                            $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
+                            $questionIds = $sheet->linkedObjectsIds['digiquali_question'];
+                            if (!empty($questionIds)) {
+                                $questionCounter = count($questionIds);
+                            }
+
+                            $answerCounter = 0;
+                            if (is_array($object->lines) && !empty($object->lines)) {
+                                foreach($object->lines as $objectLine) {
+                                    if (dol_strlen($objectLine->answer) > 0) {
+                                        $answerCounter++;
+                                    }
+                                }
+                            }
+                            print '<td class="' . $resource['css'] . '">';
+                            print ' ' . $answerCounter . '/' . $questionCounter;
+                            print ($questionCounter == $answerCounter && $object->status == Survey::STATUS_DRAFT ? img_picto($langs->transnoentities('CanBeValidated', $langs->transnoentities('Survey')), 'warning') : '');
+                            print '</td>';
+                        } else if ($resource['label'] == 'DifferentDate') {
+                            require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
+
+                            $actioncomm = new ActionComm($db);
+
+                            $lastValidateAction = $actioncomm->getActions(0, $object->id, 'survey@digiquali', ' AND a.code = "AC_SURVEY_VALIDATE"', 'a.datep', 'DESC', 1);
+                            $lastReOpenAction   = $actioncomm->getActions(0, $object->id, 'survey@digiquali', ' AND a.code = "AC_SURVEY_UNVALIDATE"', 'a.datep', 'DESC', 1);
+
+                            $lastValidateDate   = (is_array($lastValidateAction) && !empty($lastValidateAction) ? $lastValidateAction[0]->datec : 0);
+                            $lastReOpenDate     = (is_array($lastValidateAction) && !empty($lastValidateAction) ? $lastReOpenAction[0]->datec : 0);
+
+                            print '<td class="' . $resource['css'] . '">';
+                            print $lastValidateDate > 0 ? $langs->trans('ValidationDate') . ': <br>' . dol_print_date($lastValidateDate, 'dayhour') . '<br>' : '';
+                            print $lastReOpenDate > 0 ? $langs->trans('ReOpenDate') . ': <br>' . dol_print_date($lastReOpenDate, 'dayhour') . '<br>' : '';
                             print '</td>';
                         } else {
                             print '<td class="' . $resource['css'] . '">';
