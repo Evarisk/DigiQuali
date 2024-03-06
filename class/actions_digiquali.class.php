@@ -178,22 +178,20 @@ class ActionsDigiquali
 		if (strpos($parameters['context'], 'categoryindex') !== false) {	    // do something only for the context 'somecontext1' or 'somecontext2'
 			print '<script src="../custom/digiquali/js/digiquali.js"></script>';
 		} elseif (strpos($parameters['context'], 'productlotcard') !== false) {
-            if (GETPOST('action') != 'create') {
-                $productLot = new ProductLot($this->db);
-                $productLot->fetch(GETPOST('id'));
-                $objectB64 = $productLot->array_options['options_control_history_link'];
-                $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control_history.php?track_id=' . $objectB64 . '&entity=' . $conf->entity, 3);
+            $productLot = new ProductLot($this->db);
+            $productLot->fetch(GETPOST('id'));
+            $objectB64 = $productLot->array_options['options_control_history_link'];
+            $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control_history.php?track_id=' . $objectB64 . '&entity=' . $conf->entity, 3);
 
-                $out = showValueWithClipboardCPButton($publicControlInterfaceUrl, 0, '&nbsp;');
-                $out .= '<a target="_blank" href="'. $publicControlInterfaceUrl .'"><div class="butAction">';
-                $out .= '<i class="fa fa-external-link"></i>';
-                $out .= '</div></a>'; ?>
+            $out = showValueWithClipboardCPButton($publicControlInterfaceUrl, 0, '&nbsp;');
+            $out .= '<a target="_blank" href="'. $publicControlInterfaceUrl .'"><div class="butAction">';
+            $out .= '<i class="fa fa-external-link"></i>';
+            $out .= '</div></a>'; ?>
 
-                <script>
-                    $('[class*=extras_control_history_link]').html(<?php echo json_encode($out) ?>);
-                </script>
-                <?php
-            }
+            <script>
+                $('[class*=extras_control_history_link]').html(<?php echo json_encode($out) ?>);
+            </script>
+            <?php
         }
 
         require_once __DIR__ . '/../lib/digiquali_sheet.lib.php';
@@ -249,16 +247,14 @@ class ActionsDigiquali
      */
     public function formObjectOptions(array $parameters, object $object) {
         if (strpos($parameters['context'], 'productlotcard') !== false) {
-            if (GETPOST('action') != 'create') {
-                $objectData = ['type' => $object->element, 'id' => $object->id];
+            $objectData = ['type' => $object->element, 'id' => $object->id];
 
-                $objectDataJson = json_encode($objectData);
-                $objectDataB64  = base64_encode($objectDataJson);
+            $objectDataJson = json_encode($objectData);
+            $objectDataB64  = base64_encode($objectDataJson);
 
-                if (dol_strlen($object->array_options['options_control_history_link'] == 0 )) {
-                    $object->array_options['options_control_history_link'] = $objectDataB64;
-                    $object->updateExtrafield('control_history_link');
-                }
+            if (dol_strlen($object->array_options['options_control_history_link'] == 0 )) {
+                $object->array_options['options_control_history_link'] = $objectDataB64;
+                $object->updateExtrafield('control_history_link');
             }
         }
     }
