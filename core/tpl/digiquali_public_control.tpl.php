@@ -60,10 +60,10 @@
                 <?php }
                 }
             } ?>
-            <br><div style="margin-bottom: 10px"><strong><?php print $object->getNomUrl(1, 'nolink', 1); ?></strong></div>
+            <br><div style="margin-bottom: 10px"><strong><?php print $object->getNomUrl(1); ?></strong></div>
             <table class="centpercent" style="background: rgba(0,0,0,.05); padding: 10px;">
                 <tr><td class="tdoverflowmax200">
-                    <?php print $langs->trans('BasedOnModel') . ': </br>' . $sheet->getNomUrl(1, 'nolink', 1, '', -1, 1) . '<br>';
+                    <?php print $langs->trans('BasedOnModel') . ' : <br>' . $sheet->getNomUrl(1, '', 0, '', -1, 1) . '<br>';
                     print '<i class="far fa-check-circle"></i> ' . $langs->trans('Verdict') . '<br>';
                     print '<div style="margin-top: 10px">' . saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 70, 70, 0, 0, 1, 'control/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</div>'; ?>
                 </td>
