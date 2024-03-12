@@ -84,7 +84,7 @@ $sheet   = new Sheet($db);
 $project = new Project($db);
 $user    = new User($db);
 
-$hookmanager->initHooks(['publiccontrolhistory']); // Note that conf->hooks_modules contains array.
+$hookmanager->initHooks(['publiccontrolhistory', 'saturnepublicinterface']); // Note that conf->hooks_modules contains array.
 
 if (!isModEnabled('multicompany')) {
     $entity = $conf->entity;

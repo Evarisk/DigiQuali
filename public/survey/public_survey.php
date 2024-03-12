@@ -71,7 +71,7 @@ $entity   = GETPOST('entity');
 // Initialize technical objects
 $object = new Survey($db);
 
-$hookmanager->initHooks(['publicsurvey']); // Note that conf->hooks_modules contains array
+$hookmanager->initHooks(['publicsurvey', 'saturnepublicinterface']); // Note that conf->hooks_modules contains array
 
 if (!isModEnabled('multicompany')) {
     $entity = $conf->entity;

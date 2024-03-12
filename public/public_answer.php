@@ -53,7 +53,13 @@ if (file_exists('../digiquali.main.inc.php')) {
 }
 
 // Get module parameters
-$objectType = GETPOST('object_type', 'alpha');
+$objectType   = GETPOST('object_type', 'alpha');
+$documentType = GETPOST('document_type', 'alpha');
+
+// Load Saturne libraries
+if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY')) {
+    require_once __DIR__ . '/../../saturne/class/saturnesignature.class.php';
+}
 
 // Load DigiQuali libraries
 require_once __DIR__ . '/../class/' . $objectType . '.class.php';
@@ -64,13 +70,13 @@ require_once __DIR__ . '/../lib/digiquali_sheet.lib.php';
 require_once __DIR__ . '/../lib/digiquali_answer.lib.php';
 
 // Global variables definitions
-global $conf, $db, $hookmanager, $langs, $user;
+global $conf, $db, $hookmanager, $moduleNameLowerCase, $langs, $user;
 
 // Load translation files required by the page
 saturne_load_langs();
 
 // Get parameters
-$track_id  = GETPOST('track_id', 'alpha');
+$trackID   = GETPOST('track_id', 'alpha');
 $entity    = GETPOST('entity');
 $action    = GETPOST('action');
 $subaction = GETPOST('subaction');
@@ -83,8 +89,20 @@ $objectLine = new $className($db);
 $sheet      = new Sheet($db);
 $question   = new Question($db);
 $answer     = new Answer($db);
+if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY')) {
+    $fileExists = file_exists('../../' . $moduleNameLowerCase . '/class/' . $moduleNameLowerCase . 'documents/' . strtolower($documentType) . '.class.php');
+    if ($fileExists && GETPOSTISSET('document_type')) {
+        require_once __DIR__ . '/../../' . $moduleNameLowerCase . '/class/' . $moduleNameLowerCase . 'documents/' . strtolower($documentType) . '.class.php';
+    }
+    if (GETPOSTISSET('document_type') && $fileExists) {
+        $document = new $documentType($db);
+    }
+    $signatory = new SaturneSignature($db, $moduleNameLowerCase, $object->element);
 
-$hookmanager->initHooks(['publicanswer']); // Note that conf->hooks_modules contains array
+    $upload_dir = $conf->$moduleNameLowerCase->multidir_output[$object->entity ?? 1];
+}
+
+$hookmanager->initHooks(['publicanswer', 'saturnepublicinterface']); // Note that conf->hooks_modules contains array
 
 if (!isModEnabled('multicompany')) {
     $entity = $conf->entity;
@@ -93,54 +111,75 @@ if (!isModEnabled('multicompany')) {
 $conf->setEntityValues($db, $entity);
 
 // Load object
-$object->fetch(0, '', ' AND track_id =' . "'" . $track_id . "'");
+$object->fetch(0, '', ' AND track_id = ' . "'" . $trackID . "'");
+if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY')) {
+    $signatory->fetch(0, '', ' AND status >= ' . SaturneSignature::STATUS_REGISTERED . ' AND object_type= ' . "'" . $object->element . "'" . ' AND fk_object = ' . "'" . $object->id . "'");
+}
 
 /*
  * Actions
-*/
+ */
 
-// Set user for action update and insert for prevent error on public interface
-$user->id = 1;
+$parameters = [];
+$resHook    = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some hooks
+if ($resHook < 0) {
+    setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+}
 
-require_once __DIR__ . '/../core/tpl/digiquali_answers_save_action.tpl.php';
+if (empty($resHook)) {
+    if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY') && $signatory->id > 0) {
+        // Actions add_signature, builddoc, remove_file
+        require_once __DIR__ . '/../../saturne/core/tpl/actions/signature_actions.tpl.php';
+    }
+
+    // Set user for action update and insert for prevent error on public interface
+    $user->id = 1;
+
+    require_once __DIR__ . '/../core/tpl/digiquali_answers_save_action.tpl.php';
+}
 
 /*
  * View
  */
 
-$title = $langs->trans('PublicAnswer');
+$title  = $langs->trans('PublicAnswer');
+$moreJS = ['/saturne/js/includes/signature-pad.min.js'];
 
 $conf->dol_hide_topmenu  = 1;
 $conf->dol_hide_leftmenu = 1;
 
-saturne_header(1, '', $title);
+saturne_header(1,'', $title, '', '', 0, 0, $moreJS, [], '', 'page-public-card page-signature');
 
-if ($action == 'saved_success' || $object->status > $object::STATUS_DRAFT) {
-    print '<div class="signature-container" style="max-width: 1000px;">';
-    print '<div class="center">' . $langs->trans('YourAnswersHaveBeenSaved') . '</div>';
+print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '?action=save&id=' . $object->id . '&track_id=' . $trackID . '&object_type=' . $object->element . '&document_type=' . $documentType . '&entity=' . $conf->entity . '" id="saveObject" enctype="multipart/form-data">';
+print '<input type="hidden" name="token" value="' . newToken() . '">';
+print '<input type="hidden" name="public_interface" value="true">';
+print '<input type="hidden" name="action" value="save">';
+
+print '<div id="tablelines" class="question-answer-container public-card__container" data-public-interface="true" style="max-width: 1000px; margin-bottom: 4em;">';
+$substitutionArray = getCommonSubstitutionArray($langs, 0, null, $object);
+complete_substitutions_array($substitutionArray, $langs, $object);
+$answerPublicInterfaceTitle = make_substitutions($langs->transnoentities($conf->global->DIGIQUALI_ANSWER_PUBLIC_INTERFACE_TITLE), $substitutionArray);
+print '<h2 class="center">' . (dol_strlen($answerPublicInterfaceTitle) > 0 ? $answerPublicInterfaceTitle : $langs->transnoentities('AnswerPublicInterface')) . '</h2>';
+print '<br>';
+$publicInterface = true;
+$sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
+require_once __DIR__ . '/../core/tpl/digiquali_answers.tpl.php';
+if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY') && $signatory->id > 0) {
+    $previousStatus        = $object->status;
+    $object->status        = $object::STATUS_VALIDATED; // Special case because public answer need draft status object to complete question
+    $moreParams['moreCSS'] = 'hidden';                  // Needed for prevent click on signature button action
+    print '<div style="margin-top: 2em;">';
+    require_once __DIR__ . '/../../saturne/core/tpl/signature/public_signature_view.tpl.php';
     print '</div>';
-} else {
-    print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '?action=save&id=' . $object->id . '&track_id=' . GETPOST('track_id') . '&object_type=' . $object->element . '&entity=' . $conf->entity . '" id="saveObject" enctype="multipart/form-data">';
-    print '<input type="hidden" name="token" value="' . newToken() . '">';
-    print '<input type="hidden" name="action" value="save">'; ?>
-
-    <div id="tablelines" class="question-answer-container signature-container" style="max-width: 1000px;">
-        <?php $substitutionArray = getCommonSubstitutionArray($langs, 0, null, $object);
-        complete_substitutions_array($substitutionArray, $langs, $object);
-        $answerPublicInterfaceTitle = make_substitutions($langs->transnoentities($conf->global->DIGIQUALI_ANSWER_PUBLIC_INTERFACE_TITLE), $substitutionArray);
-        print '<h2 class="center">' . (dol_strlen($answerPublicInterfaceTitle) > 0 ? $answerPublicInterfaceTitle : $langs->transnoentities('AnswerPublicInterface')) . '</h2>';
-        print '<br>';
-        $publicInterface = true;
-        $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
-        require_once __DIR__ . '/../core/tpl/digiquali_answers.tpl.php';
-        print '<br>';
-        print '<div class="center">';
-        print '<input class="wpeo-button" type="submit" value="'. $langs->trans('Submit') .'">';
-        print '</div>'; ?>
-    </div>
-    <?php
-    print '</form>';
+    $object->status = $previousStatus;
 }
+if ($object->status == $object::STATUS_DRAFT) {
+    print '<div class="public-card__footer" style="margin-top: 2em;">';
+    print '<button type="submit" class="wpeo-button save-public-answer ' . (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY') && $signatory->id > 0 ? 'signature-validate button-disable' : '') . '">' . $langs->trans('Submit') . '</button>';
+    print '</div>';
+}
+print '</div>';
+print '</form>';
 
 llxFooter('', 'public');
 $db->close();
