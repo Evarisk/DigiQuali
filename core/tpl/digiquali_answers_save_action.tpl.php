@@ -99,12 +99,15 @@ if ($action == 'save') {
         }
     }
 
-    if (GETPOSTISSET('public_interface') && $sheet->type == 'survey') {
-        $object->setLocked($user);
+    if (GETPOSTISSET('public_interface')) {
+        $object->validate($user);
+        if ($sheet->type == 'survey') {
+            $object->setLocked($user);
+        }
     }
 
     $object->call_trigger('OBJECT_SAVEANSWER', $user);
     setEventMessages($langs->trans('AnswerSaved'), []);
-    header('Location: ' . $_SERVER['PHP_SELF'] . (dol_strlen(GETPOST('track_id')) > 0 ? '?action=saved_success&object_type=' . GETPOST('object_type') : '?id=' . GETPOST('id')));
+    header('Location: ' . $_SERVER['PHP_SELF'] . (GETPOSTISSET('track_id') ? '?track_id=' . GETPOST('track_id', 'alpha')  . '&object_type=' . GETPOST('object_type', 'alpha') . '&document_type=' . GETPOST('document_type', 'alpha') . '&entity=' . $conf->entity : '?id=' . GETPOST('id', 'int')));
     exit;
 }
