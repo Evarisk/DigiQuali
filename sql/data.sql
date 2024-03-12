@@ -25,3 +25,6 @@ INSERT INTO `llx_c_question_type` (`rowid`, `entity`, `ref`, `label`, `descripti
 
 INSERT INTO `llx_c_control_attendants_role` (`rowid`, `entity`, `ref`, `label`, `description`, `active`, `position`) VALUES(1, 0, 'Controller', 'Controller', '', 1, 1);
 INSERT INTO `llx_c_control_attendants_role` (`rowid`, `entity`, `ref`, `label`, `description`, `active`, `position`) VALUES(2, 0, 'Attendant', 'Attendant', '', 1, 20);
+
+-- 1.11.0
+INSERT INTO `llx_c_survey_attendants_role` (`rowid`, `entity`, `ref`, `label`, `description`, `active`, `position`) VALUES(1, 0, 'Attendant', 'Attendant', '', 1, 1);

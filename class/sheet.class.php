@@ -116,7 +116,7 @@ class Sheet extends SaturneObject
         'tms'                 => ['type' => 'timestamp',    'label' => 'DateModification',   'enabled' => 1, 'position' => 50,  'notnull' => 1, 'visible' => 0],
         'import_key'          => ['type' => 'varchar(14)',  'label' => 'ImportId',           'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
         'status'              => ['type' => 'smallint',     'label' => 'Status',             'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 1, 'index' => 1, 'default' =>1, 'arrayofkeyval' => ['specialCase' => 'InProgressAndLocked', 1 => 'InProgress', 2 => 'Locked', 3 => 'Archived'], 'css' => 'minwidth200'],
-        'type'                => ['type' => 'varchar(128)', 'label' => 'Type',               'enabled' => 1, 'position' => 80,  'notnull' => 0, 'visible' => 0,],
+        'type'                => ['type' => 'select',       'label' => 'Type',               'enabled' => 1, 'position' => 65,  'notnull' => 1, 'visible' => 1, 'arrayofkeyval' => ['control' => 'Control', 'survey' => 'Survey']],
         'label'               => ['type' => 'varchar(255)', 'label' => 'Label',              'enabled' => 1, 'position' => 11,  'notnull' => 1, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200'],
         'description'         => ['type' => 'html',         'label' => 'Description',        'enabled' => 1, 'position' => 15,  'notnull' => 0, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200'],
         'element_linked'      => ['type' => 'text',         'label' => 'ElementLinked',      'enabled' => 1, 'position' => 90,  'notnull' => 0, 'visible' => 0],
@@ -168,9 +168,9 @@ class Sheet extends SaturneObject
     public $status;
 
     /**
-     * @var string|null Type.
+     * @var string Type
      */
-    public ?string $type = '';
+    public string $type = 'control';
 
     /**
      * @var string Label.
@@ -304,7 +304,7 @@ class Sheet extends SaturneObject
 		}
 
 		// Create clone
-		$object->fetchQuestionsLinked($object->id, 'digiquali_' . $object->element);
+        $object->fetchObjectLinked($object->id, 'digiquali_' . $object->element);
 		$object->context['createfromclone'] = 'createfromclone';
 		$object->ref = $object->getNextNumRef();
 		$object->status = 1;
@@ -398,12 +398,6 @@ class Sheet extends SaturneObject
 		if ($selected === '') $selected           = array();
 		elseif ( ! is_array($selected)) $selected = array($selected);
 
-		// Clean $filter that may contains sql conditions so sql code
-		if (function_exists('testSqlAndScriptInject')) {
-			if (testSqlAndScriptInject($filter, 3) > 0) {
-				$filter = '';
-			}
-		}
 		// On recherche les societes
 		$sql  = "SELECT *";
 		$sql .= " FROM " . MAIN_DB_PREFIX . "digiquali_sheet as s";
@@ -471,99 +465,6 @@ class Sheet extends SaturneObject
 
 		if ($outputmode) return $outarray;
 		return $out;
-	}
-
-	/**
-	 *	Fetch array of objects linked to current object (object of enabled modules only). Links are loaded into
-	 *		this->linkedObjectsIds array +
-	 *		this->linkedObjects array if $loadalsoobjects = 1
-	 *  Possible usage for parameters:
-	 *  - all parameters empty -> we look all link to current object (current object can be source or target)
-	 *  - source id+type -> will get target list linked to source
-	 *  - target id+type -> will get source list linked to target
-	 *  - source id+type + target type -> will get target list of the type
-	 *  - target id+type + target source -> will get source list of the type
-	 *
-	 *	@param	int		$sourceid			Object source id (if not defined, id of object)
-	 *	@param  string	$sourcetype			Object source type (if not defined, element name of object)
-	 *	@param  int		$targetid			Object target id (if not defined, id of object)
-	 *	@param  string	$targettype			Object target type (if not defined, elemennt name of object)
-	 *	@param  string	$clause				'OR' or 'AND' clause used when both source id and target id are provided
-	 *  @param  int		$alsosametype		0=Return only links to object that differs from source type. 1=Include also link to objects of same type.
-	 *  @param  string	$orderby			SQL 'ORDER BY' clause
-	 *  @param	int		$loadalsoobjects	Load also array this->linkedObjects (Use 0 to increase performances)
-	 *	@return int							<0 if KO, >0 if OK
-	 *  @see	add_object_linked(), updateObjectLinked(), deleteObjectLinked()
-	 */
-	public function fetchQuestionsLinked($sourceid = null, $sourcetype = '', $targetid = null, $targettype = '', $clause = 'OR', $alsosametype = 1, $orderby = 'sourcetype', $loadalsoobjects = 1)
-	{
-		$this->linkedObjectsIds = array();
-		$this->linkedObjects = array();
-
-		$justsource = false;
-		$withsourcetype = false;
-
-		$sourceid = (!empty($sourceid) ? $sourceid : $this->id);
-		$sourcetype = (!empty($sourcetype) ? $sourcetype : $this->element);
-
-		// Links between objects are stored in table element_element
-		$sql = 'SELECT rowid, fk_source, sourcetype, fk_target, targettype, position';
-		$sql .= ' FROM '.MAIN_DB_PREFIX.'element_element';
-		$sql .= " WHERE ";
-		$sql .= "(fk_source = ".((int) $sourceid)." AND sourcetype = '".$this->db->escape($sourcetype)."')";
-		$sql .= " AND targettype = 'digiquali_question'";
-
-		$sql .= ' ORDER BY '.$orderby;
-
-		dol_syslog(get_class($this)."::fetchObjectLink", LOG_DEBUG);
-		$resql = $this->db->query($sql);
-
-		if ($resql) {
-			$num = $this->db->num_rows($resql);
-			$i = 0;
-			while ($i < $num) {
-				$maxPosition = $this->getMaxPosition();
-				$obj = $this->db->fetch_object($resql);
-				$this->linkedObjectsIds[$obj->targettype][$obj->position ?: ($maxPosition+1)] = $obj->fk_target;
-				$i++;
-			}
-			if (!empty($this->linkedObjectsIds)) {
-				$tmparray = $this->linkedObjectsIds;
-				foreach ($tmparray as $objecttype => $objectids) {       // $objecttype is a module name ('facture', 'mymodule', ...) or a module name with a suffix ('project_task', 'mymodule_myobj', ...)
-					// Here $module, $classfile and $classname are set
-					if ($loadalsoobjects) {
-						foreach ($objectids as $i => $objectid) {	// $i is rowid into llx_element_element
-							$object = new Question($this->db);
-							$ret = $object->fetch($objectid);
-							if ($ret >= 0) {
-								$this->linkedObjects[$objecttype][$i] = $object;
-							}
-						}
-					}
-				}
-			}
-			return 1;
-		} else {
-			dol_print_error($this->db);
-			return -1;
-		}
-	}
-
-	/**
-	 *	Returns max position of questions in sheet
-	 *
-	 */
-	public function getMaxPosition() {
-		$sql = "SELECT fk_source, sourcetype, targettype, position FROM ". MAIN_DB_PREFIX ."element_element WHERE fk_source = " . $this->id . " AND sourcetype = 'digiquali_sheet' ORDER BY position DESC LIMIT 1";
-		$resql = $this->db->query($sql);
-
-		if ($resql) {
-			$obj = $this->db->fetch_object($resql);
-			$positionField = 'position';
-			return $obj->$positionField;
-		} else {
-			return 0;
-		}
 	}
 
 	/**

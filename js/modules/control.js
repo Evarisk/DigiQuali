@@ -28,13 +28,8 @@ window.digiquali.control.init = function() {
  * @return {void}
  */
 window.digiquali.control.event = function() {
-  $( document ).on( 'click', '.answer:not(.disable)', window.digiquali.control.selectAnswer );
-  $( document ).on( 'input', '.input-answer:not(.disable)', window.digiquali.control.selectAnswer );
-  $( document ).on( 'change', '.control-table.linked-objects select', window.digiquali.control.disableOtherSelectors );
-  $( document ).on( 'keyup', '.question-comment', window.digiquali.control.showCommentUnsaved );
   $( document ).on( 'click', '.validateButton', window.digiquali.control.getAnswerCounter);
   $( document ).on( 'change', '#fk_sheet', window.digiquali.control.showSelectObjectLinked);
-  $( document ).on( 'click', '.toggleControlInfo', window.digiquali.control.toggleControlInfo );
   $( document ).on( 'click', '.clipboard-copy', window.digiquali.control.copyToClipboard );
   $( document ).on( 'change', '#productId', window.digiquali.control.refreshLotSelector );
   $( document ).on( 'click', '.switch-public-control-view', window.digiquali.control.switchPublicControlView );
@@ -42,116 +37,6 @@ window.digiquali.control.event = function() {
   $(document).on('click', '.photo-sheet-category', window.digiquali.control.getSheetCategoryID);
   $(document).on('click', '.photo-sheet-sub-category', window.digiquali.control.getSheetSubCategoryID);
   $(document).on('click', '.photo-sheet', window.digiquali.control.getSheetID);
-};
-
-/**
- * Select an answer for a control question.
- *
- * @since   1.0.0
- * @version 1.0.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.digiquali.control.selectAnswer = function ( event ) {
-  let questionElement = $(this).closest('.select-answer.answer-cell');
-  let questionId      = questionElement.attr('data-questionId');
-  let publicInterface = $(this).closest('.table-id-' + questionId).attr('data-publicInterface');
-  let autoSave        = $(this).closest('.table-id-' + questionId).attr('data-autoSave');
-  let answer          = '';
-  let answerValue     = $(this).hasClass('answer') ? $(this).attr('value') : $(this).val();
-  let comment         = $(this).closest('.table-id-' + questionId).find('#comment' + questionId).val();
-	if ($(this).closest('.table-cell').hasClass('select-answer')) {
-		if ($(this).hasClass('multiple-answers')) {
-			$(this).closest('span').toggleClass( 'active' );
-			let selectedValues = []
-			questionElement.find('.multiple-answers.active').each(function() {
-				selectedValues.push($(this).attr('value'))
-			})
-			answer = selectedValues
-		} else {
-			$(this).closest('.table-cell').find('.answer.active').css( 'background-color', '#fff' );
-
-			$(this).closest('.table-cell').find('span').removeClass( 'active' );
-			$(this).closest('span').addClass( 'active' );
-			answer = answerValue
-		}
-		if ($(this).hasClass('active')) {
-			let answerColor = $(this).closest('.answer-cell').find('.answer-color-' + $(this).attr('value')).val()
-			$(this).attr('style', $(this).attr('style') + ' background:'+answerColor+';')
-		} else {
-			$(this).attr('style', $(this).attr('style') + ' background:#fff;')
-		}
-		$(this).closest('.answer-cell').find('.question-answer').val(answer)
-	}
-
-  if (!publicInterface && autoSave == 1 && !$(this).hasClass('multiple-answers')) {
-    window.digiquali.control.saveAnswer(questionId, answer, comment);
-  } else {
-    window.digiquali.control.updateButtonsStatus()
-  }
-};
-
-/**
- * Disable selectors on control object selection.
- *
- * @since   1.0.0
- * @version 1.0.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.digiquali.control.disableOtherSelectors = function ( event ) {
-	var controlForm = document.getElementById('createControlForm');
-	var formData = new FormData(controlForm);
-
-	let selectorId = $(this).attr('id');
-	let selectorData = formData.get(selectorId)
-
-	if (selectorData >= 0) {
-		$('.control-table.linked-objects').find('select').not('#' + selectorId).attr('disabled', 1);
-	} else {
-		$('.control-table.linked-objects').find('select').not('#' + selectorId).removeAttr('disabled');
-	}
-};
-
-
-/**
- * Show a comment for a control question if focus out.
- *
- * @since   1.1.0
- * @version 1.1.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.digiquali.control.showCommentUnsaved = function ( event ) {
-	if (!$(this).hasClass('show-comment-unsaved-message')) {
-		$(this).after('<p style="color:red">Commentaire non enregistré</p>');
-		$(this).addClass('show-comment-unsaved-message');
-	}
-	window.digiquali.control.updateButtonsStatus()
-};
-
-/**
- * Change buttons status
- *
- * @since   1.1.0
- * @version 1.1.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.digiquali.control.updateButtonsStatus = function (  ) {
-	$('#saveButton').removeClass('butActionRefused')
-	$('#saveButton').addClass('butAction')
-  $('#saveButton').css('background', '#0d8aff')
-  $('.fa-circle').css('display', 'inline')
-	$('#saveButton').attr('onclick','$("#saveControl").submit()');
-
-	$('.validateButton').removeClass('butAction')
-	$('#dialog-confirm-actionButtonValidate').removeAttr('id');
-	$('.validateButton').addClass('butActionRefused')
 };
 
 /**
@@ -201,25 +86,6 @@ window.digiquali.control.showSelectObjectLinked = function() {
     error: function() {}
   });
 };
-
-/**
- * Show control info if toggle control info is on.
- *
- * @since   1.4.0
- * @version 1.4.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.digiquali.control.toggleControlInfo = function ( event ) {
-	if ($(this).hasClass('fa-minus-square')) {
-		$(this).removeClass('fa-minus-square').addClass('fa-caret-square-down')
-		$(this).closest('.fiche').find('.fichecenter.controlInfo').addClass('hidden')
-	} else {
-		$(this).removeClass('fa-caret-square-down').addClass('fa-minus-square')
-		$(this).closest('.fiche').find('.fichecenter.controlInfo').removeClass('hidden')
-	}
-}
 
 /**
  * Copy current link to clipboard
@@ -346,41 +212,8 @@ window.digiquali.control.showOnlyQuestionsWithNoAnswer = function() {
     }),
     contentType: false,
     success: function(resp) {
-      $('.questionLines').replaceWith($(resp).find('.questionLines'))
-    },
-    error: function() {}
-  });
-};
-
-/**
- * Save answer after click event
- *
- * @since   1.9.0
- * @version 1.9.0
- *
- * @param  {int}    questionId Question ID
- * @param  {string} answer     Answer value
- * @param  {string} comment    Comment value
- * @return {void}
- */
-window.digiquali.control.saveAnswer = function(questionId, answer, comment) {
-  let token          = window.saturne.toolbox.getToken();
-  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
-  window.saturne.loader.display($('.table-id-' + questionId));
-
-  $.ajax({
-    url: document.URL + querySeparator + 'action=save&token=' + token,
-    type: "POST",
-    data: JSON.stringify({
-      autoSave: true,
-      questionId: questionId,
-      answer: answer,
-      comment: comment
-    }),
-    processData: false,
-    contentType: false,
-    success: function(resp) {
-      $('.fiche').replaceWith($(resp).find('.fiche'));
+      $('.progress-info').replaceWith($(resp).find('.progress-info'));
+      $('.question-answer-container').replaceWith($(resp).find('.question-answer-container'));
     },
     error: function() {}
   });

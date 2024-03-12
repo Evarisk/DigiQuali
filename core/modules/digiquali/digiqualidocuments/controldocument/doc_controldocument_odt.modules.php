@@ -108,6 +108,12 @@ class doc_controldocument_odt extends SaturneDocumentModel
 
         // Replace tags of lines.
         try {
+            $moreParam['segmentName']           = 'controller';
+            $moreParam['excludeAttendantsRole'] = ['attendant'];
+            $this->setAttendantsSegment($odfHandler, $outputLangs, $moreParam);
+
+            $moreParam['segmentName']           = 'attendant';
+            $moreParam['excludeAttendantsRole'] = ['controller'];
             $this->setAttendantsSegment($odfHandler, $outputLangs, $moreParam);
 
             // Get questions.
@@ -127,7 +133,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
                 if (!empty($object)) {
                     $sheet = new Sheet($this->db);
 
-                    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_sheet','', '', 'OR', 1, 'sourcetype', 0);
+                    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_sheet', null, '', 'OR', 1, 'position', 0);
                     $questionIds = $sheet->linkedObjectsIds;
 
                     if (is_array($questionIds['digiquali_question']) && !empty($questionIds['digiquali_question'])) {
@@ -195,6 +201,10 @@ class doc_controldocument_odt extends SaturneDocumentModel
                                         $photoArray[$image] = $questionAnswerLine->ref;
                                     }
                                 }
+                            } else {
+                                $tmpArray['ref_answer'] = '';
+                                $tmpArray['comment']    = '';
+                                $tmpArray['answer']     = ' ';
                             }
                             $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
                         }
@@ -397,8 +407,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
         $tmpArray['mycompany_mail']    = (!empty($conf->global->MAIN_INFO_SOCIETE_MAIL) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_MAIL : '');
         $tmpArray['mycompany_phone']   = (!empty($conf->global->MAIN_INFO_SOCIETE_PHONE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_PHONE : '');
 
-        $moreParam['tmparray']                  = $tmpArray;
-        $moreParam['multipleAttendantsSegment'] = ['controller', 'attendant'];
+        $moreParam['tmparray'] = $tmpArray;
 
         return parent::write_file($objectDocument, $outputLangs, $srcTemplatePath, $hideDetails, $hideDesc, $hideRef, $moreParam);
     }

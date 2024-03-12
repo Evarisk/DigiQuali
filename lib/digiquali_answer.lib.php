@@ -45,7 +45,7 @@ function answer_pictos_dropdown($selected = ''): string
 		$out .= '<span class="wpeo-button button-square-50 button-grey"><i class="fas fa-arrow-right button-icon"></i><i class="fas fa-plus-circle button-add"></i></span>';
 	}
 	$out .= '</div>';
-	$out .= '<ul class="dropdown-content wpeo-gridlayout grid-5 grid-gap-0">';
+	$out .= '<ul class="saturne-dropdown-content wpeo-gridlayout grid-5 grid-gap-0">';
 	if ( ! empty($pictosArray) ) {
 		foreach ($pictosArray as $pictoName => $picto) {
 			$out .= '<li class="item dropdown-item wpeo-tooltip-event" data-is-preset="" data-id="'. $picto['position'] .'" aria-label="'. $picto['name'] .'" data-label="'. $pictoName.'">';

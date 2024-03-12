@@ -92,7 +92,13 @@ class ActionsDigiquali
 					'code'      => 'control',
 					'obj_class' => 'Control',
 					'obj_table' => 'digiquali_control',
-				]
+				],
+                'survey' => [
+                    'id'        => 436301004,
+                    'code'      => 'survey',
+                    'obj_class' => 'Survey',
+                    'obj_table' => 'digiquali_survey',
+                ]
 			];
 		}
 
@@ -123,6 +129,7 @@ class ActionsDigiquali
             require_once __DIR__ . '/../class/question.class.php';
             require_once __DIR__ . '/../class/sheet.class.php';
             require_once __DIR__ . '/../class/control.class.php';
+            require_once __DIR__ . '/../class/survey.class.php';
 		}
 
 		if (!$error) {
@@ -234,11 +241,12 @@ class ActionsDigiquali
     /**
      * Overloading the formObjectOptions function : replacing the parent's function with the one below
      *
-     * @param array $parameters Hook metadata (context, etc...)
-     * @param object $object     Object
-     * @return void
+     * @param  array        $parameters Hook metadatas (context, etc...)
+     * @param  object|null $object      Current object
+     * @return int                      0 < on error, 0 on success, 1 to replace standard code
      */
-    public function formObjectOptions(array $parameters, object $object) {
+    public function formObjectOptions(array $parameters, ?object $object): int
+    {
         if (strpos($parameters['context'], 'productlotcard') !== false) {
             $objectData = ['type' => $object->element, 'id' => $object->id];
 
@@ -250,6 +258,8 @@ class ActionsDigiquali
                 $object->updateExtrafield('control_history_link');
             }
         }
+
+        return 0; // or return 1 to replace standard code
     }
 
 	/**
@@ -291,50 +301,14 @@ class ActionsDigiquali
         global $conf, $langs;
 
         // Do something only for the current context.
-        if (strpos($parameters['context'], 'controlcard') !== false) {
+        if (preg_match('/controlcard|surveycard/', $parameters['context'])) {
             if ($conf->browser->layout == 'phone') {
-                $morehtmlref = '<br><div>' . img_picto('', 'fontawesome_fa-caret-square-down_far_#966EA2F2_fa-2em', 'class="toggleControlInfo pictofixedwidth valignmiddle" style="width: 35px;"') . $langs->trans('DisplayMoreInfo') . '</div>';
+                $morehtmlref = '<br><div>' . img_picto('', 'fontawesome_fa-caret-square-down_far_#966EA2F2_fa-2em', 'class="toggle-object-infos pictofixedwidth valignmiddle" style="width: 35px;"') . $langs->trans('DisplayMoreInfo') . '</div>';
             } else {
                 $morehtmlref = '';
             }
 
             $this->resprints = $morehtmlref;
-        }
-
-        return 0; // or return 1 to replace standard code.
-    }
-
-    /**
-     * Overloading the printMainArea function : replacing the parent's function with the one below.
-     *
-     * @param  array $parameters Hook metadatas (context, etc...).
-     * @return int               0 < on error, 0 on success, 1 to replace standard code.
-     */
-    public function printMainArea(array $parameters): int
-    {
-        global $conf, $mysoc;
-
-        // Do something only for the current context.
-        if (preg_match('/publiccontrol|publicsurvey|publiccontrolhistory/', $parameters['context'])) {
-            if (!empty($conf->global->SATURNE_SHOW_COMPANY_LOGO)) {
-                // Define logo and logoSmall.
-                $logoSmall = $mysoc->logo_small;
-                $logo      = $mysoc->logo;
-                // Define urlLogo.
-                $urlLogo = '';
-                if (!empty($logoSmall) && is_readable($conf->mycompany->dir_output . '/logos/thumbs/' . $logoSmall)) {
-                    $urlLogo = DOL_URL_ROOT . '/viewimage.php?modulepart=mycompany&entity=' . $conf->entity . '&file=' . urlencode('logos/thumbs/' . $logoSmall);
-                } elseif (!empty($logo) && is_readable($conf->mycompany->dir_output . '/logos/' . $logo)) {
-                    $urlLogo = DOL_URL_ROOT . '/viewimage.php?modulepart=mycompany&entity=' . $conf->entity . '&file=' . urlencode('logos/' . $logo);
-                }
-                // Output html code for logo.
-                if ($urlLogo) {
-                    print '<div class="center signature-logo">';
-                    print '<img src="' . $urlLogo . '">';
-                    print '</div>';
-                }
-                print '<div class="underbanner clearboth"></div>';
-            }
         }
 
         return 0; // or return 1 to replace standard code.
@@ -354,6 +328,10 @@ class ActionsDigiquali
                 'ControlDocument' => [
                     'documentType' => 'controldocument',
                     'picto'        => 'fontawesome_fa-tasks_fas_#d35968'
+                ],
+                'SurveyDocument' => [
+                    'documentType' => 'surveydocument',
+                    'picto'        => 'fontawesome_fa-marker_fas_#d35968'
                 ]
             ];
             $this->results = $types;
@@ -363,20 +341,71 @@ class ActionsDigiquali
     }
 
     /**
-     * Overloading the saturneAdminObjectConst function : replacing the parent's function with the one below.
+     * Overloading the saturneAdminObjectConst function : replacing the parent's function with the one below
      *
-     * @param  array $parameters Hook metadatas (context, etc...).
-     * @return int               0 < on error, 0 on success, 1 to replace standard code.
+     * @param  array $parameters Hook metadatas (context, etc...)
+     * @return int               0 < on error, 0 on success, 1 to replace standard code
      */
     public function saturneAdminObjectConst(array $parameters): int
     {
-        // Do something only for the current context.
-        if (strpos($parameters['context'], 'digiqualiadmindocuments') !== false) {
+        if (strpos($parameters['context'], 'surveyadmin') !== false) {
             $constArray['digiquali'] = [
-                'controldocument' => [
-                    'name'        => 'ControlDocumentDisplayMedias',
-                    'description' => 'ControlDocumentDisplayMediasDescription',
-                    'code'        => 'DIGIQUALI_CONTROLDOCUMENT_DISPLAY_MEDIAS'
+                'DisplayMedias' => [
+                    'name'        => 'DisplayMediasSample',
+                    'description' => 'DisplaySurveyMediasSampleDescription',
+                    'code'        => 'DIGIQUALI_SURVEY_DISPLAY_MEDIAS',
+                ],
+                'UseLargeSizeMedia' => [
+                    'name'        => 'UseLargeSizeMedia',
+                    'description' => 'UseLargeSizeMediaDescription',
+                    'code'        => 'DIGIQUALI_SURVEY_USE_LARGE_MEDIA_IN_GALLERY',
+                ],
+                'AutoSaveActionQuestionAnswer' => [
+                    'name'        => 'AutoSaveActionQuestionAnswer',
+                    'description' => 'AutoSaveActionQuestionAnswerDescription',
+                    'code'        => 'DIGIQUALI_SURVEYDET_AUTO_SAVE_ACTION',
+                ]
+            ];
+            $this->results = $constArray;
+            return 1;
+        }
+
+        if (strpos($parameters['context'], 'controladmin') !== false) {
+            $constArray['digiquali'] = [
+                'DisplayMedias' => [
+                    'name'        => 'DisplayMediasSample',
+                    'description' => 'DisplayMediasSampleDescription',
+                    'code'        => 'DIGIQUALI_CONTROL_DISPLAY_MEDIAS',
+                ],
+                'UseLargeSizeMedia' => [
+                    'name'        => 'UseLargeSizeMedia',
+                    'description' => 'UseLargeSizeMediaDescription',
+                    'code'        => 'DIGIQUALI_CONTROL_USE_LARGE_MEDIA_IN_GALLERY',
+                ],
+                'LockControlOutdatedEquipment' => [
+                    'name'        => 'LockControlOutdatedEquipment',
+                    'description' => 'LockControlOutdatedEquipmentDescription',
+                    'code'        => 'DIGIQUALI_LOCK_CONTROL_OUTDATED_EQUIPMENT',
+                ],
+                'AutoSaveActionQuestionAnswer' => [
+                    'name'        => 'AutoSaveActionQuestionAnswer',
+                    'description' => 'AutoSaveActionQuestionAnswerDescription',
+                    'code'        => 'DIGIQUALI_CONTROLDET_AUTO_SAVE_ACTION',
+                ],
+                'EnablePublicControlHistory' => [
+                    'name'        => 'EnablePublicControlHistory',
+                    'description' => 'EnablePublicControlHistoryDescription',
+                    'code'        => 'DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY',
+                ],
+                'ShowQcFrequencyPublicInterface' => [
+                    'name'        => 'ShowQcFrequencyPublicInterface',
+                    'description' => 'ShowQcFrequencyPublicInterfaceDescription',
+                    'code'        => 'DIGIQUALI_SHOW_QC_FREQUENCY_PUBLIC_INTERFACE',
+                ],
+                'ShowLastControlFirstOnPublicHistory' => [
+                    'name'        => 'ShowLastControlFirstOnPublicHistory',
+                    'description' => 'ShowLastControlFirstOnPublicHistoryDescription',
+                    'code'        => 'DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY',
                 ]
             ];
             $this->results = $constArray;

@@ -116,8 +116,11 @@ UPDATE `llx_ecm_directories` SET label = REPLACE(label, 'dolismq', 'digiquali') 
 ALTER TABLE `llx_digiquali_control_equipment` ADD `fk_lot` integer AFTER `fk_product`;
 ALTER TABLE `llx_digiquali_control` ADD `control_date` DATETIME AFTER `next_control_date`;
 
-
 -- 1.10.0
 ALTER TABLE `llx_digiquali_sheet` ADD `photo` TEXT NULL AFTER `element_linked`;
 ALTER TABLE `llx_digiquali_sheet` ADD `success_rate` DOUBLE(24,8) NULL AFTER `photo`;
 ALTER TABLE `llx_digiquali_control` ADD `success_rate` DOUBLE(24,8) NULL AFTER `next_control_date`;
+
+-- 1.11.0
+ALTER TABLE `llx_digiquali_sheet` CHANGE `type` `type` VARCHAR(128) NOT NULL;
+ALTER TABLE `llx_digiquali_survey` ADD `success_rate` DOUBLE(24,8) NULL AFTER `photo`;

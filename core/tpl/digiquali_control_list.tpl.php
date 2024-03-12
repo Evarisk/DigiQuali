@@ -310,7 +310,7 @@ foreach ($object->fields as $key => $val)
 			print $form->selectarray('search_' . $key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'minwidth200', 1);
 		}
 		elseif ($key == 'fk_sheet') {
-			print $sheet->selectSheetList(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : ($search['fk_sheet'] ?: 0), 'search_fk_sheet');
+			print $sheet->selectSheetList(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : ($search['fk_sheet'] ?: 0), 'search_fk_sheet', 's.type = ' . '"' . $object->element . '"');
 		}
 		elseif (strpos($val['type'], 'integer:') === 0) {
 			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'minwidth100 maxwidth125 widthcentpercentminusxx', 1);

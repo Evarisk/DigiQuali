@@ -117,7 +117,7 @@ if (empty($reshook)) {
 			$question->fetch($questionId);
 			$test = $question->add_object_linked('digiquali_' . $object->element,$id);
 
-			$questionsLinked = 	$object->fetchQuestionsLinked($id, 'digiquali_' . $object->element);
+			$questionsLinked = $object->fetchObjectLinked($id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position', 0);
 			$questionIds     = $object->linkedObjectsIds['digiquali_question'];
 			$object->updateQuestionsPosition($questionIds);
 
@@ -137,7 +137,7 @@ if (empty($reshook)) {
 		$question->element = 'digiquali_'.$question->element;
 		$question->deleteObjectLinked($id, 'digiquali_' . $object->element);
 
-		$questionsLinked = 	$object->fetchQuestionsLinked($id, 'digiquali_' . $object->element);
+		$questionsLinked = $object->fetchObjectLinked($id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position', 0);
 		$questionIds     = $object->linkedObjectsIds['digiquali_question'];
 		$object->updateQuestionsPosition($questionIds);
 
@@ -347,6 +347,11 @@ if ($action == 'create') {
 	$doleditor->Create();
 	print '</td></tr>';
 
+    // Type -- Type
+    print '<tr><td class="fieldrequired">' . $langs->trans('Type') . '</td><td>';
+    print $form::selectarray('type', $object->fields['type']['arrayofkeyval'], GETPOST('type'));
+    print '</td></tr>';
+
 	//FK Element
 	$linkableObject = 0;
 	foreach ($elementArray as $key => $element) {
@@ -376,7 +381,7 @@ if ($action == 'create') {
 		// Categories
 		print '<tr><td>'.$langs->trans("Categories").'</td><td>';
 		$cate_arbo = $form->select_all_categories('sheet', '', 'parent', 64, 0, 1);
-		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $cate_arbo, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+		print img_picto('', 'category', 'class="pictofixedwidth"').$form::multiselectarray('categories', $cate_arbo, GETPOST('categories', 'array'), '', 0, 'minwidth100imp maxwidth500 widthcentpercentminusxx');
         print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=sheet&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print "</td></tr>";
 	}
@@ -429,7 +434,12 @@ if (($id || $ref) && $action == 'edit') {
 	$doleditor->Create();
 	print '</td></tr>';
 
-	//FK Element
+    // Type -- Type
+    print '<tr><td class="fieldrequired">' . $langs->trans('Type') . '</td><td>';
+    print $form::selectarray('type', $object->fields['type']['arrayofkeyval'], $object->type);
+    print '</td></tr>';
+
+    //FK Element
 	$elementLinked = json_decode($object->element_linked);
 
 	foreach ($elementArray as $key => $element) {
@@ -456,7 +466,7 @@ if (($id || $ref) && $action == 'edit') {
 				$arrayselected[] = $cat->id;
 			}
 		}
-		print img_picto('', 'category', 'class="pictofixedwidth"').$form->multiselectarray('categories', $cate_arbo, (GETPOSTISSET('categories') ? GETPOST('categories', 'array') : $arrayselected), '', 0, 'maxwidth500 widthcentpercentminusx');
+		print img_picto('', 'category', 'class="pictofixedwidth"').$form::multiselectarray('categories', $cate_arbo, (GETPOSTISSET('categories') ? GETPOST('categories', 'array') : $arrayselected), '', 0, 'minwidth100imp maxwidth500 widthcentpercentminusxx');
         print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=sheet&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
 		print "</td></tr>";
 	}
@@ -538,7 +548,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print '</td><td class="left"><input type="submit" class="smallpaddingimp button" name="modify" value="' . $langs->trans('Modify') . '"><input type="submit" class="smallpaddingimp button button-cancel" name="cancel" value="' . $langs->trans('Cancel') . '"></td></tr></tbody></table>';
         print '</form>';
     } else {
-        print price2num($object->success_rate) . ' %';
+        print (!empty($object->success_rate) ? price2num($object->success_rate) : 0) . ' %';
     }
     print '</td></tr>';
 
@@ -594,7 +604,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	$object->fetchQuestionsLinked($id, 'digiquali_' . $object->element);
+	$object->fetchObjectLinked($id, 'digiquali_' . $object->element);
 	$questionIds = $object->linkedObjectsIds['digiquali_question'];
 	if (is_array($questionIds) && !empty($questionIds)) {
 		ksort($questionIds);
@@ -611,11 +621,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		}
 
 		if (empty($reshook) && $permissiontoadd) {
-			// Create control
+			// Create object depending on sheet type
 			if ($object->status == $object::STATUS_LOCKED) {
-				print '<a class="butAction" id="actionButtonCreateControl" href="' . dol_buildpath('/custom/digiquali/view/control/control_card.php?action=create&fk_sheet=' . $object->id, 1) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('CreateControl') . '</a>';
+				print '<a class="butAction" href="' . dol_buildpath('/custom/digiquali/view/' . $object->type . '/' . $object->type . '_card.php?action=create&fk_sheet=' . $object->id, 1) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('New' . ucfirst($object->type)) . '</a>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLocked', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('CreateControl') . '</span>';
+				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLocked', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('New' . ucfirst($object->type)) . '</span>';
 			}
 
 			// Modify

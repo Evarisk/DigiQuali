@@ -79,7 +79,7 @@ $entity   = GETPOST('entity');
 $object = new Control($db);
 $sheet  = new Sheet($db);
 
-$hookmanager->initHooks(['publiccontrol']); // Note that conf->hooks_modules contains array.
+$hookmanager->initHooks(['publiccontrol', 'saturnepublicinterface']); // Note that conf->hooks_modules contains array.
 
 if (!isModEnabled('multicompany')) {
     $entity = $conf->entity;

@@ -77,7 +77,7 @@ class modDigiQuali extends DolibarrModules
 		$this->editor_url = 'https://evarisk.com/';
 
 		// Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-		$this->version = '1.10.0';
+		$this->version = '1.11.0';
 		// Url to the file with your last numberversion of this module
 		//$this->url_last_version = 'http://www.example.com/versionmodule.txt';
 
@@ -97,7 +97,7 @@ class modDigiQuali extends DolibarrModules
 			// Set this to 1 if module has its own login method file (core/login)
 			'login' => 0,
 			// Set this to 1 if module has its own substitution function file (core/substitutions)
-			'substitutions' => 0,
+			'substitutions' => 1,
 			// Set this to 1 if module has its own menus handler directory (core/menus)
 			'menus' => 0,
 			// Set this to 1 if module overwrite template dir (core/tpl)
@@ -126,7 +126,9 @@ class modDigiQuali extends DolibarrModules
                 'publicsurvey',
                 'digiqualiadmindocuments',
                 'projecttaskscard',
-                'main'
+                'main',
+                'controladmin',
+                'surveyadmin',
 			],
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -139,7 +141,8 @@ class modDigiQuali extends DolibarrModules
 			'/digiquali/question',
 			'/ecm/digiquali',
 			'/ecm/digiquali/medias',
-			'/ecm/digiquali/controldocument'
+			'/ecm/digiquali/controldocument',
+			'/ecm/digiquali/surveydocument'
 		];
 
 		// Config pages. Put here list of php page, stored into digiquali/admin directory, to use to set up module.
@@ -196,6 +199,7 @@ class modDigiQuali extends DolibarrModules
 //            $i++ => ['DIGIQUALI_SHEET_LINK_SUPPLIER_ORDER', 'integer', 0, '', 0, 'current'],
 //            $i++ => ['DIGIQUALI_SHEET_LINK_SUPPLIER_INVOICE', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DIGIQUALI_SHEET_DEFAULT_TAG', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DIGIQUALI_SHEET_BACKWARD_COMPATIBILITY', 'integer', 0, '', 0, 'current'],
 
 			// CONST QUESTION
 			$i++ => ['DIGIQUALI_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'],
@@ -217,6 +221,10 @@ class modDigiQuali extends DolibarrModules
             $i++ => ['DIGIQUALI_SHOW_QC_FREQUENCY_PUBLIC_INTERFACE', 'integer', 1, '', 0, 'current'],
             $i++ => ['DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY', 'integer', 1, '', 0, 'current'],
 
+            // CONST SURVEY
+            $i++ => ['DIGIQUALI_SURVEY_ADDON', 'chaine', 'mod_survey_standard', '', 0, 'current'],
+            $i++ => ['DIGIQUALI_SURVEY_USE_LARGE_MEDIA_IN_GALLERY', 'integer', 1, '', 0, 'current'],
+
             // CONST DIGIQUALI DOCUMENTS
             $i++ => ['DIGIQUALI_AUTOMATIC_PDF_GENERATION', 'integer', 0, '', 0, 'current'],
             $i++ => ['DIGIQUALI_MANUAL_PDF_GENERATION', 'integer', 0, '', 0, 'current'],
@@ -227,8 +235,14 @@ class modDigiQuali extends DolibarrModules
 			$i++ => ['DIGIQUALI_CONTROLDOCUMENT_ADDON_ODT_PATH', 'chaine', 'DOL_DOCUMENT_ROOT/custom/digiquali/documents/doctemplates/controldocument/', '', 0, 'current'],
 			$i++ => ['DIGIQUALI_CONTROLDOCUMENT_CUSTOM_ADDON_ODT_PATH', 'chaine', 'DOL_DATA_ROOT' . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'ecm/digiquali/controldocument/', '', 0, 'current'],
 			$i++ => ['DIGIQUALI_CONTROLDOCUMENT_DEFAULT_MODEL', 'chaine', 'template_controldocument_photo' ,'', 0, 'current'],
-			$i++ => ['DIGIQUALI_CONTROLDOCUMENT_DISPLAY_MEDIAS', 'integer', 1,'', 0, 'current'],
 			$i++ => ['DIGIQUALI_DOCUMENT_MEDIA_VIGNETTE_USED', 'chaine', 'small','', 0, 'current'],
+
+            //CONST SURVEY DOCUMENT
+            $i++ => ['DIGIQUALI_SURVEYDOCUMENT_ADDON', 'chaine', 'mod_surveydocument_standard', '', 0, 'current'],
+            $i++ => ['DIGIQUALI_SURVEYDOCUMENT_ADDON_ODT_PATH', 'chaine', 'DOL_DOCUMENT_ROOT/custom/digiquali/documents/doctemplates/surveydocument/', '', 0, 'current'],
+            $i++ => ['DIGIQUALI_SURVEYDOCUMENT_CUSTOM_ADDON_ODT_PATH', 'chaine', 'DOL_DATA_ROOT' . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'ecm/digiquali/surveydocument/', '', 0, 'current'],
+            $i++ => ['DIGIQUALI_SURVEYDOCUMENT_DEFAULT_MODEL', 'chaine', 'template_surveydocument_photo' ,'', 0, 'current'],
+            //$i++ => ['DIGIQUALI_SURVEYDOCUMENT_DISPLAY_MEDIAS', 'integer', 1,'', 0, 'current'],
 
 			// CONST CONTROL LINE
 			$i++ => ['DIGIQUALI_CONTROLDET_ADDON', 'chaine', 'mod_controldet_standard', '', 0, 'current'],
@@ -236,6 +250,10 @@ class modDigiQuali extends DolibarrModules
 
 			// CONST CONTROL EQUIPMENT
 			$i++ => ['DIGIQUALI_CONTROL_EQUIPMENT_ADDON', 'chaine', 'mod_control_equipment_standard', '', 0, 'current'],
+
+            // CONST SURVEY LINE
+            $i++ => ['DIGIQUALI_SURVEYDET_ADDON', 'chaine', 'mod_surveydet_standard', '', 0, 'current'],
+            $i++ => ['DIGIQUALI_SURVEYDET_AUTO_SAVE_ACTION', 'integer', 1, '', 0, 'current'],
 
 			// CONST MODULE
 			$i++ => ['DIGIQUALI_VERSION','chaine', $this->version, '', 0, 'current'],
@@ -253,6 +271,7 @@ class modDigiQuali extends DolibarrModules
             $i++ => ['DIGIQUALI_REDIRECT_AFTER_CONNECTION', 'integer', 0, '', 0, 'current'],
 			$i++ => ['DIGIQUALI_ADVANCED_TRIGGER', 'integer', 1, '', 0, 'current'],
 			$i++ => ['DIGIQUALI_DOCUMENT_DIRECTORIES_NAME_BACKWARD_COMPATIBILITY', 'integer', 0, '', 0, 'current'],
+            $i++ => ['DIGIQUALI_ANSWER_PUBLIC_INTERFACE_TITLE', 'chaine', $langs->trans('AnswerPublicInterface'), '', 0, 'current'],
 
             $i++ => ['AGENDA_REMINDER_BROWSER', 'integer', 1, '', 0, 'current'],
             $i++ => ['AGENDA_REMINDER_EMAIL', 'integer', 1, '', 0, 'current'],
@@ -291,57 +310,67 @@ class modDigiQuali extends DolibarrModules
                     $objectType = $linkableElement['tab_type'];
                 }
 				$this->tabs[] = ['data' => $objectType . ':+control:' . $pictoDigiQuali . $langs->trans('Controls') . ':digiquali@digiquali:$user->rights->digiquali->control->read:/custom/digiquali/view/control/control_list.php?fromid=__ID__&fromtype=' . $linkableElement['link_name']];
+				$this->tabs[] = ['data' => $objectType . ':+survey:' . $pictoDigiQuali . $langs->trans('Surveys') . ':digiquali@digiquali:$user->rights->digiquali->survey->read:/custom/digiquali/view/survey/survey_list.php?fromid=__ID__&fromtype=' . $linkableElement['link_name']];
 
                 $this->module_parts['hooks'][] = $linkableElement['hook_name_list'];
                 $this->module_parts['hooks'][] = $linkableElement['hook_name_card'];
 			}
 		}
 
-        // Dictionaries.
+        // Dictionaries
         $this->dictionaries = [
             'langs' => 'digiquali@digiquali',
-            // List of tables we want to see into dictonnary editor.
+            // List of tables we want to see into dictonnary editor
             'tabname' => [
                 MAIN_DB_PREFIX . 'c_question_type',
-                MAIN_DB_PREFIX . 'c_control_attendants_role'
+                MAIN_DB_PREFIX . 'c_control_attendants_role',
+                MAIN_DB_PREFIX . 'c_survey_attendants_role',
             ],
-            // Label of tables.
+            // Label of tables
             'tablib' => [
                 'Question',
-                'Control'
+                'Control',
+                'Survey'
             ],
-            // Request to select fields.
+            // Request to select fields
             'tabsql' => [
                 'SELECT f.rowid as rowid, f.ref, f.label, f.description, f.position, f.active  FROM ' . MAIN_DB_PREFIX . 'c_question_type as f',
-                'SELECT f.rowid as rowid, f.ref, f.label, f.description, f.position, f.active FROM ' . MAIN_DB_PREFIX . 'c_control_attendants_role as f'
+                'SELECT f.rowid as rowid, f.ref, f.label, f.description, f.position, f.active FROM ' . MAIN_DB_PREFIX . 'c_control_attendants_role as f',
+                'SELECT f.rowid as rowid, f.ref, f.label, f.description, f.position, f.active FROM ' . MAIN_DB_PREFIX . 'c_survey_attendants_role as f'
             ],
-            // Sort order.
+            // Sort order
             'tabsqlsort' => [
+                'label ASC',
                 'label ASC',
                 'label ASC'
             ],
-            // List of fields (result of select to show dictionary).
+            // List of fields (result of select to show dictionary)
             'tabfield' => [
                 'ref,label,description,position',
+                'ref,label,description,position',
                 'ref,label,description,position'
             ],
-            // List of fields (list of fields to edit a record).
+            // List of fields (list of fields to edit a record)
             'tabfieldvalue' => [
                 'ref,label,description,position',
-                'ref,label,description,position'
-            ],
-            // List of fields (list of fields for insert).
-            'tabfieldinsert' => [
                 'ref,label,description,position',
                 'ref,label,description,position'
             ],
-            // Name of columns with primary key (try to always name it 'rowid').
+            // List of fields (list of fields for insert)
+            'tabfieldinsert' => [
+                'ref,label,description,position',
+                'ref,label,description,position',
+                'ref,label,description,position'
+            ],
+            // Name of columns with primary key (try to always name it 'rowid')
             'tabrowid' => [
+                'rowid',
                 'rowid',
                 'rowid'
             ],
-            // Condition to show each dictionary.
+            // Condition to show each dictionary
             'tabcond' => [
+                $conf->digiquali->enabled,
                 $conf->digiquali->enabled,
                 $conf->digiquali->enabled
             ]
@@ -425,6 +454,23 @@ class modDigiQuali extends DolibarrModules
 		$this->rights[$r][4] = 'sheet'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
 		$r++;
+
+        /* SURVEY PERMISSSIONS */
+        $this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
+        $this->rights[$r][1] = $langs->transnoentities('ReadObjects', dol_strtolower($langs->transnoentities('Surveys'))); // Permission label
+        $this->rights[$r][4] = 'survey'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
+        $this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
+        $r++;
+        $this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
+        $this->rights[$r][1] = $langs->transnoentities('CreateObjects', dol_strtolower($langs->transnoentities('Surveys'))); // Permission label
+        $this->rights[$r][4] = 'survey'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
+        $this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
+        $r++;
+        $this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
+        $this->rights[$r][1] = $langs->transnoentities('DeleteObjects', dol_strtolower($langs->transnoentities('Surveys'))); // Permission label
+        $this->rights[$r][4] = 'survey'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
+        $this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
+        $r++;
 
 		/* ADMINPAGE PANEL ACCESS PERMISSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1);
@@ -551,6 +597,37 @@ class modDigiQuali extends DolibarrModules
 			'user'     => 0,
 		];
 
+        $this->menu[$r++] = [
+            'fk_menu'  => 'fk_mainmenu=digiquali',
+            'type'     => 'left',
+            'titre'    => $langs->transnoentities('Survey'),
+            'prefix'   => '<i class="fas fa-marker pictofixedwidth"></i>',
+            'mainmenu' => 'digiquali',
+            'leftmenu' => 'digiquali_survey',
+            'url'      => '/digiquali/view/survey/survey_list.php',
+            'langs'    => 'digiquali@digiquali',
+            'position' => 1000 + $r,
+            'enabled'  => '$conf->digiquali->enabled && $user->rights->digiquali->survey->read',
+            'perms'    => '$user->rights->digiquali->survey->read',
+            'target'   => '',
+            'user'     => 0,
+        ];
+
+        $this->menu[$r++] = [
+            'fk_menu'  => 'fk_mainmenu=digiquali,fk_leftmenu=digiquali_survey',
+            'type'     => 'left',
+            'titre'    => '<i class="fas fa-tags pictofixedwidth" style="padding-right: 4px;"></i>' . $langs->transnoentities('Categories'),
+            'mainmenu' => 'digiquali',
+            'leftmenu' => 'digiquali_surveytags',
+            'url'      => '/categories/index.php?type=survey',
+            'langs'    => 'digiquali@digiquali',
+            'position' => 1000 + $r,
+            'enabled'  => '$conf->digiquali->enabled && $conf->categorie->enabled && $user->rights->digiquali->survey->read',
+            'perms'    => '$user->rights->digiquali->survey->read',
+            'target'   => '',
+            'user'     => 0,
+        ];
+
 		$this->menu[$r++] = [
 			'fk_menu'  => 'fk_mainmenu=digiquali',
 			'type'     => 'left',
@@ -620,9 +697,11 @@ class modDigiQuali extends DolibarrModules
 		dolibarr_set_const($this->db, 'DIGIQUALI_DB_VERSION', $this->version, 'chaine', 0, '', $conf->entity);
 
 		delDocumentModel('controldocument_odt', 'controldocument');
+        delDocumentModel('surveydocument_odt', 'surveydocument');
 		delDocumentModel('calypso_controldocument', 'controldocument');
 
 		addDocumentModel('controldocument_odt', 'controldocument', 'ODT templates', 'DIGIQUALI_CONTROLDOCUMENT_ADDON_ODT_PATH');
+		addDocumentModel('surveydocument_odt', 'surveydocument', 'ODT templates', 'DIGIQUALI_SURVEYDOCUMENT_ADDON_ODT_PATH');
 
 		if (!empty($conf->global->DIGIQUALI_SHEET_TAGS_SET) && empty($conf->global->DIGIQUALI_SHEET_DEFAULT_TAG)) {
 			global $user, $langs;
@@ -646,8 +725,10 @@ class modDigiQuali extends DolibarrModules
 				$linkableObject = new $className($this->db);
 				$tableElement   = $linkableObject->table_element;
 
-                $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, $tableElement, 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', '1', '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
-                $extraFields->addExtraField('control_history_link', 'ControlHistoryLink', 'varchar', 100, 255, $tableElement, 0, 0, '', '', 0, '', '1', '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
+                $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, $tableElement, 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', 1, '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
+
+                $extraFields->update('control_history_link', 'ControlHistoryLink', 'varchar', 255, $tableElement, 0, 0, 110, '', 0, '', 5, '', '', '', 0, 'digiquali@digiquali', '$conf->digiquali->enabled');
+                $extraFields->addExtraField('control_history_link', 'ControlHistoryLink', 'varchar', 110, 255, $tableElement, 0, 0, '', '', 0, '', 5, '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
 			}
 		}
 
@@ -679,6 +760,20 @@ class modDigiQuali extends DolibarrModules
 
         dolibarr_set_const($this->db, 'DIGIQUALI_CONTROL_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
     }
+
+        if (getDolGlobalInt('DIGIQUALI_SHEET_BACKWARD_COMPATIBILITY') == 0) {
+            require_once __DIR__ . '/../../class/sheet.class.php';
+            $sheet  = new Sheet($this->db);
+            $sheets = $sheet->fetchAll();
+            if (is_array($sheets) && !empty($sheets)) {
+                foreach ($sheets as $sheet) {
+                    $sheet->type = 'control';
+                    $sheet->setValueFrom('type', $sheet->type, '', '', 'text', '', $user, strtoupper($sheet->element) . '_MODIFY');
+                }
+            }
+
+            dolibarr_set_const($this->db, 'DIGIQUALI_SHEET_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
+        }
 
 		// Permissions
 		$this->remove($options);
