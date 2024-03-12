@@ -241,11 +241,12 @@ class ActionsDigiquali
     /**
      * Overloading the formObjectOptions function : replacing the parent's function with the one below
      *
-     * @param array $parameters Hook metadata (context, etc...)
-     * @param object $object     Object
-     * @return void
+     * @param  array        $parameters Hook metadatas (context, etc...)
+     * @param  object|null $object      Current object
+     * @return int                      0 < on error, 0 on success, 1 to replace standard code
      */
-    public function formObjectOptions(array $parameters, $object) {
+    public function formObjectOptions(array $parameters, ?object $object): int
+    {
         if (strpos($parameters['context'], 'productlotcard') !== false) {
             $objectData = ['type' => $object->element, 'id' => $object->id];
 
@@ -257,6 +258,8 @@ class ActionsDigiquali
                 $object->updateExtrafield('control_history_link');
             }
         }
+
+        return 0; // or return 1 to replace standard code
     }
 
 	/**

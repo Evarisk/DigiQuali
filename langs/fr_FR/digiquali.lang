@@ -334,7 +334,7 @@ EnablePublicControlHistory                     = Afficher l'historique public de
 EnablePublicControlHistoryDescription          = Permet l'affichage de l'historique de contrôle sur l'interface publique de contrôle
 ShowLastControlFirstOnPublicHistory            = Afficher le dernier contrôle en priorité sur l'interface publique de contrôle
 ShowLastControlFirstOnPublicHistoryDescription = Force l'affichage du dernier contrôle à la place de la liste des contrôles de l'objet sur l'interface publique de contrôle
-NonFinalVerdict                                = Le contrôle n'étant pas verrouillé, le verdict peut encore changer
+NonFinalVerdict                                = Le contrôle n'est pas verrouillé, <br> le verdict peut encore changer
 GoToPublicAnswerPage                           = Voir l'interface publique de réponse
 BeCarefullVerdictKO                            = Attention si le statut de votre contrôle est KO. Il faudra refaire votre contrôle.
 ShowQcFrequencyPublicInterface                 = Afficher la période de validé (en jours) sur l'interface publique de contrôle
@@ -433,4 +433,4 @@ Contact                  = Contact/Adresse
 Remain                   = reste
 InProgressAndLocked      = -- (En cours + verrouillé) --
 NoObservations           = Pas d'observations
-
+BasedOnModel             = Basé sur le modèle

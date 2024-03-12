@@ -258,7 +258,7 @@ if ($action == 'create') {
 
     //FK SHEET
     print '<tr><td class="fieldrequired">' . $langs->trans('Sheet') . '</td><td>';
-    print img_picto('', $sheet->picto, 'class="pictofixedwidth"') . $sheet->selectSheetList(GETPOST('fk_sheet') ?: $sheet->id, 'fk_sheet', 's.type = ' . '"' . $object->element . '"');
+    print img_picto('', $sheet->picto, 'class="pictofixedwidth"') . $sheet->selectSheetList(GETPOST('fk_sheet') ?: $sheet->id, 'fk_sheet', 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED);
     print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
     print '</td></tr>';
 
@@ -269,7 +269,7 @@ if ($action == 'create') {
     if (isModEnabled('categorie')) {
         print '<tr><td>' . $langs->trans('Categories') . '</td><td>';
         $categoriesArborescence = $form->select_all_categories($object->element, '', 'parent', 64, 0, 1);
-        print img_picto('', 'category', 'class="pictofixedwidth"').$form::multiselectarray('categories', $categoriesArborescence, GETPOST('categories', 'array'), '', 0, 'maxwidth500 widthcentpercentminusx');
+        print img_picto('', 'category', 'class="pictofixedwidth"').$form::multiselectarray('categories', $categoriesArborescence, GETPOST('categories', 'array'), '', 0, 'minwidth100imp maxwidth500 widthcentpercentminusxx');
         print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/categories/index.php?type=' . $object->element . '&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddCategories') . '"></span></a>';
         print '</td></tr>';
     }
@@ -339,7 +339,7 @@ if ($action == 'create') {
 
 // Part to show record
 if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
-    $res = $object->fetch_optionals();
+    $object->fetch_optionals();
 
     saturne_get_fiche_head($object, 'card', $title);
     saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', '', !empty($object->photo));
@@ -428,21 +428,16 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {
         $publicInterfaceUrl = dol_buildpath('custom/digiquali/public/survey/public_survey.php?track_id=' . $object->track_id . '&entity=' . $conf->entity, 3);
-        print '<input hidden class="copy-to-clipboard" value="' . $publicInterfaceUrl . '">';
         print '<tr><td class="titlefield">' . $langs->trans('PublicInterface') . ' <a href="' . $publicInterfaceUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
-        print ' <i class="fas fa-clipboard clipboard-copy"></i>';
-        print '<input hidden id="copyToClipboardTooltip" value="'. $langs->trans('CopiedToClipboard') .'">';
+        print showValueWithClipboardCPButton($publicInterfaceUrl, 0, '&nbsp;');
         print '</td>';
         print '<td>' . saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/survey/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'survey/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
 
         // Answer public interface
-        print '<tr><td class="titlefield">';
         $publicAnswerUrl = dol_buildpath('custom/digiquali/public/public_answer.php?track_id=' . $object->track_id . '&object_type=' . $object->element . '&document_type=SurveyDocument&entity=' . $conf->entity, 3);
-        print $langs->trans('PublicAnswer');
-        print ' <a href="' . $publicAnswerUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
+        print '<tr><td class="titlefield">' . $langs->trans('PublicAnswer') . ' <a href="' . $publicAnswerUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
         print showValueWithClipboardCPButton($publicAnswerUrl, 0, '&nbsp;');
-        print '</td>';
-        print '<td>';
+        print '</td><td>';
         print '<a href="' . $publicAnswerUrl . '" target="_blank">' . $langs->trans('GoToPublicAnswerPage') . ' <i class="fa fa-external-link"></a>';
         print '</td></tr>';
     }
@@ -471,7 +466,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                         $arraySelected[] = $cat->id;
                     }
                 }
-                print img_picto('', 'category') . $form::multiselectarray('categories', $categoriesArborescence, (GETPOSTISSET('categories') ? GETPOST('categories', 'array') : $arraySelected), '', 0, 'quatrevingtpercent widthcentpercentminusx');
+                print img_picto('', 'category') . $form::multiselectarray('categories', $categoriesArborescence, (GETPOSTISSET('categories') ? GETPOST('categories', 'array') : $arraySelected), '', 0, 'minwidth100imp quatrevingtpercent widthcentpercentminusxx');
                 print '<input type="submit" class="button button-edit small" value="'.$langs->trans('Save').'">';
                 print '</form>';
                 print '</td>';
@@ -724,7 +719,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         $fileDir   = $upload_dir . '/' . $dirFiles;
         $urlSource = $_SERVER['PHP_SELF'] . '?id=' . $object->id;
 
-        print saturne_show_documents('digiquali:' . ucfirst($object->element) . 'Document', $dirFiles, $fileDir, $urlSource, $permissiontoadd, $permissiontodelete, $conf->global->DIGIQUALI_SURVEYDOCUMENT_DEFAULT_MODEL, 1, 0, 0, 0, 0, '', 0, '', $langs->defaultlang, $object, 0, 'remove_file', (($object->status > Survey::STATUS_DRAFT) ? 1 : 0), $langs->trans('ObjectMustBeValidatedToGenerate', ucfirst($langs->transnoentities('The' . ucfirst($object->element)))));
+        print saturne_show_documents('digiquali:' . ucfirst($object->element) . 'Document', $dirFiles, $fileDir, $urlSource, $permissiontoadd, $permissiontodelete, $conf->global->DIGIQUALI_SURVEYDOCUMENT_DEFAULT_MODEL, 1, 0, 0, 0, '', '', '', $langs->defaultlang, '', $object, 0, 'remove_file', (($object->status > Survey::STATUS_DRAFT) ? 1 : 0), $langs->trans('ObjectMustBeValidatedToGenerate', ucfirst($langs->transnoentities('The' . ucfirst($object->element)))));
 
         print '</div><div class="fichehalfright">';
 
