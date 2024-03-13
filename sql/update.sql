@@ -125,5 +125,5 @@ ALTER TABLE `llx_digiquali_control` ADD `success_rate` DOUBLE(24,8) NULL AFTER `
 ALTER TABLE `llx_digiquali_sheet` CHANGE `type` `type` VARCHAR(128) NOT NULL;
 ALTER TABLE `llx_digiquali_survey` ADD `success_rate` DOUBLE(24,8) NULL AFTER `photo`;
 
--- 1.XX.0
+-- 1.13.0
 ALTER TABLE `llx_digiquali_control` ADD `label` VARCHAR(255) NULL AFTER `status`;
