@@ -59,6 +59,7 @@ $answer   = new Answer($db);
 
 // View objects
 $form = new Form($db);
+$now  = dol_now();
 
 $upload_dir = $conf->digiquali->multidir_output[isset($conf->entity) ? $conf->entity : 1];
 
@@ -95,7 +96,7 @@ if (empty($reshook)) {
 	}
 
 	if ($action == 'export_sheet_data' && $permissionToRead) {
-		$exportName = 'sheet_question_answer_export_sheet' . $object->id;
+        $exportName = (!empty($object->label) ? dol_string_nospecial($object->label, '_', '', ['-']) : $object->ref);
 
 		$digiqualiExportArray = [];
 		$sheetExportArray['rowid']               = $object->id;
@@ -148,7 +149,7 @@ if (empty($reshook)) {
 		$digiqualiExportJSON = json_encode($digiqualiExportArray, JSON_PRETTY_PRINT);
 
 		$fileDir    = $upload_dir . '/temp/';
-		$exportBase = $fileDir . dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export';
+		$exportBase = $fileDir . dol_print_date($now, 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export';
 		$fileName   = $exportBase . '.json';
 
 		file_put_contents($fileName, $digiqualiExportJSON);
@@ -158,7 +159,7 @@ if (empty($reshook)) {
 			setEventMessage($langs->transnoentities("ExportWellDone"));
 			$zip->addFile($fileName, basename($fileName));
 			$zip->close();
-			$fileNameZip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export.zip';
+			$fileNameZip = dol_print_date($now, 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export.zip';
 			$filepath = DOL_URL_ROOT . '/document.php?modulepart=digiquali&file=' . urlencode('temp/'.$fileNameZip);
 			?>
 			<script>
