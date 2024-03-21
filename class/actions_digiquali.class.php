@@ -303,7 +303,7 @@ class ActionsDigiquali
         // Do something only for the current context.
         if (preg_match('/controlcard|surveycard/', $parameters['context'])) {
             if ($conf->browser->layout == 'phone') {
-                $morehtmlref = '<br><div>' . img_picto('', 'fontawesome_fa-caret-square-down_far_#966EA2F2_fa-2em', 'class="toggle-object-infos pictofixedwidth valignmiddle" style="width: 35px;"') . $langs->trans('DisplayMoreInfo') . '</div>';
+                $morehtmlref = '<br><div style="margin-bottom: 1em;">' . img_picto('', 'fontawesome_fa-caret-square-down_far_#966EA2F2_fa-2em', 'class="toggle-object-infos pictofixedwidth valignmiddle" style="width: 35px;"') . $langs->trans('DisplayMoreInfo') . '</div>';
             } else {
                 $morehtmlref = '';
             }
