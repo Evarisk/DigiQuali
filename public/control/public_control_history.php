@@ -21,9 +21,6 @@
  * \brief   Public page to view control history.
  */
 
-if (!defined('NOREQUIREUSER')) {
-	define('NOREQUIREUSER', '1');
-}
 if (!defined('NOTOKENRENEWAL')) {
 	define('NOTOKENRENEWAL', '1');
 }
@@ -58,7 +55,6 @@ if (file_exists('../../digiquali.main.inc.php')) {
 // Load Dolibarr libraries.
 require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
-require_once DOL_DOCUMENT_ROOT . '/user/class/user.class.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 
 // Load DigiQuali libraries.
