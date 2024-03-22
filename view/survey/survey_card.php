@@ -226,6 +226,7 @@ $title   = $langs->trans(ucfirst($object->element));
 $helpUrl = 'FR:Module_DigiQuali';
 
 saturne_header(1,'', $title, $helpUrl);
+$object->fetch(GETPOST('id'));
 
 $elementArray = get_sheet_linkable_objects();
 
