@@ -218,12 +218,12 @@ class Control extends SaturneObject
     /**
      * @var int User ID.
      */
-    public int $fk_user_creat;
+    public $fk_user_creat;
 
     /**
      * @var int|null User ID.
      */
-    public ?int $fk_user_modif;
+    public $fk_user_modif;
 
     /**
      * @var int Sheet ID.
@@ -1236,12 +1236,12 @@ class ControlLine extends SaturneObject
     /**
      * @var int User ID
      */
-    public int $fk_user_creat;
+    public $fk_user_creat;
 
     /**
      * @var int|null User ID
      */
-    public ?int $fk_user_modif;
+    public $fk_user_modif;
 
     /**
      * @var int Control ID
