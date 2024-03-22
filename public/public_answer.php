@@ -57,7 +57,7 @@ $objectType   = GETPOST('object_type', 'alpha');
 $documentType = GETPOST('document_type', 'alpha');
 
 // Load Saturne libraries
-if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY')) {
+if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY') || getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_WORKFLOW')) {
     require_once __DIR__ . '/../../saturne/class/saturnesignature.class.php';
 }
 
@@ -150,7 +150,23 @@ $conf->dol_hide_leftmenu = 1;
 
 saturne_header(1,'', $title, '', '', 0, 0, $moreJS, [], '', 'page-public-card page-signature');
 
-print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '?action=save&id=' . $object->id . '&track_id=' . $trackID . '&object_type=' . $object->element . '&document_type=' . $documentType . '&entity=' . $conf->entity . '" id="saveObject" enctype="multipart/form-data">';
+print '<div class="wpeo-gridlayout grid-4">';
+$logosPath = DOL_DATA_ROOT . ($conf->entity > 1 ? '/' . $conf->entity . '/' : '/') . 'mycompany/logos/thumbs/';
+$logosList = dol_dir_list($logosPath);
+if (is_array($logosList) && !empty($logosList)) {
+    $logo = array_pop($logosList);
+    $logoSrc = DOL_URL_ROOT . '/viewimage.php?modulepart=mycompany&entity=' . $conf->entity . '&file=' . urlencode('logos/thumbs/' . $logo['name']);
+} else {
+    $logoSrc = DOL_URL_ROOT.'/public/theme/common/nophoto.png';
+}
+
+print '<div class="card" style="height: 200px">';
+print '<br>';
+print '<img src="' . $logoSrc . '" alt="SocietyLogo" style="width:40%">';
+print '</div>';
+print '</div>';
+
+print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '?action=save&id=' . $object->id . '&track_id=' . $trackID . '&object_type=' . $object->element . '&document_type=' . $documentType . '&submit=1&entity=' . $conf->entity . '" id="saveObject" enctype="multipart/form-data">';
 print '<input type="hidden" name="token" value="' . newToken() . '">';
 print '<input type="hidden" name="public_interface" value="true">';
 print '<input type="hidden" name="action" value="save">';
@@ -163,6 +179,8 @@ print '<h2 class="center">' . (dol_strlen($answerPublicInterfaceTitle) > 0 ? $an
 print '<br>';
 $publicInterface = true;
 $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
+$questionCount = (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->linkedObjects['digiquali_question']) ? count($sheet->linkedObjects['digiquali_question']) : 0);
+print '<div class="badge badge-status8">' . $langs->trans('NbQuestions') . ': ' . $questionCount . '</div><div><br></div>';
 require_once __DIR__ . '/../core/tpl/digiquali_answers.tpl.php';
 if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY') && $signatory->id > 0) {
     $previousStatus        = $object->status;
@@ -173,9 +191,21 @@ if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY') && $signa
     print '</div>';
     $object->status = $previousStatus;
 }
-if ($object->status == $object::STATUS_DRAFT) {
-    print '<div class="public-card__footer" style="margin-top: 2em;">';
+print '<div class="public-card__footer center" style="margin-top: 2em;">';
+if ($object->status == $object::STATUS_DRAFT && !getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_WORKFLOW')) {
     print '<button type="submit" class="wpeo-button save-public-answer ' . (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY') && $signatory->id > 0 ? 'signature-validate button-disable' : '') . '">' . $langs->trans('Submit') . '</button>';
+    print '</div>';
+} else if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_WORKFLOW')) {
+    $submit = GETPOST('submit', 'int');
+
+    if ($submit == 0 && $object->status == $object::STATUS_DRAFT) {
+        print '<button type="submit" class="wpeo-button save-public-answer ' . (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY') && $signatory->id > 0 ? 'signature-validate button-disable' : '') . '">' . $langs->trans('Submit') . '</button>';
+    }
+    print '</form>';
+    if ($submit == 1) {
+        print '<div class="inline-block"><a class="wpeo-button" style="margin-right: 2em;" href="' . $_SERVER['PHP_SELF'] . '?action=save&cancel_action=true&id=' . $object->id . '&track_id=' . $trackID . '&object_type=' . $object->element . '&document_type=' . $documentType . '&submit=0&entity=' . $conf->entity . '">' . $langs->trans('Modify') . '</a></div>';
+        print '<div class="inline-block"><a class="wpeo-button" href="' . $_SERVER['PHP_SELF'] . '?action=save&public_interface=true&id=' . $object->id . '&track_id=' . $trackID . '&object_type=' . $object->element . '&document_type=' . $documentType . '&entity=' . $conf->entity . '">' . $langs->trans('Save') . '</a></div>';
+    }
     print '</div>';
 }
 print '</div>';
