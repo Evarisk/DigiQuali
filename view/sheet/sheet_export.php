@@ -60,6 +60,8 @@ $answer   = new Answer($db);
 // View objects
 $form = new Form($db);
 
+$now = dol_now();
+
 $upload_dir = $conf->digiquali->multidir_output[isset($conf->entity) ? $conf->entity : 1];
 
 $hookmanager->initHooks(array('sheetexport')); // Note that conf->hooks_modules contains array
@@ -95,7 +97,7 @@ if (empty($reshook)) {
 	}
 
 	if ($action == 'export_sheet_data' && $permissionToRead) {
-		$exportName = 'sheet_question_answer_export_sheet' . $object->id;
+        $exportName = (!empty($object->label) ? dol_string_nospecial($object->label, '_', '', ['-']) : $object->ref);
 
 		$digiqualiExportArray = [];
 		$sheetExportArray['rowid']               = $object->id;
