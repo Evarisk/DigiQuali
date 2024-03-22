@@ -22,6 +22,7 @@ CREATE TABLE llx_digiquali_control(
     tms                timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     import_key         varchar(14),
     status             integer DEFAULT 1 NOT NULL,
+    label              varchar(255),
     note_public        text,
     note_private       text,
     type               varchar(128),
