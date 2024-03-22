@@ -49,17 +49,6 @@ require_once __DIR__ . '/../../../../../class/answer.class.php';
 class doc_controldocument_odt extends SaturneDocumentModel
 {
     /**
-     * @var array Minimum version of PHP required by module.
-     * e.g.: PHP ≥ 5.5 = array(5, 5)
-     */
-    public $phpmin = [7, 4];
-
-    /**
-     * @var string Dolibarr version of the loaded document.
-     */
-    public string $version = 'dolibarr';
-
-    /**
      * @var string Module.
      */
     public string $module = 'digiquali';
@@ -121,7 +110,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
             $foundTagForLines = 1;
             try {
                 $listLines = $odfHandler->setSegment('questions');
-            } catch (OdfException $e) {
+            } catch (OdfException|OdfExceptionSegmentNotFound $e) {
                 // We may arrive here if tags for lines not present into template.
                 $foundTagForLines = 0;
                 $listLines = '';
@@ -217,7 +206,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
             $foundTagForLines = 1;
             try {
                 $listLines = $odfHandler->setSegment('equipment');
-            } catch (OdfException $e) {
+            } catch (OdfException|OdfExceptionSegmentNotFound $e) {
                 // We may arrive here if tags for lines not present into template.
                 $foundTagForLines = 0;
                 $listLines = '';
@@ -270,7 +259,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
             $foundTagForLines = 1;
             try {
                 $listLines = $odfHandler->setSegment('photos');
-            } catch (OdfException $e) {
+            } catch (OdfException|OdfExceptionSegmentNotFound $e) {
                 // We may arrive here if tags for lines not present into template.
                 $foundTagForLines = 0;
                 $listLines = '';

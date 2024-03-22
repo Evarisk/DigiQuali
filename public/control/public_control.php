@@ -22,9 +22,6 @@
  * \brief   Public page to view control.
  */
 
-if (!defined('NOREQUIREUSER')) {
-	define('NOREQUIREUSER', '1');
-}
 if (!defined('NOTOKENRENEWAL')) {
 	define('NOTOKENRENEWAL', '1');
 }
