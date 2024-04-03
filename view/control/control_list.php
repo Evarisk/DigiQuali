@@ -208,7 +208,7 @@ foreach ($object->fields as $key => $val) {
             'enabled' => ($visible != 3 && dol_eval($val['enabled'], 1)),
             'position'=> $val['position'],
             'help'    => $val['help'],
-            'css'     => $val['css']
+            'css'     => (empty($val['csslist']) ? (empty($val['css']) ? '' : $val['css']) : $val['csslist'])
         ];
     }
 }
