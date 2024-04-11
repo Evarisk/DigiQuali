@@ -86,6 +86,9 @@ if ($action == 'update_control_reminder') {
     exit;
 }
 
+// Actions set_mod, update_mask
+require_once __DIR__ . '/../../saturne/core/tpl/actions/admin_conf_actions.tpl.php';
+
 /*
  * View
  */
