@@ -639,6 +639,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print '</tr>';
     }
 
+    $object->fetchObjectLinked('', '', $object->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
+
     foreach($elementArray as $linkableElementType => $linkableElement) {
         if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
             $className    = $linkableElement['className'];
