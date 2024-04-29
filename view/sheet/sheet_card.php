@@ -119,7 +119,7 @@ if (empty($reshook)) {
 
 			$questionsLinked = $object->fetchObjectLinked($id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position', 0);
 			$questionIds     = $object->linkedObjectsIds['digiquali_question'];
-			$object->updateQuestionsPosition($questionIds);
+			$object->updateQuestionsPosition($questionIds, $object->id);
 
 			$object->call_trigger('SHEET_ADDQUESTION', $user);
 			setEventMessages($langs->trans('addQuestionLink') . ' ' . $question->ref, array());
@@ -139,7 +139,7 @@ if (empty($reshook)) {
 
 		$questionsLinked = $object->fetchObjectLinked($id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position', 0);
 		$questionIds     = $object->linkedObjectsIds['digiquali_question'];
-		$object->updateQuestionsPosition($questionIds);
+		$object->updateQuestionsPosition($questionIds, $object->id);
 
 		setEventMessages($langs->trans('removeQuestionLink') . ' ' . $question->ref, array());
 
@@ -191,7 +191,7 @@ if (empty($reshook)) {
 			$ids = array_values($idsArray['order']);
 			$reIndexedIds = array_combine(range(1, count($ids)), array_values($ids));
 		}
-		$object->updateQuestionsPosition($reIndexedIds);
+		$object->updateQuestionsPosition($reIndexedIds, $object->id);
 	}
 
 	// Action to delete
