@@ -263,13 +263,12 @@ if (empty($reshook)) {
 	}
 
     if (!$error && ($massaction == 'add' || ($action == 'addQuestions' && $confirm == 'yes')) && $permissiontoadd) {
-        $result = $sheet->fetch($toselect);
-        if ($result > 0) {
-            $sheet->updateQuestionsPosition($toselect);
-        } else {
-            setEventMessages($sheet->error, $sheet->errors, 'errors');
-            $error++;
+        foreach ($toselect as $selected) {
+            $object->fetch($selected);
+            $object->add_object_linked(null, $selected);
         }
+        $sheet->updateQuestionsPosition($toselect, $sheet->id);
+        setEventMessages($langs->trans('addQuestionLink') . ' ' . $sheet->ref, array());
     }
 
     // Mass actions archive
@@ -434,8 +433,11 @@ if ($massaction == 'prearchive') {
 }
 
 if ($massaction == 'preadd') {
-    //print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans('ConfirmMassAdd'), $langs->trans('ConfirmMassAddQuestion', count($toselect)), 'addQuestions', print $sheet->selectSheetList('s.status > 0'), '', 0, 200, 500, 1);
-    print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans('ConfirmMassAdd'), $langs->trans('ConfirmMassAddQuestion', count($toselect)), 'addQuestions', print $sheet->selectSheetList('s.status > 0'), '', 0, 200, 500, 1);
+    $arrayData    = $sheet->selectSheetList('', 'fk_sheet', '', '1', 0, 0, array(), '', 1);
+    $formQuestion = [
+        ['type' => 'select', 'name' => 'sheet', 'label' => $langs->trans('Sheet'), 'values' => $arrayData]
+    ];
+    print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans('ConfirmMassAdd'), $langs->trans('ConfirmMassAddQuestion', count($toselect)), 'addQuestions', $formQuestion, '', 0, 200, 500, 1);
 }
 
 include DOL_DOCUMENT_ROOT.'/core/tpl/massactions_pre.tpl.php';
