@@ -330,7 +330,7 @@ class Sheet extends SaturneObject
 				$question->fetch($questionId);
 				$question->add_object_linked('digiquali_' . $object->element, $objectid);
 			}
-			$object->updateQuestionsPosition($object->linkedObjectsIds['digiquali_question'], $this->id);
+			$object->updateQuestionsPosition($object->linkedObjectsIds['digiquali_question']);
 		}
 
 		unset($object->context['createfromclone']);
@@ -472,14 +472,14 @@ class Sheet extends SaturneObject
 	 *
 	 *	@param	array	$idsArray			Array containing position and ids of questions in sheet
 	 */
-	public function updateQuestionsPosition($idsArray, $sheetId)
+	public function updateQuestionsPosition($idsArray)
 	{
 		$this->db->begin();
 
 		foreach ($idsArray as $position => $questionId) {
 			$sql = 'UPDATE '. MAIN_DB_PREFIX . 'element_element';
 			$sql .= ' SET position =' . $position;
-			$sql .= ' WHERE fk_source = ' . $sheetId;
+			$sql .= ' WHERE fk_source = ' . $this->id;
 			$sql .= ' AND sourcetype = "digiquali_sheet"';
 			$sql .= ' AND fk_target =' . $questionId;
 			$sql .= ' AND targettype = "digiquali_question"';
