@@ -262,13 +262,15 @@ if (empty($reshook)) {
 		}
 	}
 
-    if (!$error && ($massaction == 'add' || ($action == 'addQuestions' && $confirm == 'yes')) && $permissiontoadd) {
+    if (!$error && ($massaction == 'massAddQuestions' || ($action == 'addQuestions' && $confirm == 'yes')) && $permissiontoadd) {
+        $totalQuestions = count($toselect);
+        $sheet->fetch(GETPOST('sheet'));
+
         foreach ($toselect as $selected) {
             $object->fetch($selected);
-            $object->add_object_linked(null, $selected);
+            $object->add_object_linked('digiquali_sheet', GETPOST('sheet'));
         }
-        $sheet->updateQuestionsPosition($toselect, $sheet->id);
-        setEventMessages($langs->trans('addQuestionLink') . ' ' . $sheet->ref, array());
+        setEventMessages($totalQuestions . ' ' . $langs->trans('addQuestionLink') . ' ' . $sheet->getNomUrl(1), []);
     }
 
     // Mass actions archive
@@ -404,11 +406,16 @@ $reshook = $hookmanager->executeHooks('printFieldListSearchParam', $parameters, 
 $param .= $hookmanager->resPrint;
 
 // List of mass actions available
-$arrayofmassactions['prelock']    = '<span class="fas fa-lock paddingrightonly"></span>' . $langs->trans('Lock');
-$arrayofmassactions['prearchive'] = '<span class="fas fa-archive paddingrightonly"></span>' . $langs->trans('Archive');
-$arrayofmassactions['preadd']     = '<span class="fas fa-plus-circle paddingrightonly"></span>' . $langs->trans('Add') . ' ' . $langs->transnoentities('Survey');
-if ($permissiontodelete) $arrayofmassactions['predelete'] = '<span class="fa fa-trash paddingrightonly"></span>'.$langs->trans("Delete");
-if (GETPOST('nomassaction', 'int') || in_array($massaction, array('presend', 'predelete'))) $arrayofmassactions = [];
+$arrayofmassactions['prelock']         = '<span class="fas fa-lock paddingrightonly"></span>' . $langs->trans('Lock');
+$arrayofmassactions['prearchive']      = '<span class="fas fa-archive paddingrightonly"></span>' . $langs->trans('Archive');
+$arrayofmassactions['preaddquestions'] = '<span class="fas fa-plus-circle paddingrightonly"></span>' . $langs->transnoentities('AddToSheet');
+
+if ($permissiontodelete) {
+    $arrayofmassactions['predelete'] = '<span class="fa fa-trash paddingrightonly"></span>' . $langs->trans("Delete");
+}
+if (GETPOST('nomassaction', 'int') || in_array($massaction, array('presend', 'predelete'))) {
+    $arrayofmassactions = [];
+}
 $massactionbutton = $form->selectMassAction('', $arrayofmassactions);
 
 print '<form method="POST" id="searchFormList" action="'.$_SERVER["PHP_SELF"].'">'."\n";
@@ -432,12 +439,17 @@ if ($massaction == 'prearchive') {
     print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans('ConfirmMassArchive'), $langs->trans('ConfirmMassArchivingQuestion', count($toselect)), 'archive', null, '', 0, 200, 500, 1);
 }
 
-if ($massaction == 'preadd') {
-    $arrayData    = $sheet->selectSheetList('', 'fk_sheet', '', '1', 0, 0, array(), '', 1);
+if ($massaction == 'preaddquestions') {
+    $sheets = $sheet->fetchAll('', '', 0, 0, ['customsql' => 't.status = ' . Sheet::STATUS_VALIDATED]);
+    if (is_array($sheets) && !empty($sheets)) {
+        foreach ($sheets as $sheet) {
+            $sheetArray[$sheet->id] = $sheet->ref . ' - ' . $sheet->label;
+        }
+    }
     $formQuestion = [
-        ['type' => 'select', 'name' => 'sheet', 'label' => $langs->trans('Sheet'), 'values' => $arrayData]
+        ['type' => 'select', 'name' => 'sheet', 'label' => $langs->trans('Sheet'), 'values' => $sheetArray]
     ];
-    print $form->formconfirm($_SERVER["PHP_SELF"], $langs->trans('ConfirmMassAdd'), $langs->trans('ConfirmMassAddQuestion', count($toselect)), 'addQuestions', $formQuestion, '', 0, 200, 500, 1);
+    print $form->formconfirm($_SERVER['PHP_SELF'], $langs->trans('ConfirmMassAddQuestion'), $langs->trans('ConfirmMassAddingQuestion', count($toselect)), 'addQuestions', $formQuestion, '', 0, 200, 500, 1);
 }
 
 include DOL_DOCUMENT_ROOT.'/core/tpl/massactions_pre.tpl.php';

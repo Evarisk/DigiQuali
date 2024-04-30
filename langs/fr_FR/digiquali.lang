@@ -69,7 +69,9 @@ QuestionList                  = Liste des questions
 NewQuestion                   = Nouvelle question
 ModifyQuestion                = Modifier une question
 LinkedQuestionsList           = Liste des questions liées
-addQuestionLink               = Question ajoutée au modèle :
+addQuestionLink               = Question(s) ajoutée(s) au modèle :
+ConfirmMassAddQuestion        = Confirmation d'ajout en masse de questions au modèle
+ConfirmMassAddingQuestion     = Êtes-vous sur de vouloir ajouter les %d question(s) sélectionné(s) ?
 removeQuestionLink            = Question retirée du modèle :
 LockQuestion                  = La question %s est passée au statut verrouillé
 LockQuestions                 = Toutes les questions sélectionnées sont passées au statut verrouillé
@@ -112,6 +114,7 @@ AnswerDeleted                 = La réponse a été supprimée avec succès
 AnswerMustBeCreated           = La question %s doit avoir au moins une réponse pour passer au statut verrouillé
 ShowOnlyQuestionsWithNoAnswer = Afficher uniquement les questions qui n'ont pas de réponse
 AveragePercentageQuestions    = Moyenne des questions
+AddToSheet                    = Ajout au modèle
 
 
 

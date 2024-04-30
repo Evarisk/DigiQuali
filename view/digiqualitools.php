@@ -295,7 +295,7 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
                             $questionsLinked = $sheet->fetchObjectLinked($newSheetId, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position', 0);
 							$questionIds     = $sheet->linkedObjectsIds['digiquali_question'];
 
-							$sheet->updateQuestionsPosition($questionIds, $sheet->id);
+							$sheet->updateQuestionsPosition($questionIds);
 						}
 					}
 				}
