@@ -504,7 +504,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     $fileArray  = dol_dir_list($pathPhotos, 'files');
     ?>
     <span class="add-medias" <?php echo ($object->status < Survey::STATUS_LOCKED) ? '' : 'style="display:none"' ?>>
-        <input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
+        <input hidden multiple class="fast-upload<?php echo getDolGlobalInt('SATURNE_USE_FAST_UPLOAD_IMPROVEMENT') ? '-improvement' : ''; ?>" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
+        <input type="hidden" class="fast-upload-options" data-from-subtype="photo" data-from-subdir="photos"/>
         <label for="fast-upload-photo-default">
             <div class="wpeo-button <?php echo ($onPhone ? 'button-square-40' : 'button-square-50'); ?>">
                 <i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>

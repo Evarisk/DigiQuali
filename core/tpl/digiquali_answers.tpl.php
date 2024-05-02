@@ -91,8 +91,9 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                     <?php if ($question->authorize_answer_photo > 0) : ?>
                         <div class="table-cell table-full linked-medias answer_photo_<?php echo $question->id ?>">
                             <?php if ($object->status == 0 ) : ?>
-                                <input hidden multiple class="fast-upload" id="fast-upload-answer-photo<?php echo $question->id ?>" type="file" name="userfile[]" capture="environment" accept="image/*">
+                                <input hidden multiple class="fast-upload<?php echo getDolGlobalInt('SATURNE_USE_FAST_UPLOAD_IMPROVEMENT') ? '-improvement' : ''; ?>" id="fast-upload-answer-photo<?php echo $question->id ?>" type="file" name="userfile[]" capture="environment" accept="image/*">
                                 <input type="hidden" class="question-answer-photo" id="answer_photo_<?php echo $question->id ?>" name="answer_photo_<?php echo $question->id ?>" value=""/>
+                                <input type="hidden" class="fast-upload-options" data-from-subtype="answer_photo_<?php echo $question->id ?>" data-from-subdir="answer_photo/<?php echo $question->ref ?>"/>
                                 <label for="fast-upload-answer-photo<?php echo $question->id ?>">
                                     <div class="wpeo-button button-square-50">
                                         <i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
