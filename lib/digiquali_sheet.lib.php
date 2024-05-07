@@ -354,9 +354,9 @@ function get_sheet_linkable_objects(): array
 	}
 	$hookmanager->initHooks(['get_sheet_linkable_objects']);
 
-	$reshook = $hookmanager->executeHooks('extendSheetLinkableObjectsList', $linkableObjectTypes);
+	$resHook = $hookmanager->executeHooks('extendSheetLinkableObjectsList', $linkableObjectTypes);
 
-	if ($reshook && (is_array($hookmanager->resArray) && !empty($hookmanager->resArray))) {
+	if (empty($resHook) && is_array($hookmanager->resArray) && !empty($hookmanager->resArray)) {
 		$linkableObjectTypes = $hookmanager->resArray;
 	}
 
