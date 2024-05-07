@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2022-2024 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -143,7 +143,7 @@ if (empty($reshook)) {
 
 		setEventMessages($langs->trans('removeQuestionLink') . ' ' . $question->ref, array());
 
-		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
+		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id') . '&page_y=' . GETPOST('page_y'));
 		exit;
 	}
 
@@ -733,7 +733,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			print '<td class="center">';
 			if ($object->status < $object::STATUS_LOCKED) {
-				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=unlinkQuestion&questionId=' . $item->id . '">';
+				print '<a class="reposition" href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=unlinkQuestion&questionId=' . $item->id . '">';
 				print img_delete();
 				print '</a>';
 			}
