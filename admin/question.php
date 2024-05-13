@@ -77,11 +77,8 @@ saturne_check_access($permissiontoread);
 //Extrafields actions
 require DOL_DOCUMENT_ROOT . '/core/actions_extrafields.inc.php';
 
-//Set numering modele for control object
-if ($action == 'setmod') {
-	$constforval = 'DIGIQUALI_' . strtoupper('question') . "_ADDON";
-	dolibarr_set_const($db, $constforval, $value, 'chaine', 0, '', $conf->entity);
-}
+// Actions set_mod, update_mask
+require_once __DIR__ . '/../../saturne/core/tpl/actions/admin_conf_actions.tpl.php';
 
 /*
  * View
