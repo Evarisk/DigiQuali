@@ -308,6 +308,8 @@ class Sheet extends SaturneObject
 		$object->context['createfromclone'] = 'createfromclone';
 		$object->ref = $object->getNextNumRef();
 		$object->status = 1;
+        $object->date_creation = dol_now();
+        $object->tms = dol_now();
 		$objectid = $object->create($user);
 
 		//add categories
