@@ -414,4 +414,66 @@ class ActionsDigiquali
 
         return 0; // or return 1 to replace standard code.
     }
+
+    public function getNomUrl($parameters, $object, $action): int {
+        if (strpos($parameters['context'], 'controlcard') !== false && $object->add_label) {
+            global $conf, $langs;
+
+            if (!empty($conf->dol_no_mouse_hover)) {
+                $notooltip = 1; // Force disable tooltips
+            }
+
+            $result = "";
+
+            $label = implode($object->getTooltipContentArray($parameters));
+
+            $metadata = saturne_get_objects_metadata($object->element);
+
+            $url = dol_buildpath('/' . $metadata['create_url'], 1) . '?id=' . $object->id;
+
+            $linkclose = '';
+            if (empty($notooltip)) {
+                if (!empty($conf->global->MAIN_OPTIMIZEFORTEXTBROWSER)) {
+                    $label = $langs->trans('Show' . ucfirst($object->element));
+                    $linkclose .= ' alt="' . dol_escape_htmltag($label, 1) . '"';
+                }
+                $linkclose .= ' title="' . dol_escape_htmltag($label, 1) . '"';
+                $linkclose .= ' class="classfortooltip' . '"';
+            }
+
+            $linkstart = '<a href="' . $url . '"';
+            $linkstart .= 'target=_blank';
+            $linkstart .= $linkclose . '>';
+            $linkend = '</a>';
+
+            $result .= $linkstart;
+
+            $result .= img_picto('', $object->picto) . ' ';
+
+            $fields = preg_split("/[\s,]+/", $metadata['name_field']);
+
+            if ($object->element == 'project_task') {
+                $result .= $object->ref;
+            } else {
+                if (!empty($fields)) {
+                    $field = $fields[0];
+                    $result .= $object->$field;
+                }
+            }
+            $result .= $linkend;
+
+            if ($object->element == 'product' || $object->element == 'project_task') {
+                $result .= '<span class="opacitymedium">' . ' - ' . dol_trunc($object->label, 0) . '</span>';
+            } else {
+                if (count($fields) > 1 && property_exists($object, $fields[1])) {
+                    $field = $fields[1];
+                    $result .= '<span class="opacitymedium">' . ' - ' . dol_trunc($object->$field, 0) . '</span>';
+                }
+            }
+
+            $this->resprints = $result;
+            return 1;
+        }
+        return 0;
+    }
 }
