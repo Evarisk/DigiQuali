@@ -279,13 +279,13 @@ class Sheet extends SaturneObject
 	/**
 	 * Clone an object into another one
 	 *
-	 * @param User $user User that creates
-	 * @param int $fromid Id of object to clone
-	 * @param $options
-	 * @return    mixed                New object created, <0 if KO
-	 * @throws Exception
+	 * @param   User    $user    User that creates
+	 * @param   int     $fromid  Id of object to clone
+     * @param   array   $options Options array.
+	 * @return  mixed            New object created, <0 if KO
+	 * @throws  Exception
 	 */
-	public function createFromClone(User $user, $fromid)
+	public function createFromClone(User $user, int $fromid): int
 	{
 		global $conf, $langs;
 		$error = 0;
@@ -308,8 +308,9 @@ class Sheet extends SaturneObject
 		$object->context['createfromclone'] = 'createfromclone';
 		$object->ref = $object->getNextNumRef();
 		$object->status = 1;
-        $object->date_creation = dol_now();
-        $object->tms = dol_now();
+        if (property_exists($object, 'date_creation')) {
+            $object->date_creation = dol_now();
+        }
 		$objectid = $object->create($user);
 
 		//add categories
