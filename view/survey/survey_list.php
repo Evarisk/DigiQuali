@@ -135,7 +135,8 @@ if (!$sortorder) {
 
 $linkableElements = get_sheet_linkable_objects();
 
-$objectPosition = 20;
+$nbLinkableElements = 0;
+$objectPosition     = 20;
 foreach($linkableElements as $linkableElementType => $linkableElement) {
 	$className  = $linkableElement['className'];
 
@@ -154,6 +155,7 @@ foreach($linkableElements as $linkableElementType => $linkableElement) {
         $elementElementFields[$linkableElement['post_name']]          = $linkableElement['link_name'];
         $linkNameElementCorrespondence[$linkableElement['link_name']] = $linkableElement;
         $objectPosition++;
+        $nbLinkableElements++;
 
         if (!empty($fromtype)) {
             $objectLinked = new $className($db);
@@ -286,7 +288,16 @@ if (!empty($fromtype)) {
     saturne_banner_tab($objectLinked, 'fromtype=' . $fromtype . '&fromid', '', 1, 'rowid', ($fromtype == 'productbatch' ? 'batch' : 'ref'));
 }
 
-require_once __DIR__ . '/../../core/tpl/digiquali_survey_list.tpl.php';
+if ($nbLinkableElements == 0) {
+    print '<div class="wpeo-notice notice-warning notice-red">';
+    print '<div class="notice-content">';
+    print '<a href="' . dol_buildpath('/custom/digiquali/admin/sheet.php', 2) . '">' . '<b><div class="notice-subtitle">'.$langs->trans('ConfigElementLinked') . ' : ' . $langs->trans('ConfigSheet') . '</b></a>';
+    print '</div>';
+    print '</div>';
+    print '</div>';
+} else {
+    require_once __DIR__ . '/../../core/tpl/digiquali_survey_list.tpl.php';
+}
 
 // End of page
 llxFooter();
