@@ -287,65 +287,78 @@ class Sheet extends SaturneObject
 	 */
 	public function createFromClone(User $user, int $fromid): int
 	{
-		global $conf, $langs;
-		$error = 0;
+        global $conf, $langs;
 
-		$question = new Question($this->db);
+        dol_syslog(__METHOD__, LOG_DEBUG);
 
-		dol_syslog(__METHOD__, LOG_DEBUG);
+        $error = 0;
 
-		$object = new self($this->db);
-		$this->db->begin();
+        $question = new Question($this->db);
 
-		// Load source object
-		$result = $object->fetchCommon($fromid);
-		if ($result > 0 && ! empty($object->table_element_line)) {
-			$object->fetchLines();
-		}
+        $object = new self($this->db);
+        $this->db->begin();
 
-		// Create clone
-        $object->fetchObjectLinked($object->id, 'digiquali_' . $object->element);
-		$object->context['createfromclone'] = 'createfromclone';
-		$object->ref = $object->getNextNumRef();
-		$object->status = 1;
+        // Load source object
+        $result = $object->fetchCommon($fromid);
+        if ($result > 0 && ! empty($object->table_element_line)) {
+            $object->fetchLines();
+        }
+
+        // Reset some properties
+        unset($object->fk_user_creat);
+        unset($object->import_key);
+
+        // Create clone
+        if (property_exists($object, 'ref')) {
+            $object->ref = '';
+        }
         if (property_exists($object, 'date_creation')) {
             $object->date_creation = dol_now();
         }
-		$objectid = $object->create($user);
+        if (property_exists($object, 'status')) {
+            $object->status = 1;
+        }
 
-		//add categories
-		$cat = new Categorie($this->db);
-		$categories = $cat->containing($fromid, 'sheet');
+        $object->context = 'createfromclone';
 
-		if (is_array($categories) && !empty($categories)) {
-			foreach($categories as $cat) {
-				$categoryIds[] = $cat->id;
-			}
-			if ($objectid > 0) {
-				$object->fetch($objectid);
-				$object->setCategories($categoryIds);
-			}
-		}
+        $object->fetchObjectLinked($object->id, 'digiquali_' . $object->element);
 
-		//add objects linked
-		if (is_array($object->linkedObjectsIds['digiquali_question']) && !empty($object->linkedObjectsIds['digiquali_question'])) {
-			foreach ($object->linkedObjectsIds['digiquali_question'] as $questionId) {
-				$question->fetch($questionId);
-				$question->add_object_linked('digiquali_' . $object->element, $objectid);
-			}
-			$object->updateQuestionsPosition($object->linkedObjectsIds['digiquali_question']);
-		}
+        $sheetID = $object->create($user);
+        if ($sheetID > 0) {
+            $object->fetch($sheetID);
 
-		unset($object->context['createfromclone']);
+            //add categories
+            $cat = new Categorie($this->db);
+            $categories = $cat->containing($fromid, 'sheet');
+            if (is_array($categories) && !empty($categories)) {
+                foreach($categories as $cat) {
+                    $categoryIds[] = $cat->id;
+                }
+                $object->setCategories($categoryIds);
+            }
 
-		// End
-		if ( ! $error) {
-			$this->db->commit();
-			return $objectid;
-		} else {
-			$this->db->rollback();
-			return -1;
-		}
+            //add objects linked
+            if (is_array($object->linkedObjectsIds['digiquali_question']) && !empty($object->linkedObjectsIds['digiquali_question'])) {
+                foreach ($object->linkedObjectsIds['digiquali_question'] as $questionId) {
+                    $question->fetch($questionId);
+                    $question->add_object_linked('digiquali_' . $object->element, $sheetID);
+                }
+                $object->updateQuestionsPosition($object->linkedObjectsIds['digiquali_question']);
+            }
+        } else {
+            $error++;
+            $this->error  = $object->error;
+            $this->errors = $object->errors;
+        }
+
+        // End
+        if (!$error) {
+            $this->db->commit();
+            return $sheetID;
+        } else {
+            $this->db->rollback();
+            return -1;
+        }
 	}
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
