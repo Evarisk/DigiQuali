@@ -159,8 +159,8 @@ print '<div id="tablelines" class="question-answer-container public-card__contai
 $substitutionArray = getCommonSubstitutionArray($langs, 0, null, $object);
 complete_substitutions_array($substitutionArray, $langs, $object);
 $answerPublicInterfaceTitle = make_substitutions($langs->transnoentities($conf->global->DIGIQUALI_ANSWER_PUBLIC_INTERFACE_TITLE), $substitutionArray);
-print '<h2 class="center">' . (dol_strlen($answerPublicInterfaceTitle) > 0 ? $answerPublicInterfaceTitle : $langs->transnoentities('AnswerPublicInterface')) . '</h2>';
-print '<br>';
+//print '<h2 class="center">' . (dol_strlen($answerPublicInterfaceTitle) > 0 ? $answerPublicInterfaceTitle : $langs->transnoentities('AnswerPublicInterface')) . '</h2>';
+//print '<br>';
 $publicInterface = true;
 $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
 require_once __DIR__ . '/../core/tpl/digiquali_answers.tpl.php';
@@ -179,6 +179,8 @@ if ($object->status == $object::STATUS_DRAFT) {
     print '</div>';
 }
 print '</div>';
+print '<button type="submit" class="wpeo-button button-square-50 button-rounded save-public-answer"><i class="fas fa-chevron-left"></i></button>';
+print '<button type="submit" class="wpeo-button button-square-50 button-rounded save-public-answer"><i class="fas fa-chevron-right"></i></button>';
 print '</form>';
 
 llxFooter('', 'public');
