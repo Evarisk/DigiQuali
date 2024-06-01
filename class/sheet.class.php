@@ -276,39 +276,31 @@ class Sheet extends SaturneObject
         return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
     }
 
-	/**
-	 * Clone an object into another one
-	 *
-	 * @param   User    $user    User that creates
-	 * @param   int     $fromid  Id of object to clone
-     * @param   array   $options Options array.
-	 * @return  mixed            New object created, <0 if KO
-	 * @throws  Exception
-	 */
-	public function createFromClone(User $user, int $fromid): int
-	{
-        global $conf, $langs;
-
+    /**
+     * Clone an object into another one
+     *
+     * @param   User      $user   User that creates
+     * @param   int       $fromID ID of object to clone
+     * @return  mixed             New object created, <0 if KO
+     * @throws  Exception
+     */
+    public function createFromClone(User $user, int $fromID): int
+    {
         dol_syslog(__METHOD__, LOG_DEBUG);
 
         $error = 0;
-
-        $question = new Question($this->db);
 
         $object = new self($this->db);
         $this->db->begin();
 
         // Load source object
-        $result = $object->fetchCommon($fromid);
-        if ($result > 0 && ! empty($object->table_element_line)) {
-            $object->fetchLines();
-        }
+        $object->fetchCommon($fromID);
 
         // Reset some properties
         unset($object->fk_user_creat);
         unset($object->import_key);
 
-        // Create clone
+        // Clear fields
         if (property_exists($object, 'ref')) {
             $object->ref = '';
         }
@@ -316,7 +308,7 @@ class Sheet extends SaturneObject
             $object->date_creation = dol_now();
         }
         if (property_exists($object, 'status')) {
-            $object->status = 1;
+            $object->status = self::STATUS_VALIDATED;
         }
 
         $object->context = 'createfromclone';
@@ -325,25 +317,22 @@ class Sheet extends SaturneObject
 
         $sheetID = $object->create($user);
         if ($sheetID > 0) {
-            $object->fetch($sheetID);
-
-            //add categories
-            $cat = new Categorie($this->db);
-            $categories = $cat->containing($fromid, 'sheet');
+            // Categories
+            $categoryIds = [];
+            $category    = new Categorie($this->db);
+            $categories  = $category->containing($fromID, 'sheet');
             if (is_array($categories) && !empty($categories)) {
-                foreach($categories as $cat) {
-                    $categoryIds[] = $cat->id;
+                foreach($categories as $category) {
+                    $categoryIds[] = $category->id;
                 }
                 $object->setCategories($categoryIds);
             }
 
-            //add objects linked
-            if (is_array($object->linkedObjectsIds['digiquali_question']) && !empty($object->linkedObjectsIds['digiquali_question'])) {
-                foreach ($object->linkedObjectsIds['digiquali_question'] as $questionId) {
-                    $question->fetch($questionId);
+            // Add objects linked
+            if (is_array($object->linkedObjects['digiquali_question']) && !empty($object->linkedObjects['digiquali_question'])) {
+                foreach ($object->linkedObjects['digiquali_question'] as $question) {
                     $question->add_object_linked('digiquali_' . $object->element, $sheetID);
                 }
-                $object->updateQuestionsPosition($object->linkedObjectsIds['digiquali_question']);
             }
         } else {
             $error++;
@@ -359,7 +348,7 @@ class Sheet extends SaturneObject
             $this->db->rollback();
             return -1;
         }
-	}
+    }
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
