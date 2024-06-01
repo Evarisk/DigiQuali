@@ -83,6 +83,7 @@ $backtopage  = GETPOST('backtopage', 'alpha'); // Go back to a dedicated page
 $optioncss   = GETPOST('optioncss', 'aZ');     // Option for the css output (always '' except when 'print')
 $fromtype    = GETPOST('fromtype', 'alpha');   // Element type
 $fromid      = GETPOST('fromid', 'int');       // Element id
+$mode        = GETPOST('mode', 'aZ');
 
 // Get pagination parameters
 $limit     = GETPOST('limit', 'int') ? GETPOST('limit', 'int') : $conf->liste_limit;
