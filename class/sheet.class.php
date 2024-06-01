@@ -276,74 +276,79 @@ class Sheet extends SaturneObject
         return dolGetStatus($this->labelStatus[$status], $this->labelStatusShort[$status], '', $statusType, $mode);
     }
 
-	/**
-	 * Clone an object into another one
-	 *
-	 * @param User $user User that creates
-	 * @param int $fromid Id of object to clone
-	 * @param $options
-	 * @return    mixed                New object created, <0 if KO
-	 * @throws Exception
-	 */
-	public function createFromClone(User $user, $fromid)
-	{
-		global $conf, $langs;
-		$error = 0;
+    /**
+     * Clone an object into another one
+     *
+     * @param   User      $user   User that creates
+     * @param   int       $fromID ID of object to clone
+     * @return  mixed             New object created, <0 if KO
+     * @throws  Exception
+     */
+    public function createFromClone(User $user, int $fromID): int
+    {
+        dol_syslog(__METHOD__, LOG_DEBUG);
 
-		$question = new Question($this->db);
+        $error = 0;
 
-		dol_syslog(__METHOD__, LOG_DEBUG);
+        $object = new self($this->db);
+        $this->db->begin();
 
-		$object = new self($this->db);
-		$this->db->begin();
+        // Load source object
+        $object->fetchCommon($fromID);
 
-		// Load source object
-		$result = $object->fetchCommon($fromid);
-		if ($result > 0 && ! empty($object->table_element_line)) {
-			$object->fetchLines();
-		}
+        // Reset some properties
+        unset($object->fk_user_creat);
+        unset($object->import_key);
 
-		// Create clone
+        // Clear fields
+        if (property_exists($object, 'ref')) {
+            $object->ref = '';
+        }
+        if (property_exists($object, 'date_creation')) {
+            $object->date_creation = dol_now();
+        }
+        if (property_exists($object, 'status')) {
+            $object->status = self::STATUS_VALIDATED;
+        }
+
+        $object->context = 'createfromclone';
+
         $object->fetchObjectLinked($object->id, 'digiquali_' . $object->element);
-		$object->context['createfromclone'] = 'createfromclone';
-		$object->ref = $object->getNextNumRef();
-		$object->status = 1;
-		$objectid = $object->create($user);
 
-		//add categories
-		$cat = new Categorie($this->db);
-		$categories = $cat->containing($fromid, 'sheet');
+        $sheetID = $object->create($user);
+        if ($sheetID > 0) {
+            // Categories
+            $categoryIds = [];
+            $category    = new Categorie($this->db);
+            $categories  = $category->containing($fromID, 'sheet');
+            if (is_array($categories) && !empty($categories)) {
+                foreach($categories as $category) {
+                    $categoryIds[] = $category->id;
+                }
+                $object->setCategories($categoryIds);
+            }
 
-		if (is_array($categories) && !empty($categories)) {
-			foreach($categories as $cat) {
-				$categoryIds[] = $cat->id;
-			}
-			if ($objectid > 0) {
-				$object->fetch($objectid);
-				$object->setCategories($categoryIds);
-			}
-		}
+            // Add objects linked
+            if (is_array($object->linkedObjects['digiquali_question']) && !empty($object->linkedObjects['digiquali_question'])) {
+                foreach ($object->linkedObjects['digiquali_question'] as $question) {
+                    $question->add_object_linked('digiquali_' . $object->element, $sheetID);
+                }
+            }
+        } else {
+            $error++;
+            $this->error  = $object->error;
+            $this->errors = $object->errors;
+        }
 
-		//add objects linked
-		if (is_array($object->linkedObjectsIds['digiquali_question']) && !empty($object->linkedObjectsIds['digiquali_question'])) {
-			foreach ($object->linkedObjectsIds['digiquali_question'] as $questionId) {
-				$question->fetch($questionId);
-				$question->add_object_linked('digiquali_' . $object->element, $objectid);
-			}
-			$object->updateQuestionsPosition($object->linkedObjectsIds['digiquali_question']);
-		}
-
-		unset($object->context['createfromclone']);
-
-		// End
-		if ( ! $error) {
-			$this->db->commit();
-			return $objectid;
-		} else {
-			$this->db->rollback();
-			return -1;
-		}
-	}
+        // End
+        if (!$error) {
+            $this->db->commit();
+            return $sheetID;
+        } else {
+            $this->db->rollback();
+            return -1;
+        }
+    }
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
