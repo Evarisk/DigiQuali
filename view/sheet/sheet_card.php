@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2022-2024 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -143,7 +143,7 @@ if (empty($reshook)) {
 
 		setEventMessages($langs->trans('removeQuestionLink') . ' ' . $question->ref, array());
 
-		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
+		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id') . '&page_y=' . GETPOST('page_y'));
 		exit;
 	}
 
@@ -579,7 +579,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     $pathPhotos = $conf->digiquali->multidir_output[$conf->entity] . '/sheet/'. $object->ref . '/photos/';
     $fileArray  = dol_dir_list($pathPhotos, 'files'); ?>
     <span class="add-medias" <?php echo ($object->status < Sheet::STATUS_LOCKED) ? '' : 'style="display:none"' ?>>
-        <input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
+        <input hidden multiple class="fast-upload<?php echo getDolGlobalInt('SATURNE_USE_FAST_UPLOAD_IMPROVEMENT') ? '-improvement' : ''; ?>" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
+        <input type="hidden" class="fast-upload-options" data-from-subtype="photo" data-from-subdir="photos"/>
         <label for="fast-upload-photo-default">
             <div class="wpeo-button <?php echo ($onPhone ? 'button-square-40' : 'button-square-50'); ?>">
                 <i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
@@ -732,7 +733,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			print '<td class="center">';
 			if ($object->status < $object::STATUS_LOCKED) {
-				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=unlinkQuestion&questionId=' . $item->id . '">';
+				print '<a class="reposition" href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=unlinkQuestion&questionId=' . $item->id . '">';
 				print img_delete();
 				print '</a>';
 			}
