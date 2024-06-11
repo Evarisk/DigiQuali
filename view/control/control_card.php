@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2022-2024 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,11 @@
 
 // Load DigiQuali environment
 if (file_exists('../digiquali.main.inc.php')) {
-	require_once __DIR__ . '/../digiquali.main.inc.php';
+    require_once __DIR__ . '/../digiquali.main.inc.php';
 } elseif (file_exists('../../digiquali.main.inc.php')) {
-	require_once __DIR__ . '/../../digiquali.main.inc.php';
+    require_once __DIR__ . '/../../digiquali.main.inc.php';
 } else {
-	die('Include of digiquali main fails');
+    die('Include of digiquali main fails');
 }
 
 // Libraries
@@ -66,7 +66,7 @@ $action              = GETPOST('action', 'aZ09');
 $subaction           = GETPOST('subaction', 'aZ09');
 $confirm             = GETPOST('confirm', 'alpha');
 $cancel              = GETPOST('cancel', 'aZ09');
-$contextpage         = GETPOST('contextpage', 'aZ') ?GETPOST('contextpage', 'aZ') : 'controlcard'; // To manage different context of search
+$contextpage         = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'controlcard'; // To manage different context of search
 $backtopage          = GETPOST('backtopage', 'alpha');
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 $source              = GETPOST('source', 'alpha'); // source PWA
@@ -105,13 +105,13 @@ $search_array_options = $extrafields->getOptionalsFromPost($object->table_elemen
 $searchAll = GETPOST('search_all', 'alpha');
 $search = array();
 foreach ($object->fields as $key => $val) {
-	if (GETPOST('search_'.$key, 'alpha')) $search[$key] = GETPOST('search_'.$key, 'alpha');
+    if (GETPOST('search_' . $key, 'alpha')) $search[$key] = GETPOST('search_' . $key, 'alpha');
 }
 
 if (empty($action) && empty($id) && empty($ref)) $action = 'view';
 
 // Load object
-include DOL_DOCUMENT_ROOT.'/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
+include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
 
 $permissiontoread       = $user->rights->digiquali->control->read;
 $permissiontoadd        = $user->rights->digiquali->control->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
@@ -133,73 +133,72 @@ if ($resHook < 0) {
 }
 
 if (empty($resHook)) {
-	$error = 0;
+    $error = 0;
 
-	$backurlforlist = dol_buildpath('/digiquali/view/control/control_list.php?source=' . $source, 1);
+    $backurlforlist = dol_buildpath('/digiquali/view/control/control_list.php?source=' . $source, 1);
 
-	if (empty($backtopage) || ($cancel && empty($id))) {
-		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
-			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) $backtopage = $backurlforlist;
-			else $backtopage = dol_buildpath('/digiquali/view/control/control_card.php', 1) . '?id=' . ($id > 0 ? $id : '__ID__') . '&source=' . $source;
-		}
-	}
+    if (empty($backtopage) || ($cancel && empty($id))) {
+        if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
+            if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) $backtopage = $backurlforlist;
+            else $backtopage = dol_buildpath('/digiquali/view/control/control_card.php', 1) . '?id=' . ($id > 0 ? $id : '__ID__') . '&source=' . $source;
+        }
+    }
 
 	// Action clone object
 	if ($action == 'confirm_clone' && $confirm == 'yes') {
         $options['label']      = GETPOST('clone_label');
         $options['attendants'] = GETPOST('clone_attendants');
         $options['photos']     = GETPOST('clone_photos');
-		if ($object->id > 0) {
-			$result = $object->createFromClone($user, $object->id, $options);
-			if ($result > 0) {
-				header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . $result);
-				exit();
-			} else {
-				setEventMessages($object->error, $object->errors, 'errors');
-				$action = '';
-			}
-		}
-	}
+        if ($object->id > 0) {
+            $result = $object->createFromClone($user, $object->id, $options);
+            if ($result > 0) {
+                header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . $result);
+                exit();
+            } else {
+                setEventMessages($object->error, $object->errors, 'errors');
+                $action = '';
+            }
+        }
+    }
 
-	if ($action == 'add' && !$cancel) {
-		$linkableElements = get_sheet_linkable_objects();
-		$controlledObjectSelected = 0;
+    if ($action == 'add' && !$cancel) {
+        $linkableElements = get_sheet_linkable_objects();
+        $controlledObjectSelected = 0;
 
-		if (!empty($linkableElements)) {
-			foreach ($linkableElements as $linkableElementType => $linkableElement) {
-				if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
-					$controlledObjectSelected++;
-				}
-			}
-		}
+        if (!empty($linkableElements)) {
+            foreach ($linkableElements as $linkableElementType => $linkableElement) {
+                if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
+                    $controlledObjectSelected++;
+                }
+            }
+        }
 
-		if (GETPOST('fk_sheet') > 0) {
-			if ($controlledObjectSelected == 0) {
-				setEventMessages($langs->trans('NeedObjectToControl'), [], 'errors');
-				header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&fk_sheet=' . GETPOST('fk_sheet') . '&viewmode=' . $viewmode . '&source=' . $source);
-				exit;
-			}
-		} else {
-			setEventMessages($langs->trans('NeedFkSheet'), [], 'errors');
-			header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&viewmode=' . $viewmode . '&source=' . $source);
-			exit;
-		}
+        if (GETPOST('fk_sheet') > 0) {
+            if ($controlledObjectSelected == 0) {
+                setEventMessages($langs->trans('NeedObjectToControl'), [], 'errors');
+                header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&fk_sheet=' . GETPOST('fk_sheet') . '&viewmode=' . $viewmode . '&source=' . $source);
+                exit;
+            }
+        } else {
+            setEventMessages($langs->trans('NeedFkSheet'), [], 'errors');
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&viewmode=' . $viewmode . '&source=' . $source);
+            exit;
+        }
+    }
 
-	}
-
-	// Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
-	include DOL_DOCUMENT_ROOT.'/core/actions_addupdatedelete.inc.php';
+    // Actions cancel, add, update, update_extras, confirm_validate, confirm_delete, confirm_deleteline, confirm_clone, confirm_close, confirm_setdraft, confirm_reopen
+    include DOL_DOCUMENT_ROOT . '/core/actions_addupdatedelete.inc.php';
 
     // Actions set_thirdparty, set_project
     require_once __DIR__ . '/../../../saturne/core/tpl/actions/banner_actions.tpl.php';
 
-	if ($action == 'set_categories' && $permissiontoadd) {
-		if ($object->fetch($id) > 0) {
-			$result = $object->setCategories(GETPOST('categories', 'array'));
-			header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $id);
-			exit();
-		}
-	}
+    if ($action == 'set_categories' && $permissiontoadd) {
+        if ($object->fetch($id) > 0) {
+            $result = $object->setCategories(GETPOST('categories', 'array'));
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $id);
+            exit();
+        }
+    }
 
     if ($action == 'show_only_questions_with_no_answer') {
         $data = json_decode(file_get_contents('php://input'), true);
@@ -211,64 +210,64 @@ if (empty($resHook)) {
         dol_set_user_param($db, $conf, $user, $tabParam);
     }
 
-	require_once __DIR__ . '/../../core/tpl/digiquali_answers_save_action.tpl.php';
+    require_once __DIR__ . '/../../core/tpl/digiquali_answers_save_action.tpl.php';
 
     // Actions builddoc, forcebuilddoc, remove_file.
     require_once __DIR__ . '/../../../saturne/core/tpl/documents/documents_action.tpl.php';
 
-	// Action to generate pdf from odt file
+    // Action to generate pdf from odt file
     require_once __DIR__ . '/../../../saturne/core/tpl/documents/saturne_manual_pdf_generation_action.tpl.php';
 
-	if ($action == 'confirm_setVerdict' && $permissiontosetverdict && !GETPOST('cancel', 'alpha')) {
-		$object->fetch($id);
-		if ( ! $error) {
-			$object->verdict = GETPOST('verdict', 'int');
-			$object->note_public .= (!empty($object->note_public) ? chr(0x0A) : '') . GETPOST('noteControl');
-			$result = $object->update($user);
-			if ($result > 0) {
-				// Set verdict Control
-				$object->call_trigger('CONTROL_VERDICT', $user);
-				$urltogo = str_replace('__ID__', $result, $backtopage);
-				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-				header('Location: ' . $urltogo);
-				exit;
-			} else {
-				// Set verdict Control error
-				if ( ! empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
-				else setEventMessages($object->error, null, 'errors');
-			}
-		}
-	}
+    if ($action == 'confirm_setVerdict' && $permissiontosetverdict && !GETPOST('cancel', 'alpha')) {
+        $object->fetch($id);
+        if (!$error) {
+            $object->verdict = GETPOST('verdict', 'int');
+            $object->note_public .= (!empty($object->note_public) ? chr(0x0A) : '') . GETPOST('noteControl');
+            $result = $object->update($user);
+            if ($result > 0) {
+                // Set verdict Control
+                $object->call_trigger('CONTROL_VERDICT', $user);
+                $urltogo = str_replace('__ID__', $result, $backtopage);
+                $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
+                header('Location: ' . $urltogo);
+                exit;
+            } else {
+                // Set verdict Control error
+                if (!empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
+                else setEventMessages($object->error, null, 'errors');
+            }
+        }
+    }
 
-	// Action to set status STATUS_REOPENED
-	if ($action == 'confirm_set_reopen') {
-		$object->fetch($id);
-		if ( ! $error) {
-			$result = $object->setDraft($user, false);
-			if ($result > 0) {
-				$object->verdict = null;
-				$result = $object->update($user);
-				// Set reopened OK
-				$urltogo = str_replace('__ID__', $result, $backtopage);
-				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-				header('Location: ' . $urltogo);
-				exit;
-			} else {
-				// Set reopened KO
-				if ( ! empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
-				else setEventMessages($object->error, null, 'errors');
-			}
-		}
-	}
+    // Action to set status STATUS_REOPENED
+    if ($action == 'confirm_set_reopen') {
+        $object->fetch($id);
+        if (!$error) {
+            $result = $object->setDraft($user, false);
+            if ($result > 0) {
+                $object->verdict = null;
+                $result = $object->update($user);
+                // Set reopened OK
+                $urltogo = str_replace('__ID__', $result, $backtopage);
+                $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
+                header('Location: ' . $urltogo);
+                exit;
+            } else {
+                // Set reopened KO
+                if (!empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
+                else setEventMessages($object->error, null, 'errors');
+            }
+        }
+    }
 
     // Actions confirm_lock, confirm_archive
     require_once __DIR__ . '/../../../saturne/core/tpl/actions/object_workflow_actions.tpl.php';
 
-	// Actions to send emails
-	$triggersendname = 'CONTROL_SENTBYMAIL';
-	$autocopy        = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
-	$trackid         = 'control' . $object->id;
-	include DOL_DOCUMENT_ROOT . '/core/actions_sendmails.inc.php';
+    // Actions to send emails
+    $triggersendname = 'CONTROL_SENTBYMAIL';
+    $autocopy        = 'MAIN_MAIL_AUTOCOPY_AUDIT_TO';
+    $trackid         = 'control' . $object->id;
+    include DOL_DOCUMENT_ROOT . '/core/actions_sendmails.inc.php';
 }
 
 /*
@@ -283,7 +282,7 @@ if ($source == 'pwa') {
     $conf->dol_hide_leftmenu = 1;
 }
 
-saturne_header(1,'', $title, $help_url);
+saturne_header(1, '', $title, $help_url);
 $object->fetch(GETPOST('id'));
 
 $elementArray = get_sheet_linkable_objects();
@@ -318,7 +317,7 @@ if ($action == 'create') {
         if (!getDolGlobalInt('DIGIQUALI_SHEET_MAIN_CATEGORIES_SET')) {
             print '<div class="wpeo-notice notice-warning notice-red">';
             print '<div class="notice-content">';
-            print '<a href="' . dol_buildpath('/custom/digiquali/admin/sheet.php#sheetCategories', 2) . '">' . '<b><div class="notice-subtitle">'.$langs->trans('GenerateSheetTags') . ' : ' . $langs->trans('ConfigSheet') . '</div></b></a>';
+            print '<a href="' . dol_buildpath('/custom/digiquali/admin/sheet.php#sheetCategories', 2) . '">' . '<b><div class="notice-subtitle">' . $langs->trans('GenerateSheetTags') . ' : ' . $langs->trans('ConfigSheet') . '</div></b></a>';
             print '</div></div>';
             print '</table>';
             print dol_get_fiche_end();
@@ -364,7 +363,7 @@ if ($action == 'create') {
     } else {
         //FK SHEET
         print '<tr><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('Sheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
-        print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet')?: $sheet->id, 'fk_sheet', 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED);
+        print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet') ?: $sheet->id, 'fk_sheet', 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED);
         if ($source != 'pwa') {
             print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
         }
@@ -397,13 +396,13 @@ if ($action == 'create') {
     print '</table>';
     print '<hr>';
 
-	print '<table class="centpercent tableforfieldcreate object-table linked-objects">';
+    print '<table class="centpercent tableforfieldcreate object-table linked-objects">';
 
     print '<tr><td>';
     print '<div class="fields-content">';
 
-    foreach($elementArray as $linkableElementType => $linkableElement) {
-        if (!empty($linkableElement['conf'] && preg_match('/"'. $linkableElementType .'":1/',$sheet->element_linked))) {
+    foreach ($elementArray as $linkableElementType => $linkableElement) {
+        if (!empty($linkableElement['conf'] && preg_match('/"' . $linkableElementType . '":1/', $sheet->element_linked))) {
 
             $objectArray    = [];
             $objectPostName = $linkableElement['post_name'];
@@ -417,13 +416,13 @@ if ($action == 'create') {
             $objectList = saturne_fetch_all_object_type($linkableElement['className'], '', '', 0, 0, $objectFilter);
 
             if (is_array($objectList) && !empty($objectList)) {
-                foreach($objectList as $objectSingle) {
+                foreach ($objectList as $objectSingle) {
                     $objectName = '';
                     $nameField = $linkableElement['name_field'];
                     if (strstr($nameField, ',')) {
                         $nameFields = explode(', ', $nameField);
                         if (is_array($nameFields) && !empty($nameFields)) {
-                            foreach($nameFields as $subnameField) {
+                            foreach ($nameFields as $subnameField) {
                                 $objectName .= $objectSingle->$subnameField . ' ';
                             }
                         }
@@ -435,7 +434,7 @@ if ($action == 'create') {
             }
 
             print '<tr><td class="titlefieldcreate">' . ($source != 'pwa' ? $langs->transnoentities($linkableElement['langs']) : img_picto('', $linkableElement['picto'], 'class="pictofixedwidth fa-3x"')) . '</td><td>';
-            print ($source != 'pwa' ? img_picto('', $linkableElement['picto'], 'class="pictofixedwidth"') : '');
+            print($source != 'pwa' ? img_picto('', $linkableElement['picto'], 'class="pictofixedwidth"') : '');
             print $form->selectArray($objectPostName, $objectArray, $objectPost, $langs->trans('Select') . ' ' . strtolower($langs->trans($linkableElement['langs'])), 0, 0, '', 0, 0, dol_strlen(GETPOST('fromtype')) > 0 && GETPOST('fromtype') != $linkableElement['link_name'], '', 'maxwidth500 widthcentpercentminusxx');
             if ($source != 'pwa') {
                 print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/' . $linkableElement['create_url'] . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('Create') . ' ' . strtolower($langs->trans($linkableElement['langs'])) . '"></span></a>';
@@ -476,7 +475,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     $answerCounter = 0;
     if (is_array($object->lines) && !empty($object->lines)) {
-        foreach($object->lines as $objectLine) {
+        foreach ($object->lines as $objectLine) {
             if (dol_strlen($objectLine->answer) > 0) {
                 $answerCounter++;
             }
@@ -578,7 +577,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print '<tr><td class="titlefield">' . $langs->trans('PublicInterface') . ' <a href="' . $publicInterfaceUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
         print showValueWithClipboardCPButton($publicInterfaceUrl, 0, '&nbsp;');
         print '</td>';
-        print '<td>' . saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/'. $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
+        print '<td>' . saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/' . $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
 
         // Answer public interface
         $publicAnswerUrl = dol_buildpath('custom/digiquali/public/public_answer.php?track_id=' . $object->track_id . '&object_type=' . $object->element . '&document_type=ControlDocument&entity=' . $conf->entity, 3);
@@ -644,7 +643,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     $object->fetchObjectLinked('', '', $object->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
 
-    foreach($elementArray as $linkableElementType => $linkableElement) {
+    foreach ($elementArray as $linkableElementType => $linkableElement) {
         if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
             $className    = $linkableElement['className'];
             $linkedObject = new $className($db);
@@ -675,38 +674,40 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     }
 
     print '<tr class="linked-medias photo question-table"><td class=""><label for="photos">' . $langs->trans("Photo") . '</label></td><td class="linked-medias-list">';
-    $pathPhotos = $conf->digiquali->multidir_output[$conf->entity] . '/control/'. $object->ref . '/photos/';
+    $pathPhotos = $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/photos/';
     $fileArray  = dol_dir_list($pathPhotos, 'files');
-    ?>
+?>
     <span class="add-medias" <?php echo ($object->status < Control::STATUS_LOCKED) ? '' : 'style="display:none"' ?>>
         <input hidden multiple class="fast-upload<?php echo getDolGlobalInt('SATURNE_USE_FAST_UPLOAD_IMPROVEMENT') ? '-improvement' : ''; ?>" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
-        <input type="hidden" class="fast-upload-options" data-from-subtype="photo" data-from-subdir="photos"/>
+        <input type="hidden" class="fast-upload-options" data-from-subtype="photo" data-from-subdir="photos" />
         <label for="fast-upload-photo-default">
             <div class="wpeo-button <?php echo ($onPhone ? 'button-square-40' : 'button-square-50'); ?>">
                 <i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
             </div>
         </label>
-        <input type="hidden" class="favorite-photo" id="photo" name="photo" value="<?php echo $object->photo ?>"/>
+        <input type="hidden" class="favorite-photo" id="photo" name="photo" value="<?php echo $object->photo ?>" />
         <div class="wpeo-button <?php echo ($onPhone ? 'button-square-40' : 'button-square-50'); ?> 'open-media-gallery add-media modal-open" value="0">
-            <input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id?>" data-from-type="control" data-from-subtype="photo" data-from-subdir="photos"/>
+            <input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id ?>" data-from-type="control" data-from-subtype="photo" data-from-subdir="photos" />
             <i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
         </div>
     </span>
     <?php
-    print saturne_show_medias_linked('digiquali', $pathPhotos, 'small', 0, 0, 0, 0, $onPhone ? 40 : 50, $onPhone ? 40 : 50, 0, 0, 0, 'control/'. $object->ref . '/photos/', $object, 'photo', $object->status < Control::STATUS_LOCKED, $permissiontodelete && $object->status < Control::STATUS_LOCKED);
+    print saturne_show_medias_linked('digiquali', $pathPhotos, 'small', 0, 0, 0, 0, $onPhone ? 40 : 50, $onPhone ? 40 : 50, 0, 0, 0, 'control/' . $object->ref . '/photos/', $object, 'photo', $object->status < Control::STATUS_LOCKED, $permissiontodelete && $object->status < Control::STATUS_LOCKED);
     print '</td></tr>';
 
     $averagePercentageQuestions = 0;
     $percentQuestionCounter     = 0;
-    foreach ($sheet->linkedObjects['digiquali_question'] as $questionLinked) {
-        if ($questionLinked->type !== 'Percentage') {
-            continue; // Skip non-percentage questions
-        }
+    if (!empty($sheet->linkedObjects['digiquali_question'])) {
+        foreach ($sheet->linkedObjects['digiquali_question'] as $questionLinked) {
+            if ($questionLinked->type !== 'Percentage') {
+                continue; // Skip non-percentage questions
+            }
 
-        $percentQuestionCounter++;
-        foreach ($object->lines as $line) {
-            if ($line->fk_question === $questionLinked->id) {
-                $averagePercentageQuestions += $line->answer;
+            $percentQuestionCounter++;
+            foreach ($object->lines as $line) {
+                if ($line->fk_question === $questionLinked->id) {
+                    $averagePercentageQuestions += $line->answer;
+                }
             }
         }
     }
@@ -715,7 +716,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     if ($percentQuestionCounter > 0) {
         print '<tr class="field_success_rate"><td class="titlefield fieldname_success_rate">';
-        print $form->editfieldkey('SuccessScore', 'success_rate', $object->success_rate, $object, $permissiontoadd && $object->status < Control::STATUS_LOCKED, 'string', '', 0, 0,'id', $langs->trans('PercentageValue'));
+        print $form->editfieldkey('SuccessScore', 'success_rate', $object->success_rate, $object, $permissiontoadd && $object->status < Control::STATUS_LOCKED, 'string', '', 0, 0, 'id', $langs->trans('PercentageValue'));
         print '</td><td class="valuefield fieldname_success_rate">';
         if ($action == 'editsuccess_rate') {
             print '<form action="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '" method="post">';
@@ -771,7 +772,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             <div class="notice-content">
                 <div class="notice-title"><?php echo $langs->trans('ControlEquipmentOutdated') ?></div>
             </div>
-            <a class="butAction" href="<?php echo DOL_URL_ROOT . '/custom/digiquali/view/control/control_equipment.php?id=' . $object->id?>"><?php echo $langs->trans("GoToEquipmentHours", $usertmp->getFullName($langs)) ?></a>
+            <a class="butAction" href="<?php echo DOL_URL_ROOT . '/custom/digiquali/view/control/control_equipment.php?id=' . $object->id ?>"><?php echo $langs->trans("GoToEquipmentHours", $usertmp->getFullName($langs)) ?></a>
         </div>
     <?php }
 
@@ -864,7 +865,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
             // Archive
             $displayButton = $onPhone ?  '<i class="fas fa-archive fa-2x"></i>' : '<i class="fas fa-archive"></i>' . ' ' . $langs->trans('Archive');
-            if ($object->status == Control::STATUS_LOCKED && !empty(dol_dir_list($upload_dir . '/'. $object->element . 'document/' . dol_sanitizeFileName($object->ref)))) {
+            if ($object->status == Control::STATUS_LOCKED && !empty(dol_dir_list($upload_dir . '/' . $object->element . 'document/' . dol_sanitizeFileName($object->ref)))) {
                 print '<a class="butAction" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=confirm_archive&token=' . newToken() . '">' . $displayButton . '</a>';
             } else {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLockedToArchive', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '">' . $displayButton . '</span>';
@@ -891,7 +892,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     <div class="progress-info">
         <span class="badge badge-info" style="margin-right: 10px;"><?php print $answerCounter . '/' . $questionCounter; ?></span>
         <div class="progress-bar" style="margin-right: 10px;">
-            <div class="progress progress-bar-success" style="width:<?php print ($questionCounter > 0 ? ($answerCounter/$questionCounter) * 100 : 0) . '%'; ?>;" title="<?php print ($questionCounter > 0 ? $answerCounter . '/' . $questionCounter : 0); ?>"></div>
+            <div class="progress progress-bar-success" style="width:<?php print ($questionCounter > 0 ? ($answerCounter / $questionCounter) * 100 : 0) . '%'; ?>;" title="<?php print($questionCounter > 0 ? $answerCounter . '/' . $questionCounter : 0); ?>"></div>
         </div>
         <?php if ($answerCounter != $questionCounter) {
             print $user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? img_picto($langs->trans('Enabled'), 'switch_on', 'class="show-only-questions-with-no-answer marginrightonly"') : img_picto($langs->trans('Disabled'), 'switch_off', 'class="show-only-questions-with-no-answer marginrightonly"');
@@ -901,7 +902,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         } ?>
     </div>
 
-    <?php if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
+<?php if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
         print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', '');
         print '<div id="tablelines" class="question-answer-container noborder noshadow">';
         require_once __DIR__ . '/../../core/tpl/digiquali_answers.tpl.php';
@@ -940,8 +941,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         $action = 'presend';
     }
 
-	if ($action == 'presend') {
-		$langs->load('mails');
+    if ($action == 'presend') {
+        $langs->load('mails');
 
         $ref = dol_sanitizeFileName($object->ref);
         $filelist = dol_dir_list($upload_dir . '/' . $object->element . 'document' . '/' . $ref, 'files', 0, '', '', 'date', SORT_DESC);
@@ -980,17 +981,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print dol_get_fiche_head();
 
         // Create form for email.
-        require_once DOL_DOCUMENT_ROOT.'/core/class/html.formmail.class.php';
+        require_once DOL_DOCUMENT_ROOT . '/core/class/html.formmail.class.php';
         $formmail = new FormMail($db);
 
         $formmail->param['langsmodels'] = (empty($newlang) ? $langs->defaultlang : $newlang);
-        $formmail->fromtype = (GETPOST('fromtype') ?GETPOST('fromtype') : (!empty($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE) ? $conf->global->MAIN_MAIL_DEFAULT_FROMTYPE : 'user'));
+        $formmail->fromtype = (GETPOST('fromtype') ? GETPOST('fromtype') : (!empty($conf->global->MAIN_MAIL_DEFAULT_FROMTYPE) ? $conf->global->MAIN_MAIL_DEFAULT_FROMTYPE : 'user'));
 
         if ($formmail->fromtype === 'user') {
             $formmail->fromid = $user->id;
         }
 
-		$formmail->withfrom = 1;
+        $formmail->withfrom = 1;
 
         // Define $liste, a list of recipients with email inside <>.
         $liste = [];
