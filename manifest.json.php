@@ -74,8 +74,8 @@ if (empty($dolibarr_nocache)) {
 // Initialize technical objects
 $manifest = new stdClass();
 
-$manifest->short_name = 'DigiQuali';
-$manifest->name       = 'DigiQuali';
+$manifest->short_name = $_SERVER['SERVER_NAME'] . '-DigiQuali';
+$manifest->name       = $_SERVER['SERVER_NAME'] . '-DigiQuali';
 $manifest->icons      = [];
 
 $img               = new stdClass();
