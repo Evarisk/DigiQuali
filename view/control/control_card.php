@@ -276,13 +276,14 @@ if (empty($resHook)) {
 
 $title    = $langs->trans('Control');
 $help_url = 'FR:Module_DigiQuali';
+$moreJS   = ['/saturne/js/includes/hammer.min.js'];
 
 if ($source == 'pwa') {
     $conf->dol_hide_topmenu  = 1;
     $conf->dol_hide_leftmenu = 1;
 }
 
-saturne_header(1,'', $title, $help_url);
+saturne_header(1,'', $title, $help_url, '', 0, 0, $moreJS);
 $object->fetch(GETPOST('id'));
 
 $elementArray = get_sheet_linkable_objects();
