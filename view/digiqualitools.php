@@ -74,7 +74,7 @@ if ($action == 'data_migration_export_global' && $permissionToRead) {
 	$digiqualiExportArray = [];
 	if (GETPOST('data_migration_export_sqa', 'alpha')) {
 		$allSheets  = $sheet->fetchAll();
-		$exportName = 'sheet_question_answer';
+		$exportName = 'all_models';
 		if (is_array($allSheets) && !empty($allSheets)) {
 			foreach ($allSheets as $sheetSingle) {
 				$sheetExportArray['rowid']               = $sheetSingle->id;
@@ -97,7 +97,7 @@ if ($action == 'data_migration_export_global' && $permissionToRead) {
 			}
 		}
 	} else {
-		$exportName = 'question_answer';
+		$exportName = 'all_questions';
 	}
 
     $allQuestions = $question->fetchAll();
@@ -164,7 +164,7 @@ if ($action == 'data_migration_export_global' && $permissionToRead) {
 // Import ZIP file
 if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
     if (!empty($_FILES)) {
-        if (!preg_match('/question_answer_export/', $_FILES['dataMigrationImportZipFile']['name'][0]) || $_FILES['dataMigrationImportZipFile']['size'][0] < 1) {
+        if ($_FILES['dataMigrationImportZipFile']['size'][0] < 1) {
             setEventMessages($langs->trans('ErrorArchiveNotWellFormattedZIP'), [], 'errors');
         } else {
             if (is_array($_FILES['dataMigrationImportZipFile']['tmp_name'])) {
