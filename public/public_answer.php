@@ -142,13 +142,14 @@ if (empty($resHook)) {
  * View
  */
 
-$title  = $langs->trans('PublicAnswer');
-$moreJS = ['/saturne/js/includes/signature-pad.min.js'];
+$title   = $langs->trans('PublicAnswer');
+$moreJS  = ['/saturne/js/includes/signature-pad.min.js'];
+$moreCSS = ['/saturne/css/pico.min.css'];
 
 $conf->dol_hide_topmenu  = 1;
 $conf->dol_hide_leftmenu = 1;
 
-saturne_header(1,'', $title, '', '', 0, 0, $moreJS, [], '', 'page-public-card page-signature');
+saturne_header(1,'', $title, '', '', 0, 0, $moreJS, $moreCSS, '', 'page-public-card page-signature');
 
 print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '?action=save&id=' . $object->id . '&track_id=' . $trackID . '&object_type=' . $object->element . '&document_type=' . $documentType . '&entity=' . $conf->entity . '" id="saveObject" enctype="multipart/form-data">';
 print '<input type="hidden" name="token" value="' . newToken() . '">';
@@ -159,8 +160,9 @@ print '<div id="tablelines" class="question-answer-container public-card__contai
 $substitutionArray = getCommonSubstitutionArray($langs, 0, null, $object);
 complete_substitutions_array($substitutionArray, $langs, $object);
 $answerPublicInterfaceTitle = make_substitutions($langs->transnoentities($conf->global->DIGIQUALI_ANSWER_PUBLIC_INTERFACE_TITLE), $substitutionArray);
-//print '<h2 class="center">' . (dol_strlen($answerPublicInterfaceTitle) > 0 ? $answerPublicInterfaceTitle : $langs->transnoentities('AnswerPublicInterface')) . '</h2>';
-//print '<br>';
+if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_SHOW_TITLE')) {
+    print '<h2 class="center">' . (dol_strlen($answerPublicInterfaceTitle) > 0 ? $answerPublicInterfaceTitle : $langs->transnoentities('AnswerPublicInterface')) . '</h2>';
+}
 $publicInterface = true;
 $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
 require_once __DIR__ . '/../core/tpl/digiquali_answers.tpl.php';
@@ -179,8 +181,8 @@ if ($object->status == $object::STATUS_DRAFT) {
     print '</div>';
 }
 print '</div>';
-print '<button type="submit" class="wpeo-button button-square-50 button-rounded save-public-answer"><i class="fas fa-chevron-left"></i></button>';
-print '<button type="submit" class="wpeo-button button-square-50 button-rounded save-public-answer"><i class="fas fa-chevron-right"></i></button>';
+//print '<button type="submit" class="wpeo-button button-square-50 button-rounded save-public-answer"><i class="fas fa-chevron-left"></i></button>';
+//print '<button type="submit" class="wpeo-button button-square-50 button-rounded save-public-answer"><i class="fas fa-chevron-right"></i></button>';
 print '</form>';
 
 llxFooter('', 'public');
