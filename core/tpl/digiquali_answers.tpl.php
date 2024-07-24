@@ -59,9 +59,11 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                                 } ?>
                             </div>
                             <?php if ($question->type == 'Text') : ?>
-                                <div>
-                                    <textarea name="answer<?php echo $question->id; ?>'" id="answer<?php echo $question->id; ?>'" rows="3" placeholder="<?php echo $langs->trans('Comment'); ?>" <?php echo $object->status > $object::STATUS_DRAFT ? ' disabled' : ''; ?>><?php echo $questionAnswer; ?></textarea>
-                                </div>
+                            <div class="<?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+                                <?php
+                                print '<span>' . $langs->trans('Answer') . ' : </span>';
+                                $object->status > $object::STATUS_DRAFT ? print $questionAnswer :
+                                    print '<input' . ($object->status > $object::STATUS_DRAFT ? ' disabled' : '') . ' name="answer' . $question->id . '" id="answer' . $question->id . '"class="question-textarea input-answer ' . ($object->status > 0 ? 'disable' : '') . '" value="' . $questionAnswer . '">'; ?>
                             <?php endif; ?>
                             <?php if ($question->enter_comment > 0) : ?>
                                 <?php print $langs->trans('Comment') . ' : '; ?>
@@ -153,7 +155,7 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                     <?php elseif ($question->type == 'Percentage') : ?>
                         <div class="table-cell answer-cell table-flex table-full percentage-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>" data-questionId="<?php echo $question->id; ?>">
                             <?php
-                            print img_picto('', 'fontawesome_fa-frown-open_fas_#D53C3D_3em', 'class="range-image"');
+                            print img_picto('', 'fontawesome_fa-frown_fas_#D53C3D_3em', 'class="range-image"');
                             print '<input type="range" class="search_component_input range input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" name="answer' . $question->id . '" id="answer' . $question->id . '" min="0" max="100" step="25" value="' . $questionAnswer . '"' . ($object->status > $object::STATUS_DRAFT ? ' disabled' : '') . '>';
                             print img_picto('', 'fontawesome_fa-grin_fas_#57AD39_3em', 'class="range-image"');
                             ?>

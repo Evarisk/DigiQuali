@@ -142,21 +142,20 @@ if (empty($resHook)) {
  * View
  */
 
-$title   = $langs->trans('PublicAnswer');
-$moreJS  = ['/saturne/js/includes/signature-pad.min.js'];
-$moreCSS = ['/saturne/css/pico.min.css'];
+$title  = $langs->trans('PublicAnswer');
+$moreJS = ['/saturne/js/includes/signature-pad.min.js'];
 
 $conf->dol_hide_topmenu  = 1;
 $conf->dol_hide_leftmenu = 1;
 
-saturne_header(1,'', $title, '', '', 0, 0, $moreJS, $moreCSS, '', 'page-public-card page-signature');
+saturne_header(1,'', $title, '', '', 0, 0, $moreJS, [], '', 'page-public-card page-signature');
 
 print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '?action=save&id=' . $object->id . '&track_id=' . $trackID . '&object_type=' . $object->element . '&document_type=' . $documentType . '&entity=' . $conf->entity . '" id="saveObject" enctype="multipart/form-data">';
 print '<input type="hidden" name="token" value="' . newToken() . '">';
 print '<input type="hidden" name="public_interface" value="true">';
 print '<input type="hidden" name="action" value="save">';
 
-print '<div id="tablelines" class="question-answer-container public-card__container" data-public-interface="true" style="max-width: 1000px; margin-bottom: 4em;">';
+print '<div id="tablelines" class="question-answer-container-pwa public-card__container" data-public-interface="true" style="max-width: 1000px; margin-bottom: 4em;">';
 $substitutionArray = getCommonSubstitutionArray($langs, 0, null, $object);
 complete_substitutions_array($substitutionArray, $langs, $object);
 $answerPublicInterfaceTitle = make_substitutions($langs->transnoentities($conf->global->DIGIQUALI_ANSWER_PUBLIC_INTERFACE_TITLE), $substitutionArray);
