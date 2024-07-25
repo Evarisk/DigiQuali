@@ -59,11 +59,10 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                                 } ?>
                             </div>
                             <?php if ($question->type == 'Text') : ?>
-                            <div class="<?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
+                            <div class="question-answer-text">
                                 <?php
-                                print '<span>' . $langs->trans('Answer') . ' : </span>';
                                 $object->status > $object::STATUS_DRAFT ? print $questionAnswer :
-                                    print '<input' . ($object->status > $object::STATUS_DRAFT ? ' disabled' : '') . ' name="answer' . $question->id . '" id="answer' . $question->id . '"class="question-textarea input-answer ' . ($object->status > 0 ? 'disable' : '') . '" value="' . $questionAnswer . '">'; ?>
+                                    print '<textarea' . ($object->status > $object::STATUS_DRAFT ? ' disabled' : '') . ' name="answer' . $question->id . '" id="answer' . $question->id . '"class="question-textarea input-answer ' . ($object->status > 0 ? 'disable' : '') . '" value="' . $questionAnswer . '"></textarea>'; ?>
                             <?php endif; ?>
                             <?php if ($question->enter_comment > 0) : ?>
                                 <?php print $langs->trans('Comment') . ' : '; ?>
