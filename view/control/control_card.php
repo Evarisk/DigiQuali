@@ -697,7 +697,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     $averagePercentageQuestions = 0;
     $percentQuestionCounter     = 0;
-    if (!empty($sheet->linkedObjects['digiquali_question'])) {
+    if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->linkedObjects['digiquali_question'])) {
         foreach ($sheet->linkedObjects['digiquali_question'] as $questionLinked) {
             if ($questionLinked->type !== 'Percentage') {
                 continue; // Skip non-percentage questions
