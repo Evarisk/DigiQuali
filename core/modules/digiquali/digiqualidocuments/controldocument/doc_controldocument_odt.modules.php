@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2022-2024 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -185,7 +185,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
                                 // Fill an array with photo path and ref of the answer for next loop.
                                 if (is_array($fileList) && !empty($fileList)) {
                                     foreach ($fileList as $singleFile) {
-                                        $fileSmall          = saturne_get_thumb_name($singleFile['name']);
+                                        $fileSmall          = saturne_get_thumb_name($singleFile['name'], getDolGlobalString('DIGIQUALI_DOCUMENT_MEDIA_VIGNETTE_USED'));
                                         $image              = $path . '/thumbs/' . $fileSmall;
                                         $photoArray[$image] = $questionAnswerLine->ref;
                                     }
@@ -318,7 +318,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
 
         if (!empty($object->photo)) {
             $path      = $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/photos';
-            $fileSmall = saturne_get_thumb_name($object->photo);
+            $fileSmall = saturne_get_thumb_name($object->photo, getDolGlobalString('DIGIQUALI_DOCUMENT_MEDIA_VIGNETTE_USED'));
             $image     = $path . '/thumbs/' . $fileSmall;
             $tmpArray['photoDefault'] = $image;
         } else {
