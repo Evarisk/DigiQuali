@@ -124,19 +124,23 @@ $dolEditor = new DolEditor('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_TITLE', $answerPub
 $dolEditor->Create();
 print '</td></tr>';
 
-// Use signatory
-print '<tr class="oddeven"><td>';
-print $langs->transnoentities('AnswerPublicInterfaceUseSignatory');
-print '</td><td>';
-print $langs->transnoentities('AnswerPublicInterfaceUseSignatoryDescription');
-print '</td>';
-print '<td class="center">';
-print ajax_constantonoff('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY');
-print '</td><td></td></tr>';
-
 print '</table>';
 print $form->buttonsSaveCancel('Save', '');
 print '</form>';
+
+$constArray['digiquali'] = [
+    'AnswerPublicInterfaceUseSignatory' => [
+        'name'        => 'AnswerPublicInterfaceUseSignatory',
+        'description' => 'AnswerPublicInterfaceUseSignatoryDescription',
+        'code'        => 'DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY',
+    ],
+    'AnswerPublicInterfaceShowTitle' => [
+        'name'        => 'AnswerPublicInterfaceShowTitle',
+        'description' => 'AnswerPublicInterfaceShowTitleDescription',
+        'code'        => 'DIGIQUALI_ANSWER_PUBLIC_INTERFACE_SHOW_TITLE',
+    ]
+];
+require __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
 
 // Page end
 print dol_get_fiche_end();
