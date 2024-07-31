@@ -122,7 +122,7 @@ if (empty($reshook)) {
 			$object->updateQuestionsPosition($questionIds);
 
 			$object->call_trigger('SHEET_ADDQUESTION', $user);
-			setEventMessages($langs->trans('AddQuestionLink') . ' ' . $question->ref, array());
+			setEventMessages($langs->trans('AddQuestionLink', 1) . ' ' . $question->ref, []);
 			header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 			exit;
 		} else {

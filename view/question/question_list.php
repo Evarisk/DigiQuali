@@ -275,15 +275,17 @@ if (empty($reshook)) {
                         $questionInArray[] = $object->getNomUrl(1, 'nolink', 1);
                     } else {
                         $totalQuestions++;
-                        $object->add_object_linked('digiquali_sheet', GETPOST('sheet'));
+                        $object->add_object_linked('digiquali_' . $sheet->element, GETPOST('sheet'));
                     }
                 }
                 if (!empty($questionInArray)) {
                     setEventMessages($langs->trans('WarningQuestionLink', count($questionInArray)) . ' ', $questionInArray, 'warnings');
                 }
-                setEventMessages($langs->trans('AddQuestionLink', $totalQuestions) . ' ' . $sheet->getNomUrl(1), []);
+                if ($totalQuestions > 0) {
+                    setEventMessages($langs->trans('AddQuestionLink', $totalQuestions) . ' ' . $sheet->getNomUrl(1), []);
+                }
             } else {
-                setEventMessages($langs->transnoentities('ErrorRecordNotFound'), [], 'errors');
+                setEventMessages($langs->transnoentities('ObjectNotFound', img_picto('', $sheet->picto, 'class="paddingrightonly"') . $langs->transnoentities(ucfirst($sheet->element))), [], 'errors');
             }
         }
     }
@@ -421,14 +423,14 @@ $reshook = $hookmanager->executeHooks('printFieldListSearchParam', $parameters, 
 $param .= $hookmanager->resPrint;
 
 // List of mass actions available
-$arrayofmassactions['prelock']         = '<span class="fas fa-lock paddingrightonly"></span>' . $langs->trans('Lock');
-$arrayofmassactions['prearchive']      = '<span class="fas fa-archive paddingrightonly"></span>' . $langs->trans('Archive');
+$arrayofmassactions['prelock']           = '<span class="fas fa-lock paddingrightonly"></span>' . $langs->trans('Lock');
+$arrayofmassactions['prearchive']        = '<span class="fas fa-archive paddingrightonly"></span>' . $langs->trans('Archive');
 $arrayofmassactions['pre_add_questions'] = '<span class="fas fa-plus-circle paddingrightonly"></span>' . $langs->transnoentities('AddToSheet');
 
 if ($permissiontodelete) {
-    $arrayofmassactions['predelete'] = '<span class="fa fa-trash paddingrightonly"></span>' . $langs->trans("Delete");
+    $arrayofmassactions['predelete'] = '<span class="fa fa-trash paddingrightonly"></span>' . $langs->trans('Delete');
 }
-if (GETPOST('nomassaction', 'int') || in_array($massaction, array('presend', 'predelete'))) {
+if (GETPOST('nomassaction', 'int') || in_array($massaction, ['presend', 'predelete'])) {
     $arrayofmassactions = [];
 }
 $massactionbutton = $form->selectMassAction('', $arrayofmassactions);
@@ -457,14 +459,17 @@ if ($massaction == 'prearchive') {
 if ($massaction == 'pre_add_questions') {
     $sheets = $sheet->fetchAll('', '', 0, 0, ['customsql' => 't.status = ' . Sheet::STATUS_VALIDATED]);
     if (is_array($sheets) && !empty($sheets)) {
+        $sheetArray = [];
         foreach ($sheets as $sheet) {
             $sheetArray[$sheet->id] = $sheet->ref . ' - ' . $sheet->label;
         }
+        $formQuestion = [
+            ['type' => 'select', 'name' => 'sheet', 'label' => $langs->trans('Sheet'), 'values' => $sheetArray]
+        ];
+        print $form->formconfirm($_SERVER['PHP_SELF'], $langs->trans('ConfirmMassAddQuestion'), $langs->trans('ConfirmMassAddingQuestion', count($toselect)), 'add_questions', $formQuestion, '', 0, 200, 500, 1);
+    } else {
+        setEventMessages('<a href="' . dol_buildpath('custom/digiquali/view/sheet/sheet_list.php', 1) . '">' . $langs->transnoentities('ObjectNotFound', img_picto('', $sheet->picto, 'class="paddingrightonly"') . $langs->transnoentities(ucfirst($sheet->element))) . '</a>', [], 'warnings');
     }
-    $formQuestion = [
-        ['type' => 'select', 'name' => 'sheet', 'label' => $langs->trans('Sheet'), 'values' => $sheetArray]
-    ];
-    print $form->formconfirm($_SERVER['PHP_SELF'], $langs->trans('ConfirmMassAddQuestion'), $langs->trans('ConfirmMassAddingQuestion', count($toselect)), 'add_questions', $formQuestion, '', 0, 200, 500, 1);
 }
 
 include DOL_DOCUMENT_ROOT.'/core/tpl/massactions_pre.tpl.php';
