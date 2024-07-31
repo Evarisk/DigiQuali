@@ -268,7 +268,7 @@ if (empty($reshook)) {
             $questionInArray = [];
             if (GETPOSTISSET('sheet') && GETPOST('sheet') > 0) {
                 $sheet->fetch(GETPOST('sheet'));
-                $sheet->fetchObjectLinked($sheet->id, 'digiquali_' . $sheet->element, null, 'digiquali_' . $object->element);
+                $sheet->fetchObjectLinked($sheet->id, 'digiquali_' . $sheet->element, null, 'digiquali_' . $object->element, 'OR', 1, 'position');
                 foreach ($toselect as $selected) {
                     $object->fetch($selected);
                     if (is_array($sheet->linkedObjectsIds['digiquali_' . $object->element]) && !empty($sheet->linkedObjectsIds['digiquali_' . $object->element]) && in_array($object->id, $sheet->linkedObjectsIds['digiquali_' . $object->element])) {
@@ -276,6 +276,9 @@ if (empty($reshook)) {
                     } else {
                         $totalQuestions++;
                         $object->add_object_linked('digiquali_' . $sheet->element, GETPOST('sheet'));
+                        $questionIds   = $sheet->linkedObjectsIds['digiquali_' . $object->element];
+                        $questionIds[] = $object->id;
+                        $sheet->updateQuestionsPosition($questionIds);
                     }
                 }
                 if (!empty($questionInArray)) {
