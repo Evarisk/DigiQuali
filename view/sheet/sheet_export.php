@@ -109,21 +109,21 @@ if (empty($reshook)) {
 
 		$digiqualiExportArray['sheets'][$object->id] = $sheetExportArray;
 
-        $object->fetchObjectLinked($object->id, 'digiquali_' . $object->element);
+        $object->fetchObjectLinked($object->id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position');
 		$questionsLinked = $object->linkedObjects['digiquali_question'];
 
 		if (is_array($questionsLinked) && !empty($questionsLinked)) {
-			foreach ($questionsLinked as $questionSingle) {
-				$digiqualiExportArray['element_element'][$object->id][] = $questionSingle->id;
-				$questionExportArray['rowid']                  = $questionSingle->id;
-				$questionExportArray['ref']                    = $questionSingle->ref;
-				$questionExportArray['status']                 = $questionSingle->status;
-				$questionExportArray['type']                   = $questionSingle->type;
-				$questionExportArray['label']                  = $questionSingle->label;
-				$questionExportArray['description']            = $questionSingle->description;
-				$questionExportArray['show_photo']             = $questionSingle->show_photo;
-				$questionExportArray['authorize_answer_photo'] = $questionSingle->authorize_answer_photo;
-				$questionExportArray['enter_comment']          = $questionSingle->enter_comment;
+			foreach ($questionsLinked as $key => $questionSingle) {
+				$digiqualiExportArray['element_element'][$object->id][$key] = $questionSingle->id;
+				$questionExportArray['rowid']                               = $questionSingle->id;
+				$questionExportArray['ref']                                 = $questionSingle->ref;
+				$questionExportArray['status']                              = $questionSingle->status;
+				$questionExportArray['type']                                = $questionSingle->type;
+				$questionExportArray['label']                               = $questionSingle->label;
+				$questionExportArray['description']                         = $questionSingle->description;
+				$questionExportArray['show_photo']                          = $questionSingle->show_photo;
+				$questionExportArray['authorize_answer_photo']              = $questionSingle->authorize_answer_photo;
+				$questionExportArray['enter_comment']                       = $questionSingle->enter_comment;
 
 				$digiqualiExportArray['questions'][$questionSingle->id] = $questionExportArray;
 

@@ -472,34 +472,35 @@ class Sheet extends SaturneObject
 		return $out;
 	}
 
-	/**
-	 *	Update questions position in sheet
-	 *
-	 *	@param	array	$idsArray			Array containing position and ids of questions in sheet
-	 */
-	public function updateQuestionsPosition($idsArray)
-	{
-		$this->db->begin();
+    /**
+     * Update questions position in sheet
+     *
+     * @param array $questionIds Array containing position and ids of questions in sheet
+     */
+    public function updateQuestionsPosition(array $questionIds)
+    {
+        $this->db->begin();
 
-		foreach ($idsArray as $position => $questionId) {
-			$sql = 'UPDATE '. MAIN_DB_PREFIX . 'element_element';
-			$sql .= ' SET position =' . $position;
-			$sql .= ' WHERE fk_source = ' . $this->id;
-			$sql .= ' AND sourcetype = "digiquali_sheet"';
-			$sql .= ' AND fk_target =' . $questionId;
-			$sql .= ' AND targettype = "digiquali_question"';
-			$res = $this->db->query($sql);
+        $questionIds = array_values($questionIds);
+        for ($position = 0; $position < count($questionIds); $position++) {
+            $sql = 'UPDATE '. MAIN_DB_PREFIX . 'element_element';
+            $sql .= ' SET position = ' . $position;
+            $sql .= ' WHERE fk_source = ' . $this->id;
+            $sql .= ' AND sourcetype = "digiquali_sheet"';
+            $sql .= ' AND fk_target = ' . $questionIds[$position];
+            $sql .= ' AND targettype = "digiquali_question"';
+            $res = $this->db->query($sql);
 
-			if (!$res) {
-				$error++;
-			}
-		}
-		if ($error) {
-			$this->db->rollback();
-		} else {
-			$this->db->commit();
-		}
-	}
+            if (!$res) {
+                $error++;
+            }
+        }
+        if ($error) {
+            $this->db->rollback();
+        } else {
+            $this->db->commit();
+        }
+    }
 
 	/**
 	 * Write information of trigger description
