@@ -216,7 +216,7 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
 					$question->show_photo             = $questionSingle['show_photo'];
 					$question->authorize_answer_photo = $questionSingle['authorize_answer_photo'];
 					$question->enter_comment          = $questionSingle['enter_comment'];
-					$question->status                 = $questionSingle['status'];
+					$question->status                 = ($questionSingle['status'] == Question::STATUS_LOCKED ? Question::STATUS_VALIDATED : $questionSingle['status']);
 					$question->import_key             = $importKey;
 
 					$questionId = $question->create($user);
@@ -254,7 +254,7 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
                     $sheet->description         = $sheetSingle['description'];
 					$sheet->element_linked      = $sheetSingle['element_linked'];
 					$sheet->mandatory_questions = $sheetSingle['mandatory_questions'];
-					$sheet->status              = $sheetSingle['status'];
+					$sheet->status              = ($sheetSingle['status'] == Sheet::STATUS_LOCKED ? Sheet::STATUS_VALIDATED : $sheetSingle['status']);
 					$sheet->import_key          = $importKey;
 
 					$sheetMandatoryQuestions = json_decode($sheetSingle['mandatory_questions']);
