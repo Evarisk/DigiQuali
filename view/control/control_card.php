@@ -167,8 +167,11 @@ if (empty($resHook)) {
 
         if (!empty($linkableElements)) {
             foreach ($linkableElements as $linkableElementType => $linkableElement) {
-                if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
-                    $controlledObjectSelected++;
+                $post = GETPOST('multi_' . $linkableElement['post_name'], 'array');
+                if (is_array($post) && !empty($post)) {
+                    foreach($post as $postSingle) {
+                        $controlledObjectSelected++;
+                    }
                 }
             }
         }
@@ -439,7 +442,7 @@ if ($action == 'create') {
 
             print '<tr><td class="titlefieldcreate">' . ($source != 'pwa' ? $langs->transnoentities($linkableElement['langs']) : img_picto('', $linkableElement['picto'], 'class="pictofixedwidth fa-3x"')) . '</td><td>';
             print($source != 'pwa' ? img_picto('', $linkableElement['picto'], 'class="pictofixedwidth"') : '');
-            print $form->selectArray($objectPostName, $objectArray, $objectPost, $langs->trans('Select') . ' ' . strtolower($langs->trans($linkableElement['langs'])), 0, 0, '', 0, 0, dol_strlen(GETPOST('fromtype')) > 0 && GETPOST('fromtype') != $linkableElement['link_name'], '', 'maxwidth500 widthcentpercentminusxx');
+            print $form->multiselectarray('multi_' . $objectPostName, $objectArray, [$objectPost], $langs->trans('Select') . ' ' . strtolower($langs->trans($linkableElement['langs'])), 0, 0, '', 0, 0, dol_strlen(GETPOST('fromtype')) > 0 && GETPOST('fromtype') != $linkableElement['link_name']);
             if ($source != 'pwa') {
                 print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/' . $linkableElement['create_url'] . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('Create') . ' ' . strtolower($langs->trans($linkableElement['langs'])) . '"></span></a>';
             }
@@ -651,17 +654,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
             $className    = $linkableElement['className'];
             $linkedObject = new $className($db);
+            print '<tr><td class="titlefield">';
+            print $langs->trans($linkableElement['langs']);
+            print '</td>';
+            print '<td>';
 
-            $linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
-            $linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
+            foreach($object->linkedObjectsIds[$linkableElement['link_name']] as $linkedObjectId) {
+                $linkedObject->fetch($linkedObjectId);
 
-            $result = $linkedObject->fetch($linkedObjectId);
-
-            if ($result > 0) {
-                print '<tr><td class="titlefield">';
-                print $langs->trans($linkableElement['langs']);
-                print '</td>';
-                print '<td>';
 
                 print $linkedObject->getNomUrl(1);
 
@@ -672,8 +672,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                     print '</strong>';
                 }
 
-                print '<td></tr>';
+                print '<br/>';
             }
+            print '<td>';
+            print '</tr>';
         }
     }
 

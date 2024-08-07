@@ -145,8 +145,11 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 					$elementArray = get_sheet_linkable_objects();
 					if (!empty($elementArray)) {
 						foreach ($elementArray as $linkableElementType => $linkableElement) {
-							if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
-								$object->add_object_linked($linkableElement['link_name'], GETPOST($linkableElement['post_name']));
+                            $post = GETPOST('multi_' . $linkableElement['post_name'], 'array');
+                            if (!empty($post) && $post > 0) {
+                                foreach($post as $postElement) {
+                                    $object->add_object_linked($linkableElement['link_name'], $postElement);
+                                }
 							}
 						}
 					}

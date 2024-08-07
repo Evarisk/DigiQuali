@@ -349,23 +349,29 @@ class doc_controldocument_odt extends SaturneDocumentModel
 			foreach ($object->linkedObjectsIds as $linkedObjectType => $linkedObjectsIds) {
 				$className = $objectInfo[$linkedObjectType]['className'];
 				$linkedObject = new $className($this->db);
-				$result = $linkedObject->fetch(array_shift($object->linkedObjectsIds[$linkedObjectType]));
-				if ($result > 0) {
-					$objectName = '';
-					$objectNameField = $nameField[$linkedObjectType];
-					if (strstr($objectNameField, ',')) {
-						$nameFields = explode(', ', $objectNameField);
-						if (is_array($nameFields) && !empty($nameFields)) {
-							foreach ($nameFields as $subnameField) {
-								$objectName .= $linkedObject->$subnameField . ' ';
-							}
-						}
-					} else {
-						$objectName = $linkedObject->$objectNameField;
-					}
-					$tmpArray['object_label_ref'] .= $objectName . chr(0x0A);
-					$tmpArray['object_type'] = $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ';
-				}
+                $objectName = '';
+                if (is_array($object->linkedObjectsIds[$linkedObjectType]) && !empty($object->linkedObjectsIds[$linkedObjectType])) {
+                    foreach ($object->linkedObjectsIds[$linkedObjectType] as $linkedObjectId) {
+                        $result = $linkedObject->fetch($linkedObjectId);
+                        if ($result > 0) {
+                            $objectNameField = $nameField[$linkedObjectType];
+                            if (strstr($objectNameField, ',')) {
+                                $nameFields = explode(', ', $objectNameField);
+                                if (is_array($nameFields) && !empty($nameFields)) {
+                                    foreach ($nameFields as $subnameField) {
+                                        $objectName .= $linkedObject->$subnameField . chr(0x0A);
+                                    }
+                                }
+                            } else {
+                                $objectName .= $linkedObject->$objectNameField . chr(0x0A);
+                            }
+                        }
+                    }
+
+                    $tmpArray['object_label_ref'] .= $objectName;
+                    $tmpArray['object_type'] = $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ';
+                }
+
 			}
 		}
 
