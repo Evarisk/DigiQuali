@@ -21,6 +21,7 @@ print '<div class="wpeo-table table-flex table-3">';
 // Define table headers with appropriate translations
 $tableHeaders = [
     $langs->trans('Nom'),
+    $langs->trans('ControlledObject'),
     $langs->trans('Verdict'),
     $langs->trans('NoteControl'),
     $langs->trans('Answers'),
@@ -31,8 +32,10 @@ $tableHeaders = [
 
 // Create header row using divs
 print '<div class="table-row header-row">';
+$i = 0;
 foreach ($tableHeaders as $header) {
-    print '<div class="table-cell header-cell center">' . $header . '</div>';
+    print '<div class="table-cell header-cell '. ($i >= 2 ? 'center' : '').'">' . $header . '</div>';
+    $i++;
 }
 print '</div>';
 
@@ -43,10 +46,35 @@ if (is_array($massControlList) && !empty($massControlList)) {
         $object = $massControl;
         $massControl->fetch_optionals();
         $massControl->fetchLines();
-        // Fetch the public note if it exists
+        $massControl->fetchObjectLinked('', '', $massControl->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
+        //get object controlled
+        $linkableElements = get_sheet_linkable_objects();
 
         print '<div class="table-row sub-control-'. $massControl->id .'">';
-        print '<div class="table-cell center">' . $massControl->getNomUrl(1) . '</div>';
+        print '<div class="table-cell">' . $massControl->getNomUrl(1) . '</div>';
+        print '<div class="table-cell">';
+        foreach ($linkableElements as $linkableElementType => $linkableElement) {
+            if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
+                $className    = $linkableElement['className'];
+                $linkedObject = new $className($db);
+                foreach($object->linkedObjectsIds[$linkableElement['link_name']] as $linkedObjectId) {
+                    $linkedObject->fetch($linkedObjectId);
+
+
+                    print $linkedObject->getNomUrl(1);
+
+                    if ($linkedObject->array_options['options_qc_frequency'] > 0) {
+                        print ' ';
+                        print '<strong>';
+                        print $langs->transnoentities('QcFrequency') . ' : ' . $linkedObject->array_options['options_qc_frequency'];
+                        print '</strong>';
+                    }
+
+                    print '<br/>';
+                }
+            }
+        }
+        print '</div>';
 
         // Verdict section with interactive OK/KO buttons
         print '<div class="table-cell center">';

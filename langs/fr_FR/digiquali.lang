@@ -352,7 +352,7 @@ ReOpenDate                                     = Date de réouverture
 MassControl                                    = Contrôle en masse
 LinkedControlList                              = Liste des contrôles liés
 NewMassControl                                 = Nouveau contrôle en masse
-
+ControlledObject                               = Objet contrôlé
 
 
 #
