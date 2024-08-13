@@ -128,6 +128,8 @@ class Control extends SaturneObject
         'verdict'            => ['type' => 'smallint',     'label' => 'Verdict',          'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 5, 'showinpwa' => 1, 'index' => 1, 'positioncard' => 20, 'arrayofkeyval' => [0 => '', 1 => 'OK', 2 => 'KO', 3 => 'N/A']],
         'photo'              => ['type' => 'text',         'label' => 'Photo',            'enabled' => 1, 'position' => 120, 'notnull' => 0, 'visible' => 0, 'showinpwa' => 0],
         'track_id'           => ['type' => 'text',         'label' => 'TrackID',          'enabled' => 1, 'position' => 125, 'notnull' => 0, 'visible' => 2, 'showinpwa' => 0],
+        'mass_control'       => ['type' => 'boolean',      'label' => 'MassControl',      'enabled' => 1, 'position' => 126, 'notnull' => 0, 'visible' => 0, 'showinpwa' => 0],
+        'fk_control'         => ['type' => 'integer:Control:digiquali/class/control.class.php', 'label' => 'Control', 'picto' => 'control', 'enabled' => 1, 'position' => 127, 'notnull' => 0, 'visible' => 0, 'showinpwa' => 0, 'foreignkey' => 'digiquali_control.rowid'],
         'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserAuthor',  'picto' => 'user',                            'enabled' => 1, 'position' => 130, 'notnull' => 1, 'visible' => 0, 'showinpwa' => 0, 'foreignkey' => 'user.rowid'],
         'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserModif',   'picto' => 'user',                            'enabled' => 1, 'position' => 140, 'notnull' => 0, 'visible' => 0, 'showinpwa' => 0, 'foreignkey' => 'user.rowid'],
         'fk_sheet'           => ['type' => 'integer:Sheet:digiquali/class/sheet.class.php',    'label' => 'Sheet',       'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 12,  'notnull' => 1, 'visible' => 5, 'showinpwa' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_sheet.rowid'],
@@ -234,6 +236,16 @@ class Control extends SaturneObject
      * @var int Sheet ID.
      */
     public int $fk_sheet;
+
+    /**
+     * @var int Control ID.
+     */
+    public $fk_control;
+
+    /**
+     * @var bool Mass control.
+     */
+    public $mass_control;
 
     /**
      * @var int|string|null User ID.
