@@ -38,7 +38,7 @@ window.digiquali.control.event = function() {
   $(document).on('click', '.photo-sheet-sub-category', window.digiquali.control.getSheetSubCategoryID);
   $(document).on('click', '.photo-sheet', window.digiquali.control.getSheetID);
   $(document).on('click', '.saveSubControl', window.digiquali.control.saveSubControl);
-  $(document).on('click', '.answerSubControl', window.digiquali.control.openAnswerModal);
+  $(document).on('click', '.lockSubControl', window.digiquali.control.lockSubControl);
 
 };
 
@@ -328,15 +328,23 @@ window.digiquali.control.saveSubControl = function() {
   let massControlId = $(this).attr('data-mass-control-id');
   let notePublic = $(this).closest('.table-row').find('.note-public').val();
   // get input checked
+  let questionIds = [];
+  $(this).closest('.table-row').find('.select-answer').each(function() {
+    let questionId = $(this).attr('data-questionid');
+
+    let answer = $(this).find('.question-answer').val();
+    let comment = $(this).closest('.wpeo-table').find('.question-comment').val();
+
+    questionIds[questionId] = {
+      'answer': answer,
+      'comment': comment
+    };
+  });
 
   let verdict = $(this).closest('.table-row').find('.verdict-option input[type="radio"]:checked').val();
-
-  let token        = window.saturne.toolbox.getToken();
-  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
+  let token   = window.saturne.toolbox.getToken();
 
   window.saturne.loader.display($(this).closest('.table-row'));
-  //replace current id with subControl Id
-  //
   let url = document.URL.replace(/id=\d+/, 'id=' + subControlID);
   $.ajax({
     url: url + '&token=' + token + '&action=confirm_setVerdict&verdict=' + verdict + '&noteControl=' + notePublic,
@@ -344,7 +352,12 @@ window.digiquali.control.saveSubControl = function() {
     processData: false,
     contentType: false,
     data: [],
-    success: function(resp) {
+    success: async function(resp) {
+      for (const [questionId, answer] of Object.entries(questionIds)) {
+        let url = document.URL.replace(/id=\d+/, 'id=' + subControlID);
+        await window.digiquali.object.saveAnswer(questionId, answer.answer, answer.comment, url + '&action=save&token=' + token);
+      }
+
       let url = document.URL.replace(/id=\d+/, 'id=' + massControlId);
       $.ajax({
         url: url,
@@ -362,15 +375,41 @@ window.digiquali.control.saveSubControl = function() {
 }
 
 /**
- * Open answer modal
+ * Lock sub control
  *
  * @since   1.10.0
  * @version 1.10.0
  *
  * @return {void}
  */
-window.digiquali.control.openAnswerModal = function() {
+window.digiquali.control.lockSubControl = function() {
   let subControlID = $(this).attr('data-control-id');
-  $('#modalSubControl' + subControlID).addClass('modal-active');
+  let massControlId = $(this).attr('data-mass-control-id');
+  let token = window.saturne.toolbox.getToken();
 
-};
+  window.saturne.loader.display($(this).closest('.table-row'));
+
+  let url = document.URL.replace(/id=\d+/, 'id=' + subControlID);
+  $.ajax({
+    url: url + '&token=' + token + '&action=confirm_lock',
+    type: 'POST',
+    processData: false,
+    contentType: false,
+    data: [],
+    success: function (resp) {
+      let url = document.URL.replace(/id=\d+/, 'id=' + massControlId);
+      $.ajax({
+        url: url,
+        type: 'GET',
+        processData: false,
+        contentType: false,
+        data: [],
+        success: function (resp) {
+          $('.sub-control-' + subControlID).replaceWith($(resp).find('.sub-control-' + subControlID));
+        }
+      });
+    },
+    error: function () {
+    }
+  });
+}

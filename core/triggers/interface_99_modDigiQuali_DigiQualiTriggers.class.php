@@ -133,13 +133,19 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                 require_once __DIR__ . '/../../class/sheet.class.php';
                 require_once __DIR__ . '/../../class/control.class.php';
 
+                // Load Saturne libraries.
+                require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
+
                 $sheet = new Sheet($this->db);
+                $signatory = new SaturneSignature($this->db, 'digiquali');
 
                 $sheet->fetch($object->fk_sheet);
                 if ($sheet->success_rate > 0) {
                     $object->success_rate = $sheet->success_rate;
                     $object->setValueFrom('success_rate', $object->success_rate, '', '', 'text', '', $user);
                 }
+
+                $isMassControl = $object->mass_control;
 
                 $elementArray = [];
 
@@ -150,8 +156,9 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 						foreach ($elementArray as $linkableElementType => $linkableElement) {
                             $post = GETPOST('multi_' . $linkableElement['post_name'], 'array');
                             if (!empty($post) && $post > 0) {
+
                                 foreach($post as $postElement) {
-                                    if ($object->mass_control) {
+                                    if ($isMassControl) {
                                         $control = new Control($this->db);
 
                                         $control->status = $control::STATUS_DRAFT;
@@ -159,10 +166,12 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                                         $control->fk_sheet = $object->fk_sheet;
                                         $control->fk_user_controller = $object->fk_user_controller;
                                         $control->fk_control = $object->id;
-                                        $control->create($user);
+                                        $controlId = $control->create($user, true);
 
+                                        $control->fetch($controlId);
                                         $control->add_object_linked($linkableElement['link_name'], $postElement);
 
+                                        $signatory->setSignatory($control->id, $control->element, 'user', [$control->fk_user_controller], 'Controller', 1);
                                     } else {
                                         $object->add_object_linked($linkableElement['link_name'], $postElement);
                                     }
@@ -171,8 +180,6 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 						}
 					}
 
-                    // Load Saturne libraries.
-                    require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
 
                     $signatory = new SaturneSignature($this->db, 'digiquali');
                     $signatory->setSignatory($object->id, $object->element, 'user', [$object->fk_user_controller], 'Controller', 1);

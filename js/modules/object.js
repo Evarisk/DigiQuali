@@ -179,15 +179,17 @@ window.digiquali.object.updateButtonsStatus = function() {
  * @param  {int}    questionId Question ID
  * @param  {string} answer     Answer value
  * @param  {string} comment    Comment value
+ * @param  {string} customUrl  URL to save answer
  * @return {void}
  */
-window.digiquali.object.saveAnswer = function(questionId, answer, comment) {
+window.digiquali.object.saveAnswer = function(questionId, answer, comment, customUrl = '') {
   let token          = window.saturne.toolbox.getToken();
   let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
+  let url = customUrl ? customUrl : document.URL + querySeparator + 'action=save&token=' + token
   window.saturne.loader.display($('.table-id-' + questionId));
 
   $.ajax({
-    url: document.URL + querySeparator + 'action=save&token=' + token,
+    url: url,
     type: 'POST',
     data: JSON.stringify({
       autoSave: true,
@@ -198,7 +200,9 @@ window.digiquali.object.saveAnswer = function(questionId, answer, comment) {
     processData: false,
     contentType: false,
     success: function(resp) {
-      $('.fiche').replaceWith($(resp).find('.fiche'));
+      if (customUrl.length < 1) {
+        $('.fiche').replaceWith($(resp).find('.fiche'));
+      }
     },
     error: function() {}
   });

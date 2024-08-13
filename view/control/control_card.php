@@ -404,7 +404,7 @@ if ($action == 'create') {
     // Mass control
     print '<tr><td>' . ($source != 'pwa' ? $langs->trans('MassControl') : img_picto('', 'fontawesome_fa-tasks_fas_#000000_2em', 'class="pictofixedwidth"')) . '</td><td>';
     print ($source != 'pwa' ? img_picto('', 'fontawesome_fa-tasks_fas_#000000', 'class="pictofixedwidth"') : '');
-    print '<input type="checkbox" name="mass_control" value="1" ' . (GETPOST('massControl') ? 'checked' : '') . '>';
+    print '<input type="checkbox" name="mass_control" value="1" ' . (GETPOST('mass_control') ? 'checked' : '') . '>';
     print '</td></tr>';
 
 
