@@ -349,6 +349,9 @@ QuestionAnswered                               = Réponse/Question
 LastStatusDate                                 = Dernières dates de statut
 ValidationDate                                 = Date de validation
 ReOpenDate                                     = Date de réouverture
+MassControl                                    = Contrôle en masse
+
+
 
 #
 # ControlDet

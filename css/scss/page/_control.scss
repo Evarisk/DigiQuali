@@ -178,3 +178,35 @@
 .confirmquestions input[readonly]:hover {
   cursor: default;
 }
+
+.verdict-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.verdict-option input[type="radio"] {
+  display: none;
+}
+.verdict-box {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+.verdict-ok {
+  background-color: #e0f7e9;
+  color: #27ae60;
+}
+.verdict-ko {
+  background-color: #fdecea;
+  color: #c0392b;
+}
+.verdict-option input[type="radio"]:checked + .verdict-box {
+  border-color: #000;
+}

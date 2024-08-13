@@ -37,6 +37,9 @@ window.digiquali.control.event = function() {
   $(document).on('click', '.photo-sheet-category', window.digiquali.control.getSheetCategoryID);
   $(document).on('click', '.photo-sheet-sub-category', window.digiquali.control.getSheetSubCategoryID);
   $(document).on('click', '.photo-sheet', window.digiquali.control.getSheetID);
+  $(document).on('click', '.saveSubControl', window.digiquali.control.saveSubControl);
+  $(document).on('click', '.answerSubControl', window.digiquali.control.openAnswerModal);
+
 };
 
 /**
@@ -310,4 +313,64 @@ window.digiquali.control.getSheetID = function() {
     },
     error: function() {}
   });
+};
+
+/**
+ * Save sub control
+ *
+ * @since   1.10.0
+ * @version 1.10.0
+ *
+ * @return {void}
+ */
+window.digiquali.control.saveSubControl = function() {
+  let subControlID = $(this).attr('data-control-id');
+  let massControlId = $(this).attr('data-mass-control-id');
+  let notePublic = $(this).closest('.table-row').find('.note-public').val();
+  // get input checked
+
+  let verdict = $(this).closest('.table-row').find('.verdict-option input[type="radio"]:checked').val();
+
+  let token        = window.saturne.toolbox.getToken();
+  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
+
+  window.saturne.loader.display($(this).closest('.table-row'));
+  //replace current id with subControl Id
+  //
+  let url = document.URL.replace(/id=\d+/, 'id=' + subControlID);
+  $.ajax({
+    url: url + '&token=' + token + '&action=confirm_setVerdict&verdict=' + verdict + '&noteControl=' + notePublic,
+    type: 'POST',
+    processData: false,
+    contentType: false,
+    data: [],
+    success: function(resp) {
+      let url = document.URL.replace(/id=\d+/, 'id=' + massControlId);
+      $.ajax({
+        url: url,
+        type: 'GET',
+        processData: false,
+        contentType: false,
+        data: [],
+        success: function (resp) {
+          $('.sub-control-' + subControlID).replaceWith($(resp).find('.sub-control-' + subControlID));
+        }
+      });
+    },
+    error: function() {}
+  });
+}
+
+/**
+ * Open answer modal
+ *
+ * @since   1.10.0
+ * @version 1.10.0
+ *
+ * @return {void}
+ */
+window.digiquali.control.openAnswerModal = function() {
+  let subControlID = $(this).attr('data-control-id');
+  $('#modalSubControl' + subControlID).addClass('modal-active');
+
 };

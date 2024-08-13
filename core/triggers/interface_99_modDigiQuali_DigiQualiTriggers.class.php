@@ -131,6 +131,7 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 			case 'CONTROL_CREATE' :
                 // Load Digiquali libraries
                 require_once __DIR__ . '/../../class/sheet.class.php';
+                require_once __DIR__ . '/../../class/control.class.php';
 
                 $sheet = new Sheet($this->db);
 
@@ -141,14 +142,30 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                 }
 
                 $elementArray = [];
+
                 if ($object->context != 'createfromclone') {
-					$elementArray = get_sheet_linkable_objects();
+                    $elementArray = get_sheet_linkable_objects();
+
 					if (!empty($elementArray)) {
 						foreach ($elementArray as $linkableElementType => $linkableElement) {
                             $post = GETPOST('multi_' . $linkableElement['post_name'], 'array');
                             if (!empty($post) && $post > 0) {
                                 foreach($post as $postElement) {
-                                    $object->add_object_linked($linkableElement['link_name'], $postElement);
+                                    if ($object->mass_control) {
+                                        $control = new Control($this->db);
+
+                                        $control->status = $control::STATUS_DRAFT;
+                                        $control->label = $object->label;
+                                        $control->fk_sheet = $object->fk_sheet;
+                                        $control->fk_user_controller = $object->fk_user_controller;
+                                        $control->fk_control = $object->id;
+                                        $control->create($user);
+
+                                        $control->add_object_linked($linkableElement['link_name'], $postElement);
+
+                                    } else {
+                                        $object->add_object_linked($linkableElement['link_name'], $postElement);
+                                    }
                                 }
 							}
 						}
@@ -160,6 +177,8 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                     $signatory = new SaturneSignature($this->db, 'digiquali');
                     $signatory->setSignatory($object->id, $object->element, 'user', [$object->fk_user_controller], 'Controller', 1);
                 }
+
+
 
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
 				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
