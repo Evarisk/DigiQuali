@@ -1006,6 +1006,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         $fileDir   = $upload_dir . '/' . $dirFiles;
         $urlSource = $_SERVER['PHP_SELF'] . '?id=' . $object->id;
 
+        $conf->global->DIGIQUALI_CONTROLDOCUMENT_DEFAULT_MODEL = $object->mass_control > 0 ? $conf->global->DIGIQUALI_MASSCONTROLDOCUMENT_DEFAULT_MODEL : $conf->global->DIGIQUALI_CONTROLDOCUMENT_DEFAULT_MODEL;
+
+
         print saturne_show_documents('digiquali:' . ucfirst($object->element) . 'Document', $dirFiles, $fileDir, $urlSource, $permissiontoadd, $permissiontodelete, $conf->global->DIGIQUALI_CONTROLDOCUMENT_DEFAULT_MODEL, 1, 0, 0, 0, '', '', '', $langs->defaultlang, '', $object, 0, 'remove_file', (($object->status > CONTROL::STATUS_DRAFT) ? 1 : 0), $langs->trans('ObjectMustBeValidatedToGenerate', ucfirst($langs->transnoentities('The' . ucfirst($object->element)))));
         print '</div>';
 

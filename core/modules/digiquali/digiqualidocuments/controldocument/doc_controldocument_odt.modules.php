@@ -199,6 +199,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
                         }
                         $odfHandler->mergeSegment($listLines);
                     }
+
                 }
             }
 
@@ -289,6 +290,75 @@ class doc_controldocument_odt extends SaturneDocumentModel
                 }
                 $odfHandler->mergeSegment($listLines);
             }
+
+            // Get sub control list.
+            $foundTagForLines = 1;
+            try {
+                $listLines = $odfHandler->setSegment('subcontrols');
+
+            } catch (OdfException|OdfExceptionSegmentNotFound $e) {
+                // We may arrive here if tags for lines not present into template.
+                $foundTagForLines = 0;
+                $listLines = '';
+                dol_syslog($e->getMessage());
+            }
+
+            // Loop on previous photos array.
+            if ($foundTagForLines) {
+                if($object->mass_control > 0) {
+                    $linkableElements = get_sheet_linkable_objects();
+
+                    if (is_array($linkableElements) && !empty($linkableElements)) {
+                        foreach ($linkableElements as $linkableElement) {
+                            $nameField[$linkableElement['link_name']] = $linkableElement['name_field'];
+                            $objectInfo[$linkableElement['link_name']] = [
+                                'title' => $linkableElement['langs'],
+                                'className' => $linkableElement['className']
+                            ];
+                        }
+                    }
+                    $subControlList = $object->fetchAll('', '', 0, 0, ['fk_control' => $object->id]);
+                    if (is_array($subControlList) && !empty($subControlList)) {
+                        foreach ($subControlList as $subControl) {
+                            $subControl->fetchObjectLinked($subControl->fk_sheet, 'digiquali_sheet', null, '', 'OR', 1, 'position', 0);
+                            $tmpArray['subcontrol_ref']   = $subControl->ref;
+                            $tmpArray['subcontrol_note'] = $subControl->note_public;
+                            $tmpArray['subcontrol_verdict'] = ($subControl->verdict == 1) ? 'OK' : 'KO';
+                            //get object linked
+                            $subControl->fetchObjectLinked('', '', $subControl->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
+                            if (is_array($subControl->linkedObjectsIds) && !empty($subControl->linkedObjectsIds)) {
+                                foreach($subControl->linkedObjectsIds as $linkedObjectType => $linkedObjectId) {
+                                    $className = $objectInfo[$linkedObjectType]['className'];
+                                    $linkedObject = new $className($this->db);
+                                    $linkedObjectId = array_shift($linkedObjectId);
+                                    $result = $linkedObject->fetch($linkedObjectId);
+                                    if ($result > 0) {
+                                        $objectNameField = $nameField[$linkedObjectType];
+                                        if (strstr($objectNameField, ',')) {
+                                            $nameFields = explode(', ', $objectNameField);
+                                            if (is_array($nameFields) && !empty($nameFields)) {
+                                                foreach ($nameFields as $subnameField) {
+                                                    $objectName = $linkedObject->$subnameField . chr(0x0A);
+                                                }
+                                            }
+                                        } else {
+                                            $objectName = $linkedObject->$objectNameField . chr(0x0A);
+                                        }
+                                    }
+                                    $tmpArray['subcontrol_object_label'] = rtrim($objectName, chr(0x0A));
+                                    $tmpArray['subcontrol_object_ref'] = $linkedObject->ref;
+                                }
+
+                            }
+                            $this->setTmpArrayVars($tmpArray, $listLines, $outputLangs);
+
+                        }
+                    }
+                }
+                $odfHandler->mergeSegment($listLines);
+            }
+
+
         } catch (OdfException $e) {
             $this->error = $e->getMessage();
             dol_syslog($this->error, LOG_WARNING);
@@ -317,38 +387,38 @@ class doc_controldocument_odt extends SaturneDocumentModel
         $object = $moreParam['object'];
 
         if (!empty($object->photo)) {
-            $path      = $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/photos';
+            $path = $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/photos';
             $fileSmall = saturne_get_thumb_name($object->photo, getDolGlobalString('DIGIQUALI_DOCUMENT_MEDIA_VIGNETTE_USED'));
-            $image     = $path . '/thumbs/' . $fileSmall;
+            $image = $path . '/thumbs/' . $fileSmall;
             $tmpArray['photoDefault'] = $image;
         } else {
-            $noPhoto                  = '/public/theme/common/nophoto.png';
+            $noPhoto = '/public/theme/common/nophoto.png';
             $tmpArray['photoDefault'] = DOL_DOCUMENT_ROOT . $noPhoto;
         }
 
         $outputLangs->loadLangs(['products', 'bills', 'orders', 'contracts', 'projects', 'companies']);
-        $sheet      = new Sheet($this->db);
-        $usertmp    = new User($this->db);
+        $sheet = new Sheet($this->db);
+        $usertmp = new User($this->db);
         $projecttmp = new Project($this->db);
 
         $sheet->fetch($object->fk_sheet);
         $usertmp->fetch($object->fk_user_controller);
         $projecttmp->fetch($object->projectid);
 
-        $object->fetchObjectLinked('', '', $object->id, 'digiquali_control',  'OR', 1, 'sourcetype', 0);
-		$linkableElements = get_sheet_linkable_objects();
+        $object->fetchObjectLinked('', '', $object->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
+        $linkableElements = get_sheet_linkable_objects();
 
-		if (is_array($linkableElements) && !empty($linkableElements)) {
-			foreach ($linkableElements as $linkableElement) {
-				$nameField[$linkableElement['link_name']] = $linkableElement['name_field'];
-				$objectInfo[$linkableElement['link_name']] = [
-					'title' => $linkableElement['langs'],
-					'className' => $linkableElement['className']
-				];
-			}
-			foreach ($object->linkedObjectsIds as $linkedObjectType => $linkedObjectsIds) {
-				$className = $objectInfo[$linkedObjectType]['className'];
-				$linkedObject = new $className($this->db);
+        if (is_array($linkableElements) && !empty($linkableElements)) {
+            foreach ($linkableElements as $linkableElement) {
+                $nameField[$linkableElement['link_name']] = $linkableElement['name_field'];
+                $objectInfo[$linkableElement['link_name']] = [
+                    'title' => $linkableElement['langs'],
+                    'className' => $linkableElement['className']
+                ];
+            }
+            foreach ($object->linkedObjectsIds as $linkedObjectType => $linkedObjectsIds) {
+                $className = $objectInfo[$linkedObjectType]['className'];
+                $linkedObject = new $className($this->db);
                 $objectName = '';
                 if (is_array($object->linkedObjectsIds[$linkedObjectType]) && !empty($object->linkedObjectsIds[$linkedObjectType])) {
                     foreach ($object->linkedObjectsIds[$linkedObjectType] as $linkedObjectId) {
@@ -372,38 +442,78 @@ class doc_controldocument_odt extends SaturneDocumentModel
                     $tmpArray['object_type'] = $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ';
                 }
 
-			}
-		}
+            }
+            if ($object->mass_control > 0) {
+                $subControlSheet = new Sheet($this->db);
+                $subControlList = $object->fetchAll('', '', 0, 0, ['fk_control' => $object->id]);
+                if (is_array($subControlList) && !empty($subControlList)) {
+                    foreach ($subControlList as $subControl) {
+                        $subControlSheet->fetch($subControl->fk_sheet);
+                        $subControl->fetchObjectLinked('', '', $subControl->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
+                        if (is_array($subControl->linkedObjectsIds) && !empty($subControl->linkedObjectsIds)) {
+                            foreach ($subControl->linkedObjectsIds as $linkedObjectType => $linkedObjectsIds) {
+                                $className = $objectInfo[$linkedObjectType]['className'];
+                                $linkedObject = new $className($this->db);
+                                $objectName = '';
+                                if (is_array($subControl->linkedObjectsIds[$linkedObjectType]) && !empty($subControl->linkedObjectsIds[$linkedObjectType])) {
+                                    foreach ($subControl->linkedObjectsIds[$linkedObjectType] as $linkedObjectId) {
+                                        $result = $linkedObject->fetch($linkedObjectId);
+                                        if ($result > 0) {
+                                            $objectNameField = $nameField[$linkedObjectType];
+                                            if (strstr($objectNameField, ',')) {
+                                                $nameFields = explode(', ', $objectNameField);
+                                                if (is_array($nameFields) && !empty($nameFields)) {
+                                                    foreach ($nameFields as $subnameField) {
+                                                        $objectName .= $linkedObject->$subnameField . chr(0x0A);
+                                                    }
+                                                }
+                                            } else {
+                                                $objectName .= $linkedObject->$objectNameField . chr(0x0A);
+                                            }
+                                        }
+                                    }
 
-        $tmpArray['control_ref']      = $object->ref;
-        $tmpArray['object_label_ref'] = rtrim($tmpArray['object_label_ref'], chr(0x0A));
-        $tmpArray['control_date']     = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
-        $tmpArray['project_label']    = $projecttmp->ref . ' - ' . $projecttmp->title;
-        $tmpArray['sheet_ref']        = $sheet->ref;
-        $tmpArray['sheet_label']      = $sheet->label;
+                                    $tmpArray['object_label_ref'] .= $objectName;
+                                    $tmpArray['object_type'] = $outputLangs->transnoentities($objectInfo[$linkedObjectType]['title']) . ' : ';
 
-        switch ($object->verdict) {
-            case 1:
-                $tmpArray['verdict'] = 'OK';
-                break;
-            case 2:
-                $tmpArray['verdict'] = 'KO';
-                break;
-            default:
-                $tmpArray['verdict'] = '';
-                break;
+                                    $tmpArray['subcontrol_sheet_ref'] = $subControlSheet->ref;
+                                    $tmpArray['subcontrol_sheet_label'] = $subControlSheet->label;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            $tmpArray['control_ref'] = $object->ref;
+            $tmpArray['object_label_ref'] = rtrim($tmpArray['object_label_ref'], chr(0x0A));
+            $tmpArray['control_date'] = dol_print_date($object->date_creation, 'dayhour', 'tzuser');
+            $tmpArray['project_label'] = $projecttmp->ref . ' - ' . $projecttmp->title;
+            $tmpArray['sheet_ref'] = $sheet->ref;
+            $tmpArray['sheet_label'] = $sheet->label;
+
+            switch ($object->verdict) {
+                case 1:
+                    $tmpArray['verdict'] = 'OK';
+                    break;
+                case 2:
+                    $tmpArray['verdict'] = 'KO';
+                    break;
+                default:
+                    $tmpArray['verdict'] = '';
+                    break;
+            }
+
+            $tmpArray['public_note'] = $object->note_public;
+
+            $tmpArray['mycompany_name'] = $conf->global->MAIN_INFO_SOCIETE_NOM;
+            $tmpArray['mycompany_address'] = (!empty($conf->global->MAIN_INFO_SOCIETE_ADRESS) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_ADRESS : '');
+            $tmpArray['mycompany_website'] = (!empty($conf->global->MAIN_INFO_SOCIETE_WEBSITE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_WEBSITE : '');
+            $tmpArray['mycompany_mail'] = (!empty($conf->global->MAIN_INFO_SOCIETE_MAIL) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_MAIL : '');
+            $tmpArray['mycompany_phone'] = (!empty($conf->global->MAIN_INFO_SOCIETE_PHONE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_PHONE : '');
+
+            $moreParam['tmparray'] = $tmpArray;
+
+            return parent::write_file($objectDocument, $outputLangs, $srcTemplatePath, $hideDetails, $hideDesc, $hideRef, $moreParam);
         }
-
-        $tmpArray['public_note'] = $object->note_public;
-
-        $tmpArray['mycompany_name']    = $conf->global->MAIN_INFO_SOCIETE_NOM;
-        $tmpArray['mycompany_address'] = (!empty($conf->global->MAIN_INFO_SOCIETE_ADRESS) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_ADRESS : '');
-        $tmpArray['mycompany_website'] = (!empty($conf->global->MAIN_INFO_SOCIETE_WEBSITE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_WEBSITE : '');
-        $tmpArray['mycompany_mail']    = (!empty($conf->global->MAIN_INFO_SOCIETE_MAIL) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_MAIL : '');
-        $tmpArray['mycompany_phone']   = (!empty($conf->global->MAIN_INFO_SOCIETE_PHONE) ? ' - ' . $conf->global->MAIN_INFO_SOCIETE_PHONE : '');
-
-        $moreParam['tmparray'] = $tmpArray;
-
-        return parent::write_file($objectDocument, $outputLangs, $srcTemplatePath, $hideDetails, $hideDesc, $hideRef, $moreParam);
     }
 }

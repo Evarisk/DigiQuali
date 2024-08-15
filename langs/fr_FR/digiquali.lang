@@ -390,6 +390,8 @@ controldocument                         = fiche de controle
 controldocument.odt                     = Fiche de Contrôle
 controldocument_photo.odt               = Fiche de Contrôle avec photos
 controldocument_photo                   = fiche de controle avec photos
+masscontroldocument                    = Fiche de Contrôle en masse
+masscontroldocument.odt                = Fiche de Contrôle en masse
 
 
 

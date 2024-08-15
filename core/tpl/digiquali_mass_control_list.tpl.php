@@ -150,8 +150,10 @@ if (is_array($massControlList) && !empty($massControlList)) {
                 $displayButton = $onPhone ? '<i class="fas fa-save fa-2x"></i>' : '<i class="fas fa-save"></i>' . ' ' . $langs->trans('Save');
                 print '<span class="saveSubControl butAction'. (!$validateButtonDisabled ? 'Refused' : '') .'" id="saveButton'. $massControl->id .'" data-control-id="'. $massControl->id .'" data-mass-control-id="'. $mainControlId .'">' . $displayButton . '</span>';
             }
-        } else {
+        } else if ($massControl->status != $massControl::STATUS_LOCKED) {
             print $langs->trans('MainControlMustBeDraftToEditSubControls');
+        } else {
+            print '';
         }
 
         print '</div>';
@@ -181,57 +183,5 @@ if (is_array($massControlList) && !empty($massControlList)) {
 }
 
 $object->fetch($mainControlId);
-
-if ($object->status == $object::STATUS_DRAFT) {
-    $controllableObjectType = array_key_first($object->linkedObjectsIds);
-
-    foreach ($elementArray as $controllableElement) {
-        if ($controllableElement['link_name'] == $controllableObjectType) {
-            $controllableObject = $controllableElement;
-        }
-    }
-    $objectList = saturne_fetch_all_object_type($controllableObject['className']);
-    if (is_array($objectList) && !empty($objectList)) {
-        foreach ($objectList as $objectSingle) {
-            $objectName = '';
-            $nameField = $controllableObject['name_field'];
-            if (strstr($nameField, ',')) {
-                $nameFields = explode(', ', $nameField);
-                if (is_array($nameFields) && !empty($nameFields)) {
-                    foreach ($nameFields as $subnameField) {
-                        $objectName .= $objectSingle->$subnameField . ' ';
-                    }
-                }
-            } else {
-                $objectName = $objectSingle->$nameField;
-            }
-            $objectArray[$objectSingle->id] = $objectName;
-        }
-    }
-
-    $objectPostName = $controllableObject['post_name'];
-    $objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $controllableObject['link_name'] ? GETPOST('fromid') : '');
-
-
-    print '<form action="' . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id') . '&action=mass_control_add_object" method="POST" name="formAddObject" class="formAddObject">';
-    print '<input type="hidden" name="fromtype" value="' . $controllableObject['link_name'] . '">';
-    print '<input type="hidden" name="fromid" value="' . GETPOST('fromid') . '">';
-//add token
-    print '<input type="hidden" name="token" value="' . newToken() . '">';
-    print '<div class="table-row">';
-    print '<div class="table-cell">';
-    print img_picto('', $controllableObject['picto']);
-    print $form->selectarray($objectPostName, $objectArray, [$objectPost], 1, 0, 0, '', 500, 0, dol_strlen(GETPOST('fromtype')) > 0 && GETPOST('fromtype') != $controllableObject['link_name'], $langs->transnoentities('AddAnObjectToControl'));
-    print '</div>';
-
-    print '<div class="table-cell">';
-    print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sub_controls_sheet'), 'fk_sub_controls_sheet', 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED);
-    print '</div>';
-    print '<div class="table-cell">';
-    print '<button type="submit" class="butAction">' . $langs->trans('Add') . '</button>';
-    print '</div>';
-    print '</div>';
-    print '</form>';
-}
 
 ?>
