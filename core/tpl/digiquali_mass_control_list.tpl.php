@@ -82,17 +82,17 @@ if (is_array($massControlList) && !empty($massControlList)) {
         print '<div class="verdict-container">';
         print '<label class="verdict-option">';
         print '<input type="radio" name="verdict' . $massControl->id . '" value="1" ' . ($massControl->verdict == '1' ? 'checked' : '') . '>';
-        print '<span class="verdict-box verdict-ok" data-control-id="'. $massControl->id .'">OK</span>';
+        print '<span class="verdict-box verdict-ok '. ($massControl->status == $massControl::STATUS_LOCKED ? "disabled" : "") .'" data-control-id="'. $massControl->id .'">OK</span>';
         print '</label>';
         print '<label class="verdict-option">';
         print '<input data-control-id="'. $massControl->id .'" type="radio" name="verdict' . $massControl->id . '" value="0" ' . ($massControl->verdict == '0' ? 'checked' : '') . '>';
-        print '<span class="verdict-box verdict-ko" data-control-id="'. $massControl->id .'">KO</span>';
+        print '<span class="verdict-box verdict-ko '. ($massControl->status == $massControl::STATUS_LOCKED ? "disabled" : "") .'" data-control-id="'. $massControl->id .'">KO</span>';
         print '</label>';
         print '</div>';
         print '</div>';
 
         // Note Control section displaying the public note
-        print '<div class="table-cell center"><textarea type="text" class="note-public">' . $massControl->note_public . '</textarea></div>';
+        print '<div class="table-cell center"><textarea '. ($massControl->status == $massControl::STATUS_LOCKED ? "disabled" : "") .' type="text" class="note-public">' . $massControl->note_public . '</textarea></div>';
 
         print '<div class="table-cell center">';
         $questionCounter = 0;
@@ -110,7 +110,7 @@ if (is_array($massControlList) && !empty($massControlList)) {
         }
         //affiche le nombre de questions répondues
         print '<span class="answerCounter">' . $answerCounter . '/' . $questionCounter . '</span>';
-        print '<button class="butAction answerSubControl modal-open" data-control-id="'. $massControl->id .'">';
+        print '<button class="'. ($massControl->status == $massControl::STATUS_LOCKED ? "butActionRefused" : "butAction modal-open") .' answerSubControl" data-control-id="'. $massControl->id .'">';
         print $langs->trans('Answers');
         print '<input type="hidden" class="modal-options" data-modal-to-open="modalSubControl'. $massControl->id .'">';
         print '</button>';
