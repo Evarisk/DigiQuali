@@ -115,8 +115,17 @@ if (is_array($massControlList) && !empty($massControlList)) {
         print '<input type="hidden" class="modal-options" data-modal-to-open="modalSubControl'. $massControl->id .'">';
         print '</button>';
         print '</div>';
-
+        $documenturl = DOL_URL_ROOT . '/document.php';
+        //retrieve last document of the control
+        $documentList = dol_dir_list($conf->digiquali->multidir_output[$massControl->entity ?: 1] . '/controldocument/' . $massControl->ref . '/');
+        if (!empty($documentList)) {
+            $lastDocument = $documentList[count($documentList) - 1];
+            $lastDocumentPath = $lastDocument['relativename'];
+        }
         print '<div class="table-cell center">';
+        print '<a class="documentdownload paddingright" href="' . $documenturl . '?modulepart=digiquali&file=controldocument/' . urlencode($massControl->ref . '/' . $lastDocumentPath) . '">';
+        print '<button type="button" class="wpeo-button button-square-40 button-blue wpeo-tooltip-event" aria-label="' . $langs->trans('ShowDocument') . '"><i class="fas fa-eye button-icon"></i></button>';
+        print '</a>';
         print '</div>';
         print '<div class="table-cell center">';
         if ($massControl->status != $massControl::STATUS_LOCKED) {
