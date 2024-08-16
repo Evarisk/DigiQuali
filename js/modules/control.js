@@ -368,6 +368,7 @@ window.digiquali.control.saveSubControl = function() {
         contentType: false,
         data: [],
         success: function (resp) {
+          $('.wpeo-loader').removeClass('wpeo-loader')
           $('.sub-control-' + subControlID).replaceWith($(resp).find('.sub-control-' + subControlID));
         }
       });

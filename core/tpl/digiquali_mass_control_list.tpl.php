@@ -120,11 +120,11 @@ if (is_array($massControlList) && !empty($massControlList)) {
         print '<div class="table-cell center">';
         print '</div>';
         print '<div class="table-cell center">';
-        if ($massControl->verdict > 0 && $answerCounter == $questionCounter) {
+        if (dol_strlen($massControl->verdict) && $answerCounter == $questionCounter) {
             $displayButton = $onPhone ? '<i class="fas fa-lock fa-2x"></i>' : '<i class="fas fa-lock"></i>' . ' ' . $langs->trans('Lock');
             print '<span class="lockSubControl butAction" id="actionButtonLockSubControl" data-control-id="'. $massControl->id .'" data-mass-control-id="'. $mainControlId .'">' . $displayButton . '</span>';
         } else {
-            $displayButton = $onPhone ? '<i class="fas fa-check fa-2x"></i>' : '<i class="fas fa-check"></i>' . ' ' . $langs->trans('Save');
+            $displayButton = $onPhone ? '<i class="fas fa-save fa-2x"></i>' : '<i class="fas fa-save"></i>' . ' ' . $langs->trans('Save');
             print '<span class="saveSubControl butAction" id="actionButtonSaveSubControl" data-control-id="'. $massControl->id .'" data-mass-control-id="'. $mainControlId .'">' . $displayButton . '</span>';
         }
 
