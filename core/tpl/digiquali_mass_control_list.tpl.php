@@ -20,12 +20,12 @@ print '<div class="wpeo-table table-flex table-3">';
 
 // Define table headers with appropriate translations
 $tableHeaders = [
-    $langs->trans('Nom'),
+    $langs->trans('Name'),
+    $langs->trans('Status'),
     $langs->trans('ControlledObject'),
     $langs->trans('Verdict'),
     $langs->trans('NoteControl'),
     $langs->trans('Answers'),
-    $langs->trans('QRCode'),
     $langs->trans('Document'),
     $langs->trans('Action'),
 ];
@@ -52,6 +52,7 @@ if (is_array($massControlList) && !empty($massControlList)) {
 
         print '<div class="table-row sub-control-'. $massControl->id .'">';
         print '<div class="table-cell">' . $massControl->getNomUrl(1) . '</div>';
+        print '<div class="table-cell">' . $massControl->getLibStatut(5) . '</div>';
         print '<div class="table-cell">';
         foreach ($linkableElements as $linkableElementType => $linkableElement) {
             if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
@@ -81,11 +82,11 @@ if (is_array($massControlList) && !empty($massControlList)) {
         print '<div class="verdict-container">';
         print '<label class="verdict-option">';
         print '<input type="radio" name="verdict' . $massControl->id . '" value="1" ' . ($massControl->verdict == '1' ? 'checked' : '') . '>';
-        print '<span class="verdict-box verdict-ok">OK</span>';
+        print '<span class="verdict-box verdict-ok" data-control-id="'. $massControl->id .'">OK</span>';
         print '</label>';
         print '<label class="verdict-option">';
-        print '<input type="radio" name="verdict' . $massControl->id . '" value="0" ' . ($massControl->verdict == '0' ? 'checked' : '') . '>';
-        print '<span class="verdict-box verdict-ko">KO</span>';
+        print '<input data-control-id="'. $massControl->id .'" type="radio" name="verdict' . $massControl->id . '" value="0" ' . ($massControl->verdict == '0' ? 'checked' : '') . '>';
+        print '<span class="verdict-box verdict-ko" data-control-id="'. $massControl->id .'">KO</span>';
         print '</label>';
         print '</div>';
         print '</div>';
@@ -115,17 +116,22 @@ if (is_array($massControlList) && !empty($massControlList)) {
         print '</button>';
         print '</div>';
 
-        // Additional cells for QRCode, Document, and Action can be filled in as needed
-        print '<div class="table-cell center">'. saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $massControl->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/' . $massControl->ref . '/qrcode/', $massControl, '', 0, 0) . '</div>';
         print '<div class="table-cell center">';
         print '</div>';
         print '<div class="table-cell center">';
-        if (dol_strlen($massControl->verdict) && $answerCounter == $questionCounter) {
-            $displayButton = $onPhone ? '<i class="fas fa-lock fa-2x"></i>' : '<i class="fas fa-lock"></i>' . ' ' . $langs->trans('Lock');
-            print '<span class="lockSubControl butAction" id="actionButtonLockSubControl" data-control-id="'. $massControl->id .'" data-mass-control-id="'. $mainControlId .'">' . $displayButton . '</span>';
-        } else {
-            $displayButton = $onPhone ? '<i class="fas fa-save fa-2x"></i>' : '<i class="fas fa-save"></i>' . ' ' . $langs->trans('Save');
-            print '<span class="saveSubControl butAction" id="actionButtonSaveSubControl" data-control-id="'. $massControl->id .'" data-mass-control-id="'. $mainControlId .'">' . $displayButton . '</span>';
+        if ($massControl->status != $massControl::STATUS_LOCKED) {
+            if ($massControl->status == $massControl::STATUS_VALIDATED) {
+                $displayButton = $onPhone ? '<i class="fas fa-lock fa-2x"></i>' : '<i class="fas fa-lock"></i>' . ' ' . $langs->trans('Lock');
+                print '<span class="lockSubControl butAction" id="actionButtonLockSubControl" data-control-id="'. $massControl->id .'" data-mass-control-id="'. $mainControlId .'">' . $displayButton . '</span>';
+                $displayButton = $onPhone ? '<i class="fas fa-unlock fa-2x"></i>' : '<i class="fas fa-unlock"></i>' . ' ' . $langs->trans('ReOpenDoli');
+                print '<span class="reopenSubControl butAction" id="actionButtonReopenSubControl" data-control-id="'. $massControl->id .'" data-mass-control-id="'. $mainControlId .'">' . $displayButton . '</span>';
+            } else {
+                $validateButtonDisabled = !(dol_strlen($massControl->verdict) && $answerCounter == $questionCounter);
+                $displayButton = $onPhone ? '<i class="fas fa-check fa-2x"></i>' : '<i class="fas fa-check"></i>' . ' ' . $langs->trans('Validate');
+                print '<span class="validateSubControl validateButton'. $massControl->id .' butAction'. ($validateButtonDisabled ? 'Refused' : '') .'" id="actionButtonValidateSubControl" data-control-id="'. $massControl->id .'" data-mass-control-id="'. $mainControlId .'">' . $displayButton . '</span>';
+                $displayButton = $onPhone ? '<i class="fas fa-save fa-2x"></i>' : '<i class="fas fa-save"></i>' . ' ' . $langs->trans('Save');
+                print '<span class="saveSubControl butAction'. (!$validateButtonDisabled ? 'Refused' : '') .'" id="saveButton'. $massControl->id .'" data-control-id="'. $massControl->id .'" data-mass-control-id="'. $mainControlId .'">' . $displayButton . '</span>';
+            }
         }
 
         print '</div>';

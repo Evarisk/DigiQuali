@@ -41,7 +41,7 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
         }
         if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER or empty($questionAnswer)) {
             ?>
-            <div class="wpeo-table table-flex table-3 table-id-<?php echo $question->id ?>" data-publicInterface="<?php echo $publicInterface; ?>" data-autoSave="<?php echo getDolGlobalInt('DIGIQUALI_' . dol_strtoupper($object->element) . 'DET_AUTO_SAVE_ACTION'); ?>">
+            <div class="wpeo-table table-flex table-3 table-id-<?php echo $question->id ?>" data-control-id="<?php echo $object->id; ?>" data-publicInterface="<?php echo $publicInterface; ?>" data-autoSave="<?php echo getDolGlobalInt('DIGIQUALI_' . dol_strtoupper($object->element) . 'DET_AUTO_SAVE_ACTION'); ?>">
                 <div class="table-row">
                     <!-- Contenu et commentaire -->
                     <div class="table-cell table-full">

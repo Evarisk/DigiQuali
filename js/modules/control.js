@@ -38,9 +38,11 @@ window.digiquali.control.event = function() {
   $(document).on('click', '.photo-sheet-category', window.digiquali.control.getSheetCategoryID);
   $(document).on('click', '.photo-sheet-sub-category', window.digiquali.control.getSheetSubCategoryID);
   $(document).on('click', '.photo-sheet', window.digiquali.control.getSheetID);
+  $(document).on('click', '.saveSubControl:not(.butActionRefused)', window.digiquali.control.saveSubControl);
+  $(document).on('click', '.validateSubControl:not(.butActionRefused)', window.digiquali.control.validateSubControl);
+  $(document).on('click', '.reopenSubControl:not(.butActionRefused)', window.digiquali.control.reopenSubControl);
+  $(document).on('click', '.lockSubControl:not(.butActionRefused)', window.digiquali.control.lockSubControl);
   $(document).on('click', '.saveSubControlAnswers', window.digiquali.control.saveSubControlAnswers);
-  $(document).on('click', '.saveSubControl', window.digiquali.control.saveSubControl);
-  $(document).on('click', '.lockSubControl', window.digiquali.control.lockSubControl);
 
 };
 
@@ -395,6 +397,86 @@ window.digiquali.control.lockSubControl = function() {
   let url = document.URL.replace(/id=\d+/, 'id=' + subControlID);
   $.ajax({
     url: url + '&token=' + token + '&action=confirm_lock',
+    type: 'POST',
+    processData: false,
+    contentType: false,
+    data: [],
+    success: function (resp) {
+      let url = document.URL.replace(/id=\d+/, 'id=' + massControlId);
+      $.ajax({
+        url: url,
+        type: 'GET',
+        processData: false,
+        contentType: false,
+        data: [],
+        success: function (resp) {
+          $('.sub-control-' + subControlID).replaceWith($(resp).find('.sub-control-' + subControlID));
+        }
+      });
+    },
+    error: function () {
+    }
+  });
+}
+
+/**
+ * Validate sub control
+ *
+ * @since   1.10.0
+ * @version 1.10.0
+ *
+ * @return {void}
+ */
+window.digiquali.control.validateSubControl = function() {
+  let subControlID = $(this).attr('data-control-id');
+  let massControlId = $(this).attr('data-mass-control-id');
+  let token = window.saturne.toolbox.getToken();
+
+  window.saturne.loader.display($(this).closest('.table-row'));
+
+  let url = document.URL.replace(/id=\d+/, 'id=' + subControlID);
+  $.ajax({
+    url: url + '&token=' + token + '&action=confirm_validate&confirm=yes',
+    type: 'POST',
+    processData: false,
+    contentType: false,
+    data: [],
+    success: function (resp) {
+      let url = document.URL.replace(/id=\d+/, 'id=' + massControlId);
+      $.ajax({
+        url: url,
+        type: 'GET',
+        processData: false,
+        contentType: false,
+        data: [],
+        success: function (resp) {
+          $('.sub-control-' + subControlID).replaceWith($(resp).find('.sub-control-' + subControlID));
+        }
+      });
+    },
+    error: function () {
+    }
+  });
+}
+
+/**
+ * Reopen sub control
+ *
+ * @since   1.10.0
+ * @version 1.10.0
+ *
+ * @return {void}
+ */
+window.digiquali.control.reopenSubControl = function() {
+  let subControlID = $(this).attr('data-control-id');
+  let massControlId = $(this).attr('data-mass-control-id');
+  let token = window.saturne.toolbox.getToken();
+
+  window.saturne.loader.display($(this).closest('.table-row'));
+
+  let url = document.URL.replace(/id=\d+/, 'id=' + subControlID);
+  $.ajax({
+    url: url + '&token=' + token + '&action=confirm_set_reopen&confirm=yes',
     type: 'POST',
     processData: false,
     contentType: false,
