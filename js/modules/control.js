@@ -37,6 +37,7 @@ window.digiquali.control.event = function() {
   $(document).on('click', '.photo-sheet-category', window.digiquali.control.getSheetCategoryID);
   $(document).on('click', '.photo-sheet-sub-category', window.digiquali.control.getSheetSubCategoryID);
   $(document).on('click', '.photo-sheet', window.digiquali.control.getSheetID);
+  $(document).on('click', '.saveSubControlAnswers', window.digiquali.control.saveSubControlAnswers);
   $(document).on('click', '.saveSubControl', window.digiquali.control.saveSubControl);
   $(document).on('click', '.lockSubControl', window.digiquali.control.lockSubControl);
 
@@ -410,6 +411,54 @@ window.digiquali.control.lockSubControl = function() {
       });
     },
     error: function () {
+    }
+  });
+}
+
+/**
+ * Save sub control answers
+ *
+ * @since   1.10.0
+ * @version 1.10.0
+ *
+ * @return {void}
+ */
+window.digiquali.control.saveSubControlAnswers = async function() {
+  let subControlID = $(this).attr('data-control-id');
+  let massControlId = $(this).attr('data-mass-control-id');
+
+  window.saturne.loader.display($(this));
+  let questionIds = [];
+  $(this).closest('.table-row').find('.select-answer').each(function () {
+    let questionId = $(this).attr('data-questionid');
+
+    let answer = $(this).find('.question-answer').val();
+    let comment = $(this).closest('.wpeo-table').find('.question-comment').val();
+
+    questionIds[questionId] = {
+      'answer': answer,
+      'comment': comment
+    };
+  });
+
+  let token = window.saturne.toolbox.getToken();
+
+  let url = document.URL.replace(/id=\d+/, 'id=' + subControlID);
+
+  for (const [questionId, answer] of Object.entries(questionIds)) {
+    await window.digiquali.object.saveAnswer(questionId, answer.answer, answer.comment, url + '&action=save&token=' + token);
+  }
+
+  url = document.URL.replace(/id=\d+/, 'id=' + massControlId);
+  $.ajax({
+    url: url,
+    type: 'GET',
+    processData: false,
+    contentType: false,
+    data: [],
+    success: function (resp) {
+      $('.sub-control-' + subControlID).replaceWith($(resp).find('.sub-control-' + subControlID));
+      $('.wpeo-loader').removeClass('wpeo-loader');
     }
   });
 }

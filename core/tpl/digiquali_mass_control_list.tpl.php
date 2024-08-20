@@ -139,6 +139,10 @@ if (is_array($massControlList) && !empty($massControlList)) {
         require __DIR__ . '/../../core/tpl/digiquali_answers.tpl.php';
         print '</div>';
         print '</div>';
+        print '<div class="modal-footer">';
+        $displayButton = $onPhone ? '<i class="fas fa-save fa-2x"></i>' : '<i class="fas fa-save"></i>' . ' ' . $langs->trans('Save');
+        print '<span class="saveSubControlAnswers butAction" id="actionButtonSaveSubControlAnswer" data-control-id="'. $massControl->id .'" data-mass-control-id="'. $mainControlId .'">' . $displayButton . '</span>';
+        print '</div>';
         print '</div>';
         print '</div>';
         print '</div>';
