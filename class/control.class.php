@@ -598,6 +598,7 @@ class Control extends SaturneObject
         }
 
         $object->context = 'createfromclone';
+        $object->fk_control = $options['fk_control'];
 
         $object->fetchObjectLinked('','', $object->id, 'digiquali_' . $object->element,  'OR', 1, 'sourcetype', 0);
 

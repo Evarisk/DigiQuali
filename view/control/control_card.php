@@ -151,6 +151,13 @@ if (empty($resHook)) {
         $options['photos']     = GETPOST('clone_photos');
         if ($object->id > 0) {
             $result = $object->createFromClone($user, $object->id, $options);
+            $subControlList = $object->fetchAll('', '', 0, 0, ['fk_control' => $object->id]);
+            if (is_array($subControlList) && !empty($subControlList)) {
+                foreach ($subControlList as $subControl) {
+                    $options['fk_control'] = $result;
+                    $subControl->createFromClone($user, $subControl->id, $options);
+                }
+            }
             if ($result > 0) {
                 header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . $result);
                 exit();
