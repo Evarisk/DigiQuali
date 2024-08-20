@@ -287,7 +287,6 @@ class Control extends SaturneObject
     public function create(User $user, bool $notrigger = false): int
     {
         $this->track_id = generate_random_id();
-        $this->status = $this->mass_control ? self::STATUS_VALIDATED : self::STATUS_DRAFT;
         $result = parent::create($user, $notrigger);
 
         if ($result > 0) {

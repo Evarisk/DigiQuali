@@ -263,6 +263,33 @@ if (empty($resHook)) {
         }
     }
 
+    //Action to add sub controls
+    if ($action == 'mass_control_add_object') {
+        $object->fetch($id);
+        $linkableElements = get_sheet_linkable_objects();
+        $controlledObjectSelected = 0;
+
+        if (!empty($linkableElements)) {
+            foreach ($linkableElements as $linkableElementType => $linkableElement) {
+                $post = GETPOST($linkableElement['post_name']);
+                if (!empty($post)) {
+                    $objectType = $linkableElement['link_name'];
+                    $objectId = $post;
+
+                    $controlToCreate = new Control($db);
+                    $controlToCreate->fk_sheet = GETPOST('fk_sub_controls_sheet');
+                    $controlToCreate->label = $object->label;
+                    $controlToCreate->status = $object::STATUS_DRAFT;
+                    $controlToCreate->fk_user_controller = $object->fk_user_controller;
+                    $controlToCreate->fk_control = $object->id;
+                    $controlId = $controlToCreate->create($user, true);
+
+                    $controlToCreate->add_object_linked($linkableElement['link_name'], $objectId);
+                }
+            }
+        }
+    }
+
     // Actions confirm_lock, confirm_archive
     require_once __DIR__ . '/../../../saturne/core/tpl/actions/object_workflow_actions.tpl.php';
 
@@ -840,7 +867,20 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
             // Set verdict control
             $displayButton = $onPhone ? '<i class="far fa-check-circle fa-2x"></i>' : '<i class="far fa-check-circle"></i>' . ' ' . $langs->trans('SetOK/KO');
-            if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null && !$equipmentOutdated) {
+            $permissionToSetVerdict = 1;
+            if ($object->mass_control == 1) {
+                $subControlList = $object->fetchAll('', '', 0, 0, ['fk_control' => $object->id, 'status >= 0']);
+                if (is_array($subControlList) && !empty($subControlList)) {
+                    foreach($subControlList as $subControl) {
+                        if ($subControl->status != $object::STATUS_LOCKED) {
+                            $permissionToSetVerdict = 0;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null && !$equipmentOutdated && $permissionToSetVerdict) {
                 if ($permissiontosetverdict) {
                     print '<span class="butAction" id="actionButtonVerdict">' . $displayButton . '</span>';
                 }
@@ -848,6 +888,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . $displayButton . '</span>';
             } else if ($equipmentOutdated) {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . $displayButton . '</span>';
+            } else if(!$permissionToSetVerdict) {
+                print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('SubControlsMustBeLockedToSetVerdict')) . '">' . $displayButton . '</span>';
             } else {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . $displayButton . '</span>';
             }
