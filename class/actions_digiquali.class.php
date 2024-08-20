@@ -132,6 +132,27 @@ class ActionsDigiquali
             require_once __DIR__ . '/../class/survey.class.php';
 		}
 
+        if (strpos($parameters['context'], 'controlpublicsignature') !== false) {
+            if ($action == 'add_signature') {
+                $data = json_decode(file_get_contents('php://input'), true);
+                $subControlList = $object->fetchAll('', '', 0, 0, ['fk_control' => $object->id]);
+
+                if(is_array($subControlList) && !empty($subControlList)) {
+                    foreach ($subControlList as $subControl) {
+                        $signatory = new SaturneSignature($this->db, 'digiquali', 'control');
+                        $signatory->fetch(0, '', ' AND fk_object =' . "'" . $subControl->id . "' AND object_type='control'");
+                        $signatory->signature      = $data['signature'];
+                        $signatory->signature_date = dol_now();
+
+                        $result = $signatory->update($user, true);
+                        if ($result > 0) {
+                            $signatory->setSigned($user, false, 'public');
+                        }
+                    }
+                }
+            }
+        }
+
 		if (!$error) {
 			$this->results = array('myreturn' => 999);
 			$this->resprints = 'A text to show';
