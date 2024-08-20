@@ -32,6 +32,7 @@ window.digiquali.control.event = function() {
   $( document ).on( 'change', '#fk_sheet', window.digiquali.control.showSelectObjectLinked);
   $( document ).on( 'click', '.clipboard-copy', window.digiquali.control.copyToClipboard );
   $( document ).on( 'change', '#productId', window.digiquali.control.refreshLotSelector );
+  $( document ).on( 'change', '[name="mass_control"]', window.digiquali.control.showSubControlsModel );
   $( document ).on( 'click', '.switch-public-control-view', window.digiquali.control.switchPublicControlView );
   $(document).on('click', '.show-only-questions-with-no-answer', window.digiquali.control.showOnlyQuestionsWithNoAnswer);
   $(document).on('click', '.photo-sheet-category', window.digiquali.control.getSheetCategoryID);
@@ -461,4 +462,17 @@ window.digiquali.control.saveSubControlAnswers = async function() {
       $('.wpeo-loader').removeClass('wpeo-loader');
     }
   });
+}
+
+/**
+ * Show sub controls model
+ *
+ * @since   1.10.0
+ * @version 1.10.0
+ *
+ * @return {void}
+ */
+window.digiquali.control.showSubControlsModel = function() {
+  $('.sub-controls-model').attr('style', '');
+  $('.sub-controls-model').find('.select2-container').css('width', '500px')
 }

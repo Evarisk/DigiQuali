@@ -353,6 +353,8 @@ MassControl                                    = Contrôle en masse
 LinkedControlList                              = Liste des contrôles liés
 NewMassControl                                 = Nouveau contrôle en masse
 ControlledObject                               = Objet contrôlé
+SubControlSheet                                = Modèle des sous-contrôles
+
 
 
 #

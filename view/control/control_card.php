@@ -407,6 +407,13 @@ if ($action == 'create') {
     print '<input type="checkbox" name="mass_control" value="1" ' . (GETPOST('mass_control') ? 'checked' : '') . '>';
     print '</td></tr>';
 
+    //FK SHEET
+    print '<tr style="display:none" class="sub-controls-model"><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('SubControlSheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
+    print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sub_controls_sheet'), 'fk_sub_controls_sheet', 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED);
+    if ($source != 'pwa') {
+        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
+    }
+    print '</td></tr>';
 
     print '</table>';
     print '<hr>';
@@ -895,36 +902,35 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print '</div>';
     }
 
+    // QUESTION LINES
+    print '<div class="div-table-responsive-no-min questionLines" style="overflow-x: unset !important">';
+
+    if (is_array($questionIds) && !empty($questionIds)) {
+        ksort($questionIds);
+    } ?>
+
+    <div class="progress-info">
+        <span class="badge badge-info" style="margin-right: 10px;"><?php print $answerCounter . '/' . $questionCounter; ?></span>
+        <div class="progress-bar" style="margin-right: 10px;">
+            <div class="progress progress-bar-success" style="width:<?php print ($questionCounter > 0 ? ($answerCounter / $questionCounter) * 100 : 0) . '%'; ?>;" title="<?php print($questionCounter > 0 ? $answerCounter . '/' . $questionCounter : 0); ?>"></div>
+        </div>
+        <?php if ($answerCounter != $questionCounter) {
+            print $user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? img_picto($langs->trans('Enabled'), 'switch_on', 'class="show-only-questions-with-no-answer marginrightonly"') : img_picto($langs->trans('Disabled'), 'switch_off', 'class="show-only-questions-with-no-answer marginrightonly"');
+            print $form->textwithpicto($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>', $langs->trans('ShowOnlyQuestionsWithNoAnswer'));
+        } else {
+            $user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER = 0;
+        } ?>
+    </div>
+
+    <?php if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
+        print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', '');
+        print '<div id="tablelines" class="question-answer-container noborder noshadow">';
+        require_once __DIR__ . '/../../core/tpl/digiquali_answers.tpl.php';
+        print '</div>';
+    }
+
     if ($object->mass_control) {
         require_once __DIR__ . '/../../core/tpl/digiquali_mass_control_list.tpl.php';
-
-    } else {
-        // QUESTION LINES
-        print '<div class="div-table-responsive-no-min questionLines" style="overflow-x: unset !important">';
-
-        if (is_array($questionIds) && !empty($questionIds)) {
-            ksort($questionIds);
-        } ?>
-
-        <div class="progress-info">
-            <span class="badge badge-info" style="margin-right: 10px;"><?php print $answerCounter . '/' . $questionCounter; ?></span>
-            <div class="progress-bar" style="margin-right: 10px;">
-                <div class="progress progress-bar-success" style="width:<?php print ($questionCounter > 0 ? ($answerCounter / $questionCounter) * 100 : 0) . '%'; ?>;" title="<?php print($questionCounter > 0 ? $answerCounter . '/' . $questionCounter : 0); ?>"></div>
-            </div>
-            <?php if ($answerCounter != $questionCounter) {
-                print $user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? img_picto($langs->trans('Enabled'), 'switch_on', 'class="show-only-questions-with-no-answer marginrightonly"') : img_picto($langs->trans('Disabled'), 'switch_off', 'class="show-only-questions-with-no-answer marginrightonly"');
-                print $form->textwithpicto($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>', $langs->trans('ShowOnlyQuestionsWithNoAnswer'));
-            } else {
-                $user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER = 0;
-            } ?>
-        </div>
-
-        <?php if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
-            print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', '');
-            print '<div id="tablelines" class="question-answer-container noborder noshadow">';
-            require_once __DIR__ . '/../../core/tpl/digiquali_answers.tpl.php';
-            print '</div>';
-        }
     }
 
 

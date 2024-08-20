@@ -163,7 +163,7 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 
                                         $control->status = $control::STATUS_DRAFT;
                                         $control->label = $object->label;
-                                        $control->fk_sheet = $object->fk_sheet;
+                                        $control->fk_sheet = GETPOST('fk_sub_controls_sheet');
                                         $control->fk_user_controller = $object->fk_user_controller;
                                         $control->fk_control = $object->id;
                                         $controlId = $control->create($user, true);
