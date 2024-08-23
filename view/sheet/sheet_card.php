@@ -244,6 +244,17 @@ if (empty($reshook)) {
 		if ( ! $error) {
 			$result = $object->setLocked($user, false);
 			if ($result > 0) {
+                // Need update question status because import allow STATUS_VALIDATED prohibed single add
+                if ($object->import_key > 0) {
+                    $object->fetchObjectLinked($id, 'digiquali_' . $object->element);
+                    if (is_array($object->linkedObjects['digiquali_question']) && !empty($object->linkedObjects['digiquali_question'])) {
+                        foreach ($object->linkedObjects['digiquali_question'] as $question) {
+                            if ($question->status == Question::STATUS_VALIDATED) {
+                                $question->setLocked($user, false);
+                            }
+                        }
+                    }
+                }
 				// Set locked OK
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
