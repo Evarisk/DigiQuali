@@ -102,9 +102,11 @@ if (empty($reshook)) {
 		$sheetExportArray['rowid']               = $object->id;
 		$sheetExportArray['ref']                 = $object->ref;
 		$sheetExportArray['status']              = $object->status;
+        $sheetExportArray['type']                = $object->type;
 		$sheetExportArray['label']               = $object->label;
 		$sheetExportArray['description']         = $object->description;
 		$sheetExportArray['element_linked']      = $object->element_linked;
+        $sheetExportArray['success_rate']        = $object->success_rate;
 		$sheetExportArray['mandatory_questions'] = $object->mandatory_questions;
 
 		$digiqualiExportArray['sheets'][$object->id] = $sheetExportArray;

@@ -80,9 +80,11 @@ if ($action == 'data_migration_export_global' && $permissionToRead) {
 				$sheetExportArray['rowid']               = $sheetSingle->id;
 				$sheetExportArray['ref']                 = $sheetSingle->ref;
 				$sheetExportArray['status']              = $sheetSingle->status;
+                $sheetExportArray['type']                = $sheetSingle->type;
 				$sheetExportArray['label']               = $sheetSingle->label;
 				$sheetExportArray['description']         = $sheetSingle->description;
 				$sheetExportArray['element_linked']      = $sheetSingle->element_linked;
+                $sheetExportArray['success_rate']        = $sheetSingle->success_rate;
 				$sheetExportArray['mandatory_questions'] = $sheetSingle->mandatory_questions;
 
 				$digiqualiExportArray['sheets'][$sheetSingle->id] = $sheetExportArray;
@@ -216,7 +218,7 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
 					$question->show_photo             = $questionSingle['show_photo'];
 					$question->authorize_answer_photo = $questionSingle['authorize_answer_photo'];
 					$question->enter_comment          = $questionSingle['enter_comment'];
-					$question->status                 = ($questionSingle['status'] == Question::STATUS_LOCKED ? Question::STATUS_VALIDATED : $questionSingle['status']);
+					$question->status                 = Question::STATUS_VALIDATED;
 					$question->import_key             = $importKey;
 
 					$questionId = $question->create($user);
@@ -250,11 +252,13 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
             if (is_array($digiqualiExportArray['sheets']) && !empty($digiqualiExportArray['sheets'])) {
                 foreach ($digiqualiExportArray['sheets'] as $sheetSingle) {
 					$sheet->ref_ext             = $sheetSingle['ref'];
+                    $sheet->type                = $sheetSingle['type'];
                     $sheet->label               = $sheetSingle['label'];
                     $sheet->description         = $sheetSingle['description'];
 					$sheet->element_linked      = $sheetSingle['element_linked'];
+                    $sheet->success_rate        = $sheetSingle['success_rate'];
 					$sheet->mandatory_questions = $sheetSingle['mandatory_questions'];
-					$sheet->status              = ($sheetSingle['status'] == Sheet::STATUS_LOCKED ? Sheet::STATUS_VALIDATED : $sheetSingle['status']);
+					$sheet->status              = Sheet::STATUS_VALIDATED;
 					$sheet->import_key          = $importKey;
 
 					$sheetMandatoryQuestions = json_decode($sheetSingle['mandatory_questions']);
