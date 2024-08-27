@@ -90,6 +90,7 @@ $extrafields      = new ExtraFields($db);
 $ecmfile          = new EcmFiles($db);
 $ecmdir           = new EcmDirectory($db);
 $category         = new Categorie($db);
+$parentControl    = new Control($db);
 
 // View objects
 $form = new Form($db);
@@ -654,6 +655,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     print '</td><td class="valuefield fieldname_next_control_date">';
     print $form->editfieldval('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd && $object->status < Control::STATUS_LOCKED, 'datepicker', '', null, null, "id=$object->id");
     print '</td>';
+
+    if ($object->fk_control > 0) {
+        print '<tr class="field_parent_control"><td class="titlefield fieldname_parent_control">';
+        print $langs->trans('ParentControl');
+        print '</td><td class="valuefield fieldname_parent_control">';
+        $parentControl->fetch($object->fk_control);
+        print $parentControl->getNomUrl(1);
+        print '</td>';
+    }
 
     print '<tr class="field_verdict"><td class="titlefield fieldname_verdict">';
     print $langs->trans('Verdict');

@@ -357,6 +357,8 @@ SubControlSheet                                = Modèle des sous-contrôles
 AddAnObjectToControl                           = Ajouter un objet à contrôler
 SubControlsMustBeLockedToSetVerdict            = Les sous-contrôles doivent être verrouillés pour définir le verdict
 MainControlMustBeDraftToEditSubControls        = Le contrôle principal doit être brouillon pour éditer les sous-contrôles
+ParentControl                                  = Contrôle parent
+
 
 
 #
