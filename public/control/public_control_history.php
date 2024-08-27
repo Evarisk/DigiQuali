@@ -66,7 +66,7 @@ require_once __DIR__ . '/../../../digiquali/lib/digiquali_sheet.lib.php';
 global $conf, $db, $hookmanager, $langs;
 
 // Load translation files required by the page.
-saturne_load_langs(['bills', 'contracts', 'orders', 'products', 'projects', 'companies']);
+saturne_load_langs(['bills', 'contracts', 'orders', 'products', 'projects', 'companies', (isModEnabled('dolicar') ? 'dolicar@dolicar' : '')]);
 
 // Get parameters.
 $trackId         = GETPOST('track_id', 'alpha');
@@ -138,8 +138,13 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
         print '<input hidden class="public-control-view" value="0">';
         print $langs->trans('ControlList');
         print '</div>';
-        print '</div>';
     }
+    if (isModEnabled('dolicar') && $objectType == 'productlot') {
+        print '<a class="wpeo-button marginleftonly" href="' . dol_buildpath('custom/dolicar/public/agenda/public_vehicle_logbook.php?id=' . $objectId . '&entity=' . $entity . '&backtopage=' . urlencode($_SERVER['REQUEST_URI']), 1). '">';
+        print $langs->trans('PublicVehicleLogBook');
+        print '</a>';
+    }
+    print '</div>';
 
     print '<input hidden name="token" value="'. newToken() .'">';
 
