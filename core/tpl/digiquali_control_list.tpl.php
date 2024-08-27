@@ -271,6 +271,8 @@ if (is_array($signatoriesInDictionary) && !empty($signatoriesInDictionary)) {
     }
 }
 
+$arrayfields['QuestionAnswered']  = ['label' => 'QuestionAnswered', 'position' => 66, 'css' => 'center minwidth200 maxwidth250 widthcentpercentminusxx'];
+$arrayfields['LastStatusDate']    = ['label' => 'LastStatusDate', 'position' => 67, 'css' => 'center minwidth200 maxwidth300 widthcentpercentminusxx'];
 $arrayfields['SocietyAttendants'] = ['label' => 'SocietyAttendants', 'checked' => $source == 'pwa' ? 0 : 1, 'position' => 115, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusxx'];
 
 $selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage); // This also change content of $arrayfields
@@ -287,6 +289,8 @@ if (is_array($signatoriesInDictionary) && !empty($signatoriesInDictionary)) {
     }
 }
 
+$object->fields['Custom']['QuestionAnswered']  = $arrayfields['QuestionAnswered'];
+$object->fields['Custom']['LastStatusDate']    = $arrayfields['LastStatusDate'];
 $object->fields['Custom']['SocietyAttendants'] = $arrayfields['SocietyAttendants'];
 
 print '<div class="div-table-responsive">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
@@ -321,13 +325,7 @@ foreach ($object->fields as $key => $val)
 	} elseif ($key == 'Custom') {
         foreach ($val as $resource) {
             if ($resource['checked']) {
-                if ($resource['label'] == 'SocietyAttendants') {
-                    print '<td class="liste_titre ' . $resource['css'] . '">';
-                    //print $form->select_company($searchSocietyAttendants, 'search_society_attendants', '', 1);
-                    print '</td>';
-                } else {
-                    print '<td class="liste_titre ' . $resource['css'] . '"></td>';
-                }
+                print '<td class="liste_titre ' . $resource['css'] . '"></td>';
             }
         }
     }
@@ -507,6 +505,44 @@ while ($i < ($limit ? min($num, $limit) : $num))
                                 $alreadyAddedThirdParties[] = $thirdparty->id;
                             }
                         }
+                        print '</td>';
+                    } else if ($resource['label'] == 'QuestionAnswered') {
+                        $object->fetchLines();
+
+                        $questionCounter = 0;
+                        $sheet->fetch($object->fk_sheet);
+                        $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
+                        $questionIds = $sheet->linkedObjectsIds['digiquali_question'];
+                        if (!empty($questionIds)) {
+                            $questionCounter = count($questionIds);
+                        }
+
+                        $answerCounter = 0;
+                        if (is_array($object->lines) && !empty($object->lines)) {
+                            foreach($object->lines as $objectLine) {
+                                if (dol_strlen($objectLine->answer) > 0) {
+                                    $answerCounter++;
+                                }
+                            }
+                        }
+                        print '<td class="' . $resource['css'] . '">';
+                        print ' ' . $answerCounter . '/' . $questionCounter;
+                        print ($questionCounter == $answerCounter && $object->status == Control::STATUS_DRAFT ? img_picto($langs->transnoentities('ObjectReadyToValidate', dol_strtolower($langs->transnoentities('Control'))), 'warning') : '');
+                        print '</td>';
+                    } else if ($resource['label'] == 'LastStatusDate') {
+                        require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
+
+                        $actioncomm = new ActionComm($db);
+
+                        $lastValidateAction = $actioncomm->getActions(0, $object->id, 'control@digiquali', ' AND a.code = "AC_CONTROL_VALIDATE"', 'a.datep', 'DESC', 1);
+                        $lastReOpenAction   = $actioncomm->getActions(0, $object->id, 'control@digiquali', ' AND a.code = "AC_CONTROL_UNVALIDATE"', 'a.datep', 'DESC', 1);
+
+                        $lastValidateDate   = (is_array($lastValidateAction) && !empty($lastValidateAction) ? $lastValidateAction[0]->datec : 0);
+                        $lastReOpenDate     = (is_array($lastReOpenAction) && !empty($lastReOpenAction) ? $lastReOpenAction[0]->datec : '');
+
+                        print '<td class="' . $resource['css'] . '">';
+                        print $lastValidateDate > 0 ? $langs->trans('ValidationDate') . ': <br>' . dol_print_date($lastValidateDate, 'dayhour') . '<br>' : '';
+                        print $lastReOpenDate > 0 ? $langs->trans('ReOpenDate') . ': <br>' . dol_print_date($lastReOpenDate, 'dayhour') . '<br>' : '';
                         print '</td>';
                     } else {
                         print '<td class="' . $resource['css'] . '">';
