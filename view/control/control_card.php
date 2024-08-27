@@ -442,7 +442,7 @@ if ($action == 'create') {
     print '</td></tr>';
 
     //FK SHEET
-    print '<tr style="display:none" class="sub-controls-model"><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('SubControlSheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
+    print '<tr style="'. (GETPOST('mass_control') ? : 'display:none') .'" class="sub-controls-model"><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('SubControlSheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
     print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sub_controls_sheet'), 'fk_sub_controls_sheet', 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED);
     if ($source != 'pwa') {
         print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';

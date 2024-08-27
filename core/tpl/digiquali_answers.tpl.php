@@ -29,8 +29,10 @@
  * Variable   : $publicInterface
  */
 
+
 if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->linkedObjects['digiquali_question'])) {
     foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
+
         $questionAnswer = '';
         $comment        = '';
         $result         = $objectLine->fetchFromParentWithQuestion($object->id, $question->id);

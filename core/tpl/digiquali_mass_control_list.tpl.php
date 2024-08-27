@@ -40,10 +40,16 @@ foreach ($tableHeaders as $header) {
 print '</div>';
 
 $mainControlId = $object->id;
+$sheet = new Sheet($db);
+
 // Check if there are any mass controls and print them
 if (is_array($massControlList) && !empty($massControlList)) {
     foreach ($massControlList as $massControl) {
         $object = $massControl;
+        $sheet->fetch($massControl->fk_sheet);
+        $sheet->fetch_optionals();
+
+        $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
         $massControl->fetch_optionals();
         $massControl->fetchLines();
         $massControl->fetchObjectLinked('', '', $massControl->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
@@ -96,8 +102,8 @@ if (is_array($massControlList) && !empty($massControlList)) {
 
         print '<div class="table-cell center">';
         $questionCounter = 0;
-        if (!empty($questionIds)) {
-            $questionCounter = count($questionIds);
+        if (!empty($sheet->linkedObjects['digiquali_question'])) {
+            $questionCounter = count($sheet->linkedObjects['digiquali_question']);
         }
 
         $answerCounter = 0;
@@ -110,22 +116,23 @@ if (is_array($massControlList) && !empty($massControlList)) {
         }
         //affiche le nombre de questions répondues
         print '<span class="answerCounter">' . $answerCounter . '/' . $questionCounter . '</span>';
-        print '<button class="'. ($massControl->status == $massControl::STATUS_LOCKED ? "butActionRefused" : "butAction modal-open") .' answerSubControl" data-control-id="'. $massControl->id .'">';
+        print '<button type="button" class="'. ($massControl->status == $massControl::STATUS_LOCKED ? "butActionRefused" : "butAction modal-open") .' answerSubControl" data-control-id="'. $massControl->id .'">';
         print $langs->trans('Answers');
         print '<input type="hidden" class="modal-options" data-modal-to-open="modalSubControl'. $massControl->id .'">';
         print '</button>';
         print '</div>';
         $documenturl = DOL_URL_ROOT . '/document.php';
         //retrieve last document of the control
+        print '<div class="table-cell center">';
         $documentList = dol_dir_list($conf->digiquali->multidir_output[$massControl->entity ?: 1] . '/controldocument/' . $massControl->ref . '/');
         if (!empty($documentList)) {
             $lastDocument = $documentList[count($documentList) - 1];
             $lastDocumentPath = $lastDocument['relativename'];
+            print '<a class="documentdownload paddingright" href="' . $documenturl . '?modulepart=digiquali&file=controldocument/' . urlencode($massControl->ref . '/' . $lastDocumentPath) . '">';
+            print '<button type="button" class="wpeo-button button-square-40 button-blue wpeo-tooltip-event" aria-label="' . $langs->trans('ShowDocument') . '"><i class="fas fa-eye button-icon"></i></button>';
+            print '</a>';
         }
-        print '<div class="table-cell center">';
-        print '<a class="documentdownload paddingright" href="' . $documenturl . '?modulepart=digiquali&file=controldocument/' . urlencode($massControl->ref . '/' . $lastDocumentPath) . '">';
-        print '<button type="button" class="wpeo-button button-square-40 button-blue wpeo-tooltip-event" aria-label="' . $langs->trans('ShowDocument') . '"><i class="fas fa-eye button-icon"></i></button>';
-        print '</a>';
+
         print '</div>';
         print '<div class="table-cell center">';
         if ($massControl->status != $massControl::STATUS_LOCKED) {
