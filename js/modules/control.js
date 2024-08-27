@@ -37,7 +37,6 @@ window.digiquali.control.event = function() {
   $(document).on('click', '.photo-sheet-category', window.digiquali.control.getSheetCategoryID);
   $(document).on('click', '.photo-sheet-sub-category', window.digiquali.control.getSheetSubCategoryID);
   $(document).on('click', '.photo-sheet', window.digiquali.control.getSheetID);
-  $(document).on('click', '#actionButtonValidate', window.digiquali.control.updateModalContent);
 };
 
 /**
@@ -311,18 +310,4 @@ window.digiquali.control.getSheetID = function() {
     },
     error: function() {}
   });
-};
-
-/**
- * Update validate control modal content
- *
- * @since   1.0.0
- * @version 1.0.0
- *
- * @return {void}
- */
-window.digiquali.control.updateModalContent = function() {
-  let elements = $('#dialog-confirm-actionButtonValidate>.confirmmessage')
-
-  elements.first().replaceWith(elements.last());
 };
