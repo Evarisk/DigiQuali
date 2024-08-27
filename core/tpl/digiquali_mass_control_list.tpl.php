@@ -41,10 +41,12 @@ print '</div>';
 
 $mainControlId = $object->id;
 $sheet = new Sheet($db);
+$mainControl = $object;
 
 // Check if there are any mass controls and print them
 if (is_array($massControlList) && !empty($massControlList)) {
     foreach ($massControlList as $massControl) {
+        $answersDisabled = $massControl->status == $massControl::STATUS_LOCKED || $mainControl->status >= $mainControl::STATUS_VALIDATED;
         $object = $massControl;
         $sheet->fetch($massControl->fk_sheet);
         $sheet->fetch_optionals();
@@ -88,17 +90,17 @@ if (is_array($massControlList) && !empty($massControlList)) {
         print '<div class="verdict-container">';
         print '<label class="verdict-option">';
         print '<input type="radio" name="verdict' . $massControl->id . '" value="1" ' . ($massControl->verdict == '1' ? 'checked' : '') . '>';
-        print '<span class="verdict-box verdict-ok '. ($massControl->status == $massControl::STATUS_LOCKED ? "disabled" : "") .'" data-control-id="'. $massControl->id .'">OK</span>';
+        print '<span class="verdict-box verdict-ok '. ($answersDisabled ? "disabled" : "") .'" data-control-id="'. $massControl->id .'">OK</span>';
         print '</label>';
         print '<label class="verdict-option">';
         print '<input data-control-id="'. $massControl->id .'" type="radio" name="verdict' . $massControl->id . '" value="0" ' . ($massControl->verdict == '0' ? 'checked' : '') . '>';
-        print '<span class="verdict-box verdict-ko '. ($massControl->status == $massControl::STATUS_LOCKED ? "disabled" : "") .'" data-control-id="'. $massControl->id .'">KO</span>';
+        print '<span class="verdict-box verdict-ko '. ($answersDisabled ? "disabled" : "") .'" data-control-id="'. $massControl->id .'">KO</span>';
         print '</label>';
         print '</div>';
         print '</div>';
 
         // Note Control section displaying the public note
-        print '<div class="table-cell center"><textarea '. ($massControl->status == $massControl::STATUS_LOCKED ? "disabled" : "") .' type="text" class="note-public">' . $massControl->note_public . '</textarea></div>';
+        print '<div class="table-cell center"><textarea '. ($answersDisabled ? "disabled" : "") .' type="text" class="note-public">' . $massControl->note_public . '</textarea></div>';
 
         print '<div class="table-cell center">';
         $questionCounter = 0;
@@ -116,7 +118,7 @@ if (is_array($massControlList) && !empty($massControlList)) {
         }
         //affiche le nombre de questions répondues
         print '<span class="answerCounter">' . $answerCounter . '/' . $questionCounter . '</span>';
-        print '<button type="button" class="'. ($massControl->status == $massControl::STATUS_LOCKED ? "butActionRefused" : "butAction modal-open") .' answerSubControl" data-control-id="'. $massControl->id .'">';
+        print '<button type="button" class="'. ($answersDisabled ? "butActionRefused" : "butAction modal-open") .' answerSubControl" data-control-id="'. $massControl->id .'">';
         print $langs->trans('Answers');
         print '<input type="hidden" class="modal-options" data-modal-to-open="modalSubControl'. $massControl->id .'">';
         print '</button>';
@@ -135,7 +137,7 @@ if (is_array($massControlList) && !empty($massControlList)) {
 
         print '</div>';
         print '<div class="table-cell center">';
-        if ($massControl->status != $massControl::STATUS_LOCKED) {
+        if (!$answersDisabled) {
             if ($massControl->status == $massControl::STATUS_VALIDATED) {
                 $displayButton = $onPhone ? '<i class="fas fa-lock fa-2x"></i>' : '<i class="fas fa-lock"></i>' . ' ' . $langs->trans('Lock');
                 print '<span class="lockSubControl butAction" id="actionButtonLockSubControl" data-control-id="'. $massControl->id .'" data-mass-control-id="'. $mainControlId .'">' . $displayButton . '</span>';
@@ -148,6 +150,8 @@ if (is_array($massControlList) && !empty($massControlList)) {
                 $displayButton = $onPhone ? '<i class="fas fa-save fa-2x"></i>' : '<i class="fas fa-save"></i>' . ' ' . $langs->trans('Save');
                 print '<span class="saveSubControl butAction'. (!$validateButtonDisabled ? 'Refused' : '') .'" id="saveButton'. $massControl->id .'" data-control-id="'. $massControl->id .'" data-mass-control-id="'. $mainControlId .'">' . $displayButton . '</span>';
             }
+        } else {
+            print $langs->trans('MainControlMustBeDraftToEditSubControls');
         }
 
         print '</div>';
