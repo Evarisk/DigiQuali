@@ -362,8 +362,12 @@ if ($action == 'create') {
         print '</div></div>';
     } else {
         //FK SHEET
+        $objectTypeArray = (!empty(GETPOST('fromtype')) ? saturne_get_objects_metadata(GETPOST('fromtype')) : []);
+        $filterType      = (!empty($objectTypeArray) ? dol_strtolower($objectTypeArray['name']) : '');
+        $filter          = 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED;
+        $filter         .= (!empty($filterType) ? ' AND s.element_linked LIKE "%' . $filterType . '%"' : '');
         print '<tr><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('Sheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
-        print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet') ?: $sheet->id, 'fk_sheet', 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED);
+        print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet') ?: $sheet->id, 'fk_sheet', $filter);
         if ($source != 'pwa') {
             print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
         }
@@ -401,9 +405,8 @@ if ($action == 'create') {
     print '<tr><td>';
     print '<div class="fields-content">';
 
-    foreach ($elementArray as $linkableElementType => $linkableElement) {
-        if (!empty($linkableElement['conf'] && preg_match('/"' . $linkableElementType . '":1/', $sheet->element_linked))) {
-
+    foreach($elementArray as $linkableElementType => $linkableElement) {
+        if (!empty($linkableElement['conf'] && (!empty(GETPOST('fromtype')) && GETPOST('fromtype') == $linkableElement['link_name']) || (preg_match('/"'. $linkableElementType .'":1/',$sheet->element_linked)))) {
             $objectArray    = [];
             $objectPostName = $linkableElement['post_name'];
             $objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $linkableElement['link_name'] ? GETPOST('fromid') : '');
