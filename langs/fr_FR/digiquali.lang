@@ -344,9 +344,9 @@ BeCarefullVerdictKO                            = Attention si le statut de votre
 ShowQcFrequencyPublicInterface                 = Afficher la période de validé (en jours) sur l'interface publique de contrôle
 ShowQcFrequencyPublicInterfaceDescription      = Option permettant l'affichage la période de validé (en jours) sur l'interface publique de contrôle
 GenerateSheetTags                              = Vous n'avez pas généré de catégories principales, veuillez cliquer ici pour vous rendre sur la page de configuration
-CanBeValidated                                 = Le %s est prêt à être validé
+ObjectReadyToValidate                          = Le %s est prêt à être validé
 QuestionAnswered                               = Réponse/Question
-DifferentDate                                  = Dernières dates de statut
+LastStatusDate                                 = Dernières dates de statut
 ValidationDate                                 = Date de validation
 ReOpenDate                                     = Date de réouverture
 

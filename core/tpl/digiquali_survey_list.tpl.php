@@ -286,8 +286,8 @@ if (is_array($signatoriesInDictionary) && !empty($signatoriesInDictionary)) {
 }
 
 $arrayfields['QuestionAnswered']  = ['label' => 'QuestionAnswered', 'position' => 66, 'css' => 'center minwidth200 maxwidth250 widthcentpercentminusxx'];
+$arrayfields['LastStatusDate']    = ['label' => 'LastStatusDate', 'position' => 67, 'css' => 'center minwidth200 maxwidth300 widthcentpercentminusxx'];
 $arrayfields['SocietyAttendants'] = ['label' => 'SocietyAttendants', 'checked' => 1, 'position' => 115, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusxx'];
-$arrayfields['DifferentDate']     = ['label' => 'DifferentDate', 'position' => 67, 'css' => 'center minwidth200 maxwidth300 widthcentpercentminusxx'];
 
 $selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage, getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN')); // This also change content of $arrayfields
 $selectedfields .= (count($arrayofmassactions) ? $form->showCheckAddButtons('checkforselect', 1) : '');
@@ -300,8 +300,8 @@ if (is_array($signatoriesInDictionary) && !empty($signatoriesInDictionary)) {
 }
 
 $object->fields['Custom']['QuestionAnswered']  = $arrayfields['QuestionAnswered'];
+$object->fields['Custom']['LastStatusDate']    = $arrayfields['LastStatusDate'];
 $object->fields['Custom']['SocietyAttendants'] = $arrayfields['SocietyAttendants'];
-$object->fields['Custom']['DifferentDate']     = $arrayfields['DifferentDate'];
 
 print '<div class="div-table-responsive">'; // You can use div-table-responsive-no-min if you don't need reserved height for your table
 print '<table class="tagtable nobottomiftotal liste' . ($moreforfilter ? ' listwithfilterbefore' : '') . '">';
@@ -341,19 +341,7 @@ foreach ($object->fields as $key => $val)
 	} elseif ($key == 'Custom') {
         foreach ($val as $resource) {
             if ($resource['checked']) {
-                if ($resource['label'] == 'SocietyAttendants') {
-                    print '<td class="liste_titre ' . $resource['css'] . '">';
-                    //print $form->select_company($searchSocietyAttendants, 'search_society_attendants', '', 1);
-                    print '</td>';
-                } else if ($resource['label'] == 'QuestionAnswered') {
-                    print '<td class="liste_titre ' . $resource['css'] . '">';
-                    print '</td>';
-                } else if ($resource['label'] == 'DifferentDate') {
-                    print '<td class="liste_titre ' . $resource['css'] . '">';
-                    print '</td>';
-                } else {
-                    print '<td class="liste_titre ' . $resource['css'] . '"></td>';
-                }
+                print '<td class="liste_titre ' . $resource['css'] . '"></td>';
             }
         }
     }
@@ -595,9 +583,9 @@ while ($i < $imaxinloop) {
                             }
                             print '<td class="' . $resource['css'] . '">';
                             print ' ' . $answerCounter . '/' . $questionCounter;
-                            print ($questionCounter == $answerCounter && $object->status == Survey::STATUS_DRAFT ? img_picto($langs->transnoentities('CanBeValidated', $langs->transnoentities('Survey')), 'warning') : '');
+                            print ($questionCounter == $answerCounter && $object->status == Survey::STATUS_DRAFT ? img_picto($langs->transnoentities('ObjectReadyToValidate', dol_strtolower($langs->transnoentities('Survey'))), 'warning') : '');
                             print '</td>';
-                        } else if ($resource['label'] == 'DifferentDate') {
+                        } else if ($resource['label'] == 'LastStatusDate') {
                             require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
 
                             $actioncomm = new ActionComm($db);
@@ -606,7 +594,7 @@ while ($i < $imaxinloop) {
                             $lastReOpenAction   = $actioncomm->getActions(0, $object->id, 'survey@digiquali', ' AND a.code = "AC_SURVEY_UNVALIDATE"', 'a.datep', 'DESC', 1);
 
                             $lastValidateDate   = (is_array($lastValidateAction) && !empty($lastValidateAction) ? $lastValidateAction[0]->datec : 0);
-                            $lastReOpenDate     = (is_array($lastValidateAction) && !empty($lastValidateAction) ? $lastReOpenAction[0]->datec : 0);
+                            $lastReOpenDate     = (is_array($lastReOpenAction) && !empty($lastReOpenAction) ? $lastReOpenAction[0]->datec : 0);
 
                             print '<td class="' . $resource['css'] . '">';
                             print $lastValidateDate > 0 ? $langs->trans('ValidationDate') . ': <br>' . dol_print_date($lastValidateDate, 'dayhour') . '<br>' : '';
