@@ -53,7 +53,7 @@ class Question extends SaturneObject
     /**
      * @var int Does object support extrafields ? 0 = No, 1 = Yes.
      */
-    public int $isextrafieldmanaged = 1;
+    public $isextrafieldmanaged = 1;
 
     /**
      * @var string Name of icon for control. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'control@digiquali' if picto is file 'img/object_control.png'.
@@ -211,12 +211,12 @@ class Question extends SaturneObject
     /**
      * @var int User ID.
      */
-    public int $fk_user_creat;
+    public $fk_user_creat;
 
     /**
      * @var int|null User ID.
      */
-    public ?int $fk_user_modif;
+    public $fk_user_modif;
 
     /**
      * Constructor.

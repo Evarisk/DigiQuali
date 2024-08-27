@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2022-2024 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,17 +48,6 @@ require_once __DIR__ . '/../../../../../class/answer.class.php';
  */
 class doc_controldocument_odt extends SaturneDocumentModel
 {
-    /**
-     * @var array Minimum version of PHP required by module.
-     * e.g.: PHP ≥ 5.5 = array(5, 5)
-     */
-    public $phpmin = [7, 4];
-
-    /**
-     * @var string Dolibarr version of the loaded document.
-     */
-    public string $version = 'dolibarr';
-
     /**
      * @var string Module.
      */
@@ -121,7 +110,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
             $foundTagForLines = 1;
             try {
                 $listLines = $odfHandler->setSegment('questions');
-            } catch (OdfException $e) {
+            } catch (OdfException|OdfExceptionSegmentNotFound $e) {
                 // We may arrive here if tags for lines not present into template.
                 $foundTagForLines = 0;
                 $listLines = '';
@@ -196,7 +185,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
                                 // Fill an array with photo path and ref of the answer for next loop.
                                 if (is_array($fileList) && !empty($fileList)) {
                                     foreach ($fileList as $singleFile) {
-                                        $fileSmall          = saturne_get_thumb_name($singleFile['name']);
+                                        $fileSmall          = saturne_get_thumb_name($singleFile['name'], getDolGlobalString('DIGIQUALI_DOCUMENT_MEDIA_VIGNETTE_USED'));
                                         $image              = $path . '/thumbs/' . $fileSmall;
                                         $photoArray[$image] = $questionAnswerLine->ref;
                                     }
@@ -217,7 +206,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
             $foundTagForLines = 1;
             try {
                 $listLines = $odfHandler->setSegment('equipment');
-            } catch (OdfException $e) {
+            } catch (OdfException|OdfExceptionSegmentNotFound $e) {
                 // We may arrive here if tags for lines not present into template.
                 $foundTagForLines = 0;
                 $listLines = '';
@@ -270,7 +259,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
             $foundTagForLines = 1;
             try {
                 $listLines = $odfHandler->setSegment('photos');
-            } catch (OdfException $e) {
+            } catch (OdfException|OdfExceptionSegmentNotFound $e) {
                 // We may arrive here if tags for lines not present into template.
                 $foundTagForLines = 0;
                 $listLines = '';
@@ -329,7 +318,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
 
         if (!empty($object->photo)) {
             $path      = $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/photos';
-            $fileSmall = saturne_get_thumb_name($object->photo);
+            $fileSmall = saturne_get_thumb_name($object->photo, getDolGlobalString('DIGIQUALI_DOCUMENT_MEDIA_VIGNETTE_USED'));
             $image     = $path . '/thumbs/' . $fileSmall;
             $tmpArray['photoDefault'] = $image;
         } else {

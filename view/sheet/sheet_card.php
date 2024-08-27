@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2022-2024 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -115,14 +115,15 @@ if (empty($reshook)) {
 		$questionId = GETPOST('questionId');
 		if ($questionId > 0) {
 			$question->fetch($questionId);
-			$test = $question->add_object_linked('digiquali_' . $object->element,$id);
+			$question->add_object_linked('digiquali_' . $object->element,$id);
 
-			$questionsLinked = $object->fetchObjectLinked($id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position', 0);
-			$questionIds     = $object->linkedObjectsIds['digiquali_question'];
+			$object->fetchObjectLinked($id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position', 0);
+            $questionIds   = $object->linkedObjectsIds['digiquali_question'];
+            $questionIds[] = $question->id;
 			$object->updateQuestionsPosition($questionIds);
 
 			$object->call_trigger('SHEET_ADDQUESTION', $user);
-			setEventMessages($langs->trans('addQuestionLink') . ' ' . $question->ref, array());
+			setEventMessages($langs->trans('AddQuestionLink', 1) . ' ' . $question->ref, []);
 			header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
 			exit;
 		} else {
@@ -137,13 +138,9 @@ if (empty($reshook)) {
 		$question->element = 'digiquali_'.$question->element;
 		$question->deleteObjectLinked($id, 'digiquali_' . $object->element);
 
-		$questionsLinked = $object->fetchObjectLinked($id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position', 0);
-		$questionIds     = $object->linkedObjectsIds['digiquali_question'];
-		$object->updateQuestionsPosition($questionIds);
-
 		setEventMessages($langs->trans('removeQuestionLink') . ' ' . $question->ref, array());
 
-		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id'));
+		header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . GETPOST('id') . '&page_y=' . GETPOST('page_y'));
 		exit;
 	}
 
@@ -188,10 +185,8 @@ if (empty($reshook)) {
 	if ($action == 'moveLine' && $permissiontoadd) {
 		$idsArray = json_decode(file_get_contents('php://input'), true);
 		if (is_array($idsArray['order']) && !empty($idsArray['order'])) {
-			$ids = array_values($idsArray['order']);
-			$reIndexedIds = array_combine(range(1, count($ids)), array_values($ids));
+		    $object->updateQuestionsPosition($idsArray['order']);
 		}
-		$object->updateQuestionsPosition($reIndexedIds);
 	}
 
 	// Action to delete
@@ -249,6 +244,17 @@ if (empty($reshook)) {
 		if ( ! $error) {
 			$result = $object->setLocked($user, false);
 			if ($result > 0) {
+                // Need update question status because import allow STATUS_VALIDATED prohibed single add
+                if ($object->import_key > 0) {
+                    $object->fetchObjectLinked($id, 'digiquali_' . $object->element);
+                    if (is_array($object->linkedObjects['digiquali_question']) && !empty($object->linkedObjects['digiquali_question'])) {
+                        foreach ($object->linkedObjects['digiquali_question'] as $question) {
+                            if ($question->status == Question::STATUS_VALIDATED) {
+                                $question->setLocked($user, false);
+                            }
+                        }
+                    }
+                }
 				// Set locked OK
 				$urltogo = str_replace('__ID__', $result, $backtopage);
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
@@ -579,7 +585,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     $pathPhotos = $conf->digiquali->multidir_output[$conf->entity] . '/sheet/'. $object->ref . '/photos/';
     $fileArray  = dol_dir_list($pathPhotos, 'files'); ?>
     <span class="add-medias" <?php echo ($object->status < Sheet::STATUS_LOCKED) ? '' : 'style="display:none"' ?>>
-        <input hidden multiple class="fast-upload" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
+        <input hidden multiple class="fast-upload<?php echo getDolGlobalInt('SATURNE_USE_FAST_UPLOAD_IMPROVEMENT') ? '-improvement' : ''; ?>" id="fast-upload-photo-default" type="file" name="userfile[]" capture="environment" accept="image/*">
+        <input type="hidden" class="fast-upload-options" data-from-subtype="photo" data-from-subdir="photos"/>
         <label for="fast-upload-photo-default">
             <div class="wpeo-button <?php echo ($onPhone ? 'button-square-40' : 'button-square-50'); ?>">
                 <i class="fas fa-camera"></i><i class="fas fa-plus-circle button-add"></i>
@@ -604,12 +611,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '<div class="clearboth"></div>';
 
-	$object->fetchObjectLinked($id, 'digiquali_' . $object->element);
+	$object->fetchObjectLinked($id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position');
 	$questionIds = $object->linkedObjectsIds['digiquali_question'];
-	if (is_array($questionIds) && !empty($questionIds)) {
-		ksort($questionIds);
-	}
-
 
 	// Buttons for actions
 	if ($action != 'presend' && $action != 'editline') {
@@ -732,7 +735,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 			print '<td class="center">';
 			if ($object->status < $object::STATUS_LOCKED) {
-				print '<a href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=unlinkQuestion&questionId=' . $item->id . '">';
+				print '<a class="reposition" href="' . $_SERVER["PHP_SELF"] . '?id=' . $id . '&amp;action=unlinkQuestion&questionId=' . $item->id . '">';
 				print img_delete();
 				print '</a>';
 			}

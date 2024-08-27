@@ -56,7 +56,7 @@ class Control extends SaturneObject
     /**
      * @var int Does object support extrafields ? 0 = No, 1 = Yes.
      */
-    public int $isextrafieldmanaged = 1;
+    public $isextrafieldmanaged = 1;
 
     /**
      * @var string Name of icon for control. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'control@digiquali' if picto is file 'img/object_control.png'.
@@ -122,6 +122,7 @@ class Control extends SaturneObject
         'next_control_date'  => ['type' => 'date',         'label' => 'NextControlDate',  'enabled' => 1, 'position' => 65,  'notnull' => 0, 'visible' => 2, 'showinpwa' => 0],
         'success_rate'       => ['type' => 'real',         'label' => 'SuccessScore',     'enabled' => 1, 'position' => 67,  'notnull' => 0, 'visible' => 2, 'showinpwa' => 0, 'help' => 'PercentageValue'],
         'status'             => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 5, 'showinpwa' => 0, 'index' => 1, 'default' => 0, 'arrayofkeyval' => [0 => 'StatusDraft', 1 => 'Validated', 2 => 'Locked', 3 => 'Archived']],
+        'label'              => ['type' => 'varchar(255)', 'label' => 'Label',            'enabled' => 1, 'position' => 11,  'notnull' => 0, 'visible' => 1, 'showinpwa' => 1, 'searchall' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx'],
         'note_public'        => ['type' => 'html',         'label' => 'NotePublic',       'enabled' => 1, 'position' => 80,  'notnull' => 0, 'visible' => 0, 'showinpwa' => 0],
         'note_private'       => ['type' => 'html',         'label' => 'NotePrivate',      'enabled' => 1, 'position' => 90,  'notnull' => 0, 'visible' => 0, 'showinpwa' => 0],
         'verdict'            => ['type' => 'smallint',     'label' => 'Verdict',          'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 5, 'showinpwa' => 1, 'index' => 1, 'positioncard' => 20, 'arrayofkeyval' => [0 => '', 1 => 'OK', 2 => 'KO', 3 => 'N/A']],
@@ -129,10 +130,9 @@ class Control extends SaturneObject
         'track_id'           => ['type' => 'text',         'label' => 'TrackID',          'enabled' => 1, 'position' => 125, 'notnull' => 0, 'visible' => 2, 'showinpwa' => 0],
         'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserAuthor',  'picto' => 'user',                            'enabled' => 1, 'position' => 130, 'notnull' => 1, 'visible' => 0, 'showinpwa' => 0, 'foreignkey' => 'user.rowid'],
         'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserModif',   'picto' => 'user',                            'enabled' => 1, 'position' => 140, 'notnull' => 0, 'visible' => 0, 'showinpwa' => 0, 'foreignkey' => 'user.rowid'],
-        'fk_sheet'           => ['type' => 'integer:Sheet:digiquali/class/sheet.class.php',    'label' => 'Sheet',       'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 11,  'notnull' => 1, 'visible' => 5, 'showinpwa' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_sheet.rowid'],
-        'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1',         'label' => 'Controller',  'picto' => 'user',                            'enabled' => 1, 'position' => 12,  'notnull' => 1, 'visible' => 1, 'showinpwa' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'user.rowid',   'positioncard' => 1],
-        'projectid'          => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project',     'picto' => 'project',                         'enabled' => 1, 'position' => 13,  'notnull' => 0, 'visible' => 1, 'showinpwa' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'projet.rowid', 'positioncard' => 2]
-
+        'fk_sheet'           => ['type' => 'integer:Sheet:digiquali/class/sheet.class.php',    'label' => 'Sheet',       'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 12,  'notnull' => 1, 'visible' => 5, 'showinpwa' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_sheet.rowid'],
+        'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1',         'label' => 'Controller',  'picto' => 'user',                            'enabled' => 1, 'position' => 13,  'notnull' => 1, 'visible' => 1, 'showinpwa' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'user.rowid',   'positioncard' => 1],
+        'projectid'          => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project',     'picto' => 'project',                         'enabled' => 1, 'position' => 14,  'notnull' => 0, 'visible' => 1, 'showinpwa' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'projet.rowid', 'positioncard' => 2]
     ];
 
     /**
@@ -174,6 +174,11 @@ class Control extends SaturneObject
      * @var int Status.
      */
     public $status;
+
+    /**
+     * @var string|null Label.
+     */
+    public ?string $label;
 
     /**
      * @var string Public note.
@@ -218,12 +223,12 @@ class Control extends SaturneObject
     /**
      * @var int User ID.
      */
-    public int $fk_user_creat;
+    public $fk_user_creat;
 
     /**
      * @var int|null User ID.
      */
-    public ?int $fk_user_modif;
+    public $fk_user_modif;
 
     /**
      * @var int Sheet ID.
@@ -564,6 +569,11 @@ class Control extends SaturneObject
         }
         if (property_exists($object, 'verdict')) {
             $object->verdict = 0;
+        }
+        if (!empty($options['label'])) {
+            if (property_exists($object, 'label')) {
+                $object->label = $options['label'];
+            }
         }
         if (empty($options['photos'])) {
             $object->photo = '';
@@ -1111,7 +1121,7 @@ class ControlLine extends SaturneObject
     /**
      * @var int Does object support extrafields ? 0 = No, 1 = Yes
      */
-    public int $isextrafieldmanaged = 1;
+    public $isextrafieldmanaged = 1;
 
     /**
      * 'type' field format:
@@ -1236,12 +1246,12 @@ class ControlLine extends SaturneObject
     /**
      * @var int User ID
      */
-    public int $fk_user_creat;
+    public $fk_user_creat;
 
     /**
      * @var int|null User ID
      */
-    public ?int $fk_user_modif;
+    public $fk_user_modif;
 
     /**
      * @var int Control ID

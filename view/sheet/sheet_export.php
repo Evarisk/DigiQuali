@@ -59,6 +59,7 @@ $answer   = new Answer($db);
 
 // View objects
 $form = new Form($db);
+$now  = dol_now();
 
 $upload_dir = $conf->digiquali->multidir_output[isset($conf->entity) ? $conf->entity : 1];
 
@@ -95,34 +96,36 @@ if (empty($reshook)) {
 	}
 
 	if ($action == 'export_sheet_data' && $permissionToRead) {
-		$exportName = 'sheet_question_answer_export_sheet' . $object->id;
+        $exportName = (!empty($object->label) ? dol_string_nospecial($object->label, '_', '', ['-']) : $object->ref);
 
 		$digiqualiExportArray = [];
 		$sheetExportArray['rowid']               = $object->id;
 		$sheetExportArray['ref']                 = $object->ref;
 		$sheetExportArray['status']              = $object->status;
+        $sheetExportArray['type']                = $object->type;
 		$sheetExportArray['label']               = $object->label;
 		$sheetExportArray['description']         = $object->description;
 		$sheetExportArray['element_linked']      = $object->element_linked;
+        $sheetExportArray['success_rate']        = $object->success_rate;
 		$sheetExportArray['mandatory_questions'] = $object->mandatory_questions;
 
 		$digiqualiExportArray['sheets'][$object->id] = $sheetExportArray;
 
-        $object->fetchObjectLinked($object->id, 'digiquali_' . $object->element);
+        $object->fetchObjectLinked($object->id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position');
 		$questionsLinked = $object->linkedObjects['digiquali_question'];
 
 		if (is_array($questionsLinked) && !empty($questionsLinked)) {
-			foreach ($questionsLinked as $questionSingle) {
-				$digiqualiExportArray['element_element'][$object->id][] = $questionSingle->id;
-				$questionExportArray['rowid']                  = $questionSingle->id;
-				$questionExportArray['ref']                    = $questionSingle->ref;
-				$questionExportArray['status']                 = $questionSingle->status;
-				$questionExportArray['type']                   = $questionSingle->type;
-				$questionExportArray['label']                  = $questionSingle->label;
-				$questionExportArray['description']            = $questionSingle->description;
-				$questionExportArray['show_photo']             = $questionSingle->show_photo;
-				$questionExportArray['authorize_answer_photo'] = $questionSingle->authorize_answer_photo;
-				$questionExportArray['enter_comment']          = $questionSingle->enter_comment;
+			foreach ($questionsLinked as $key => $questionSingle) {
+				$digiqualiExportArray['element_element'][$object->id][$key] = $questionSingle->id;
+				$questionExportArray['rowid']                               = $questionSingle->id;
+				$questionExportArray['ref']                                 = $questionSingle->ref;
+				$questionExportArray['status']                              = $questionSingle->status;
+				$questionExportArray['type']                                = $questionSingle->type;
+				$questionExportArray['label']                               = $questionSingle->label;
+				$questionExportArray['description']                         = $questionSingle->description;
+				$questionExportArray['show_photo']                          = $questionSingle->show_photo;
+				$questionExportArray['authorize_answer_photo']              = $questionSingle->authorize_answer_photo;
+				$questionExportArray['enter_comment']                       = $questionSingle->enter_comment;
 
 				$digiqualiExportArray['questions'][$questionSingle->id] = $questionExportArray;
 
@@ -148,7 +151,7 @@ if (empty($reshook)) {
 		$digiqualiExportJSON = json_encode($digiqualiExportArray, JSON_PRETTY_PRINT);
 
 		$fileDir    = $upload_dir . '/temp/';
-		$exportBase = $fileDir . dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export';
+		$exportBase = $fileDir . dol_print_date($now, 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export';
 		$fileName   = $exportBase . '.json';
 
 		file_put_contents($fileName, $digiqualiExportJSON);
@@ -158,7 +161,7 @@ if (empty($reshook)) {
 			setEventMessage($langs->transnoentities("ExportWellDone"));
 			$zip->addFile($fileName, basename($fileName));
 			$zip->close();
-			$fileNameZip = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export.zip';
+			$fileNameZip = dol_print_date($now, 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export.zip';
 			$filepath = DOL_URL_ROOT . '/document.php?modulepart=digiquali&file=' . urlencode('temp/'.$fileNameZip);
 			?>
 			<script>

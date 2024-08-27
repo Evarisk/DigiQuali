@@ -53,7 +53,7 @@ class Answer extends SaturneObject
     /**
      * @var int Does object support extrafields ? 0 = No, 1 = Yes.
      */
-    public int $isextrafieldmanaged = 0;
+    public $isextrafieldmanaged = 0;
 
     /**
      * @var string Name of icon for answer. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'answer@digiquali' if picto is file 'img/object_answer.png'.
@@ -190,12 +190,12 @@ class Answer extends SaturneObject
     /**
      * @var int User ID.
      */
-    public int $fk_user_creat;
+    public $fk_user_creat;
 
     /**
      * @var int|null User ID.
      */
-    public ?int $fk_user_modif;
+    public $fk_user_modif;
 
     /**
      * Constructor.

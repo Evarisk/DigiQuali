@@ -21,29 +21,26 @@
  * \brief   Public page to view survey
  */
 
-if (!defined('NOREQUIREUSER')) {
-    define('NOREQUIREUSER', '1');
-}
 if (!defined('NOTOKENRENEWAL')) {
-    define('NOTOKENRENEWAL', '1');
+    define('NOTOKENRENEWAL', 1);
 }
 if (!defined('NOREQUIREMENU')) {
     define('NOREQUIREMENU', 1);
 }
 if (!defined('NOREQUIREHTML')) {
-    define('NOREQUIREHTML', '1');
+    define('NOREQUIREHTML', 1);
 }
 if (!defined('NOLOGIN')) {      // This means this output page does not require to be logged.
-    define('NOLOGIN', '1');
+    define('NOLOGIN', 1);
 }
 if (!defined('NOCSRFCHECK')) {  // We accept to go on this page from external website.
-    define('NOCSRFCHECK', '1');
+    define('NOCSRFCHECK', 1);
 }
 if (!defined('NOIPCHECK')) {    // Do not check IP defined into conf $dolibarr_main_restrict_ip.
-    define('NOIPCHECK', '1');
+    define('NOIPCHECK', 1);
 }
 if (!defined('NOBROWSERNOTIF')) {
-    define('NOBROWSERNOTIF', '1');
+    define('NOBROWSERNOTIF', 1);
 }
 
 // Load DigiQuali environment
