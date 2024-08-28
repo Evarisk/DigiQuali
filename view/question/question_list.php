@@ -464,10 +464,10 @@ if ($massaction == 'pre_add_questions') {
     if (is_array($sheets) && !empty($sheets)) {
         $sheetArray = [];
         foreach ($sheets as $sheet) {
-            $sheetArray[$sheet->id] = dol_trunc($sheet->ref . ' - ' . $sheet->label);
+            $sheetArray[$sheet->id] = $sheet->ref . ' - ' . $sheet->label;
         }
         $formQuestion = [
-            ['type' => 'select', 'name' => 'sheet', 'label' => $langs->trans('Sheet'), 'values' => $sheetArray]
+            ['type' => 'select', 'name' => 'sheet', 'label' => $langs->trans('Sheet'), 'values' => $sheetArray, 'morecss' => 'maxwidth300 maxwidth200onsmartphone']
         ];
         print $form->formconfirm($_SERVER['PHP_SELF'], $langs->trans('ConfirmMassAddQuestion'), $langs->trans('ConfirmMassAddingQuestion', count($toselect)), 'add_questions', $formQuestion, '', 0, 200, 500, 1);
     } else {
