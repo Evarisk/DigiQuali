@@ -585,7 +585,7 @@ foreach ($object->fields as $key => $val) {
 include DOL_DOCUMENT_ROOT.'/core/tpl/extrafields_list_search_title.tpl.php';
 
 // Hook fields
-$parameters = ['arrayfields'=>$arrayfields, 'param'=>$param, 'sortfield'=>$sortfield, 'sortorder'=>$sortorder];
+$parameters = ['arrayfields' => $arrayfields, 'param' => $param, 'sortfield' => $sortfield, 'sortorder' => $sortorder];
 $reshook    = $hookmanager->executeHooks('printFieldListTitle', $parameters, $object); // Note that $action and $object may have been modified by hook
 print $hookmanager->resPrint;
 
@@ -599,7 +599,6 @@ if (is_array($extrafields->attributes[$object->table_element]['computed']) && co
 {
 	foreach ($extrafields->attributes[$object->table_element]['computed'] as $key => $val)
 	{
-        var_dump($val);
 		if (preg_match('/\$object/', $val)) $needToFetchEachLine++; // There is at least one compute field that use $object
 	}
 }
