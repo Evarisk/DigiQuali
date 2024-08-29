@@ -78,6 +78,9 @@ saturne_check_access($permissiontoread);
  * Actions
  */
 
+// Actions set_mod, update_mask
+require_once __DIR__ . '/../../saturne/core/tpl/actions/admin_conf_actions.tpl.php';
+
 // Extrafields actions.
 require DOL_DOCUMENT_ROOT.'/core/actions_extrafields.inc.php';
 
