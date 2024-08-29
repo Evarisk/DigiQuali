@@ -380,7 +380,7 @@ print '</td>';
 
 print '<td class="center">';
 print '<input class="flat" type="file" name="dataMigrationImportZipFile[]"/>';
-print '<input type="submit" class="button reposition data-migration-submit" name="dataMigrationImportZip" value="' . $langs->trans("Upload") . '">';
+print '<input type="submit" class="wpeo-button button reposition data-migration-submit" name="dataMigrationImportZip" value="' . $langs->trans("Upload") . '">';
 print '</td>';
 print '</tr>';
 
