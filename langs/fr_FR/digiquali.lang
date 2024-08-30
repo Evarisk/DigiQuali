@@ -69,7 +69,10 @@ QuestionList                  = Liste des questions
 NewQuestion                   = Nouvelle question
 ModifyQuestion                = Modifier une question
 LinkedQuestionsList           = Liste des questions liées
-addQuestionLink               = Question ajoutée au modèle :
+AddQuestionLink               = %d Question(s) ajoutée(s) au modèle :
+WarningQuestionLink           = %d Question(s) déjà dans le modèle :
+ConfirmMassAddQuestion        = Confirmation d'ajout en masse de questions au modèle
+ConfirmMassAddingQuestion     = Êtes-vous sur de vouloir ajouter les %d question(s) sélectionnée(s) ?
 removeQuestionLink            = Question retirée du modèle :
 LockQuestion                  = La question %s est passée au statut verrouillé
 LockQuestions                 = Toutes les questions sélectionnées sont passées au statut verrouillé
@@ -112,6 +115,7 @@ AnswerDeleted                 = La réponse a été supprimée avec succès
 AnswerMustBeCreated           = La question %s doit avoir au moins une réponse pour passer au statut verrouillé
 ShowOnlyQuestionsWithNoAnswer = Afficher uniquement les questions qui n'ont pas de réponse
 AveragePercentageQuestions    = Moyenne des questions
+AddToSheet                    = Ajouter au modèle
 
 
 
@@ -291,7 +295,7 @@ ControlsByFiscalYear                           = Rapport des contrôles sur l'ex
 OfControl                                      = du contrôle
 OfAnswer                                       = des réponses
 PublicControl                                  = Interface publique de contrôle
-QcFrequency                                    = Période de validité (en jours)
+QcFrequency                                    = Périodicité de contrôle (Jours)
 ObjectLinked                                   = Objet lié(s)
 NextControlDate                                = Prochaine date de contrôle
 NextControl                                    = Prochain contrôle
@@ -340,8 +344,11 @@ BeCarefullVerdictKO                            = Attention si le statut de votre
 ShowQcFrequencyPublicInterface                 = Afficher la période de validé (en jours) sur l'interface publique de contrôle
 ShowQcFrequencyPublicInterfaceDescription      = Option permettant l'affichage la période de validé (en jours) sur l'interface publique de contrôle
 GenerateSheetTags                              = Vous n'avez pas généré de catégories principales, veuillez cliquer ici pour vous rendre sur la page de configuration
-
-
+ObjectReadyToValidate                          = Le %s est prêt à être validé
+QuestionAnswered                               = Réponse/Question
+LastStatusDate                                 = Dernières dates de statut
+ValidationDate                                 = Date de validation
+ReOpenDate                                     = Date de réouverture
 
 #
 # ControlDet
