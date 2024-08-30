@@ -611,6 +611,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     print dol_strlen($object->verdict) > 0 ? '<div class="wpeo-button button-' . $verdictColor . '">' . $object->fields['verdict']['arrayofkeyval'][(!empty($object->verdict)) ? $object->verdict : 3] . '</div>' : 'N/A';
     print '</td>';
 
+    print '<tr class="field_fk_sheet"><td class="titlefield fieldname_fk_sheet">';
+    print $langs->trans('Sheet');
+    print '</td><td class="valuefield fieldname_fk_sheet">';
+    print $object->showOutputField($object->fields['fk_sheet'], 'fk_sheet', $object->fk_sheet, '', '', '', 0) . '<span class="opacitymedium">' . ' - ' . $sheet->label . '</span>';
+
+    unset($object->fields['fk_sheet']);
+
     require_once DOL_DOCUMENT_ROOT . '/core/tpl/commonfields_view.tpl.php';
 
     // Categories

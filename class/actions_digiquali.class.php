@@ -414,4 +414,26 @@ class ActionsDigiquali
 
         return 0; // or return 1 to replace standard code.
     }
+
+    public function getNomUrl($parameters, $object, $action): int {
+        if (strpos($parameters['context'], 'controlcard') !== false) {
+            $metadata   = saturne_get_objects_metadata($object->element);
+            $fields     = preg_split("/[\s,]+/", $metadata['name_field']);
+            $result     = '';
+
+            if ($object->element == 'product' || $object->element == 'project_task') {
+                $result .= '<span class="opacitymedium">' . ' - ' . $object->label . '</span>';
+            } else {
+                if (count($fields) > 1 && property_exists($object, $fields[1])) {
+                    $field = $fields[1];
+                    $result .= '<span class="opacitymedium">' . ' - ' . $object->$field . '</span>';
+                }
+            }
+
+            if (!str_contains($parameters['getnomurl'], $result)) {
+                $this->resprints = $result;
+            }
+        }
+        return 0;
+    }
 }
