@@ -128,7 +128,7 @@ ALTER TABLE `llx_digiquali_survey` ADD `success_rate` DOUBLE(24,8) NULL AFTER `p
 -- 1.13.0
 ALTER TABLE `llx_digiquali_control` ADD `label` VARCHAR(255) NULL AFTER `status`;
 
--- 1.14.0
+-- 1.15.0
 ALTER TABLE `llx_digiquali_control` ADD `mass_control` BOOLEAN NULL AFTER `success_rate`;
 ALTER TABLE `llx_digiquali_control` ADD `fk_control` INTEGER NULL AFTER `mass_control`;
 ALTER TABLE llx_digiquali_control ADD CONSTRAINT llx_digiquali_control_fk_control FOREIGN KEY (fk_control) REFERENCES llx_digiquali_control(rowid);

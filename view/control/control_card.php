@@ -235,7 +235,7 @@ if (empty($resHook)) {
             $object->verdict = GETPOST('verdict', 'int') ?: null;
             $object->note_public .= (!empty($object->note_public) ? chr(0x0A) : '') . GETPOST('noteControl');
             $result = $object->update($user);
-            if ($result > 0) { 
+            if ($result > 0) {
                 // Set verdict Control
                 $object->call_trigger('CONTROL_VERDICT', $user);
                 $urltogo = str_replace('__ID__', $result, $backtopage);
@@ -285,11 +285,13 @@ if (empty($resHook)) {
                     $objectId = $post;
 
                     $controlToCreate = new Control($db);
-                    $controlToCreate->fk_sheet = GETPOST('fk_sub_controls_sheet');
-                    $controlToCreate->label = $object->label;
-                    $controlToCreate->status = $object::STATUS_DRAFT;
+
+                    $controlToCreate->fk_sheet           = GETPOST('fk_sub_controls_sheet');
+                    $controlToCreate->label              = $object->label;
+                    $controlToCreate->status             = $object::STATUS_DRAFT;
                     $controlToCreate->fk_user_controller = $object->fk_user_controller;
-                    $controlToCreate->fk_control = $object->id;
+                    $controlToCreate->fk_control         = $object->id;
+                    
                     $controlId = $controlToCreate->create($user, true);
 
                     $controlToCreate->add_object_linked($linkableElement['link_name'], $objectId);

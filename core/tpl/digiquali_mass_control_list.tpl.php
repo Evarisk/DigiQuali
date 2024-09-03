@@ -6,18 +6,14 @@
  * \brief   Template for displaying the list of mass controls linked to an object
  */
 
-// Fetch the list of mass controls linked to the object
 $subControlList = $object->fetchAll('', '', 0, 0, ['fk_control' => $object->id]);
-// Start the responsive table container
+
 print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
 
-// Load and print the title for the control list section
 print load_fiche_titre($langs->trans('LinkedControlList'), '', '');
 
-// Start the table
 print '<div class="wpeo-table table-flex table-3">';
 
-// Define table headers with appropriate translations
 $tableHeaders = [
     $langs->trans('Name'),
     $langs->trans('Status'),
@@ -29,7 +25,6 @@ $tableHeaders = [
     $langs->trans('Action'),
 ];
 
-// Create header row using divs
 print '<div class="table-row header-row">';
 $i = 0;
 foreach ($tableHeaders as $header) {
@@ -39,8 +34,8 @@ foreach ($tableHeaders as $header) {
 print '</div>';
 
 $mainControlId = $object->id;
-$sheet = new Sheet($db);
-$mainControl = $object;
+$sheet         = new Sheet($db);
+$mainControl   = $object;
 
 // Check if there are any mass controls and print them
 if (is_array($subControlList) && !empty($subControlList)) {
@@ -54,7 +49,6 @@ if (is_array($subControlList) && !empty($subControlList)) {
         $subControl->fetch_optionals();
         $subControl->fetchLines();
         $subControl->fetchObjectLinked('', '', $subControl->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
-        //get object controlled
         $linkableElements = get_sheet_linkable_objects();
 
         print '<div class="table-row sub-control-'. $subControl->id .'">';
@@ -68,7 +62,6 @@ if (is_array($subControlList) && !empty($subControlList)) {
                 foreach($object->linkedObjectsIds[$linkableElement['link_name']] as $linkedObjectId) {
                     $linkedObject->fetch($linkedObjectId);
 
-
                     print $linkedObject->getNomUrl(1, 0, '', 'maxwidth200');
 
                     if ($linkedObject->array_options['options_qc_frequency'] > 0) {
@@ -77,14 +70,12 @@ if (is_array($subControlList) && !empty($subControlList)) {
                         print $langs->transnoentities('QcFrequency') . ' : ' . $linkedObject->array_options['options_qc_frequency'];
                         print '</strong>';
                     }
-
                     print '<br/>';
                 }
             }
         }
         print '</div>';
 
-        // Verdict section with interactive OK/KO buttons
         print '<div class="table-cell center">';
         print '<div class="verdict-container">';
         print '<label class="verdict-option">';
@@ -98,7 +89,6 @@ if (is_array($subControlList) && !empty($subControlList)) {
         print '</div>';
         print '</div>';
 
-        // Note Control section displaying the public note
         print '<div class="table-cell center"><textarea '. ($answersDisabled ? "disabled" : "") .' type="text" class="note-public">' . $subControl->note_public . '</textarea></div>';
 
         print '<div class="table-cell center">';
@@ -115,15 +105,15 @@ if (is_array($subControlList) && !empty($subControlList)) {
                 }
             }
         }
-        //affiche le nombre de questions répondues
+
         print '<span class="answerCounter">' . $answerCounter . '/' . $questionCounter . '</span>';
         print '<button type="button" class="'. ($answersDisabled ? "butActionRefused" : "butAction modal-open") .' answerSubControl" data-control-id="'. $subControl->id .'">';
         print $langs->trans('Answers');
         print '<input type="hidden" class="modal-options" data-modal-to-open="modalSubControl'. $subControl->id .'">';
         print '</button>';
         print '</div>';
+
         $documenturl = DOL_URL_ROOT . '/document.php';
-        //retrieve last document of the control
         print '<div class="table-cell center">';
         $documentList = dol_dir_list($conf->digiquali->multidir_output[$subControl->entity ?: 1] . '/controldocument/' . $subControl->ref . '/');
         if (!empty($documentList)) {
@@ -175,7 +165,6 @@ if (is_array($subControlList) && !empty($subControlList)) {
         print '</div>';
     }
 } else {
-    // If no mass controls are found, display a message
     print '<div class="table-row">';
     print '<div class="table-cell" colspan="6">' . $langs->trans('NoSubControlFound') . '</div>';
     print '</div>';

@@ -147,13 +147,11 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 
                 $isMassControl = $object->mass_control;
 
-                $elementArray = [];
-
                 if ($object->context != 'createfromclone') {
                     $elementArray = get_sheet_linkable_objects();
 
 					if (!empty($elementArray)) {
-						foreach ($elementArray as $linkableElementType => $linkableElement) {
+						foreach ($elementArray as $linkableElement) {
                             $post = GETPOST('multi_' . $linkableElement['post_name'], 'array');
                             if (!empty($post) && $post > 0) {
 
@@ -161,11 +159,12 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                                     if ($isMassControl) {
                                         $control = new Control($this->db);
 
-                                        $control->status = $control::STATUS_DRAFT;
-                                        $control->label = $object->label;
-                                        $control->fk_sheet = GETPOST('fk_sub_controls_sheet');
+                                        $control->status             = $control::STATUS_DRAFT;
+                                        $control->label              = $object->label;
+                                        $control->fk_sheet           = GETPOST('fk_sub_controls_sheet');
                                         $control->fk_user_controller = $object->fk_user_controller;
-                                        $control->fk_control = $object->id;
+                                        $control->fk_control         = $object->id;
+
                                         $controlId = $control->create($user, true);
 
                                         $control->fetch($controlId);
@@ -184,8 +183,6 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                     $signatory = new SaturneSignature($this->db, 'digiquali');
                     $signatory->setSignatory($object->id, $object->element, 'user', [$object->fk_user_controller], 'Controller', 1);
                 }
-
-
 
 				$actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
 				$actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);

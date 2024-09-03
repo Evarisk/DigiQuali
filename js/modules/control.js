@@ -47,7 +47,7 @@ window.digiquali.control.event = function() {
     $('.verdict-box').on('click', function(event) {
       if ($(this).hasClass('disabled')) {
         event.stopPropagation();
-        event.preventDefault();  
+        event.preventDefault();
       }
     });
   });
@@ -331,8 +331,8 @@ window.digiquali.control.getSheetID = function() {
 /**
  * Save sub control
  *
- * @since   1.10.0
- * @version 1.10.0
+ * @since   1.15.0
+ * @version 1.15.0
  *
  * @return {void}
  */
@@ -340,7 +340,7 @@ window.digiquali.control.saveSubControl = function() {
   let subControlID = $(this).attr('data-control-id');
   let mainControlId = $(this).attr('data-main-control-id');
   let notePublic = $(this).closest('.table-row').find('.note-public').val();
-  // get input checked
+
   let questionIds = [];
   $(this).closest('.table-row').find('.select-answer').each(function() {
     let questionId = $(this).attr('data-questionid');
@@ -391,8 +391,8 @@ window.digiquali.control.saveSubControl = function() {
 /**
  * Lock sub control
  *
- * @since   1.10.0
- * @version 1.10.0
+ * @since   1.15.0
+ * @version 1.15.0
  *
  * @return {void}
  */
@@ -410,7 +410,7 @@ window.digiquali.control.lockSubControl = function() {
     processData: false,
     contentType: false,
     data: [],
-    success: function (resp) {
+    success: function () {
       let url = document.URL.replace(/id=\d+/, 'id=' + mainControlId);
       $.ajax({
         url: url,
@@ -431,8 +431,8 @@ window.digiquali.control.lockSubControl = function() {
 /**
  * Validate sub control
  *
- * @since   1.10.0
- * @version 1.10.0
+ * @since   1.15.0
+ * @version 1.15.0
  *
  * @return {void}
  */
@@ -450,7 +450,7 @@ window.digiquali.control.validateSubControl = function() {
     processData: false,
     contentType: false,
     data: [],
-    success: function (resp) {
+    success: function () {
       let url = document.URL.replace(/id=\d+/, 'id=' + mainControlId);
       $.ajax({
         url: url,
@@ -471,8 +471,8 @@ window.digiquali.control.validateSubControl = function() {
 /**
  * Reopen sub control
  *
- * @since   1.10.0
- * @version 1.10.0
+ * @since   1.15.0
+ * @version 1.15.0
  *
  * @return {void}
  */
@@ -490,7 +490,7 @@ window.digiquali.control.reopenSubControl = function() {
     processData: false,
     contentType: false,
     data: [],
-    success: function (resp) {
+    success: function () {
       let url = document.URL.replace(/id=\d+/, 'id=' + mainControlId);
       $.ajax({
         url: url,
@@ -511,8 +511,8 @@ window.digiquali.control.reopenSubControl = function() {
 /**
  * Save sub control answers
  *
- * @since   1.10.0
- * @version 1.10.0
+ * @since   1.15.0
+ * @version 1.15.0
  *
  * @return {void}
  */
@@ -521,6 +521,7 @@ window.digiquali.control.saveSubControlAnswers = async function() {
   let mainControlId = $(this).attr('data-main-control-id');
 
   window.saturne.loader.display($(this));
+
   let questionIds = [];
   $(this).closest('.table-row').find('.select-answer').each(function () {
     let questionId = $(this).attr('data-questionid');
@@ -559,8 +560,8 @@ window.digiquali.control.saveSubControlAnswers = async function() {
 /**
  * Show sub controls model
  *
- * @since   1.10.0
- * @version 1.10.0
+ * @since   1.15.0
+ * @version 1.15.0
  *
  * @return {void}
  */

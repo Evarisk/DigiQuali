@@ -216,6 +216,6 @@
 }
 
 .verdict-box.disabled {
-  cursor: not-allowed; /* Change le curseur pour montrer que l'élément est désactivé */
-  opacity: 0.5; /* Rendre l'élément visuellement désactivé */
+  cursor: not-allowed;
+  opacity: 0.5;
 }
