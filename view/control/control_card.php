@@ -235,7 +235,7 @@ if (empty($resHook)) {
             $object->verdict = GETPOST('verdict', 'int') ?: null;
             $object->note_public .= (!empty($object->note_public) ? chr(0x0A) : '') . GETPOST('noteControl');
             $result = $object->update($user);
-            if ($result > 0) {
+            if ($result > 0) { 
                 // Set verdict Control
                 $object->call_trigger('CONTROL_VERDICT', $user);
                 $urltogo = str_replace('__ID__', $result, $backtopage);
