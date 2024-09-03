@@ -349,6 +349,17 @@ QuestionAnswered                               = Réponse/Question
 LastStatusDate                                 = Dernières dates de statut
 ValidationDate                                 = Date de validation
 ReOpenDate                                     = Date de réouverture
+MassControl                                    = Contrôle en masse
+LinkedControlList                              = Liste des contrôles liés
+NewMassControl                                 = Nouveau contrôle en masse
+ControlledObject                               = Objet contrôlé
+SubControlSheet                                = Modèle des sous-contrôles
+AddAnObjectToControl                           = Ajouter un objet à contrôler
+SubControlsMustBeLockedToSetVerdict            = Les sous-contrôles doivent être verrouillés pour définir le verdict
+MainControlMustBeDraftToEditSubControls        = Le contrôle principal doit être brouillon pour éditer les sous-contrôles
+ParentControl                                  = Contrôle parent
+NoSubControlFound                              = Aucun sous-contrôle trouvé
+
 
 #
 # ControlDet
@@ -362,6 +373,7 @@ AnswerPhoto                             = Photo
 AutoSaveActionQuestionAnswer            = Sauvegarde automatique des réponses aux questions
 AutoSaveActionQuestionAnswerDescription = Sauvegarde automatiquement les réponses aux questions lors du choix de la réponse
 NoObjectLineAnswersPhoto                = Pas de photos sur les réponses du %s
+Answers                                 = Réponses
 
 #
 # ControlDocument - Fiche de Contrôle
@@ -378,6 +390,8 @@ controldocument                         = fiche de controle
 controldocument.odt                     = Fiche de Contrôle
 controldocument_photo.odt               = Fiche de Contrôle avec photos
 controldocument_photo                   = fiche de controle avec photos
+masscontroldocument                    = Fiche de Contrôle en masse
+masscontroldocument.odt                = Fiche de Contrôle en masse
 
 
 
@@ -441,3 +455,4 @@ Remain                   = reste
 InProgressAndLocked      = -- (En cours + verrouillé) --
 NoObservations           = Pas d'observations
 BasedOnModel             = Basé sur le modèle
+ShowDocument             = Afficher le document

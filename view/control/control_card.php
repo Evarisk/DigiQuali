@@ -90,6 +90,7 @@ $extrafields      = new ExtraFields($db);
 $ecmfile          = new EcmFiles($db);
 $ecmdir           = new EcmDirectory($db);
 $category         = new Categorie($db);
+$parentControl    = new Control($db);
 
 // View objects
 $form = new Form($db);
@@ -151,6 +152,13 @@ if (empty($resHook)) {
         $options['photos']     = GETPOST('clone_photos');
         if ($object->id > 0) {
             $result = $object->createFromClone($user, $object->id, $options);
+            $subControlList = $object->fetchAll('', '', 0, 0, ['fk_control' => $object->id]);
+            if (is_array($subControlList) && !empty($subControlList)) {
+                foreach ($subControlList as $subControl) {
+                    $options['fk_control'] = $result;
+                    $subControl->createFromClone($user, $subControl->id, $options);
+                }
+            }
             if ($result > 0) {
                 header("Location: " . $_SERVER['PHP_SELF'] . '?id=' . $result);
                 exit();
@@ -167,8 +175,11 @@ if (empty($resHook)) {
 
         if (!empty($linkableElements)) {
             foreach ($linkableElements as $linkableElementType => $linkableElement) {
-                if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
-                    $controlledObjectSelected++;
+                $post = GETPOST('multi_' . $linkableElement['post_name'], 'array');
+                if (is_array($post) && !empty($post)) {
+                    foreach($post as $postSingle) {
+                        $controlledObjectSelected++;
+                    }
                 }
             }
         }
@@ -221,7 +232,7 @@ if (empty($resHook)) {
     if ($action == 'confirm_setVerdict' && $permissiontosetverdict && !GETPOST('cancel', 'alpha')) {
         $object->fetch($id);
         if (!$error) {
-            $object->verdict = GETPOST('verdict', 'int');
+            $object->verdict = GETPOST('verdict', 'int') ?: null;
             $object->note_public .= (!empty($object->note_public) ? chr(0x0A) : '') . GETPOST('noteControl');
             $result = $object->update($user);
             if ($result > 0) {
@@ -256,6 +267,35 @@ if (empty($resHook)) {
                 // Set reopened KO
                 if (!empty($object->errors)) setEventMessages(null, $object->errors, 'errors');
                 else setEventMessages($object->error, null, 'errors');
+            }
+        }
+    }
+
+    //Action to add sub controls
+    if ($action == 'mass_control_add_object') {
+        $object->fetch($id);
+        $linkableElements = get_sheet_linkable_objects();
+        $controlledObjectSelected = 0;
+
+        if (!empty($linkableElements)) {
+            foreach ($linkableElements as $linkableElementType => $linkableElement) {
+                $post = GETPOST($linkableElement['post_name']);
+                if (!empty($post)) {
+                    $objectType = $linkableElement['link_name'];
+                    $objectId = $post;
+
+                    $controlToCreate = new Control($db);
+
+                    $controlToCreate->fk_sheet           = GETPOST('fk_sub_controls_sheet');
+                    $controlToCreate->label              = $object->label;
+                    $controlToCreate->status             = $object::STATUS_DRAFT;
+                    $controlToCreate->fk_user_controller = $object->fk_user_controller;
+                    $controlToCreate->fk_control         = $object->id;
+                    
+                    $controlId = $controlToCreate->create($user, true);
+
+                    $controlToCreate->add_object_linked($linkableElement['link_name'], $objectId);
+                }
             }
         }
     }
@@ -398,6 +438,20 @@ if ($action == 'create') {
         print '</td></tr>';
     }
 
+    // Mass control
+    print '<tr><td>' . ($source != 'pwa' ? $langs->trans('MassControl') : img_picto('', 'fontawesome_fa-tasks_fas_#000000_2em', 'class="pictofixedwidth"')) . '</td><td>';
+    print ($source != 'pwa' ? img_picto('', 'fontawesome_fa-tasks_fas_#000000', 'class="pictofixedwidth"') : '');
+    print '<input type="checkbox" name="mass_control" value="1" ' . (GETPOST('mass_control') ? 'checked' : '') . '>';
+    print '</td></tr>';
+
+    //FK SHEET
+    print '<tr style="'. (GETPOST('mass_control') ? : 'display:none') .'" class="sub-controls-model"><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('SubControlSheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
+    print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sub_controls_sheet'), 'fk_sub_controls_sheet', 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED);
+    if ($source != 'pwa') {
+        print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
+    }
+    print '</td></tr>';
+
     print '</table>';
     print '<hr>';
 
@@ -439,7 +493,7 @@ if ($action == 'create') {
 
             print '<tr><td class="titlefieldcreate">' . ($source != 'pwa' ? $langs->transnoentities($linkableElement['langs']) : img_picto('', $linkableElement['picto'], 'class="pictofixedwidth fa-3x"')) . '</td><td>';
             print($source != 'pwa' ? img_picto('', $linkableElement['picto'], 'class="pictofixedwidth"') : '');
-            print $form->selectArray($objectPostName, $objectArray, $objectPost, $langs->trans('Select') . ' ' . strtolower($langs->trans($linkableElement['langs'])), 0, 0, '', 0, 0, dol_strlen(GETPOST('fromtype')) > 0 && GETPOST('fromtype') != $linkableElement['link_name'], '', 'maxwidth500 widthcentpercentminusxx');
+            print $form->multiselectarray('multi_' . $objectPostName, $objectArray, [$objectPost], $langs->trans('Select') . ' ' . strtolower($langs->trans($linkableElement['langs'])), 0, 0, '', 0, 0, dol_strlen(GETPOST('fromtype')) > 0 && GETPOST('fromtype') != $linkableElement['link_name']);
             if ($source != 'pwa') {
                 print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/' . $linkableElement['create_url'] . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('Create') . ' ' . strtolower($langs->trans($linkableElement['langs'])) . '"></span></a>';
             }
@@ -521,7 +575,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         }
 
         $questionConfirmInfo .= '<br><br><b>' . $langs->trans('ConfirmValidateControl') . '</b>';
-        $formConfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ValidateControl'), $questionConfirmInfo, 'confirm_validate', '', 'yes', 'actionButtonValidate', 250);
+        $formConfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ValidateControl'), $questionConfirmInfo, 'confirm_validate', '', 'yes', 'actionButtonValidate' . $object->id, 250);
     }
 
     // Draft confirmation
@@ -604,6 +658,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     print $form->editfieldval('NextControlDate', 'next_control_date', $object->next_control_date, $object, $permissiontoadd && $object->status < Control::STATUS_LOCKED, 'datepicker', '', null, null, "id=$object->id");
     print '</td>';
 
+    if ($object->fk_control > 0) {
+        print '<tr class="field_parent_control"><td class="titlefield fieldname_parent_control">';
+        print $langs->trans('ParentControl');
+        print '</td><td class="valuefield fieldname_parent_control">';
+        $parentControl->fetch($object->fk_control);
+        print $parentControl->getNomUrl(1);
+        print '</td>';
+    }
+
     print '<tr class="field_verdict"><td class="titlefield fieldname_verdict">';
     print $langs->trans('Verdict');
     print '</td><td class="valuefield fieldname_verdict">';
@@ -651,17 +714,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
             $className    = $linkableElement['className'];
             $linkedObject = new $className($db);
+            print '<tr><td class="titlefield">';
+            print $langs->trans($linkableElement['langs']);
+            print '</td>';
+            print '<td>';
 
-            $linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
-            $linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
+            foreach($object->linkedObjectsIds[$linkableElement['link_name']] as $linkedObjectId) {
+                $linkedObject->fetch($linkedObjectId);
 
-            $result = $linkedObject->fetch($linkedObjectId);
-
-            if ($result > 0) {
-                print '<tr><td class="titlefield">';
-                print $langs->trans($linkableElement['langs']);
-                print '</td>';
-                print '<td>';
 
                 print $linkedObject->getNomUrl(1);
 
@@ -672,8 +732,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                     print '</strong>';
                 }
 
-                print '<td></tr>';
+                print '<br/>';
             }
+            print '<td>';
+            print '</tr>';
         }
     }
 
@@ -780,7 +842,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         </div>
     <?php }
 
-    print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '?action=save&id=' . $object->id . '" id="saveObject" enctype="multipart/form-data">';
+    print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '?action=save&id=' . $object->id . '" id="saveObject'. $object->id .'" enctype="multipart/form-data">';
     print '<input type="hidden" name="token" value="' . newToken() . '">';
     print '<input type="hidden" name="action" value="save">';
 
@@ -797,7 +859,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             // Save question answer
             $displayButton = $onPhone ? '<i class="fas fa-save fa-2x"></i>' : '<i class="fas fa-save"></i>' . ' ' . $langs->trans('Save');
             if ($object->status == Control::STATUS_DRAFT) {
-                print '<span class="butActionRefused" id="saveButton" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=save' . '">' . $displayButton . ' <i class="fas fa-circle" style="color: red; display: none; ' . ($onPhone ? 'vertical-align: top;' : '') . '"></i></span>';
+                print '<span class="butActionRefused" id="saveButton'. $object->id .'" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=save' . '">' . $displayButton . ' <i class="fas fa-circle" style="color: red; display: none; ' . ($onPhone ? 'vertical-align: top;' : '') . '"></i></span>';
             } else {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeDraft', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '">' . $displayButton . '</span>';
             }
@@ -805,7 +867,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             // Validate
             $displayButton = $onPhone ? '<i class="fas fa-check fa-2x"></i>' : '<i class="fas fa-check"></i>' . ' ' . $langs->trans('Validate');
             if ($object->status == $object::STATUS_DRAFT && empty($cantValidateControl) && !$equipmentOutdated) {
-                print '<span class="validateButton butAction" id="actionButtonValidate">' . $displayButton . '</span>';
+                print '<span class="validateButton validateButton'. $object->id .' butAction" id="actionButtonValidate'. $object->id .'">' . $displayButton . '</span>';
             } else if ($cantValidateControl > 0) {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('QuestionMustBeAnswered', $cantValidateControl)) . '">' . $displayButton . '</span>';
             } else if ($equipmentOutdated) {
@@ -824,7 +886,20 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
             // Set verdict control
             $displayButton = $onPhone ? '<i class="far fa-check-circle fa-2x"></i>' : '<i class="far fa-check-circle"></i>' . ' ' . $langs->trans('SetOK/KO');
-            if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null && !$equipmentOutdated) {
+            $permissionToSetVerdict = 1;
+            if ($object->mass_control == 1) {
+                $subControlList = $object->fetchAll('', '', 0, 0, ['fk_control' => $object->id, 'status >= 0']);
+                if (is_array($subControlList) && !empty($subControlList)) {
+                    foreach($subControlList as $subControl) {
+                        if ($subControl->status != $object::STATUS_LOCKED) {
+                            $permissionToSetVerdict = 0;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if ($object->status == $object::STATUS_VALIDATED && $object->verdict == null && !$equipmentOutdated && $permissionToSetVerdict) {
                 if ($permissiontosetverdict) {
                     print '<span class="butAction" id="actionButtonVerdict">' . $displayButton . '</span>';
                 }
@@ -832,6 +907,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlMustBeValidatedToSetVerdict')) . '">' . $displayButton . '</span>';
             } else if ($equipmentOutdated) {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlEquipmentOutdated'))  . '">' . $displayButton . '</span>';
+            } else if(!$permissionToSetVerdict) {
+                print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('SubControlsMustBeLockedToSetVerdict')) . '">' . $displayButton . '</span>';
             } else {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ControlVerdictSelected'))  . '">' . $displayButton . '</span>';
             }
@@ -906,7 +983,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         } ?>
     </div>
 
-<?php if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
+    <?php if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
         print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', '');
         print '<div id="tablelines" class="question-answer-container noborder noshadow">';
         require_once __DIR__ . '/../../core/tpl/digiquali_answers.tpl.php';
@@ -915,6 +992,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     print '</div>';
     print '</form>';
+
+    if ($object->mass_control) {
+        require_once __DIR__ . '/../../core/tpl/digiquali_mass_control_list.tpl.php';
+    }
+
     print dol_get_fiche_end();
 
     if ($action != 'presend') {
@@ -924,6 +1006,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         $dirFiles  = $object->element . 'document/' . $objRef;
         $fileDir   = $upload_dir . '/' . $dirFiles;
         $urlSource = $_SERVER['PHP_SELF'] . '?id=' . $object->id;
+
+        $conf->global->DIGIQUALI_CONTROLDOCUMENT_DEFAULT_MODEL = $object->mass_control > 0 ? $conf->global->DIGIQUALI_MASSCONTROLDOCUMENT_DEFAULT_MODEL : $conf->global->DIGIQUALI_CONTROLDOCUMENT_DEFAULT_MODEL;
+
 
         print saturne_show_documents('digiquali:' . ucfirst($object->element) . 'Document', $dirFiles, $fileDir, $urlSource, $permissiontoadd, $permissiontodelete, $conf->global->DIGIQUALI_CONTROLDOCUMENT_DEFAULT_MODEL, 1, 0, 0, 0, '', '', '', $langs->defaultlang, '', $object, 0, 'remove_file', (($object->status > CONTROL::STATUS_DRAFT) ? 1 : 0), $langs->trans('ObjectMustBeValidatedToGenerate', ucfirst($langs->transnoentities('The' . ucfirst($object->element)))));
         print '</div>';

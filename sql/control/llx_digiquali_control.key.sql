@@ -21,3 +21,4 @@ ALTER TABLE llx_digiquali_control ADD INDEX idx_digiquali_control_fk_user_contro
 ALTER TABLE llx_digiquali_control ADD INDEX idx_digiquali_control_fk_projectid (projectid);
 ALTER TABLE llx_digiquali_control ADD UNIQUE INDEX uk_digiquali_control_ref (ref, entity);
 ALTER TABLE llx_digiquali_control ADD CONSTRAINT llx_digiquali_control_fk_user_creat FOREIGN KEY (fk_user_creat) REFERENCES llx_user(rowid);
+ALTER TABLE llx_digiquali_control ADD CONSTRAINT llx_digiquali_control_fk_control FOREIGN KEY (fk_control) REFERENCES llx_digiquali_control(rowid);

@@ -63,6 +63,7 @@ window.digiquali.object.event = function() {
   $(document).on( 'click', '.answer:not(.disable)', window.digiquali.object.selectAnswer);
   $(document).on( 'input', '.input-answer:not(.disable)', window.digiquali.object.selectAnswer);
   $(document).on( 'keyup', '.question-comment', window.digiquali.object.showCommentUnsaved);
+  $(document).on( 'click', '.verdict-box', window.digiquali.object.updateButtonsStatus);
 };
 
 /**
@@ -103,6 +104,7 @@ window.digiquali.object.selectAnswer = function() {
   let answer          = '';
   let answerValue     = $(this).hasClass('answer') ? $(this).attr('value') : $(this).val();
   let comment         = $(this).closest('.table-id-' + questionId).find('#comment' + questionId).val();
+  let controlId       = $(this).closest('.table-id-' + questionId).attr('data-control-id');
   if ($(this).closest('.table-cell').hasClass('select-answer')) {
     if ($(this).hasClass('multiple-answers')) {
       $(this).closest('span').toggleClass('active');
@@ -130,7 +132,7 @@ window.digiquali.object.selectAnswer = function() {
   if (!publicInterface && autoSave == 1 && !$(this).hasClass('multiple-answers')) {
     window.digiquali.object.saveAnswer(questionId, answer, comment);
   } else {
-    window.digiquali.object.updateButtonsStatus();
+    window.digiquali.object.updateButtonsStatus(controlId);
   }
 };
 
@@ -158,16 +160,16 @@ window.digiquali.object.showCommentUnsaved = function() {
  *
  * @return {void}
  */
-window.digiquali.object.updateButtonsStatus = function() {
-  $('#saveButton').removeClass('butActionRefused');
-  $('#saveButton').addClass('butAction');
-  $('#saveButton').css('background', '#0d8aff');
+window.digiquali.object.updateButtonsStatus = function(controlId) {
+  controlId = stringIsInteger(controlId) ? controlId : $(this).attr('data-control-id');
+  $('#saveButton' + controlId).removeClass('butActionRefused');
+  $('#saveButton' + controlId).addClass('butAction');
   $('.fa-circle').css('display', 'inline');
-  $('#saveButton').attr('onclick','$("#saveObject").submit()');
+  $('#saveButton' + controlId).attr('onclick','$("#saveObject'+controlId+'").submit()');
 
-  $('.validateButton').removeClass('butAction');
-  $('#dialog-confirm-actionButtonValidate').removeAttr('id');
-  $('.validateButton').addClass('butActionRefused');
+  $('.validateButton' + controlId).removeClass('butAction');
+  $('#dialog-confirm-actionButtonValidate' + controlId).removeAttr('id');
+  $('.validateButton' + controlId).addClass('butActionRefused');
 };
 
 /**
@@ -179,15 +181,20 @@ window.digiquali.object.updateButtonsStatus = function() {
  * @param  {int}    questionId Question ID
  * @param  {string} answer     Answer value
  * @param  {string} comment    Comment value
+ * @param  {string} customUrl  URL to save answer
  * @return {void}
  */
-window.digiquali.object.saveAnswer = function(questionId, answer, comment) {
+window.digiquali.object.saveAnswer = function(questionId, answer, comment, customUrl = '') {
   let token          = window.saturne.toolbox.getToken();
   let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
-  window.saturne.loader.display($('.table-id-' + questionId));
+  let url = customUrl ? customUrl : document.URL + querySeparator + 'action=save&token=' + token
+
+  if (customUrl.length < 1) {
+    window.saturne.loader.display($('.table-id-' + questionId));
+  }
 
   $.ajax({
-    url: document.URL + querySeparator + 'action=save&token=' + token,
+    url: url,
     type: 'POST',
     data: JSON.stringify({
       autoSave: true,
@@ -198,7 +205,9 @@ window.digiquali.object.saveAnswer = function(questionId, answer, comment) {
     processData: false,
     contentType: false,
     success: function(resp) {
-      $('.fiche').replaceWith($(resp).find('.fiche'));
+      if (customUrl.length < 1) {
+        $('.fiche').replaceWith($(resp).find('.fiche'));
+      }
     },
     error: function() {}
   });

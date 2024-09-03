@@ -627,9 +627,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		if (empty($reshook) && $permissiontoadd) {
 			// Create object depending on sheet type
 			if ($object->status == $object::STATUS_LOCKED) {
-				print '<a class="butAction" href="' . dol_buildpath('/custom/digiquali/view/' . $object->type . '/' . $object->type . '_card.php?action=create&fk_sheet=' . $object->id, 1) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('New' . ucfirst($object->type)) . '</a>';
+                print '<a class="butAction" href="' . dol_buildpath('/custom/digiquali/view/' . $object->type . '/' . $object->type . '_card.php?action=create&fk_sub_controls_sheet=' . $object->id, 1) . '&mass_control=1"><i class="fas fa-plus-circle"></i> ' . $langs->trans('NewMass' . ucfirst($object->type)) . '</a>';
+                print '<a class="butAction" href="' . dol_buildpath('/custom/digiquali/view/' . $object->type . '/' . $object->type . '_card.php?action=create&fk_sheet=' . $object->id, 1) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('New' . ucfirst($object->type)) . '</a>';
 			} else {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLocked', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('New' . ucfirst($object->type)) . '</span>';
+                print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLocked', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('NewMass' . ucfirst($object->type)) . '</span>';
+                print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeLocked', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-plus-circle"></i> ' . $langs->trans('New' . ucfirst($object->type)) . '</span>';
 			}
 
 			// Modify

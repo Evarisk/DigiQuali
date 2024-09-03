@@ -131,8 +131,13 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 			case 'CONTROL_CREATE' :
                 // Load Digiquali libraries
                 require_once __DIR__ . '/../../class/sheet.class.php';
+                require_once __DIR__ . '/../../class/control.class.php';
+
+                // Load Saturne libraries.
+                require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
 
                 $sheet = new Sheet($this->db);
+                $signatory = new SaturneSignature($this->db, 'digiquali');
 
                 $sheet->fetch($object->fk_sheet);
                 if ($sheet->success_rate > 0) {
@@ -140,19 +145,40 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                     $object->setValueFrom('success_rate', $object->success_rate, '', '', 'text', '', $user);
                 }
 
-                $elementArray = [];
+                $isMassControl = $object->mass_control;
+
                 if ($object->context != 'createfromclone') {
-					$elementArray = get_sheet_linkable_objects();
+                    $elementArray = get_sheet_linkable_objects();
+
 					if (!empty($elementArray)) {
-						foreach ($elementArray as $linkableElementType => $linkableElement) {
-							if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
-								$object->add_object_linked($linkableElement['link_name'], GETPOST($linkableElement['post_name']));
+						foreach ($elementArray as $linkableElement) {
+                            $post = GETPOST('multi_' . $linkableElement['post_name'], 'array');
+                            if (!empty($post) && $post > 0) {
+
+                                foreach($post as $postElement) {
+                                    if ($isMassControl) {
+                                        $control = new Control($this->db);
+
+                                        $control->status             = $control::STATUS_DRAFT;
+                                        $control->label              = $object->label;
+                                        $control->fk_sheet           = GETPOST('fk_sub_controls_sheet');
+                                        $control->fk_user_controller = $object->fk_user_controller;
+                                        $control->fk_control         = $object->id;
+
+                                        $controlId = $control->create($user, true);
+
+                                        $control->fetch($controlId);
+                                        $control->add_object_linked($linkableElement['link_name'], $postElement);
+
+                                        $signatory->setSignatory($control->id, $control->element, 'user', [$control->fk_user_controller], 'Controller', 1);
+                                    } else {
+                                        $object->add_object_linked($linkableElement['link_name'], $postElement);
+                                    }
+                                }
 							}
 						}
 					}
 
-                    // Load Saturne libraries.
-                    require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
 
                     $signatory = new SaturneSignature($this->db, 'digiquali');
                     $signatory->setSignatory($object->id, $object->element, 'user', [$object->fk_user_controller], 'Controller', 1);

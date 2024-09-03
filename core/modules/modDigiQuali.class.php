@@ -129,6 +129,7 @@ class modDigiQuali extends DolibarrModules
                 'main',
                 'controladmin',
                 'surveyadmin',
+                'controlpublicsignature'
 			],
 			// Set this to 1 if features of module are opened to external users
 			'moduleforexternal' => 0,
@@ -234,7 +235,8 @@ class modDigiQuali extends DolibarrModules
 			$i++ => ['DIGIQUALI_CONTROLDOCUMENT_ADDON', 'chaine', 'mod_controldocument_standard', '', 0, 'current'],
 			$i++ => ['DIGIQUALI_CONTROLDOCUMENT_ADDON_ODT_PATH', 'chaine', 'DOL_DOCUMENT_ROOT/custom/digiquali/documents/doctemplates/controldocument/', '', 0, 'current'],
 			$i++ => ['DIGIQUALI_CONTROLDOCUMENT_CUSTOM_ADDON_ODT_PATH', 'chaine', 'DOL_DATA_ROOT' . (($conf->entity == 1 ) ? '/' : '/' . $conf->entity . '/') . 'ecm/digiquali/controldocument/', '', 0, 'current'],
-			$i++ => ['DIGIQUALI_CONTROLDOCUMENT_DEFAULT_MODEL', 'chaine', 'template_controldocument_photo' ,'', 0, 'current'],
+            $i++ => ['DIGIQUALI_CONTROLDOCUMENT_DEFAULT_MODEL', 'chaine', 'template_controldocument_photo' ,'', 0, 'current'],
+            $i++ => ['DIGIQUALI_MASSCONTROLDOCUMENT_DEFAULT_MODEL', 'chaine', 'template_masscontroldocument' ,'', 0, 'current'],
 			$i++ => ['DIGIQUALI_DOCUMENT_MEDIA_VIGNETTE_USED', 'chaine', 'small','', 0, 'current'],
 
             //CONST SURVEY DOCUMENT
