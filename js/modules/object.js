@@ -192,7 +192,7 @@ window.digiquali.object.saveAnswer = function(questionId, answer, comment, custo
   if (customUrl.length < 1) {
     window.saturne.loader.display($('.table-id-' + questionId));
   }
-  
+
   $.ajax({
     url: url,
     type: 'POST',

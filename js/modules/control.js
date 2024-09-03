@@ -338,7 +338,7 @@ window.digiquali.control.getSheetID = function() {
  */
 window.digiquali.control.saveSubControl = function() {
   let subControlID = $(this).attr('data-control-id');
-  let massControlId = $(this).attr('data-mass-control-id');
+  let mainControlId = $(this).attr('data-main-control-id');
   let notePublic = $(this).closest('.table-row').find('.note-public').val();
   // get input checked
   let questionIds = [];
@@ -371,7 +371,7 @@ window.digiquali.control.saveSubControl = function() {
         await window.digiquali.object.saveAnswer(questionId, answer.answer, answer.comment, url + '&action=save&token=' + token);
       }
 
-      let url = document.URL.replace(/id=\d+/, 'id=' + massControlId);
+      let url = document.URL.replace(/id=\d+/, 'id=' + mainControlId);
       $.ajax({
         url: url,
         type: 'GET',
@@ -398,7 +398,7 @@ window.digiquali.control.saveSubControl = function() {
  */
 window.digiquali.control.lockSubControl = function() {
   let subControlID = $(this).attr('data-control-id');
-  let massControlId = $(this).attr('data-mass-control-id');
+  let mainControlId = $(this).attr('data-main-control-id');
   let token = window.saturne.toolbox.getToken();
 
   window.saturne.loader.display($(this).closest('.table-row'));
@@ -411,7 +411,7 @@ window.digiquali.control.lockSubControl = function() {
     contentType: false,
     data: [],
     success: function (resp) {
-      let url = document.URL.replace(/id=\d+/, 'id=' + massControlId);
+      let url = document.URL.replace(/id=\d+/, 'id=' + mainControlId);
       $.ajax({
         url: url,
         type: 'GET',
@@ -438,7 +438,7 @@ window.digiquali.control.lockSubControl = function() {
  */
 window.digiquali.control.validateSubControl = function() {
   let subControlID = $(this).attr('data-control-id');
-  let massControlId = $(this).attr('data-mass-control-id');
+  let mainControlId = $(this).attr('data-main-control-id');
   let token = window.saturne.toolbox.getToken();
 
   window.saturne.loader.display($(this).closest('.table-row'));
@@ -451,7 +451,7 @@ window.digiquali.control.validateSubControl = function() {
     contentType: false,
     data: [],
     success: function (resp) {
-      let url = document.URL.replace(/id=\d+/, 'id=' + massControlId);
+      let url = document.URL.replace(/id=\d+/, 'id=' + mainControlId);
       $.ajax({
         url: url,
         type: 'GET',
@@ -478,7 +478,7 @@ window.digiquali.control.validateSubControl = function() {
  */
 window.digiquali.control.reopenSubControl = function() {
   let subControlID = $(this).attr('data-control-id');
-  let massControlId = $(this).attr('data-mass-control-id');
+  let mainControlId = $(this).attr('data-main-control-id');
   let token = window.saturne.toolbox.getToken();
 
   window.saturne.loader.display($(this).closest('.table-row'));
@@ -491,7 +491,7 @@ window.digiquali.control.reopenSubControl = function() {
     contentType: false,
     data: [],
     success: function (resp) {
-      let url = document.URL.replace(/id=\d+/, 'id=' + massControlId);
+      let url = document.URL.replace(/id=\d+/, 'id=' + mainControlId);
       $.ajax({
         url: url,
         type: 'GET',
@@ -518,7 +518,7 @@ window.digiquali.control.reopenSubControl = function() {
  */
 window.digiquali.control.saveSubControlAnswers = async function() {
   let subControlID = $(this).attr('data-control-id');
-  let massControlId = $(this).attr('data-mass-control-id');
+  let mainControlId = $(this).attr('data-main-control-id');
 
   window.saturne.loader.display($(this));
   let questionIds = [];
@@ -542,7 +542,7 @@ window.digiquali.control.saveSubControlAnswers = async function() {
     await window.digiquali.object.saveAnswer(questionId, answer.answer, answer.comment, url + '&action=save&token=' + token);
   }
 
-  url = document.URL.replace(/id=\d+/, 'id=' + massControlId);
+  url = document.URL.replace(/id=\d+/, 'id=' + mainControlId);
   $.ajax({
     url: url,
     type: 'GET',
