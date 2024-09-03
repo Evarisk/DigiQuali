@@ -188,8 +188,11 @@ window.digiquali.object.saveAnswer = function(questionId, answer, comment, custo
   let token          = window.saturne.toolbox.getToken();
   let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
   let url = customUrl ? customUrl : document.URL + querySeparator + 'action=save&token=' + token
-  window.saturne.loader.display($('.table-id-' + questionId));
 
+  if (customUrl.length < 1) {
+    window.saturne.loader.display($('.table-id-' + questionId));
+  }
+  
   $.ajax({
     url: url,
     type: 'POST',

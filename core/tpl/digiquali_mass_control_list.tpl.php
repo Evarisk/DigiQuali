@@ -8,7 +8,6 @@
 
 // Fetch the list of mass controls linked to the object
 $massControlList = $object->fetchAll('', '', 0, 0, ['fk_control' => $object->id]);
-print '</form>';
 // Start the responsive table container
 print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
 
@@ -61,7 +60,7 @@ if (is_array($massControlList) && !empty($massControlList)) {
         print '<div class="table-row sub-control-'. $massControl->id .'">';
         print '<div class="table-cell">' . $massControl->getNomUrl(1) . '</div>';
         print '<div class="table-cell">' . $massControl->getLibStatut(5) . '</div>';
-        print '<div class="table-cell">';
+        print '<div class="table-cell maxwidth200">';
         foreach ($linkableElements as $linkableElementType => $linkableElement) {
             if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
                 $className    = $linkableElement['className'];
@@ -70,7 +69,7 @@ if (is_array($massControlList) && !empty($massControlList)) {
                     $linkedObject->fetch($linkedObjectId);
 
 
-                    print $linkedObject->getNomUrl(1);
+                    print $linkedObject->getNomUrl(1, 0, '', 'maxwidth200');
 
                     if ($linkedObject->array_options['options_qc_frequency'] > 0) {
                         print ' ';
