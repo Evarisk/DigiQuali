@@ -573,7 +573,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         }
 
         $questionConfirmInfo .= '<br><br><b>' . $langs->trans('ConfirmValidateControl') . '</b>';
-        $formConfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ValidateControl'), $questionConfirmInfo, 'confirm_validate', '', 'yes', 'actionButtonValidate', 250);
+        $formConfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ValidateControl'), $questionConfirmInfo, 'confirm_validate', '', 'yes', 'actionButtonValidate' . $object->id, 250);
     }
 
     // Draft confirmation
@@ -865,7 +865,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             // Validate
             $displayButton = $onPhone ? '<i class="fas fa-check fa-2x"></i>' : '<i class="fas fa-check"></i>' . ' ' . $langs->trans('Validate');
             if ($object->status == $object::STATUS_DRAFT && empty($cantValidateControl) && !$equipmentOutdated) {
-                print '<span class="validateButton validateButton'. $object->id .' butAction" id="actionButtonValidate">' . $displayButton . '</span>';
+                print '<span class="validateButton validateButton'. $object->id .' butAction" id="actionButtonValidate'. $object->id .'">' . $displayButton . '</span>';
             } else if ($cantValidateControl > 0) {
                 print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('QuestionMustBeAnswered', $cantValidateControl)) . '">' . $displayButton . '</span>';
             } else if ($equipmentOutdated) {
@@ -988,14 +988,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print '</div>';
     }
 
+    print '</div>';
+    print '</form>';
+
     if ($object->mass_control) {
         require_once __DIR__ . '/../../core/tpl/digiquali_mass_control_list.tpl.php';
     }
 
-
-
-    print '</div>';
-    print '</form>';
     print dol_get_fiche_end();
 
     if ($action != 'presend') {

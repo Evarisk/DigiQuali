@@ -168,7 +168,7 @@ window.digiquali.object.updateButtonsStatus = function(controlId) {
   $('#saveButton' + controlId).attr('onclick','$("#saveObject'+controlId+'").submit()');
 
   $('.validateButton' + controlId).removeClass('butAction');
-  $('#dialog-confirm-actionButtonValidate').removeAttr('id');
+  $('#dialog-confirm-actionButtonValidate' + controlId).removeAttr('id');
   $('.validateButton' + controlId).addClass('butActionRefused');
 };
 
