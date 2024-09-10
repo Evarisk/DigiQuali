@@ -169,6 +169,7 @@ $searchAll = GETPOST('search_all', 'alphanohtml') ? GETPOST('search_all', 'alpha
 $search = array();
 foreach ($object->fields as $key => $val) {
 	if (GETPOST('search_'.$key, 'alpha') !== '') $search[$key] = GETPOST('search_'.$key, 'alpha');
+    elseif ($key == 'status') $search[$key] = [];
 }
 
 if(!empty($fromtype)) {

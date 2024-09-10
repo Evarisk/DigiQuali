@@ -86,11 +86,17 @@ foreach ($search as $key => $val) {
 			}
 			$mode_search = (($object->isInt($object->fields[$key]) || $object->isFloat($object->fields[$key])) ? 1 : 0);
 			if ((strpos($object->fields[$key]['type'], 'integer:') === 0) || (strpos($object->fields[$key]['type'], 'sellist:') === 0) || !empty($object->fields[$key]['arrayofkeyval'])) {
-				if ($search[$key] == '-1' || ($search[$key] === '0' && (empty($object->fields[$key]['arrayofkeyval']) || !array_key_exists('0', $object->fields[$key]['arrayofkeyval'])))) {
-					$search[$key] = '';
-				}
-				$mode_search = 2;
-			}
+                if ($search[$key] == '-1' || ($search[$key] === '0' && (empty($object->fields[$key]['arrayofkeyval']) || !array_key_exists('0', $object->fields[$key]['arrayofkeyval'])))) {
+                    $search[$key] = '';
+                }
+                $mode_search = 2;
+            }
+            if ($key == 'status') {
+                $search[$key] = implode(',', $val);
+                if ($search[$key] == '') {
+                    $search[$key] = '0,1,2';
+                }
+            }
 			if ($key == 'verdict' && $search[$key] == 3) {
 				$sql .= ' AND (verdict IS NULL)';
 			}
@@ -310,7 +316,9 @@ foreach ($object->fields as $key => $val)
 	if (!empty($arrayfields['t.'.$key]['checked']))
 	{
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
-		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
+        if ($key == 'status') {
+            print $form->multiselectarray('search_status', $val['arrayofkeyval'], GETPOST('search_status'), 0, 0, 'width150');
+        } elseif (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
 			print $form->selectarray('search_' . $key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'minwidth200', 1);
 		}
 		elseif ($key == 'fk_sheet') {
