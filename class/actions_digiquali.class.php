@@ -406,6 +406,11 @@ class ActionsDigiquali
                     'name'        => 'ShowLastControlFirstOnPublicHistory',
                     'description' => 'ShowLastControlFirstOnPublicHistoryDescription',
                     'code'        => 'DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY',
+                ],
+                'ShowAddControlButtonOnPublicInterface' => [
+                    'name'        => 'ShowAddControlButtonOnPublicInterface',
+                    'description' => 'ShowAddControlButtonOnPublicInterfaceDescription',
+                    'code'        => 'DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE',
                 ]
             ];
             $this->results = $constArray;

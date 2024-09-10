@@ -63,10 +63,15 @@ require_once __DIR__ . '/../../../digiquali/class/sheet.class.php';
 require_once __DIR__ . '/../../../digiquali/lib/digiquali_sheet.lib.php';
 
 // Global variables definitions.
-global $conf, $db, $hookmanager, $langs;
+global $conf, $db, $hookmanager, $langs, $user;
+
 
 // Load translation files required by the page.
-saturne_load_langs(['bills', 'contracts', 'orders', 'products', 'projects', 'companies', (isModEnabled('dolicar') ? 'dolicar@dolicar' : '')]);
+$langsDomains = ['bills', 'contracts', 'orders', 'products', 'projects', 'companies'];
+if (isModEnabled('dolicar')) {
+    $langsDomains[] = 'dolicar@dolicar';
+}
+saturne_load_langs($langsDomains);
 
 // Get parameters.
 $trackId         = GETPOST('track_id', 'alpha');
@@ -138,6 +143,12 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
         print '<input hidden class="public-control-view" value="0">';
         print $langs->trans('ControlList');
         print '</div>';
+        if ($conf->global->DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE) {
+            print '<a class="wpeo-button marginleftonly" target="_blank" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '">';
+            print '<i class="fas fa-plus"></i> ';
+            print $langs->trans('NewControl');
+            print '</a>';
+        }
     }
     if (isModEnabled('dolicar') && $objectType == 'productlot') {
         print '<a class="wpeo-button marginleftonly" href="' . dol_buildpath('custom/dolicar/public/agenda/public_vehicle_logbook.php?id=' . $objectId . '&entity=' . $entity . '&backtopage=' . urlencode($_SERVER['REQUEST_URI']), 1). '">';
