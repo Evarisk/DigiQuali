@@ -178,6 +178,9 @@ if ($action == 'set_main_category') {
     exit;
 }
 
+// Actions set_mod, update_mask
+require_once __DIR__ . '/../../saturne/core/tpl/actions/admin_conf_actions.tpl.php';
+
 /*
  * View
  */
