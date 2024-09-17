@@ -167,9 +167,9 @@ foreach($linkableElements as $linkableElementType => $linkableElement) {
 // Initialize array of search criterias
 $searchAll = GETPOST('search_all', 'alphanohtml') ? GETPOST('search_all', 'alphanohtml') : GETPOST('sall', 'alphanohtml');
 $search = array();
+$search['status'] = 'specialCase';
 foreach ($object->fields as $key => $val) {
 	if (GETPOST('search_'.$key, 'alpha') !== '') $search[$key] = GETPOST('search_'.$key, 'alpha');
-    elseif ($key == 'status') $search[$key] = [];
 }
 
 if(!empty($fromtype)) {
