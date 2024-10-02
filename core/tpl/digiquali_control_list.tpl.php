@@ -439,8 +439,8 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			elseif ($key == 'ref') print $object->getNomUrl(1);
 			elseif ($key == 'fk_sheet') {
 				$sheet->fetch($object->fk_sheet);
-				print $sheet->getNomUrl(1);
-			}
+                print $sheet->getNomUrl(1, '', 0, 'maxwidth200onsmartphone maxwidth300', -1, 1);
+            }
 			elseif ($key == 'verdict') {
                 $verdictColor = $object->$key == 1 ? 'green' : ($object->$key == 2 ? 'red' : 'grey');
                 print dol_strlen($object->$key) > 0 ? '<div class="wpeo-button button-' . $verdictColor . '">' . $object->fields['verdict']['arrayofkeyval'][(!empty($object->$key)) ? $object->$key : 3] . '</div>' : "N/A";
