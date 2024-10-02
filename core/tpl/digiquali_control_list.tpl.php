@@ -433,11 +433,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			elseif ($key == 'ref') print $object->getNomUrl(1);
 			elseif ($key == 'fk_sheet') {
 				$sheet->fetch($object->fk_sheet);
-                print '<div class="maxwidth200onsmartphone maxwidth300">';
-                print $sheet->getNomUrl(1);
-                print '<br>';
-                print '<div style="font-size: 0.8em; opacity: 0.6; text-overflow: ellipsis; white-space: nowrap;overflow: hidden;">' . $sheet->label . '</div>';
-                print '</div>';
+                print $sheet->getNomUrl(1, '', 0, 'maxwidth200onsmartphone maxwidth300', -1, 1);
             }
 			elseif ($key == 'verdict') {
                 $verdictColor = $object->$key == 1 ? 'green' : ($object->$key == 2 ? 'red' : 'grey');
