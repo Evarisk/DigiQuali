@@ -111,7 +111,7 @@ class modDigiQuali extends DolibarrModules
 			// Set this to 1 if module has its own theme directory (theme)
 			'theme' => 0,
 			// Set this to relative path of css file if module has its own css file
-			'css' => ['/digiquali/css/scss/modules/_menu.min.css'],
+			'css' => [],
 			// Set this to relative path of js file if module must load a js on all pages
 			'js' => [
 				//   '/digiquali/js/digiquali.js',
