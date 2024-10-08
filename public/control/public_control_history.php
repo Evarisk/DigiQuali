@@ -145,7 +145,7 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
         print '</div>';
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') == 1) {
             print '<a class="wpeo-button marginleftonly" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '" target="_blank">';
-            print '<i class="fas fa-plus pictofixedwidth"></i>' . $langs->trans('NewControl') . '</a>';
+            print '<i class="fas fa-plus pictofixedwidth"></i>' . $langs->trans('New' . ucfirst($object->element)) . '</a>';
         }
     }
     if (isModEnabled('dolicar') && $objectType == 'productlot') {
