@@ -42,9 +42,11 @@ SheetMainCategory              = Choix de la catégorie principale du modèle de
 SheetMainCategoryDescription   = Cette option permet de choisir quelle catégorie sera utilisée lors du choix de catégorie pendant la création d'un contrôle
 
 # Control - Contrôle
-DisplayMediasSample                   = Afficher les médias d'exemple des questions
-DisplayControlMediasSampleDescription = Afficher les médias d'exemple des questions dans le contrôle
-ExtrafieldsControlManagement          = Gestion des attributs supplémentaires des contrôles
+DisplayMediasSample                              = Afficher les médias d'exemple des questions
+DisplayControlMediasSampleDescription            = Afficher les médias d'exemple des questions dans le contrôle
+ExtrafieldsControlManagement                     = Gestion des attributs supplémentaires des contrôles
+ShowAddControlButtonOnPublicInterface            = Afficher le bouton d'ajout de contrôle sur l'interface publique de contrôle
+ShowAddControlButtonOnPublicInterfaceDescription = Permet d'afficher le bouton d'ajout de contrôle sur l'interface publique de contrôle
 
 # Survey - Questionnaire
 DisplaySurveyMediasSampleDescription = Afficher les médias d'exemple des questions dans le questionnaire
@@ -350,6 +352,8 @@ LastStatusDate                                 = Dernières dates de statut
 ValidationDate                                 = Date de validation
 ReOpenDate                                     = Date de réouverture
 DraftValidatedLocked                            = -- (Brouillon + validé + verrouillé) --
+
+
 
 #
 # ControlDet
