@@ -500,9 +500,17 @@ class Survey extends SaturneObject
      */
     public function load_dashboard(): array
     {
-        $getNbSurveysByMonth = $this->getNbSurveysByMonth();
+        global $user, $langs;
 
-        $array['graphs'] = [$getNbSurveysByMonth];
+        $confName        = strtoupper($this->module) . '_DASHBOARD_CONFIG';
+        $dashboardConfig = json_decode($user->conf->$confName);
+        $array = ['graphs' => [], 'disabledGraphs' => []];
+
+        if (empty($dashboardConfig->graphs->SurveysByFiscalYear->hide)) {
+            $array['graphs'][] = $this->getNbSurveysByMonth();
+        } else {
+            $array['disabledGraphs']['SurveysByFiscalYear'] = $langs->transnoentities('SurveysByFiscalYear');
+        }
 
         return $array;
     }
@@ -523,6 +531,7 @@ class Survey extends SaturneObject
 
         // Graph Title parameters
         $array['title'] = $langs->transnoentities('SurveysByFiscalYear');
+        $array['name']  = 'SurveysByFiscalYear';
         $array['picto'] = $this->picto;
 
         // Graph parameters
