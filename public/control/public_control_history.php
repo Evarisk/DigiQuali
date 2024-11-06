@@ -56,6 +56,7 @@ if (file_exists('../../digiquali.main.inc.php')) {
 require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
+require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 
 // Load DigiQuali libraries.
 require_once __DIR__ . '/../../../digiquali/class/control.class.php';
@@ -80,10 +81,11 @@ $showLastControl = GETPOST('show_last_control');
 $showControlList = GETPOST('show_control_list');
 
 // Initialize technical objects.
-$object  = new Control($db);
-$sheet   = new Sheet($db);
-$project = new Project($db);
-$user    = new User($db);
+$object   = new Control($db);
+$category = new Categorie($db);
+$sheet    = new Sheet($db);
+$project  = new Project($db);
+$user     = new User($db);
 
 $hookmanager->initHooks(['publiccontrolhistory', 'saturnepublicinterface']); // Note that conf->hooks_modules contains array.
 
@@ -144,7 +146,14 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
         print $langs->trans('ControlList');
         print '</div>';
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') == 1) {
-            print '<a class="wpeo-button marginleftonly" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '" target="_blank">';
+            $object        = current($objectControlList);
+            $cats          = $category->containing($object->id, $object->element);
+            $arraySelected = '';
+            if (is_array($cats) && !empty($cats)) {
+                $arraySelected = '&categories[]=' . implode('&categories[]=', array_column($cats, 'id'));
+            }
+            $moreParams = '&fk_sheet=' . $object->fk_sheet . '&fk_user_controller=' . $object->fk_user_controller . '&projectid=' . $object->projectid . $arraySelected . '&' . $linkedObjectsData['post_name'] . '=' . $objectId;
+            print '<a class="wpeo-button marginleftonly" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1). '" target="_blank">';
             print '<i class="fas fa-plus pictofixedwidth"></i>' . $langs->trans('New' . ucfirst($object->element)) . '</a>';
         }
     }
