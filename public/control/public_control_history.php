@@ -153,13 +153,14 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
                 $arraySelected = '&categories[]=' . implode('&categories[]=', array_column($cats, 'id'));
             }
             $moreParams = '&fk_sheet=' . $object->fk_sheet . '&fk_user_controller=' . $object->fk_user_controller . '&projectid=' . $object->projectid . $arraySelected . '&' . $linkedObjectsData['post_name'] . '=' . $objectId;
-            print '<a class="wpeo-button marginleftonly" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1). '" target="_blank">';
-            print '<i class="fas fa-plus pictofixedwidth"></i>' . $langs->trans('New' . ucfirst($object->element)) . '</a>';
+            print '<a href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1). '" target="_blank">';
+            print '<div class="wpeo-button marginleftonly"><i class="fas fa-plus pictofixedwidth"></i>' . $langs->trans('New' . ucfirst($object->element)) . '</div>';
+            print '</a>';
         }
     }
     if (isModEnabled('dolicar') && $objectType == 'productlot') {
-        print '<a class="wpeo-button marginleftonly" href="' . dol_buildpath('custom/dolicar/public/agenda/public_vehicle_logbook.php?id=' . $objectId . '&entity=' . $entity . '&backtopage=' . urlencode($_SERVER['REQUEST_URI']), 1). '">';
-        print $langs->trans('PublicVehicleLogBook');
+        print '<a href="' . dol_buildpath('custom/dolicar/public/agenda/public_vehicle_logbook.php?id=' . $objectId . '&entity=' . $entity . '&backtopage=' . urlencode($_SERVER['REQUEST_URI']), 1). '">';
+        print '<div class="wpeo-button marginleftonly">' . $langs->trans('PublicVehicleLogBook') . '</div>';
         print '</a>';
     }
     print '</div>';
