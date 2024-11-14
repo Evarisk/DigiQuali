@@ -151,23 +151,22 @@ if (empty($reshook)) {
 		$digiqualiExportJSON = json_encode($digiqualiExportArray, JSON_PRETTY_PRINT);
 
 		$fileDir    = $upload_dir . '/temp/';
-		$exportBase = $fileDir . dol_print_date($now, 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export';
-		$fileName   = $exportBase . '.json';
+		$exportBase = dol_print_date($now, 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export';
+		$fileName   = $fileDir . $exportBase . '.json';
 
 		file_put_contents($fileName, $digiqualiExportJSON);
 
 		$zip = new ZipArchive();
-		if ($zip->open($exportBase . '.zip', ZipArchive::CREATE ) === TRUE) {
+		if ($zip->open($fileDir . $exportBase . '.zip', ZipArchive::CREATE ) === TRUE) {
 			setEventMessage($langs->transnoentities("ExportWellDone"));
 			$zip->addFile($fileName, basename($fileName));
 			$zip->close();
-			$fileNameZip = dol_print_date($now, 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export.zip';
-			$filepath = DOL_URL_ROOT . '/document.php?modulepart=digiquali&file=' . urlencode('temp/'.$fileNameZip);
+			$filepath = DOL_URL_ROOT . '/document.php?modulepart=digiquali&file=' . urlencode('temp/' . $exportBase . '.zip');
 			?>
 			<script>
 				var alink = document.createElement( 'a' );
 				alink.setAttribute('href', <?php echo json_encode($filepath); ?>);
-				alink.setAttribute('download', <?php echo json_encode($fileNameZip); ?>);
+				alink.setAttribute('download', <?php echo json_encode($exportBase . '.zip'); ?>);
 				alink.click();
 			</script>
 			<?php
