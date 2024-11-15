@@ -161,7 +161,8 @@ NoLinkedObjectSelected         = Veuillez sélectionner un type d'objet à contr
 ExportSheetData                = Export des données du modèle
 ExportSheetDataDescription     = Export des données du modèle et des questions associées
 ExportWellDone                 = L'export a été réalisé avec succès
-ToImportDataGoToImportPage     = Pour importer des données, veuillez vous rendre sur la page d'import : <a href="%s"> %s </a>
+ExportFailed                   = L'export a échoué
+ToImportDataGoToImportPage     = Pour importer des données, veuillez vous rendre sur la page d'import :
 NbQuestions                    = Nombre de questions
 SuccessScore                   = Score de réussite
 PercentageValue                = Valeur en pourcentage
