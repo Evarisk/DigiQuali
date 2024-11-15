@@ -130,8 +130,8 @@ if (empty($resHook)) {
         }
 
         $fileDir    = $upload_dir . '/temp/';
-        $exportName = (!empty($object->label) ? dol_string_nospecial($object->label, '_', '', ['-']) : $object->ref);
-        $fileName   = dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_dolibarr_' . $exportName . '_export';
+        $exportName = str_replace(' ', '_', (!empty($object->label) ? $object->label : $object->ref));
+        $fileName   = dol_sanitizeFileName(dol_print_date(dol_now(), 'dayhourlog', 'tzuser') . '_' . dol_strtolower($exportName) . '_export');
         $fullName   = $fileDir . $fileName . '.json';
 
         if (!is_dir($fileDir)) {
