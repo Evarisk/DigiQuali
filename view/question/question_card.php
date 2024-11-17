@@ -288,7 +288,7 @@ if (empty($reshook)) {
 				// Category association
 				$categories = GETPOST('categories', 'array');
 				$object->setCategories($categories);
-
+                                //Mon super test
 				if ($object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
 					$answer->fk_question = $result;
 					$answer->value       = $langs->transnoentities('OK');
