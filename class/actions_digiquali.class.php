@@ -200,7 +200,7 @@ class ActionsDigiquali
 
         if (!empty($linkableElements)) {
             foreach($linkableElements as $linkableElement) {
-                if ($linkableElement['link_name'] == $object->element) {
+                if ($object && $linkableElement['link_name'] == $object->element) {
                     if (strpos($parameters['context'], $linkableElement['hook_name_card']) !== false) {
                         $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
                         $extrafieldsNames = ['qc_frequency', 'control_history_link'];
