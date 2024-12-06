@@ -61,7 +61,7 @@ function get_sheet_linkable_objects(): array
 	//	'className'     => Class name
 	//	'name_field'    => Object name to be shown (ref, label, firstname, etc.)
 	//	'post_name'     => Name of post sent retrieved by GETPOST() function
-	//	'link_name'     => Name of object sourcetype in llx_element_element
+	//	'link_name'     => Name of object sourcetype in llx_element_element, special case for task we need to write module_task
 	//	'tab_type'      => Tab type element for prepare_head function
 	//	'fk_parent'     => OPTIONAL : Name of parent for objects as productlot, contact, task
 	//	'parent_post'   => OPTIONAL : Name of parent post (retrieved by GETPOST() function, it can be different from fk_parent
@@ -270,6 +270,37 @@ function get_sheet_linkable_objects(): array
             'create_url'     => 'product/stock/entrepot/card.php',
             'class_path'     => 'product/stock/class/entrepot.class.php',
         ];
+
+        $linkableObjectTypes['inventory'] = [
+            'langs'          => 'Inventories',
+            'langfile'       => 'stocks',
+            'picto'          => 'inventory',
+            'className'      => 'Inventory',
+            'post_name'      => 'fk_inventory',
+            'link_name'      => 'stock_inventory',
+            'tab_type'       => 'inventory',
+            'name_field'     => 'ref',
+            'hook_name_card' => 'inventorycard',
+            'hook_name_list' => 'inventorylist',
+            'create_url'     => 'product/inventory/card.php',
+            'class_path'     => 'product/inventory/class/inventory.class.php',
+        ];
+
+        $linkableObjectTypes['mouvement'] = [
+            'langs'          => 'Movements',
+            'langfile'       => 'stocks',
+            'picto'          => 'movement',
+            'className'      => 'MouvementStock',
+            'post_name'      => 'fk_stock_mouvement',
+            'link_name'      => 'stock_mouvement',
+            'tab_type'       => '',
+            'table_element'  => 'stock_mouvement',
+            'name_field'     => 'id',
+            'hook_name_card' => '',
+            'hook_name_list' => 'movementlist',
+            'create_url'     => '',
+            'class_path'     => 'product/stock/class/mouvementstock.class.php',
+        ];
     }
 
     if (isModEnabled('expedition')) {
@@ -302,6 +333,55 @@ function get_sheet_linkable_objects(): array
 			'name_field'     => 'ref',
             'create_url'     => 'comm/propal/card.php',
             'class_path'     => 'comm/propal/class/propal.class.php',
+        ];
+    }
+
+    if (isModEnabled('mrp')) {
+        /*$linkableObjectTypes['bom'] = [
+            'langs'          => 'MenuBOM',
+            'langfile'       => 'mrp',
+            'picto'          => 'bom',
+            'className'      => 'BillOfMaterials',
+            'post_name'      => 'fk_bom',
+            'link_name'      => 'bom',
+            'tab_type'       => 'bom',
+            'name_field'     => 'ref',
+            'hook_name_card' => 'bomcard',
+            'hook_name_list' => 'bomlist',
+            'create_url'     => 'mrp/bom_card.php',
+            'class_path'     => 'mrp/class/bom.class.php',
+        ];*/
+
+        $linkableObjectTypes['mrp'] = [
+            'langs'          => 'Mrp',
+            'langfile'       => 'mrp',
+            'picto'          => 'mrp',
+            'className'      => 'Mo',
+            'post_name'      => 'fk_mo',
+            'link_name'      => 'mo',
+            'tab_type'       => 'mo@mrp',
+            'name_field'     => 'ref',
+            'hook_name_card' => 'mocard',
+            'hook_name_list' => 'molist',
+            'create_url'     => 'mrp/mo_card.php',
+            'class_path'     => 'mrp/class/mo.class.php',
+        ];
+    }
+
+    if (isModEnabled('reception')) {
+        $linkableObjectTypes['reception'] = [
+            'langs'          => 'Receptions',
+            'langfile'       => 'receptions',
+            'picto'          => 'dollyrevert',
+            'className'      => 'Reception',
+            'post_name'      => 'fk_reception',
+            'link_name'      => 'reception',
+            'tab_type'       => 'reception',
+            'name_field'     => 'ref_supplier',
+            'hook_name_card' => 'receptioncard',
+            'hook_name_list' => 'receptionlist',
+            'create_url'     => 'reception/card.php',
+            'class_path'     => 'reception/class/reception.class.php',
         ];
     }
 
