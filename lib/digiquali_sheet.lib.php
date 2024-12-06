@@ -337,20 +337,20 @@ function get_sheet_linkable_objects(): array
     }
 
     if (isModEnabled('mrp')) {
-        /*$linkableObjectTypes['bom'] = [
+        $linkableObjectTypes['bom'] = [
             'langs'          => 'MenuBOM',
             'langfile'       => 'mrp',
             'picto'          => 'bom',
-            'className'      => 'BillOfMaterials',
+            'className'      => 'BOM',
             'post_name'      => 'fk_bom',
             'link_name'      => 'bom',
-            'tab_type'       => 'bom',
+            'tab_type'       => 'bom@mrp',
             'name_field'     => 'ref',
             'hook_name_card' => 'bomcard',
             'hook_name_list' => 'bomlist',
-            'create_url'     => 'mrp/bom_card.php',
-            'class_path'     => 'mrp/class/bom.class.php',
-        ];*/
+            'create_url'     => 'bom/bom_card.php',
+            'class_path'     => 'bom/class/bom.class.php',
+        ];
 
         $linkableObjectTypes['mrp'] = [
             'langs'          => 'Mrp',
