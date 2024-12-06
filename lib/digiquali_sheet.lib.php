@@ -385,6 +385,23 @@ function get_sheet_linkable_objects(): array
         ];
     }
 
+    if (isModEnabled('ficheinter')) {
+        $linkableObjectTypes['ficheinter'] = [
+            'langs'          => 'Interventions',
+            'langfile'       => 'interventions',
+            'picto'          => 'intervention',
+            'className'     => 'Fichinter',
+            'post_name'      => 'fk_fichinter',
+            'link_name'      => 'fichinter',
+            'tab_type'       => 'intervention',
+            'name_field'     => 'ref',
+            'hook_name_card' => 'interventioncard',
+            'hook_name_list' => 'interventionlist',
+            'create_url'     => 'fichinter/card.php',
+            'class_path'     => 'fichinter/class/fichinter.class.php',
+        ];
+    }
+
 //    if (isModEnabled('supplier_proposal')) {
 //        $linkableObjectTypes['supplier_proposal'] = [
 //            'langs'      => 'SupplierProposalShort',

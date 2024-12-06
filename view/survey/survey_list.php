@@ -58,6 +58,9 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/fourn.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/mrp/lib/mrp_mo.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/reception.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/product/inventory/lib/inventory.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/reception.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/bom/lib/bom.lib.php';
+require_once DOL_DOCUMENT_ROOT . '/core/lib/fichinter.lib.php';
 
 // Load Saturne libraries
 require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
