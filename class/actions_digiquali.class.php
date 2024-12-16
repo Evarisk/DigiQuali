@@ -419,4 +419,47 @@ class ActionsDigiquali
 
         return 0; // or return 1 to replace standard code.
     }
+
+    function completeTabsHead(array $parameters) : int
+    {
+        global $langs, $conf;
+
+        if (strpos($parameters['context'], 'main') !== false) {
+            if (!empty($parameters['head'])) {
+                foreach ($parameters['head'] as $headKey => $headTab) {
+                    if (is_array($headTab) && count($headTab) > 0) {
+                        if (isset($headTab[2]) && $headTab[2] === 'control' && is_string($headTab[1]) && strpos($headTab[1], $langs->trans('Controls')) !== false && strpos($headTab[1], 'badge') === false) {
+
+                            $matches = [];
+                            preg_match_all('/[?&](fromid|fromtype)=([^&]+)/', $headTab[0], $matches, PREG_SET_ORDER);
+                            foreach ($matches as $match) {
+                                if ($match[1] === 'fromid') {
+                                    $fk_source = $match[2];
+                                } elseif ($match[1] === 'fromtype') {
+                                    $sourcetype = $match[2];
+                                }
+                            }
+                            if (empty($fk_source) || empty($sourcetype)) {
+                                continue;
+                            }
+
+                            require_once __DIR__ . '/../class/control.class.php';
+                            $control = new Control($this->db);
+
+                            $sql   = 'SELECT DISTINCT t.rowid FROM '. MAIN_DB_PREFIX . 'digiquali_control t';
+                            $sql  .= ' LEFT JOIN '. MAIN_DB_PREFIX . 'element_element as project ON (project.fk_source = ' . $fk_source . ' AND project.sourcetype = "' . $sourcetype . '" AND project.targettype = "'  . $control->table_element . '")';
+                            $sql  .= ' WHERE t.entity = ' . $conf->entity;
+                            $sql  .= ' AND t.rowid = project.fk_target';
+                            $sql  .= ' AND t.status IN (' . join(',', [Control::STATUS_DRAFT, Control::STATUS_VALIDATED, Control::STATUS_LOCKED]) . ')';
+                            $resql = $this->db->query($sql);
+                            $num   = $this->db->num_rows($resql);
+
+                            $parameters['head'][$headKey][1] .= '<span class="badge badge-pill badge-primary marginleftonlyshort">' . $num . '</span>';
+                        }
+                    }
+                }
+            }
+        }
+        return 0;
+    }
 }
