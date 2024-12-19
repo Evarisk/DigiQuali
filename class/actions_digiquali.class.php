@@ -446,13 +446,8 @@ class ActionsDigiquali
                             require_once __DIR__ . '/../class/control.class.php';
                             $control = new Control($this->db);
 
-                            $sql   = 'SELECT DISTINCT t.rowid FROM '. MAIN_DB_PREFIX . 'digiquali_control t';
-                            $sql  .= ' LEFT JOIN '. MAIN_DB_PREFIX . 'element_element as project ON (project.fk_source = ' . $fk_source . ' AND project.sourcetype = "' . $sourcetype . '" AND project.targettype = "'  . $control->table_element . '")';
-                            $sql  .= ' WHERE t.entity = ' . $conf->entity;
-                            $sql  .= ' AND t.rowid = project.fk_target';
-                            $sql  .= ' AND t.status IN (' . join(',', [Control::STATUS_DRAFT, Control::STATUS_VALIDATED, Control::STATUS_LOCKED]) . ')';
-                            $resql = $this->db->query($sql);
-                            $num   = $this->db->num_rows($resql);
+                            $join = ' LEFT JOIN '. MAIN_DB_PREFIX . 'element_element as project ON (project.fk_source = ' . $fk_source . ' AND project.sourcetype = "' . $sourcetype . '" AND project.targettype = "'  . $control->table_element . '")';
+                            $num  = saturne_fetch_all_object_type('Control', '', '', 0, 0, ['customsql' => 't.rowid = project.fk_target'], '', '', '', '', $join, ['count' => true]);
 
                             $parameters['head'][$headKey][1] .= '<span class="badge badge-pill badge-primary marginleftonlyshort">' . $num . '</span>';
                         }

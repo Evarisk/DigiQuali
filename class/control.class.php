@@ -328,7 +328,7 @@ class Control extends SaturneObject
 			foreach ($filter as $key => $value) {
 				if ($key == 't.rowid') {
 					$sqlwhere[] = $key . '=' . $value;
-				} elseif (in_array($this->fields[$key]['type'], array('date', 'datetime', 'timestamp'))) {
+				} elseif (isset($this->fields[$key]['type']) && in_array($this->fields[$key]['type'], array('date', 'datetime', 'timestamp'))) {
 					$sqlwhere[] = $key . ' = \'' . $this->db->idate($value) . '\'';
 				} elseif ($key == 'customsql') {
 					$sqlwhere[] = $value;
@@ -875,6 +875,9 @@ class Control extends SaturneObject
                         if (empty($control->verdict)) {
                             $arrayNbControlByVerdict[0]++;
                         } else {
+                            if (!isset($arrayNbControlByVerdict[$control->verdict])) {
+                                $arrayNbControlByVerdict[$control->verdict] = 0;
+                            }
                             $arrayNbControlByVerdict[$control->verdict]++;
                         }
                     }
