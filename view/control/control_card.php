@@ -664,6 +664,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                 print '<td>';
 
                 print $linkedObject->getNomUrl(1);
+                print property_exists($linkedObject, 'label') ? '<span class="opacitymedium">' . ' - ' . dol_trunc($linkedObject->label) . '</span>' : '';
+
 
                 if ($linkedObject->array_options['options_qc_frequency'] > 0) {
                     print ' ';
