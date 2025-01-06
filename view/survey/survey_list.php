@@ -282,7 +282,7 @@ $helpUrl = '';
 
 saturne_header(0,'', $title, $helpUrl);
 if (!empty($fromtype)) {
-    print saturne_get_fiche_head($objectLinked, 'survey', $langs->trans('Survey'));
+    print saturne_get_fiche_head($objectLinked, 'survey', $langs->trans('DigiqualiSurvey'));
 
     $linkBack = '<a href="' . DOL_URL_ROOT . '/' . $fromtype . '/list.php?restore_lastsearch_values=1">' . $langs->trans('BackToList') . '</a>';
 

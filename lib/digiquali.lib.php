@@ -59,7 +59,7 @@ function digiquali_admin_prepare_head(): array
     $h++;
 
     $head[$h][0] = dol_buildpath('/digiquali/admin/survey.php', 1);
-    $head[$h][1] = $conf->browser->layout != 'phone' ? '<i class="fas fa-marker pictofixedwidth"></i>' . $langs->trans('Survey') : '<i class="fas fa-marker"></i>';
+    $head[$h][1] = $conf->browser->layout != 'phone' ? '<i class="fas fa-marker pictofixedwidth"></i>' . $langs->trans('DigiqualiSurvey') : '<i class="fas fa-marker"></i>';
     $head[$h][2] = 'survey';
     $h++;
 

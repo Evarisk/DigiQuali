@@ -392,8 +392,8 @@ controldocument_photo                   = fiche de controle avec photos
 #
 
 # Data - Donnée
-Survey                = Questionnaire
-Surveys               = Questionnaires
+DigiqualiSurvey       = Questionnaire
+DigiqualiSurveys      = Questionnaires
 SurveyList            = Liste des questionnaires
 NewSurvey             = Nouveau questionnaire
 TheSurvey             = le questionnaire
