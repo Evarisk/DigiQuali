@@ -436,4 +436,29 @@ class ActionsDigiquali
 
         return 0; // or return 1 to replace standard code.
     }
+
+    /**
+     * Overloading the completeTabsHead function : replacing the parent's function with the one below
+     *
+     * @param  array $parameters Hook metadatas (context, etc...)
+     * @return int               0 < on error, 0 on success, 1 to replace standard code
+     */
+    public function completeTabsHead(array $parameters): int
+    {
+        if (preg_match('/projectcard|projecttaskscard|projecttasktime|projectOverview|projectticket|projetnote|controllist|surveylist|sessionlist/', $parameters['context'])) {
+            if (!empty($parameters['head'])) {
+                foreach ($parameters['head'] as $headKey => $headTab) {
+                    if (is_array($headTab) && isset($headTab[2]) && $headTab[2] == 'control' && strpos($headTab[1], 'badge') === false) {
+                        $controlCount = 0;
+
+
+
+                        $parameters['head'][$headKey][1] .= '<span class="badge marginleftonlyshort">' . $controlCount . '</span>';
+                    }
+                }
+            }
+        }
+
+        return 0;
+    }
 }
