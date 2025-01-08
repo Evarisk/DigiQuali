@@ -171,23 +171,87 @@ class ActionsDigiquali
 	 */
 	public function printCommonFooter($parameters)
 	{
-		global $conf, $form, $langs, $object, $user;
+		global $conf, $form, $langs, $object, $user, $action;
 
 		$error = 0; // Error counter
 
-		if (strpos($parameters['context'], 'categoryindex') !== false) {	    // do something only for the context 'somecontext1' or 'somecontext2'
-			print '<script src="../custom/digiquali/js/digiquali.js"></script>';
-		} elseif (strpos($parameters['context'], 'productlotcard') !== false) {
+
+        if (strpos($parameters['context'], 'productlotcard') !== false && $action == 'updateShortLink') {
+
+            require_once DOL_DOCUMENT_ROOT . '/custom/easyurl/class/shortener.class.php';
+
             $productLot = new ProductLot($this->db);
             $productLot->fetch(GETPOST('id'));
-            $objectB64 = $productLot->array_options['options_control_history_link'];
+            $objectData = ['type' => $productLot->element, 'id' => $productLot->id];
+            $objectB64 = base64_encode(json_encode($objectData));
             $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control_history.php?track_id=' . $objectB64 . '&entity=' . $conf->entity, 3);
 
-            $out = showValueWithClipboardCPButton($publicControlInterfaceUrl, 0, '&nbsp;');
-            $out .= '<a target="_blank" href="'. $publicControlInterfaceUrl .'"><div class="butAction">';
-            $out .= '<i class="fa fa-external-link"></i>';
-            $out .= '</div></a>'; ?>
+            $shortener = new Shortener($this->db);
+            $shortener->fetch('', '', ' AND t.status != ' . Shortener::STATUS_ASSIGN . ' OR (t.element_type = "productlot" AND t.fk_element = ' . GETPOST('id') . ')');
+            if ($shortener->id != NULL && $shortener->status == Shortener::STATUS_ASSIGN) {
+                setEventMessage('ShortLinkAlreadyExist', 'errors');
+                dol_htmloutput_events();
+            } else if ($shortener->id != NULL) {
+                $shortener->element_type = 'productlot';
+                $shortener->fk_element   = $productLot->id;
+                $shortener->status       = Shortener::STATUS_ASSIGN;
+                $shortener->type         = 0; // TODO : Changer ça pour mettre une vrai valeur du dico ?
+                $shortener->original_url = $publicControlInterfaceUrl;
 
+                update_easy_url_link($shortener);
+                $shortener->update($user);
+
+                $productLot->array_options['options_easy_url_all_link'] = $shortener->short_url;
+                $productLot->updateExtraField('easy_url_all_link');
+
+                setEventMessage('SetEasyURLSuccess');
+                dol_htmloutput_events();
+
+            } else {
+                // TODO : Faire en sorte de gerer le cas ou il n'y a pas de lien disponible
+                setEventMessage('NoShortLinkAvailable', 'errors');
+                dol_htmloutput_events();
+            }
+
+            $action = '';
+        }
+
+
+        if (strpos($parameters['context'], 'categoryindex') !== false) {	    // do something only for the context 'somecontext1' or 'somecontext2'
+            print '<script src="../custom/digiquali/js/digiquali.js"></script>';
+        } elseif (strpos($parameters['context'], 'productlotcard') !== false) {
+
+            if (isModEnabled('easyurl')) {
+                require_once DOL_DOCUMENT_ROOT . '/custom/easyurl/class/shortener.class.php';
+
+                $shortener = new Shortener($this->db);
+                $shortener->fetch('', '', 'AND t.element_type = "productlot" AND t.fk_element = ' . GETPOST('id'));
+
+                if ($shortener->id != NULL) {
+                    $publicControlInterfaceUrl = $shortener->short_url;
+                    $out  = '<a href="' . $publicControlInterfaceUrl . '" target="_blank" title="URL : ' . $publicControlInterfaceUrl . '"><i class="fas fa-external-link-alt paddingrightonly"></i>' . ($publicControlInterfaceUrl) . '</a>';
+                    $out .= showValueWithClipboardCPButton($publicControlInterfaceUrl, 0, '&nbsp;');
+                } else {
+                    $out  = '<form method="post">';
+                    $out .= '<input type="hidden" name="token" value="' . newToken() . '">';
+                    $out .= '<input type="hidden" name="id" value="' . GETPOST('id') . '">';
+                    $out .= '<input type="hidden" name="action" value="updateShortLink">';
+                    $out .= '<span>' . $langs->transnoentities('NoShortLink') . '</span><button class="marginleftonly button_search self-end" type="submit"><span class="fas fa-redo" style="font-size: 1em; color: grey;" title="' . $langs->transnoentities('Reload') . '"></span></button>';
+                    $out .= '</form>';
+
+                }
+            } else {
+                $productLot = new ProductLot($this->db);
+                $productLot->fetch(GETPOST('id'));
+                $objectData = ['type' => $productLot->element, 'id' => $productLot->id];
+                $objectB64 = base64_encode(json_encode($objectData));
+                $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control_history.php?track_id=' . $objectB64 . '&entity=' . $conf->entity, 3);
+
+                $out  = '<a href="' . $publicControlInterfaceUrl . '" target="_blank" title="URL : ' . $publicControlInterfaceUrl . '"><i class="fas fa-external-link-alt paddingrightonly"></i>' . dol_trunc($publicControlInterfaceUrl) . '</a>';
+                $out .= showValueWithClipboardCPButton($publicControlInterfaceUrl, 0, '&nbsp;');
+            }
+
+            ?>
             <script>
                 $('[class*=extras_control_history_link]').html(<?php echo json_encode($out) ?>);
             </script>
@@ -214,18 +278,6 @@ class ActionsDigiquali
     public function formObjectOptions(array $parameters, ?object $object): int
     {
         global $extrafields, $langs;
-
-        if (strpos($parameters['context'], 'productlotcard') !== false) {
-            $objectData = ['type' => $object->element, 'id' => $object->id];
-
-            $objectDataJson = json_encode($objectData);
-            $objectDataB64  = base64_encode($objectDataJson);
-
-            if (dol_strlen($object->array_options['options_control_history_link'] == 0 )) {
-                $object->array_options['options_control_history_link'] = $objectDataB64;
-                $object->updateExtrafield('control_history_link');
-            }
-        }
 
         require_once __DIR__ . '/../lib/digiquali_sheet.lib.php';
 
