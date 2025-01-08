@@ -502,7 +502,7 @@ class Survey extends SaturneObject
     {
         global $user, $langs;
 
-        $confName        = strtoupper($this->module) . '_DASHBOARD_CONFIG';
+        $confName        = dol_strtoupper($this->module) . '_DASHBOARD_CONFIG';
         $dashboardConfig = json_decode($user->conf->$confName);
         $array = ['graphs' => [], 'disabledGraphs' => []];
 
