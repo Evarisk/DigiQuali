@@ -106,8 +106,12 @@ if ($action == 'save') {
         }
     }
 
+    if (GETPOSTISSET('cancel_action')) {
+        $object->setDraft($user);
+    }
+
     $object->call_trigger('OBJECT_SAVEANSWER', $user);
     setEventMessages($langs->trans('AnswerSaved'), []);
-    header('Location: ' . $_SERVER['PHP_SELF'] . (GETPOSTISSET('track_id') ? '?track_id=' . GETPOST('track_id', 'alpha')  . '&object_type=' . GETPOST('object_type', 'alpha') . '&document_type=' . GETPOST('document_type', 'alpha') . '&entity=' . $conf->entity : '?id=' . GETPOST('id', 'int')));
+    header('Location: ' . $_SERVER['PHP_SELF'] . (GETPOSTISSET('track_id') ? '?track_id=' . GETPOST('track_id', 'alpha')  . '&object_type=' . GETPOST('object_type', 'alpha') . '&document_type=' . GETPOST('document_type', 'alpha') . '&submit=' . GETPOST('submit', 'int') . '&entity=' . $conf->entity : '?id=' . GETPOST('id', 'int')));
     exit;
 }

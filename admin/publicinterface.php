@@ -134,6 +134,16 @@ print '<td class="center">';
 print ajax_constantonoff('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY');
 print '</td><td></td></tr>';
 
+// Use public workflow
+print '<tr class="oddeven"><td>';
+print $langs->transnoentities('AnswerPublicInterfaceUseWorkflow');
+print '</td><td>';
+print $langs->transnoentities('AnswerPublicInterfaceUseWorkflowDescription');
+print '</td>';
+print '<td class="center">';
+print ajax_constantonoff('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_WORKFLOW');
+print '</td><td></td></tr>';
+
 print '</table>';
 print $form->buttonsSaveCancel('Save', '');
 print '</form>';

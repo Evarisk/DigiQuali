@@ -53,10 +53,11 @@ DisplaySurveyMediasSampleDescription = Afficher les médias d'exemple des questi
 ExtrafieldsSurveyManagement          = Gestion des attributs supplémentaires des questionnaires
 
 # Public interface - Interface publique
-AnswerPublicInterface             = Interface publique de réponse aux questions pour __OBJECT_ELEMENT_REF__
-AnswerPublicInterfaceTitle        = Titre de l'interface publique de réponse aux questions
-AnswerPublicInterfaceSubstitution = Traduction générique "TheObject" __REF__
-
+AnswerPublicInterface                        = Interface publique de réponse aux questions pour __OBJECT_ELEMENT_REF__
+AnswerPublicInterfaceTitle                   = Titre de l'interface publique de réponse aux questions
+AnswerPublicInterfaceSubstitution            = Traduction générique "TheObject" __REF__
+AnswerPublicInterfaceUseWorkflow             = Utiliser un workflow de validation sur l'interface publique
+AnswerPublicInterfaceUseWorkflowDescription  = Permet d'afficher un bouton "Modifier" et "Valider" après avoir soumis ses réponses dans l'interface publique.
 
 
 #
