@@ -60,9 +60,10 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                 </div>
                 <div class="question__footer">
                     <?php if ($question->enter_comment > 0) : ?>
-                        <div class="question__footer-comment">
-                            <input class="question-textarea question-comment" name="comment<?php echo $question->id; ?>" id="comment<?php echo $question->id; ?>" value="<?php echo $comment; ?>" <?php echo ($object->status == 2 ? 'disabled' : ''); ?>>
-                        </div>
+                        <label class="question__footer-comment">
+                            <i class="far fa-comment-dots question-comment-icon"></i>
+                            <input placeholder="<?php echo "Écrire un commentaire"; ?>" class="question-textarea question-comment" name="comment<?php echo $question->id; ?>" id="comment<?php echo $question->id; ?>" value="<?php echo $comment; ?>" <?php echo ($object->status == 2 ? 'disabled' : ''); ?>>
+                        </label>
                     <?php endif; ?>
                     <div class="question__footer-linked-medias">
                         <div class="wpeo-button button-square-50 modal-open">
