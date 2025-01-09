@@ -111,36 +111,63 @@ class ActionsDigiquali
 		}
 	}
 
-	/**
-	 * Overloading the doActions function : replacing the parent's function with the one below
-	 *
-	 * @param  array  $parameters Hook metadata (context, etc...)
-	 * @param  object $object     The object to process
-	 * @param  string $action     Current action (if set). Generally create or edit or null
-	 * @return int                0 < on error, 0 on success, 1 to replace standard code
-	 */
-	public function doActions(array $parameters, $object, string $action): int
-	{
-		global $langs, $user;
+    /**
+     * Overloading the doActions function : replacing the parent's function with the one below
+     *
+     * @param array $parameters Hook metadata (context, etc...)
+     * @param object $object The object to process
+     * @param string $action Current action (if set). Generally create or edit or null
+     * @return int                0 < on error, 0 on success, 1 to replace standard code
+     * @throws Exception
+     */
+    public function doActions(array $parameters, $object, string $action): int
+    {
+        global $conf, $user;
 
-		$error = 0; // Error counter
-
-		if (strpos($parameters['context'], 'categorycard') !== false) {
+        if (strpos($parameters['context'], 'categorycard') !== false) {
             require_once __DIR__ . '/../class/question.class.php';
             require_once __DIR__ . '/../class/sheet.class.php';
             require_once __DIR__ . '/../class/control.class.php';
             require_once __DIR__ . '/../class/survey.class.php';
-		}
+        }
 
-		if (!$error) {
-			$this->results = array('myreturn' => 999);
-			$this->resprints = 'A text to show';
-			return 0; // or return 1 to replace standard code
-		} else {
-			$this->errors[] = 'Error message';
-			return -1;
-		}
-	}
+        if (strpos($parameters['context'], 'productlotcard') !== false && $action == 'update_easy_url_link') {
+            require_once DOL_DOCUMENT_ROOT . '/custom/easyurl/class/shortener.class.php';
+
+            $productLot = new ProductLot($this->db);
+            $shortener  = new Shortener($this->db);
+
+            $id = GETPOSTINT('id');
+
+            $productLot->fetch($id);
+            $shortener->fetch('', '', ' AND t.status = ' . Shortener::STATUS_VALIDATED . ' OR (t.element_type = "productlot" AND t.fk_element = ' . $id . ')');
+
+            if ($shortener->id > 0) {
+                $shortener->element_type = 'productlot';
+                $shortener->fk_element   = $productLot->id;
+                $shortener->status       = Shortener::STATUS_ASSIGN;
+                $shortener->type         = 0; // TODO : Changer ça pour mettre une vrai valeur du dico ?
+
+                $objectData                = ['type' => $productLot->element, 'id' => $productLot->id];
+                $objectB64                 = base64_encode(json_encode($objectData));
+                $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control_history.php?track_id=' . $objectB64 . '&entity=' . $conf->entity, 3);
+                $shortener->original_url   = $publicControlInterfaceUrl;
+
+                update_easy_url_link($shortener);
+                $shortener->update($user);
+
+                $productLot->array_options['options_easy_url_all_link'] = $shortener->short_url;
+                $productLot->updateExtraField('easy_url_all_link');
+
+                setEventMessages('SetEasyURLSuccess', []);
+            } else {
+                // TODO : Faire en sorte de gerer le cas ou il n'y a pas de lien disponible
+                setEventMessages('EasyURLNotAvailable', [], 'errors');
+            }
+        }
+
+        return 0; // or return 1 to replace standard code
+    }
 
     /**
      * Overloading the addHtmlHeader function : replacing the parent's function with the one below
@@ -163,109 +190,65 @@ class ActionsDigiquali
         return 0; // or return 1 to replace standard code-->
     }
 
-	/**
-	 * Overloading the printCommonFooter function : replacing the parent's function with the one below
-	 *
-	 * @param   array           $parameters     Hook metadatas (context, etc...)
-	 * @return  int                             < 0 on error, 0 on success, 1 to replace standard code
-	 */
-	public function printCommonFooter($parameters)
-	{
-		global $conf, $form, $langs, $object, $user, $action;
+    /**
+     * Overloading the printCommonFooter function : replacing the parent's function with the one below
+     *
+     * @param  array $parameters Hook metadata (context, etc...)
+     * @return int               0 < on error, 0 on success, 1 to replace standard code
+     */
+    public function printCommonFooter(array $parameters): int
+    {
+        global $conf, $langs;
 
-		$error = 0; // Error counter
-
-
-        if (strpos($parameters['context'], 'productlotcard') !== false && $action == 'updateShortLink') {
-
-            require_once DOL_DOCUMENT_ROOT . '/custom/easyurl/class/shortener.class.php';
-
-            $productLot = new ProductLot($this->db);
-            $productLot->fetch(GETPOST('id'));
-            $objectData = ['type' => $productLot->element, 'id' => $productLot->id];
-            $objectB64 = base64_encode(json_encode($objectData));
-            $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control_history.php?track_id=' . $objectB64 . '&entity=' . $conf->entity, 3);
-
-            $shortener = new Shortener($this->db);
-            $shortener->fetch('', '', ' AND t.status != ' . Shortener::STATUS_ASSIGN . ' OR (t.element_type = "productlot" AND t.fk_element = ' . GETPOST('id') . ')');
-            if ($shortener->id != NULL && $shortener->status == Shortener::STATUS_ASSIGN) {
-                setEventMessage('ShortLinkAlreadyExist', 'errors');
-                dol_htmloutput_events();
-            } else if ($shortener->id != NULL) {
-                $shortener->element_type = 'productlot';
-                $shortener->fk_element   = $productLot->id;
-                $shortener->status       = Shortener::STATUS_ASSIGN;
-                $shortener->type         = 0; // TODO : Changer ça pour mettre une vrai valeur du dico ?
-                $shortener->original_url = $publicControlInterfaceUrl;
-
-                update_easy_url_link($shortener);
-                $shortener->update($user);
-
-                $productLot->array_options['options_easy_url_all_link'] = $shortener->short_url;
-                $productLot->updateExtraField('easy_url_all_link');
-
-                setEventMessage('SetEasyURLSuccess');
-                dol_htmloutput_events();
-
-            } else {
-                // TODO : Faire en sorte de gerer le cas ou il n'y a pas de lien disponible
-                setEventMessage('NoShortLinkAvailable', 'errors');
-                dol_htmloutput_events();
-            }
-
-            $action = '';
-        }
-
-
-        if (strpos($parameters['context'], 'categoryindex') !== false) {	    // do something only for the context 'somecontext1' or 'somecontext2'
+        if (strpos($parameters['context'], 'categoryindex') !== false) {
             print '<script src="../custom/digiquali/js/digiquali.js"></script>';
         } elseif (strpos($parameters['context'], 'productlotcard') !== false) {
+            $id  = GETPOSTINT('id');
+            $out = '';
 
             if (isModEnabled('easyurl')) {
                 require_once DOL_DOCUMENT_ROOT . '/custom/easyurl/class/shortener.class.php';
 
                 $shortener = new Shortener($this->db);
-                $shortener->fetch('', '', 'AND t.element_type = "productlot" AND t.fk_element = ' . GETPOST('id'));
 
-                if ($shortener->id != NULL) {
+                $shortener->fetch('', '', ' AND t.status = ' . Shortener::STATUS_ASSIGN . ' AND t.element_type = "productlot" AND t.fk_element = ' . $id);
+
+                if ($shortener->id > 0) {
                     $publicControlInterfaceUrl = $shortener->short_url;
-                    $out  = '<a href="' . $publicControlInterfaceUrl . '" target="_blank" title="URL : ' . $publicControlInterfaceUrl . '"><i class="fas fa-external-link-alt paddingrightonly"></i>' . ($publicControlInterfaceUrl) . '</a>';
-                    $out .= showValueWithClipboardCPButton($publicControlInterfaceUrl, 0, '&nbsp;');
-                } else {
-                    $out  = '<form method="post">';
-                    $out .= '<input type="hidden" name="token" value="' . newToken() . '">';
-                    $out .= '<input type="hidden" name="id" value="' . GETPOST('id') . '">';
-                    $out .= '<input type="hidden" name="action" value="updateShortLink">';
-                    $out .= '<span>' . $langs->transnoentities('NoShortLink') . '</span><button class="marginleftonly button_search self-end" type="submit"><span class="fas fa-redo" style="font-size: 1em; color: grey;" title="' . $langs->transnoentities('Reload') . '"></span></button>';
-                    $out .= '</form>';
 
+                    $out .= '<a href="' . $publicControlInterfaceUrl . '" target="_blank" title="URL : ' . $publicControlInterfaceUrl . '"><i class="fas fa-external-link-alt paddingrightonly"></i>' . ($publicControlInterfaceUrl) . '</a>';
+                    $out .= showValueWithClipboardCPButton($publicControlInterfaceUrl, 0);
+                } else {
+                    $out .= '<a class="reposition editfielda" href="' . $_SERVER['PHP_SELF'] . '?id=' . $id . '&action=update_easy_url_link&token=' . newToken() . '">';
+                    $out .= img_picto($langs->trans('SetEasyURLLink'), 'fontawesome_fa-redo_fas_#444', 'class="paddingright pictofixedwidth valignmiddle"') . '</a>';
+                    $out .= '<span>' . img_picto($langs->trans('GetEasyURLErrors'), 'fontawesome_fa-exclamation-triangle_fas_#bc9526') . '</span>';
                 }
+//                    $output .= img_picto($langs->trans('SetEasyURLLink'), 'fontawesome_fa-redo_fas_#444', 'class="paddingright pictofixedwidth valignmiddle"') . '</a>';
+//                    $out .= '<span>' . $langs->transnoentities('ObjectNotFound', $langs->transnoentities(ucfirst($shortener->element))) . '</span>';
+//                    $out .= <button class="marginleftonly button_search self-end" type="submit"><span class="fas fa-redo-alt" style="font-size: 1em; color: grey;" title="' . $langs->transnoentities('Reload') . '"></span></button>';
+//                }
             } else {
                 $productLot = new ProductLot($this->db);
-                $productLot->fetch(GETPOST('id'));
-                $objectData = ['type' => $productLot->element, 'id' => $productLot->id];
-                $objectB64 = base64_encode(json_encode($objectData));
+
+                $productLot->fetch($id);
+
+                $objectData                = ['type' => $productLot->element, 'id' => $productLot->id];
+                $objectB64                 = base64_encode(json_encode($objectData));
                 $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control_history.php?track_id=' . $objectB64 . '&entity=' . $conf->entity, 3);
 
-                $out  = '<a href="' . $publicControlInterfaceUrl . '" target="_blank" title="URL : ' . $publicControlInterfaceUrl . '"><i class="fas fa-external-link-alt paddingrightonly"></i>' . dol_trunc($publicControlInterfaceUrl) . '</a>';
-                $out .= showValueWithClipboardCPButton($publicControlInterfaceUrl, 0, '&nbsp;');
+                $out .= '<a href="' . $publicControlInterfaceUrl . '" target="_blank" title="URL : ' . $publicControlInterfaceUrl . '"><i class="fas fa-external-link-alt paddingrightonly"></i>' . dol_trunc($publicControlInterfaceUrl) . '</a>';
+                $out .= showValueWithClipboardCPButton($publicControlInterfaceUrl, 0);
             }
 
             ?>
             <script>
-                $('[class*=extras_control_history_link]').html(<?php echo json_encode($out) ?>);
+                $('[class*=extras_control_history_link]').html(<?php echo json_encode($out); ?>);
             </script>
             <?php
         }
 
-		if (!$error) {
-			$this->results   = array('myreturn' => 999);
-			return 0; // or return 1 to replace standard code
-		} else {
-			$this->errors[] = 'Error message';
-			return -1;
-		}
-	}
+        return 0; // or return 1 to replace standard code
+    }
 
     /**
      * Overloading the formObjectOptions function : replacing the parent's function with the one below
