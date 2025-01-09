@@ -156,7 +156,7 @@ print '<input type="hidden" name="token" value="' . newToken() . '">';
 print '<input type="hidden" name="public_interface" value="true">';
 print '<input type="hidden" name="action" value="save">';
 
-print '<div id="tablelines" class="question-answer-container question-answer-container-pwa public-card__container" data-public-interface="true" style="max-width: 1000px; margin-bottom: 4em;">';
+print '<div class="question-answer-container question-answer-container-pwa public-card__container" data-public-interface="true" style="max-width: 1000px; margin-bottom: 4em;">';
 $substitutionArray = getCommonSubstitutionArray($langs, 0, null, $object);
 complete_substitutions_array($substitutionArray, $langs, $object);
 $answerPublicInterfaceTitle = make_substitutions($langs->transnoentities($conf->global->DIGIQUALI_ANSWER_PUBLIC_INTERFACE_TITLE), $substitutionArray);
@@ -181,8 +181,6 @@ if ($object->status == $object::STATUS_DRAFT) {
     print '</div>';
 }
 print '</div>';
-//print '<button type="submit" class="wpeo-button button-square-50 button-rounded save-public-answer"><i class="fas fa-chevron-left"></i></button>';
-//print '<button type="submit" class="wpeo-button button-square-50 button-rounded save-public-answer"><i class="fas fa-chevron-right"></i></button>';
 print '</form>';
 
 llxFooter('', 'public');

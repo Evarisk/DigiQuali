@@ -40,7 +40,7 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
         }
         if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER or empty($questionAnswer)) {
             ?>
-            <div class="question table-id-<?php echo $question->id ?>" data-autoSave="<?php echo getDolGlobalInt('DIGIQUALI_' . dol_strtoupper($object->element) . 'DET_AUTO_SAVE_ACTION'); ?>">
+            <div class="question table-id-<?php echo $question->id ?> <?php echo ($objectLine->status == Answer::STATUS_VALIDATED ? ' question-complete' : ''); ?>" data-autoSave="<?php echo getDolGlobalInt('DIGIQUALI_' . dol_strtoupper($object->element) . 'DET_AUTO_SAVE_ACTION'); ?>">
                 <div class="question__header">
                     <div class="question__header-content">
                         <div class="question-title"><?php print $question->label; ?></div>
@@ -56,7 +56,7 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                     </div>
                 </div>
                 <div class="question__content">
-                    <?php print get_answer_tpl($question, $object, $questionAnswer, $answerLinked); ?>
+                    <?php print get_answer_tpl($question, $object, $questionAnswer, $answerLinked, $answer); ?>
                 </div>
                 <div class="question__footer">
                     <?php if ($question->enter_comment > 0) : ?>

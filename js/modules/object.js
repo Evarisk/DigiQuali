@@ -63,6 +63,8 @@ window.digiquali.object.event = function() {
   $(document).on( 'click', '.answer:not(.disable)', window.digiquali.object.selectAnswer);
   $(document).on( 'input', '.input-answer:not(.disable)', window.digiquali.object.selectAnswer);
   $(document).on( 'keyup', '.question-comment', window.digiquali.object.showCommentUnsaved);
+  $(document).on( 'change', '.question-answer', window.digiquali.object.changeStatusQuestion);
+  $(document).on( 'click', '.answer:not(.disable)', window.digiquali.object.changeStatusQuestion);
 };
 
 /**
@@ -134,6 +136,10 @@ window.digiquali.object.selectAnswer = function() {
   }
 };
 
+window.digiquali.object.changeStatusQuestion = function() {
+  $(this).closest('.question').addClass('question-complete');
+};
+
 /**
  * Show a comment for a question answer if focus out
  *
@@ -143,7 +149,7 @@ window.digiquali.object.selectAnswer = function() {
  * @return {void}
  */
 window.digiquali.object.showCommentUnsaved = function() {
-  if (!$(this).hasClass('show-comment-unsaved-message')) {
+  if (!$(this).hasClass('show-comment-unsaved-message') && !$('.question-answer-container').hasClass('question-answer-container-pwa')) {
     $(this).after('<p style="color:red;">Commentaire non enregistré</p>');
     $(this).addClass('show-comment-unsaved-message');
   }

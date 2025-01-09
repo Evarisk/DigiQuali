@@ -23,6 +23,7 @@
     }
     &.question-complete::before {
       background: $color__green;
+      transition: background 0.4s ease-in-out;
     }
 
     .question__header {

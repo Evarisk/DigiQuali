@@ -108,89 +108,60 @@ function get_answer_pictos_array(): array
  * @return CommonObject $object
  * @throws Exception
  */
-function get_answer_tpl(Question $question, CommonObject $object, $questionAnswer, $answerLinked): string
+function get_answer_tpl(Question $question, CommonObject $object, $questionAnswer, $answerLinked, $answer = null): string
 {
     $out = '';
 
+    $disabled = ($object->status > $object::STATUS_DRAFT ? ' disabled' : '');
+
     switch ($question->type) {
+        case 'Text':
+            $out .= '<div>';
+            $out .= '<textarea class="question-textarea question-answer" name="answer' . $question->id . '"' . $disabled . '>' . $questionAnswer . '</textarea>';
+            $out .= '</div>';
+            break;
         case 'Percentage':
-            $out .= '<div class="answer-cell percentage-cell" data-questionId="' . $question->id . '">';
+            $out .= '<div class="percentage-cell">';
             $out .= img_picto('', 'fontawesome_fa-frown_fas_#D53C3D_3em', 'class="range-image"');
-            $out .= '<input type="range" class="search_component_input range input-answer' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" name="answer' . $question->id . '" id="answer' . $question->id . '" min="0" max="100" step="25" value="' . $questionAnswer . '"' . ($object->status > $object::STATUS_DRAFT ? ' disabled' : '') . '>';
+            $out .= '<input type="range" class="search_component_input range question-answer" name="answer' . $question->id . '" min="0" max="100" value="' . $questionAnswer . '"' . $disabled . '>';
             $out .= img_picto('', 'fontawesome_fa-grin_fas_#57AD39_3em', 'class="range-image"');
             $out .= '</div>';
             break;
+        case 'Range':
+            $out .= '<div>';
+            $out .= '<input type="number" class="question-answer" name="answer' . $question->id . '" value="' . $questionAnswer . '"' . $disabled . '>';
+            $out .= '</div>';
+            break;
+        case 'UniqueChoice':
+        case 'OkKo':
+        case 'OkKoToFixNonApplicable':
+        case 'MultipleChoices':
+            $answerList  = $answer->fetchAll('ASC', 'position', 0, 0, ['customsql' => 't.status = ' . Answer::STATUS_VALIDATED . ' AND t.fk_question = ' . $question->id]);
+            $pictosArray = get_answer_pictos_array();
+
+            if (strpos($questionAnswer, ',') !== false) {
+                $questionAnswers = explode(',', $questionAnswer);
+            } else {
+                $questionAnswers = [$questionAnswer];
+            }
+
+            $out .= '<div class="table-cell select-answer answer-cell">';
+            $out .= '<input type="hidden" class="question-answer" name="answer' . $question->id . '" value="0">';
+            if (is_array($answerList) && !empty($answerList)) {
+                foreach($answerList as $answerLinked) {
+                    $out .= '<input type="hidden" class="answer-color answer-color-' . $answerLinked->position . '" value="' . $answerLinked->color . '">';
+                    $out .= '<span class="answer' . ($question->type == 'MultipleChoices' ? ' multiple-answers square' : '') . (in_array($answerLinked->position, $questionAnswers) ? ' active' : '') . ($object->status > 0 ? ' disable' : '') . '" style="' . (in_array($answerLinked->position, $questionAnswers) ? 'background:' . $answerLinked->color . '; ' : '') . 'color:' . $answerLinked->color . ';" value="' . $answerLinked->position . '">';
+                    if (!empty($answerLinked->pictogram)) {
+                        $out .= $pictosArray[$answerLinked->pictogram]['picto_source'];
+                    } else {
+                        $out .= $answerLinked->value;
+                    }
+                    $out .= '</span>';
+                }
+            }
+            $out .= '</div>';
+            break;
     }
-
-
-/*                    <div class="table-row <?php echo ($conf->browser->layout != 'classic' ? 'center' : ''); ?>">*/
-//                    <?php $pictosArray = get_answer_pictos_array(); ?>
-<!--                    --><?php //if ($question->type == 'MultipleChoices') :
-//                        $answerList = $answer->fetchAll('ASC', 'position', 0, 0,  ['customsql' => 't.status > ' . Answer::STATUS_DELETED . ' AND t.fk_question = ' . $question->id]); ?>
-<!--                        <div class="table-cell table-end select-answer answer-cell" --><?php //echo ($object->status > 0) ? ' style="pointer-events: none"' : '' ?><!-- data-questionId="--><?php //echo $question->id; ?><!--">-->
-<!--                            --><?php
-//                            if (preg_match('/,/', $questionAnswer)) {
-//                                $questionAnswers = preg_split('/,/', $questionAnswer);
-//                            } else {
-//                                $questionAnswers = [$questionAnswer];
-//                            }
-//
-//                            print '<input type="hidden" class="question-answer" name="answer' . $question->id . '" id="answer' . $question->id . '" value="0">';
-//                            if (is_array($answerList) && !empty($answerList)) {
-//                                foreach($answerList as $answerLinked) {
-//                                    print '<input type="hidden" class="answer-color answer-color-' . $answerLinked->position . '" value="' . $answerLinked->color . '">';
-//                                    print '<span style="' . (in_array($answerLinked->position, $questionAnswers) ? 'background:' . $answerLinked->color .'; ' : '') . 'color:' . $answerLinked->color . ';" class="answer multiple-answers square ' . ($object->status > 0 ? 'disable' : '') . ' ' . (in_array($answerLinked->position, $questionAnswers) ? 'active' : '') . '" value="' . $answerLinked->position . '">';
-//                                    if (!empty($answerLinked->pictogram)) {
-//                                        print $pictosArray[$answerLinked->pictogram]['picto_source'];
-//                                    } else {
-//                                        print $answerLinked->value;
-//                                    }
-//                                    print '</span>';
-//                                }
-//                            }
-//                            ?>
-<!--                        </div>-->
-<!--                    --><?php //elseif ($question->type == 'UniqueChoice' || $question->type == 'OkKo' || $question->type == 'OkKoToFixNonApplicable') :
-//                        $answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['customsql' => 't.status > ' . Answer::STATUS_DELETED . ' AND t.fk_question = ' . $question->id]); ?>
-<!--                        <div class="table-cell table-end select-answer answer-cell table-300" --><?php //echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?><!-- data-questionId="--><?php //echo $question->id; ?><!--">-->
-<!--                            --><?php
-//                            print '<input type="hidden" class="question-answer" name="answer' . $question->id . '" id="answer' . $question->id . '" value="0">';
-//                            if (is_array($answerList) && !empty($answerList)) {
-//                                foreach($answerList as $answerLinked) {
-//                                    print '<input type="hidden" class="answer-color answer-color-' . $answerLinked->position . '" value="' . $answerLinked->color . '">';
-//                                    print '<span style="' . ($questionAnswer == $answerLinked->position ? 'background:' . $answerLinked->color . '; ' : '') . 'color:' . $answerLinked->color . ';" class="answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="' . $answerLinked->position . '">';
-//                                    if (!empty($answerLinked->pictogram)) {
-//                                        print $pictosArray[$answerLinked->pictogram]['picto_source'];
-//                                    } else {
-//                                        print $answerLinked->value;
-//                                    }
-//                                    print '</span>';
-//                                }
-//                            } ?>
-<!--                        </div>-->
-<!--                    --><?php //elseif ($question->type == 'Percentage') : ?>
-<!--                        --><?php //get_answer_tpl($question, $object, $questionAnswer, $answerLinked); ?>
-<!--                    --><?php //elseif ($question->type == 'Range') : ?>
-<!--                        <div class="table-cell table-end answer-cell table-flex --><?php //echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?><!--" data-questionId="--><?php //echo $question->id; ?><!--">-->
-<!--                            --><?php
-//                            print '<span class="table-cell" value="">';
-//                            print $langs->transnoentities('Answer') . ' : ';
-//                            print '</span>';
-//                            print '<span class="table-cell" value="">';
-//                            print '<input '. ($object->status > $object::STATUS_DRAFT ? 'disabled' : '') .' name="answer' . $question->id . '" id="answer' . $question->id . '" type="number" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="' . $questionAnswer . '">';
-//                            print '</span>';
-//                            ?>
-<!--                        </div>-->
-<!--                    --><?php //endif;
-//                    <div class="question-comment-container">
-//                    <?php if ($question->type == 'Text') : ?>
-<!--                        <div class="question-answer-text">-->
-<!--                            --><?php
-//                                $object->status > $object::STATUS_DRAFT ? print $questionAnswer :
-//                                print '<textarea' . ($object->status > $object::STATUS_DRAFT ? ' disabled' : '') . ' name="answer' . $question->id . '" id="answer' . $question->id . '"class="question-textarea input-answer ' . ($object->status > 0 ? 'disable' : '') . '" value="' . $questionAnswer . '"></textarea>'; ?>
-<!--                        </div>-->
-<!--                    --><?php //endif;
-//               </div>
 
     return $out;
 }
