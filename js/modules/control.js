@@ -155,20 +155,13 @@ window.digiquali.control.refreshLotSelector = function(  event ) {
  */
 window.digiquali.control.switchPublicControlView = function(  event ) {
 
-  var publicControlViewMode = $(this).find('.public-control-view').val()
-  let token                 = window.saturne.toolbox.getToken();
-  let urlToGo               = document.URL + '&token=' + token
-
-  if (publicControlViewMode == 0) {
-    urlToGo += '&show_control_list=1'
-  } else {
-    urlToGo += '&show_last_control=1'
-  }
+  var route   = $(this).data('route')
+  let token   = window.saturne.toolbox.getToken();
 
   window.saturne.loader.display($('.signature-container'))
 
   $.ajax({
-    url: urlToGo,
+    url: document.URL + '&route=' + route + '&token=' + token,
     type: "POST",
     processData: false,
     contentType: false,
