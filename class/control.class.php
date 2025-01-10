@@ -762,13 +762,32 @@ class Control extends SaturneObject
      */
     public function load_dashboard(): array
     {
-        $getNbControlsTagsByVerdict   = $this->getNbControlsTagsByVerdict();
-        $getNbControlsByVerdict       = $this->getNbControlsByVerdict();
-        $getNbControlsByMonth         = $this->getNbControlsByMonth();
-        $getControlListsByNextControl = $this->getControlListsByNextControl();
+        global $user, $langs;
 
-        $array['graphs'] = [$getNbControlsTagsByVerdict, $getNbControlsByVerdict, $getNbControlsByMonth];
-        $array['lists']  = [$getControlListsByNextControl];
+        $confName        = dol_strtoupper($this->module) . '_DASHBOARD_CONFIG';
+        $dashboardConfig = json_decode($user->conf->$confName);
+        $array = ['graphs' => [], 'lists' => [], 'disabledGraphs' => []];
+
+        if (empty($dashboardConfig->graphs->ControlsTagsRepartition->hide)) {
+            $array['graphs'][] = $this->getNbControlsTagsByVerdict();
+        } else {
+            $array['disabledGraphs']['ControlsTagsRepartition'] = $langs->transnoentities('ControlsTagsRepartition');
+        }
+        if (empty($dashboardConfig->graphs->ControlsRepartition->hide)) {
+            $array['graphs'][] = $this->getNbControlsByVerdict();
+        } else {
+            $array['disabledGraphs']['ControlsRepartition'] = $langs->transnoentities('ControlsRepartition');
+        }
+        if (empty($dashboardConfig->graphs->ControlsByFiscalYear->hide)) {
+            $array['graphs'][] = $this->getNbControlsByMonth();
+        } else {
+            $array['disabledGraphs']['ControlsByFiscalYear'] = $langs->transnoentities('ControlsByFiscalYear');
+        }
+        if (empty($dashboardConfig->graphs->ControlListsByNextControl->hide)) {
+            $array['lists'][] = $this->getControlListsByNextControl();
+        } else {
+            $array['disabledGraphs']['ControlListsByNextControl'] = $langs->transnoentities('ControlListsByNextControl');
+        }
 
         return $array;
     }
@@ -785,6 +804,7 @@ class Control extends SaturneObject
 
         // Graph Title parameters.
         $array['title'] = $langs->transnoentities('ControlsRepartition');
+        $array['name']  = 'ControlsRepartition';
         $array['picto'] = $this->picto;
 
         // Graph parameters.
@@ -842,6 +862,7 @@ class Control extends SaturneObject
 
         // Graph Title parameters.
         $array['title'] = $langs->transnoentities('ControlsTagsRepartition');
+        $array['name']  = 'ControlsTagsRepartition';
         $array['picto'] = $this->picto;
 
         // Graph parameters.
@@ -905,6 +926,7 @@ class Control extends SaturneObject
 
         // Graph Title parameters.
         $array['title'] = $langs->transnoentities('ControlsByFiscalYear');
+        $array['name']  = 'ControlsByFiscalYear';
         $array['picto'] = $this->picto;
 
         // Graph parameters.
@@ -960,6 +982,7 @@ class Control extends SaturneObject
 
         // Graph Title parameters.
         $array['title'] = $langs->transnoentities('ControlListsByNextControl');
+        $array['name']  = 'ControlListsByNextControl';
         $array['picto'] = $this->picto;
 
         // Graph parameters.

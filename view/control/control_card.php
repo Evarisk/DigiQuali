@@ -368,7 +368,7 @@ if ($action == 'create') {
         $filter          = 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED;
         $filter         .= (!empty($filterType) ? ' AND s.element_linked LIKE "%' . $filterType . '%"' : '');
         print '<tr><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('Sheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
-        print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet') ?: $sheet->id, 'fk_sheet', $filter);
+        print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet') ?: $sheet->id, 'fk_sheet', $filter, 0);
         if ($source != 'pwa') {
             print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
         }
@@ -664,6 +664,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
                 print '<td>';
 
                 print $linkedObject->getNomUrl(1);
+                print property_exists($linkedObject, 'label') ? '<span class="opacitymedium">' . ' - ' . dol_trunc($linkedObject->label) . '</span>' : '';
+
 
                 if ($linkedObject->array_options['options_qc_frequency'] > 0) {
                     print ' ';

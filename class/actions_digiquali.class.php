@@ -194,41 +194,6 @@ class ActionsDigiquali
             <?php
         }
 
-        require_once __DIR__ . '/../lib/digiquali_sheet.lib.php';
-
-        $linkableElements = get_sheet_linkable_objects();
-
-        if (!empty($linkableElements)) {
-            foreach($linkableElements as $linkableElement) {
-                if ($linkableElement['link_name'] == $object->element) {
-                    if (strpos($parameters['context'], $linkableElement['hook_name_card']) !== false) {
-                        $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
-                        $extrafieldsNames = ['qc_frequency', 'control_history_link'];
-                        foreach ($extrafieldsNames as $extrafieldsName) {
-                            $jQueryElement = 'td.' . $object->element . '_extras_' . $extrafieldsName; ?>
-                            <script>
-                                var objectElement = <?php echo "'" . $jQueryElement . "'"; ?>;
-                                jQuery(objectElement).prepend(<?php echo json_encode($picto); ?>);
-                            </script>
-                            <?php
-                        }
-                    } elseif (preg_match('/' . $linkableElement['hook_name_list'] . '|projecttaskscard/', $parameters['context'])) {
-                        $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
-                        $extrafieldsNames = ['qc_frequency', 'control_history_link'];
-                        foreach ($extrafieldsNames as $extrafieldsName) { ?>
-                            <script>
-                                var objectElement = <?php echo "'" . $extrafieldsName . "'"; ?>;
-                                var outJS         = <?php echo json_encode($picto); ?>;
-                                var cell          = $('.liste > tbody > tr.liste_titre').find('th[data-titlekey="' + objectElement + '"]');
-                                cell.prepend(outJS);
-                            </script>
-                            <?php
-                        }
-                    }
-                }
-            }
-        }
-
 		if (!$error) {
 			$this->results   = array('myreturn' => 999);
 			return 0; // or return 1 to replace standard code
@@ -241,12 +206,15 @@ class ActionsDigiquali
     /**
      * Overloading the formObjectOptions function : replacing the parent's function with the one below
      *
-     * @param  array        $parameters Hook metadatas (context, etc...)
-     * @param  object|null $object      Current object
-     * @return int                      0 < on error, 0 on success, 1 to replace standard code
+     * @param  array       $parameters Hook metadatas (context, etc...)
+     * @param  object|null $object     Current object
+     * @return int                     0 < on error, 0 on success, 1 to replace standard code
+     * @throws Exception
      */
     public function formObjectOptions(array $parameters, ?object $object): int
     {
+        global $extrafields, $langs;
+
         if (strpos($parameters['context'], 'productlotcard') !== false) {
             $objectData = ['type' => $object->element, 'id' => $object->id];
 
@@ -256,6 +224,55 @@ class ActionsDigiquali
             if (dol_strlen($object->array_options['options_control_history_link'] == 0 )) {
                 $object->array_options['options_control_history_link'] = $objectDataB64;
                 $object->updateExtrafield('control_history_link');
+            }
+        }
+
+        require_once __DIR__ . '/../lib/digiquali_sheet.lib.php';
+
+        $linkableElements = get_sheet_linkable_objects();
+        if (!empty($linkableElements)) {
+            foreach($linkableElements as $linkableElement) {
+                if ($linkableElement['tab_type'] == $object->element) {
+                    if (strpos($parameters['context'], $linkableElement['hook_name_card']) !== false) {
+                        $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
+                        $extraFieldsNames = ['qc_frequency', 'control_history_link'];
+                        foreach ($extraFieldsNames as $extraFieldsName) {
+                            $extrafields->attributes[$object->table_element]['label'][$extraFieldsName] = $picto . $langs->transnoentities($extrafields->attributes[$object->table_element]['label'][$extraFieldsName]);
+                        }
+                    }
+                }
+            }
+        }
+
+        return 0; // or return 1 to replace standard code
+    }
+
+    /**
+     * Overloading the printFieldListOption function : replacing the parent's function with the one below
+     *
+     * @param  array        $parameters Hook metadata (context, etc...)
+     * @param  CommonObject $object     Current object
+     * @return int                      0 < on error, 0 on success, 1 to replace standard code
+     * @throws Exception
+     */
+    public function printFieldListOption(array $parameters, $object): int
+    {
+        global $extrafields, $langs;
+
+        require_once __DIR__ . '/../lib/digiquali_sheet.lib.php';
+
+        $linkableElements = get_sheet_linkable_objects();
+        if (!empty($linkableElements)) {
+            foreach($linkableElements as $linkableElement) {
+                if ($linkableElement['tab_type'] == $object->element) {
+                    if (preg_match('/' . $linkableElement['hook_name_list'] . '|projecttaskscard/', $parameters['context'])) {
+                        $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
+                        $extraFieldsNames = ['qc_frequency', 'control_history_link'];
+                        foreach ($extraFieldsNames as $extraFieldsName) {
+                            $extrafields->attributes[$object->table_element]['label'][$extraFieldsName] = $picto . $langs->transnoentities($extrafields->attributes[$object->table_element]['label'][$extraFieldsName]);
+                        }
+                    }
+                }
             }
         }
 
@@ -419,7 +436,7 @@ class ActionsDigiquali
 
         return 0; // or return 1 to replace standard code.
     }
-
+  
     function completeTabsHead(array $parameters) : int
     {
         global $langs, $conf;
@@ -455,6 +472,7 @@ class ActionsDigiquali
                 }
             }
         }
+
         return 0;
     }
 }

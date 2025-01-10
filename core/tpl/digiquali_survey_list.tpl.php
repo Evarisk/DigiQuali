@@ -285,9 +285,11 @@ if (is_array($signatoriesInDictionary) && !empty($signatoriesInDictionary)) {
     }
 }
 
-$arrayfields['QuestionAnswered']  = ['label' => 'QuestionAnswered', 'position' => 66, 'css' => 'center minwidth200 maxwidth250 widthcentpercentminusxx'];
-$arrayfields['LastStatusDate']    = ['label' => 'LastStatusDate', 'position' => 67, 'css' => 'center minwidth200 maxwidth300 widthcentpercentminusxx'];
-$arrayfields['SocietyAttendants'] = ['label' => 'SocietyAttendants', 'checked' => 1, 'position' => 115, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusxx'];
+$arrayfields['QuestionAnswered']           = ['label' => 'QuestionAnswered', 'position' => 66, 'css' => 'center minwidth200 maxwidth250 widthcentpercentminusxx'];
+$arrayfields['LastStatusDate']             = ['label' => 'LastStatusDate', 'position' => 67, 'css' => 'center minwidth200 maxwidth300 widthcentpercentminusxx'];
+$arrayfields['SocietyAttendants']          = ['label' => 'SocietyAttendants', 'checked' => 1, 'position' => 115, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusxx'];
+$arrayfields['AveragePercentageQuestions'] = ['label' => 'AveragePercentageQuestions', 'checked' => 1, 'position' => 3, 'css' => 'center minwidth200 maxwidth250 widthcentpercentminusxx'];
+$arrayfields['VerdictObject']              = ['label' => 'VerdictObject', 'checked' => 1, 'position' => 4, 'css' => 'center minwidth200 maxwidth250 widthcentpercentminusxx'];
 
 $selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage, getDolGlobalString('MAIN_CHECKBOX_LEFT_COLUMN')); // This also change content of $arrayfields
 $selectedfields .= (count($arrayofmassactions) ? $form->showCheckAddButtons('checkforselect', 1) : '');
@@ -299,9 +301,11 @@ if (is_array($signatoriesInDictionary) && !empty($signatoriesInDictionary)) {
     }
 }
 
-$object->fields['Custom']['QuestionAnswered']  = $arrayfields['QuestionAnswered'];
-$object->fields['Custom']['LastStatusDate']    = $arrayfields['LastStatusDate'];
-$object->fields['Custom']['SocietyAttendants'] = $arrayfields['SocietyAttendants'];
+$object->fields['Custom']['QuestionAnswered']           = $arrayfields['QuestionAnswered'];
+$object->fields['Custom']['LastStatusDate']             = $arrayfields['LastStatusDate'];
+$object->fields['Custom']['SocietyAttendants']          = $arrayfields['SocietyAttendants'];
+$object->fields['Custom']['AveragePercentageQuestions'] = $arrayfields['AveragePercentageQuestions'];
+$object->fields['Custom']['VerdictObject']              = $arrayfields['VerdictObject'];
 
 print '<div class="div-table-responsive">'; // You can use div-table-responsive-no-min if you don't need reserved height for your table
 print '<table class="tagtable nobottomiftotal liste' . ($moreforfilter ? ' listwithfilterbefore' : '') . '">';
@@ -593,13 +597,47 @@ while ($i < $imaxinloop) {
                             $lastValidateAction = $actioncomm->getActions(0, $object->id, 'survey@digiquali', ' AND a.code = "AC_SURVEY_VALIDATE"', 'a.datep', 'DESC', 1);
                             $lastReOpenAction   = $actioncomm->getActions(0, $object->id, 'survey@digiquali', ' AND a.code = "AC_SURVEY_UNVALIDATE"', 'a.datep', 'DESC', 1);
 
-                            $lastValidateDate   = (is_array($lastValidateAction) && !empty($lastValidateAction) ? $lastValidateAction[0]->datec : 0);
-                            $lastReOpenDate     = (is_array($lastReOpenAction) && !empty($lastReOpenAction) ? $lastReOpenAction[0]->datec : 0);
+                            $lastValidateDate = (is_array($lastValidateAction) && !empty($lastValidateAction) ? $lastValidateAction[0]->datec : 0);
+                            $lastReOpenDate   = (is_array($lastReOpenAction) && !empty($lastReOpenAction) ? $lastReOpenAction[0]->datec : 0);
 
                             print '<td class="' . $resource['css'] . '">';
                             print $lastValidateDate > 0 ? $langs->trans('ValidationDate') . ': <br>' . dol_print_date($lastValidateDate, 'dayhour') . '<br>' : '';
                             print $lastReOpenDate > 0 ? $langs->trans('ReOpenDate') . ': <br>' . dol_print_date($lastReOpenDate, 'dayhour') . '<br>' : '';
                             print '</td>';
+                        } elseif ($resource['label'] == 'AveragePercentageQuestions' || $resource['label'] == 'VerdictObject') {
+                            $object->fetchLines();
+
+                            $questionCounter = 0;
+                            $sheet->fetch($object->fk_sheet);
+                            $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
+                            $questions = $sheet->linkedObjects['digiquali_question'];
+                            foreach ($questions as $question) {
+                                $questions[$question->id] = $question;
+                            }
+
+                            $answers = [];
+                            if (is_array($object->lines) && !empty($object->lines)) {
+                                foreach ($object->lines as $objectLine) {
+                                    if ($questions[$objectLine->fk_question]->type == 'Percentage') {
+                                        $answers[] = $objectLine->answer;
+                                    }
+                                }
+                            }
+
+                            $mean = 0;
+                            if (!empty($answers)) {
+                                $mean = array_sum($answers) / count($answers);
+                            }
+
+                            if ($resource['label'] == 'AveragePercentageQuestions') {
+                                print '<td class="' . $resource['css'] . '">';
+                                print round($mean, 0) . '%';
+                                print '</td>';
+                            } elseif ($resource['label'] == 'VerdictObject') {
+                                print '<td class="' . $resource['css'] . '">';
+                                print '<span class="wpeo-button button-' . ($mean > $object->success_rate ? 'green' : 'red') . ' badge-status' . '">' . ($mean > $object->success_rate ? $langs->transnoentities('OK') : $langs->transnoentities('KO')) . '</span>';
+                                print '</td>';
+                            }
                         } else {
                             print '<td class="' . $resource['css'] . '">';
                             if (is_array($signatories) && !empty($signatories) && $signatories > 0) {
