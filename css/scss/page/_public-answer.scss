@@ -31,7 +31,7 @@
       flex-direction: row;
       flex-wrap: nowrap;
       gap: 0.5em;
-      margin-bottom: 1em;
+      margin-bottom: 1.5em;
 
       .question__header-content {
         width: 100%;
@@ -66,7 +66,7 @@
     }
 
     .question__content {
-      margin-bottom: 1em;
+      margin-bottom: 1.5em;
 
       .percentage-cell {
         width: 100%;
@@ -99,6 +99,7 @@
           box-shadow: 0 4px 4px 0 rgba(0,0,0,0.25), 0 0 0 1px #c7c5c5;
           background: #0d8aff;
           transition: transform 0.1s ease-in-out;
+          border-radius: 50%;
 
           &:hover {
             transform: scale(1.05);
@@ -120,6 +121,7 @@
           box-shadow: 0 4px 4px 0 rgba(0,0,0,0.25), 0 0 0 1px #c7c5c5;
           background: #0d8aff;
           transition: transform 0.1s ease-in-out;
+          border-radius: 50%;
 
           &:hover {
             transform: scale(1.05);
@@ -155,7 +157,7 @@
           }
           &:hover {
             cursor: pointer;
-            transform: scale(1.1);
+            transform: scale(1.08);
           }
         }
         .answer.single-answer {
@@ -173,12 +175,13 @@
 
       .question-textarea {
         margin-bottom: 0;
+      }
 
-        &::placeholder {
-          color: rgba($color__public-primary, 0.3);
-        }
-        &:focus::placeholder {
-          color: transparent;
+      .question-number {
+        text-align: center;
+
+        input {
+          max-width: 160px;
         }
       }
 
@@ -237,17 +240,30 @@
 
   input:not(.button):not(.range), textarea {
     border: 3px solid $color__public-secondary;
+    border-radius: 10px;
+    font-size: 18px;
+    color: $color__public-primary;
+    padding: 0.8em;
+    width: 100%;
+    transition: all 0.2s ease-out;
 
     &:focus {
       outline: none;
       border: 3px solid #87a8dd !important;
+      box-shadow: 0 0 0 4px rgba($color__public-secondary, 0.4);
+    }
+    &::placeholder {
+      color: rgba($color__public-primary, 0.3);
+    }
+    &:focus::placeholder {
+      color: transparent;
     }
   }
   /** Fix Eldy theme */
   input:focus:not(.button):not(.buttonwebsite):not(.buttonreset):not(.select2-search__field):not(#top-bookmark-search-input):not(.search_component_input):not(.input-search-takepos), select:focus, .select2-container--open [aria-expanded="false"].select2-selection--single {
     border-bottom: 3px solid #87a8dd !important;
-    border-bottom-left-radius: 3px !important;
-    border-bottom-right-radius: 3px !important;
+    border-bottom-left-radius: 10px !important;
+    border-bottom-right-radius: 10px !important;
   }
 
   .public-card__footer {

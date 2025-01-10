@@ -129,8 +129,8 @@ function get_answer_tpl(Question $question, CommonObject $object, $questionAnswe
             $out .= '</div>';
             break;
         case 'Range':
-            $out .= '<div>';
-            $out .= '<input type="number" class="question-answer" name="answer' . $question->id . '" value="' . $questionAnswer . '"' . $disabled . '>';
+            $out .= '<div class="question-number">';
+            $out .= '<input type="number" placeholder="0" class="question-answer" name="answer' . $question->id . '" value="' . $questionAnswer . '"' . $disabled . '>';
             $out .= '</div>';
             break;
         case 'UniqueChoice':

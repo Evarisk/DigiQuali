@@ -144,7 +144,7 @@ if (empty($resHook)) {
 
 $title   = $langs->trans('PublicAnswer');
 $moreJS  = ['/saturne/js/includes/signature-pad.min.js'];
-$moreCSS = ['/saturne/css/pico.min.css'];
+$moreCSS = [];
 
 $conf->dol_hide_topmenu  = 1;
 $conf->dol_hide_leftmenu = 1;
