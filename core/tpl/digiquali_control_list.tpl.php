@@ -448,8 +448,8 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			elseif ($key == 'days_remaining_before_next_control') {
                 if (dol_strlen($object->next_control_date) > 0) {
                     $nextControl = floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24));
-				    $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
-				    print '<div class="wpeo-button button-'. $nextControlColor .'">' . $nextControl . '</div>';
+				    $nextControlColor = $nextControl < 0 ? getDolGlobalString('DIGIQUALI_PASSED_TIME_CONTROL_COLOR') : ($nextControl <= 30 ? getDolGlobalString('DIGIQUALI_URGENT_TIME_CONTROL_COLOR') : ($nextControl <= 60 ? getDolGlobalString('DIGIQUALI_MEDIUM_TIME_CONTROL_COLOR') : getDolGlobalString('DIGIQUALI_PERFECT_TIME_CONTROL_COLOR')));
+                    print '<div class="wpeo-button" style="background-color: ' . $nextControlColor .'; border-color: ' . $nextControlColor . ' ">' . $nextControl . '</div>';
                 }
 			}
 			elseif (in_array($key, $revertedElementFields)) {

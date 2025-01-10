@@ -86,6 +86,31 @@ if ($action == 'update_control_reminder') {
     exit;
 }
 
+if ($action == 'update_control_color') {
+    $digiqualiPassedTimeControlColor  = GETPOST('passedTimeControl');
+    $digiqualiUrgentTimeControlColor  = GETPOST('urgentTimeControl');
+    $digiqualiMediumTimeControlColor  = GETPOST('mediumTimeControl');
+    $digiqualiPerfectTimeControlColor = GETPOST('perfectTimeControl');
+
+    $results = [
+        0 => dolibarr_set_const($db, 'DIGIQUALI_PASSED_TIME_CONTROL_COLOR', $digiqualiPassedTimeControlColor, 'chaine', 0, '', $conf->entity),
+        1 => dolibarr_set_const($db, 'DIGIQUALI_URGENT_TIME_CONTROL_COLOR', $digiqualiUrgentTimeControlColor, 'chaine', 0, '', $conf->entity),
+        2 => dolibarr_set_const($db, 'DIGIQUALI_MEDIUM_TIME_CONTROL_COLOR', $digiqualiMediumTimeControlColor, 'chaine', 0, '', $conf->entity),
+        3 => dolibarr_set_const($db, 'DIGIQUALI_PERFECT_TIME_CONTROL_COLOR', $digiqualiPerfectTimeControlColor, 'chaine', 0, '', $conf->entity)
+    ];
+
+    foreach ($results as $result) {
+        if ($result == -1) {
+            setEventMessage('Error', null, 'errors');
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit;
+        }
+    }
+    setEventMessage('SavedConfig');
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit;
+}
+
 /*
  * View
  */
@@ -170,6 +195,50 @@ print '</table>';
 print '<div class="tabsAction"><input type="submit" class="butAction" name="save" value="' . $langs->trans('Save') . '"></div>';
 print '</form>';
 print '</table>';
+
+// Manage control colors
+print load_fiche_titre($langs->transnoentities('ControlColorParam'), '', '');
+
+$parameters = [
+    'value' => [
+        0 => 'PASSED',
+        1 => 'URGENT',
+        2 => 'MEDIUM',
+        3 => 'PERFECT'
+    ],
+    'defaultColors' => [
+        0 => '#EB4A40',
+        1 => '#ED8532',
+        2 => '#F4BA40',
+        3 => '#6EEA97'
+    ]
+];
+
+print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '" name="color_form">';
+print '<input type="hidden" name="token" value="' . newToken() . '">';
+print '<input type="hidden" name="action" value="update_control_color">';
+print '<table class="noborder centpercent">';
+
+print '<tr class="liste_titre">';
+print '<td>' . $langs->transnoentities('Parameters') . '</td>';
+print '<td>' . $langs->transnoentities('Description') . '</td>';
+print '<td>' . $langs->transnoentities('Value') . '</td>';
+print '</tr>';
+
+for ($i = 0; $i < count($parameters['value']); $i++) {
+    print '<tr class="oddeven">';
+    print '<td>' . $langs->trans(ucfirst(dol_strtolower($parameters['value'][$i])) . 'TimeControlColor') . '</td>';
+    print '<td>' . $langs->trans(ucfirst(dol_strtolower($parameters['value'][$i])) . 'TimeControlColorDescription') . '</td>';
+    print '<td>';
+    print '<input type="color" id="head" name="' . dol_strtolower($parameters['value'][$i]) . 'TimeControl" value="' . getDolGlobalString('DIGIQUALI_' . $parameters['value'][$i] . '_TIME_CONTROL_COLOR') . '" />';
+    print '<span class=" marginleftonly nowraponall opacitymedium">' . $langs->trans('Default') . '</span>: <strong>' . $parameters['defaultColors'][$i] . '</strong>';
+    print '</td>';
+    print '</tr>';
+}
+
+print '</table>';
+print '<div class="tabsAction"><input type="submit" class="butAction" name="save" value="' . $langs->trans('Save') . '"></div>';
+print '</form>';
 
 // Extrafields control management
 print load_fiche_titre($langs->trans('ExtrafieldsControlManagement'), '', '');

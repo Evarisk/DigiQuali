@@ -352,7 +352,16 @@ QuestionAnswered                               = Réponse/Question
 LastStatusDate                                 = Dernières dates de statut
 ValidationDate                                 = Date de validation
 ReOpenDate                                     = Date de réouverture
-DraftValidatedLocked                            = -- (Brouillon + validé + verrouillé) --
+DraftValidatedLocked                           = -- (Brouillon + validé + verrouillé) --
+ControlColorParam                              = Gestion des couleurs des contrôles
+PassedTimeControlColor                         = Contrôle dépassé
+UrgentTimeControlColor                         = Contrôle urgent
+MediumTimeControlColor                         = Contrôle bientôt requis
+PerfectTimeControlColor                        = Contrôle en ordre
+PassedTimeControlColorDescription              = Gère la couleur pour un contrôle ayant un temps déjà dépassé
+UrgentTimeControlColorDescription              = Gère la couleur pour un contrôle urgent
+MediumTimeControlColorDescription              = Gère la couleur pour un contrôle qui sera bientôt requis
+PerfectTimeControlColorDescription             = Gère la couleur pour un contrôle ayant une date éloignée
 
 
 
