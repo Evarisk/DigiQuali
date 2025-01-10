@@ -33,13 +33,15 @@
     <div class="modal-container wpeo-modal-event">
         <!-- Modal-Header-->
         <div class="modal-header">
-            <h2 class="modal-title"><?php echo $langs->transnoentities('LinkedMedia'); ?></h2>
-            <div class="modal-description"><?php print $question->label; ?></div>
+            <div class="modal-header-content">
+                <h2 class="modal-title"><?php echo $langs->transnoentities('LinkedMedia'); ?></h2>
+                <div class="modal-description"><?php print $question->label; ?></div>
+            </div>
             <div class="modal-close"><i class="fas fa-2x fa-times"></i></div>
         </div>
         <!-- Modal-Content-->
         <div class="modal-content" id="#modalContent">
-            <div class="linked-medias answer_photo_<?php echo $question->id ?>">
+            <div class="linked-medias linked-medias-list answer_photo_<?php echo $question->id ?>">
                 <?php if ($object->status == 0) : ?>
                     <input hidden multiple class="fast-upload<?php echo getDolGlobalInt('SATURNE_USE_FAST_UPLOAD_IMPROVEMENT') ? '-improvement' : ''; ?>" id="fast-upload-answer-photo<?php echo $question->id ?>" type="file" name="userfile[]" capture="environment" accept="image/*">
                     <input type="hidden" class="question-answer-photo" id="answer_photo_<?php echo $question->id ?>" name="answer_photo_<?php echo $question->id ?>" value=""/>

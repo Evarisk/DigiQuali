@@ -2,7 +2,7 @@
   background: none;
   box-shadow: none;
 
-  .question {
+  .question:not(.wpeo-button) {
     background: #fff;
     padding: 1.4em;
     border-radius: 12px;
@@ -233,6 +233,27 @@
         input:focus:not(.button):not(.buttonwebsite):not(.buttonreset):not(.select2-search__field):not(#top-bookmark-search-input):not(.search_component_input):not(.input-search-takepos).question-comment {
           border: none !important;
           box-shadow: none;
+        }
+      }
+
+      .linked-medias {
+        padding-top: 1em;
+      }
+      .button-linked-medias {
+        overflow: visible;
+
+        .button-badge {
+          position: absolute;
+          top: -11px;
+          left: -11px;
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          background: $color__red;
+          text-align: center;
+          line-height: 22px;
+          font-weight: 600;
+          font-size: 11px;
         }
       }
     }
