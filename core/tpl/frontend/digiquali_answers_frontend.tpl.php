@@ -68,6 +68,7 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                     <?php if ($question->authorize_answer_photo > 0) : ?>
                         <div class="question__footer-linked-medias">
                             <div class="wpeo-button button-square-50 modal-open">
+                                <span>1</span>
                                 <input type="hidden" class="modal-options" data-modal-to-open="modal-medias-answer-<?php echo $question->id; ?>" />
                                 <i class="fas fa-paperclip"></i><i class="fas fa-plus-circle button-add"></i>
                             </div>
