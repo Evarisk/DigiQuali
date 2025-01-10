@@ -65,13 +65,15 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                             <input class="question-textarea question-comment" name="comment<?php echo $question->id; ?>" placeholder="<?php echo $langs->transnoentities('WriteComment'); ?>" value="<?php echo $comment; ?>" <?php echo ($object->status == 2 ? 'disabled' : ''); ?>>
                         </label>
                     <?php endif; ?>
-                    <div class="question__footer-linked-medias">
-                        <div class="wpeo-button button-square-50 modal-open">
-                            <input type="hidden" class="modal-options" data-modal-to-open="modal-medias-answer" />
-                            <i class="fas fa-paperclip"></i><i class="fas fa-plus-circle button-add"></i>
+                    <?php if ($question->authorize_answer_photo > 0) : ?>
+                        <div class="question__footer-linked-medias">
+                            <div class="wpeo-button button-square-50 modal-open">
+                                <input type="hidden" class="modal-options" data-modal-to-open="modal-medias-answer-<?php echo $question->id; ?>" />
+                                <i class="fas fa-paperclip"></i><i class="fas fa-plus-circle button-add"></i>
+                            </div>
+                            <?php require __DIR__ . '/../medias_answer_modal.tpl.php'; ?>
                         </div>
-                        <?php require_once __DIR__ . '/../medias_answer_modal.tpl.php'; ?>
-                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
             <?php
