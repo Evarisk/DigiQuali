@@ -436,24 +436,38 @@ class ActionsDigiquali
 
         return 0; // or return 1 to replace standard code.
     }
-
-    /**
-     * Overloading the completeTabsHead function : replacing the parent's function with the one below
-     *
-     * @param  array $parameters Hook metadatas (context, etc...)
-     * @return int               0 < on error, 0 on success, 1 to replace standard code
-     */
-    public function completeTabsHead(array $parameters): int
+  
+    function completeTabsHead(array $parameters) : int
     {
-        if (preg_match('/projectcard|projecttaskscard|projecttasktime|projectOverview|projectticket|projetnote|controllist|surveylist|sessionlist/', $parameters['context'])) {
+        global $langs, $conf;
+
+        if (strpos($parameters['context'], 'main') !== false) {
             if (!empty($parameters['head'])) {
                 foreach ($parameters['head'] as $headKey => $headTab) {
-                    if (is_array($headTab) && isset($headTab[2]) && $headTab[2] == 'control' && strpos($headTab[1], 'badge') === false) {
-                        $controlCount = 0;
+                    if (is_array($headTab) && count($headTab) > 0) {
+                        if (isset($headTab[2]) && $headTab[2] === 'control' && is_string($headTab[1]) && strpos($headTab[1], $langs->trans('Controls')) !== false && strpos($headTab[1], 'badge') === false) {
 
+                            $matches = [];
+                            preg_match_all('/[?&](fromid|fromtype)=([^&]+)/', $headTab[0], $matches, PREG_SET_ORDER);
+                            foreach ($matches as $match) {
+                                if ($match[1] === 'fromid') {
+                                    $fk_source = $match[2];
+                                } elseif ($match[1] === 'fromtype') {
+                                    $sourcetype = $match[2];
+                                }
+                            }
+                            if (empty($fk_source) || empty($sourcetype)) {
+                                continue;
+                            }
 
+                            require_once __DIR__ . '/../class/control.class.php';
+                            $control = new Control($this->db);
 
-                        $parameters['head'][$headKey][1] .= '<span class="badge marginleftonlyshort">' . $controlCount . '</span>';
+                            $join = ' LEFT JOIN '. MAIN_DB_PREFIX . 'element_element as project ON (project.fk_source = ' . $fk_source . ' AND project.sourcetype = "' . $sourcetype . '" AND project.targettype = "'  . $control->table_element . '")';
+                            $num  = saturne_fetch_all_object_type('Control', '', '', 0, 0, ['customsql' => 't.rowid = project.fk_target'], '', '', '', '', $join, ['count' => true]);
+
+                            $parameters['head'][$headKey][1] .= '<span class="badge badge-pill badge-primary marginleftonlyshort">' . $num . '</span>';
+                        }
                     }
                 }
             }
