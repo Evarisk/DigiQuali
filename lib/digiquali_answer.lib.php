@@ -117,7 +117,8 @@ function get_answer_tpl(Question $question, CommonObject $object, $questionAnswe
     switch ($question->type) {
         case 'Text':
             $out .= '<div>';
-            $out .= '<textarea class="question-textarea question-answer" name="answer' . $question->id . '"' . $disabled . '>' . $questionAnswer . '</textarea>';
+            //@TODO Translate placeholder
+            $out .= '<textarea placeholder="Écrire votre réponse" class="question-textarea question-answer" name="answer' . $question->id . '"' . $disabled . '>' . $questionAnswer . '</textarea>';
             $out .= '</div>';
             break;
         case 'Percentage':
@@ -150,7 +151,7 @@ function get_answer_tpl(Question $question, CommonObject $object, $questionAnswe
             if (is_array($answerList) && !empty($answerList)) {
                 foreach($answerList as $answerLinked) {
                     $out .= '<input type="hidden" class="answer-color answer-color-' . $answerLinked->position . '" value="' . $answerLinked->color . '">';
-                    $out .= '<span class="answer' . ($question->type == 'MultipleChoices' ? ' multiple-answers square' : '') . (in_array($answerLinked->position, $questionAnswers) ? ' active' : '') . ($object->status > 0 ? ' disable' : '') . '" style="' . (in_array($answerLinked->position, $questionAnswers) ? 'background:' . $answerLinked->color . '; ' : '') . 'color:' . $answerLinked->color . ';" value="' . $answerLinked->position . '">';
+                    $out .= '<span class="answer' . (!empty($answerLinked->pictogram) ? ' answer-icon' : '' ) . ($question->type == 'MultipleChoices' ? ' multiple-answers square' : ' single-answer') . (in_array($answerLinked->position, $questionAnswers) ? ' active' : '') . ($object->status > 0 ? ' disable' : '') . '" style="' . (in_array($answerLinked->position, $questionAnswers) ? 'background:' . $answerLinked->color . '; ' : '') . 'color:' . $answerLinked->color . ';' . 'box-shadow: 0 0 0 3px ' . $answerLinked->color . ';" value="' . $answerLinked->position . '">';
                     if (!empty($answerLinked->pictogram)) {
                         $out .= $pictosArray[$answerLinked->pictogram]['picto_source'];
                     } else {

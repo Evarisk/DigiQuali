@@ -62,6 +62,7 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                     <?php if ($question->enter_comment > 0) : ?>
                         <label class="question__footer-comment">
                             <i class="far fa-comment-dots question-comment-icon"></i>
+                            <?php //@TODO Translate placeholder ?>
                             <input placeholder="<?php echo "Écrire un commentaire"; ?>" class="question-textarea question-comment" name="comment<?php echo $question->id; ?>" id="comment<?php echo $question->id; ?>" value="<?php echo $comment; ?>" <?php echo ($object->status == 2 ? 'disabled' : ''); ?>>
                         </label>
                     <?php endif; ?>

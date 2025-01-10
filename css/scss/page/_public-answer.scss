@@ -134,6 +134,54 @@
         }
       }
 
+      .select-answer {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1em;
+
+        .answer {
+          border: 4px solid #fff;
+          border-radius: 8px;
+          padding: 0.4em 0.8em;
+          font-size: 18px;
+          transition: all 0.2s ease-out;
+          display: flex;
+          align-items: end;
+
+          &.active {
+            color: #fff !important;
+          }
+          &:hover {
+            cursor: pointer;
+            transform: scale(1.1);
+          }
+        }
+        .answer.single-answer {
+          border-radius: 50px;
+        }
+        .answer.answer-icon {
+          width: 50px;
+          height: 50px;
+          padding: 0;
+          font-size: 20px;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+
+      .question-textarea {
+        margin-bottom: 0;
+
+        &::placeholder {
+          color: rgba($color__public-primary, 0.3);
+        }
+        &:focus::placeholder {
+          color: transparent;
+        }
+      }
+
     }
 
     .question__footer {
