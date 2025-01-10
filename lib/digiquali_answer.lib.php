@@ -102,23 +102,27 @@ function get_answer_pictos_array(): array
 }
 
 /**
- * Return answer pictos array
+ * Show answer from question object in HTML output format (textarea, range, select, ...)
  *
- * @param  Question     $questionType Question type
- * @return CommonObject $object
+ * @param  Question     $question       Question object
+ * @param  CommonObject $object         Object (Control, Survey, ...)
+ * @param  string       $questionAnswer Answer of the question (ControlLine, SurveyLine, ...)
+ * @return string       $out            HTML output
  * @throws Exception
  */
-function get_answer_tpl(Question $question, CommonObject $object, $questionAnswer, $answerLinked, $answer = null): string
+function show_answer_from_question(Question $question, CommonObject $object, string $questionAnswer): string
 {
-    $out = '';
+    global $db, $langs;
 
+    $answer = new Answer($db);
+
+    $out      = '';
     $disabled = ($object->status > $object::STATUS_DRAFT ? ' disabled' : '');
 
     switch ($question->type) {
         case 'Text':
             $out .= '<div>';
-            //@TODO Translate placeholder
-            $out .= '<textarea placeholder="Écrire votre réponse" class="question-textarea question-answer" name="answer' . $question->id . '"' . $disabled . '>' . $questionAnswer . '</textarea>';
+            $out .= '<textarea class="question-textarea question-answer" name="answer' . $question->id . '" placeholder="' . $langs->transnoentities('WriteAnswer') . '"' . $disabled . '>' . $questionAnswer . '</textarea>';
             $out .= '</div>';
             break;
         case 'Percentage':
@@ -130,15 +134,15 @@ function get_answer_tpl(Question $question, CommonObject $object, $questionAnswe
             break;
         case 'Range':
             $out .= '<div class="question-number">';
-            $out .= '<input type="number" placeholder="0" class="question-answer" name="answer' . $question->id . '" value="' . $questionAnswer . '"' . $disabled . '>';
+            $out .= '<input type="number" class="question-answer" name="answer' . $question->id . '" placeholder="0" value="' . $questionAnswer . '"' . $disabled . '>';
             $out .= '</div>';
             break;
         case 'UniqueChoice':
         case 'OkKo':
         case 'OkKoToFixNonApplicable':
         case 'MultipleChoices':
-            $answerList  = $answer->fetchAll('ASC', 'position', 0, 0, ['customsql' => 't.status = ' . Answer::STATUS_VALIDATED . ' AND t.fk_question = ' . $question->id]);
-            $pictosArray = get_answer_pictos_array();
+            $answers = $answer->fetchAll('ASC', 'position', 0, 0, ['customsql' => 't.status = ' . Answer::STATUS_VALIDATED . ' AND t.fk_question = ' . $question->id]);
+            $pictos  = get_answer_pictos_array();
 
             if (strpos($questionAnswer, ',') !== false) {
                 $questionAnswers = explode(',', $questionAnswer);
@@ -148,15 +152,11 @@ function get_answer_tpl(Question $question, CommonObject $object, $questionAnswe
 
             $out .= '<div class="table-cell select-answer answer-cell">';
             $out .= '<input type="hidden" class="question-answer" name="answer' . $question->id . '" value="0">';
-            if (is_array($answerList) && !empty($answerList)) {
-                foreach($answerList as $answerLinked) {
-                    $out .= '<input type="hidden" class="answer-color answer-color-' . $answerLinked->position . '" value="' . $answerLinked->color . '">';
-                    $out .= '<span class="answer' . (!empty($answerLinked->pictogram) ? ' answer-icon' : '' ) . ($question->type == 'MultipleChoices' ? ' multiple-answers square' : ' single-answer') . (in_array($answerLinked->position, $questionAnswers) ? ' active' : '') . ($object->status > 0 ? ' disable' : '') . '" style="' . (in_array($answerLinked->position, $questionAnswers) ? 'background:' . $answerLinked->color . '; ' : '') . 'color:' . $answerLinked->color . ';' . 'box-shadow: 0 0 0 3px ' . $answerLinked->color . ';" value="' . $answerLinked->position . '">';
-                    if (!empty($answerLinked->pictogram)) {
-                        $out .= $pictosArray[$answerLinked->pictogram]['picto_source'];
-                    } else {
-                        $out .= $answerLinked->value;
-                    }
+            if (is_array($answers) && !empty($answers)) {
+                foreach($answers as $answer) {
+                    $out .= '<input type="hidden" class="answer-color answer-color-' . $answer->position . '" value="' . $answer->color . '">';
+                    $out .= '<span class="answer' . (!empty($answer->pictogram) ? ' answer-icon' : '' ) . ($question->type == 'MultipleChoices' ? ' multiple-answers square' : ' single-answer') . (in_array($answer->position, $questionAnswers) ? ' active' : '') . ($object->status > 0 ? ' disable' : '') . '" style="' . (in_array($answer->position, $questionAnswers) ? 'background:' . $answer->color . '; ' : '') . 'color:' . $answer->color . ';' . 'box-shadow: 0 0 0 3px ' . $answer->color . ';" value="' . $answer->position . '">';
+                    $out .= !empty($answer->pictogram) ? $pictos[$answer->pictogram]['picto_source'] : $answer->value;
                     $out .= '</span>';
                 }
             }

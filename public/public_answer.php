@@ -144,12 +144,11 @@ if (empty($resHook)) {
 
 $title   = $langs->trans('PublicAnswer');
 $moreJS  = ['/saturne/js/includes/signature-pad.min.js'];
-$moreCSS = [];
 
 $conf->dol_hide_topmenu  = 1;
 $conf->dol_hide_leftmenu = 1;
 
-saturne_header(1,'', $title, '', '', 0, 0, $moreJS, $moreCSS, '', 'page-public-card page-signature page-public-answer');
+saturne_header(1,'', $title, '', '', 0, 0, $moreJS, [], '', 'page-public-card page-signature page-public-answer');
 
 print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '?action=save&id=' . $object->id . '&track_id=' . $trackID . '&object_type=' . $object->element . '&document_type=' . $documentType . '&entity=' . $conf->entity . '" id="saveObject" enctype="multipart/form-data">';
 print '<input type="hidden" name="token" value="' . newToken() . '">';

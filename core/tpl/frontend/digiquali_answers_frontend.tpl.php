@@ -56,14 +56,13 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                     </div>
                 </div>
                 <div class="question__content">
-                    <?php print get_answer_tpl($question, $object, $questionAnswer, $answerLinked, $answer); ?>
+                    <?php print show_answer_from_question($question, $object, $questionAnswer); ?>
                 </div>
                 <div class="question__footer">
                     <?php if ($question->enter_comment > 0) : ?>
                         <label class="question__footer-comment">
                             <i class="far fa-comment-dots question-comment-icon"></i>
-                            <?php //@TODO Translate placeholder ?>
-                            <input placeholder="<?php echo "Écrire un commentaire"; ?>" class="question-textarea question-comment" name="comment<?php echo $question->id; ?>" id="comment<?php echo $question->id; ?>" value="<?php echo $comment; ?>" <?php echo ($object->status == 2 ? 'disabled' : ''); ?>>
+                            <input class="question-textarea question-comment" name="comment<?php echo $question->id; ?>" placeholder="<?php echo $langs->transnoentities('WriteComment'); ?>" value="<?php echo $comment; ?>" <?php echo ($object->status == 2 ? 'disabled' : ''); ?>>
                         </label>
                     <?php endif; ?>
                     <div class="question__footer-linked-medias">
