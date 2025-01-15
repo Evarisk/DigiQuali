@@ -86,6 +86,32 @@ if ($action == 'update_control_reminder') {
     exit;
 }
 
+if ($action == 'update_next_control_date_color') {
+    $errors = [];
+    $error  = 0;
+
+    $nextControlDateFrequencies = [0, 30, 60, 90];
+    foreach ($nextControlDateFrequencies as $nextControlDateFrequency) {
+        $nextControlDateFrequencyValue = GETPOST('next_control_date_color_' . $nextControlDateFrequency);
+        $confName                      = 'DIGIQUALI_NEXT_CONTROL_DATE_COLOR_' . $nextControlDateFrequency;
+        if ($nextControlDateFrequencyValue != getDolGlobalString($confName)) {
+            $result = dolibarr_set_const($db, $confName, $nextControlDateFrequencyValue, 'chaine', 0, '', $conf->entity);
+            if ($result < 0) {
+                $error++;
+                $errors[] = $db->lasterror();
+            }
+        }
+    }
+
+    if ($error > 0) {
+        setEventMessages('ErrorUpdateConfig', $errors, 'errors');
+    } else {
+        setEventMessages('SavedConfig', []);
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
+}
+
 /*
  * View
  */
@@ -170,6 +196,33 @@ print '</table>';
 print '<div class="tabsAction"><input type="submit" class="butAction" name="save" value="' . $langs->trans('Save') . '"></div>';
 print '</form>';
 print '</table>';
+
+// Manage next control date colors
+print load_fiche_titre($langs->transnoentities('NextControlDateColorManagement'), '', '');
+
+print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '" name="color_form">';
+print '<input type="hidden" name="token" value="' . newToken() . '">';
+print '<input type="hidden" name="action" value="update_next_control_date_color">';
+print '<table class="noborder centpercent">';
+
+print '<tr class="liste_titre">';
+print '<td>' . $langs->transnoentities('Parameters') . '</td>';
+print '<td>' . $langs->transnoentities('Description') . '</td>';
+print '<td>' . $langs->transnoentities('Value') . '</td>';
+print '</tr>';
+
+$nextControlDateFrequencies = [0 => '#E05353', 30 => '#FF6900', 60 => '#E9AD4F', 90 => '#47E58E'];
+foreach ($nextControlDateFrequencies as $nextControlDateFrequency => $nextControlDateFrequencyDefaultColor) {
+    print '<tr class="oddeven"><td>' . $langs->transnoentities('NextControlDateColor' . $nextControlDateFrequency) . '</td><td>';
+    print $langs->transnoentities('NextControlDateColor' . $nextControlDateFrequency . 'Description') . '</td><td>';
+    print '<input type="color" name="next_control_date_color_' . $nextControlDateFrequency . '" value="' . getDolGlobalString('DIGIQUALI_NEXT_CONTROL_DATE_COLOR_' . $nextControlDateFrequency, $nextControlDateFrequencyDefaultColor) . '" />';
+    print '<span class="marginleftonly opacitymedium">' . $langs->trans('Default') . '</span>: <strong>' . $nextControlDateFrequencyDefaultColor . '</strong>';
+    print '</td></tr>';
+}
+
+print '</table>';
+print '<div class="tabsAction"><input type="submit" class="butAction" name="save" value="' . $langs->trans('Save') . '"></div>';
+print '</form>';
 
 // Extrafields control management
 print load_fiche_titre($langs->trans('ExtrafieldsControlManagement'), '', '');

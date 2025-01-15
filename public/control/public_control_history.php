@@ -224,9 +224,9 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
             print '</td>';
             if (dol_strlen($objectControl->next_control_date) > 0) {
                 print '<td class="tdoverflowmax200 center">';
-                $nextControl = floor(($objectControl->next_control_date - dol_now())/(3600 * 24));
-                $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
-                print '<div class="wpeo-button center button-' . $nextControlColor . '">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
+                $nextControl          = floor(($objectControl->next_control_date - dol_now('tzuser'))/(3600 * 24));
+                $nextControlDateColor = $objectControl->getNextControlDateColor();
+                print '<div class="wpeo-button center" style="background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor . '">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
                 print '</td><td class="tdoverflowmax200 center">';
                 print dol_print_date($objectControl->next_control_date);
                 print '</td>';
@@ -263,11 +263,11 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
             print '<div class="wpeo-button button-' . $verdictColor . ' button-square-60">' . $objectControl->fields['verdict']['arrayofkeyval'][(!empty($objectControl->verdict)) ?: 3] . '</div><br>';
             if (dol_strlen($objectControl->next_control_date) > 0) {
                 print '<hr><div style="font-size: 8px; font-weight: bold">' . $langs->trans('NextControl') . '<br>';
-                $nextControl = floor(($objectControl->next_control_date - dol_now())/(3600 * 24));
-                $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
+                $nextControl          = floor(($objectControl->next_control_date - dol_now('tzuser'))/(3600 * 24));
+                $nextControlDateColor = $objectControl->getNextControlDateColor();
+                print '<div class="wpeo-button" style="background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor . ' padding: 0; font-size: 10px;">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
                 print dol_print_date($objectControl->next_control_date, 'day') . '<br>' . $langs->trans('Remain') . '<br>';
                 print '</div>';
-                print '<div class="wpeo-button button-' . $nextControlColor . '" style="padding: 0; font-size: 10px;">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
             }
             print '</td></tr>';
         }

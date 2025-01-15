@@ -447,9 +447,9 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			}
 			elseif ($key == 'days_remaining_before_next_control') {
                 if (dol_strlen($object->next_control_date) > 0) {
-                    $nextControl = floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24));
-				    $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
-				    print '<div class="wpeo-button button-'. $nextControlColor .'">' . $nextControl . '</div>';
+                    $nextControl          = floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24));
+                    $nextControlDateColor = $object->getNextControlDateColor();
+                    print '<div class="wpeo-button" style="background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor . ' ">' . $nextControl . '</div>';
                 }
 			}
 			elseif (in_array($key, $revertedElementFields)) {
