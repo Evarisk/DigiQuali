@@ -78,7 +78,13 @@ foreach($elementElementFields as $genericName => $elementElementName) {
 foreach ($search as $key => $val) {
 	if (!array_key_exists($key, $elementElementFields)) {
 		if (array_key_exists($key, $object->fields)) {
-			if ($key == 'status' && $search[$key] == -1) {
+            if ($key == 'status' && $val == 'specialCase') {
+                $newStatus = [Control::STATUS_DRAFT, Control::STATUS_VALIDATED, Control::STATUS_LOCKED];
+                if (!empty($newStatus)) {
+                    $sql .= natural_search($key, implode(',', $newStatus), 2);
+                }
+                continue;
+            } elseif ($key == 'status' && $search[$key] == -1) {
 				continue;
 			}
 			if ($key == 'verdict' && $search[$key] == 0) {
@@ -86,11 +92,11 @@ foreach ($search as $key => $val) {
 			}
 			$mode_search = (($object->isInt($object->fields[$key]) || $object->isFloat($object->fields[$key])) ? 1 : 0);
 			if ((strpos($object->fields[$key]['type'], 'integer:') === 0) || (strpos($object->fields[$key]['type'], 'sellist:') === 0) || !empty($object->fields[$key]['arrayofkeyval'])) {
-				if ($search[$key] == '-1' || ($search[$key] === '0' && (empty($object->fields[$key]['arrayofkeyval']) || !array_key_exists('0', $object->fields[$key]['arrayofkeyval'])))) {
-					$search[$key] = '';
-				}
-				$mode_search = 2;
-			}
+                if ($search[$key] == '-1' || ($search[$key] === '0' && (empty($object->fields[$key]['arrayofkeyval']) || !array_key_exists('0', $object->fields[$key]['arrayofkeyval'])))) {
+                    $search[$key] = '';
+                }
+                $mode_search = 2;
+            }
 			if ($key == 'verdict' && $search[$key] == 3) {
 				$sql .= ' AND (verdict IS NULL)';
 			}
@@ -271,6 +277,8 @@ if (is_array($signatoriesInDictionary) && !empty($signatoriesInDictionary)) {
     }
 }
 
+$arrayfields['QuestionAnswered']  = ['label' => 'QuestionAnswered', 'position' => 66, 'css' => 'center minwidth200 maxwidth250 widthcentpercentminusxx'];
+$arrayfields['LastStatusDate']    = ['label' => 'LastStatusDate', 'position' => 67, 'css' => 'center minwidth200 maxwidth300 widthcentpercentminusxx'];
 $arrayfields['SocietyAttendants'] = ['label' => 'SocietyAttendants', 'checked' => $source == 'pwa' ? 0 : 1, 'position' => 115, 'css' => 'minwidth300 maxwidth500 widthcentpercentminusxx'];
 
 $selectedfields = $form->multiSelectArrayWithCheckbox('selectedfields', $arrayfields, $varpage); // This also change content of $arrayfields
@@ -287,6 +295,8 @@ if (is_array($signatoriesInDictionary) && !empty($signatoriesInDictionary)) {
     }
 }
 
+$object->fields['Custom']['QuestionAnswered']  = $arrayfields['QuestionAnswered'];
+$object->fields['Custom']['LastStatusDate']    = $arrayfields['LastStatusDate'];
 $object->fields['Custom']['SocietyAttendants'] = $arrayfields['SocietyAttendants'];
 
 print '<div class="div-table-responsive">'; // You can use div-table-responsive-no-min if you dont need reserved height for your table
@@ -306,7 +316,7 @@ foreach ($object->fields as $key => $val)
 	if (!empty($arrayfields['t.'.$key]['checked']))
 	{
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
-		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
+        if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
 			print $form->selectarray('search_' . $key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'minwidth200', 1);
 		}
 		elseif ($key == 'fk_sheet') {
@@ -321,13 +331,7 @@ foreach ($object->fields as $key => $val)
 	} elseif ($key == 'Custom') {
         foreach ($val as $resource) {
             if ($resource['checked']) {
-                if ($resource['label'] == 'SocietyAttendants') {
-                    print '<td class="liste_titre ' . $resource['css'] . '">';
-                    //print $form->select_company($searchSocietyAttendants, 'search_society_attendants', '', 1);
-                    print '</td>';
-                } else {
-                    print '<td class="liste_titre ' . $resource['css'] . '"></td>';
-                }
+                print '<td class="liste_titre ' . $resource['css'] . '"></td>';
             }
         }
     }
@@ -435,17 +439,17 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			elseif ($key == 'ref') print $object->getNomUrl(1);
 			elseif ($key == 'fk_sheet') {
 				$sheet->fetch($object->fk_sheet);
-				print $sheet->getNomUrl(1);
-			}
+                print $sheet->getNomUrl(1, '', 0, 'maxwidth200onsmartphone maxwidth300', -1, 1);
+            }
 			elseif ($key == 'verdict') {
                 $verdictColor = $object->$key == 1 ? 'green' : ($object->$key == 2 ? 'red' : 'grey');
                 print dol_strlen($object->$key) > 0 ? '<div class="wpeo-button button-' . $verdictColor . '">' . $object->fields['verdict']['arrayofkeyval'][(!empty($object->$key)) ? $object->$key : 3] . '</div>' : "N/A";
 			}
 			elseif ($key == 'days_remaining_before_next_control') {
                 if (dol_strlen($object->next_control_date) > 0) {
-                    $nextControl = floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24));
-				    $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
-				    print '<div class="wpeo-button button-'. $nextControlColor .'">' . $nextControl . '</div>';
+                    $nextControl          = floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24));
+                    $nextControlDateColor = $object->getNextControlDateColor();
+                    print '<div class="wpeo-button" style="background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor . ' ">' . $nextControl . '</div>';
                 }
 			}
 			elseif (in_array($key, $revertedElementFields)) {
@@ -507,6 +511,44 @@ while ($i < ($limit ? min($num, $limit) : $num))
                                 $alreadyAddedThirdParties[] = $thirdparty->id;
                             }
                         }
+                        print '</td>';
+                    } else if ($resource['label'] == 'QuestionAnswered') {
+                        $object->fetchLines();
+
+                        $questionCounter = 0;
+                        $sheet->fetch($object->fk_sheet);
+                        $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
+                        $questionIds = $sheet->linkedObjectsIds['digiquali_question'];
+                        if (!empty($questionIds)) {
+                            $questionCounter = count($questionIds);
+                        }
+
+                        $answerCounter = 0;
+                        if (is_array($object->lines) && !empty($object->lines)) {
+                            foreach($object->lines as $objectLine) {
+                                if (dol_strlen($objectLine->answer) > 0) {
+                                    $answerCounter++;
+                                }
+                            }
+                        }
+                        print '<td class="' . $resource['css'] . '">';
+                        print ' ' . $answerCounter . '/' . $questionCounter;
+                        print ($questionCounter == $answerCounter && $object->status == Control::STATUS_DRAFT ? img_picto($langs->transnoentities('ObjectReadyToValidate', dol_strtolower($langs->transnoentities('Control'))), 'warning') : '');
+                        print '</td>';
+                    } else if ($resource['label'] == 'LastStatusDate') {
+                        require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
+
+                        $actioncomm = new ActionComm($db);
+
+                        $lastValidateAction = $actioncomm->getActions(0, $object->id, 'control@digiquali', ' AND a.code = "AC_CONTROL_VALIDATE"', 'a.datep', 'DESC', 1);
+                        $lastReOpenAction   = $actioncomm->getActions(0, $object->id, 'control@digiquali', ' AND a.code = "AC_CONTROL_UNVALIDATE"', 'a.datep', 'DESC', 1);
+
+                        $lastValidateDate   = (is_array($lastValidateAction) && !empty($lastValidateAction) ? $lastValidateAction[0]->datec : 0);
+                        $lastReOpenDate     = (is_array($lastReOpenAction) && !empty($lastReOpenAction) ? $lastReOpenAction[0]->datec : '');
+
+                        print '<td class="' . $resource['css'] . '">';
+                        print $lastValidateDate > 0 ? $langs->trans('ValidationDate') . ': <br>' . dol_print_date($lastValidateDate, 'dayhour') . '<br>' : '';
+                        print $lastReOpenDate > 0 ? $langs->trans('ReOpenDate') . ': <br>' . dol_print_date($lastReOpenDate, 'dayhour') . '<br>' : '';
                         print '</td>';
                     } else {
                         print '<td class="' . $resource['css'] . '">';

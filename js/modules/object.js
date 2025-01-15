@@ -205,6 +205,7 @@ window.digiquali.object.saveAnswer = function(questionId, answer, comment) {
     contentType: false,
     success: function(resp) {
       $('.fiche').replaceWith($(resp).find('.fiche'));
+      $('#dialog-confirm-actionButtonValidate>.confirmmessage').replaceWith($(resp).find('#dialog-confirm-actionButtonValidate>.confirmmessage'));
     },
     error: function() {}
   });

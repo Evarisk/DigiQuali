@@ -80,9 +80,11 @@ if ($action == 'data_migration_export_global' && $permissionToRead) {
 				$sheetExportArray['rowid']               = $sheetSingle->id;
 				$sheetExportArray['ref']                 = $sheetSingle->ref;
 				$sheetExportArray['status']              = $sheetSingle->status;
+                $sheetExportArray['type']                = $sheetSingle->type;
 				$sheetExportArray['label']               = $sheetSingle->label;
 				$sheetExportArray['description']         = $sheetSingle->description;
 				$sheetExportArray['element_linked']      = $sheetSingle->element_linked;
+                $sheetExportArray['success_rate']        = $sheetSingle->success_rate;
 				$sheetExportArray['mandatory_questions'] = $sheetSingle->mandatory_questions;
 
 				$digiqualiExportArray['sheets'][$sheetSingle->id] = $sheetExportArray;
@@ -216,7 +218,7 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
 					$question->show_photo             = $questionSingle['show_photo'];
 					$question->authorize_answer_photo = $questionSingle['authorize_answer_photo'];
 					$question->enter_comment          = $questionSingle['enter_comment'];
-					$question->status                 = $questionSingle['status'];
+					$question->status                 = Question::STATUS_VALIDATED;
 					$question->import_key             = $importKey;
 
 					$questionId = $question->create($user);
@@ -250,11 +252,13 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
             if (is_array($digiqualiExportArray['sheets']) && !empty($digiqualiExportArray['sheets'])) {
                 foreach ($digiqualiExportArray['sheets'] as $sheetSingle) {
 					$sheet->ref_ext             = $sheetSingle['ref'];
+                    $sheet->type                = $sheetSingle['type'];
                     $sheet->label               = $sheetSingle['label'];
                     $sheet->description         = $sheetSingle['description'];
 					$sheet->element_linked      = $sheetSingle['element_linked'];
+                    $sheet->success_rate        = $sheetSingle['success_rate'];
 					$sheet->mandatory_questions = $sheetSingle['mandatory_questions'];
-					$sheet->status              = $sheetSingle['status'];
+					$sheet->status              = Sheet::STATUS_VALIDATED;
 					$sheet->import_key          = $importKey;
 
 					$sheetMandatoryQuestions = json_decode($sheetSingle['mandatory_questions']);
@@ -272,7 +276,25 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
                     $sheetId = $sheet->create($user);
 
                     if ($sheetId > 0) {
-						$idCorrespondanceArray['sheet'][$sheetSingle['rowid']] = $sheetId;
+                        $idCorrespondanceArray['sheet'][$sheetSingle['rowid']] = $sheetId;
+                        if (is_array($digiqualiExportArray['element_element']) && !empty($digiqualiExportArray['element_element'])) {
+                            foreach ($digiqualiExportArray['element_element'] as $previousSheetId => $previousQuestionIdArray) {
+                                if (is_array($previousQuestionIdArray) && !empty($previousQuestionIdArray)) {
+                                    foreach($previousQuestionIdArray as $previousQuestionId) {
+                                        $newSheetId    = $idCorrespondanceArray['sheet'][$previousSheetId];
+                                        $newQuestionId = $idCorrespondanceArray['question'][$previousQuestionId];
+                                        $question->fetch($newQuestionId);
+                                        $question->add_object_linked('digiquali_sheet', $newSheetId);
+
+                                        $sheet->fetch($newSheetId);
+                                        $sheet->fetchObjectLinked($newSheetId, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position', 0);
+                                        $questionIds   = $sheet->linkedObjectsIds['digiquali_question'];
+                                        $questionIds[] = $question->id;
+                                        $sheet->updateQuestionsPosition($questionIds);
+                                    }
+                                }
+                            }
+                        }
                     } else {
                         $error++;
                     }
@@ -280,26 +302,6 @@ if (GETPOST('dataMigrationImportZip', 'alpha') && $permissionToWrite) {
 				$sheetCount = count($digiqualiExportArray['sheets']);
 				setEventMessage($langs->transnoentities("ImportFinishWith", $langs->trans('Sheets'), $error, $sheetCount));
             }
-
-			if (is_array($digiqualiExportArray['element_element']) && !empty($digiqualiExportArray['element_element'])) {
-				foreach ($digiqualiExportArray['element_element'] as $previousSheetId => $previousQuestionIdArray) {
-					if (is_array($previousQuestionIdArray) && !empty($previousQuestionIdArray)) {
-						foreach($previousQuestionIdArray as $previousQuestionId) {
-							$newSheetId    = $idCorrespondanceArray['sheet'][$previousSheetId];
-							$newQuestionId = $idCorrespondanceArray['question'][$previousQuestionId];
-
-							$question->fetch($newQuestionId);
-							$question->add_object_linked('digiquali_sheet', $newSheetId);
-
-							$sheet->fetch($newSheetId);
-                            $questionsLinked = $sheet->fetchObjectLinked($newSheetId, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position', 0);
-							$questionIds     = $sheet->linkedObjectsIds['digiquali_question'];
-
-							$sheet->updateQuestionsPosition($questionIds);
-						}
-					}
-				}
-			}
 
 			$questionCount = count($digiqualiExportArray['questions']);
 			setEventMessage($langs->transnoentities("ImportFinishWith", $langs->trans('Questions'), $error, $questionCount));
@@ -378,7 +380,7 @@ print '</td>';
 
 print '<td class="center">';
 print '<input class="flat" type="file" name="dataMigrationImportZipFile[]"/>';
-print '<input type="submit" class="button reposition data-migration-submit" name="dataMigrationImportZip" value="' . $langs->trans("Upload") . '">';
+print '<input type="submit" class="wpeo-button button reposition data-migration-submit" name="dataMigrationImportZip" value="' . $langs->trans("Upload") . '">';
 print '</td>';
 print '</tr>';
 

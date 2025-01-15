@@ -142,8 +142,8 @@ if (empty($resHook)) {
  * View
  */
 
-$title   = $langs->trans('PublicAnswer');
-$moreJS  = ['/saturne/js/includes/signature-pad.min.js'];
+$title  = $langs->trans('PublicAnswer');
+$moreJS = ['/saturne/js/includes/signature-pad.min.js', '/saturne/js/includes/hammer.min.js'];
 
 $conf->dol_hide_topmenu  = 1;
 $conf->dol_hide_leftmenu = 1;

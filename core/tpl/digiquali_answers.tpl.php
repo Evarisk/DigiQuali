@@ -80,8 +80,10 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                         <!-- Photo OK KO -->
                         <div class="table-cell table-450 cell-photo-check wpeo-table">
                             <?php
-                                print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $question->ref . '/photo_ok', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, 'question/' . $question->ref . '/photo_ok', $question, 'photo_ok', 0, 0, 0,1, 'photo-ok', 0);
-                                print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $question->ref . '/photo_ko', 'small', '', 0, 0, 0, 200, 200, 0, 0, 0, 'question/' . $question->ref . '/photo_ko', $question, 'photo_ko', 0, 0, 0,1, 'photo-ko', 0);
+                            if (getDolGlobalInt('DIGIQUALI_' . dol_strtoupper($object->element) . '_DISPLAY_MEDIAS')) :
+                                print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $question->ref . '/photo_ok', 'small', '', 0, 0, 0, 200, 200, 0, 0, 1, 'question/' . $question->ref . '/photo_ok', $question, 'photo_ok', 0, 0, 0,1, 'photo-ok', 0);
+                                print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $question->ref . '/photo_ko', 'small', '', 0, 0, 0, 200, 200, 0, 0, 1, 'question/' . $question->ref . '/photo_ko', $question, 'photo_ko', 0, 0, 0,1, 'photo-ko', 0);
+                            endif;
                             ?>
                         </div>
                     <?php endif; ?>
@@ -104,7 +106,7 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                                     <i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
                                 </div>
                             <?php endif; ?>
-                            <?php print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/' . $object->element . '/' . $object->ref . '/answer_photo/' . $question->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, $object->element . '/' . $object->ref . '/answer_photo/' . $question->ref, $question, '', 0, $object->status == 0, 1); ?>
+                            <?php print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/' . $object->element . '/' . $object->ref . '/answer_photo/' . $question->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 1, $object->element . '/' . $object->ref . '/answer_photo/' . $question->ref, $question, '', 0, $object->status == 0, 1); ?>
                         </div>
                     <?php endif; ?>
                     <?php $pictosArray = get_answer_pictos_array(); ?>
