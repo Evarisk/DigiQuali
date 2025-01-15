@@ -189,10 +189,10 @@
 
     .question__footer {
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
       flex-wrap: nowrap;
       gap: 0.5em;
-      align-items: center;
+      align-items: left;
 
       .question__footer-comment {
         width: 100%;
