@@ -14,4 +14,7 @@
   border: 5px solid #0d8aff;
 }
 
-
+// Pico fix
+:where(:root) {
+  background: none;
+}

@@ -468,3 +468,5 @@ Remain                   = reste
 InProgressAndLocked      = -- (En cours + verrouillé) --
 NoObservations           = Pas d'observations
 BasedOnModel             = Basé sur le modèle
+WriteComment             = Écricre un commentaire
+WriteAnswer              = Écricre une réponse
