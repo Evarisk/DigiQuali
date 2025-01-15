@@ -40,7 +40,7 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
         }
         if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER or empty($questionAnswer)) {
             ?>
-            <div class="question table-id-<?php echo $question->id ?> <?php echo ($objectLine->status == Answer::STATUS_VALIDATED ? ' question-complete' : ''); ?>" data-autoSave="<?php echo getDolGlobalInt('DIGIQUALI_' . dol_strtoupper($object->element) . 'DET_AUTO_SAVE_ACTION'); ?>">
+            <div class="question table-id-<?php echo $question->id ?> <?php echo ($objectLine->status == Answer::STATUS_VALIDATED && !empty($questionAnswer) ? ' question-complete' : ''); ?>" data-autoSave="<?php echo getDolGlobalInt('DIGIQUALI_' . dol_strtoupper($object->element) . 'DET_AUTO_SAVE_ACTION'); ?>">
                 <div class="question__header">
                     <div class="question__header-content">
                         <div class="question-title"><?php print $question->label; ?></div>
