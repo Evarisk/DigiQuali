@@ -86,29 +86,30 @@ if ($action == 'update_control_reminder') {
     exit;
 }
 
-if ($action == 'update_control_color') {
-    $digiqualiPassedTimeControlColor  = GETPOST('passedTimeControl');
-    $digiqualiUrgentTimeControlColor  = GETPOST('urgentTimeControl');
-    $digiqualiMediumTimeControlColor  = GETPOST('mediumTimeControl');
-    $digiqualiPerfectTimeControlColor = GETPOST('perfectTimeControl');
+if ($action == 'update_next_control_date_color') {
+    $errors = [];
+    $error  = 0;
 
-    $results = [
-        0 => dolibarr_set_const($db, 'DIGIQUALI_PASSED_TIME_CONTROL_COLOR', $digiqualiPassedTimeControlColor, 'chaine', 0, '', $conf->entity),
-        1 => dolibarr_set_const($db, 'DIGIQUALI_URGENT_TIME_CONTROL_COLOR', $digiqualiUrgentTimeControlColor, 'chaine', 0, '', $conf->entity),
-        2 => dolibarr_set_const($db, 'DIGIQUALI_MEDIUM_TIME_CONTROL_COLOR', $digiqualiMediumTimeControlColor, 'chaine', 0, '', $conf->entity),
-        3 => dolibarr_set_const($db, 'DIGIQUALI_PERFECT_TIME_CONTROL_COLOR', $digiqualiPerfectTimeControlColor, 'chaine', 0, '', $conf->entity)
-    ];
-
-    foreach ($results as $result) {
-        if ($result == -1) {
-            setEventMessage('Error', null, 'errors');
-            header('Location: ' . $_SERVER['PHP_SELF']);
-            exit;
+    $nextControlDateFrequencies = [0, 30, 60, 90];
+    foreach ($nextControlDateFrequencies as $nextControlDateFrequency) {
+        $nextControlDateFrequencyValue = GETPOST('next_control_date_color_' . $nextControlDateFrequency);
+        $confName                      = 'DIGIQUALI_NEXT_CONTROL_DATE_COLOR_' . $nextControlDateFrequency;
+        if ($nextControlDateFrequencyValue != getDolGlobalString($confName)) {
+            $result = dolibarr_set_const($db, $confName, $nextControlDateFrequencyValue, 'chaine', 0, '', $conf->entity);
+            if ($result < 0) {
+                $error++;
+                $errors[] = $db->lasterror();
+            }
         }
     }
-    setEventMessage('SavedConfig');
-    header('Location: ' . $_SERVER['PHP_SELF']);
-    exit;
+
+    if ($error > 0) {
+        setEventMessages('ErrorUpdateConfig', $errors, 'errors');
+    } else {
+        setEventMessages('SavedConfig', []);
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
 }
 
 /*
@@ -196,27 +197,12 @@ print '<div class="tabsAction"><input type="submit" class="butAction" name="save
 print '</form>';
 print '</table>';
 
-// Manage control colors
-print load_fiche_titre($langs->transnoentities('ControlColorParam'), '', '');
-
-$parameters = [
-    'value' => [
-        0 => 'PASSED',
-        1 => 'URGENT',
-        2 => 'MEDIUM',
-        3 => 'PERFECT'
-    ],
-    'defaultColors' => [
-        0 => '#EB4A40',
-        1 => '#ED8532',
-        2 => '#F4BA40',
-        3 => '#6EEA97'
-    ]
-];
+// Manage next control date colors
+print load_fiche_titre($langs->transnoentities('NextControlDateColorManagement'), '', '');
 
 print '<form method="POST" action="' . $_SERVER['PHP_SELF'] . '" name="color_form">';
 print '<input type="hidden" name="token" value="' . newToken() . '">';
-print '<input type="hidden" name="action" value="update_control_color">';
+print '<input type="hidden" name="action" value="update_next_control_date_color">';
 print '<table class="noborder centpercent">';
 
 print '<tr class="liste_titre">';
@@ -225,15 +211,13 @@ print '<td>' . $langs->transnoentities('Description') . '</td>';
 print '<td>' . $langs->transnoentities('Value') . '</td>';
 print '</tr>';
 
-for ($i = 0; $i < count($parameters['value']); $i++) {
-    print '<tr class="oddeven">';
-    print '<td>' . $langs->trans(ucfirst(dol_strtolower($parameters['value'][$i])) . 'TimeControlColor') . '</td>';
-    print '<td>' . $langs->trans(ucfirst(dol_strtolower($parameters['value'][$i])) . 'TimeControlColorDescription') . '</td>';
-    print '<td>';
-    print '<input type="color" id="head" name="' . dol_strtolower($parameters['value'][$i]) . 'TimeControl" value="' . getDolGlobalString('DIGIQUALI_' . $parameters['value'][$i] . '_TIME_CONTROL_COLOR') . '" />';
-    print '<span class=" marginleftonly nowraponall opacitymedium">' . $langs->trans('Default') . '</span>: <strong>' . $parameters['defaultColors'][$i] . '</strong>';
-    print '</td>';
-    print '</tr>';
+$nextControlDateFrequencies = [0 => '#E05353', 30 => '#FF6900', 60 => '#E9AD4F', 90 => '#47E58E'];
+foreach ($nextControlDateFrequencies as $nextControlDateFrequency => $nextControlDateFrequencyDefaultColor) {
+    print '<tr class="oddeven"><td>' . $langs->transnoentities('NextControlDateColor' . $nextControlDateFrequency) . '</td><td>';
+    print $langs->transnoentities('NextControlDateColor' . $nextControlDateFrequency . 'Description') . '</td><td>';
+    print '<input type="color" name="next_control_date_color_' . $nextControlDateFrequency . '" value="' . getDolGlobalString('DIGIQUALI_NEXT_CONTROL_DATE_COLOR_' . $nextControlDateFrequency, $nextControlDateFrequencyDefaultColor) . '" />';
+    print '<span class="marginleftonly opacitymedium">' . $langs->trans('Default') . '</span>: <strong>' . $nextControlDateFrequencyDefaultColor . '</strong>';
+    print '</td></tr>';
 }
 
 print '</table>';

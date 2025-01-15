@@ -220,10 +220,10 @@ class modDigiQuali extends DolibarrModules
             $i++ => ['DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY', 'integer', 1, '', 0, 'current'],
             $i++ => ['DIGIQUALI_SHOW_QC_FREQUENCY_PUBLIC_INTERFACE', 'integer', 1, '', 0, 'current'],
             $i++ => ['DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY', 'integer', 1, '', 0, 'current'],
-            $i++ => ['DIGIQUALI_PASSED_TIME_CONTROL_COLOR', 'chaine', '#EB4A40', '', 0, 'current'],
-            $i++ => ['DIGIQUALI_URGENT_TIME_CONTROL_COLOR', 'chaine', '#ED8532', '', 0, 'current'],
-            $i++ => ['DIGIQUALI_MEDIUM_TIME_CONTROL_COLOR', 'chaine', '#F4BA40', '', 0, 'current'],
-            $i++ => ['DIGIQUALI_PERFECT_TIME_CONTROL_COLOR', 'chaine', '#6EEA97', '', 0, 'current'],
+            $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_0', 'chaine', '#E05353', '', 0, 'current'],
+            $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_30', 'chaine', '#FF6900', '', 0, 'current'],
+            $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_60', 'chaine', '#F4BA40', '', 0, 'current'],
+            $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_90', 'chaine', '#47E58E', '', 0, 'current'],
 
             // CONST SURVEY
             $i++ => ['DIGIQUALI_SURVEY_ADDON', 'chaine', 'mod_survey_standard', '', 0, 'current'],

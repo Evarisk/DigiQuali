@@ -755,6 +755,26 @@ class Control extends SaturneObject
     }
 
     /**
+     * Get next control date color
+     *
+     * @return string $nextControlDateColor Next control date color
+     */
+    function getNextControlDateColor(): string
+    {
+        $nextControl                = floor(($this->next_control_date - dol_now('tzuser'))/(3600 * 24));
+        $nextControlDateColor       = '#47E58E';
+        $nextControlDateFrequencies = [0 => '#E05353', 30 => '#FF6900', 60 => '#E9AD4F', 90 => '#47E58E'];
+        foreach ($nextControlDateFrequencies as $nextControlDateFrequency => $nextControlDateFrequencyDefaultColor) {
+            if ($nextControl <= $nextControlDateFrequency) {
+                $nextControlDateColor = getDolGlobalString('DIGIQUALI_NEXT_CONTROL_DATE_COLOR_' . $nextControlDateFrequency, $nextControlDateFrequencyDefaultColor);
+                break;
+            }
+        }
+
+        return $nextControlDateColor;
+    }
+
+    /**
      * Load dashboard info.
      *
      * @return array
@@ -989,10 +1009,9 @@ class Control extends SaturneObject
                                 $sheet->fetch($control->fk_sheet);
 
                                 if (!empty($control->next_control_date)) {
-                                    $nextControl      = floor(($control->next_control_date - dol_now('tzuser'))/(3600 * 24));
-                                    $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
-
-                                    $verdictColor = $control->verdict == 1 ? 'green' : ($control->verdict == 2 ? 'red' : 'grey');
+                                    $nextControl          = floor(($control->next_control_date - dol_now('tzuser'))/(3600 * 24));
+                                    $nextControlDateColor = $control->getNextControlDateColor();
+                                    $verdictColor         = $control->verdict == 1 ? 'green' : ($control->verdict == 2 ? 'red' : 'grey');
 
                                     $arrayControlListsByNextControl[$control->id]['Ref']['value']            = $control->getNomUrl(1);
                                     $arrayControlListsByNextControl[$control->id]['LinkedObject']['value']   = $currentObject->getNomUrl(1);
@@ -1000,7 +1019,7 @@ class Control extends SaturneObject
                                     $arrayControlListsByNextControl[$control->id]['Project']['value']        = $project->id > 0 ? $project->getNomUrl(1) : '';
                                     $arrayControlListsByNextControl[$control->id]['Sheet']['value']          = $sheet->getNomUrl(1);
                                     $arrayControlListsByNextControl[$control->id]['ControlDate']['value']    = dol_print_date($control->date_creation, 'day');
-                                    $arrayControlListsByNextControl[$control->id]['NextControl']['value']    = '<div class="wpeo-button button-'. $nextControlColor .'">' . $nextControl . '<br>' . $langs->trans('Days') . '</div>';
+                                    $arrayControlListsByNextControl[$control->id]['NextControl']['value']    = '<div class="wpeo-button" style="background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor . ' ">' . $nextControl . '<br>' . $langs->trans('Days') . '</div>';
                                     $arrayControlListsByNextControl[$control->id]['NextControl']['morecss']  = 'dashboard-control';
                                     $arrayControlListsByNextControl[$control->id]['Verdict']['value']        = '<div class="wpeo-button button-'. $verdictColor .'">' . $control->fields['verdict']['arrayofkeyval'][(!empty($control->verdict)) ?: 3] . '</div>';
                                     $arrayControlListsByNextControl[$control->id]['Verdict']['morecss']      = 'dashboard-control';

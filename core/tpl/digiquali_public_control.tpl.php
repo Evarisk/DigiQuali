@@ -78,11 +78,11 @@
                     }
                     if (!empty($object->next_control_date)) {
                         print '<hr><div style="font-size: 8px; font-weight: bold">' . $langs->trans('NextControl') . '<br>';
-                        $nextControl = floor(($object->next_control_date - dol_now())/(3600 * 24));
-                        $nextControlColor = $nextControl < 0 ? getDolGlobalString('DIGIQUALI_PASSED_TIME_CONTROL_COLOR') : ($nextControl <= 30 ? getDolGlobalString('DIGIQUALI_URGENT_TIME_CONTROL_COLOR') : ($nextControl <= 60 ? getDolGlobalString('DIGIQUALI_MEDIUM_TIME_CONTROL_COLOR') : getDolGlobalString('DIGIQUALI_PERFECT_TIME_CONTROL_COLOR')));
+                        $nextControl          = floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24));
+                        $nextControlDateColor = $object->getNextControlDateColor();
                         print dol_print_date($object->next_control_date, 'day') . '<br>' . $langs->trans('Remain') . '<br>';
                         print '</div>';
-                        print '<div class="wpeo-button" style="padding: 0; font-size: 10px; background-color: ' . $nextControlColor .'; border-color: ' . $nextControlColor .'">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
+                        print '<div class="wpeo-button" style="padding: 0; font-size: 10px; background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor .'">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
                       } ?>
                 </td></tr>
             </table>

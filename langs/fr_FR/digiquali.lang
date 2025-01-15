@@ -47,6 +47,15 @@ DisplayControlMediasSampleDescription            = Afficher les médias d'exempl
 ExtrafieldsControlManagement                     = Gestion des attributs supplémentaires des contrôles
 ShowAddControlButtonOnPublicInterface            = Afficher le bouton d'ajout de contrôle sur l'interface publique de contrôle
 ShowAddControlButtonOnPublicInterfaceDescription = Permet d'afficher le bouton d'ajout de contrôle sur l'interface publique de contrôle
+NextControlDateColorManagement                   = Gestion des couleurs des dates de contrôle
+NextControlDateColor0                            = Date dépassée
+NextControlDateColor30                           = Urgent
+NextControlDateColor60                           = Bientôt requis
+NextControlDateColor90                           = Date éloignée
+NextControlDateColor0Description                 = Code couleur pour la prochaine date de contrôle - Date dépassée
+NextControlDateColor30Description                = Code couleur pour la prochaine date de contrôle - Urgent
+NextControlDateColor60Description                = Code couleur pour la prochaine date de contrôle - Bientôt requis
+NextControlDateColor90Description                = Code couleur pour la prochaine date de contrôle - Date éloignée
 
 # Survey - Questionnaire
 DisplaySurveyMediasSampleDescription = Afficher les médias d'exemple des questions dans le questionnaire
@@ -353,15 +362,6 @@ LastStatusDate                                 = Dernières dates de statut
 ValidationDate                                 = Date de validation
 ReOpenDate                                     = Date de réouverture
 DraftValidatedLocked                           = -- (Brouillon + validé + verrouillé) --
-ControlColorParam                              = Gestion des couleurs des contrôles
-PassedTimeControlColor                         = Contrôle dépassé
-UrgentTimeControlColor                         = Contrôle urgent
-MediumTimeControlColor                         = Contrôle bientôt requis
-PerfectTimeControlColor                        = Contrôle en ordre
-PassedTimeControlColorDescription              = Gère la couleur pour un contrôle ayant un temps déjà dépassé
-UrgentTimeControlColorDescription              = Gère la couleur pour un contrôle urgent
-MediumTimeControlColorDescription              = Gère la couleur pour un contrôle qui sera bientôt requis
-PerfectTimeControlColorDescription             = Gère la couleur pour un contrôle ayant une date éloignée
 
 
 
