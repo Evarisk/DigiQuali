@@ -552,14 +552,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             print '</td><td class="left"><input type="submit" class="smallpaddingimp button" name="modify" value="' . $langs->trans('Modify') . '"><input type="submit" class="smallpaddingimp button button-cancel" name="cancel" value="' . $langs->trans('Cancel') . '"></td></tr></tbody></table>';
             print '</form>';
         } else {
-            print (!empty($object->success_rate) ? price2num($object->success_rate) : 0) . ' %';
+            print (!empty($object->success_rate) ? price2num($object->success_rate, 2) : 0) . ' %';
         }
         print '</td></tr>';
 
         print '<tr class="field_average"><td class="titlefield fieldname_average">';
         print $langs->trans('AveragePercentageQuestions');
         print '</td><td class="valuefield fieldname_average">';
-        print '<span class="badge badge-' . ($object->success_rate > $averagePercentageQuestions ? 'status8' : 'status4') . ' badge-status' . '">' . price2num($averagePercentageQuestions) . ' %</div>';
+        print '<span class="badge badge-' . ($object->success_rate > $averagePercentageQuestions ? 'status8' : 'status4') . ' badge-status' . '">' . price2num($averagePercentageQuestions, 2) . ' %</div>';
         print '</td></tr>';
     }
 
