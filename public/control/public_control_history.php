@@ -72,6 +72,9 @@ $langsDomains = ['bills', 'contracts', 'orders', 'products', 'projects', 'compan
 if (isModEnabled('dolicar')) {
     $langsDomains[] = 'dolicar@dolicar';
 }
+if (isModEnabled('easyurl')) {
+    $langsDomains[] = 'easyurl@easyurl';
+}
 saturne_load_langs($langsDomains);
 
 // Get parameters.
@@ -134,17 +137,27 @@ $objectControlList = $object->fetchAllWithLeftJoin('DESC', 't.rowid', $showLastC
 if (is_array($objectControlList) && !empty($objectControlList)) {
     print '<div id="publicControlHistory">';
     print '<br>';
+    print '<div class="center">';
     if (getDolGlobalInt('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY') == 1) {
-        print '<div class="center">';
+        if (isModEnabled('easyurl') && $objectType == 'productlot') {
+            print '<a href="' . dol_buildpath('custom/easyurl/public/shortener/public_shortener.php?entity=' . $entity, 3) . '">';
+            print '<div class="wpeo-button marginleftonly">' . $langs->transnoentities('AssignQRCode') . '</div>';
+            print '</a>';
+            print '&nbsp';
+        }
+
         print '<div class="wpeo-button switch-public-control-view '. ($showLastControlFirst ? '' : 'button-grey') .'">';
         print '<input hidden class="public-control-view" value="1">';
         print $langs->trans('LastControl');
         print '</div>';
+
         print '&nbsp';
+
         print '<div class="wpeo-button marginleftonly switch-public-control-view '. ($showLastControlFirst ? 'button-grey' : '') .'">';
         print '<input hidden class="public-control-view" value="0">';
         print $langs->trans('ControlList');
         print '</div>';
+
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') == 1) {
             $object        = current($objectControlList);
             $cats          = $category->containing($object->id, $object->element);
