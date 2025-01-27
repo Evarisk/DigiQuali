@@ -127,9 +127,8 @@ function show_answer_from_question(Question $question, CommonObject $object, str
             break;
         case 'Percentage':
             $out .= '<div class="percentage-cell">';
-            $out .= '<span class="range-percent badge badge-primary" style="position: absolute; left: 50%;">' . (!empty($questionAnswer) ? $questionAnswer : '50%') . '</span>';
             $out .= img_picto('', 'fontawesome_fa-frown_fas_#D53C3D_3em', 'class="range-image"');
-            $out .= '<input type="range" class="search_component_input range question-answer" name="answer' . $question->id . '" min="0" max="100" value="' . $questionAnswer . '"' . $disabled . ' step="10">';
+            $out .= '<input type="range" class="search_component_input range question-answer" name="answer' . $question->id . '" min="0" max="100" value="' . $questionAnswer . '"' . $disabled . '>';
             $out .= img_picto('', 'fontawesome_fa-grin_fas_#57AD39_3em', 'class="range-image"');
             $out .= '</div>';
             break;

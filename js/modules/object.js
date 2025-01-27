@@ -46,6 +46,8 @@ window.digiquali.object = {};
  */
 window.digiquali.object.init = function() {
   window.digiquali.object.event();
+
+  window.digiquali.object.placePercents();
 };
 
 /**
@@ -65,8 +67,7 @@ window.digiquali.object.event = function() {
   $(document).on( 'keyup', '.question-comment', window.digiquali.object.showCommentUnsaved);
   $(document).on( 'change', '.question-answer', window.digiquali.object.changeStatusQuestion);
   $(document).on( 'click', '.answer:not(.disable)', window.digiquali.object.changeStatusQuestion);
-
-  $(document).on('input', '.question-answer[type="range"]', window.digiquali.object.rangePurcent);
+  $(document).on('input', '.question-answer[type="range"]', window.digiquali.object.rangePercent);
 };
 
 /**
@@ -221,7 +222,7 @@ window.digiquali.object.saveAnswer = function(questionId, answer, comment) {
  *
  * @return {void}
  */
-window.digiquali.object.rangePurcent = function() {
+window.digiquali.object.rangePercent = function() {
   const mobile      = window.saturne.toolbox.isPhone();
   const slider      = $(this);
   const value       = parseInt(slider.val());
@@ -232,19 +233,16 @@ window.digiquali.object.rangePurcent = function() {
   const sliderTop   = slider.position().top;
   var thumbWidth    = mobile ? 36 : 70;
 
-  console.log(mobile)
-
   $(this).parent().find('.range-percent').remove();
 
-  const rangePurcent = $('<span class="range-percent">' + $(this).val() + '%</span>');
-  rangePurcent.css({
-    'position': 'absolute',
-    'pointer-events': 'none',
-  });
+  const rangePercent = $('<span class="range-percent">' + $(this).val() + '%</span>');
+  if (!mobile) {
+    rangePercent.css('transform', 'translateX(0)');
+  }
 
-  rangePurcent.addClass('badge badge-primary');
+  rangePercent.addClass('badge badge-primary');
 
-  rangePurcent.css('top', (sliderTop - (thumbWidth * 1.05) / 2 - (mobile ? 10 : 5)) + 'px');
+  rangePercent.css('top', (sliderTop - (thumbWidth * 1.05) / 2 - (mobile ? 10 : 5)) + 'px');
 
   var pos = (value - min) / (max - min);
 
@@ -252,7 +250,20 @@ window.digiquali.object.rangePurcent = function() {
   var thumbCorrect = -thumbWidth * (pos - 0.5);
   var titlePos = sliderPos + Math.round((pos * sliderWidth) - (mobile ? 0 : thumbWidth / 4) + thumbCorrect);
 
-  rangePurcent.css('left', titlePos);
+  rangePercent.css('left', titlePos);
 
-  $(this).parent().append(rangePurcent);
+  $(this).parent().append(rangePercent);
+}
+
+/**
+ * Place the object in the right place
+ *
+ * @since   1.11.0
+ * @version 1.11.0
+ *
+ */
+window.digiquali.object.placePercents = function() {
+  $('.question-answer[type="range"]').each(function() {
+    window.digiquali.object.rangePercent.call(this);
+  });
 }
