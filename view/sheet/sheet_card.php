@@ -664,7 +664,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// QUESTIONS LINES
 	print '<div class="div-table-responsive-no-min">';
-	print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '', 0, 'questionList');
+	print load_fiche_titre($langs->trans("LinkedQuestionsList", count($questionIds)), '', '', 0, 'questionList');
 	print '<table id="tablelines" class="centpercent noborder noshadow">'; ?>
 	<script>
 		$(document).ready(function(){
