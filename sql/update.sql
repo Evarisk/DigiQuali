@@ -127,3 +127,6 @@ ALTER TABLE `llx_digiquali_survey` ADD `success_rate` DOUBLE(24,8) NULL AFTER `p
 
 -- 1.13.0
 ALTER TABLE `llx_digiquali_control` ADD `label` VARCHAR(255) NULL AFTER `status`;
+
+-- 1.20.1
+ALTER TABLE `llx_digiquali_question` ADD `json` TEXT NULL AFTER `photo_ko`;

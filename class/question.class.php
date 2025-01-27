@@ -122,10 +122,11 @@ class Question extends SaturneObject
 		'show_photo'             => ['type' => 'boolean',      'label' => 'ShowPhoto',            'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 0],
 		'authorize_answer_photo' => ['type' => 'boolean',      'label' => 'AuthorizeAnswerPhoto', 'enabled' => 1, 'position' => 120, 'notnull' => 0, 'visible' => 0],
 		'enter_comment'          => ['type' => 'boolean',      'label' => 'EnterComment',         'enabled' => 1, 'position' => 130, 'notnull' => 0, 'visible' => 0],
-		'photo_ok'               => ['type' => 'text',         'label' => 'PhotoOK',              'enabled' => 1, 'position' => 140, 'notnull' => 0, 'visible' => 3],
-		'photo_ko'               => ['type' => 'text',         'label' => 'PhotoKO',              'enabled' => 1, 'position' => 150, 'notnull' => 0, 'visible' => 3],
-		'fk_user_creat'          => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'picto' => 'user', 'enabled' => 1, 'position' => 160, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
-		'fk_user_modif'          => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif',  'picto' => 'user', 'enabled' => 1, 'position' => 170, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
+		'json'                   => ['type' => 'text',         'label' => 'Json',                 'enabled' => 1, 'position' => 140, 'notnull' => 0, 'visible' => 0],
+        'photo_ok'               => ['type' => 'text',         'label' => 'PhotoOK',              'enabled' => 1, 'position' => 150, 'notnull' => 0, 'visible' => 3],
+		'photo_ko'               => ['type' => 'text',         'label' => 'PhotoKO',              'enabled' => 1, 'position' => 160, 'notnull' => 0, 'visible' => 3],
+		'fk_user_creat'          => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'picto' => 'user', 'enabled' => 1, 'position' => 170, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
+		'fk_user_modif'          => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif',  'picto' => 'user', 'enabled' => 1, 'position' => 180, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
     ];
 
     /**
@@ -197,6 +198,11 @@ class Question extends SaturneObject
      * @var bool|null Comment
      */
     public ?bool $enter_comment = null;
+
+    /**
+     * @var string|null Json
+     */
+    public ?string $json = '';
 
     /**
      * @var string|null Photo OK

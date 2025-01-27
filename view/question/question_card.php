@@ -282,47 +282,55 @@ if (empty($reshook)) {
 				}
 			}
 
+            $objectConfig = ['config' => []];
+            if (GETPOSTISSET('step_count') && !empty(GETPOST('step_count'))) {
+                $objectConfig['config']['step_count'] = GETPOST('step_count', 'int');
+            }
+
+
 			$result = $object->create($user);
 			if ($result > 0) {
-				// Creation OK
-				// Category association
-				$categories = GETPOST('categories', 'array');
-				$object->setCategories($categories);
+                // Creation OK
+                // Category association
+                $categories = GETPOST('categories', 'array');
+                $object->setCategories($categories);
+                $object->json = json_encode($objectConfig);
+                $object->update($user);
 
-				if ($object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
-					$answer->fk_question = $result;
-					$answer->value       = $langs->transnoentities('OK');
-					$answer->pictogram   = 'check';
-					$answer->color       = '#47e58e';
+                if ($object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
+                    $answer->fk_question = $result;
+                    $answer->value       = $langs->transnoentities('OK');
+                    $answer->pictogram   = 'check';
+                    $answer->color       = '#47e58e';
 
-					$answer->create($user);
+                    $answer->create($user);
 
-					$answer->fk_question = $result;
-					$answer->value       = $langs->transnoentities('KO');
-					$answer->pictogram   = 'times';
-					$answer->color       = '#e05353';
+                    $answer->fk_question = $result;
+                    $answer->value       = $langs->transnoentities('KO');
+                    $answer->pictogram   = 'times';
+                    $answer->color       = '#e05353';
 
-					$answer->create($user);
-				}
+                    $answer->create($user);
+                }
 
-				if ($object->type == 'OkKoToFixNonApplicable') {
-					$answer->fk_question = $result;
-					$answer->value       = $langs->transnoentities('ToFix');
-					$answer->pictogram   = 'tools';
-					$answer->color       = '#e9ad4f';
+                if ($object->type == 'OkKoToFixNonApplicable') {
+                    $answer->fk_question = $result;
+                    $answer->value       = $langs->transnoentities('ToFix');
+                    $answer->pictogram   = 'tools';
+                    $answer->color       = '#e9ad4f';
 
-					$answer->create($user);
+                    $answer->create($user);
 
-					$answer->fk_question = $result;
-					$answer->value       = $langs->transnoentities('NonApplicable');
-					$answer->pictogram   = 'N/A';
-					$answer->color       = '#2b2b2b';
+                    $answer->fk_question = $result;
+                    $answer->value       = $langs->transnoentities('NonApplicable');
+                    $answer->pictogram   = 'N/A';
+                    $answer->color       = '#2b2b2b';
 
-					$answer->create($user);
-				}
+                    $answer->create($user);
+                }
 
 
-				$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
+                $urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header("Location: ".$urltogo);
 				exit;
@@ -734,8 +742,13 @@ if ($action == 'create') {
 
 	// Type -- Type
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', GETPOST('type') ?: 'OkKoToFixNonApplicable');
+	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', GETPOST('type') ?: 'OkKoToFixNonApplicable', 0, 'data-type="question-type"');
 	print '</td></tr>';
+
+    // add a field for step count hidden
+    print '<tr class="' . (GETPOST('type') == 'Percentage' ? '' : 'hidden') . '" id="question-step-count"><td class="fieldrequired"><label class="" for="step_count">' . $langs->trans('QuestionStepCount') . '</label></td><td>';
+    print '<input class="flat" type="number" size="36" name="step_count" id="step_count" value="'.GETPOST('step_count', 'int').'">';
+    print '</td></tr>';
 
 	// Description -- Description
 	print '<tr><td class=""><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
@@ -829,6 +842,9 @@ if ($action == 'create') {
 
 // Part to edit record
 if (($id || $ref) && $action == 'edit') {
+
+    $objectConfig = json_decode($object->json, true);
+
 	print load_fiche_titre($langs->trans("ModifyQuestion"), '', $object->picto);
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
@@ -856,6 +872,11 @@ if (($id || $ref) && $action == 'edit') {
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
 	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', $object->type);
 	print '</td></tr>';
+
+    // add a field for step count hidden
+    print '<tr class="' . ($object->type == 'Percentage' ? '' : 'hidden') . '" id="question-step-count"><td class="fieldrequired"><label class="" for="step_count">' . $langs->trans('QuestionStepCount') . '</label></td><td>';
+    print '<input class="flat" type="number" size="36" name="step_count" id="step_count" value="'. ($objectConfig['config']['step_count'] ?? 100) .'">';
+    print '</td></tr>';
 
 	//Description -- Description
 	print '<tr><td><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';

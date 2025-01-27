@@ -126,9 +126,19 @@ function show_answer_from_question(Question $question, CommonObject $object, str
             $out .= '</div>';
             break;
         case 'Percentage':
+
+            $step = 100;
+            $questionConfig = json_decode($question->json, true);
+            if (!empty($questionConfig['config']['step_count'])) {
+                $step = $questionConfig['config']['step_count'];
+                if ($step <= 0) {
+                    $step = 100;
+                }
+            }
+
             $out .= '<div class="percentage-cell">';
             $out .= img_picto('', 'fontawesome_fa-frown_fas_#D53C3D_3em', 'class="range-image"');
-            $out .= '<input type="range" class="search_component_input range question-answer" name="answer' . $question->id . '" min="0" max="100" value="' . $questionAnswer . '"' . $disabled . '>';
+            $out .= '<input type="range" class="search_component_input range question-answer" name="answer' . $question->id . '" min="0" max="100" value="' . $questionAnswer . '"' . $disabled . ' step="' . (100 / ($step - 1)) . '">';
             $out .= img_picto('', 'fontawesome_fa-grin_fas_#57AD39_3em', 'class="range-image"');
             $out .= '</div>';
             break;

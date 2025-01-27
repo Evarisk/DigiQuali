@@ -32,6 +32,8 @@ window.digiquali.question.event = function() {
 	$( document ).on( 'click', '.ui-dialog-titlebar-close', window.digiquali.question.closePreviewPhoto );
 	$( document ).on( 'click', '#show_photo', window.digiquali.question.showPhoto );
 	$( document ).on( 'click', '.answer-picto .item, .wpeo-table .item', window.digiquali.question.selectAnswerPicto );
+
+  $(document).on('change', 'select[data-type="question-type"]', window.digiquali.question.changeQuestionType);
 };
 
 /**
@@ -100,3 +102,20 @@ window.digiquali.question.selectAnswerPicto = function( event ) {
 	element.find('.dropdown-toggle.button-picto').html($(this).closest('.wpeo-tooltip-event').html());
 	element.find('.input-hidden-picto').val($(this).data('label'));
 };
+
+/**
+ * Change question type.
+ *
+ * @since   1.3.0
+ * @version 1.3.0
+ *
+ * @return {void}
+ */
+window.digiquali.question.changeQuestionType = function() {
+  let questionType = $(this).val();
+  if (questionType == 'Percentage') {
+    $(document).find('#question-step-count').removeClass('hidden');
+  } else {
+    $(document).find('#question-step-count').addClass('hidden');
+  }
+}
