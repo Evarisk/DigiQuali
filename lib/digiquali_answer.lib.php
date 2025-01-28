@@ -101,4 +101,68 @@ function get_answer_pictos_array(): array
 	return $pictosArray;
 }
 
+/**
+ * Show answer from question object in HTML output format (textarea, range, select, ...)
+ *
+ * @param  Question     $question       Question object
+ * @param  CommonObject $object         Object (Control, Survey, ...)
+ * @param  string       $questionAnswer Answer of the question (ControlLine, SurveyLine, ...)
+ * @return string       $out            HTML output
+ * @throws Exception
+ */
+function show_answer_from_question(Question $question, CommonObject $object, string $questionAnswer): string
+{
+    global $db, $langs;
 
+    $answer = new Answer($db);
+
+    $out      = '';
+    $disabled = ($object->status > $object::STATUS_DRAFT ? ' disabled' : '');
+
+    switch ($question->type) {
+        case 'Text':
+            $out .= '<div>';
+            $out .= '<textarea class="question-textarea question-answer" name="answer' . $question->id . '" placeholder="' . $langs->transnoentities('WriteAnswer') . '"' . $disabled . '>' . $questionAnswer . '</textarea>';
+            $out .= '</div>';
+            break;
+        case 'Percentage':
+            $out .= '<div class="percentage-cell">';
+            $out .= img_picto('', 'fontawesome_fa-frown_fas_#D53C3D_3em', 'class="range-image"');
+            $out .= '<input type="range" class="search_component_input range question-answer" name="answer' . $question->id . '" min="0" max="100" value="' . $questionAnswer . '"' . $disabled . '>';
+            $out .= img_picto('', 'fontawesome_fa-grin_fas_#57AD39_3em', 'class="range-image"');
+            $out .= '</div>';
+            break;
+        case 'Range':
+            $out .= '<div class="question-number">';
+            $out .= '<input type="number" class="question-answer" name="answer' . $question->id . '" placeholder="0" value="' . $questionAnswer . '"' . $disabled . '>';
+            $out .= '</div>';
+            break;
+        case 'UniqueChoice':
+        case 'OkKo':
+        case 'OkKoToFixNonApplicable':
+        case 'MultipleChoices':
+            $answers = $answer->fetchAll('ASC', 'position', 0, 0, ['customsql' => 't.status = ' . Answer::STATUS_VALIDATED . ' AND t.fk_question = ' . $question->id]);
+            $pictos  = get_answer_pictos_array();
+
+            if (strpos($questionAnswer, ',') !== false) {
+                $questionAnswers = explode(',', $questionAnswer);
+            } else {
+                $questionAnswers = [$questionAnswer];
+            }
+
+            $out .= '<div class="table-cell select-answer answer-cell">';
+            $out .= '<input type="hidden" class="question-answer" name="answer' . $question->id . '" value="0">';
+            if (is_array($answers) && !empty($answers)) {
+                foreach($answers as $answer) {
+                    $out .= '<input type="hidden" class="answer-color answer-color-' . $answer->position . '" value="' . $answer->color . '">';
+                    $out .= '<span class="answer' . (!empty($answer->pictogram) ? ' answer-icon' : '' ) . ($question->type == 'MultipleChoices' ? ' multiple-answers square' : ' single-answer') . (in_array($answer->position, $questionAnswers) ? ' active' : '') . ($object->status > 0 ? ' disable' : '') . '" style="' . (in_array($answer->position, $questionAnswers) ? 'background:' . $answer->color . '; ' : '') . 'color:' . $answer->color . ';' . 'box-shadow: 0 0 0 3px ' . $answer->color . ';" value="' . $answer->position . '">';
+                    $out .= !empty($answer->pictogram) ? $pictos[$answer->pictogram]['picto_source'] : $answer->value;
+                    $out .= '</span>';
+                }
+            }
+            $out .= '</div>';
+            break;
+    }
+
+    return $out;
+}

@@ -78,12 +78,12 @@
                     }
                     if (!empty($object->next_control_date)) {
                         print '<hr><div style="font-size: 8px; font-weight: bold">' . $langs->trans('NextControl') . '<br>';
-                        $nextControl = floor(($object->next_control_date - dol_now())/(3600 * 24));
-                        $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
+                        $nextControl          = floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24));
+                        $nextControlDateColor = $object->getNextControlDateColor();
                         print dol_print_date($object->next_control_date, 'day') . '<br>' . $langs->trans('Remain') . '<br>';
                         print '</div>';
-                        print '<div class="wpeo-button button-' . $nextControlColor . '" style="padding: 0; font-size: 10px;">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
-                    } ?>
+                        print '<div class="wpeo-button" style="padding: 0; font-size: 10px; background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor .'">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
+                      } ?>
                 </td></tr>
             </table>
         </div>

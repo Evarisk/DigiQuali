@@ -53,6 +53,12 @@ require_once DOL_DOCUMENT_ROOT.'/core/lib/sendings.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/propal.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/supplier_proposal.lib.php';
 require_once DOL_DOCUMENT_ROOT.'/core/lib/fourn.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/mrp/lib/mrp_mo.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/reception.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/product/inventory/lib/inventory.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/reception.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/bom/lib/bom.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/lib/fichinter.lib.php';
 
 // Load Saturne libraries
 require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
@@ -167,6 +173,7 @@ foreach($linkableElements as $linkableElementType => $linkableElement) {
 // Initialize array of search criterias
 $searchAll = GETPOST('search_all', 'alphanohtml') ? GETPOST('search_all', 'alphanohtml') : GETPOST('sall', 'alphanohtml');
 $search = array();
+$search['status'] = 'specialCase';
 foreach ($object->fields as $key => $val) {
 	if (GETPOST('search_'.$key, 'alpha') !== '') $search[$key] = GETPOST('search_'.$key, 'alpha');
 }

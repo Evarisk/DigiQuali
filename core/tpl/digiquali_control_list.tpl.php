@@ -78,7 +78,13 @@ foreach($elementElementFields as $genericName => $elementElementName) {
 foreach ($search as $key => $val) {
 	if (!array_key_exists($key, $elementElementFields)) {
 		if (array_key_exists($key, $object->fields)) {
-			if ($key == 'status' && $search[$key] == -1) {
+            if ($key == 'status' && $val == 'specialCase') {
+                $newStatus = [Control::STATUS_DRAFT, Control::STATUS_VALIDATED, Control::STATUS_LOCKED];
+                if (!empty($newStatus)) {
+                    $sql .= natural_search($key, implode(',', $newStatus), 2);
+                }
+                continue;
+            } elseif ($key == 'status' && $search[$key] == -1) {
 				continue;
 			}
 			if ($key == 'verdict' && $search[$key] == 0) {
@@ -86,11 +92,11 @@ foreach ($search as $key => $val) {
 			}
 			$mode_search = (($object->isInt($object->fields[$key]) || $object->isFloat($object->fields[$key])) ? 1 : 0);
 			if ((strpos($object->fields[$key]['type'], 'integer:') === 0) || (strpos($object->fields[$key]['type'], 'sellist:') === 0) || !empty($object->fields[$key]['arrayofkeyval'])) {
-				if ($search[$key] == '-1' || ($search[$key] === '0' && (empty($object->fields[$key]['arrayofkeyval']) || !array_key_exists('0', $object->fields[$key]['arrayofkeyval'])))) {
-					$search[$key] = '';
-				}
-				$mode_search = 2;
-			}
+                if ($search[$key] == '-1' || ($search[$key] === '0' && (empty($object->fields[$key]['arrayofkeyval']) || !array_key_exists('0', $object->fields[$key]['arrayofkeyval'])))) {
+                    $search[$key] = '';
+                }
+                $mode_search = 2;
+            }
 			if ($key == 'verdict' && $search[$key] == 3) {
 				$sql .= ' AND (verdict IS NULL)';
 			}
@@ -310,7 +316,7 @@ foreach ($object->fields as $key => $val)
 	if (!empty($arrayfields['t.'.$key]['checked']))
 	{
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
-		if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
+        if (!empty($val['arrayofkeyval']) && is_array($val['arrayofkeyval'])) {
 			print $form->selectarray('search_' . $key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'minwidth200', 1);
 		}
 		elseif ($key == 'fk_sheet') {
@@ -433,17 +439,17 @@ while ($i < ($limit ? min($num, $limit) : $num))
 			elseif ($key == 'ref') print $object->getNomUrl(1);
 			elseif ($key == 'fk_sheet') {
 				$sheet->fetch($object->fk_sheet);
-				print $sheet->getNomUrl(1);
-			}
+                print $sheet->getNomUrl(1, '', 0, 'maxwidth200onsmartphone maxwidth300', -1, 1);
+            }
 			elseif ($key == 'verdict') {
                 $verdictColor = $object->$key == 1 ? 'green' : ($object->$key == 2 ? 'red' : 'grey');
                 print dol_strlen($object->$key) > 0 ? '<div class="wpeo-button button-' . $verdictColor . '">' . $object->fields['verdict']['arrayofkeyval'][(!empty($object->$key)) ? $object->$key : 3] . '</div>' : "N/A";
 			}
 			elseif ($key == 'days_remaining_before_next_control') {
                 if (dol_strlen($object->next_control_date) > 0) {
-                    $nextControl = floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24));
-				    $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
-				    print '<div class="wpeo-button button-'. $nextControlColor .'">' . $nextControl . '</div>';
+                    $nextControl          = floor(($object->next_control_date - dol_now('tzuser'))/(3600 * 24));
+                    $nextControlDateColor = $object->getNextControlDateColor();
+                    print '<div class="wpeo-button" style="background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor . ' ">' . $nextControl . '</div>';
                 }
 			}
 			elseif (in_array($key, $revertedElementFields)) {

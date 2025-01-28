@@ -42,9 +42,20 @@ SheetMainCategory              = Choix de la catégorie principale du modèle de
 SheetMainCategoryDescription   = Cette option permet de choisir quelle catégorie sera utilisée lors du choix de catégorie pendant la création d'un contrôle
 
 # Control - Contrôle
-DisplayMediasSample                   = Afficher les médias d'exemple des questions
-DisplayControlMediasSampleDescription = Afficher les médias d'exemple des questions dans le contrôle
-ExtrafieldsControlManagement          = Gestion des attributs supplémentaires des contrôles
+DisplayMediasSample                              = Afficher les médias d'exemple des questions
+DisplayControlMediasSampleDescription            = Afficher les médias d'exemple des questions dans le contrôle
+ExtrafieldsControlManagement                     = Gestion des attributs supplémentaires des contrôles
+ShowAddControlButtonOnPublicInterface            = Afficher le bouton d'ajout de contrôle sur l'interface publique de contrôle
+ShowAddControlButtonOnPublicInterfaceDescription = Permet d'afficher le bouton d'ajout de contrôle sur l'interface publique de contrôle
+NextControlDateColorManagement                   = Gestion des couleurs des dates de contrôle
+NextControlDateColor0                            = Date dépassée
+NextControlDateColor30                           = Urgent
+NextControlDateColor60                           = Bientôt requis
+NextControlDateColor90                           = Date éloignée
+NextControlDateColor0Description                 = Code couleur pour la prochaine date de contrôle - Date dépassée
+NextControlDateColor30Description                = Code couleur pour la prochaine date de contrôle - Urgent
+NextControlDateColor60Description                = Code couleur pour la prochaine date de contrôle - Bientôt requis
+NextControlDateColor90Description                = Code couleur pour la prochaine date de contrôle - Date éloignée
 
 # Survey - Questionnaire
 DisplaySurveyMediasSampleDescription = Afficher les médias d'exemple des questions dans le questionnaire
@@ -159,7 +170,8 @@ NoLinkedObjectSelected         = Veuillez sélectionner un type d'objet à contr
 ExportSheetData                = Export des données du modèle
 ExportSheetDataDescription     = Export des données du modèle et des questions associées
 ExportWellDone                 = L'export a été réalisé avec succès
-ToImportDataGoToImportPage     = Pour importer des données, veuillez vous rendre sur la page d'import : <a href="%s"> %s </a>
+ExportFailed                   = L'export a échoué
+ToImportDataGoToImportPage     = Pour importer des données, veuillez vous rendre sur la page d'import :
 NbQuestions                    = Nombre de questions
 SuccessScore                   = Score de réussite
 PercentageValue                = Valeur en pourcentage
@@ -270,6 +282,18 @@ LinkExpedition                                 = Activer le lien avec les expéd
 LinkExpeditionDescription                      = Permet la liaison entre les expéditions et les modèles
 LinkPropal                                     = Activer le lien avec les propositions commerciales
 LinkPropalDescription                          = Permet la liaison entre les propositions commerciales et les modèles
+LinkMrp                                        = Activer le lien avec les ordres de fabrication
+LinkMrpDescription                             = Permet la liaison entre les ordres de fabrication et les modèles
+LinkReception                                  = Activer le lien avec les réceptions
+LinkReceptionDescription                       = Permet la liaison entre les réceptions et les modèles
+LinkInventory                                  = Activer le lien avec les inventaires
+LinkInventoryDescription                       = Permet la liaison entre les inventaires et les modèles
+LinkMouvement                                  = Activer le lien avec les mouvements de stock
+LinkMouvementDescription                       = Permet la liaison entre les mouvements de stock et les modèles
+LinkFicheinter                                 = Activer le lien avec les fiches d'intervention
+LinkFicheinterDescription                      = Permet la liaison entre les fiches d'intervention et les modèles
+LinkBom                                        = Activer le lien avec les nomenclatures BOM
+LinkBomDescription                             = Permet la liaison entre les nomenclatures BOM et les modèles
 NoLotDefined                                   = Pas de numéro de lot/série trouvé
 SelectAProductFirst                            = Sélectionnez d'abord un produit
 ActionsOnControl                               = Événements liés au contrôle
@@ -349,6 +373,9 @@ QuestionAnswered                               = Réponse/Question
 LastStatusDate                                 = Dernières dates de statut
 ValidationDate                                 = Date de validation
 ReOpenDate                                     = Date de réouverture
+DraftValidatedLocked                           = -- (Brouillon + validé + verrouillé) --
+
+
 
 #
 # ControlDet
@@ -441,3 +468,5 @@ Remain                   = reste
 InProgressAndLocked      = -- (En cours + verrouillé) --
 NoObservations           = Pas d'observations
 BasedOnModel             = Basé sur le modèle
+WriteComment             = Écrire un commentaire
+WriteAnswer              = Écrire une réponse

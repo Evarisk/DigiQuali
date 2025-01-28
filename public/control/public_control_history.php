@@ -56,6 +56,7 @@ if (file_exists('../../digiquali.main.inc.php')) {
 require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
+require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 
 // Load DigiQuali libraries.
 require_once __DIR__ . '/../../../digiquali/class/control.class.php';
@@ -63,10 +64,15 @@ require_once __DIR__ . '/../../../digiquali/class/sheet.class.php';
 require_once __DIR__ . '/../../../digiquali/lib/digiquali_sheet.lib.php';
 
 // Global variables definitions.
-global $conf, $db, $hookmanager, $langs;
+global $conf, $db, $hookmanager, $langs, $user;
+
 
 // Load translation files required by the page.
-saturne_load_langs(['bills', 'contracts', 'orders', 'products', 'projects', 'companies', (isModEnabled('dolicar') ? 'dolicar@dolicar' : '')]);
+$langsDomains = ['bills', 'contracts', 'orders', 'products', 'projects', 'companies'];
+if (isModEnabled('dolicar')) {
+    $langsDomains[] = 'dolicar@dolicar';
+}
+saturne_load_langs($langsDomains);
 
 // Get parameters.
 $trackId         = GETPOST('track_id', 'alpha');
@@ -75,10 +81,11 @@ $showLastControl = GETPOST('show_last_control');
 $showControlList = GETPOST('show_control_list');
 
 // Initialize technical objects.
-$object  = new Control($db);
-$sheet   = new Sheet($db);
-$project = new Project($db);
-$user    = new User($db);
+$object   = new Control($db);
+$category = new Categorie($db);
+$sheet    = new Sheet($db);
+$project  = new Project($db);
+$user     = new User($db);
 
 $hookmanager->initHooks(['publiccontrolhistory', 'saturnepublicinterface']); // Note that conf->hooks_modules contains array.
 
@@ -134,14 +141,26 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
         print $langs->trans('LastControl');
         print '</div>';
         print '&nbsp';
-        print '<div class="wpeo-button switch-public-control-view '. ($showLastControlFirst ? 'button-grey' : '') .'">';
+        print '<div class="wpeo-button marginleftonly switch-public-control-view '. ($showLastControlFirst ? 'button-grey' : '') .'">';
         print '<input hidden class="public-control-view" value="0">';
         print $langs->trans('ControlList');
         print '</div>';
+        if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') == 1) {
+            $object        = current($objectControlList);
+            $cats          = $category->containing($object->id, $object->element);
+            $arraySelected = '';
+            if (is_array($cats) && !empty($cats)) {
+                $arraySelected = '&categories[]=' . implode('&categories[]=', array_column($cats, 'id'));
+            }
+            $moreParams = '&fk_sheet=' . $object->fk_sheet . '&fk_user_controller=' . $object->fk_user_controller . '&projectid=' . $object->projectid . $arraySelected . '&' . $linkedObjectsData['post_name'] . '=' . $objectId;
+            print '<a href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1). '" target="_blank">';
+            print '<div class="wpeo-button marginleftonly"><i class="fas fa-plus pictofixedwidth"></i>' . $langs->trans('New' . ucfirst($object->element)) . '</div>';
+            print '</a>';
+        }
     }
     if (isModEnabled('dolicar') && $objectType == 'productlot') {
-        print '<a class="wpeo-button marginleftonly" href="' . dol_buildpath('custom/dolicar/public/agenda/public_vehicle_logbook.php?id=' . $objectId . '&entity=' . $entity . '&backtopage=' . urlencode($_SERVER['REQUEST_URI']), 1). '">';
-        print $langs->trans('PublicVehicleLogBook');
+        print '<a href="' . dol_buildpath('custom/dolicar/public/agenda/public_vehicle_logbook.php?id=' . $objectId . '&entity=' . $entity . '&backtopage=' . urlencode($_SERVER['REQUEST_URI']), 1). '">';
+        print '<div class="wpeo-button marginleftonly">' . $langs->trans('PublicVehicleLogBook') . '</div>';
         print '</a>';
     }
     print '</div>';
@@ -205,9 +224,9 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
             print '</td>';
             if (dol_strlen($objectControl->next_control_date) > 0) {
                 print '<td class="tdoverflowmax200 center">';
-                $nextControl = floor(($objectControl->next_control_date - dol_now())/(3600 * 24));
-                $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
-                print '<div class="wpeo-button center button-' . $nextControlColor . '">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
+                $nextControl          = floor(($objectControl->next_control_date - dol_now('tzuser'))/(3600 * 24));
+                $nextControlDateColor = $objectControl->getNextControlDateColor();
+                print '<div class="wpeo-button center" style="background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor . '">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
                 print '</td><td class="tdoverflowmax200 center">';
                 print dol_print_date($objectControl->next_control_date);
                 print '</td>';
@@ -244,11 +263,11 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
             print '<div class="wpeo-button button-' . $verdictColor . ' button-square-60">' . $objectControl->fields['verdict']['arrayofkeyval'][(!empty($objectControl->verdict)) ?: 3] . '</div><br>';
             if (dol_strlen($objectControl->next_control_date) > 0) {
                 print '<hr><div style="font-size: 8px; font-weight: bold">' . $langs->trans('NextControl') . '<br>';
-                $nextControl = floor(($objectControl->next_control_date - dol_now())/(3600 * 24));
-                $nextControlColor = $nextControl < 0 ? 'red' : ($nextControl <= 30 ? 'orange' : ($nextControl <= 60 ? 'yellow' : 'green'));
+                $nextControl          = floor(($objectControl->next_control_date - dol_now('tzuser'))/(3600 * 24));
+                $nextControlDateColor = $objectControl->getNextControlDateColor();
+                print '<div class="wpeo-button" style="background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor . ' padding: 0; font-size: 10px;">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
                 print dol_print_date($objectControl->next_control_date, 'day') . '<br>' . $langs->trans('Remain') . '<br>';
                 print '</div>';
-                print '<div class="wpeo-button button-' . $nextControlColor . '" style="padding: 0; font-size: 10px;">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
             }
             print '</td></tr>';
         }

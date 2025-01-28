@@ -485,7 +485,7 @@ if ($massaction == 'pre_add_questions') {
             $sheetArray[$sheet->id] = $sheet->ref . ' - ' . $sheet->label;
         }
         $formQuestion = [
-            ['type' => 'select', 'name' => 'sheet', 'label' => $langs->trans('Sheet'), 'values' => $sheetArray]
+            ['type' => 'select', 'name' => 'sheet', 'label' => $langs->trans('Sheet'), 'values' => $sheetArray, 'morecss' => 'maxwidth300 maxwidth200onsmartphone']
         ];
         print $form->formconfirm($_SERVER['PHP_SELF'], $langs->trans('ConfirmMassAddQuestion'), $langs->trans('ConfirmMassAddingQuestion', count($toselect)), 'add_questions', $formQuestion, '', 0, 200, 500, 1);
     } else {
@@ -543,8 +543,9 @@ foreach ($object->fields as $key => $val) {
     if (!empty($arrayfields['t.'.$key]['checked']))
 	{
 		print '<td class="liste_titre'.($cssforfield ? ' '.$cssforfield : '').'">';
-		if (is_array($val['arrayofkeyval']) && !empty($val['arrayofkeyval'])) print $form->selectarray('search_'.$key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', (($key != 'status') ? 'maxwidth100' : 'maxwidth200'), 1);
-		elseif (strpos($val['type'], 'integer:') === 0) {
+		if (is_array($val['arrayofkeyval']) && !empty($val['arrayofkeyval'])) {
+            print $form->selectarray('search_' . $key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', (($key != 'status') ? 'maxwidth100' : 'maxwidth200'), 1);
+        } elseif (strpos($val['type'], 'integer:') === 0) {
 			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'maxwidth125', 1);
 		} elseif (!preg_match('/^(date|timestamp)/', $val['type'])) print '<input type="text" class="flat maxwidth75" name="search_'.$key.'" value="'.dol_escape_htmltag($search[$key]).'">';
 		print '</td>';

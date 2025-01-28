@@ -317,9 +317,9 @@ class doc_controldocument_odt extends SaturneDocumentModel
         $object = $moreParam['object'];
 
         if (!empty($object->photo)) {
-            $path      = $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/photos';
-            $fileSmall = saturne_get_thumb_name($object->photo, getDolGlobalString('DIGIQUALI_DOCUMENT_MEDIA_VIGNETTE_USED'));
-            $image     = $path . '/thumbs/' . $fileSmall;
+            $path       = $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/photos';
+            $thumb_name = saturne_get_thumb_name($object->photo, 'mini');
+            $image      = $path . '/thumbs/' . $thumb_name;
             $tmpArray['photoDefault'] = $image;
         } else {
             $noPhoto                  = '/public/theme/common/nophoto.png';

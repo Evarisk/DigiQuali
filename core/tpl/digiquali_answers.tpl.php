@@ -45,22 +45,24 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                 <div class="table-row">
                     <!-- Contenu et commentaire -->
                     <div class="table-cell table-full">
-                        <div class="label"><strong><?php print $question->getNomUrl(1, isset($publicInterface) ? 'nolink' : '', 1, '', -1, 1); ?></strong></div>
                         <div class="description"><?php print $question->description; ?></div>
+                        <?php if (!isset($publicInterface)) : ?>
+                            <div class="label"><strong><?php print $question->getNomUrl(1, '', 1, '', -1, 1); ?></strong></div>
+                        <?php else : ?>
+                            <div class="label"><strong><?php print $question->label; ?></strong></div>
+                        <?php endif; ?>
                         <div class="question-comment-container">
                             <div class="question-ref">
                                 <?php
-                                if (!empty($objectLine->ref) ) {
-                                    print '<span class="question-ref-title">' . $objectLine->ref . '</span> :';
+                                if (!empty($objectLine->ref && !isset($publicInterface)) ) {
+                                   print '<span class="question-ref-title">' . $objectLine->ref . '</span> :';
                                 } ?>
                             </div>
                             <?php if ($question->type == 'Text') : ?>
-                                <div class="<?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>">
-                                    <?php
-                                    print '<span>' . $langs->trans('Answer') . ' : </span>';
-                                    $object->status > $object::STATUS_DRAFT ? print $questionAnswer :
-                                    print '<input' . ($object->status > $object::STATUS_DRAFT ? ' disabled' : '') . ' name="answer' . $question->id . '" id="answer' . $question->id . '"class="question-textarea input-answer ' . ($object->status > 0 ? 'disable' : '') . '" value="' . $questionAnswer . '">'; ?>
-                                </div>
+                            <div class="question-answer-text">
+                                <?php
+                                $object->status > $object::STATUS_DRAFT ? print $questionAnswer :
+                                    print '<textarea' . ($object->status > $object::STATUS_DRAFT ? ' disabled' : '') . ' name="answer' . $question->id . '" id="answer' . $question->id . '"class="question-textarea input-answer ' . ($object->status > 0 ? 'disable' : '') . '" value="' . $questionAnswer . '"></textarea>'; ?>
                             <?php endif; ?>
                             <?php if ($question->enter_comment > 0) : ?>
                                 <?php print $langs->trans('Comment') . ' : '; ?>
@@ -74,8 +76,8 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                             <?php endif; ?>
                         </div>
                     </div>
-                    <!-- Photo OK KO -->
-                    <?php if ($question->show_photo > 0) : ?>
+                    <?php if ($question->show_photo > 0 && getDolGlobalInt('DIGIQUALI_' . dol_strtoupper($object->element) . '_DISPLAY_MEDIAS')) : ?>
+                        <!-- Photo OK KO -->
                         <div class="table-cell table-450 cell-photo-check wpeo-table">
                             <?php
                             if (getDolGlobalInt('DIGIQUALI_' . dol_strtoupper($object->element) . '_DISPLAY_MEDIAS')) :
@@ -152,14 +154,11 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                             } ?>
                         </div>
                     <?php elseif ($question->type == 'Percentage') : ?>
-                        <div class="table-cell table-end answer-cell table-flex <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>" data-questionId="<?php echo $question->id; ?>">
+                        <div class="table-cell answer-cell table-flex table-full percentage-cell <?php echo ($object->status > 0) ? 'style="pointer-events: none"' : '' ?>" data-questionId="<?php echo $question->id; ?>">
                             <?php
-                            print '<span class="table-cell" value="">';
-                            print $langs->transnoentities('Answer') . ' : ';
-                            print '</span>';
-                            print '<span class="table-cell" value="">';
-                            print '<input' . ($object->status > $object::STATUS_DRAFT ? ' disabled' : '') . ' name="answer' . $question->id . '" id="answer' . $question->id . '" type="number" min="0" max="100" class="input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" value="' . $questionAnswer . '"> %';
-                            print '</span>';
+                            print img_picto('', 'fontawesome_fa-frown_fas_#D53C3D_3em', 'class="range-image"');
+                            print '<input type="range" class="search_component_input range input-answer ' . ($object->status > 0 ? 'disable' : '') . ' ' . ($questionAnswer == $answerLinked->position ? 'active' : '') . '" name="answer' . $question->id . '" id="answer' . $question->id . '" min="0" max="100" step="25" value="' . $questionAnswer . '"' . ($object->status > $object::STATUS_DRAFT ? ' disabled' : '') . '>';
+                            print img_picto('', 'fontawesome_fa-grin_fas_#57AD39_3em', 'class="range-image"');
                             ?>
                         </div>
                     <?php elseif ($question->type == 'Range') : ?>
