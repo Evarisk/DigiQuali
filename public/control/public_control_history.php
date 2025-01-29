@@ -102,7 +102,13 @@ $objectType = $objectData->type;
 $objectId   = $objectData->id;
 
 $objectLinked = new $objectType($db);
+
 $objectLinked->fetch($objectId);
+
+if ($objectLinked->element == 'productlot') {
+    $objectLinked->element = 'productbatch';
+}
+$objectLinked->fetchObjectLinked($objectId, $objectLinked->element, '', 'digiquali_control');
 
 /*
  * View
@@ -113,7 +119,7 @@ $title = $langs->trans('PublicControl');
 $conf->dol_hide_topmenu  = 1;
 $conf->dol_hide_leftmenu = 1;
 
-saturne_header(0, '', $title);
+saturne_header(0,'', $title, '', '', 0, 0, [], [], '', 'page-public-card');
 
 $elementArray = get_sheet_linkable_objects();
 $linkedObjectsData = $elementArray[$objectType];
@@ -124,10 +130,9 @@ if (empty($route)) {
 
 $objectControlList = $object->fetchAllWithLeftJoin('DESC', 't.rowid', $route == 'lastControl', 0, ['customsql' => 't.rowid = je.fk_target AND t.status >= ' . $object::STATUS_LOCKED . ' AND t.control_date IS NOT NULL'], 'AND', true, 'LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as je on je.sourcetype = "' . $linkedObjectsData['link_name'] . '" AND je.fk_source = ' . $objectId . ' AND je.targettype = "digiquali_control" AND je.fk_target = t.rowid');
 
-if (is_array($objectControlList) && !empty($objectControlList)) {
-    print '<div id="publicControlHistory">';
-    print '<br>';
-    if (getDolGlobalInt('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY') == 1) {
+if (is_array($objectControlList) && !empty($objectControlList)) { ?>
+    <div class="" id="publicControlHistory">
+        <?php if (getDolGlobalInt('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY') == 1) {
         print '<div class="center">';
         print '<div class="wpeo-button switch-public-control-view '. ($route == 'lastControl' ? 'button-grey' : '') .'" data-route="lastControl">';
         print $langs->trans('Status') . ' : ' . $langs->transnoentities($linkedObjectsData['langs']);
@@ -162,13 +167,12 @@ if (is_array($objectControlList) && !empty($objectControlList)) {
     print '<input hidden name="token" value="'. newToken() .'">';
 
     $object = array_shift($objectControlList);
-    $object->fetchObjectLinked('', '', '', 'digiquali_control');
+    //$object->fetchObjectLinked('', '', '', 'digiquali_control');
     $sheet->fetch($object->fk_sheet);
-    print '<div class="signature-container flex flex-col" style="max-width: 1000px; gap: 10px;">';
+    print '<div class="public-card__container flex flex-col" style="max-width: 1000px; gap: 10px;">';
     if ($route == 'lastControl') {
         require_once __DIR__ . '/../../core/tpl/digiquali_public_control.tpl.php';
         $displayLastControl = 1;
-        require_once __DIR__ . '/../../core/tpl/digiquali_public_control_item.tpl.php';
     } elseif ($route == 'controlList') {
         require_once __DIR__ . '/../../core/tpl/digiquali_public_control.tpl.php';
         require_once __DIR__ . '/../../core/tpl/digiquali_public_control_item.tpl.php';
