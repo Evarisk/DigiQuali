@@ -1,0 +1,94 @@
+#publicControlHistory {
+  .public-card__container {
+    .public-card__header {
+      margin-bottom: 0;
+
+      .objet-container {
+        .objet-label.color-1 {
+          color: #FF3535;
+        }
+        .objet-label.color-2 {
+          color: #FD7E00;
+        }
+        .objet-label.color-3 {
+          color: #FFB700;
+        }
+        .objet-label.color-4 {
+          color: #C7BA10;
+        }
+      }
+    }
+  }
+}
+
+
+// @TODO Switch in Saturne.
+#publicControlHistory .public-card__container {
+  .header-information {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    flex-wrap: nowrap;
+
+    .information-thumbnail {
+      max-width: 100px;
+      min-width: 100px;
+    }
+    .information-type {
+      font-size: 12px;
+      color: #0d8aff;
+      font-weight: 600;
+    }
+    .information-label {
+      &.size-l {
+        font-size: 1.1em;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .objet-label {
+    font-weight: 400;
+    &.size-l {
+      font-size: 1.1em;
+      font-weight: 600;
+    }
+    .objet-icon {
+      color: rgba(0,0,0,0.4);
+      margin-right: 0.2em;
+    }
+  }
+}
+
+#publicControlHistory .public-card__tab {
+  display: flex;
+  flex-flow: row wrap;
+  margin: auto;
+  width: 100%;
+  max-width: 1000px;
+  gap: 0.5em;
+  padding: 0 2em;
+
+  .tab {
+    padding: 1em;
+    margin: 0;
+    font-size: 12px;
+    background: #fff;
+    opacity: 0.6;
+    transition: opacity 0.2s ease-out;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    font-weight: 600;
+    line-height: 1.2;
+
+    &:hover {
+      opacity: 1;
+      cursor: pointer;
+    }
+    &.tab-active {
+      border-top: 2px solid $color__primary;
+      color: $color__primary;
+      opacity: 1;
+    }
+  }
+}

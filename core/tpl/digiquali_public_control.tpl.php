@@ -36,17 +36,37 @@
 $out  = show_linked_object($objectLinked, $linkedObjectsData, $elementArray);
 $out2 = show_control_object($objectLinked); ?>
 
-<div class="">
-    <div class="">
-        <?php print $out['objectLinked']['title']; ?>
-        <?php print $out['objectLinked']['name_field']; ?>
-        <?php print $out['objectLinked']['qc_frequency']; ?>
-        <?php print $out['parentLinkedObject']['title']; ?>
-        <?php print $out['parentLinkedObject']['name_field']; ?>
+<div class="public-card__header wpeo-gridlayout grid-2">
+    <div class="header-information">
+        <div class="information-thumbnail">IMAGE</div>
+        <div>
+            <div class="information-type"><?php print $out['objectLinked']['title']; ?></div>
+            <div class="information-label size-l"><?php print $out['objectLinked']['name_field']; ?></div>
+            <div class="information-label"><?php print $out['objectLinked']['qc_frequency']; ?></div>
+
+            <div class="information-type"><?php print $out['parentLinkedObject']['title']; ?></div>
+            <div class="information-label"><?php print $out['parentLinkedObject']['name_field']; ?></div>
+        </div>
     </div>
-    <div class="">
-        <?php print $out2['nextControl']['title']; ?>
-        <?php print $out2['nextControl']['next_control_date']; ?>
-        <?php print $out2['nextControl']['next_control']; ?>
+    <div class="header-objet">
+        <div class="objet-container">
+            <div class="objet-info">
+                <div class="objet-type">
+                    <?php print $out2['nextControl']['title']; ?>
+                </div>
+                <div class="objet-label size-l">
+                    <i class="objet-icon far fa-calendar"></i> <?php print $out2['nextControl']['next_control_date']; ?>
+                </div>
+                <div class="objet-label color-4">
+                    <i class="objet-icon far fa-clock"></i> <?php print $out2['nextControl']['next_control']; ?>
+                </div>
+            </div>
+            <div class="objet-actions">
+                <div class="wpeo-gridlayout grid-2 grid-gap-1">
+                    <div class="wpeo-button button-square-60 button-radius-1 button-primary">+</div>
+                    <div class="wpeo-button button-square-60 button-radius-1 button-green">Statut OK</div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
