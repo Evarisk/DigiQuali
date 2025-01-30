@@ -134,13 +134,13 @@ if (is_array($objectControlList) && !empty($objectControlList)) { ?>
     <div class="" id="publicControlHistory">
         <?php if (getDolGlobalInt('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY') == 1) {
         print '<div class="public-card__tab">';
-        print '<div class="tab tab-active switch-public-control-view '. ($route == 'lastControl' ? 'button-grey' : '') .'" data-route="lastControl">';
+        print '<div class="tab switch-public-control-view '. ($route == 'lastControl' ? 'tab-active' : '') .'" data-route="lastControl">';
         print $langs->trans('Status') . ' : ' . $langs->transnoentities($linkedObjectsData['langs']);
         print '</div>';
-        print '<div class="tab switch-public-control-view '. ($route == 'controlList' ? 'button-grey' : '') .'" data-route="controlList">';
+        print '<div class="tab switch-public-control-view '. ($route == 'controlList' ? 'tab-active' : '') .'" data-route="controlList">';
         print $langs->trans('ControlList');
         print '</div>';
-        print '<div class="tab switch-public-control-view '. ($route == 'controlDocumentation' ? 'button-grey' : '') .'" data-route="controlDocumentation">';
+        print '<div class="tab switch-public-control-view '. ($route == 'controlDocumentation' ? 'tab-active' : '') .'" data-route="controlDocumentation">';
         print $langs->trans('Documentation');
         print '</div>';
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') == 1) {

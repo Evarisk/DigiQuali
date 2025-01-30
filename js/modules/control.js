@@ -155,10 +155,10 @@ window.digiquali.control.refreshLotSelector = function(  event ) {
  */
 window.digiquali.control.switchPublicControlView = function(  event ) {
 
-  var route   = $(this).data('route')
-  let token   = window.saturne.toolbox.getToken();
+  var route = $(this).data('route')
+  let token = window.saturne.toolbox.getToken();
 
-  window.saturne.loader.display($('.signature-container'))
+  window.saturne.loader.display($('.public-card__container'))
 
   $.ajax({
     url: document.URL + '&route=' + route + '&token=' + token,
