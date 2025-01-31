@@ -132,7 +132,7 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
  */
 function get_control_infos(CommonObject $linkedObject): array
 {
-    global $langs;
+    global $db, $langs;
 
     $out         = [];
     $lastControl = null;
@@ -143,6 +143,16 @@ function get_control_infos(CommonObject $linkedObject): array
 
         if ($lastControl === null || $control->control_date > $lastControl->control_date) {
             $lastControl = $control;
+            $out['LastControl']['title']        = $langs->transnoentities(dol_ucfirst($lastControl->element));
+            $out['LastControl']['ref']          = img_picto('', $lastControl->picto, 'class="pictofixedwidth"') . $lastControl->ref;
+            $out['LastControl']['control_date'] = '<i class="objet-icon far fa-calendar"></i>' . dol_print_date($lastControl->control_date, 'day');
+
+            $sheet = new Sheet($db);
+
+            $sheet->fetch($lastControl->fk_sheet);
+
+            $out['LastControl']['sheet_title']  = $langs->transnoentities(dol_ucfirst($sheet->element));
+            $out['LastControl']['sheet_ref']    = img_picto('', $sheet->picto, 'class="pictofixedwidth"') . $sheet->ref;
         }
     }
 
