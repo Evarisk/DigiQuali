@@ -61,18 +61,42 @@ function control_prepare_head(Control $object): array
     return saturne_object_prepare_head($object, $head, $moreparam, true);
 }
 
-function show_linked_object($objectLinked, array $linkedObjectsData, $elementArray): array
+/**
+ * Get linked object infos
+ *
+ * @param  CommonObject $linkedObject     Linked object (product, productlot, project, etc.)
+ * @param  array        $linkableElements Array of linkable elements infos (product, productlot, project, etc.)
+ * @return array        $out              Array of linked object infos to display on public interface
+ * @see    get_sheet_linkable_objects()   Get linkable objects for sheet for example (product, productlot, project, etc.)
+ */
+function get_linked_object_infos(CommonObject $linkedObject, array $linkableElements): array
 {
-    global $db, $langs;
+    global $conf, $db, $langs;
 
-    $out['objectLinked']['title']        = $langs->transnoentities($linkedObjectsData['langs']);
-    $out['objectLinked']['name_field']   = img_picto('', $linkedObjectsData['picto'], 'class="pictofixedwidth"') . $objectLinked->{$linkedObjectsData['name_field']};
-    $out['objectLinked']['qc_frequency'] = img_picto('', 'history', 'class="pictofixedwidth"') . $objectLinked->array_options['options_qc_frequency'];
+    $linkableElement = $linkableElements[$linkedObject->element];
 
-    if (isset($linkedObjectsData['fk_parent'])) {
+    // TODO: see if we can remove this if
+    $modulePart = $linkedObject->element;
+    if ($linkedObject->element == 'product') {
+        $modulePart = 'produit';
+    }
+    if ($linkedObject->element == 'productlot') {
+        $linkedObject->element = 'productbatch';
+    }
+
+    $out['linkedObject']['image'] = saturne_show_medias_linked($modulePart, $conf->{$linkedObject->element}->multidir_output[$conf->entity] . '/' . $linkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $linkedObject->ref . '/', $linkedObject, 'photo', 0, 0,0, 1);
+    if ($linkedObject->element == 'productbatch') {
+        $linkedObject->element = 'productlot';
+    }
+
+    $out['linkedObject']['title']        = $langs->transnoentities($linkableElement['langs']);
+    $out['linkedObject']['name_field']   = img_picto('', $linkableElement['picto'], 'class="pictofixedwidth"') . $linkedObject->{$linkableElement['name_field']};
+    $out['linkedObject']['qc_frequency'] = '<i class="objet-icon fas fa-history"></i>' . $linkedObject->array_options['options_qc_frequency'] . ' ' . $langs->transnoentities('Days');
+
+    if (isset($linkableElement['fk_parent'])) {
         $linkedObjectParentData = [];
-        foreach ($elementArray as $value) {
-            if (isset($value['post_name']) && $value['post_name'] === $linkedObjectsData['fk_parent']) {
+        foreach ($linkableElements as $value) {
+            if (isset($value['post_name']) && $value['post_name'] === $linkableElement['fk_parent']) {
                 $linkedObjectParentData = $value;
                 break;
             }
@@ -83,8 +107,15 @@ function show_linked_object($objectLinked, array $linkedObjectsData, $elementArr
 
             $parentLinkedObject = new $linkedObjectParentData['className']($db);
 
-            $parentLinkedObject->fetch($objectLinked->{$linkedObjectsData['fk_parent']});
+            $parentLinkedObject->fetch($linkedObject->{$linkableElement['fk_parent']});
 
+            // TODO: see if we can remove this if
+            $modulePart = $parentLinkedObject->element;
+            if ($parentLinkedObject->element == 'product') {
+                $modulePart = 'produit';
+            }
+
+            $out['parentLinkedObject']['image']      = saturne_show_medias_linked($modulePart, $conf->{$parentLinkedObject->element}->multidir_output[$conf->entity] . '/' . $parentLinkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $parentLinkedObject->ref . '/', $parentLinkedObject, 'photo', 0, 0,0, 1);
             $out['parentLinkedObject']['title']      = $langs->transnoentities($linkedObjectParentData['langs']);
             $out['parentLinkedObject']['name_field'] = img_picto('', $linkedObjectParentData['picto'], 'class="pictofixedwidth"') . $parentLinkedObject->{$linkedObjectParentData['name_field']};
         }
@@ -93,13 +124,19 @@ function show_linked_object($objectLinked, array $linkedObjectsData, $elementArr
     return $out;
 }
 
-function show_control_object($objectLinked): array
+/**
+ * Get control infos
+ *
+ * @param  CommonObject $linkedObject Linked object (product, productlot, project, etc.)
+ * @return array  $out                Array of control infos to display on public interface
+ */
+function get_control_infos(CommonObject $linkedObject): array
 {
     global $langs;
 
     $out         = [];
     $lastControl = null;
-    foreach ($objectLinked->linkedObjects['digiquali_control'] as $control) {
+    foreach ($linkedObject->linkedObjects['digiquali_control'] as $control) {
         if ($control->status < Control::STATUS_LOCKED ||empty($control->control_date)) {
             continue;
         }
@@ -110,22 +147,14 @@ function show_control_object($objectLinked): array
     }
 
     if (!empty($lastControl->next_control_date)) {
-        $nextControl                             = floor(($lastControl->next_control_date - dol_now('tzuser'))/(3600 * 24));
-        $out['nextControl']['title']             = $langs->transnoentities('NextControl');
-        $out['nextControl']['next_control_date'] = dol_print_date($lastControl->next_control_date, 'day');
-        $out['nextControl']['next_control']      = $langs->transnoentities('In') . ' ' . $nextControl . ' ' . $langs->trans('Days');
-        $out['nextControl']['verdict']           = '';
-    }
-
-    if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') == 1) {
-        $object        = current($objectControlList);
-        $cats          = $category->containing($object->id, $object->element);
-        $arraySelected = '';
-        if (is_array($cats) && !empty($cats)) {
-            $arraySelected = '&categories[]=' . implode('&categories[]=', array_column($cats, 'id'));
+        $nextControl                                   = floor(($lastControl->next_control_date - dol_now('tzuser'))/(3600 * 24));
+        $out['nextControl']['title']                   = $langs->transnoentities('NextControl');
+        $out['nextControl']['next_control_date']       = '<i class="objet-icon far fa-calendar"></i>' . dol_print_date($lastControl->next_control_date, 'day');
+        $out['nextControl']['next_control_date_color'] = $lastControl->getNextControlDateColor();
+        $out['nextControl']['next_control']            = '<i class="objet-icon far fa-clock"></i>' . $langs->transnoentities('In') . ' ' . $nextControl . ' ' . $langs->transnoentities('Days');
+        if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') == 1) {
+            $out['nextControl']['create_button'] = '<a href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '" target="_blank"><div class="wpeo-button button-square-60 button-radius-1 button-primary"><i class="fas fa-plus"></i></div></a>';
         }
-        $moreParams = '&fk_sheet=' . $object->fk_sheet . '&fk_user_controller=' . $object->fk_user_controller . '&projectid=' . $object->projectid . $arraySelected . '&' . $linkedObjectsData['post_name'] . '=' . $objectId;
-        $out['nextControl']['create_button'] = '<a href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1). '" target="_blank"></a>';
     }
 
     return $out;

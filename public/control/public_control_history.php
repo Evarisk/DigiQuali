@@ -30,13 +30,13 @@ if (!defined('NOREQUIREMENU')) {
 if (!defined('NOREQUIREHTML')) {
     define('NOREQUIREHTML', 1);
 }
-if (!defined('NOLOGIN')) {      // This means this output page does not require to be logged
+if (!defined('NOLOGIN')) {     // This means this output page does not require to be logged
     define('NOLOGIN', 1);
 }
-if (!defined('NOCSRFCHECK')) {  // We accept to go on this page from external website
+if (!defined('NOCSRFCHECK')) { // We accept to go on this page from external website
     define('NOCSRFCHECK', 1);
 }
-if (!defined('NOIPCHECK')) {    // Do not check IP defined into conf $dolibarr_main_restrict_ip
+if (!defined('NOIPCHECK')) {   // Do not check IP defined into conf $dolibarr_main_restrict_ip
     define('NOIPCHECK', 1);
 }
 if (!defined('NOBROWSERNOTIF')) {
@@ -53,112 +53,111 @@ if (file_exists('../../digiquali.main.inc.php')) {
 }
 
 // Load Dolibarr libraries
-require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
-require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
-require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 
 // Load DigiQuali libraries
-require_once __DIR__ . '/../../../digiquali/class/control.class.php';
-require_once __DIR__ . '/../../../digiquali/class/sheet.class.php';
-require_once __DIR__ . '/../../../digiquali/lib/digiquali_sheet.lib.php';
+require_once __DIR__ . '/../../class/control.class.php';
+require_once __DIR__ . '/../../class/sheet.class.php';
+require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
+require_once __DIR__ . '/../../lib/digiquali_control.lib.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user;
 
 // Load translation files required by the page
-$langsDomains = ['bills', 'contracts', 'orders', 'products', 'projects', 'companies'];
 if (isModEnabled('dolicar')) {
     $langsDomains[] = 'dolicar@dolicar';
+    saturne_load_langs($langsDomains);
 }
-saturne_load_langs($langsDomains);
 
 // Get parameters
 $trackId = GETPOST('track_id', 'alpha');
 $entity  = GETPOST('entity');
-$route   = GETPOST('route');
+$route   = GETPOSTISSET('route') ? GETPOST('route') : 'linkedObjectAndControl';
 
 // Initialize technical objects
-$object   = new Control($db);
-$category = new Categorie($db);
-$sheet    = new Sheet($db);
-$project  = new Project($db);
-$user     = new User($db);
+$object = new Control($db);
+$sheet  = new Sheet($db);
 
 $hookmanager->initHooks(['publiccontrolhistory', 'saturnepublicinterface']); // Note that conf->hooks_modules contains array
 
+// Load entity
 if (!isModEnabled('multicompany')) {
     $entity = $conf->entity;
 }
-
 $conf->setEntityValues($db, $entity);
+
+// Load linkable elements
+$linkableElements = get_sheet_linkable_objects();
 
 // Load object
 $objectDataJson = base64_decode($trackId);
 $objectData     = json_decode($objectDataJson);
+$objectType     = $objectData->type;
+$objectId       = $objectData->id;
 
-$objectType = $objectData->type;
-$objectId   = $objectData->id;
+$linkedObject = new $objectType($db);
 
-$objectLinked = new $objectType($db);
+$linkedObject->fetch($objectId);
 
-$objectLinked->fetch($objectId);
-
-if ($objectLinked->element == 'productlot') {
-    $objectLinked->element = 'productbatch';
+$linkableElement = $linkableElements[$linkedObject->element];
+// TODO voir si on peut pas enlever ce if
+if ($linkedObject->element == 'productlot') {
+    $linkedObject->element = 'productbatch';
 }
-$objectLinked->fetchObjectLinked($objectId, $objectLinked->element, '', 'digiquali_control');
+$linkedObject->fetchObjectLinked($objectId, $linkedObject->element, '', 'digiquali_control');
+if ($linkedObject->element == 'productbatch') {
+    $linkedObject->element = 'productlot';
+}
+
+// Routes to display different views
+$routes = [
+    'linkedObjectAndControl' => '/../../core/tpl/frontend/linked_object_and_control_frontend_view.tpl.php',
+    'controlList'            => '/../../core/tpl/digiquali_public_control_item.tpl.php',
+    'controlDocumentation'   => '/../../core/tpl/digiquali_public_control_documentation.tpl.php'
+];
 
 /*
  * View
  */
 
-$title = $langs->trans('PublicControl');
+$title = $langs->transnoentities('PublicControl');
 
 $conf->dol_hide_topmenu  = 1;
 $conf->dol_hide_leftmenu = 1;
 
-saturne_header(0,'', $title, '', '', 0, 0, [], [], '', 'page-public-card');
+saturne_header(0,'', $title, '', '', 0, 0, [], [], '', 'page-public-card'); ?>
 
-$elementArray = get_sheet_linkable_objects();
-$linkedObjectsData = $elementArray[$objectType];
+<div id="publicControlHistory">
+    <div class="public-card__tab">
+        <?php if (getDolGlobalInt('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY')) : ?>
+            <div class="tab switch-public-control-view <?php print ($route == 'linkedObjectAndControl' ? 'tab-active' : ''); ?>" data-route="linkedObjectAndControl">
+                <?php print $langs->transnoentities('Status') . ' : ' . $langs->transnoentities($linkableElement['langs']); ?>
+            </div>
+            <div class="tab switch-public-control-view <?php print ($route == 'controlList' ? 'tab-active' : ''); ?>" data-route="controlList">
+                <?php print $langs->transnoentities('ControlList'); ?>
+            </div>
+            <div class="tab switch-public-control-view <?php print ($route == 'controlDocumentation' ? 'tab-active' : ''); ?>" data-route="controlDocumentation">
+                <?php print $langs->transnoentities('Documentation'); ?>
+            </div>
+            <?php if (isModEnabled('dolicar') && $objectType == 'productlot') : ?>
+                <div class="tab">
+                    <a href="<?php print dol_buildpath('custom/dolicar/public/agenda/public_vehicle_logbook.php?id=' . $objectId . '&entity=' . $entity . '&backtopage=' . urlencode($_SERVER['REQUEST_URI']), 1); ?>">
+                        <?php print $langs->transnoentities('PublicVehicleLogBook'); ?>
+                    </a>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
 
-$routes = [
-    'lastControl'          => '/../../core/tpl/digiquali_public_control.tpl.php',
-    'controlList'          => '/../../core/tpl/digiquali_public_control_item.tpl.php',
-    'controlDocumentation' => '/../../core/tpl/digiquali_public_control_documentation.tpl.php'
-];
-
-if (empty($route)) {
-    $route = 'lastControl';
-} ?>
-
-<div class="" id="publicControlHistory">
-    <?php if (getDolGlobalInt('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY') == 1) {
-    print '<div class="public-card__tab">';
-    print '<div class="tab switch-public-control-view '. ($route == 'lastControl' ? 'tab-active' : '') .'" data-route="lastControl">';
-    print $langs->trans('Status') . ' : ' . $langs->transnoentities($linkedObjectsData['langs']);
-    print '</div>';
-    print '<div class="tab switch-public-control-view '. ($route == 'controlList' ? 'tab-active' : '') .'" data-route="controlList">';
-    print $langs->trans('ControlList');
-    print '</div>';
-    print '<div class="tab switch-public-control-view '. ($route == 'controlDocumentation' ? 'tab-active' : '') .'" data-route="controlDocumentation">';
-    print $langs->trans('Documentation');
-    print '</div>';
-if (isModEnabled('dolicar') && $objectType == 'productlot') {
-    print '<a href="' . dol_buildpath('custom/dolicar/public/agenda/public_vehicle_logbook.php?id=' . $objectId . '&entity=' . $entity . '&backtopage=' . urlencode($_SERVER['REQUEST_URI']), 1). '">';
-    print '<div class="wpeo-button marginleftonly">' . $langs->trans('PublicVehicleLogBook') . '</div>';
-    print '</a>';
-}
-print '</div>';
-
-print '<div class="public-card__container">';
-foreach ($routes as $key => $routeName) {
-    if ($route == $key) {
-        require_once __DIR__ . $routeName;
-    }
-}
-print '</div>';
+    <div class="public-card__container">
+        <?php foreach ($routes as $key => $routeName) {
+            if ($route == $key) {
+                require_once __DIR__ . $routeName;
+            }
+        } ?>
+    </div>
+</div><?php
 
 llxFooter('', 'public');
 $db->close();
