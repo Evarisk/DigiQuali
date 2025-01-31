@@ -63,7 +63,7 @@ $out2 = show_control_object($objectLinked); ?>
             </div>
             <div class="objet-actions">
                 <div class="wpeo-gridlayout grid-2 grid-gap-1">
-                    <div class="wpeo-button button-square-60 button-radius-1 button-primary">+</div>
+                    <div class="wpeo-button button-square-60 button-radius-1 button-primary"><i class="fas fa-plus"></i></div>
                     <div class="wpeo-button button-square-60 button-radius-1 button-green">Statut OK</div>
                 </div>
             </div>

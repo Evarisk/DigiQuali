@@ -114,6 +114,18 @@ function show_control_object($objectLinked): array
         $out['nextControl']['title']             = $langs->transnoentities('NextControl');
         $out['nextControl']['next_control_date'] = dol_print_date($lastControl->next_control_date, 'day');
         $out['nextControl']['next_control']      = $langs->transnoentities('In') . ' ' . $nextControl . ' ' . $langs->trans('Days');
+        $out['nextControl']['verdict']           = '';
+    }
+
+    if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') == 1) {
+        $object        = current($objectControlList);
+        $cats          = $category->containing($object->id, $object->element);
+        $arraySelected = '';
+        if (is_array($cats) && !empty($cats)) {
+            $arraySelected = '&categories[]=' . implode('&categories[]=', array_column($cats, 'id'));
+        }
+        $moreParams = '&fk_sheet=' . $object->fk_sheet . '&fk_user_controller=' . $object->fk_user_controller . '&projectid=' . $object->projectid . $arraySelected . '&' . $linkedObjectsData['post_name'] . '=' . $objectId;
+        $out['nextControl']['create_button'] = '<a href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1). '" target="_blank"></a>';
     }
 
     return $out;
