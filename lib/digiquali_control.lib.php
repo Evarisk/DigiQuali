@@ -163,7 +163,7 @@ function get_control_infos(CommonObject $linkedObject): array
         $out['nextControl']['next_control_date_color'] = $lastControl->getNextControlDateColor();
         $out['nextControl']['next_control']            = '<i class="objet-icon far fa-clock"></i>' . $langs->transnoentities('In') . ' ' . $nextControl . ' ' . $langs->transnoentities('Days');
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') == 1) {
-            $out['nextControl']['create_button'] = '<a href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '" target="_blank"><div class="wpeo-button button-square-60 button-radius-1 button-primary"><i class="fas fa-plus"></i></div></a>';
+            $out['nextControl']['create_button'] = '<a href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '" target="_blank"><div class="wpeo-button button-square-60 button-radius-1 button-primary button-flex"><span>Créer</span> <i class="button-icon fas fa-plus"></i></div></a>';
         }
     }
 

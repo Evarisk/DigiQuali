@@ -54,9 +54,9 @@ $controlInfoArray      = get_control_infos($linkedObject); ?>
                 </div>
             </div>
             <div class="objet-actions">
-                <div class="wpeo-gridlayout grid-2 grid-gap-1">
+                <div class="wpeo-gridlayout grid-<?php echo ! empty( $controlInfoArray['nextControl']['create_button'] ) ? '2' : '1'; ?> grid-gap-1">
                     <?php print $controlInfoArray['nextControl']['create_button']; ?>
-                    <div class="wpeo-button button-square-60 button-radius-1 button-green">Statut OK</div>
+                    <div class="wpeo-button button-square-60 button-radius-1 button-green button-disable-hover button-flex"><span>Statut</span> <i class="button-icon fas fa-check"></i></span></div>
                 </div>
             </div>
         </div>

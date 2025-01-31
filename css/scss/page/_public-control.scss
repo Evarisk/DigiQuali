@@ -33,6 +33,10 @@
     .information-thumbnail {
       max-width: 100px;
       min-width: 100px;
+
+      img {
+        border-radius: 6px;
+      }
     }
     .information-type {
       font-size: 12px;
@@ -43,6 +47,18 @@
       &.size-l {
         font-size: 1.1em;
         font-weight: 600;
+      }
+    }
+  }
+  .header-objet {
+    .objet-actions {
+      .wpeo-button {
+        span {
+          font-size: 13px;
+        }
+        .button-icon {
+          font-size: 28px;
+        }
       }
     }
   }
@@ -65,7 +81,7 @@
   flex-flow: row wrap;
   margin: auto;
   width: 100%;
-  max-width: 1000px;
+  max-width: 910px;
   gap: 0.5em;
   padding: 0 2em;
 
@@ -90,5 +106,28 @@
       color: $color__primary;
       opacity: 1;
     }
+  }
+}
+
+.wpeo-button {
+  &.button-disable-hover {
+    &:hover {
+      box-shadow: none !important;
+      cursor: auto !important;
+    }
+  }
+  &.button-flex {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1;
+
+    .button-icon {
+      line-height: 1;
+      margin: 0;
+    }
+  }
+  &.button-square-60 {
+    min-width: 60px;
   }
 }
