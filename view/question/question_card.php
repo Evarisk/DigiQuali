@@ -283,8 +283,8 @@ if (empty($reshook)) {
 			}
 
             $objectConfig = ['config' => []];
-            if (GETPOSTISSET('step_count') && !empty(GETPOST('step_count'))) {
-                $objectConfig['config']['step_count'] = GETPOST('step_count', 'int');
+            if (GETPOSTISSET('step') && !empty(GETPOSTINT('step'))) {
+                $objectConfig['config'][$object->type]['step'] = GETPOSTINT('step');
             }
 
 
@@ -745,9 +745,9 @@ if ($action == 'create') {
 	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', GETPOST('type') ?: 'OkKoToFixNonApplicable', 0, 'data-type="question-type"');
 	print '</td></tr>';
 
-    // add a field for step count hidden
-    print '<tr class="' . (GETPOST('type') == 'Percentage' ? '' : 'hidden') . '" id="question-step-count"><td class="fieldrequired"><label class="" for="step_count">' . $langs->trans('QuestionStepCount') . '</label></td><td>';
-    print '<input class="flat" type="number" size="36" name="step_count" id="step_count" value="'.GETPOST('step_count', 'int').'">';
+    // Step for percentage question type default hidden
+    print '<tr class="' . (GETPOST('type') == 'Percentage' ? '' : 'hidden') . '" id="percentage-question-step"><td class="fieldrequired"><label for="step">' . $langs->transnoentities('PercentageQuestionStep') . '</label></td><td>';
+    print '<input type="number" name="step" id="step" min="1" value="' . (!empty(GETPOSTINT('step')) ? GETPOSTINT('step') : 1) . '">';
     print '</td></tr>';
 
 	// Description -- Description
@@ -870,12 +870,12 @@ if (($id || $ref) && $action == 'edit') {
 
 	// Type -- Type
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', $object->type);
+	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', $object->type, 0, 'data-type="question-type"');
 	print '</td></tr>';
 
-    // add a field for step count hidden
-    print '<tr class="' . ($object->type == 'Percentage' ? '' : 'hidden') . '" id="question-step-count"><td class="fieldrequired"><label class="" for="step_count">' . $langs->trans('QuestionStepCount') . '</label></td><td>';
-    print '<input class="flat" type="number" size="36" name="step_count" id="step_count" value="'. ($objectConfig['config']['step_count'] ?? 100) .'">';
+    // Step for percentage question type default hidden
+    print '<tr class="' . ($object->type == 'Percentage' ? '' : 'hidden') . '" id="percentage-question-step"><td class="fieldrequired"><label for="step">' . $langs->transnoentities('PercentageQuestionStep') . '</label></td><td>';
+    print '<input type="number" name="step" id="step" min="1" value="' . ($objectConfig['config'][$object->type]['step'] ?? 100) . '">';
     print '</td></tr>';
 
 	//Description -- Description
@@ -1042,6 +1042,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>';
 	print $langs->transnoentities($object->type);
 	print '</td></tr>';
+
+    $objectConfig = json_decode($object->json, true)['config'];
+
+    // Config
+    if ($object->type == 'Percentage' && isset($objectConfig[$object->type]['step'])) {
+        print '<tr><td class="titlefield">';
+        print $langs->transnoentities('PercentageQuestionStep');
+        print '</td><td>';
+        print $objectConfig[$object->type]['step'];
+        print '</td></tr>';
+    }
 
 	// EnterComment -- Saisir les commentaires
 	print '<tr><td class="titlefield">';
