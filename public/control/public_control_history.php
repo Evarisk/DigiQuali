@@ -43,6 +43,26 @@ if (!defined('NOBROWSERNOTIF')) {
     define('NOBROWSERNOTIF', 1);
 }
 
+// Better performance by disabling some features not used in this page
+if (!defined('DISABLE_JQUERY_JNOTIFY')) {
+    define('DISABLE_JQUERY_JNOTIFY', 1);
+}
+if (!defined('DISABLE_SELECT2')) {
+    define('DISABLE_SELECT2', 1);
+}
+if (!defined('DISABLE_CKEDITOR')) {
+    define('DISABLE_CKEDITOR', 1);
+}
+if (!defined('DISABLE_JQUERY_TABLEDND')) {
+    define('DISABLE_JQUERY_TABLEDND', 1);
+}
+if (!defined('DISABLE_JS_GRAPH')) {
+    define('DISABLE_JS_GRAPH', 1);
+}
+if (!defined('DISABLE_MULTISELECT')) {
+    define('DISABLE_MULTISELECT', 1);
+}
+
 // Load DigiQuali environment
 if (file_exists('../../digiquali.main.inc.php')) {
     require_once __DIR__ . '/../../digiquali.main.inc.php';
@@ -64,11 +84,19 @@ require_once __DIR__ . '/../../lib/digiquali_control.lib.php';
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs;
 
-// Load translation files required by the page
-if (isModEnabled('dolicar')) {
-    $langsDomains[] = 'dolicar@dolicar';
-    saturne_load_langs($langsDomains);
+// Better performance by disabling some features not used in this page provide by conf
+if (isModEnabled('multicompany')) {
+    unset($conf->modules_parts['css']['multicompany']); // To avoid loading multicompany CSS
+    unset($conf->modules_parts['js']['multicompany']);  // To avoid loading multicompany JS
 }
+
+if (isModEnabled('saturne')) {
+    unset($conf->modules_parts['css']['saturne']); // To avoid loading saturne CSS
+    unset($conf->modules_parts['js']['saturne']);  // To avoid loading saturne JS
+}
+
+// Load translation files required by the page
+saturne_load_langs();
 
 // Get parameters
 $trackId = GETPOST('track_id', 'alpha');
@@ -80,7 +108,7 @@ $object = new Control($db);
 $sheet  = new Sheet($db);
 $user   = new User($db);
 
-$hookmanager->initHooks(['publiccontrolhistory', 'saturnepublicinterface']); // Note that conf->hooks_modules contains array
+$hookmanager->initHooks(['publiccontrol', 'saturnepublicinterface']); // Note that conf->hooks_modules contains array
 
 // Load user
 if (!isset($_SESSION['dol_login'])) {
@@ -149,11 +177,11 @@ saturne_header(0,'', $title, '', '', 0, 0, [], [], '', 'page-public-card'); ?>
             <div class="tab switch-public-control-view <?php echo ($route == 'controlDocumentation' ? 'tab-active' : ''); ?>" data-route="controlDocumentation">
                 <?php echo $langs->transnoentities('Documentation'); ?>
             </div>
-            <?php if (isModEnabled('dolicar') && $objectType == 'productlot') : ?>
-                <a class="tab" href="<?php echo dol_buildpath('custom/dolicar/public/agenda/public_vehicle_logbook.php?id=' . $objectId . '&entity=' . $entity . '&backtopage=' . urlencode($_SERVER['REQUEST_URI']), 1); ?>">
-                    <?php echo $langs->transnoentities('PublicVehicleLogBook'); ?>
-                </a>
-            <?php endif; ?>
+            <?php
+                $parameters = ['objectType' => $objectType, 'objectId' => $objectId, 'entity' => $entity];
+                $hookmanager->executeHooks('digiqualiPublicControlTab', $parameters);
+                print $hookmanager->resPrint;
+            ?>
         <?php endif; ?>
     </div>
 
@@ -165,6 +193,3 @@ saturne_header(0,'', $title, '', '', 0, 0, [], [], '', 'page-public-card'); ?>
         } ?>
     </div>
 </div><?php
-
-llxFooter('', 'public');
-$db->close();
