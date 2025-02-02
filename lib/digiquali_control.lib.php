@@ -84,7 +84,7 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
         $linkedObject->element = 'productbatch';
     }
 
-    $out['linkedObject']['image'] = saturne_show_medias_linked($modulePart, $conf->{$linkedObject->element}->multidir_output[$conf->entity] . '/' . $linkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $linkedObject->ref . '/', $linkedObject, 'photo', 0, 0,0, 1);
+    $out['image'] = saturne_show_medias_linked($modulePart, $conf->{$linkedObject->element}->multidir_output[$conf->entity] . '/' . $linkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $linkedObject->ref . '/', $linkedObject, 'photo', 0, 0,0, 1);
     if ($linkedObject->element == 'productbatch') {
         $linkedObject->element = 'productlot';
     }
@@ -115,7 +115,7 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
                 $modulePart = 'produit';
             }
 
-            $out['parentLinkedObject']['image']      = saturne_show_medias_linked($modulePart, $conf->{$parentLinkedObject->element}->multidir_output[$conf->entity] . '/' . $parentLinkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $parentLinkedObject->ref . '/', $parentLinkedObject, 'photo', 0, 0,0, 1);
+            $out['image']                            = saturne_show_medias_linked($modulePart, $conf->{$parentLinkedObject->element}->multidir_output[$conf->entity] . '/' . $parentLinkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $parentLinkedObject->ref . '/', $parentLinkedObject, 'photo', 0, 0,0, 1);
             $out['parentLinkedObject']['title']      = $langs->transnoentities($linkedObjectParentData['langs']);
             $out['parentLinkedObject']['name_field'] = img_picto('', $linkedObjectParentData['picto'], 'class="pictofixedwidth"') . $parentLinkedObject->{$linkedObjectParentData['name_field']};
         }
@@ -132,28 +132,42 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
  */
 function get_control_infos(CommonObject $linkedObject): array
 {
-    global $db, $langs;
+    global $conf, $db, $langs, $user;
 
     $out         = [];
     $lastControl = null;
-    foreach ($linkedObject->linkedObjects['digiquali_control'] as $control) {
-        if ($control->status < Control::STATUS_LOCKED ||empty($control->control_date)) {
-            continue;
-        }
 
+    // remove controls with status < 2 and empty control_date
+    $filteredControls = array_filter($linkedObject->linkedObjects['digiquali_control'], function ($control) {
+        return $control->status >= Control::STATUS_LOCKED && !empty($control->control_date);
+    });
+
+    // sort controls by control_date desc
+    usort($filteredControls, function ($a, $b) {
+        return $b->control_date - $a->control_date;
+    });
+
+    foreach ($filteredControls as $control) {
         if ($lastControl === null || $control->control_date > $lastControl->control_date) {
             $lastControl = $control;
-            $out['LastControl']['title']        = $langs->transnoentities(dol_ucfirst($lastControl->element));
-            $out['LastControl']['ref']          = img_picto('', $lastControl->picto, 'class="pictofixedwidth"') . $lastControl->ref;
-            $out['LastControl']['control_date'] = '<i class="objet-icon far fa-calendar"></i>' . dol_print_date($lastControl->control_date, 'day');
-
-            $sheet = new Sheet($db);
-
-            $sheet->fetch($lastControl->fk_sheet);
-
-            $out['LastControl']['sheet_title']  = $langs->transnoentities(dol_ucfirst($sheet->element));
-            $out['LastControl']['sheet_ref']    = img_picto('', $sheet->picto, 'class="pictofixedwidth"') . $sheet->ref;
         }
+
+        $out['control'][$control->id]['image']        = saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/' . $control->element . '/'. $control->ref . '/photos/', 'small', '', 0, 0, 0, 100, 100, 0, 0, 1, $control->element . '/'. $control->ref . '/photos/', $control, 'photo', 0, 0,0, 1);
+        $out['control'][$control->id]['title']        = $langs->transnoentities(dol_ucfirst($control->element));
+        $out['control'][$control->id]['ref']          = img_picto('', $control->picto, 'class="pictofixedwidth"') . $control->ref;
+        $out['control'][$control->id]['control_date'] = '<i class="objet-icon far fa-calendar"></i>' . dol_print_date($control->control_date, 'day');
+
+        $sheet = new Sheet($db);
+
+        $sheet->fetch($control->fk_sheet);
+
+        $out['control'][$control->id]['sheet_title'] = $langs->transnoentities(dol_ucfirst($sheet->element));
+        $out['control'][$control->id]['sheet_ref']   = img_picto('', $sheet->picto, 'class="pictofixedwidth"') . $sheet->ref;
+
+        $out['control'][$control->id]['view_button'] = '<a href="' . dol_buildpath('custom/digiquali/view/control/control_card.php', 1) . '?id=' . $control->id . '" target="_blank"><div class="wpeo-button button-square-60 button-radius-1 button-flex"><span>' . $langs->transnoentities('See') . '<i class="button-icon fas fa-eye"></i></span></div></a>';
+        $verdictControlColor                         = $control->verdict == 1 ? 'green' : 'red';
+        $pictoControlColor                           = $control->verdict == 1 ? 'check' : 'exclamation';
+        $out['control'][$control->id]['verdict']     = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><span>' . $langs->transnoentities('VerdictObject') . '<i class="button-icon fas fa-' . $pictoControlColor . '"></i></span></div>';
     }
 
     if (!empty($lastControl->next_control_date)) {
@@ -162,9 +176,12 @@ function get_control_infos(CommonObject $linkedObject): array
         $out['nextControl']['next_control_date']       = '<i class="objet-icon far fa-calendar"></i>' . dol_print_date($lastControl->next_control_date, 'day');
         $out['nextControl']['next_control_date_color'] = $lastControl->getNextControlDateColor();
         $out['nextControl']['next_control']            = '<i class="objet-icon far fa-clock"></i>' . $langs->transnoentities('In') . ' ' . $nextControl . ' ' . $langs->transnoentities('Days');
-        if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') == 1) {
-            $out['nextControl']['create_button'] = '<a href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '" target="_blank"><div class="wpeo-button button-square-60 button-radius-1 button-primary button-flex"><span>Créer</span> <i class="button-icon fas fa-plus"></i></div></a>';
+        if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $user->hasRight('digiquali', 'control', 'write')) {
+            $out['nextControl']['create_button'] = '<a href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '" target="_blank"><div class="wpeo-button button-square-60 button-radius-1 button-primary button-flex"><span>' . $langs->transnoentities('Create') . '<i class="button-icon fas fa-plus"></i></span></div></a>';
         }
+        $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
+        $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
+        $out['nextControl']['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><span>' . $langs->transnoentities('Status') . '<i class="button-icon fas fa-' . $pictoControlColor . '"></i></span></div>';
     }
 
     return $out;
