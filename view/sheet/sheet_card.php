@@ -615,7 +615,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$object->fetchObjectLinked($id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position');
 	$questionIds = $object->linkedObjectsIds['digiquali_question'];
 
-	// Buttons for actions
+    $questionCounter = 0;
+    if (!empty($questionIds)) {
+        $questionCounter = count($questionIds);
+    }
+
+    // Buttons for actions
 	if ($action != 'presend' && $action != 'editline') {
 		print '<div class="tabsAction">';
 		$parameters = [];
@@ -664,7 +669,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	// QUESTIONS LINES
 	print '<div class="div-table-responsive-no-min">';
-	print load_fiche_titre($langs->trans("LinkedQuestionsList", count($questionIds)), '', '', 0, 'questionList');
+	print load_fiche_titre($langs->transnoentities('LinkedQuestionsList', $questionCounter), '', '', 0, 'questionList');
 	print '<table id="tablelines" class="centpercent noborder noshadow">'; ?>
 	<script>
 		$(document).ready(function(){

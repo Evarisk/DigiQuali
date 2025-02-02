@@ -909,7 +909,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     </div>
 
 <?php if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
-        print load_fiche_titre($langs->trans('LinkedQuestionsList', $questionCounter), '', '');
+        print load_fiche_titre($langs->transnoentities('LinkedQuestionsList', $questionCounter), '', '');
         print '<div id="tablelines" class="question-answer-container noborder noshadow">';
         require_once __DIR__ . '/../../core/tpl/digiquali_answers.tpl.php';
         print '</div>';
