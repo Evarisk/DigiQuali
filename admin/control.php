@@ -211,7 +211,7 @@ print '<td>' . $langs->transnoentities('Description') . '</td>';
 print '<td>' . $langs->transnoentities('Value') . '</td>';
 print '</tr>';
 
-$nextControlDateFrequencies = [0 => '#E05353', 30 => '#FF6900', 60 => '#E9AD4F', 90 => '#47E58E'];
+$nextControlDateFrequencies = [0 => '#FF3535', 30 => '#FD7E00', 60 => '#FFB700', 90 => '#C7BA10'];
 foreach ($nextControlDateFrequencies as $nextControlDateFrequency => $nextControlDateFrequencyDefaultColor) {
     print '<tr class="oddeven"><td>' . $langs->transnoentities('NextControlDateColor' . $nextControlDateFrequency) . '</td><td>';
     print $langs->transnoentities('NextControlDateColor' . $nextControlDateFrequency . 'Description') . '</td><td>';

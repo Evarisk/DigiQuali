@@ -762,8 +762,8 @@ class Control extends SaturneObject
     function getNextControlDateColor(): string
     {
         $nextControl                = floor(($this->next_control_date - dol_now('tzuser'))/(3600 * 24));
-        $nextControlDateColor       = '#47E58E';
-        $nextControlDateFrequencies = [0 => '#E05353', 30 => '#FF6900', 60 => '#E9AD4F', 90 => '#47E58E'];
+        $nextControlDateColor       = getDolGlobalString('DIGIQUALI_NEXT_CONTROL_DATE_COLOR_90', '#C7BA10');
+        $nextControlDateFrequencies = [0 => '#FF3535', 30 => '#FD7E00', 60 => '#FFB700', 90 => '#C7BA10'];
         foreach ($nextControlDateFrequencies as $nextControlDateFrequency => $nextControlDateFrequencyDefaultColor) {
             if ($nextControl <= $nextControlDateFrequency) {
                 $nextControlDateColor = getDolGlobalString('DIGIQUALI_NEXT_CONTROL_DATE_COLOR_' . $nextControlDateFrequency, $nextControlDateFrequencyDefaultColor);
