@@ -755,6 +755,46 @@ class Control extends SaturneObject
     }
 
     /**
+     * Return HTML string to put an input field into a page
+     * Code very similar with showInputField of extra fields
+     *
+     * @param  string          $key         Key of attribute
+     * @param  string|string[] $value       Preselected value to show (for date type it must be in timestamp format, for amount or price it must be a php numeric value, for array type must be array)
+     * @param  string          $moreparam   To add more parameters on html input tag
+     * @param  string          $keysuffix   Suffix string to add into name and id of field (can be used to avoid duplicate names)
+     * @param  string          $keyprefix   Prefix string to add into name and id of field (can be used to avoid duplicate names)
+     * @param  string|int      $morecss     Value for css to define style/length of field. May also be a numeric
+     * @param  int<0,1>        $nonewbutton Force to not show the new button on field that are links to object
+     * @return string          $out         HTML string to put an input field into a page
+     * @throws Exception
+     */
+    public function showInputField($val, $key, $value, $moreparam = '', $keysuffix = '', $keyprefix = '', $morecss = 0, $nonewbutton = 0): string
+    {
+        $linkableElements = get_sheet_linkable_objects();
+        foreach($linkableElements as $linkableElement) {
+            if ($linkableElement['conf'] > 0 && $key == $linkableElement['post_name']) {
+                $out          = '';
+                $objectArrays = [];
+                $objects      = saturne_fetch_all_object_type($linkableElement['className']);
+                if (is_array($objects) && !empty($objects)) {
+                    $nameFields = explode(', ', $linkableElement['name_field']);
+                    foreach ($objects as $object) {
+                        $objectArrays[$object->id] = array_reduce($nameFields, function($carry, $field) use ($object) {
+                            return $carry . ' ' . $object->{$field};
+                        });
+                    }
+
+                    $out = Form::selectarray($keyprefix . $key . $keysuffix, $objectArrays, $value, 1, 0, 0, '', 0, 0, 0, '', !empty($val['css']) ? $val['css'] : 'minwidth200 maxwidth300 widthcentpercentminusx');
+                }
+
+                return $out;
+            }
+        }
+
+        return parent::showInputField($val, $key, $value, $moreparam, $keysuffix, $keyprefix, $morecss, $nonewbutton);
+    }
+
+    /**
      * Get next control date color
      *
      * @return string $nextControlDateColor Next control date color
