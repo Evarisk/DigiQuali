@@ -28,17 +28,22 @@
 
 $controlInfoArray = get_control_infos($linkedObject); ?>
 
-<div class="card">
-    <?php foreach ($controlInfoArray['control'] as $controlInfo) : ?>
+<?php foreach ($controlInfoArray['control'] as $controlInfo) : ?>
+    <div class="card has-margin">
         <div class="card-thumbnail"><?php echo $controlInfo['image']; ?></div>
-        <div class="card-content">
-            <div class="information-label"><?php echo $controlInfo['title']; ?></div>
-            <div class="information-label"><?php echo $controlInfo['ref']; ?></div>
+        <div class="card-container">
+            <div class="information-type"><?php echo $controlInfo['title']; ?></div>
+            <div class="information-label size-l"><?php echo $controlInfo['ref']; ?></div>
             <div class="information-label"><?php echo $controlInfo['control_date']; ?></div>
-            <div class="information-label"><?php echo $controlInfo['sheet_title']; ?></div>
+            <div class="information-type"><?php echo $controlInfo['sheet_title']; ?></div>
             <div class="information-label"><?php echo $controlInfo['sheet_ref']; ?></div>
-            <div class="information-label"><?php echo $controlInfo['view_button']; ?></div>
-            <div class="information-label"><?php echo $controlInfo['verdict']; ?></div>
+
         </div>
-    <?php endforeach; ?>
-</div>
+        <div class="card-actions">
+            <div class="wpeo-gridlayout grid-2 grid-gap-1">
+                <div class="information-label"><?php echo $controlInfo['view_button']; ?></div>
+                <div class="information-label"><?php echo $controlInfo['verdict']; ?></div>
+            </div>
+        </div>
+    </div>
+<?php endforeach; ?>

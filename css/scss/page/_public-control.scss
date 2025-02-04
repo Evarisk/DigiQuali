@@ -131,3 +131,78 @@
     min-width: 60px;
   }
 }
+#publicControlHistory .public-card__container .card {
+  width: 100%;
+  border: 1px solid rgba(13, 138, 255, .2);
+  box-shadow: 0 4px 1px 0 rgba(13, 138, 255, .2);
+  border-radius: 6px;
+  display: flex;
+  gap: 1em;
+  padding: 0 1em 0 0;
+
+  &.has-margin {
+    margin-bottom: 1em;
+  }
+  .card-thumbnail {
+    max-width: 100px;
+    min-width: 100px;
+
+    img {
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-top-left-radius: 6px;
+      border-bottom-left-radius: 6px;
+      width: 100%;
+      height: 100%;
+    }
+  }
+  .card-container {
+    padding: 0.4em 0;
+    width: 100%;
+
+    .information-type {
+      font-size: 12px;
+      color: #0d8aff;
+      font-weight: 600;
+    }
+    .information-label {
+      &.size-l {
+        font-size: 1.1em;
+        font-weight: 600;
+      }
+      .objet-icon {
+        color: rgba(0,0,0,0.4);
+        margin-right: 0.2em;
+      }
+    }
+  }
+  .card-actions {
+    margin: auto 0;
+    padding: 0.4em 0;
+  }
+}
+
+/**
+* Mobile
+ */
+
+@media ( max-width: $media__small ) {
+
+  // @TODO Switch in Saturne.
+  .page-public-card .fiche {
+    margin-left: 0px !important;
+    margin-right: 0px !important;
+  }
+  #publicControlHistory .public-card__tab {
+    margin-bottom: 1em;
+    padding: 0;
+    justify-content: center;
+
+    .tab {
+      border-radius: 3px;
+    }
+  }
+  #publicControlHistory .public-card__container {
+    padding: 1em;
+  }
+}
