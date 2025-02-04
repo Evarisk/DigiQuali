@@ -28,19 +28,17 @@
 
 $controlInfoArray = get_control_infos($linkedObject); ?>
 
-<div class="public-card__container">
-    <div class="card">
-        <?php foreach ($controlInfoArray['control'] as $controlInfo) : ?>
-            <div class="card-thumbnail"><?php echo $controlInfo['image']; ?></div>
-            <div class="card-content">
-                <div class="information-label"><?php echo $controlInfo['title']; ?></div>
-                <div class="information-label"><?php echo $controlInfo['ref']; ?></div>
-                <div class="information-label"><?php echo $controlInfo['control_date']; ?></div>
-                <div class="information-label"><?php echo $controlInfo['sheet_title']; ?></div>
-                <div class="information-label"><?php echo $controlInfo['sheet_ref']; ?></div>
-                <div class="information-label"><?php echo $controlInfo['view_button']; ?></div>
-                <div class="information-label"><?php echo $controlInfo['verdict']; ?></div>
-            </div>
-        <?php endforeach; ?>
-    </div>
+<div class="card">
+    <?php foreach ($controlInfoArray['control'] as $controlInfo) : ?>
+        <div class="card-thumbnail"><?php echo $controlInfo['image']; ?></div>
+        <div class="card-content">
+            <div class="information-label"><?php echo $controlInfo['title']; ?></div>
+            <div class="information-label"><?php echo $controlInfo['ref']; ?></div>
+            <div class="information-label"><?php echo $controlInfo['control_date']; ?></div>
+            <div class="information-label"><?php echo $controlInfo['sheet_title']; ?></div>
+            <div class="information-label"><?php echo $controlInfo['sheet_ref']; ?></div>
+            <div class="information-label"><?php echo $controlInfo['view_button']; ?></div>
+            <div class="information-label"><?php echo $controlInfo['verdict']; ?></div>
+        </div>
+    <?php endforeach; ?>
 </div>
