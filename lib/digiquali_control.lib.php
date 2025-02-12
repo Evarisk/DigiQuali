@@ -84,7 +84,8 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
         $linkedObject->element = 'productbatch';
     }
 
-    $out['image'] = saturne_show_medias_linked($modulePart, $conf->{$linkedObject->element}->multidir_output[$conf->entity] . '/' . $linkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $linkedObject->ref . '/', $linkedObject, 'photo', 0, 0,0, 1);
+    $out['image']     = saturne_show_medias_linked($modulePart, $conf->{$linkedObject->element}->multidir_output[$conf->entity] . '/' . $linkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $linkedObject->ref . '/', $linkedObject, 'photo', 0, 0,0, 1);
+    $out['fileArray'] = dol_dir_list($conf->{$linkedObject->element}->multidir_output[$conf->entity] . '/' . $linkedObject->ref, 'files', 0, '', null, 'name', SORT_ASC, 2);
     if ($linkedObject->element == 'productbatch') {
         $linkedObject->element = 'productlot';
     }
@@ -118,6 +119,8 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
             $out['image']                            = saturne_show_medias_linked($modulePart, $conf->{$parentLinkedObject->element}->multidir_output[$conf->entity] . '/' . $parentLinkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $parentLinkedObject->ref . '/', $parentLinkedObject, 'photo', 0, 0,0, 1);
             $out['parentLinkedObject']['title']      = $langs->transnoentities($linkedObjectParentData['langs']);
             $out['parentLinkedObject']['name_field'] = img_picto('', $linkedObjectParentData['picto'], 'class="pictofixedwidth"') . $parentLinkedObject->{$linkedObjectParentData['name_field']};
+
+            $out['fileArray'] = array_merge($out['fileArray'], dol_dir_list($conf->{$parentLinkedObject->element}->multidir_output[$conf->entity] . '/' . $parentLinkedObject->ref, 'files', 0, '', null, 'name', SORT_ASC, 2));
         }
     }
 

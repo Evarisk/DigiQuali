@@ -73,6 +73,7 @@ if (file_exists('../../digiquali.main.inc.php')) {
 }
 
 // Load Dolibarr libraries
+require_once DOL_DOCUMENT_ROOT . '/core/class/link.class.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 
 // Load DigiQuali libraries
@@ -107,6 +108,7 @@ $route   = GETPOSTISSET('route') ? GETPOST('route') : 'linkedObjectAndControl';
 $object = new Control($db);
 $sheet  = new Sheet($db);
 $user   = new User($db);
+$link   = new Link($db);
 
 $hookmanager->initHooks(['publiccontrol', 'saturnepublicinterface']); // Note that conf->hooks_modules contains array
 
@@ -151,7 +153,7 @@ if ($linkedObject->element == 'productbatch') {
 $routes = [
     'linkedObjectAndControl' => '/../../core/tpl/frontend/linked_object_and_control_frontend_view.tpl.php',
     'controlList'            => '/../../core/tpl/frontend/control_item_frontend_view.tpl.php',
-    'controlDocumentation'   => '/../../core/tpl/digiquali_public_control_documentation.tpl.php'
+    'controlDocumentation'   => '/../../core/tpl/frontend/control_documentation_frontend_view.tpl.php'
 ];
 
 /*
