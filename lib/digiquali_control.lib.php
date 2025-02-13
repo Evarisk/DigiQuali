@@ -143,7 +143,7 @@ function get_control_infos(CommonObject $linkedObject): array
 
     // remove controls with status < 2 and empty control_date
     $filteredControls = array_filter($linkedObject->linkedObjects['digiquali_control'], function ($control) {
-        return $control->status >= Control::STATUS_LOCKED && !empty($control->control_date);
+        return $control->status == Control::STATUS_LOCKED && !empty($control->control_date);
     });
 
     // sort controls by control_date desc
@@ -174,6 +174,10 @@ function get_control_infos(CommonObject $linkedObject): array
         $verdictControlColor                     = $control->verdict == 1 ? 'green' : 'red';
         $pictoControlColor                       = $control->verdict == 1 ? 'check' : 'exclamation';
         $out['control'][$control->id]['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><span>' . $langs->transnoentities('VerdictObject') . '</span><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
+
+        if (getDolGlobalInt('DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY')) {
+            break;
+        }
     }
 
     if (!empty($lastControl->next_control_date)) {
