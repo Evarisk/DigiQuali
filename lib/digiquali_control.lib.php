@@ -169,7 +169,7 @@ function get_control_infos(CommonObject $linkedObject): array
         $out['control'][$control->id]['sheet_ref']   = img_picto('', $sheet->picto, 'class="pictofixedwidth"') . $sheet->ref;
 
         if ($permissionToWrite) {
-            $out['control'][$control->id]['view_button'] = '<a href="' . dol_buildpath('custom/digiquali/view/control/control_card.php', 1) . '?id=' . $control->id . '" target="_blank"><div class="wpeo-button button-square-60 button-radius-1 button-flex"><span>' . $langs->transnoentities('See') . '</span><i class="button-icon fas fa-eye"></i></div></a>';
+            $out['control'][$control->id]['view_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php', 1) . '?id=' . $control->id . '" target="_blank"><span>' . $langs->transnoentities('See') . '</span><i class="button-icon fas fa-eye"></i></a>';
         }
         $verdictControlColor                     = $control->verdict == 1 ? 'green' : 'red';
         $pictoControlColor                       = $control->verdict == 1 ? 'check' : 'exclamation';
@@ -187,7 +187,7 @@ function get_control_infos(CommonObject $linkedObject): array
         $out['nextControl']['next_control_date_color'] = $lastControl->getNextControlDateColor();
         $out['nextControl']['next_control']            = '<i class="objet-icon far fa-clock"></i>' . $langs->transnoentities('In') . ' ' . $nextControl . ' ' . $langs->transnoentities('Days');
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWrite) {
-            $out['nextControl']['create_button'] = '<a href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '" target="_blank"><div class="wpeo-button button-square-60 button-radius-1 button-primary button-flex"><span>' . $langs->transnoentities('Create') . '</span><i class="button-icon fas fa-plus"></i></div></a>';
+            $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '" target="_blank"><span>' . $langs->transnoentities('Create') . '</span><i class="button-icon fas fa-plus"></i></a>';
         }
         $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
         $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
