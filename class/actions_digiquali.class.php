@@ -103,7 +103,7 @@ class ActionsDigiquali
 		}
 
 		if (!$error) {
-			$this->results = $tags;
+            $this->results = array_merge($this->results, $tags);
 			return 0; // or return 1 to replace standard code
 		} else {
 			$this->errors[] = 'Error message';
