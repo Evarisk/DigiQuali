@@ -405,13 +405,6 @@ controldocument                         = fiche de controle
 controldocument.odt                     = Fiche de Contrôle
 controldocument_photo.odt               = Fiche de Contrôle avec photos
 controldocument_photo                   = fiche de controle avec photos
-ControlPeriodicity                      = Périodicité de contrôle
-ObjectState                             = État de l'objet
-In                                      = Dans
-Watch                                   = Voir
-SiteInspectionSheets                    = Fiches de contrôle chantier
-VideoLinks                              = Liens vidéos
-
 
 
 
@@ -477,3 +470,5 @@ NoObservations           = Pas d'observations
 BasedOnModel             = Basé sur le modèle
 WriteComment             = Écrire un commentaire
 WriteAnswer              = Écrire une réponse
+In                       = Dans
+See                      = Voir
