@@ -31,33 +31,38 @@ $linkedObjectInfoArray = get_linked_object_infos($linkedObject, $linkableElement
 $links = [];
 $link->fetchAll($links, $linkedObject->element, $linkedObject->id); ?>
 
-<div class="flex flex-col" style="gap: 10px;">
+<div class="public-control-documentation">
+    <?php foreach ($linkedObjectInfoArray['fileArray'] as $fileName) { ?>
+        <div class="card has-margin">
+            <div class="card-thumbnail size-min" style="background: #3E41FF;">
+                <i class="card-thumbnail-icon fas fa-file"></i>
+            </div>
+            <div class="card-container">
+                <div class="information-label size-l"><?php echo $fileName['name']; ?></div>
+            </div>
+            <div class="card-actions">
+                <a class="wpeo-button button-square-40 button-rounded" href="<?php echo DOL_URL_ROOT . '/document.php?modulepart=' . 'product&entity=' . $conf->entity . '&file=' . urlencode($fileName['level1name'] . '/' .  $fileName['name']); ?>" target="_blank">
+                    <i class="button-icon fa fa-download"></i>
+                </a>
+            </div>
+        </div>
+    <?php } ?>
+
     <?php if (!empty($links)) {
         foreach ($links as $link) { ?>
-            <a href="<?php echo $link->url ?>" target="_blank">
-                <div class="wpeo-button">
-                    <i class="fas fa-external-link-alt pictofixedwidth"></i><?php echo $langs->transnoentities($link->label); ?>
+            <div class="card has-margin">
+                <div class="card-thumbnail size-min" style="background: #0EECAD;">
+                    <i class="card-thumbnail-icon fas fa-link"></i>
                 </div>
-            </a>
+                <div class="card-container">
+                    <div class="information-label size-l"><?php echo $langs->transnoentities($link->label); ?></div>
+                </div>
+                <div class="card-actions">
+                    <a class="wpeo-button button-square-40 button-rounded" href="<?php echo $link->url ?>" target="_blank">
+                        <i class="button-icon fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+            </div>
         <?php }
     } ?>
 </div>
-
-<table class="noborder centpercent">
-    <tr class="liste_titre">
-        <td><?php echo $langs->transnoentities('Name'); ?></td>
-        <td class="center nowraponall"><?php echo $langs->transnoentities('Date'); ?></td>
-        <td class="center"><?php echo $langs->transnoentities('Upload'); ?></td>
-    </tr>
-    <?php foreach ($linkedObjectInfoArray['fileArray'] as $fileName) { ?>
-        <tr>
-            <td><?php echo $fileName['name']; ?></td>
-            <td class="center nowraponall"><?php echo dol_print_date($fileName['date'], 'dayhour', 'tzuser'); ?></td>
-            <td class="center">
-                <a href="<?php echo DOL_URL_ROOT . '/document.php?modulepart=' . 'product&entity=' . $conf->entity . '&file=' . urlencode($fileName['level1name'] . '/' .  $fileName['name']); ?>" target="_blank">
-                    <i class="fa fa-download"></i>
-                </a>
-            </td>
-        </tr>
-    <?php } ?>
-</table>
