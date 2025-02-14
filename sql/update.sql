@@ -1,4 +1,4 @@
--- Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
+-- Copyright (C) 2022-2025 EVARISK <technique@evarisk.com>
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -127,3 +127,6 @@ ALTER TABLE `llx_digiquali_survey` ADD `success_rate` DOUBLE(24,8) NULL AFTER `p
 
 -- 1.13.0
 ALTER TABLE `llx_digiquali_control` ADD `label` VARCHAR(255) NULL AFTER `status`;
+
+-- 20.1.0
+ALTER TABLE `llx_digiquali_question` ADD `json` TEXT NULL AFTER `photo_ko`;
