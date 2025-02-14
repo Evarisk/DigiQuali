@@ -32,7 +32,7 @@ window.digiquali.control.event = function() {
   $( document ).on( 'change', '#fk_sheet', window.digiquali.control.showSelectObjectLinked);
   $( document ).on( 'click', '.clipboard-copy', window.digiquali.control.copyToClipboard );
   $( document ).on( 'change', '#productId', window.digiquali.control.refreshLotSelector );
-  $( document ).on( 'click', '.switch-public-control-view', window.digiquali.control.switchPublicControlView );
+  $(document).on('click', '.switch-public-control-view', window.digiquali.control.switchPublicControlView);
   $(document).on('click', '.show-only-questions-with-no-answer', window.digiquali.control.showOnlyQuestionsWithNoAnswer);
   $(document).on('click', '.photo-sheet-category', window.digiquali.control.getSheetCategoryID);
   $(document).on('click', '.photo-sheet-sub-category', window.digiquali.control.getSheetSubCategoryID);
@@ -145,38 +145,26 @@ window.digiquali.control.refreshLotSelector = function(  event ) {
 };
 
 /**
- * Switch public control history mode
+ * Switch public control mode
  *
- * @since   1.8.0
- * @version 1.8.0
+ * @since   20.1.0
+ * @version 20.1.0
  *
- * @param  {MouseEvent} event Les attributs lors du clic.
  * @return {void}
  */
-window.digiquali.control.switchPublicControlView = function(  event ) {
-
-  var publicControlViewMode = $(this).find('.public-control-view').val()
-  let token                 = window.saturne.toolbox.getToken();
-  let urlToGo               = document.URL + '&token=' + token
-
-  if (publicControlViewMode == 0) {
-    urlToGo += '&show_control_list=1'
-  } else {
-    urlToGo += '&show_last_control=1'
-  }
-
-  window.saturne.loader.display($('.signature-container'))
+window.digiquali.control.switchPublicControlView = function() {
+  const route = $(this).data('route');
+  let   token = window.saturne.toolbox.getToken();
 
   $.ajax({
-    url: urlToGo,
-    type: "POST",
+    url: document.URL + '&route=' + route + '&token=' + token,
+    type: 'POST',
     processData: false,
     contentType: false,
-    success: function ( resp ) {
-      $('#publicControlHistory').replaceWith($(resp).find('#publicControlHistory'))
+    success: function (resp) {
+      $('#publicControlHistory').replaceWith($(resp).find('#publicControlHistory'));
     },
-    error: function ( ) {
-    }
+    error: function () {}
   });
 };
 

@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022-2023 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2022-2025 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,269 +18,178 @@
 /**
  * \file    public/control/public_control_history.php
  * \ingroup digiquali
- * \brief   Public page to view control history.
+ * \brief   Public page to view control history
  */
 
 if (!defined('NOTOKENRENEWAL')) {
-	define('NOTOKENRENEWAL', '1');
+    define('NOTOKENRENEWAL', 1);
 }
 if (!defined('NOREQUIREMENU')) {
-	define('NOREQUIREMENU', 1);
+    define('NOREQUIREMENU', 1);
 }
 if (!defined('NOREQUIREHTML')) {
-	define('NOREQUIREHTML', '1');
+    define('NOREQUIREHTML', 1);
 }
-if (!defined('NOLOGIN')) {      // This means this output page does not require to be logged.
-	define('NOLOGIN', '1');
+if (!defined('NOLOGIN')) {     // This means this output page does not require to be logged
+    define('NOLOGIN', 1);
 }
-if (!defined('NOCSRFCHECK')) {  // We accept to go on this page from external website.
-	define('NOCSRFCHECK', '1');
+if (!defined('NOCSRFCHECK')) { // We accept to go on this page from external website
+    define('NOCSRFCHECK', 1);
 }
-if (!defined('NOIPCHECK')) {    // Do not check IP defined into conf $dolibarr_main_restrict_ip.
-	define('NOIPCHECK', '1');
+if (!defined('NOIPCHECK')) {   // Do not check IP defined into conf $dolibarr_main_restrict_ip
+    define('NOIPCHECK', 1);
 }
 if (!defined('NOBROWSERNOTIF')) {
-	define('NOBROWSERNOTIF', '1');
+    define('NOBROWSERNOTIF', 1);
 }
 
-// Load DigiQuali environment.
+// Better performance by disabling some features not used in this page
+if (!defined('DISABLE_JQUERY_JNOTIFY')) {
+    define('DISABLE_JQUERY_JNOTIFY', 1);
+}
+if (!defined('DISABLE_SELECT2')) {
+    define('DISABLE_SELECT2', 1);
+}
+if (!defined('DISABLE_CKEDITOR')) {
+    define('DISABLE_CKEDITOR', 1);
+}
+if (!defined('DISABLE_JQUERY_TABLEDND')) {
+    define('DISABLE_JQUERY_TABLEDND', 1);
+}
+if (!defined('DISABLE_JS_GRAPH')) {
+    define('DISABLE_JS_GRAPH', 1);
+}
+if (!defined('DISABLE_MULTISELECT')) {
+    define('DISABLE_MULTISELECT', 1);
+}
+
+// Load DigiQuali environment
 if (file_exists('../../digiquali.main.inc.php')) {
-	require_once __DIR__ . '/../../digiquali.main.inc.php';
+    require_once __DIR__ . '/../../digiquali.main.inc.php';
 } elseif (file_exists('../../../digiquali.main.inc.php')) {
-	require_once __DIR__ . '/../../../digiquali.main.inc.php';
+    require_once __DIR__ . '/../../../digiquali.main.inc.php';
 } else {
-	die('Include of digiquali main fails');
+    die('Include of digiquali main fails');
 }
 
-// Load Dolibarr libraries.
-require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
+// Load Dolibarr libraries
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
-require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
-require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
 
-// Load DigiQuali libraries.
-require_once __DIR__ . '/../../../digiquali/class/control.class.php';
-require_once __DIR__ . '/../../../digiquali/class/sheet.class.php';
-require_once __DIR__ . '/../../../digiquali/lib/digiquali_sheet.lib.php';
+// Load DigiQuali libraries
+require_once __DIR__ . '/../../class/control.class.php';
+require_once __DIR__ . '/../../class/sheet.class.php';
+require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
+require_once __DIR__ . '/../../lib/digiquali_control.lib.php';
 
-// Global variables definitions.
-global $conf, $db, $hookmanager, $langs, $user;
+// Global variables definitions
+global $conf, $db, $hookmanager, $langs;
 
-
-// Load translation files required by the page.
-$langsDomains = ['bills', 'contracts', 'orders', 'products', 'projects', 'companies'];
-if (isModEnabled('dolicar')) {
-    $langsDomains[] = 'dolicar@dolicar';
+// Better performance by disabling some features not used in this page provide by conf
+if (isModEnabled('multicompany')) {
+    unset($conf->modules_parts['css']['multicompany']); // To avoid loading multicompany CSS
+    unset($conf->modules_parts['js']['multicompany']);  // To avoid loading multicompany JS
 }
-saturne_load_langs($langsDomains);
 
-// Get parameters.
-$trackId         = GETPOST('track_id', 'alpha');
-$entity          = GETPOST('entity');
-$showLastControl = GETPOST('show_last_control');
-$showControlList = GETPOST('show_control_list');
+if (isModEnabled('saturne')) {
+    unset($conf->modules_parts['css']['saturne']); // To avoid loading saturne CSS
+    unset($conf->modules_parts['js']['saturne']);  // To avoid loading saturne JS
+}
 
-// Initialize technical objects.
-$object   = new Control($db);
-$category = new Categorie($db);
-$sheet    = new Sheet($db);
-$project  = new Project($db);
-$user     = new User($db);
+// Load translation files required by the page
+saturne_load_langs();
 
-$hookmanager->initHooks(['publiccontrolhistory', 'saturnepublicinterface']); // Note that conf->hooks_modules contains array.
+// Get parameters
+$trackId = GETPOST('track_id', 'alpha');
+$entity  = GETPOST('entity');
+$route   = GETPOSTISSET('route') ? GETPOST('route') : 'linkedObjectAndControl';
 
+// Initialize technical objects
+$object = new Control($db);
+$sheet  = new Sheet($db);
+$user   = new User($db);
+
+$hookmanager->initHooks(['publiccontrol', 'saturnepublicinterface']); // Note that conf->hooks_modules contains array
+
+// Load user
+if (!isset($_SESSION['dol_login'])) {
+    $user->loadDefaultValues();
+} else {
+    $user->fetch('', $_SESSION['dol_login']);
+    $user->getrights();
+}
+
+// Load entity
 if (!isModEnabled('multicompany')) {
     $entity = $conf->entity;
 }
-
 $conf->setEntityValues($db, $entity);
 
-// Load object.
+// Load linkable elements
+$linkableElements = get_sheet_linkable_objects();
+
+// Load object
 $objectDataJson = base64_decode($trackId);
 $objectData     = json_decode($objectDataJson);
+$objectType     = $objectData->type;
+$objectId       = $objectData->id;
 
-$objectType = $objectData->type;
-$objectId   = $objectData->id;
+$linkedObject = new $objectType($db);
 
-$objectLinked = new $objectType($db);
-$objectLinked->fetch($objectId);
+$linkedObject->fetch($objectId);
+
+$linkableElement = $linkableElements[$linkedObject->element];
+// TODO voir si on peut pas enlever ce if
+if ($linkedObject->element == 'productlot') {
+    $linkedObject->element = 'productbatch';
+}
+$linkedObject->fetchObjectLinked($objectId, $linkedObject->element, '', 'digiquali_control');
+if ($linkedObject->element == 'productbatch') {
+    $linkedObject->element = 'productlot';
+}
+
+// Routes to display different views
+$routes = [
+    'linkedObjectAndControl' => '/../../core/tpl/frontend/linked_object_and_control_frontend_view.tpl.php',
+    'controlList'            => '/../../core/tpl/frontend/control_item_frontend_view.tpl.php',
+    'controlDocumentation'   => '/../../core/tpl/frontend/control_documentation_frontend_view.tpl.php'
+];
 
 /*
  * View
  */
 
-$title = $langs->trans('PublicControl');
+$title = $langs->transnoentities('PublicControl');
 
 $conf->dol_hide_topmenu  = 1;
 $conf->dol_hide_leftmenu = 1;
 
-saturne_header(0, '', $title);
+saturne_header(0,'', $title, '', '', 0, 0, [], [], '', 'page-public-card'); ?>
 
-$elementArray = get_sheet_linkable_objects();
-$linkedObjectsData = $elementArray[$objectType];
+<div id="publicControlHistory">
+    <div class="public-card__tab">
+        <?php if (getDolGlobalInt('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY')) : ?>
+            <div class="tab switch-public-control-view <?php echo ($route == 'linkedObjectAndControl' ? 'tab-active' : ''); ?>" data-route="linkedObjectAndControl">
+                <?php echo $langs->transnoentities('Status') . ' : ' . $langs->transnoentities($linkableElement['langs']); ?>
+            </div>
+            <div class="tab switch-public-control-view <?php echo ($route == 'controlList' ? 'tab-active' : ''); ?>" data-route="controlList">
+                <?php echo $langs->transnoentities('ControlList'); ?>
+            </div>
+            <div class="tab switch-public-control-view <?php echo ($route == 'controlDocumentation' ? 'tab-active' : ''); ?>" data-route="controlDocumentation">
+                <?php echo $langs->transnoentities('Documentation'); ?>
+            </div>
+            <?php
+                $parameters = ['trackId' => $trackId, 'objectType' => $objectType, 'objectId' => $objectId, 'entity' => $entity];
+                $hookmanager->executeHooks('digiqualiPublicControlTab', $parameters);
+                print $hookmanager->resPrint;
+            ?>
+        <?php endif; ?>
+    </div>
 
-if ($showControlList == 1) {
-    $showLastControlFirst = 0;
-} else if ($showLastControl == 1) {
-    $showLastControlFirst = 1;
-} else if (getDolGlobalInt('DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY') == 1) {
-    $showLastControlFirst = 1;
-} else {
-    $showLastControlFirst = 0;
-}
-
-$objectControlList = $object->fetchAllWithLeftJoin('DESC', 't.rowid', $showLastControlFirst, 0, ['customsql' => 't.rowid = je.fk_target AND t.status >= ' . $object::STATUS_LOCKED . ' AND t.control_date IS NOT NULL'], 'AND', true, 'LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as je on je.sourcetype = "' . $linkedObjectsData['link_name'] . '" AND je.fk_source = ' . $objectId . ' AND je.targettype = "digiquali_control" AND je.fk_target = t.rowid');
-
-if (is_array($objectControlList) && !empty($objectControlList)) {
-    print '<div id="publicControlHistory">';
-    print '<br>';
-    if (getDolGlobalInt('DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY') == 1) {
-        print '<div class="center">';
-        print '<div class="wpeo-button switch-public-control-view '. ($showLastControlFirst ? '' : 'button-grey') .'">';
-        print '<input hidden class="public-control-view" value="1">';
-        print $langs->trans('LastControl');
-        print '</div>';
-        print '&nbsp';
-        print '<div class="wpeo-button marginleftonly switch-public-control-view '. ($showLastControlFirst ? 'button-grey' : '') .'">';
-        print '<input hidden class="public-control-view" value="0">';
-        print $langs->trans('ControlList');
-        print '</div>';
-        if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') == 1) {
-            $object        = current($objectControlList);
-            $cats          = $category->containing($object->id, $object->element);
-            $arraySelected = '';
-            if (is_array($cats) && !empty($cats)) {
-                $arraySelected = '&categories[]=' . implode('&categories[]=', array_column($cats, 'id'));
+    <div class="public-card__container">
+        <?php foreach ($routes as $key => $routeName) {
+            if ($route == $key) {
+                require_once __DIR__ . $routeName;
             }
-            $moreParams = '&fk_sheet=' . $object->fk_sheet . '&fk_user_controller=' . $object->fk_user_controller . '&projectid=' . $object->projectid . $arraySelected . '&' . $linkedObjectsData['post_name'] . '=' . $objectId;
-            print '<a href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1). '" target="_blank">';
-            print '<div class="wpeo-button marginleftonly"><i class="fas fa-plus pictofixedwidth"></i>' . $langs->trans('New' . ucfirst($object->element)) . '</div>';
-            print '</a>';
-        }
-    }
-    if (isModEnabled('dolicar') && $objectType == 'productlot') {
-        print '<a href="' . dol_buildpath('custom/dolicar/public/agenda/public_vehicle_logbook.php?id=' . $objectId . '&entity=' . $entity . '&backtopage=' . urlencode($_SERVER['REQUEST_URI']), 1). '">';
-        print '<div class="wpeo-button marginleftonly">' . $langs->trans('PublicVehicleLogBook') . '</div>';
-        print '</a>';
-    }
-    print '</div>';
-
-    print '<input hidden name="token" value="'. newToken() .'">';
-
-    if ($showLastControlFirst == 1) {
-        $object = array_shift($objectControlList);
-        $object->fetchObjectLinked('', '', '', 'digiquali_control');
-        $sheet->fetch($object->fk_sheet);
-        require_once __DIR__ . '/../../core/tpl/digiquali_public_control.tpl.php';
-    } elseif ($conf->browser->layout != 'phone') {
-        print '<div class="signature-container" style="max-width: 1600px;">';
-        print load_fiche_titre($langs->trans('ControlList'), $objectLinked->getNomUrl(1, 'nolink'), $object->picto);
-        print '<table class="noborder centpercent">';
-        print '<tr class="liste_titre">';
-        print '<td class="tdoverflowmax200">';
-        print $langs->trans('Ref');
-        print '<td class="tdoverflowmax200 center">';
-        print $langs->trans('QRCode');
-        print '</td><td class="tdoverflowmax200">';
-        print $langs->trans('Controller');
-        print '</td><td class="tdoverflowmax200">';
-        print $langs->trans('Project');
-        print '</td><td class="tdoverflowmax200">';
-        print $langs->trans('Sheet');
-        print '</td><td class="tdoverflowmax200 center">';
-        print $langs->trans('Verdict');
-        print '</td><td class="tdoverflowmax200 center">';
-        print $langs->trans('ControlDate');
-        print '</td><td class="tdoverflowmax200 center">';
-        print $langs->trans('NextControl');
-        print '</td><td class="tdoverflowmax200 center">';
-        print $langs->trans('NextControlDate');
-        print '</td></tr>';
-
-        foreach($objectControlList as $objectControl) {
-            $verdictColor = $objectControl->verdict == 1 ? 'green' : ($objectControl->verdict == 2 ? 'red' : 'grey');
-
-            $user->fetch($objectControl->fk_user_controller);
-            $project->fetch($objectControl->projectid);
-            $sheet->fetch($objectControl->fk_sheet);
-
-            print '<tr class="oddeven">';
-            print '<td class="tdoverflowmax200">';
-            print $objectControl->getNomUrl(1, 'nolink', 1);
-            $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $objectControl->track_id . '&entity=' . $conf->entity, 3);
-            print ' <a href="' . $publicControlInterfaceUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
-            print '<td class="tdoverflowmax200 center">';
-            print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $objectControl->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 1, 'control/'. $objectControl->ref . '/qrcode/', $objectControl, '', 0, 0);
-            print '</td><td class="tdoverflowmax200">';
-            print $user->getNomUrl(1, 'nolink');
-            print '</td><td class="tdoverflowmax200">';
-            print ($objectControl->projectid > 0 ? img_picto($langs->trans('Project'), 'project', 'class="pictofixedwidth"') . $project->ref : '');
-            print '</td><td class="tdoverflowmax200">';
-            print $sheet->getNomUrl(1, 'nolink', 1);
-            print '</td><td class="tdoverflowmax200 center">';
-            print '<div class="wpeo-button button-' . $verdictColor . ' button-square-60">' . $objectControl->fields['verdict']['arrayofkeyval'][(!empty($objectControl->verdict)) ? $objectControl->verdict : 3] . '</div>';
-            print '</td><td class="tdoverflowmax200 center">';
-            print dol_print_date($objectControl->control_date);
-            print '</td>';
-            if (dol_strlen($objectControl->next_control_date) > 0) {
-                print '<td class="tdoverflowmax200 center">';
-                $nextControl          = floor(($objectControl->next_control_date - dol_now('tzuser'))/(3600 * 24));
-                $nextControlDateColor = $objectControl->getNextControlDateColor();
-                print '<div class="wpeo-button center" style="background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor . '">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
-                print '</td><td class="tdoverflowmax200 center">';
-                print dol_print_date($objectControl->next_control_date);
-                print '</td>';
-            } else {
-                print '<td></td><td></td>';
-            }
-            print '</tr>';
-        }
-        print '</table>';
-        print '</div>';
-    } else {
-        // Phone view
-        print '<div class="signature-container" style="max-width: 1400px;">';
-        print load_fiche_titre($langs->trans('ControlList'), $objectLinked->getNomUrl(1, 'nolink'), $object->picto);
-        print '<table class="noborder centpercent">';
-
-        foreach($objectControlList as $objectControl) {
-            $verdictColor = $objectControl->verdict == 1 ? 'green' : ($objectControl->verdict == 2 ? 'red' : 'grey');
-
-            $user->fetch($objectControl->fk_user_controller);
-            $project->fetch($objectControl->projectid);
-            $sheet->fetch($objectControl->fk_sheet);
-
-            print '<tr class="oddeven">';
-            print '<td class="tdoverflowmax200">';
-            print $objectControl->getNomUrl(1, 'nolink', 1);
-            $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $objectControl->track_id . '&entity=' . $conf->entity, 3);
-            print ' <a href="' . $publicControlInterfaceUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a><br>';
-            print $user->getNomUrl(1, 'nolink') . '<br>';
-            print ($objectControl->projectid > 0 ? img_picto($langs->trans('Project'), 'project', 'class="pictofixedwidth"') . $project->ref . '<br>' : '');
-            print $sheet->getNomUrl(1, 'nolink', 1) . '<br>';
-            print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $objectControl->ref . '/qrcode/', 'small', 1, 0, 0, 0, 70, 70, 0, 0, 1, 'control/'. $objectControl->ref . '/qrcode/', $objectControl, '', 0, 0);
-            print '</td><td class="tdoverflowmax200 center">';
-            print '<div class="wpeo-button button-' . $verdictColor . ' button-square-60">' . $objectControl->fields['verdict']['arrayofkeyval'][(!empty($objectControl->verdict)) ?: 3] . '</div><br>';
-            if (dol_strlen($objectControl->next_control_date) > 0) {
-                print '<hr><div style="font-size: 8px; font-weight: bold">' . $langs->trans('NextControl') . '<br>';
-                $nextControl          = floor(($objectControl->next_control_date - dol_now('tzuser'))/(3600 * 24));
-                $nextControlDateColor = $objectControl->getNextControlDateColor();
-                print '<div class="wpeo-button" style="background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor . ' padding: 0; font-size: 10px;">' . $nextControl . ' ' . $langs->trans('Days') . '</div>';
-                print dol_print_date($objectControl->next_control_date, 'day') . '<br>' . $langs->trans('Remain') . '<br>';
-                print '</div>';
-            }
-            print '</td></tr>';
-        }
-        print '</table>';
-        print '</div>';
-    }
-    print '</div>';
-} else {
-    print '<div class="signature-container" style="max-width: 1000px;">';
-    print load_fiche_titre($langs->trans('ControlList'), $objectLinked->getNomUrl(1, 'nolink'), $object->picto);
-    print $langs->trans('NoControlOnThisObject');
-    print '</div>';
-}
-
-llxFooter('', 'public');
-$db->close();
+        } ?>
+    </div>
+</div><?php
