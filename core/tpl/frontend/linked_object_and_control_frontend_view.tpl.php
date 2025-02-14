@@ -31,7 +31,7 @@ $controlInfoArray      = get_control_infos($linkedObject); ?>
 
 <div class="public-card__header wpeo-gridlayout grid-2">
     <div class="header-information">
-        <div class="information-thumbnail"><?php echo $linkedObjectInfoArray['image']; ?></div>
+        <div class="information-thumbnail"><?php echo $linkedObjectInfoArray['images'][0]; ?></div>
         <div>
             <div class="information-type"><?php echo $linkedObjectInfoArray['linkedObject']['title']; ?></div>
             <div class="information-label size-l"><?php echo $linkedObjectInfoArray['linkedObject']['name_field']; ?></div>

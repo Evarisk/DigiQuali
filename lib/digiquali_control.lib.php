@@ -73,6 +73,14 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
 {
     global $conf, $db, $langs;
 
+    // Load Dolibarr libraries
+    require_once DOL_DOCUMENT_ROOT . '/core/class/link.class.php';
+    require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
+
+    // Initialize technical objects
+    $link     = new Link($db);
+    $ecmFiles = new EcmFiles($db);
+
     $linkableElement = $linkableElements[$linkedObject->element];
 
     // TODO: see if we can remove this if
@@ -84,11 +92,23 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
         $linkedObject->element = 'productbatch';
     }
 
-    $out['image']     = saturne_show_medias_linked($modulePart, $conf->{$linkedObject->element}->multidir_output[$conf->entity] . '/' . $linkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $linkedObject->ref . '/', $linkedObject, 'photo', 0, 0,0, 1);
-    $out['fileArray'] = dol_dir_list($conf->{$linkedObject->element}->multidir_output[$conf->entity] . '/' . $linkedObject->ref, 'files', 0, '', null, 'name', SORT_ASC, 2);
+    $out['linkedObject']['images'] = saturne_show_medias_linked($modulePart, $conf->{$linkedObject->element}->multidir_output[$conf->entity] . '/' . $linkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $linkedObject->ref . '/', $linkedObject, 'photo', 0, 0,0, 1);
     if ($linkedObject->element == 'productbatch') {
         $linkedObject->element = 'productlot';
     }
+
+    $ecmFiles->fetchAll('', '', 0, 0, 't.share:isnot:null');
+
+    // Filter ecm files by filepath containing linked object element
+    $filteredEcmFilesLine = [];
+    if (is_array($ecmFiles->lines) && !empty($ecmFiles->lines)) {
+        $filteredEcmFilesLine = array_filter($ecmFiles->lines, function ($ecmFilesLine) use ($linkedObject) {
+            return strpos($ecmFilesLine->filepath, $linkedObject->element) !== false;
+        });
+    }
+
+    $out['linkedObject']['files'] = $filteredEcmFilesLine;
+    $link->fetchAll($out['linkedObject']['links'], $linkedObject->element, $linkedObject->id);
 
     $out['linkedObject']['title']        = $langs->transnoentities($linkableElement['langs']);
     $out['linkedObject']['name_field']   = img_picto('', $linkableElement['picto'], 'class="pictofixedwidth"') . $linkedObject->{$linkableElement['name_field']};
@@ -116,13 +136,18 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
                 $modulePart = 'produit';
             }
 
-            $out['image']                            = saturne_show_medias_linked($modulePart, $conf->{$parentLinkedObject->element}->multidir_output[$conf->entity] . '/' . $parentLinkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $parentLinkedObject->ref . '/', $parentLinkedObject, 'photo', 0, 0,0, 1);
+            $out['parentLinkedObject']['images']     = saturne_show_medias_linked($modulePart, $conf->{$parentLinkedObject->element}->multidir_output[$conf->entity] . '/' . $parentLinkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $parentLinkedObject->ref . '/', $parentLinkedObject, 'photo', 0, 0,0, 1);
             $out['parentLinkedObject']['title']      = $langs->transnoentities($linkedObjectParentData['langs']);
             $out['parentLinkedObject']['name_field'] = img_picto('', $linkedObjectParentData['picto'], 'class="pictofixedwidth"') . $parentLinkedObject->{$linkedObjectParentData['name_field']};
-
-            $out['fileArray'] = array_merge($out['fileArray'], dol_dir_list($conf->{$parentLinkedObject->element}->multidir_output[$conf->entity] . '/' . $parentLinkedObject->ref, 'files', 0, '', null, 'name', SORT_ASC, 2));
+            $out['parentLinkedObject']['files']      = [];
+            $out['parentLinkedObject']['links']      = [];
+            //$link->fetchAll($out['parentLinkedObject']['links'], $parentLinkedObject->element, $parentLinkedObject->id);
         }
     }
+
+    $out['images'] = [$out['linkedObject']['images'], $out['parentLinkedObject']['images']];
+    $out['files']  = array_merge($out['linkedObject']['files'], $out['parentLinkedObject']['files']);
+    $out['links']  = array_merge($out['linkedObject']['links'], $out['parentLinkedObject']['links']);
 
     return $out;
 }
@@ -139,14 +164,15 @@ function get_control_infos(CommonObject $linkedObject): array
 
     $out               = [];
     $lastControl       = null;
+    $permissionToRead  = $user->hasRight('digiquali', 'control', 'read');
     $permissionToWrite = $user->hasRight('digiquali', 'control', 'write');
 
-    // remove controls with status < 2 and empty control_date
+    // Remove controls with status < 2 and empty control_date
     $filteredControls = array_filter($linkedObject->linkedObjects['digiquali_control'], function ($control) {
         return $control->status == Control::STATUS_LOCKED && !empty($control->control_date);
     });
 
-    // sort controls by control_date desc
+    // Sort controls by control_date desc
     usort($filteredControls, function ($a, $b) {
         return $b->control_date - $a->control_date;
     });
@@ -168,7 +194,7 @@ function get_control_infos(CommonObject $linkedObject): array
         $out['control'][$control->id]['sheet_title'] = $langs->transnoentities(dol_ucfirst($sheet->element));
         $out['control'][$control->id]['sheet_ref']   = img_picto('', $sheet->picto, 'class="pictofixedwidth"') . $sheet->ref;
 
-        if ($permissionToWrite) {
+        if ($permissionToRead) {
             $out['control'][$control->id]['view_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php', 1) . '?id=' . $control->id . '" target="_blank"><span>' . $langs->transnoentities('See') . '</span><i class="button-icon fas fa-eye"></i></a>';
         }
         $verdictControlColor                     = $control->verdict == 1 ? 'green' : 'red';

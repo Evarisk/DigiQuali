@@ -73,7 +73,6 @@ if (file_exists('../../digiquali.main.inc.php')) {
 }
 
 // Load Dolibarr libraries
-require_once DOL_DOCUMENT_ROOT . '/core/class/link.class.php';
 require_once DOL_DOCUMENT_ROOT . '/product/stock/class/productlot.class.php';
 
 // Load DigiQuali libraries
@@ -108,7 +107,6 @@ $route   = GETPOSTISSET('route') ? GETPOST('route') : 'linkedObjectAndControl';
 $object = new Control($db);
 $sheet  = new Sheet($db);
 $user   = new User($db);
-$link   = new Link($db);
 
 $hookmanager->initHooks(['publiccontrol', 'saturnepublicinterface']); // Note that conf->hooks_modules contains array
 
@@ -180,7 +178,7 @@ saturne_header(0,'', $title, '', '', 0, 0, [], [], '', 'page-public-card'); ?>
                 <?php echo $langs->transnoentities('Documentation'); ?>
             </div>
             <?php
-                $parameters = ['objectType' => $objectType, 'objectId' => $objectId, 'entity' => $entity];
+                $parameters = ['trackId' => $trackId, 'objectType' => $objectType, 'objectId' => $objectId, 'entity' => $entity];
                 $hookmanager->executeHooks('digiqualiPublicControlTab', $parameters);
                 print $hookmanager->resPrint;
             ?>

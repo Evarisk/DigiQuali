@@ -26,43 +26,38 @@
 * Variable : $linkedObject
 */
 
-$linkedObjectInfoArray = get_linked_object_infos($linkedObject, $linkableElements);
-
-$links = [];
-$link->fetchAll($links, $linkedObject->element, $linkedObject->id); ?>
+$linkedObjectInfoArray = get_linked_object_infos($linkedObject, $linkableElements); ?>
 
 <div class="public-control-documentation">
-    <?php foreach ($linkedObjectInfoArray['fileArray'] as $fileName) { ?>
+    <?php foreach ($linkedObjectInfoArray['files'] as $fileName) { ?>
         <div class="card has-margin">
             <div class="card-thumbnail size-min" style="background: #3E41FF;">
                 <i class="card-thumbnail-icon fas fa-file"></i>
             </div>
             <div class="card-container">
-                <div class="information-label size-l"><?php echo $fileName['name']; ?></div>
+                <div class="information-label size-l"><?php echo $fileName->filename; ?></div>
             </div>
             <div class="card-actions">
-                <a class="wpeo-button button-square-40 button-rounded" href="<?php echo DOL_URL_ROOT . '/document.php?modulepart=' . 'product&entity=' . $conf->entity . '&file=' . urlencode($fileName['level1name'] . '/' .  $fileName['name']); ?>" target="_blank">
+                <a class="wpeo-button button-square-40 button-rounded" href="<?php echo DOL_URL_ROOT . '/document.php?hashp=' . $fileName->share; ?>" target="_blank">
                     <i class="button-icon fa fa-download"></i>
                 </a>
             </div>
         </div>
-    <?php } ?>
+    <?php }
 
-    <?php if (!empty($links)) {
-        foreach ($links as $link) { ?>
-            <div class="card has-margin">
-                <div class="card-thumbnail size-min" style="background: #0EECAD;">
-                    <i class="card-thumbnail-icon fas fa-link"></i>
-                </div>
-                <div class="card-container">
-                    <div class="information-label size-l"><?php echo $langs->transnoentities($link->label); ?></div>
-                </div>
-                <div class="card-actions">
-                    <a class="wpeo-button button-square-40 button-rounded" href="<?php echo $link->url ?>" target="_blank">
-                        <i class="button-icon fas fa-external-link-alt"></i>
-                    </a>
-                </div>
+    foreach ($linkedObjectInfoArray['links'] as $link) { ?>
+        <div class="card has-margin">
+            <div class="card-thumbnail size-min" style="background: #7920D9;">
+                <i class="card-thumbnail-icon fas fa-link"></i>
             </div>
-        <?php }
-    } ?>
+            <div class="card-container">
+                <div class="information-label size-l"><?php echo $langs->transnoentities($link->label); ?></div>
+            </div>
+            <div class="card-actions">
+                <a class="wpeo-button button-square-40 button-rounded" href="<?php echo $link->url ?>" target="_blank">
+                    <i class="button-icon fas fa-external-link-alt"></i>
+                </a>
+            </div>
+        </div>
+    <?php } ?>
 </div>
