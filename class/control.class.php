@@ -292,6 +292,22 @@ class Control extends SaturneObject
             $imageData = $barcode->getBarcodePngData();
             $imageData = imagecreatefromstring($imageData);
             imagepng($imageData, $file);
+
+            require_once __DIR__ . '/sheet.class.php';
+
+            $sheet = new Sheet($this->db);
+            $sheet->fetch($this->fk_sheet);
+
+            if (!empty($sheet->photo)) {
+                dol_mkdir($conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/photos/');
+                $file = $conf->digiquali->multidir_output[$conf->entity] . '/sheet/' . $sheet->ref . '/photos/' . $sheet->photo;
+
+                if (file_exists($file)) {
+                    copy($file, $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/photos/' . $sheet->photo);
+                    $this->photo = $sheet->photo;
+                    $this->update($user);
+                }
+            }
         }
 
         return $result;
