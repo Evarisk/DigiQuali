@@ -375,6 +375,7 @@ LastStatusDate                                 = Dernières dates de statut
 ValidationDate                                 = Date de validation
 ReOpenDate                                     = Date de réouverture
 DraftValidatedLocked                           = -- (Brouillon + validé + verrouillé) --
+CloneControlEquipments                         = Cloner les moyens de contrôle
 
 
 
