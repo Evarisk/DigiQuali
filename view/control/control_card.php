@@ -211,6 +211,14 @@ if (empty($resHook)) {
         dol_set_user_param($db, $conf, $user, $tabParam);
     }
 
+    if ($action == 'switch_question_ok_ko') {
+        $data = json_decode(file_get_contents('php://input'), true);
+        if (isset($data['SHOW_OK_KO_IMAGES'])) {
+            $tabparam = ['DIGIQUALI_' . dol_strtoupper($object->element) . '_DISPLAY_MEDIAS' => $data['SHOW_OK_KO_IMAGES']];
+            dol_set_user_param($db, $conf, $user, $tabparam);
+        }
+    }
+
     require_once __DIR__ . '/../../core/tpl/digiquali_answers_save_action.tpl.php';
 
     // Actions builddoc, forcebuilddoc, remove_file.
@@ -908,6 +916,13 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         } else {
             $user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER = 0;
         } ?>
+
+        <?php
+
+        print img_picto($langs->trans(!empty($user->conf->{'DIGIQUALI_' . dol_strtoupper($object->element) . '_DISPLAY_MEDIAS'}) ? 'Enabled' : 'Disabled'), !empty($user->conf->{'DIGIQUALI_' . dol_strtoupper($object->element) . '_DISPLAY_MEDIAS'}) ? 'switch_on' : 'switch_off', 'id="question-ok-ko-switch" class="marginrightonly"');
+        print $form->textwithpicto(!empty($user->conf->{'DIGIQUALI_' . dol_strtoupper($object->element) . '_DISPLAY_MEDIAS'}) ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>', $langs->trans('DisplayMediasSample'));
+        ?>
+
     </div>
 
 <?php if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {

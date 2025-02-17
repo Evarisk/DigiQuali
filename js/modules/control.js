@@ -323,7 +323,8 @@ window.digiquali.control.switchQuestionOkKo = function() {
     }),
     contentType: false,
     success: function(resp) {
-      $('.question-ok-ko-switch').replaceWith($(resp).find('.question-ok-ko-switch'));
+      $('.progress-info').replaceWith($(resp).find('.progress-info'));
+      $('.question-answer-container').replaceWith($(resp).find('.question-answer-container'));
     },
     error: function() {}
   });

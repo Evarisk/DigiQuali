@@ -112,16 +112,6 @@ if ($action == 'update_next_control_date_color') {
     }
 }
 
-if ($action == 'switch_question_ok_ko') {
-    $data = json_decode(file_get_contents('php://input'), true);
-    if (isset($data['SHOW_OK_KO_IMAGES'])) {
-        $tabparam = ['DIGIQUALI_SHOW_OK_KO_IMAGES' => $data['SHOW_OK_KO_IMAGES']];
-        dol_set_user_param($db, $conf, $user, $tabparam);
-    }
-    header('Location: ' . $_SERVER['PHP_SELF']);
-    exit;
-}
-
 /*
  * View
  */
@@ -146,16 +136,6 @@ print dol_get_fiche_head($head, $object->element, $title, -1, 'digiquali_color@d
 require __DIR__ . '/../../saturne/core/tpl/admin/object/object_numbering_module_view.tpl.php';
 
 require __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
-
-// Questions
-print load_fiche_titre($langs->trans('Question'), '', '');
-
-print '<table class="noborder centpercent">';
-print '<tr class="liste_titre">';
-print '<td>' . $langs->trans('Parameter') . '</td>';
-print '<td>' . $langs->trans('Description') . '</td>';
-print '<td class="center">' . $langs->trans('Value') . '</td>';
-print '</tr>';
 
 // Enable control reminder
 print '<tr class="oddeven"><td>';
