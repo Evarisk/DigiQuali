@@ -641,6 +641,17 @@ class Control extends SaturneObject
                 dol_mkdir($dir . '/' . $objectFromClone->ref . '/photos');
                 dolCopyDir($path,$dir . '/' . $objectFromClone->ref . '/photos', 0, 1);
             }
+
+            // Add control equipments
+            if (!empty($options['control_equipments'])) {
+                $controlEquipment  = new ControlEquipment($this->db);
+                $controlEquipments = $controlEquipment->fetchFromParent($fromID);
+                if (is_array($controlEquipments) && !empty($controlEquipments)) {
+                    foreach ($controlEquipments as $controlEquipment) {
+                        $controlEquipment->createFromClone($user, $controlEquipment->id, $controlID);
+                    }
+                }
+            }
         } else {
             $error++;
             $this->error  = $object->error;
@@ -1511,4 +1522,55 @@ class ControlEquipment extends SaturneObject
         return $this->fetchAll('', '', $limit, 0, ['customsql' => 'fk_control = ' . $control_id . ' AND status > 0']);
     }
 
+    /**
+     * Clone an object into another one
+     *
+     * @param  User       $user      User that creates
+     * @param  int        $fromID    ID of object to clone
+     * @param  int        $controlID ID of control
+     * @return int                   New object created, <0 if KO
+     * @throws Exception
+     */
+    public function createFromClone(User $user, int $fromID, int $controlID): int
+    {
+        dol_syslog(__METHOD__, LOG_DEBUG);
+
+        $object = new self($this->db);
+
+        $this->db->begin();
+
+        // Load source object
+        $object->fetchCommon($fromID);
+
+        // Reset some properties
+        unset($object->id);
+
+        // Clear fields
+        if (property_exists($object, 'ref')) {
+            $object->ref = $object->getNextNumRef();
+        }
+        if (property_exists($object, 'date_creation')) {
+            $object->date_creation = dol_now();
+        }
+        if (property_exists($object, 'fk_control')) {
+            $object->fk_control = $controlID;
+        }
+        if (property_exists($object, 'status')) {
+            $object->status = self::STATUS_ENABLED;
+        }
+
+        // Create clone
+        $object->context['createfromclone'] = 'createfromclone';
+        $result                             = $object->createCommon($user);
+        unset($object->context['createfromclone']);
+
+        // End
+        if ($result > 0) {
+            $this->db->commit();
+            return $result;
+        } else {
+            $this->db->rollback();
+            return -1;
+        }
+    }
 }
