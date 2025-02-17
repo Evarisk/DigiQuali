@@ -56,6 +56,8 @@ NextControlDateColor0Description                 = Code couleur pour la prochain
 NextControlDateColor30Description                = Code couleur pour la prochaine date de contrôle - Urgent
 NextControlDateColor60Description                = Code couleur pour la prochaine date de contrôle - Bientôt requis
 NextControlDateColor90Description                = Code couleur pour la prochaine date de contrôle - Date éloignée
+ShowCorrectNotCorrectImages                      = Afficher les images OK/KO
+ShowCorrectNotCorrectImagesDescription           = Afficher les images OK/KO sur les contrôles
 
 # Survey - Questionnaire
 DisplaySurveyMediasSampleDescription = Afficher les médias d'exemple des questions dans le questionnaire

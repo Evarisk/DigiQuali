@@ -37,6 +37,7 @@ window.digiquali.control.event = function() {
   $(document).on('click', '.photo-sheet-category', window.digiquali.control.getSheetCategoryID);
   $(document).on('click', '.photo-sheet-sub-category', window.digiquali.control.getSheetSubCategoryID);
   $(document).on('click', '.photo-sheet', window.digiquali.control.getSheetID);
+  $(document).on('click', '#question-ok-ko-switch', window.digiquali.control.switchQuestionOkKo);
 };
 
 /**
@@ -299,3 +300,32 @@ window.digiquali.control.getSheetID = function() {
     error: function() {}
   });
 };
+
+/**
+ * Switch question OK/KO
+ * @since   1.10.0
+ * @version 1.10.0
+ * @return {void}
+ */
+window.digiquali.control.switchQuestionOkKo = function() {
+
+  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
+  let token          = window.saturne.toolbox.getToken();
+
+  window.saturne.loader.display($(this));
+
+  $.ajax({
+    url: document.URL + querySeparator + "action=switch_question_ok_ko&token=" + token,
+    type: "POST",
+    processData: false,
+    data: JSON.stringify({
+      SHOW_OK_KO_IMAGES: $(this).hasClass('fa-toggle-off')
+    }),
+    contentType: false,
+    success: function(resp) {
+      $('.question-ok-ko-switch').replaceWith($(resp).find('.question-ok-ko-switch'));
+    },
+    error: function() {}
+  });
+
+}
