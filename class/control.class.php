@@ -303,9 +303,9 @@ class Control extends SaturneObject
                 $file = $conf->digiquali->multidir_output[$conf->entity] . '/sheet/' . $sheet->ref . '/photos/' . $sheet->photo;
 
                 if (file_exists($file)) {
-                    copy($file, $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/photos/' . $sheet->photo);
+                    dol_copy($file, $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/photos/' . $sheet->photo);
                     $this->photo = $sheet->photo;
-                    $this->update($user);
+                    $this->setValueFrom('photo', $this->photo, '', '', 'text', '', $user);
                 }
             }
         }
