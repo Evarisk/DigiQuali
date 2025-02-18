@@ -88,24 +88,18 @@ window.digiquali.question.closePreviewPhoto = function () {
 };
 
 /**
- * Show photo for question
+ * Displays the linked media (photo) for a question when the checkbox is checked
  *
  * @since   1.3.0
- * @version 1.3.0
+ * @version 20.1.0
  *
- * @return {void}
+ * @returns {void} No return value
  */
 window.digiquali.question.showPhoto = function() {
-  let photo = $(this).closest('.question-table').find('.linked-medias');
-  let val   = $(this)[0].checked;
+  let checkbox = $(this);
+  let photo    = checkbox.closest('.question-table').find('.linked-medias');
 
-  if (val) {
-    photo.attr('style', '');
-    photo.removeClass('hidden');
-  } else {
-    photo.attr('style', 'display:none');
-    photo.addClass('hidden');
-  }
+  photo.toggleClass('hidden', !checkbox.prop('checked'));
 };
 
 /**

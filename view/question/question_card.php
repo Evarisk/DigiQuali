@@ -775,7 +775,7 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	// Photo OK -- Photo OK
-	print '<tr class="linked-medias photo_ok ' . (GETPOST('show_photo') ? '' : 'hidden') . '" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td class="linked-medias-list">'; ?>
+	print '<tr class="linked-medias photo_ok ' . (GETPOST('show_photo') ? '' : 'hidden') . '"><td class=""><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td class="linked-medias-list">'; ?>
 	<input hidden multiple class="fast-upload<?php echo getDolGlobalInt('SATURNE_USE_FAST_UPLOAD_IMPROVEMENT') ? '-improvement' : ''; ?>" id="fast-upload-photo-ok" type="file" name="userfile[]" capture="environment" accept="image/*">
     <input type="hidden" class="fast-upload-options" data-from-type="question" data-from-subtype="photo_ok" data-from-subdir="photo_ok"/>
 	<label for="fast-upload-photo-ok">
@@ -796,7 +796,7 @@ if ($action == 'create') {
 	print '<tr></tr>';
 
 	// Photo KO -- Photo KO
-	print '<tr class="linked-medias photo_ko ' . (GETPOST('show_photo') ? '' : 'hidden') . '" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td class="linked-medias-list">'; ?>
+	print '<tr class="linked-medias photo_ko ' . (GETPOST('show_photo') ? '' : 'hidden') . '"><td class=""><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td class="linked-medias-list">'; ?>
 	<input hidden multiple class="fast-upload<?php echo getDolGlobalInt('SATURNE_USE_FAST_UPLOAD_IMPROVEMENT') ? '-improvement' : ''; ?>" id="fast-upload-photo-ko" type="file" name="userfile[]" capture="environment" accept="image/*">
     <input type="hidden" class="fast-upload-options" data-from-type="question" data-from-subtype="photo_ko" data-from-subdir="photo_ko"/>
 	<label for="fast-upload-photo-ko">
@@ -912,7 +912,7 @@ if (($id || $ref) && $action == 'edit') {
 	print '</td></tr>';
 
 	// Photo OK -- Photo OK
-	print '<tr class="' . ($object->show_photo ? ' linked-medias photo_ok' : ' linked-medias photo_ok hidden' ) . '" style="' . ($object->show_photo ? ' ' : ' display:none') . '"><td><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td class="linked-medias-list">'; ?>
+	print '<tr class="' . ($object->show_photo ? ' linked-medias photo_ok' : ' linked-medias photo_ok hidden' ) . '"><td><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td class="linked-medias-list">'; ?>
 	<input hidden multiple class="fast-upload<?php echo getDolGlobalInt('SATURNE_USE_FAST_UPLOAD_IMPROVEMENT') ? '-improvement' : ''; ?>" id="fast-upload-photo-ok" type="file" name="userfile[]" capture="environment" accept="image/*">
     <input type="hidden" class="fast-upload-options" data-from-subtype="photo_ok" data-from-subdir="photo_ok"/>
 	<label for="fast-upload-photo-ok">
@@ -933,7 +933,7 @@ if (($id || $ref) && $action == 'edit') {
 	print '<tr></tr>';
 
 	// Photo KO -- Photo KO
-	print '<tr class="' . ($object->show_photo ? ' linked-medias photo_ko' : ' linked-medias photo_ko hidden' ) . '" style="' . ($object->show_photo ? ' ' : ' display:none') . '"><td><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td class="linked-medias-list">'; ?>
+	print '<tr class="' . ($object->show_photo ? ' linked-medias photo_ko' : ' linked-medias photo_ko hidden' ) . '"><td><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td class="linked-medias-list">'; ?>
 	<input hidden multiple class="fast-upload<?php echo getDolGlobalInt('SATURNE_USE_FAST_UPLOAD_IMPROVEMENT') ? '-improvement' : ''; ?>" id="fast-upload-photo-ko" type="file" name="userfile[]" capture="environment" accept="image/*">
     <input type="hidden" class="fast-upload-options" data-from-subtype="photo_ko" data-from-subdir="photo_ko"/>
 	<label for="fast-upload-photo-ko">
