@@ -97,8 +97,9 @@ window.digiquali.question.closePreviewPhoto = function () {
  */
 window.digiquali.question.showPhoto = function() {
   let photo = $(this).closest('.question-table').find('.linked-medias');
+  let val   = $(this)[0].checked;
 
-  if (photo.hasClass('hidden')) {
+  if (val) {
     photo.attr('style', '');
     photo.removeClass('hidden');
   } else {
