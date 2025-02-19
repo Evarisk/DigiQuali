@@ -137,20 +137,6 @@ require __DIR__ . '/../../saturne/core/tpl/admin/object/object_numbering_module_
 
 require __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
 
-// Enable control reminder
-print '<tr class="oddeven"><td>';
-print $langs->trans('ShowCorrectNotCorrectImages');
-print '</td><td>';
-print $langs->trans('ShowCorrectNotCorrectImagesDescription');
-print '</td>';
-
-print '<td class="center flex items-center justify-center question-ok-ko-switch">';
-print img_picto($langs->trans(!empty($user->conf->DIGIQUALI_SHOW_OK_KO_IMAGES) ? 'Enabled' : 'Disabled'), !empty($user->conf->DIGIQUALI_SHOW_OK_KO_IMAGES) ? 'switch_on' : 'switch_off', 'id="question-ok-ko-switch"');
-print '<i class="fas ' . (!empty($user->conf->DIGIQUALI_SHOW_OK_KO_IMAGES) ? 'fa-eye' : 'fa-eye-slash') . ' marginleftonly"></i>';
-print '</td></tr>';
-
-print '</table>';
-
 /*
  * Numbering module line
  */

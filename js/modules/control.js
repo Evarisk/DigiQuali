@@ -33,11 +33,18 @@ window.digiquali.control.event = function() {
   $( document ).on( 'click', '.clipboard-copy', window.digiquali.control.copyToClipboard );
   $( document ).on( 'change', '#productId', window.digiquali.control.refreshLotSelector );
   $(document).on('click', '.switch-public-control-view', window.digiquali.control.switchPublicControlView);
-  $(document).on('click', '.show-only-questions-with-no-answer', window.digiquali.control.showOnlyQuestionsWithNoAnswer);
   $(document).on('click', '.photo-sheet-category', window.digiquali.control.getSheetCategoryID);
   $(document).on('click', '.photo-sheet-sub-category', window.digiquali.control.getSheetSubCategoryID);
   $(document).on('click', '.photo-sheet', window.digiquali.control.getSheetID);
-  $(document).on('click', '#question-ok-ko-switch', window.digiquali.control.switchQuestionOkKo);
+
+  $(document).on('click', '[data-toggle-action]', function() {
+    let action = $(this).data('toggle-action');
+    let key    = $(this).data('toggle-key');
+
+    if (action && key) {
+      window.saturne.utils.toggleSetting.call(this, action, key);
+    }
+  });
 };
 
 /**
@@ -170,45 +177,6 @@ window.digiquali.control.switchPublicControlView = function() {
 };
 
 /**
- * Enables/disables the configuration to display only questions with no answer
- *
- * @memberof DigiQuali_Control
- *
- * @since   1.9.0
- * @version 1.9.0
- *
- * @return {void}
- */
-window.digiquali.control.showOnlyQuestionsWithNoAnswer = function() {
-  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
-  let token          = window.saturne.toolbox.getToken();
-
-  let showOnlyQuestionsWithNoAnswer;
-  if ($(this).hasClass('fa-toggle-off')) {
-    showOnlyQuestionsWithNoAnswer = 1;
-  } else {
-    showOnlyQuestionsWithNoAnswer = 0;
-  }
-
-  window.saturne.loader.display($(this));
-
-  $.ajax({
-    url: document.URL + querySeparator + "action=show_only_questions_with_no_answer&token=" + token,
-    type: "POST",
-    processData: false,
-    data: JSON.stringify({
-      showOnlyQuestionsWithNoAnswer: showOnlyQuestionsWithNoAnswer
-    }),
-    contentType: false,
-    success: function(resp) {
-      $('.progress-info').replaceWith($(resp).find('.progress-info'));
-      $('.question-answer-container').replaceWith($(resp).find('.question-answer-container'));
-    },
-    error: function() {}
-  });
-};
-
-/**
  * Get sheet category ID after click event
  *
  * @since   1.10.0
@@ -300,33 +268,3 @@ window.digiquali.control.getSheetID = function() {
     error: function() {}
   });
 };
-
-/**
- * Switch question OK/KO
- * @since   1.10.0
- * @version 1.10.0
- * @return {void}
- */
-window.digiquali.control.switchQuestionOkKo = function() {
-
-  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
-  let token          = window.saturne.toolbox.getToken();
-
-  window.saturne.loader.display($(this));
-
-  $.ajax({
-    url: document.URL + querySeparator + "action=switch_question_ok_ko&token=" + token,
-    type: "POST",
-    processData: false,
-    data: JSON.stringify({
-      SHOW_OK_KO_IMAGES: $(this).hasClass('fa-toggle-off')
-    }),
-    contentType: false,
-    success: function(resp) {
-      $('.progress-info').replaceWith($(resp).find('.progress-info'));
-      $('.question-answer-container').replaceWith($(resp).find('.question-answer-container'));
-    },
-    error: function() {}
-  });
-
-}
