@@ -207,7 +207,7 @@ function get_control_infos(CommonObject $linkedObject): array
     }
 
     if (!empty($lastControl->next_control_date)) {
-        $nextControl                                   = floor(($lastControl->next_control_date - dol_now('tzuser'))/(3600 * 24));
+        $nextControl                                   = (int) round(($lastControl->next_control_date - dol_now('tzuser'))/(3600 * 24));
         $out['nextControl']['title']                   = $langs->transnoentities('NextControl');
         $out['nextControl']['next_control_date']       = '<i class="objet-icon far fa-calendar"></i>' . dol_print_date($lastControl->next_control_date, 'day');
         $out['nextControl']['next_control_date_color'] = $lastControl->getNextControlDateColor();
