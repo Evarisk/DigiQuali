@@ -201,14 +201,12 @@ if (empty($resHook)) {
         }
     }
 
-    if ($action == 'show_only_questions_with_no_answer') {
+    if ($action == 'show_only_questions_with_no_answer' || $action == 'show_ok_ko_photos') {
         $data = json_decode(file_get_contents('php://input'), true);
-
-        $showOnlyQuestionsWithNoAnswer = $data['showOnlyQuestionsWithNoAnswer'];
-
-        $tabParam['DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER'] = $showOnlyQuestionsWithNoAnswer;
-
-        dol_set_user_param($db, $conf, $user, $tabParam);
+        if (isset($data[$action])) {
+            $tabParam['DIGIQUALI_' . dol_strtoupper($action)] = $data[$action];
+            dol_set_user_param($db, $conf, $user, $tabParam);
+        }
     }
 
     require_once __DIR__ . '/../../core/tpl/digiquali_answers_save_action.tpl.php';
@@ -903,11 +901,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             <div class="progress progress-bar-success" style="width:<?php print ($questionCounter > 0 ? ($answerCounter / $questionCounter) * 100 : 0) . '%'; ?>;" title="<?php print($questionCounter > 0 ? $answerCounter . '/' . $questionCounter : 0); ?>"></div>
         </div>
         <?php if ($answerCounter != $questionCounter) {
-            print $user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? img_picto($langs->trans('Enabled'), 'switch_on', 'class="show-only-questions-with-no-answer marginrightonly"') : img_picto($langs->trans('Disabled'), 'switch_off', 'class="show-only-questions-with-no-answer marginrightonly"');
-            print $form->textwithpicto($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>', $langs->trans('ShowOnlyQuestionsWithNoAnswer'));
+            print img_picto($langs->trans(!empty($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER) ? 'Enabled' : 'Disabled'), !empty($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER) ? 'switch_on' : 'switch_off', 'data-toggle-action="show_only_questions_with_no_answer" data-toggle-key="show_only_questions_with_no_answer" data-update-targets=".progress-info,.question-answer-container" class="marginrightonly"');
+            print $form->textwithpicto($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>', $langs->trans('ShowOnlyQuestionsWithNoAnswer'), 1, 'help', 'marginrightonly');
         } else {
             $user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER = 0;
-        } ?>
+        }
+        print img_picto($langs->trans(!empty($user->conf->DIGIQUALI_SHOW_OK_KO_PHOTOS) ? 'Enabled' : 'Disabled'), !empty($user->conf->DIGIQUALI_SHOW_OK_KO_PHOTOS) ? 'switch_on' : 'switch_off', 'data-toggle-action="show_ok_ko_photos" data-toggle-key="show_ok_ko_photos" data-update-targets=".progress-info,.question-answer-container" class="marginrightonly"');
+        print $form->textwithpicto(img_picto('', 'fa-image'), $langs->trans('DisplayMediasSample'));
+        ?>
     </div>
 
 <?php if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
