@@ -31,7 +31,7 @@ $controlInfoArray      = get_control_infos($linkedObject); ?>
 
 <div class="public-card__header wpeo-gridlayout grid-2">
     <div class="header-information">
-        <div class="information-thumbnail"><?php echo $linkedObjectInfoArray['images'][0]; ?></div>
+        <div class="information-thumbnail"><?php echo $linkedObjectInfoArray['images']; ?></div>
         <div>
             <div class="information-type"><?php echo $linkedObjectInfoArray['linkedObject']['title']; ?></div>
             <div class="information-label size-l"><?php echo $linkedObjectInfoArray['linkedObject']['name_field']; ?></div>
@@ -54,10 +54,8 @@ $controlInfoArray      = get_control_infos($linkedObject); ?>
                 </div>
             </div>
             <div class="objet-actions">
-                <div class="wpeo-gridlayout grid-<?php echo isset($controlInfoArray['nextControl']['create_button']) ? '2' : '1'; ?> grid-gap-1">
-                    <?php echo $controlInfoArray['nextControl']['create_button']; ?>
-                    <?php echo $controlInfoArray['nextControl']['verdict']; ?>
-                </div>
+                <?php echo $controlInfoArray['nextControl']['create_button']; ?>
+                <?php echo $controlInfoArray['nextControl']['verdict']; ?>
             </div>
         </div>
     </div>

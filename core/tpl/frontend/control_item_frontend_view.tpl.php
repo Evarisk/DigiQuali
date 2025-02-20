@@ -40,10 +40,8 @@ $controlInfoArray = get_control_infos($linkedObject); ?>
 
         </div>
         <div class="card-actions">
-            <div class="wpeo-gridlayout grid-2 grid-gap-1">
-                <div class="information-label"><?php echo $controlInfo['view_button']; ?></div>
-                <div class="information-label"><?php echo $controlInfo['verdict']; ?></div>
-            </div>
+            <div class="information-label"><?php echo $controlInfo['view_button']; ?></div>
+            <div class="information-label"><?php echo $controlInfo['verdict']; ?></div>
         </div>
     </div>
 <?php endforeach; ?>

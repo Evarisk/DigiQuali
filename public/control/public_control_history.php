@@ -44,12 +44,6 @@ if (!defined('NOBROWSERNOTIF')) {
 }
 
 // Better performance by disabling some features not used in this page
-if (!defined('DISABLE_JQUERY_JNOTIFY')) {
-    define('DISABLE_JQUERY_JNOTIFY', 1);
-}
-if (!defined('DISABLE_SELECT2')) {
-    define('DISABLE_SELECT2', 1);
-}
 if (!defined('DISABLE_CKEDITOR')) {
     define('DISABLE_CKEDITOR', 1);
 }
@@ -100,6 +94,7 @@ saturne_load_langs();
 
 // Get parameters
 $trackId = GETPOST('track_id', 'alpha');
+$action  = GETPOST('action', 'aZ09');
 $entity  = GETPOST('entity');
 $route   = GETPOSTISSET('route') ? GETPOST('route') : 'linkedObjectAndControl';
 
@@ -153,6 +148,18 @@ $routes = [
     'controlList'            => '/../../core/tpl/frontend/control_item_frontend_view.tpl.php',
     'controlDocumentation'   => '/../../core/tpl/frontend/control_documentation_frontend_view.tpl.php'
 ];
+$defaultRoute = 'linkedObjectAndControl';
+$externals    = [];
+
+/*
+ * Actions
+ */
+
+$parameters = ['trackId' => $trackId, 'entity' => $entity, 'linkedObject' => $linkedObject, 'linkableElement' => $linkableElement];
+$resHook    = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $project may have been modified by some hooks
+if ($resHook < 0) {
+    setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
+}
 
 /*
  * View
@@ -178,7 +185,7 @@ saturne_header(0,'', $title, '', '', 0, 0, [], [], '', 'page-public-card'); ?>
                 <?php echo $langs->transnoentities('Documentation'); ?>
             </div>
             <?php
-                $parameters = ['trackId' => $trackId, 'objectType' => $objectType, 'objectId' => $objectId, 'entity' => $entity];
+                $parameters = ['trackId' => $trackId, 'objectType' => $objectType, 'objectId' => $objectId, 'entity' => $entity, 'routes' => &$routes, 'route' => $route, 'externals' => &$externals];
                 $hookmanager->executeHooks('digiqualiPublicControlTab', $parameters);
                 print $hookmanager->resPrint;
             ?>
@@ -186,10 +193,18 @@ saturne_header(0,'', $title, '', '', 0, 0, [], [], '', 'page-public-card'); ?>
     </div>
 
     <div class="public-card__container">
-        <?php foreach ($routes as $key => $routeName) {
-            if ($route == $key) {
-                require_once __DIR__ . $routeName;
+        <?php
+            if (isset($routes[$route])) {
+                if (in_array($route, $externals)) {
+                    $fromExternModule = true;
+                }
+                require_once __DIR__ . $routes[$route];
+            } else {
+                require_once __DIR__ . $routes[$defaultRoute];
             }
-        } ?>
+        ?>
     </div>
 </div><?php
+
+llxFooter('', 'public');
+$db->close();
