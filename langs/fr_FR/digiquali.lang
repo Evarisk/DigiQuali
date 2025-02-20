@@ -377,6 +377,7 @@ ReOpenDate                                     = Date de réouverture
 DraftValidatedLocked                           = -- (Brouillon + validé + verrouillé) --
 CloneControlEquipments                         = Cloner les moyens de contrôle
 NoControl                                      = Aucun contrôle
+NoPeriodicityControl                           = Aucune périodicité de contrôle car contrôle unique
 
 
 

@@ -220,10 +220,16 @@ function get_control_infos(CommonObject $linkedObject): array
         $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
         $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
         $out['nextControl']['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><span>' . $langs->transnoentities('Status') . '</span><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
+    } else {
+        $out['nextControl']['title']   = $langs->transnoentities('NoPeriodicityControl');
+        $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
+        $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
+        $out['nextControl']['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><span>' . $langs->transnoentities('Status') . '</span><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
     }
 
     if (empty($filteredControls)) {
-        $out['nextControl']['title'] = $langs->transnoentities('NoControl');
+        $out['nextControl']['verdict'] = '';
+        $out['nextControl']['title']   = $langs->transnoentities('NoControl');
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWrite) {
             $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '" target="_blank"><span>' . $langs->transnoentities('Create') . '</span><i class="button-icon fas fa-plus"></i></a>';
         }
