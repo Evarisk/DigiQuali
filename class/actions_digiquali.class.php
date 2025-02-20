@@ -439,6 +439,11 @@ class ActionsDigiquali
                     'name'        => 'ShowAddControlButtonOnPublicInterface',
                     'description' => 'ShowAddControlButtonOnPublicInterfaceDescription',
                     'code'        => 'DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE',
+                ],
+                'ShowParentLinkedObjectOnPublicInterface' => [
+                    'name'        => 'ShowParentLinkedObjectOnPublicInterface',
+                    'description' => 'ShowParentLinkedObjectOnPublicInterfaceDescription',
+                    'code'        => 'DIGIQUALI_SHOW_PARENT_LINKED_OBJECT_ON_PUBLIC_INTERFACE',
                 ]
             ];
             $this->results = $constArray;

@@ -42,20 +42,22 @@ SheetMainCategory              = Choix de la catégorie principale du modèle de
 SheetMainCategoryDescription   = Cette option permet de choisir quelle catégorie sera utilisée lors du choix de catégorie pendant la création d'un contrôle
 
 # Control - Contrôle
-DisplayMediasSample                              = Afficher les médias d'exemple des questions
-DisplayControlMediasSampleDescription            = Afficher les médias d'exemple des questions dans le contrôle
-ExtrafieldsControlManagement                     = Gestion des attributs supplémentaires des contrôles
-ShowAddControlButtonOnPublicInterface            = Afficher le bouton d'ajout de contrôle sur l'interface publique de contrôle
-ShowAddControlButtonOnPublicInterfaceDescription = Permet d'afficher le bouton d'ajout de contrôle sur l'interface publique de contrôle
-NextControlDateColorManagement                   = Gestion des couleurs des dates de contrôle
-NextControlDateColor0                            = Date dépassée
-NextControlDateColor30                           = Urgent
-NextControlDateColor60                           = Bientôt requis
-NextControlDateColor90                           = Date éloignée
-NextControlDateColor0Description                 = Code couleur pour la prochaine date de contrôle - Date dépassée
-NextControlDateColor30Description                = Code couleur pour la prochaine date de contrôle - Urgent
-NextControlDateColor60Description                = Code couleur pour la prochaine date de contrôle - Bientôt requis
-NextControlDateColor90Description                = Code couleur pour la prochaine date de contrôle - Date éloignée
+DisplayMediasSample                                = Afficher les médias d'exemple des questions
+DisplayControlMediasSampleDescription              = Afficher les médias d'exemple des questions dans le contrôle
+ExtrafieldsControlManagement                       = Gestion des attributs supplémentaires des contrôles
+ShowAddControlButtonOnPublicInterface              = Afficher le bouton d'ajout de contrôle sur l'interface publique de contrôle
+ShowAddControlButtonOnPublicInterfaceDescription   = Permet d'afficher le bouton d'ajout de contrôle sur l'interface publique de contrôle
+ShowParentLinkedObjectOnPublicInterface            = Afficher l'objet parent sur l'interface publique de contrôle
+ShowParentLinkedObjectOnPublicInterfaceDescription = Permet d'afficher l'objet parent sur l'interface publique de contrôle
+NextControlDateColorManagement                     = Gestion des couleurs des dates de contrôle
+NextControlDateColor0                              = Date dépassée
+NextControlDateColor30                             = Urgent
+NextControlDateColor60                             = Bientôt requis
+NextControlDateColor90                             = Date éloignée
+NextControlDateColor0Description                   = Code couleur pour la prochaine date de contrôle - Date dépassée
+NextControlDateColor30Description                  = Code couleur pour la prochaine date de contrôle - Urgent
+NextControlDateColor60Description                  = Code couleur pour la prochaine date de contrôle - Bientôt requis
+NextControlDateColor90Description                  = Code couleur pour la prochaine date de contrôle - Date éloignée
 
 # Survey - Questionnaire
 DisplaySurveyMediasSampleDescription = Afficher les médias d'exemple des questions dans le questionnaire

@@ -119,7 +119,10 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
         $out['linkedObject']['qc_frequency'] = '<i class="objet-icon fas fa-history"></i>' . $linkedObject->array_options['options_qc_frequency'] . ' ' . $langs->transnoentities('Days');
     }
 
-    if (isset($linkableElement['fk_parent'])) {
+    $out['parentLinkedObject']['images'] = [];
+    $out['parentLinkedObject']['files']  = [];
+    $out['parentLinkedObject']['links']  = [];
+    if (isset($linkableElement['fk_parent']) && getDolGlobalInt('DIGIQUALI_SHOW_PARENT_LINKED_OBJECT_ON_PUBLIC_INTERFACE')) {
         $linkedObjectParentData = [];
         foreach ($linkableElements as $value) {
             if (isset($value['post_name']) && $value['post_name'] === $linkableElement['fk_parent']) {
@@ -144,8 +147,6 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
             $out['parentLinkedObject']['images']     = saturne_show_medias_linked($modulePart, $conf->{$parentLinkedObject->element}->multidir_output[$conf->entity] . '/' . $parentLinkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $parentLinkedObject->ref . '/', $parentLinkedObject, 'photo', 0, 0,0, 1);
             $out['parentLinkedObject']['title']      = $langs->transnoentities($linkedObjectParentData['langs']);
             $out['parentLinkedObject']['name_field'] = $permissionToRead ? $parentLinkedObject->getNomUrl(1, '', 0, -1, 1) : img_picto('', $linkedObjectParentData['picto'], 'class="pictofixedwidth"') . $parentLinkedObject->{$linkedObjectParentData['name_field']};
-            $out['parentLinkedObject']['files']      = [];
-            $out['parentLinkedObject']['links']      = [];
             //$link->fetchAll($out['parentLinkedObject']['links'], $parentLinkedObject->element, $parentLinkedObject->id);
         }
     }
@@ -220,7 +221,13 @@ function get_control_infos(CommonObject $linkedObject): array
         $out['nextControl']['next_control_date_color'] = $lastControl->getNextControlDateColor();
         $out['nextControl']['next_control']            = '<i class="objet-icon far fa-clock"></i>' . $langs->transnoentities('In') . ' ' . $nextControl . ' ' . $langs->transnoentities('Days');
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWriteControl) {
-            $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '" target="_blank"><span>' . $langs->transnoentities('Create') . '</span><i class="button-icon fas fa-plus"></i></a>';
+            if ($linkedObject->element == 'productlot') {
+                $linkedObject->element = 'productbatch';
+            }
+            $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id . '&fk_sheet=' . $lastControl->fk_sheet, 1) . '" target="_blank"><span>' . $langs->transnoentities('Create') . '</span><i class="button-icon fas fa-plus"></i></a>';
+            if ($linkedObject->element == 'productbatch') {
+                $linkedObject->element = 'productlot';
+            }
         }
         $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
         $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
@@ -236,7 +243,13 @@ function get_control_infos(CommonObject $linkedObject): array
         $out['nextControl']['verdict'] = '';
         $out['nextControl']['title']   = $langs->transnoentities('NoControl');
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWriteControl) {
-            $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '" target="_blank"><span>' . $langs->transnoentities('Create') . '</span><i class="button-icon fas fa-plus"></i></a>';
+            if ($linkedObject->element == 'productlot') {
+                $linkedObject->element = 'productbatch';
+            }
+            $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id, 1). '" target="_blank"><span>' . $langs->transnoentities('Create') . '</span><i class="button-icon fas fa-plus"></i></a>';
+            if ($linkedObject->element == 'productbatch') {
+                $linkedObject->element = 'productlot';
+            }
         }
     }
 
