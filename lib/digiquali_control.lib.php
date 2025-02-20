@@ -71,7 +71,7 @@ function control_prepare_head(Control $object): array
  */
 function get_linked_object_infos(CommonObject $linkedObject, array $linkableElements): array
 {
-    global $conf, $db, $langs;
+    global $conf, $db, $langs, $user;
 
     // Load Dolibarr libraries
     require_once DOL_DOCUMENT_ROOT . '/core/class/link.class.php';
@@ -80,6 +80,8 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
     // Initialize technical objects
     $link     = new Link($db);
     $ecmFiles = new EcmFiles($db);
+
+    $permissionToRead = $user->hasRight('produit', 'lire');
 
     $linkableElement = $linkableElements[$linkedObject->element];
 
@@ -107,11 +109,12 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
         });
     }
 
+    $out['linkedObject']['links'] = [];
     $out['linkedObject']['files'] = $filteredEcmFilesLine;
     $link->fetchAll($out['linkedObject']['links'], $linkedObject->element, $linkedObject->id);
 
     $out['linkedObject']['title']        = $langs->transnoentities($linkableElement['langs']);
-    $out['linkedObject']['name_field']   = img_picto('', $linkableElement['picto'], 'class="pictofixedwidth"') . $linkedObject->{$linkableElement['name_field']};
+    $out['linkedObject']['name_field']   = $linkedObject->getNomUrl(1, !$permissionToRead ? 'nolink' : '', 1);
     if (!empty($linkedObject->array_options['options_qc_frequency'])) {
         $out['linkedObject']['qc_frequency'] = '<i class="objet-icon fas fa-history"></i>' . $linkedObject->array_options['options_qc_frequency'] . ' ' . $langs->transnoentities('Days');
     }
@@ -140,7 +143,7 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
 
             $out['parentLinkedObject']['images']     = saturne_show_medias_linked($modulePart, $conf->{$parentLinkedObject->element}->multidir_output[$conf->entity] . '/' . $parentLinkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $parentLinkedObject->ref . '/', $parentLinkedObject, 'photo', 0, 0,0, 1);
             $out['parentLinkedObject']['title']      = $langs->transnoentities($linkedObjectParentData['langs']);
-            $out['parentLinkedObject']['name_field'] = img_picto('', $linkedObjectParentData['picto'], 'class="pictofixedwidth"') . $parentLinkedObject->{$linkedObjectParentData['name_field']};
+            $out['parentLinkedObject']['name_field'] = $permissionToRead ? $parentLinkedObject->getNomUrl(1, '', 0, -1, 1) : img_picto('', $linkedObjectParentData['picto'], 'class="pictofixedwidth"') . $parentLinkedObject->{$linkedObjectParentData['name_field']};
             $out['parentLinkedObject']['files']      = [];
             $out['parentLinkedObject']['links']      = [];
             //$link->fetchAll($out['parentLinkedObject']['links'], $parentLinkedObject->element, $parentLinkedObject->id);
@@ -166,8 +169,10 @@ function get_control_infos(CommonObject $linkedObject): array
 
     $out               = [];
     $lastControl       = null;
-    $permissionToRead  = $user->hasRight('digiquali', 'control', 'read');
-    $permissionToWrite = $user->hasRight('digiquali', 'control', 'write');
+
+    $permissionToReadSheet    = $user->hasRight('digiquali', 'sheet', 'read');
+    $permissionToReadControl  = $user->hasRight('digiquali', 'control', 'read');
+    $permissionToWriteControl = $user->hasRight('digiquali', 'control', 'write');
 
     // Remove controls with status < 2 and empty control_date
     $filteredControls = array_filter($linkedObject->linkedObjects['digiquali_control'], function ($control) {
@@ -186,7 +191,7 @@ function get_control_infos(CommonObject $linkedObject): array
 
         $out['control'][$control->id]['image']        = saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/' . $control->element . '/'. $control->ref . '/photos/', 'small', '', 0, 0, 0, 100, 100, 0, 0, 1, $control->element . '/'. $control->ref . '/photos/', $control, 'photo', 0, 0,0, 1);
         $out['control'][$control->id]['title']        = $langs->transnoentities(dol_ucfirst($control->element));
-        $out['control'][$control->id]['ref']          = img_picto('', $control->picto, 'class="pictofixedwidth"') . $control->ref;
+        $out['control'][$control->id]['ref']          = $control->getNomUrl(1, !$permissionToReadControl ? 'nolink' : 'blank', 1);
         $out['control'][$control->id]['control_date'] = '<i class="objet-icon far fa-calendar"></i>' . dol_print_date($control->control_date, 'day');
 
         $sheet = new Sheet($db);
@@ -194,9 +199,9 @@ function get_control_infos(CommonObject $linkedObject): array
         $sheet->fetch($control->fk_sheet);
 
         $out['control'][$control->id]['sheet_title'] = $langs->transnoentities(dol_ucfirst($sheet->element));
-        $out['control'][$control->id]['sheet_ref']   = img_picto('', $sheet->picto, 'class="pictofixedwidth"') . $sheet->ref;
+        $out['control'][$control->id]['sheet_ref']   = $sheet->getNomUrl(1, !$permissionToReadSheet ? 'nolink' : 'blank', 1);
 
-        if ($permissionToRead) {
+        if ($permissionToReadControl) {
             $out['control'][$control->id]['view_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php', 1) . '?id=' . $control->id . '" target="_blank"><span>' . $langs->transnoentities('See') . '</span><i class="button-icon fas fa-eye"></i></a>';
         }
         $verdictControlColor                     = $control->verdict == 1 ? 'green' : 'red';
@@ -214,7 +219,7 @@ function get_control_infos(CommonObject $linkedObject): array
         $out['nextControl']['next_control_date']       = '<i class="objet-icon far fa-calendar"></i>' . dol_print_date($lastControl->next_control_date, 'day');
         $out['nextControl']['next_control_date_color'] = $lastControl->getNextControlDateColor();
         $out['nextControl']['next_control']            = '<i class="objet-icon far fa-clock"></i>' . $langs->transnoentities('In') . ' ' . $nextControl . ' ' . $langs->transnoentities('Days');
-        if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWrite) {
+        if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWriteControl) {
             $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '" target="_blank"><span>' . $langs->transnoentities('Create') . '</span><i class="button-icon fas fa-plus"></i></a>';
         }
         $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
@@ -230,7 +235,7 @@ function get_control_infos(CommonObject $linkedObject): array
     if (empty($filteredControls)) {
         $out['nextControl']['verdict'] = '';
         $out['nextControl']['title']   = $langs->transnoentities('NoControl');
-        if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWrite) {
+        if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWriteControl) {
             $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create', 1). '" target="_blank"><span>' . $langs->transnoentities('Create') . '</span><i class="button-icon fas fa-plus"></i></a>';
         }
     }
