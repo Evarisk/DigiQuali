@@ -96,7 +96,7 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
 
     $out['linkedObject']['images'] = saturne_show_medias_linked($modulePart, $conf->{$linkedObject->element}->multidir_output[$conf->entity] . '/' . $linkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $linkedObject->ref . '/', $linkedObject, 'photo', 0, 0,0, 1);
     if ($linkedObject->element == 'productbatch') {
-        $linkedObject->element = 'productlot';
+        $linkedObject->element = 'product_lot';
     }
 
     $ecmFiles->fetchAll('', '', 0, 0, 't.share:isnot:null');
@@ -105,8 +105,12 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
     $filteredEcmFilesLine = [];
     if (is_array($ecmFiles->lines) && !empty($ecmFiles->lines)) {
         $filteredEcmFilesLine = array_filter($ecmFiles->lines, function ($ecmFilesLine) use ($linkedObject) {
-            return strpos($ecmFilesLine->filepath, $linkedObject->element) !== false;
+            return $linkedObject->element == $ecmFilesLine->src_object_type && $linkedObject->id == $ecmFilesLine->src_object_id;
         });
+    }
+
+    if ($linkedObject->element == 'product_lot') {
+        $linkedObject->element = 'productlot';
     }
 
     $out['linkedObject']['links'] = [];
@@ -119,7 +123,6 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
         $out['linkedObject']['qc_frequency'] = '<i class="objet-icon fas fa-history"></i>' . $linkedObject->array_options['options_qc_frequency'] . ' ' . $langs->transnoentities('Days');
     }
 
-    $out['parentLinkedObject']['images'] = [];
     $out['parentLinkedObject']['files']  = [];
     $out['parentLinkedObject']['links']  = [];
     if (isset($linkableElement['fk_parent']) && getDolGlobalInt('DIGIQUALI_SHOW_PARENT_LINKED_OBJECT_ON_PUBLIC_INTERFACE')) {
@@ -147,11 +150,26 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
             $out['parentLinkedObject']['images']     = saturne_show_medias_linked($modulePart, $conf->{$parentLinkedObject->element}->multidir_output[$conf->entity] . '/' . $parentLinkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $parentLinkedObject->ref . '/', $parentLinkedObject, 'photo', 0, 0,0, 1);
             $out['parentLinkedObject']['title']      = $langs->transnoentities($linkedObjectParentData['langs']);
             $out['parentLinkedObject']['name_field'] = $permissionToRead ? $parentLinkedObject->getNomUrl(1, '', 0, -1, 1) : img_picto('', $linkedObjectParentData['picto'], 'class="pictofixedwidth"') . $parentLinkedObject->{$linkedObjectParentData['name_field']};
-            //$link->fetchAll($out['parentLinkedObject']['links'], $parentLinkedObject->element, $parentLinkedObject->id);
+
+            // Filter ecm files by filepath containing linked object element
+            $ecmFiles->fetchAll('', '', 0, 0, 't.share:isnot:null');
+
+            $filteredEcmFilesLine = [];
+            if (is_array($ecmFiles->lines) && !empty($ecmFiles->lines)) {
+                $filteredEcmFilesLine = array_filter($ecmFiles->lines, function ($ecmFilesLine) use ($parentLinkedObject) {
+                    return $parentLinkedObject->element == $ecmFilesLine->src_object_type && $parentLinkedObject->id == $ecmFilesLine->src_object_id;
+                });
+            }
+            $out['parentLinkedObject']['files'] = $filteredEcmFilesLine;
+            $link->fetchAll($out['parentLinkedObject']['links'], $parentLinkedObject->element, $parentLinkedObject->id);
         }
     }
 
-    $out['images'] = [$out['linkedObject']['images'], $out['parentLinkedObject']['images']];
+    $out['images'] = $out['linkedObject']['images'];
+    if (strpos($out['parentLinkedObject']['images'], 'nophoto') === false) {
+        $out['images'] = $out['parentLinkedObject']['images'];
+    }
+
     $out['files']  = array_merge($out['linkedObject']['files'], $out['parentLinkedObject']['files']);
     $out['links']  = array_merge($out['linkedObject']['links'], $out['parentLinkedObject']['links']);
 
