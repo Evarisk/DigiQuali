@@ -203,11 +203,11 @@ function get_control_infos(CommonObject $linkedObject): array
         $out['control'][$control->id]['sheet_ref']   = $sheet->getNomUrl(1, !$permissionToReadSheet ? 'nolink' : 'blank', 1);
 
         if ($permissionToReadControl) {
-            $out['control'][$control->id]['view_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php', 1) . '?id=' . $control->id . '" target="_blank"><span>' . $langs->transnoentities('See') . '</span><i class="button-icon fas fa-eye"></i></a>';
+            $out['control'][$control->id]['view_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php', 1) . '?id=' . $control->id . '" target="_blank"><i class="button-icon fas fa-eye"></i></a>';
         }
         $verdictControlColor                     = $control->verdict == 1 ? 'green' : 'red';
         $pictoControlColor                       = $control->verdict == 1 ? 'check' : 'exclamation';
-        $out['control'][$control->id]['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><span>' . $langs->transnoentities('VerdictObject') . '</span><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
+        $out['control'][$control->id]['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
 
         if (getDolGlobalInt('DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY')) {
             break;
@@ -224,19 +224,19 @@ function get_control_infos(CommonObject $linkedObject): array
             if ($linkedObject->element == 'productlot') {
                 $linkedObject->element = 'productbatch';
             }
-            $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id . '&fk_sheet=' . $lastControl->fk_sheet, 1) . '" target="_blank"><span>' . $langs->transnoentities('Create') . '</span><i class="button-icon fas fa-plus"></i></a>';
+            $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id . '&fk_sheet=' . $lastControl->fk_sheet, 1) . '" target="_blank"><i class="button-icon fas fa-plus"></i></a>';
             if ($linkedObject->element == 'productbatch') {
                 $linkedObject->element = 'productlot';
             }
         }
         $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
         $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
-        $out['nextControl']['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><span>' . $langs->transnoentities('Status') . '</span><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
+        $out['nextControl']['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
     } else {
         $out['nextControl']['title']   = $langs->transnoentities('NoPeriodicityControl');
         $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
         $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
-        $out['nextControl']['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><span>' . $langs->transnoentities('Status') . '</span><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
+        $out['nextControl']['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
     }
 
     if (empty($filteredControls)) {
@@ -246,7 +246,7 @@ function get_control_infos(CommonObject $linkedObject): array
             if ($linkedObject->element == 'productlot') {
                 $linkedObject->element = 'productbatch';
             }
-            $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id, 1). '" target="_blank"><span>' . $langs->transnoentities('Create') . '</span><i class="button-icon fas fa-plus"></i></a>';
+            $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id, 1). '" target="_blank"><i class="button-icon fas fa-plus"></i></a>';
             if ($linkedObject->element == 'productbatch') {
                 $linkedObject->element = 'productlot';
             }
