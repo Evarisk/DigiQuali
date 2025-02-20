@@ -63,7 +63,25 @@
     }
   }
   .header-objet {
+    .objet-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .objet-notification {
+      height: 100%;
+      align-content: center;
+      font-size: 14px;
+      color: rgba(0,0,0,0.5);
+    }
     .objet-actions {
+      display: flex;
+      gap: 0.5em;
+
+      @media ( max-width: $media__small ) {
+        flex-direction: column;
+      }
+
       .wpeo-button {
         span {
           font-size: 13px;
@@ -121,6 +139,9 @@
   }
 }
 
+a.wpeo-button:link {
+  color: #fff;
+}
 .wpeo-button {
   &.button-disable-hover {
     &:hover {
@@ -206,6 +227,12 @@
   .card-actions {
     margin: auto 0;
     padding: 0.4em 0;
+    display: flex;
+    gap: 0.5em;
+
+    @media ( max-width: $media__small ) {
+      flex-direction: column;
+    }
 
     .wpeo-button {
       .button-icon {

@@ -54,10 +54,8 @@ $controlInfoArray      = get_control_infos($linkedObject); ?>
                 </div>
             </div>
             <div class="objet-actions">
-                <div class="wpeo-gridlayout grid-<?php echo isset($controlInfoArray['nextControl']['create_button']) ? '2' : '1'; ?> grid-gap-1">
-                    <?php echo $controlInfoArray['nextControl']['create_button']; ?>
-                    <?php echo $controlInfoArray['nextControl']['verdict']; ?>
-                </div>
+                <?php echo $controlInfoArray['nextControl']['create_button']; ?>
+                <?php echo $controlInfoArray['nextControl']['verdict']; ?>
             </div>
         </div>
     </div>
