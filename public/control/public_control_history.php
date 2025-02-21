@@ -179,7 +179,11 @@ saturne_header(0,'', $title, '', '', 0, 0, [], [], '', 'page-public-card'); ?>
                 <?php echo $langs->transnoentities('Status') . ' : ' . $langs->transnoentities($linkableElement['langs']); ?>
             </div>
             <div class="tab switch-public-control-view <?php echo ($route == 'controlList' ? 'tab-active' : ''); ?>" data-route="controlList">
-                <?php echo $langs->transnoentities('ControlList'); ?>
+                <?php
+                    echo $langs->transnoentities('ControlList');
+                    $controlInfoArray = get_control_infos($linkedObject);
+                    echo '<span class="badge badge-secondary marginleftonlyshort">' . count($controlInfoArray['control']) . '</span>';
+                ?>
             </div>
             <div class="tab switch-public-control-view <?php echo ($route == 'controlDocumentation' ? 'tab-active' : ''); ?>" data-route="controlDocumentation">
                 <?php echo $langs->transnoentities('Documentation'); ?>

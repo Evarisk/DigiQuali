@@ -220,6 +220,7 @@ class modDigiQuali extends DolibarrModules
             $i++ => ['DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY', 'integer', 1, '', 0, 'current'],
             $i++ => ['DIGIQUALI_SHOW_QC_FREQUENCY_PUBLIC_INTERFACE', 'integer', 1, '', 0, 'current'],
             $i++ => ['DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY', 'integer', 1, '', 0, 'current'],
+            $i++ => ['DIGIQUALI_SHOW_PARENT_LINKED_OBJECT_ON_PUBLIC_INTERFACE', 'integer', 1, '', 0, 'current'],
             $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_0', 'chaine', '#FF3535', '', 0, 'current'],
             $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_30', 'chaine', '#FD7E00', '', 0, 'current'],
             $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_60', 'chaine', '#FFB700', '', 0, 'current'],
