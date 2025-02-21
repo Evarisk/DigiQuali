@@ -155,7 +155,7 @@ $externals    = [];
  * Actions
  */
 
-$parameters = ['trackId' => $trackId, 'entity' => $entity, 'linkedObject' => $linkedObject, 'linkableElement' => $linkableElement];
+$parameters = ['trackId' => $trackId, 'entity' => $entity, 'linkedObject' => $linkedObject, 'linkableElements' => $linkableElements, 'linkableElement' => $linkableElement];
 $resHook    = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $project may have been modified by some hooks
 if ($resHook < 0) {
     setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
@@ -189,8 +189,8 @@ saturne_header(0,'', $title, '', '', 0, 0, [], [], '', 'page-public-card'); ?>
                 <?php echo $langs->transnoentities('Documentation'); ?>
             </div>
             <?php
-                $parameters = ['trackId' => $trackId, 'objectType' => $objectType, 'objectId' => $objectId, 'entity' => $entity, 'routes' => &$routes, 'route' => $route, 'externals' => &$externals];
-                $hookmanager->executeHooks('digiqualiPublicControlTab', $parameters);
+                $parameters = ['trackId' => $trackId, 'entity' => $entity, 'linkedObject' => $linkedObject, 'linkableElements' => $linkableElements, 'linkableElement' => $linkableElement, 'objectType' => $objectType, 'objectId' => $objectId, 'routes' => &$routes, 'route' => $route, 'externals' => &$externals];
+                $hookmanager->executeHooks('digiqualiPublicControlTab', $parameters, $object);
                 print $hookmanager->resPrint;
             ?>
         <?php endif; ?>

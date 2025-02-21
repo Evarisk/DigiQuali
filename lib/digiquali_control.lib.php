@@ -231,7 +231,7 @@ function get_control_infos(CommonObject $linkedObject): array
 
         $sheet->fetch($control->fk_sheet);
 
-        $out['control'][$control->id]['sheet_title'] = $langs->transnoentities(dol_ucfirst($sheet->element));
+        $out['control'][$control->id]['sheet_title'] = $langs->transnoentities('BasedOnModel');
         $out['control'][$control->id]['sheet_ref']   = $sheet->getNomUrl(1, !$permissionToReadSheet ? 'nolink' : 'blank', 1);
 
         if ($permissionToReadControl) {
