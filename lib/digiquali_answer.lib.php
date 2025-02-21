@@ -116,8 +116,9 @@ function show_answer_from_question(Question $question, CommonObject $object, str
 
     $answer = new Answer($db);
 
-    $out      = '';
-    $disabled = ($object->status > $object::STATUS_DRAFT ? ' disabled' : '');
+    $out            = '';
+    $disabled       = ($object->status > $object::STATUS_DRAFT ? ' disabled' : '');
+    $questionConfig = json_decode($question->json, true)['config'];
 
     switch ($question->type) {
         case 'Text':
@@ -126,9 +127,14 @@ function show_answer_from_question(Question $question, CommonObject $object, str
             $out .= '</div>';
             break;
         case 'Percentage':
+            $step = 100;
+            if (!empty($questionConfig[$question->type]['step'])) {
+                $step = $questionConfig[$question->type]['step'];
+            }
+
             $out .= '<div class="percentage-cell">';
             $out .= img_picto('', 'fontawesome_fa-frown_fas_#D53C3D_3em', 'class="range-image"');
-            $out .= '<input type="range" class="search_component_input range question-answer" name="answer' . $question->id . '" min="0" max="100" value="' . $questionAnswer . '"' . $disabled . '>';
+            $out .= '<input type="range" class="search_component_input range question-answer" name="answer' . $question->id . '" min="0" max="100" step="' . 100/$step . '" value="' . $questionAnswer . '"' . $disabled . '>';
             $out .= img_picto('', 'fontawesome_fa-grin_fas_#57AD39_3em', 'class="range-image"');
             $out .= '</div>';
             break;

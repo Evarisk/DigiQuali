@@ -282,47 +282,55 @@ if (empty($reshook)) {
 				}
 			}
 
+            $objectConfig = ['config' => []];
+            if (GETPOSTISSET('step') && !empty(GETPOSTINT('step'))) {
+                $objectConfig['config'][$object->type]['step'] = GETPOSTINT('step');
+            }
+
+
 			$result = $object->create($user);
 			if ($result > 0) {
-				// Creation OK
-				// Category association
-				$categories = GETPOST('categories', 'array');
-				$object->setCategories($categories);
+                // Creation OK
+                // Category association
+                $categories = GETPOST('categories', 'array');
+                $object->setCategories($categories);
+                $object->json = json_encode($objectConfig);
+                $object->update($user);
 
-				if ($object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
-					$answer->fk_question = $result;
-					$answer->value       = $langs->transnoentities('OK');
-					$answer->pictogram   = 'check';
-					$answer->color       = '#47e58e';
+                if ($object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
+                    $answer->fk_question = $result;
+                    $answer->value       = $langs->transnoentities('OK');
+                    $answer->pictogram   = 'check';
+                    $answer->color       = '#47e58e';
 
-					$answer->create($user);
+                    $answer->create($user);
 
-					$answer->fk_question = $result;
-					$answer->value       = $langs->transnoentities('KO');
-					$answer->pictogram   = 'times';
-					$answer->color       = '#e05353';
+                    $answer->fk_question = $result;
+                    $answer->value       = $langs->transnoentities('KO');
+                    $answer->pictogram   = 'times';
+                    $answer->color       = '#e05353';
 
-					$answer->create($user);
-				}
+                    $answer->create($user);
+                }
 
-				if ($object->type == 'OkKoToFixNonApplicable') {
-					$answer->fk_question = $result;
-					$answer->value       = $langs->transnoentities('ToFix');
-					$answer->pictogram   = 'tools';
-					$answer->color       = '#e9ad4f';
+                if ($object->type == 'OkKoToFixNonApplicable') {
+                    $answer->fk_question = $result;
+                    $answer->value       = $langs->transnoentities('ToFix');
+                    $answer->pictogram   = 'tools';
+                    $answer->color       = '#e9ad4f';
 
-					$answer->create($user);
+                    $answer->create($user);
 
-					$answer->fk_question = $result;
-					$answer->value       = $langs->transnoentities('NonApplicable');
-					$answer->pictogram   = 'N/A';
-					$answer->color       = '#2b2b2b';
+                    $answer->fk_question = $result;
+                    $answer->value       = $langs->transnoentities('NonApplicable');
+                    $answer->pictogram   = 'N/A';
+                    $answer->color       = '#2b2b2b';
 
-					$answer->create($user);
-				}
+                    $answer->create($user);
+                }
 
 
-				$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
+                $urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
 				$urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $object->id, $urltogo); // New method to autoselect project after a New on another form object creation
 				header("Location: ".$urltogo);
 				exit;
@@ -734,8 +742,13 @@ if ($action == 'create') {
 
 	// Type -- Type
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', GETPOST('type') ?: 'OkKoToFixNonApplicable');
+	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', GETPOST('type') ?: 'OkKoToFixNonApplicable', 0, 'data-type="question-type"');
 	print '</td></tr>';
+
+    // Step for percentage question type default hidden
+    print '<tr class="' . (GETPOST('type') == 'Percentage' ? '' : 'hidden') . '" id="percentage-question-step"><td class="fieldrequired"><label for="step">' . $langs->transnoentities('PercentageQuestionStep') . '</label></td><td>';
+    print '<input type="number" name="step" id="step" min="1" value="' . (!empty(GETPOSTINT('step')) ? GETPOSTINT('step') : 1) . '">';
+    print '</td></tr>';
 
 	// Description -- Description
 	print '<tr><td class=""><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
@@ -762,7 +775,7 @@ if ($action == 'create') {
 	print '</td></tr>';
 
 	// Photo OK -- Photo OK
-	print '<tr class="linked-medias photo_ok hidden" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td class="linked-medias-list">'; ?>
+	print '<tr class="linked-medias photo_ok ' . (GETPOST('show_photo') ? '' : 'hidden') . '"><td class=""><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td class="linked-medias-list">'; ?>
 	<input hidden multiple class="fast-upload<?php echo getDolGlobalInt('SATURNE_USE_FAST_UPLOAD_IMPROVEMENT') ? '-improvement' : ''; ?>" id="fast-upload-photo-ok" type="file" name="userfile[]" capture="environment" accept="image/*">
     <input type="hidden" class="fast-upload-options" data-from-type="question" data-from-subtype="photo_ok" data-from-subdir="photo_ok"/>
 	<label for="fast-upload-photo-ok">
@@ -783,7 +796,7 @@ if ($action == 'create') {
 	print '<tr></tr>';
 
 	// Photo KO -- Photo KO
-	print '<tr class="linked-medias photo_ko hidden" ' . (GETPOST('show_photo') ? '' : 'style="display:none"') . '><td class=""><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td class="linked-medias-list">'; ?>
+	print '<tr class="linked-medias photo_ko ' . (GETPOST('show_photo') ? '' : 'hidden') . '"><td class=""><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td class="linked-medias-list">'; ?>
 	<input hidden multiple class="fast-upload<?php echo getDolGlobalInt('SATURNE_USE_FAST_UPLOAD_IMPROVEMENT') ? '-improvement' : ''; ?>" id="fast-upload-photo-ko" type="file" name="userfile[]" capture="environment" accept="image/*">
     <input type="hidden" class="fast-upload-options" data-from-type="question" data-from-subtype="photo_ko" data-from-subdir="photo_ko"/>
 	<label for="fast-upload-photo-ko">
@@ -829,6 +842,9 @@ if ($action == 'create') {
 
 // Part to edit record
 if (($id || $ref) && $action == 'edit') {
+
+    $objectConfig = json_decode($object->json, true);
+
 	print load_fiche_titre($langs->trans("ModifyQuestion"), '', $object->picto);
 
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
@@ -854,8 +870,13 @@ if (($id || $ref) && $action == 'edit') {
 
 	// Type -- Type
 	print '<tr><td class="fieldrequired"><label class="" for="type">' . $langs->trans("QuestionType") . '</label></td><td>';
-	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', $object->type);
+	print saturne_select_dictionary('type','c_question_type', 'ref', 'label', $object->type, 0, 'data-type="question-type"');
 	print '</td></tr>';
+
+    // Step for percentage question type default hidden
+    print '<tr class="' . ($object->type == 'Percentage' ? '' : 'hidden') . '" id="percentage-question-step"><td class="fieldrequired"><label for="step">' . $langs->transnoentities('PercentageQuestionStep') . '</label></td><td>';
+    print '<input type="number" name="step" id="step" min="1" value="' . ($objectConfig['config'][$object->type]['step'] ?? 100) . '">';
+    print '</td></tr>';
 
 	//Description -- Description
 	print '<tr><td><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
@@ -891,7 +912,7 @@ if (($id || $ref) && $action == 'edit') {
 	print '</td></tr>';
 
 	// Photo OK -- Photo OK
-	print '<tr class="' . ($object->show_photo ? ' linked-medias photo_ok' : ' linked-medias photo_ok hidden' ) . '" style="' . ($object->show_photo ? ' ' : ' display:none') . '"><td><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td class="linked-medias-list">'; ?>
+	print '<tr class="' . ($object->show_photo ? ' linked-medias photo_ok' : ' linked-medias photo_ok hidden' ) . '"><td><label for="photo_ok">' . $langs->trans("PhotoOk") . '</label></td><td class="linked-medias-list">'; ?>
 	<input hidden multiple class="fast-upload<?php echo getDolGlobalInt('SATURNE_USE_FAST_UPLOAD_IMPROVEMENT') ? '-improvement' : ''; ?>" id="fast-upload-photo-ok" type="file" name="userfile[]" capture="environment" accept="image/*">
     <input type="hidden" class="fast-upload-options" data-from-subtype="photo_ok" data-from-subdir="photo_ok"/>
 	<label for="fast-upload-photo-ok">
@@ -912,7 +933,7 @@ if (($id || $ref) && $action == 'edit') {
 	print '<tr></tr>';
 
 	// Photo KO -- Photo KO
-	print '<tr class="' . ($object->show_photo ? ' linked-medias photo_ko' : ' linked-medias photo_ko hidden' ) . '" style="' . ($object->show_photo ? ' ' : ' display:none') . '"><td><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td class="linked-medias-list">'; ?>
+	print '<tr class="' . ($object->show_photo ? ' linked-medias photo_ko' : ' linked-medias photo_ko hidden' ) . '"><td><label for="photo_ko">' . $langs->trans("PhotoKo") . '</label></td><td class="linked-medias-list">'; ?>
 	<input hidden multiple class="fast-upload<?php echo getDolGlobalInt('SATURNE_USE_FAST_UPLOAD_IMPROVEMENT') ? '-improvement' : ''; ?>" id="fast-upload-photo-ko" type="file" name="userfile[]" capture="environment" accept="image/*">
     <input type="hidden" class="fast-upload-options" data-from-subtype="photo_ko" data-from-subdir="photo_ko"/>
 	<label for="fast-upload-photo-ko">
@@ -1021,6 +1042,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	print '<td>';
 	print $langs->transnoentities($object->type);
 	print '</td></tr>';
+
+    $objectConfig = json_decode($object->json, true)['config'];
+
+    // Config
+    if ($object->type == 'Percentage' && isset($objectConfig[$object->type]['step'])) {
+        print '<tr><td class="titlefield">';
+        print $langs->transnoentities('PercentageQuestionStep');
+        print '</td><td>';
+        print $objectConfig[$object->type]['step'];
+        print '</td></tr>';
+    }
 
 	// EnterComment -- Saisir les commentaires
 	print '<tr><td class="titlefield">';

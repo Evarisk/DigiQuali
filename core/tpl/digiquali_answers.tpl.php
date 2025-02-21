@@ -80,7 +80,7 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                         <!-- Photo OK KO -->
                         <div class="table-cell table-450 cell-photo-check wpeo-table">
                             <?php
-                            if (getDolGlobalInt('DIGIQUALI_' . dol_strtoupper($object->element) . '_DISPLAY_MEDIAS')) :
+                            if (!empty($user->conf->DIGIQUALI_SHOW_OK_KO_PHOTOS)) :
                                 print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $question->ref . '/photo_ok', 'small', '', 0, 0, 0, 200, 200, 0, 0, 1, 'question/' . $question->ref . '/photo_ok', $question, 'photo_ok', 0, 0, 0,1, 'photo-ok', 0);
                                 print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/'. $question->ref . '/photo_ko', 'small', '', 0, 0, 0, 200, 200, 0, 0, 1, 'question/' . $question->ref . '/photo_ko', $question, 'photo_ko', 0, 0, 0,1, 'photo-ko', 0);
                             endif;

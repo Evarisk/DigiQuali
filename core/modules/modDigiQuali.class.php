@@ -77,7 +77,7 @@ class modDigiQuali extends DolibarrModules
 		$this->editor_url = 'https://evarisk.com/';
 
 		// Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-		$this->version = '1.13.0';
+		$this->version = '20.0.0';
 		// Url to the file with your last numberversion of this module
 		//$this->url_last_version = 'http://www.example.com/versionmodule.txt';
 
@@ -161,7 +161,7 @@ class modDigiQuali extends DolibarrModules
 
 		// Prerequisites
 		$this->phpmin = [7, 4]; // Minimum version of PHP required by module
-		$this->need_dolibarr_version = [17, 0]; // Minimum version of Dolibarr required by module
+		$this->need_dolibarr_version = [20, 0]; // Minimum version of Dolibarr required by module
 
 		// Messages at activation
 		$this->warnings_activation = []; // Warning to show when we activate module. array('always'='text') or array('FR'='textfr','ES'='textes'...)
@@ -220,10 +220,10 @@ class modDigiQuali extends DolibarrModules
             $i++ => ['DIGIQUALI_ENABLE_PUBLIC_CONTROL_HISTORY', 'integer', 1, '', 0, 'current'],
             $i++ => ['DIGIQUALI_SHOW_QC_FREQUENCY_PUBLIC_INTERFACE', 'integer', 1, '', 0, 'current'],
             $i++ => ['DIGIQUALI_SHOW_LAST_CONTROL_FIRST_ON_PUBLIC_HISTORY', 'integer', 1, '', 0, 'current'],
-            $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_0', 'chaine', '#E05353', '', 0, 'current'],
-            $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_30', 'chaine', '#FF6900', '', 0, 'current'],
-            $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_60', 'chaine', '#F4BA40', '', 0, 'current'],
-            $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_90', 'chaine', '#47E58E', '', 0, 'current'],
+            $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_0', 'chaine', '#FF3535', '', 0, 'current'],
+            $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_30', 'chaine', '#FD7E00', '', 0, 'current'],
+            $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_60', 'chaine', '#FFB700', '', 0, 'current'],
+            $i++ => ['DIGIQUALI_NEXT_CONTROL_DATE_COLOR_90', 'chaine', '#C7BA10', '', 0, 'current'],
 
             // CONST SURVEY
             $i++ => ['DIGIQUALI_SURVEY_ADDON', 'chaine', 'mod_survey_standard', '', 0, 'current'],

@@ -42,20 +42,22 @@ SheetMainCategory              = Choix de la catégorie principale du modèle de
 SheetMainCategoryDescription   = Cette option permet de choisir quelle catégorie sera utilisée lors du choix de catégorie pendant la création d'un contrôle
 
 # Control - Contrôle
-DisplayMediasSample                              = Afficher les médias d'exemple des questions
-DisplayControlMediasSampleDescription            = Afficher les médias d'exemple des questions dans le contrôle
-ExtrafieldsControlManagement                     = Gestion des attributs supplémentaires des contrôles
-ShowAddControlButtonOnPublicInterface            = Afficher le bouton d'ajout de contrôle sur l'interface publique de contrôle
-ShowAddControlButtonOnPublicInterfaceDescription = Permet d'afficher le bouton d'ajout de contrôle sur l'interface publique de contrôle
-NextControlDateColorManagement                   = Gestion des couleurs des dates de contrôle
-NextControlDateColor0                            = Date dépassée
-NextControlDateColor30                           = Urgent
-NextControlDateColor60                           = Bientôt requis
-NextControlDateColor90                           = Date éloignée
-NextControlDateColor0Description                 = Code couleur pour la prochaine date de contrôle - Date dépassée
-NextControlDateColor30Description                = Code couleur pour la prochaine date de contrôle - Urgent
-NextControlDateColor60Description                = Code couleur pour la prochaine date de contrôle - Bientôt requis
-NextControlDateColor90Description                = Code couleur pour la prochaine date de contrôle - Date éloignée
+DisplayMediasSample                                = Afficher les médias d'exemple des questions
+DisplayControlMediasSampleDescription              = Afficher les médias d'exemple des questions dans le contrôle
+ExtrafieldsControlManagement                       = Gestion des attributs supplémentaires des contrôles
+ShowAddControlButtonOnPublicInterface              = Afficher le bouton d'ajout de contrôle sur l'interface publique de contrôle
+ShowAddControlButtonOnPublicInterfaceDescription   = Permet d'afficher le bouton d'ajout de contrôle sur l'interface publique de contrôle
+ShowParentLinkedObjectOnPublicInterface            = Afficher l'objet parent sur l'interface publique de contrôle
+ShowParentLinkedObjectOnPublicInterfaceDescription = Permet d'afficher l'objet parent sur l'interface publique de contrôle
+NextControlDateColorManagement                     = Gestion des couleurs des dates de contrôle
+NextControlDateColor0                              = Date dépassée
+NextControlDateColor30                             = Urgent
+NextControlDateColor60                             = Bientôt requis
+NextControlDateColor90                             = Date éloignée
+NextControlDateColor0Description                   = Code couleur pour la prochaine date de contrôle - Date dépassée
+NextControlDateColor30Description                  = Code couleur pour la prochaine date de contrôle - Urgent
+NextControlDateColor60Description                  = Code couleur pour la prochaine date de contrôle - Bientôt requis
+NextControlDateColor90Description                  = Code couleur pour la prochaine date de contrôle - Date éloignée
 
 # Survey - Questionnaire
 DisplaySurveyMediasSampleDescription = Afficher les médias d'exemple des questions dans le questionnaire
@@ -79,7 +81,7 @@ TheQuestion                   = la question
 QuestionList                  = Liste des questions
 NewQuestion                   = Nouvelle question
 ModifyQuestion                = Modifier une question
-LinkedQuestionsList           = Liste des questions liées
+LinkedQuestionsList           = Liste des questions liées (%s)
 AddQuestionLink               = %d Question(s) ajoutée(s) au modèle :
 WarningQuestionLink           = %d Question(s) déjà dans le modèle :
 ConfirmMassAddQuestion        = Confirmation d'ajout en masse de questions au modèle
@@ -127,6 +129,7 @@ AnswerMustBeCreated           = La question %s doit avoir au moins une réponse 
 ShowOnlyQuestionsWithNoAnswer = Afficher uniquement les questions qui n'ont pas de réponse
 AveragePercentageQuestions    = Moyenne des questions
 AddToSheet                    = Ajouter au modèle
+PercentageQuestionStep        = Nombre d'étapes du curseur
 
 
 
@@ -357,11 +360,11 @@ ErrorEquipmentLink                             = L'équipement n'a pas pu être 
 LastControl                                    = Dernier contrôle
 ShowObjectControlHistory                       = Voir l'historique de contrôle
 NoControlOnThisObject                          = Le contrôle initial n'a pas été réalisé, veuillez vous référer à la notice et contacter votre responsable qualité
-ControlHistoryLink                             = Historique de contrôle
+ControlHistoryLink                             = Interface publique contrôle
 EnablePublicControlHistory                     = Afficher l'historique public de contrôle
 EnablePublicControlHistoryDescription          = Permet l'affichage de l'historique de contrôle sur l'interface publique de contrôle
-ShowLastControlFirstOnPublicHistory            = Afficher le dernier contrôle en priorité sur l'interface publique de contrôle
-ShowLastControlFirstOnPublicHistoryDescription = Force l'affichage du dernier contrôle à la place de la liste des contrôles de l'objet sur l'interface publique de contrôle
+ShowLastControlFirstOnPublicHistory            = Afficher uniquement le dernier contrôle sur l’interface publique
+ShowLastControlFirstOnPublicHistoryDescription = Lorsque cette option est activée, seul le dernier contrôle sera affiché. <br> Sinon, tous les contrôles seront visibles.
 NonFinalVerdict                                = Le contrôle n'est pas verrouillé, <br> le verdict peut encore changer
 GoToPublicAnswerPage                           = Voir l'interface publique de réponse
 BeCarefullVerdictKO                            = Attention si le statut de votre contrôle est KO. Il faudra refaire votre contrôle.
@@ -374,6 +377,9 @@ LastStatusDate                                 = Dernières dates de statut
 ValidationDate                                 = Date de validation
 ReOpenDate                                     = Date de réouverture
 DraftValidatedLocked                           = -- (Brouillon + validé + verrouillé) --
+CloneControlEquipments                         = Cloner les moyens de contrôle
+NoControl                                      = Aucun contrôle
+NoPeriodicityControl                           = Aucune périodicité de contrôle car contrôle unique
 
 
 
@@ -470,3 +476,5 @@ NoObservations           = Pas d'observations
 BasedOnModel             = Basé sur le modèle
 WriteComment             = Écrire un commentaire
 WriteAnswer              = Écrire une réponse
+In                       = Dans
+See                      = Voir
