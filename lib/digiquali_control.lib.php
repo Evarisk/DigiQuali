@@ -277,7 +277,28 @@ function get_control_infos(CommonObject $linkedObject): array
         $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
         $out['nextControl']['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
     } else {
-        $out['nextControl']['title']   = $langs->transnoentities('NoPeriodicityControl');
+        $out['nextControl']['title'] = $langs->transnoentities('NoPeriodicityControl');
+        if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWriteControl) {
+            if ($linkedObject->element == 'productlot') {
+                $linkedObject->element = 'productbatch';
+            }
+
+            $arraySelected = '';
+            if (isModEnabled('categorie')) {
+                require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
+                $category   = new Categorie($db);
+                $categories = $category->containing($lastControl->id, $lastControl->element);
+                if (is_array($categories) && !empty($categories)) {
+                    $arraySelected = '&categories=' . implode(',', array_column($categories, 'id'));
+                }
+            }
+
+            $moreParams = '&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id . '&fk_sheet=' . $lastControl->fk_sheet . '&fk_user_controller=' . $lastControl->fk_user_controller . '&projectid=' . $lastControl->projectid . $arraySelected;
+            $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1) . '" target="_blank"><i class="button-icon fas fa-plus"></i></a>';
+            if ($linkedObject->element == 'productbatch') {
+                $linkedObject->element = 'productlot';
+            }
+        }
         $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
         $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
         $out['nextControl']['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
