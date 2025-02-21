@@ -115,10 +115,18 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
 
     $out['linkedObject']['links'] = [];
     $out['linkedObject']['files'] = $filteredEcmFilesLine;
-    $link->fetchAll($out['linkedObject']['links'], $linkedObject->element, $linkedObject->id);
-
     $out['linkedObject']['title']        = $langs->transnoentities($linkableElement['langs']);
     $out['linkedObject']['name_field']   = $linkedObject->getNomUrl(1, !$permissionToRead ? 'nolink' : '', 1);
+
+    $link->fetchAll($out['linkedObject']['links'], $linkedObject->element, $linkedObject->id);
+
+    foreach ($out['linkedObject']['links'] as $link) {
+        $link->name_field = $out['linkedObject']['name_field'];
+    }
+    foreach ($out['linkedObject']['files'] as $file) {
+        $file->name_field = $out['linkedObject']['name_field'];
+    }
+
     if (!empty($linkedObject->array_options['options_qc_frequency'])) {
         $out['linkedObject']['qc_frequency'] = '<i class="objet-icon fas fa-history"></i>' . $linkedObject->array_options['options_qc_frequency'] . ' ' . $langs->transnoentities('Days');
     }
@@ -162,6 +170,12 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
             }
             $out['parentLinkedObject']['files'] = $filteredEcmFilesLine;
             $link->fetchAll($out['parentLinkedObject']['links'], $parentLinkedObject->element, $parentLinkedObject->id);
+            foreach ($out['parentLinkedObject']['links'] as $link) {
+                $link->name_field = $out['parentLinkedObject']['name_field'];
+            }
+            foreach ($out['parentLinkedObject']['files'] as $file) {
+                $file->name_field = $out['parentLinkedObject']['name_field'];
+            }
         }
     }
 
