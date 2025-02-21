@@ -368,13 +368,6 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                 $actioncomm->label       = $langs->transnoentities('ObjectGenerateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
                 $actioncomm->create($user);
                 break;
-
-            case 'PRODUCTLOT_CREATE':
-                $objectData = ['type' => $object->element, 'id' => $object->id];
-                $objectB64  = base64_encode(json_encode($objectData));
-                $object->array_options['options_control_history_link'] = $objectB64;
-                $object->updateExtrafield('control_history_link');
-                break;
         }
         return 0;
     }

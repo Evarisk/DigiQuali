@@ -204,8 +204,7 @@ class ActionsDigiquali
         }
 
         if (strpos($parameters['context'], 'productlotcard') !== false) {
-            $objectData                = ['type' => $object->element, 'id' => $object->id];
-            $objectB64                 = base64_encode(json_encode($objectData));
+            $objectB64                 = base64_encode(json_encode(['type' => $object->element, 'id' => (int) $object->id]));
             $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control_history.php?track_id=' . $objectB64 . '&entity=' . $conf->entity, 3);
             $setEasyUrlLinkButton      =  '';
             $assignEasyUrlButton       = '';
@@ -266,6 +265,56 @@ class ActionsDigiquali
                     }
                 }
             }
+        }
+
+        return 0; // or return 1 to replace standard code
+    }
+
+    /**
+     * Overloading the printFieldListValue function : replacing the parent's function with the one below
+     *
+     * @param  array     $parameters Hook metadata (context, etc...)
+     * @return int                   0 < on error, 0 on success, 1 to replace standard code
+     * @throws Exception
+     */
+    public function printFieldListValue(array $parameters): int
+    {
+        global $conf, $langs, $user;
+
+        if (strpos($parameters['context'], 'product_lotlist') !== false) {
+            $trackId                   = base64_encode(json_encode(['type' => $parameters['object']->element, 'id' => (int) $parameters['object']->id]));
+            $publicControlInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control_history.php?track_id=' . $trackId . '&entity=' . $conf->entity, 3);
+            $setEasyUrlLinkButton      =  '';
+            $assignEasyUrlButton       = '';
+            if (isModEnabled('easyurl')) {
+                require_once DOL_DOCUMENT_ROOT . '/custom/easyurl/class/shortener.class.php';
+                $shortener = new Shortener($this->db);
+                $result    = $shortener->fetch('', '', ' AND t.original_url = "' . $publicControlInterfaceUrl . '"');
+                if ($result > 0) {
+                    $publicControlInterfaceUrl = $shortener->short_url;
+                } else {
+                    if ($user->hasRight('easyurl', 'shortener', 'write')) {
+                        $setEasyUrlLinkButton .= '<a class="reposition editfielda" href="' . $_SERVER['PHP_SELF'] . '?id=' . $parameters['object']->id . '&action=set_easy_url_link&token=' . newToken() . '">';
+                        $setEasyUrlLinkButton .= img_picto($langs->trans('SetEasyURLLink'), 'fontawesome_fa-redo_fas_#444', 'class="paddingright pictofixedwidth valignmiddle"') . '</a>';
+                        $setEasyUrlLinkButton .= '<span>' . img_picto($langs->trans('GetEasyURLErrors'), 'fontawesome_fa-exclamation-triangle_fas_#bc9526') . '</span>';
+                    }
+                    if ($user->hasRight('easyurl', 'shortener', 'assign')) {
+                        //@Todo assign button
+                        //$assignEasyUrlButton .= dolButtonToOpenUrlInDialogPopup('assignShortener', $langs->transnoentities('AssignShortener'), '<span class="fas fa-link" title="' . $langs->trans('Assign') . '"></span>', '/custom/easyurl/view/shortener/shortener_card.php?element_type=' . $parameters['object']->element . '&fk_element=' . $parameters['object']->id . '&from_element=1&original_url=' . $publicControlInterfaceUrl . '&action=edit_assign', '', 'btnTitle', 'window.saturne.toolbox.checkIframeCreation();') . '</td>';
+                    }
+                }
+            }
+
+            $out  = '<a href="' . $publicControlInterfaceUrl . '" target="_blank" title="URL : ' . $publicControlInterfaceUrl . '"><i class="fas fa-external-link-alt paddingrightonly"></i>' . dol_trunc($publicControlInterfaceUrl) . '</a>';
+            $out .= showValueWithClipboardCPButton($publicControlInterfaceUrl, 0, 'none');
+//            $out .= $setEasyUrlLinkButton;
+//            $out .= $assignEasyUrlButton; ?>
+            <script>
+                var outJS             = <?php echo json_encode($out); ?>;
+                var publicControlCell = $('.liste > tbody > tr.oddeven').find('td[data-key="product_lot.control_history_link"]').last();
+                publicControlCell.html(outJS);
+            </script>
+            <?php
         }
 
         return 0; // or return 1 to replace standard code
