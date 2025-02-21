@@ -27,7 +27,8 @@
       }
       .card-container {
         display: flex;
-        align-items: center;
+        flex-direction: column;
+        justify-content: center;
       }
     }
   }
@@ -139,6 +140,14 @@
   }
 }
 
+.wpeo-grid {
+  &.grid-no-margin {
+    > * {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+  }
+}
 a.wpeo-button:link {
   color: #fff;
 }
@@ -198,6 +207,10 @@ a.wpeo-button:link {
       border-bottom-left-radius: 6px;
       width: 100%;
       height: 100%;
+
+      @media ( max-width: $media__small ) {
+        height: auto;
+      }
     }
     .card-thumbnail-icon {
       font-size: 20px;

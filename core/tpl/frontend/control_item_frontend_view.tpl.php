@@ -35,12 +35,17 @@ $controlInfoArray = get_control_infos($linkedObject); ?>
         <div class="card-container">
             <div class="information-type"><?php echo $linkedObjectInfoArray['linkedObject']['title']; ?></div>
             <div class="information-label size-l"><?php echo $linkedObjectInfoArray['linkedObject']['name_field']; ?></div>
-            <div class="information-type"><?php echo $controlInfo['title']; ?></div>
-            <div class="information-label size-l"><?php echo $controlInfo['ref']; ?></div>
-            <div class="information-label"><?php echo $controlInfo['control_date']; ?></div>
-            <div class="information-type"><?php echo $controlInfo['sheet_title']; ?></div>
-            <div class="information-label"><?php echo $controlInfo['sheet_ref']; ?></div>
-
+            <div class="wpeo-grid grid-no-margin">
+                <div>
+                    <div class="information-type"><?php echo $controlInfo['title']; ?></div>
+                    <div class="information-label size-l"><?php echo $controlInfo['ref']; ?></div>
+                    <div class="information-label"><?php echo $controlInfo['control_date']; ?></div>
+                </div>
+                <div>
+                    <div class="information-type"><?php echo $controlInfo['sheet_title']; ?></div>
+                    <div class="information-label size-l"><?php echo $controlInfo['sheet_ref']; ?></div>
+                </div>
+            </div>
         </div>
         <div class="card-actions">
             <div class="information-label"><?php echo $controlInfo['view_button']; ?></div>
