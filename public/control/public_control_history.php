@@ -109,7 +109,7 @@ $hookmanager->initHooks(['publiccontrol', 'saturnepublicinterface']); // Note th
 if (!isset($_SESSION['dol_login'])) {
     $user->loadDefaultValues();
 } else {
-    $user->fetch('', $_SESSION['dol_login']);
+    $user->fetch('', $_SESSION['dol_login'], '', 1);
     $user->getrights();
 }
 
