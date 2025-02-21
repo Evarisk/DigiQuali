@@ -53,7 +53,7 @@ $linkedObjectInfoArray = get_linked_object_infos($linkedObject, $linkableElement
             </div>
             <div class="card-container">
                 <div class="information-label size-l"><?php echo $langs->transnoentities($link->label); ?></div>
-                <div class="information-label size-l"><?php echo $link->name_field; ?></div>
+                <div class="information-label"><?php echo $link->name_field; ?></div>
             </div>
             <div class="card-actions">
                 <a class="wpeo-button button-square-40 button-rounded" href="<?php echo $link->url ?>" target="_blank">

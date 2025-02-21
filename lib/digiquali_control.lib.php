@@ -231,7 +231,7 @@ function get_control_infos(CommonObject $linkedObject): array
 
         $sheet->fetch($control->fk_sheet);
 
-        $out['control'][$control->id]['sheet_title'] = $langs->transnoentities(dol_ucfirst($sheet->element));
+        $out['control'][$control->id]['sheet_title'] = $langs->transnoentities('BasedOnModel');
         $out['control'][$control->id]['sheet_ref']   = $sheet->getNomUrl(1, !$permissionToReadSheet ? 'nolink' : 'blank', 1);
 
         if ($permissionToReadControl) {
@@ -256,7 +256,19 @@ function get_control_infos(CommonObject $linkedObject): array
             if ($linkedObject->element == 'productlot') {
                 $linkedObject->element = 'productbatch';
             }
-            $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id . '&fk_sheet=' . $lastControl->fk_sheet, 1) . '" target="_blank"><i class="button-icon fas fa-plus"></i></a>';
+
+            $arraySelected = '';
+            if (isModEnabled('categorie')) {
+                require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
+                $category   = new Categorie($db);
+                $categories = $category->containing($lastControl->id, $lastControl->element);
+                if (is_array($categories) && !empty($categories)) {
+                    $arraySelected = '&categories=' . implode(',', array_column($categories, 'id'));
+                }
+            }
+
+            $moreParams = '&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id . '&fk_sheet=' . $lastControl->fk_sheet . '&fk_user_controller=' . $lastControl->fk_user_controller . '&projectid=' . $lastControl->projectid . $arraySelected;
+            $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1) . '" target="_blank"><i class="button-icon fas fa-plus"></i></a>';
             if ($linkedObject->element == 'productbatch') {
                 $linkedObject->element = 'productlot';
             }
