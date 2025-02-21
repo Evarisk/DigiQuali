@@ -162,15 +162,18 @@ window.digiquali.control.refreshLotSelector = function(  event ) {
  */
 window.digiquali.control.switchPublicControlView = function() {
   const route = $(this).data('route');
-  let   token = window.saturne.toolbox.getToken();
+
+  window.saturne.loader.display($(this));
 
   $.ajax({
-    url: document.URL + '&route=' + route + '&token=' + token,
+    url: document.URL + '&route=' + route,
     type: 'POST',
     processData: false,
     contentType: false,
     success: function (resp) {
-      $('#publicControlHistory').replaceWith($(resp).find('#publicControlHistory'));
+      $('.public-card__container').children().fadeOut(300, function () {
+        $('#publicControlHistory').replaceWith($(resp).find('#publicControlHistory'));
+      });
     },
     error: function () {}
   });
