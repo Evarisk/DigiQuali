@@ -466,7 +466,7 @@ function get_sheet_linkable_objects(): array
 				$confCode = 'DIGIQUALI_SHEET_LINK_' . strtoupper($linkableObjectType);
 				$linkableObjects[$linkableObjectType] = [
 					'code'           => $confCode,
-					'conf'           => $conf->global->$confCode,
+					'conf'           => getDolGlobalString($confCode),
 					'name'           => 'Link' . ucfirst($linkableObjectType),
 					'description'    => 'Link' . ucfirst($linkableObjectType) . 'Description',
 					'langs'          => $linkableObjectInformations['langs'] ?? '',
