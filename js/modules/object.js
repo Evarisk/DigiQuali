@@ -225,7 +225,7 @@ window.digiquali.object.saveAnswer = function(questionId, answer, comment) {
 window.digiquali.object.rangePercent = function() {
   const mobile      = window.saturne.toolbox.isPhone();
   const slider      = $(this);
-  const value       = parseInt(slider.val());
+  const value       = parseFloat(slider.val());
   const min         = parseInt(slider.attr('min'));
   const max         = parseInt(slider.attr('max'));
   const sliderWidth = slider.width();
@@ -233,9 +233,10 @@ window.digiquali.object.rangePercent = function() {
   const sliderTop   = slider.position().top;
   var thumbWidth    = mobile ? 36 : 70;
 
-  $(this).parent().find('.range-percent').remove();
+  slider.parent().find('.range-percent').remove();
 
-  const rangePercent = $('<span class="range-percent">' + $(this).val() + '%</span>');
+  const rangePercentValue = (Math.round(value * 100) / 100).toFixed(2);
+  const rangePercent = $('<span class="range-percent">' + rangePercentValue + '%</span>');
   if (!mobile) {
     rangePercent.css('transform', 'translateX(0)');
   }
@@ -251,8 +252,9 @@ window.digiquali.object.rangePercent = function() {
   var titlePos = sliderPos + Math.round((pos * sliderWidth) - (mobile ? 0 : thumbWidth / 4) + thumbCorrect);
 
   rangePercent.css('left', titlePos);
+  slider.attr('value', rangePercentValue);
 
-  $(this).parent().append(rangePercent);
+  slider.parent().append(rangePercent);
 }
 
 /**

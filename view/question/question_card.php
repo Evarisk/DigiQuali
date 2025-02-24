@@ -747,7 +747,7 @@ if ($action == 'create') {
 
     // Step for percentage question type default hidden
     print '<tr class="' . (GETPOST('type') == 'Percentage' ? '' : 'hidden') . '" id="percentage-question-step"><td class="fieldrequired"><label for="step">' . $langs->transnoentities('PercentageQuestionStep') . '</label></td><td>';
-    print '<input type="number" name="step" id="step" min="1" value="' . (!empty(GETPOSTINT('step')) ? GETPOSTINT('step') : 1) . '">';
+    print '<input type="number" name="step" id="step" min="2" value="' . (!empty(GETPOSTINT('step')) ? GETPOSTINT('step') : 2) . '">';
     print '</td></tr>';
 
 	// Description -- Description
