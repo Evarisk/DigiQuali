@@ -577,12 +577,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     unset($object->fields['projectid']); // Hide field already shown in banner
 
     if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {
-        $publicInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $object->track_id . '&entity=' . $conf->entity, 3);
-        print '<tr><td class="titlefield">' . $langs->trans('PublicInterface') . ' <a href="' . $publicInterfaceUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
-        print showValueWithClipboardCPButton($publicInterfaceUrl, 0, '&nbsp;');
-        print '</td>';
-        print '<td>' . saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/' . $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
-
         // Answer public interface
         $publicAnswerUrl = dol_buildpath('custom/digiquali/public/public_answer.php?track_id=' . $object->track_id . '&object_type=' . $object->element . '&document_type=ControlDocument&entity=' . $conf->entity, 3);
         print '<tr><td class="titlefield">' . $langs->trans('PublicAnswer') . ' <a href="' . $publicAnswerUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';

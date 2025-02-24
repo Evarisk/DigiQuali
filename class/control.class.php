@@ -21,9 +21,6 @@
  * \brief   This file is a CRUD class file for Control (Create/Read/Update/Delete).
  */
 
-// Load Dolibarr libraries.
-require_once DOL_DOCUMENT_ROOT . '/core/lib/ticket.lib.php';
-
 // Load Saturne libraries.
 require_once __DIR__ . '/../../saturne/class/saturneobject.class.php';
 
@@ -274,24 +271,10 @@ class Control extends SaturneObject
      */
     public function create(User $user, bool $notrigger = false): int
     {
-        $this->track_id = generate_random_id();
         $result = parent::create($user, $notrigger);
 
         if ($result > 0) {
             global $conf;
-
-            require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
-
-            $url = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $this->track_id . '&entity=' . $conf->entity, 3);
-
-            $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
-
-            dol_mkdir($conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/');
-            $file = $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/' . 'barcode_' . $this->track_id . '.png';
-
-            $imageData = $barcode->getBarcodePngData();
-            $imageData = imagecreatefromstring($imageData);
-            imagepng($imageData, $file);
 
             require_once __DIR__ . '/sheet.class.php';
 
