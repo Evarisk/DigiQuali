@@ -54,10 +54,11 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                             ?>
                         <?php endif; ?>
                     </div>
+                    <div class="question__header-answer">
+                        <?php print show_answer_from_question($question, $object, $questionAnswer); ?>
+                    </div>
                 </div>
-                <div class="question__content">
-                    <?php print show_answer_from_question($question, $object, $questionAnswer); ?>
-                </div>
+
                 <div class="question__footer">
                     <?php if ($question->enter_comment > 0) : ?>
                         <label class="question__footer-comment">

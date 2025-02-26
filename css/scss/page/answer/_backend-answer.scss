@@ -1,0 +1,31 @@
+body:not(.page-public-card) .question-answer-container {
+
+  .question:not(.wpeo-button) {
+    box-shadow: none;
+    border: 1px solid $color__public-secondary;
+
+    .question__header-answer {
+      align-self: center;
+    }
+
+    .question__header {
+      .question-description {
+      }
+      .select-answer {
+        flex-wrap: nowrap;
+
+        .answer {
+          font-size: 14px;
+          padding: 0.2em 0.4em;
+          border-radius: 6px;
+          font-weight: 600;
+        }
+        .answer.answer-icon {
+          width: 40px;
+          height: 40px;
+          font-size: 18px;
+        }
+      }
+    }
+  }
+}

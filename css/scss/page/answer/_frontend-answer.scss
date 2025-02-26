@@ -1,0 +1,12 @@
+.page-public-card .question-answer-container-pwa {
+  background: none;
+  box-shadow: none;
+
+  .question:not(.wpeo-button) {
+    .question__header {
+      flex-direction: column;
+    }
+  }
+
+
+}
