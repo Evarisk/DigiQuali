@@ -223,11 +223,29 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                         <?php endif; ?>
                         <div class="wpeo-button button-square-50 add-action modal-open" value="<?php echo $question->id ?>">
                             <input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id ?>" data-from-type="<?php echo $object->element ?>" data-from-subtype="answer_photo_<?php echo $question->id ?>" data-from-subdir="answer_photo/<?php echo $question->ref ?>"/>
-                            <i class="fas fa-folder-open"></i><i class="fas fa-plus-circle button-add"></i>
+                            <i class="fas fa-list"></i><i class="fas fa-plus-circle button-add"></i>
                         </div>
                     </div>
-                    <div class="photos">Liste des photos</div>
-                    <div class="actions">Liste des actions</div>
+                    <div class="question__list-medias">Liste des photos</div>
+                    <div class="question__list-actions">
+                        <div class="question__action">
+                            <div class="question__action-check"><input type="checkbox" /></div>
+                            <div class="question__action-body">
+                                <div class="question__action-metas">
+                                    <span class="question__action-metas-ref">TK2502-0002</span>
+                                    <span class="question__action-metas-author"></span>
+                                    <span class="question__action-metas-date"><i class="fas fa-calendar-alt"></i> 27/02/2025</span>
+                                    <span class="question__action-metas-time"><i class="fas fa-clock"></i> 0/3600</span>
+                                    <span class="question__action-metas-budget"><i class="fas fa-coins"></i> 1500€</span>
+                                </div>
+                                <div class="question__action-content">Lorem ipsum dolor sit amet</div>
+                            </div>
+                            <div class="question__action-buttons">
+                                <div class="wpeo-button button-square-40 button-transparent"><i class="fas fa-pencil-alt button-icon"></i></div>
+                                <div class="wpeo-button button-square-40 button-transparent"><i class="fas fa-trash button-icon"></i></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
