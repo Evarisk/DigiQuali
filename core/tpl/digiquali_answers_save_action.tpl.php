@@ -16,7 +16,7 @@
  */
 
 /**
- * \file    core/tpl/digiquali_answers_sava_action.tpl.php
+ * \file    core/tpl/digiquali_answers_save_action.tpl.php
  * \ingroup digiquali
  * \brief   Template page for answers save action
  */
@@ -61,40 +61,6 @@ if ($action == 'save') {
                         $line->update($user);
                     }
                 }
-            } else {
-                $objectLine->ref         = $objectLine->getNextNumRef();
-                $fk_element              = 'fk_'. $object->element;
-                $objectLine->$fk_element = $object->id;
-                $objectLine->fk_question = $question->id;
-
-                // Save answer value
-                if ($data['autoSave'] && $question->id == $data['questionId']) {
-                    $questionAnswer = $data['answer'];
-                } else {
-                    $questionAnswer = GETPOST('answer' . $question->id);
-                }
-                if (!empty($questionAnswer)) {
-                    $objectLine->answer = $questionAnswer;
-                } else {
-                    $objectLine->answer = '';
-                }
-
-                // Save answer comment
-                if ($data['autoSave'] && $question->id == $data['questionId']) {
-                    $comment = $data['comment'];
-                } else {
-                    $comment = GETPOST('comment' . $question->id);
-                }
-                if (dol_strlen($comment) > 0) {
-                    $objectLine->comment = $comment;
-                } else {
-                    $objectLine->comment = '';
-                }
-
-                $objectLine->entity = $conf->entity;
-                $objectLine->status = 1;
-
-                $objectLine->create($user);
             }
         }
     }

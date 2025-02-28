@@ -24,8 +24,8 @@
 /**
  * The following vars must be defined:
  * Global     : $conf, $langs, $user
- * Parameters :
- * Objects    : $answer, $object, $objectLine, $sheet
+ * Parameters : $permissiontoaddtask
+ * Objects    : $answer, $object, $objectLine, $sheet, $project
  * Variable   : $publicInterface
  */
 
@@ -39,6 +39,9 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
             $questionAnswer = $objectLine->answer;
             $comment = $objectLine->comment;
         }
+
+        $objectLine->fetchObjectLinked($objectLine->id, $objectLine->element);
+
         if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER or empty($questionAnswer)) {
             ?>
             <div class="wpeo-table table-flex table-3 table-id-<?php echo $question->id ?>" data-publicInterface="<?php echo $publicInterface; ?>" data-autoSave="<?php echo getDolGlobalInt('DIGIQUALI_' . dol_strtoupper($object->element) . 'DET_AUTO_SAVE_ACTION'); ?>">
@@ -221,30 +224,338 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                                 </div>
                             </div>
                         <?php endif; ?>
-                        <div class="wpeo-button button-square-50 add-action modal-open" value="<?php echo $question->id ?>">
-                            <input type="hidden" class="modal-options" data-modal-to-open="media_gallery" data-from-id="<?php echo $object->id ?>" data-from-type="<?php echo $object->element ?>" data-from-subtype="answer_photo_<?php echo $question->id ?>" data-from-subdir="answer_photo/<?php echo $question->ref ?>"/>
+                        <div class="wpeo-button button-square-50 add-action modal-open" value="<?php echo $objectLine->id ?>">
+                            <input type="hidden" class="modal-options" data-modal-to-open="answer_task_add<?php echo $objectLine->id?>" data-from-id="<?php echo $objectLine->id ?>" data-from-type="<?php echo $object->element ?>" data-from-subtype="answer_photo_<?php echo $question->id ?>" data-from-subdir="answer_photo/<?php echo $question->ref ?>"/>
                             <i class="fas fa-list"></i><i class="fas fa-plus-circle button-add"></i>
                         </div>
-                    </div>
-                    <div class="question__list-medias">Liste des photos</div>
-                    <div class="question__list-actions">
-                        <div class="question__action">
-                            <div class="question__action-check"><input type="checkbox" /></div>
-                            <div class="question__action-body">
-                                <div class="question__action-metas">
-                                    <span class="question__action-metas-ref">TK2502-0002</span>
-                                    <span class="question__action-metas-author"></span>
-                                    <span class="question__action-metas-date"><i class="fas fa-calendar-alt"></i> 27/02/2025</span>
-                                    <span class="question__action-metas-time"><i class="fas fa-clock"></i> 0/3600</span>
-                                    <span class="question__action-metas-budget"><i class="fas fa-coins"></i> 1500€</span>
+
+                        <div class="wpeo-modal" id="answer_task_add<?php echo $objectLine->id?>" data-project-id="<?php echo $project->id ?: '' ?>" data-line-id="<?php echo $objectLine->id ?>">
+                            <div class="modal-container wpeo-modal-event">
+                                <!-- Modal-Header -->
+                                <div class="modal-header">
+                                    <h2 class="modal-title"><?php echo $langs->trans('TaskCreate') . ' ' . $taskNextValue . (!empty($project->id) ? '  ' . $langs->trans('AT') . '  ' . $langs->trans('Project') . '  ' . $project->getNomUrl() : '') ?></h2>
+                                    <div class="modal-close"><i class="fas fa-times"></i></div>
                                 </div>
-                                <div class="question__action-content">Lorem ipsum dolor sit amet</div>
-                            </div>
-                            <div class="question__action-buttons">
-                                <div class="wpeo-button button-square-40 button-transparent"><i class="fas fa-pencil-alt button-icon"></i></div>
-                                <div class="wpeo-button button-square-40 button-transparent"><i class="fas fa-trash button-icon"></i></div>
+                                <div class="modal-content" id="#modalContent<?php echo $objectLine->id ?>">
+                                    <div class="messageWarningTaskLabel notice hidden">
+                                        <div class="wpeo-notice notice-warning">
+                                            <div class="notice-content">
+                                                <div class="notice-title"><?php echo $langs->trans('Label') ?></div>
+                                            </div>
+                                            <div class="notice-close"><i class="fas fa-times"></i></div>
+                                        </div>
+                                    </div>
+                                    <div class="answer-task-container">
+                                        <div class="answer-task">
+                                            <span class="title"><?php echo $langs->trans('Label'); ?></span>
+                                            <input type="text" class="answer-task-label" name="label" value="">
+                                            <div class="answer-task-date wpeo-gridlayout grid-2">
+                                                <div>
+                                                    <span class="title"><?php echo $langs->trans('DateStart'); ?></span>
+                                                    <input type="datetime-local" class="answer-task-date-start" name="date_start">'
+                                                </div>
+                                                <div>
+                                                    <span class="title"><?php echo $langs->trans('Deadline'); ?></span>
+                                                    <input type="datetime-local" class="answer-task-date-start" name="date_end">'
+                                                </div>
+                                            </div>
+                                            <span class="title"><?php echo $langs->trans('Budget'); ?></span>
+                                            <input type="text" class="answer-task-budget" name="budget" value="">
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Modal-Footer -->
+                                <div class="modal-footer">
+                                    <?php if ($permissiontoaddtask) : ?>
+                                        <div class="wpeo-button answer-task-create button-blue button-disable modal-close" value="<?php echo $objectLine->id ?>">
+                                            <i class="fas fa-plus"></i> <?php echo $langs->trans('Add'); ?>
+                                        </div>
+                                    <?php else : ?>
+                                        <div class="wpeo-button button-grey wpeo-tooltip-event" aria-label="<?php echo $langs->trans('PermissionDenied') ?>">
+                                            <i class="fas fa-plus"></i> <?php echo $langs->trans('Add'); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
+
+                    </div>
+                    <div class="question__list-medias">Liste des photos</div>
+                    <div class="question__list-actions" id="answer_task_list<?php echo $objectLine->id ?>">
+                        <?php foreach ($objectLine->linkedObjects['project_task'] ?? [] as $relatedTask) : ?>
+                            <?php
+                                $allTimeSpentArray = $task->fetchAllTimeSpentAllUsers(' AND task_id = ' . $relatedTask->id);
+                                $allTimeSpent = 0;
+                                if (is_array($allTimeSpentArray) && !empty($allTimeSpentArray)) {
+                                    foreach ($allTimeSpentArray as $timespent) {
+                                        $allTimeSpent += $timespent->timespent_duration / 60;
+                                    }
+                                }
+                            ?>
+                            <div class="question__action">
+                                <div class="question__action-check"><input type="checkbox" <?php echo ($relatedTask->progress == 100 ? 'checked' : ''); ?> data-task-id="<?php echo $relatedTask->id; ?>"/></div>
+                                <div class="question__action-body">
+                                    <div class="question__action-metas">
+                                        <span class="question__action-metas-ref"><?php echo $relatedTask->ref ?></span>
+                                        <span class="question__action-metas-author"></span>
+                                        <span class="question__action-metas-date"><i class="fas fa-calendar-alt"></i> <?php echo date('d/m/Y', (($conf->global->DIGIRISKDOLIBARR_SHOW_TASK_START_DATE && ( ! empty($relatedTask->dateo))) ? $relatedTask->dateo : $relatedTask->datec)) . (($conf->global->DIGIRISKDOLIBARR_SHOW_TASK_END_DATE && ( ! empty($relatedTask->datee))) ? ' - ' . date('d/m/Y', $relatedTask->datee) : ''); ?></span>
+                                        <span class="question__action-metas-time"><i class="fas fa-clock"></i> <?php echo $allTimeSpent . '/' . $relatedTask->planned_workload ?></span>
+                                        <span class="question__action-metas-budget"><i class="fas fa-coins"></i> <?php echo price($relatedTask->budget_amount, 0, $langs, 1, 0, 0, $conf->currency); ?></span>
+                                    </div>
+                                    <div class="question__action-content"><?php echo $relatedTask->label ?></div>
+                                </div>
+                                <div class="question__action-buttons">
+                                    <div class="wpeo-button button-square-40 button-transparent modal-open">
+                                        <input type="hidden" class="modal-options" data-modal-to-open="answer_task_edit<?php echo $relatedTask->id ?>" data-from-id="<?php echo $relatedTask->id ?>" data-from-type="answertask">
+                                        <i class="fas fa-pencil-alt button-icon"></i>
+                                    </div>
+                                    <div class="wpeo-button button-square-40 button-transparent delete-task" data-message="<?php echo $langs->transnoentities('DeleteTask') . ' ' . $relatedTask->ref;  ?>" data-task-id="<?php echo $relatedTask->id ?>"><i class="fas fa-trash button-icon"></i></div>
+                                </div>
+
+                                <div class="wpeo-modal answer-task-edit-modal" id="answer_task_edit<?php echo $relatedTask->id ?>" data-task-id="<?php echo $relatedTask->id ?>" data-line-id="<?php echo $objectLine->id ?>">
+                                    <div class="modal-container wpeo-modal-event">
+                                        <!-- Modal-Header -->
+                                        <div class="modal-header">
+                                            <h2 class="modal-title"><?php echo $langs->trans('TaskEdit') . ' ' . $relatedTask->getNomUrl(0) ?></h2>
+                                            <div class="modal-close"><i class="fas fa-times"></i></div>
+                                        </div>
+                                        <!-- Modal-Content -->
+                                        <div class="modal-content answer-task-content">
+                                            <div id="task-data<?php echo $relatedTask->id ?>">
+                                                <span class="answer-task-reference" value="<?php echo $relatedTask->ref ?>"><?php echo $relatedTask->getNomUrl(0, 'withproject'); ?></span>
+                                                <span class="answer-task-author"><?php $userAuthor = $usersList[$relatedTask->fk_user_creat > 0 ? $relatedTask->fk_user_creat : $user->id];  //echo getNomUrlUser($userAuthor); ?>
+								                </span>
+                                                <span class="answer-task-date">
+									                <i class="fas fa-calendar-alt"></i> <?php echo date('d/m/Y', (($conf->global->DIGIRISKDOLIBARR_SHOW_TASK_START_DATE && ( ! empty($relatedTask->dateo))) ? $relatedTask->dateo : $relatedTask->datec)) . (($conf->global->DIGIRISKDOLIBARR_SHOW_TASK_END_DATE && ( ! empty($relatedTask->datee))) ? ' - ' . date('d/m/Y', $relatedTask->datee) : ''); ?>
+								                </span>
+                                                <span class="answer-total-task-timespent answer-total-task-timespent-<?php echo $relatedTask->id ?>">
+									                <i class="fas fa-clock"></i> <?php echo $allTimeSpent . '/' . $relatedTask->planned_workload/60 ?>
+								                </span>
+                                                <span><i class="fas fa-coins"></i> <?php echo price($relatedTask->budget_amount, 0, $langs, 1, 0, 0, $conf->currency); ?></span>
+                                                <span class="answer-task-progress <?php //echo $relatedTask->getTaskProgressColorClass($task_progress); ?>"><?php echo $relatedTask->progress ? $relatedTask->progress . " %" : 0 . " %" ?></span>
+                                            </div>
+                                            <br>
+                                            <div class="answer-task-content">
+                                                <!--								<span class="title">--><?php //echo $langs->trans('Label'); ?><!--</span>-->
+                                                <div class="answer-task-title">
+                                                    <?php if (!$conf->global->DIGIRISKDOLIBARR_SHOW_TASK_CALCULATED_PROGRESS) : ?>
+                                                    <span class="answer-task-progress-checkbox">
+                                                        <input type="checkbox" id="" class="answer-task-progress-checkbox" name="progress-checkbox" value="" <?php echo ($relatedTask->progress == 100) ? 'checked' : ''; ?>>
+                                                    </span>
+                                                    <?php endif; ?>
+                                                    <input type="text" class="answer-task-author-label answer-task-label" name="label" value="<?php echo $relatedTask->label; ?>">
+                                                </div>
+                                                <div class="answer-task-date wpeo-gridlayout grid-3">
+                                                    <div>
+                                                        <span class="title"><?php echo $langs->trans('DateStart'); ?></span>
+                                                        <?php print '<input type="datetime-local" class="answer-task-start-date" name="answerTaskDateStartEdit' . $relatedTask->id . '" value="' . ($relatedTask->dateo ? dol_print_date($relatedTask->dateo, '%Y-%m-%dT%H:%M:%S') : '') . '">'; ?>
+                                                    </div>
+                                                    <div>
+                                                        <span class="title"><?php echo $langs->trans('Deadline'); ?></span>
+                                                        <?php print '<input type="datetime-local" class="answer-task-end-date" name="answerTaskDateEndEdit' . $relatedTask->id . '" value="' . ($relatedTask->datee ? dol_print_date($relatedTask->datee, '%Y-%m-%dT%H:%M:%S') : '') . '">'; ?>
+                                                    </div>
+                                                    <div>
+                                                        <span class="title"><?php echo $langs->trans('Budget'); ?></span>
+                                                        <input type="text" class="answer-task-budget" name="budget" value="<?php echo price2num($relatedTask->budget_amount); ?>">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <hr>
+                                            <!-- answer TASK TIME SPENT NOTICE -->
+                                            <div class="messageSuccessTaskTimeSpentCreate<?php echo $relatedTask->id ?> notice hidden">
+                                                <input type="hidden" class="valueForCreateTaskTimeSpent1" value="<?php echo $langs->trans('TheTaskTimeSpent') . ' ' . $langs->trans('OnTheTask') . ' ' ?>">
+                                                <input type="hidden" class="valueForCreateTaskTimeSpent2" value="<?php echo ' ' . $langs->trans('HasBeenCreatedM') ?>">
+                                                <div class="wpeo-notice notice-success answer-task-timespent-create-success-notice">
+                                                    <div class="notice-content">
+                                                        <div class="notice-title"><?php echo $langs->trans('TaskTimeSpentWellCreated') ?></div>
+                                                        <div class="notice-subtitle">
+                                                            <span class="text"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="notice-close"><i class="fas fa-times"></i></div>
+                                                </div>
+                                            </div>
+                                            <div class="messageErrorTaskTimeSpentCreate<?php echo $relatedTask->id ?> notice hidden">
+                                                <input type="hidden" class="valueForCreateTaskTimeSpent1" value="<?php echo $langs->trans('TheTaskTimeSpent') . ' ' . $langs->trans('OnTheTask') . ' ' ?>">
+                                                <input type="hidden" class="valueForCreateTaskTimeSpent2" value="<?php echo ' ' . $langs->trans('HasNotBeenCreateM') ?>">
+                                                <div class="wpeo-notice notice-warning answer-task-timespent-create-error-notice">
+                                                    <div class="notice-content">
+                                                        <div class="notice-title"><?php echo $langs->trans('TaskTimeSpentNotCreated') ?></div>
+                                                    </div>
+                                                    <div class="notice-close"><i class="fas fa-times"></i></div>
+                                                </div>
+                                            </div>
+                                            <div class="messageSuccessTaskTimeSpentEdit<?php echo $relatedTask->id ?> notice hidden">
+                                                <input type="hidden" class="valueForEditTaskTimeSpent1" value="<?php echo $langs->trans('TheTaskTimeSpent') . ' ' . $langs->trans('OnTheTask') . ' ' ?>">
+                                                <input type="hidden" class="valueForEditTaskTimeSpent2" value="<?php echo ' ' . $langs->trans('HasBeenEditedM') ?>">
+                                                <div class="wpeo-notice notice-success answer-task-timespent-edit-success-notice">
+                                                    <div class="notice-content">
+                                                        <div class="notice-title"><?php echo $langs->trans('TaskTimeSpentWellEdited') ?></div>
+                                                        <div class="notice-subtitle">
+                                                            <span class="text"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="notice-close"><i class="fas fa-times"></i></div>
+                                                </div>
+                                            </div>
+                                            <div class="messageErrorTaskTimeSpentEdit<?php echo $relatedTask->id ?> notice hidden">
+                                                <input type="hidden" class="valueForEditTaskTimeSpent1" value="<?php echo $langs->trans('TheTaskTimeSpent') . ' ' . $langs->trans('OnTheTask') . ' ' ?>">
+                                                <input type="hidden" class="valueForEditTaskTimeSpent2" value="<?php echo ' ' . $langs->trans('HasNotBeenEditedM') ?>">
+                                                <div class="wpeo-notice notice-warning answer-task-timespent-edit-error-notice">
+                                                    <div class="notice-content">
+                                                        <div class="notice-title"><?php echo $langs->trans('TaskTimeSpentNotEdited') ?></div>
+                                                    </div>
+                                                    <div class="notice-close"><i class="fas fa-times"></i></div>
+                                                </div>
+                                            </div>
+                                            <div class="messageSuccessTaskTimeSpentDelete<?php echo $relatedTask->id ?> notice hidden">
+                                                <input type="hidden" class="valueForDeleteTaskTimeSpent1" value="<?php echo $langs->trans('TheTaskTimeSpent') . ' ' . $langs->trans('OnTheTask') . ' ' ?>">
+                                                <input type="hidden" class="valueForDeleteTaskTimeSpent2" value="<?php echo ' ' . $langs->trans('HasBeenDeletedM') ?>">
+                                                <div class="wpeo-notice notice-success answer-task-timespent-delete-success-notice">
+                                                    <div class="notice-content">
+                                                        <div class="notice-title"><?php echo $langs->trans('TaskTimeSpentWellDeleted') ?></div>
+                                                        <div class="notice-subtitle">
+                                                            <span class="text"></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="notice-close"><i class="fas fa-times"></i></div>
+                                                </div>
+                                            </div>
+                                            <div class="messageErrorTaskTimeSpentDelete<?php echo $relatedTask->id ?> notice hidden">
+                                                <input type="hidden" class="valueForDeleteTaskTimeSpent1" value="<?php echo $langs->trans('TheTaskTimeSpent') . ' ' . $langs->trans('OnTheTask') . ' ' ?>">
+                                                <input type="hidden" class="valueForDeleteTaskTimeSpent2" value="<?php echo ' ' . $langs->trans('HasNotBeenDeletedM') ?>">
+                                                <div class="wpeo-notice notice-warning answer-task-timespent-delete-error-notice">
+                                                    <div class="notice-content">
+                                                        <div class="notice-title"><?php echo $langs->trans('TaskTimeSpentNotDeleted') ?></div>
+                                                    </div>
+                                                    <div class="notice-close"><i class="fas fa-times"></i></div>
+                                                </div>
+                                            </div>
+                                            <div class="answer-task-timespent-container">
+                                                <span class="title"><?php echo $langs->trans('TimeSpent'); ?></span>
+                                                <div class="answer-task-timespent-add-container">
+                                                    <div class="timespent-date">
+                                                        <span class="title"><?php echo $langs->trans('Date'); ?></span>
+                                                        <?php print $form->selectDate(dol_now('tzuser'), 'answer-task-timespent-date', 1, 1, 0, 'answer_task_timespent_form', 1, 0); ?>
+                                                    </div>
+                                                    <div class="timespent-comment">
+                                                        <span class="title"><?php echo $langs->trans('Comment'); ?></span>
+                                                        <input type="text" class="answer-task-timespent-comment" name="comment" value="">
+                                                    </div>
+                                                    <div class="timespent-duration">
+                                                        <span class="title"><?php echo $langs->trans('Duration'); ?></span>
+                                                        <span class="time"><?php print '<input type="number" placeholder="minutes" class="answer-task-timespent-duration" name="timespentDuration" value="'.$conf->global->DIGIRISKDOLIBARR_EVALUATOR_DURATION.'">'; ?></span>
+                                                    </div>
+                                                    <?php if ($permissiontoadd) : ?>
+                                                        <div class="timespent-add-button">
+                                                            <div class="wpeo-button answer-task-timespent-create button-square-30 button-rounded" data-task-id="<?php echo $relatedTask->id ?>">
+                                                                <i class="fas fa-plus button-icon"></i>
+                                                            </div>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div id="answer-task-timespent-list<?php echo $relatedTask->id ?>">
+                                                    <ul class="wpeo-table table-flex">
+                                                        <?php if (!empty($allTimeSpentArray) && $allTimeSpentArray > 0) : ?>
+                                                            <?php foreach ($allTimeSpentArray as $time_spent) :?>
+                                                                <li class="answer-task-timespent-<?php echo $time_spent->timespent_id ?>">
+                                                                    <input type="hidden" class="labelForDelete" value="<?php echo $langs->trans('DeleteTaskTimeSpent', $time_spent->timespent_duration/60) . ' ' . $relatedTask->ref . ' ?'; ?>">
+                                                                    <div class="table-row answer-task-timespent-container">
+                                                                        <div class="table-cell table-padding-0 answer-task-timespent-single">
+															<span class="answer-task-timespent-author">
+																<?php $userAuthor = $usersList[$time_spent->timespent_fk_user?:$user->id];
+                                                                //echo getNomUrlUser($userAuthor); ?>
+															</span>
+                                                                            <span class="answer-task-timespent-date">
+																<i class="fas fa-calendar-alt"></i> <?php echo dol_print_date($time_spent->timespent_datehour, 'dayhour'); ?>
+															</span>
+                                                                            <span class="answer-task-timespent-time">
+																<i class="fas fa-clock"></i> <?php echo $time_spent->timespent_duration/60 . ' mins'; ?>
+															</span>
+                                                                            <span class="answer-task-timespent-comment">
+																<?php echo $time_spent->timespent_note; ?>
+															</span>
+                                                                        </div>
+                                                                        <!-- BUTTON MODAL TASK TIMESPENT EDIT  -->
+                                                                        <div class="table-cell table-end table-125 table-padding-0 answer-task-actions">
+                                                                            <?php if ($permissiontoadd) : ?>
+                                                                                <div class="wpeo-button button-square-50 button-transparent modal-open" value="<?php echo $time_spent->timespent_id ?>">
+                                                                                    <input type="hidden" class="modal-options" data-modal-to-open="answer_task_timespent_edit<?php echo $time_spent->timespent_id; ?>" data-from-id="<?php echo $time_spent->timespent_id; ?>" data-from-type="answertasktimespent" data-from-subtype="photo" data-from-subdir="" data-photo-class="answer-from-answer-create-<?php echo $risk->id; ?>"/>
+                                                                                    <i class="fas fa-pencil-alt button-icon"></i>
+                                                                                </div>
+                                                                            <?php else : ?>
+                                                                                <div class="wpeo-button button-square-50 button-transparent wpeo-tooltip-event" aria-label="<?php echo $langs->trans('PermissionDenied'); ?>" value="<?php echo $time_spent->timespent_id ?>">
+                                                                                    <i class="fas fa-pencil-alt button-icon"></i>
+                                                                                </div>
+                                                                            <?php endif; ?>
+                                                                            <?php if ($permissiontodelete) : ?>
+                                                                                <div class="answer-task-timespent-delete wpeo-button button-square-50 button-transparent" data-timespent-id="<?php echo $time_spent->timespent_id; ?>">
+                                                                                    <i class="fas fa-trash button-icon"></i>
+                                                                                </div>
+                                                                            <?php endif; ?>
+                                                                        </div>
+                                                                    </div>
+                                                                </li>
+
+                                                                <div class="wpeo-modal modal-answer-task-timespent" id="answer_task_timespent_edit<?php echo $time_spent->timespent_id ?>">
+                                                                    <div class="modal-container wpeo-modal-event">
+                                                                        <!-- Modal-Header -->
+                                                                        <div class="modal-header">
+                                                                            <h2 class="modal-title"><?php echo $langs->trans('TaskTimeSpentEdit') . ' ' . $relatedTask->getNomUrl(0, 'withproject') ?></h2>
+                                                                            <div class="modal-close"><i class="fas fa-times"></i></div>
+                                                                        </div>
+                                                                        <!-- Modal EDIT RISK ASSESSMENT TASK Content-->
+                                                                        <div class="modal-content" id="#modalContent<?php echo $time_spent->timespent_id ?>">
+                                                                            <div class="answer-task-timespent-container" value="<?php echo $relatedTask->id; ?>">
+                                                                                <div class="answer-task-timespent-edit">
+                                                                                    <span class="title"><?php echo $langs->trans('TimeSpent'); ?></span>
+                                                                                    <span class="title"><?php echo $langs->trans('Date'); ?></span>
+                                                                                    <?php print $form->selectDate($time_spent->timespent_datehour, 'answerTaskTimespentDateEdit'.$time_spent->timespent_id, 1, 1, 0, 'answer_task_timespent_form', 1, 0); ?>
+                                                                                    <span class="title"><?php echo $langs->trans('Comment'); ?> <input type="text" class="answer-task-timespent-comment" name="comment" value="<?php echo $time_spent->timespent_note; ?>"></span>
+                                                                                    <span class="title"><?php echo $langs->trans('Duration'); ?></span>
+                                                                                    <span class="time"><?php print '<input type="number" placeholder="minutes" class="answer-task-timespent-duration" name="timespentDuration" value="'.($time_spent->timespent_duration/60).'">'; ?></span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <!-- Modal-Footer -->
+                                                                        <div class="modal-footer">
+                                                                            <?php if ($permissiontoadd) : ?>
+                                                                                <div class="wpeo-button answer-task-timespent-save button-green" value="<?php echo $time_spent->timespent_id ?>">
+                                                                                    <i class="fas fa-save"></i> <?php echo $langs->trans('UpdateData'); ?>
+                                                                                </div>
+                                                                            <?php else : ?>
+                                                                                <div class="wpeo-button button-grey wpeo-tooltip-event" aria-label="<?php echo $langs->trans('PermissionDenied') ?>">
+                                                                                    <i class="fas fa-save"></i> <?php echo $langs->trans('UpdateData'); ?>
+                                                                                </div>
+                                                                            <?php endif;?>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+
+                                                            <?php endforeach; ?>
+                                                        <?php endif; ?>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Modal-Footer -->
+                                        <div class="modal-footer">
+                                            <?php if ($permissiontoaddtask) : ?>
+                                                <div class="wpeo-button answer-task-save button-green" data-task-id="<?php echo $relatedTask->id ?>" data-line-id="<?php echo $objectLine->id ?>">
+                                                    <i class="fas fa-save"></i> <?php echo $langs->trans('UpdateData'); ?>
+                                                </div>
+                                            <?php else : ?>
+                                                <div class="wpeo-button button-grey wpeo-tooltip-event" aria-label="<?php echo $langs->trans('PermissionDenied') ?>">
+                                                    <i class="fas fa-save"></i> <?php echo $langs->trans('UpdateData'); ?>
+                                                </div>
+                                            <?php endif;?>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>

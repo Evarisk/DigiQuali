@@ -37,12 +37,14 @@ require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmdirectory.class.php';
 require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
+require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/functions2.lib.php';
 
 // Load Saturne libraries.
 require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
+require_once __DIR__ . '/../../../saturne/class/task/saturnetask.class.php';
 
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
@@ -90,6 +92,11 @@ $extrafields      = new ExtraFields($db);
 $ecmfile          = new EcmFiles($db);
 $ecmdir           = new EcmDirectory($db);
 $category         = new Categorie($db);
+$project          = new Project($db);
+$task             = new SaturneTask($db);
+
+list($refTaskMod)    = saturne_require_objects_mod(['project/task' => $conf->global->PROJECT_TASK_ADDON]);
+$taskNextValue       = $refTaskMod->getNextValue($object->id, $object->element);
 
 // View objects
 $form = new Form($db);
@@ -117,6 +124,7 @@ $permissiontoread       = $user->rights->digiquali->control->read;
 $permissiontoadd        = $user->rights->digiquali->control->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 $permissiontodelete     = $user->rights->digiquali->control->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
 $permissiontosetverdict = $user->rights->digiquali->control->setverdict;
+$permissiontoaddtask    = $user->hasRight('project', 'write');
 $upload_dir = $conf->digiquali->multidir_output[isset($object->entity) ? $object->entity : 1];
 
 // Security check - Protection if external user
@@ -211,6 +219,8 @@ if (empty($resHook)) {
 
     require_once __DIR__ . '/../../core/tpl/digiquali_answers_save_action.tpl.php';
 
+    require_once __DIR__ . '/../../core/tpl/digiquali_answers_task_action.tpl.php';
+
     // Actions builddoc, forcebuilddoc, remove_file.
     require_once __DIR__ . '/../../../saturne/core/tpl/documents/documents_action.tpl.php';
 
@@ -284,6 +294,9 @@ if ($source == 'pwa') {
 
 saturne_header(1,'', $title, $help_url, '', 0, 0, $moreJS);
 $object->fetch(GETPOST('id'));
+if (!empty($object->projectid)) {
+    $project->fetch($object->projectid);
+}
 
 $elementArray = get_sheet_linkable_objects();
 

@@ -131,12 +131,27 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                 // Load Digiquali libraries
                 require_once __DIR__ . '/../../class/sheet.class.php';
 
-                $sheet = new Sheet($this->db);
+                $sheet      = new Sheet($this->db);
+                $objectLine = new ControlLine($this->db);
 
                 $sheet->fetch($object->fk_sheet);
                 if ($sheet->success_rate > 0) {
                     $object->success_rate = $sheet->success_rate;
                     $object->setValueFrom('success_rate', $object->success_rate, '', '', 'text', '', $user);
+                }
+
+                $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
+                foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
+                    $objectLine->ref         = $objectLine->getNextNumRef();
+                    $fk_element              = 'fk_'. $object->element;
+                    $objectLine->$fk_element = $object->id;
+                    $objectLine->fk_question = $question->id;
+                    $objectLine->answer      = '';
+                    $objectLine->comment     = '';
+                    $objectLine->entity      = $conf->entity;
+                    $objectLine->status      = 1;
+
+                    $objectLine->create($user);
                 }
 
                 $elementArray = [];
