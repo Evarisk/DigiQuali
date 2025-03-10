@@ -320,3 +320,67 @@ function get_control_infos(CommonObject $linkedObject): array
 
     return $out;
 }
+
+/**
+ * Get task infos
+ *
+ * @param  Task $task Task object
+ * @return array       $out  Array of task infos to display
+ * @throws Exception
+ */
+function get_task_infos(Task $task): array
+{
+    global $conf, $db, $langs;
+
+    $out = [];
+
+    $out['task']['ref']   = $task->getNomUrl(1, 'withproject');
+    $out['task']['label'] = $task->label;
+
+    $userTmp = new User($db);
+    $userTmp->fetch($task->fk_user_creat);
+    $out['task']['author'] = $userTmp->getNomUrl(1);
+
+    if (empty($task->date_start) && empty($task->date_end)) {
+        $out['task']['date'] = dol_print_date($task->date_c, 'dayhour');
+    } else {
+        $out['task']['date']  = !empty($task->date_start) ? dol_print_date($task->date_start, 'dayhour') : '?';
+        $out['task']['date'] .= ' - ' . (!empty($task->date_end) ? dol_print_date($task->date_end, 'dayhour') : '?');
+    }
+
+    $out['task']['time'] = 'N/A';
+    $task->getSummaryOfTimeSpent();
+    if ($task->timespent_total_duration > 0 && $task->planned_workload > 0) {
+        $out['task']['time'] = convertSecondToTime($task->timespent_total_duration) . ' / ' . convertSecondToTime($task->planned_workload);
+    }
+
+    $task->fetchTimeSpentOnTask();
+    if (is_array($task->lines) && !empty($task->lines)) {
+        foreach ($task->lines as $timespent) {
+            $out['task']['timespent'][$timespent->timespent_line_id]['id'] = $timespent->timespent_line_id;
+
+            $userTmp->fetch($timespent->timespent_line_fk_user);
+            $out['task']['timespent'][$timespent->timespent_line_id]['author'] = $userTmp->getNomUrl(1);
+
+            if (!empty($timespent->timespent_line_datehour)) {
+                $out['task']['timespent'][$timespent->timespent_line_id]['date'] = dol_print_date($timespent->timespent_line_datehour, 'dayhour');
+            }
+            if (!empty($timespent->timespent_line_note)) {
+                $out['task']['timespent'][$timespent->timespent_line_id]['comment'] = $timespent->timespent_line_note;
+            }
+            if (!empty($timespent->timespent_line_duration)) {
+                $out['task']['timespent'][$timespent->timespent_line_id]['duration'] = convertSecondToTime($timespent->timespent_line_duration);
+            }
+        }
+    }
+
+    $out['task']['timespentSingle']['id']       = $task->timespent_id;
+    $out['task']['timespentSingle']['date']     = dol_print_date($task->timespent_datehour, '%Y-%m-%dT%H:%M');
+    $out['task']['timespentSingle']['comment']  = $task->timespent_note;
+    $out['task']['timespentSingle']['duration'] = $task->timespent_duration / 60;
+
+    $out['task']['progress'] = $task->progress;
+    $out['task']['budget']   = price($task->budget_amount, 0, $langs, 1, 0, 0, $conf->currency);
+
+    return $out;
+}

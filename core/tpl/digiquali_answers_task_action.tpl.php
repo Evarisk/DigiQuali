@@ -1,6 +1,5 @@
 <?php
-
-/* Copyright (C) 2022-2024 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2025 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,28 +14,30 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
+global $langs;
 
 /**
  * \file    core/tpl/digiquali_answers_task_action.tpl.php
  * \ingroup digiquali
- * \brief   Template page for answers save action
+ * \brief   Template page for answers task action
  */
 
 /**
  * The following vars must be defined:
  * Global     : $conf, $langs, $user
  * Parameters : $action
- * Objects    : $object, $objectLine, $sheet
+ * Objects    : $task
+ * Variable   : $permissionToAddTask, $taskNextValue
  */
 
-if ($action == 'add_task' && $permissiontoaddtask) {
-
+// Task action
+if ($action == 'add_task' && !empty($permissionToAddTask)) {
     $data = json_decode(file_get_contents('php://input'), true);
 
-    $task->ref        = $refTaskMod->getNextValue(null, $task);
+    $task->ref        = $taskNextValue;
     $task->label      = $data['label'];
-    $task->fk_project = $data['fk_project'] ?? null;
-    $task->datec     = dol_now();
+    $task->fk_project = $data['fk_project'];
+    $task->datec      = dol_now();
     if (!empty($data['date_start'])) {
         $task->date_start = dol_stringtotime(['date_start']);
     } else {
@@ -49,24 +50,23 @@ if ($action == 'add_task' && $permissiontoaddtask) {
     $task->fk_task_parent = 0;
 
     $result = $task->create($user);
-    if ($result < 0) {
-        // @todo manage error
-    } else {
-        $task->add_object_linked($objectLine->element, $data['line_id']);
 
-        $urltogo = str_replace('__ID__', $result, $backtopage);
-        $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-        header("Location: " . $urltogo);
+    if ($result > 0) {
+        $task->add_object_linked($data['objectLine_element'], $data['objectLine_id']);
+    } else {
+        // @todo manage error
     }
-    $action = '';
 }
 
-if ($action == 'update_task' && $permissiontoaddtask) {
-    $taskId = GETPOST('task_id', 'int');
-
+if ($action == 'fetch_task') {
     $data = json_decode(file_get_contents('php://input'), true);
+    $task->fetch($data['from_id']);
+}
 
-    $task->fetch($taskId);
+if ($action == 'update_task' && !empty($permissionToAddTask)) {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $task->fetch($data['task_id']);
+
     $task->label = $data['label'];
     if (!empty($data['date_start'])) {
         $task->date_start = dol_stringtotime($data['date_start']);
@@ -76,120 +76,95 @@ if ($action == 'update_task' && $permissiontoaddtask) {
     if (!empty($data['date_end'])) {
         $task->date_end = dol_stringtotime($data['date_end']);
     }
-    $task->budget_amount  = $data['budget_amount'] ?? null;
-    $task->progress       = $data['progress'] ?? 0;
+    $task->budget_amount = $data['budget'];
 
-    $result = $task->update($user);
-    if ($result < 0) {
-        // @todo manage error
-    } else {
-        $urltogo = str_replace('__ID__', $result, $backtopage);
-        $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-        header("Location: " . $urltogo);
-    }
-    $action = '';
+    $task->update($user);
+    // @todo manage error
 }
 
-if ($action == 'delete_task' && $permissiontoaddtask) {
-    $taskId = GETPOST('task_id', 'int');
+if ($action == 'delete_task' && !empty($permissionToAddTask)) {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $task->fetch($data['task_id']);
 
-    $task->fetch($taskId);
     $result = $task->delete($user);
-
     if ($result > 0) {
-        $task->deleteObjectLinked(null, $objectLine->element, $taskId, $task->element);
-        // Delete task OK
-        $urltogo = str_replace('__ID__', $result, $backtopage);
-        $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-        header("Location: " . $urltogo);
-        exit;
+        $task->deleteObjectLinked($data['objectLine_id'], $data['objectLine_element'], $taskId, $task->element);
     } else {
         // Delete task KO
         header('HTTP/1.1 500 Internal Server');
-        die(json_encode(array('message' => $langs->transnoentities($task->error), 'code' => '1337')));
+        die(json_encode(['message' => $langs->transnoentities($task->error), 'code' => '1337']));
     }
 }
 
-if ($action == 'check_task' && $permissiontoaddtask) {
-    $taskId = GETPOST('task_id', 'int');
-
+if ($action == 'check_task' && !empty($permissionToAddTask)) {
+    $taskId = GETPOSTINT('task_id');
     $task->fetch($taskId);
+
     if ($task->progress == 0) {
         $task->progress = 100;
     } else {
         $task->progress = 0;
     }
-    $result = $task->update($user);
 
-    if ($result > 0) {
-        // Update task OK
-        $urltogo = str_replace('__ID__', $result, $backtopage);
-        $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-        header("Location: " . $urltogo);
-        exit;
-    } else {
+    $result = $task->update($user);
+    if ($result < 0) {
         // Update task KO
         header('HTTP/1.1 500 Internal Server');
-        die(json_encode(array('message' => $langs->transnoentities($task->error), 'code' => '1337')));
+        die(json_encode(['message' => $langs->transnoentities($task->error), 'code' => '1337']));
     }
 }
 
-if ($action == 'add_task_timespend' && $permissiontoadd) {
+// Task time spent action
+if ($action == 'add_task_timespent' && !empty($permissionToAddTask)) {
     $data = json_decode(file_get_contents('php://input'), true);
 
-    $date       = $data['date'];
-    $hour       = $data['hour'];
-    $min        = $data['min'];
-    $comment    = $data['comment'];
-    $time_spent = $data['time_spent'];
+    $taskId   = $data['task_id'];
+    $comment  = $data['comment'];
+    $date     = $data['date'];
+    $duration = $data['duration'];
 
-    $task->fetch(GETPOST('task_id', 'int'));
+    $task->fetch($taskId);
 
     if (!empty($date)) {
-        $task->timespent_date = strtotime(preg_replace('/\//', '-', $date));
-        $task->timespent_date = dol_time_plus_duree($task->timespent_date, $hour, 'h');
-        $task->timespent_date = dol_time_plus_duree($task->timespent_date, $min, 'i');
+        $task->timespent_date = dol_stringtotime($date);
     } else {
         $task->timespent_date = dol_now('tzuser');
     }
     $task->timespent_note     = $comment;
-    $task->timespent_duration = $time_spent * 60;
+    $task->timespent_duration = $duration * 60;
     $task->timespent_fk_user  = $user->id;
 
-    $result = $task->addTimeSpent($user);
-
-    if ($result > 0) {
-        // Creation task time spent OK
-        $urltogo = str_replace('__ID__', $result, $backtopage);
-        $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-        header("Location: " . $urltogo);
-        exit;
-    } else {
-        // Creation task time spent KO
-        if ( ! empty($task->errors)) setEventMessages(null, $task->errors, 'errors');
-        else setEventMessages($task->error, null, 'errors');
-    }
+    $task->addTimeSpent($user);
+    // @todo manage error
 }
 
-if ('delete_task_timespent' === $action && $permissiontoadd) {
-    $timeSpendId = GETPOST('timespent_id', 'int');
+if ($action == 'fetch_task_timespent') {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $task->fetchTimeSpent($data['from_id']);
+}
 
-    $task->fetchTimeSpent($timeSpendId);
-    $task->fetch($task->id);
+if ($action == 'update_task_timespent' && !empty($permissionToAddTask)) {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $task->fetchTimeSpent($data['task_timespent_id']);
 
-    $result = $task->delTimeSpent($user, false);
-
-    if ($result > 0) {
-        // Delete task time spent OK
-        $urltogo = str_replace('__ID__', $result, $backtopage);
-        $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
-        header("Location: " . $urltogo);
-        exit;
+    $date = $data['date'];
+    if (!empty($date)) {
+        $task->timespent_date = dol_stringtotime($date);
     } else {
-        // Delete task time spent KO
-        if ( ! empty($task->errors)) setEventMessages(null, $task->errors, 'errors');
-        else setEventMessages($task->error, null, 'errors');
+        $task->timespent_date = dol_now('tzuser');
     }
+    $task->timespent_note     = $data['comment'];
+    $task->timespent_duration = $data['duration'] * 60;
+
+    $task->updateTimeSpent($user);
+    // @todo manage error
+}
+
+if ($action == 'delete_task_timespent' && !empty($permissionToAddTask)) {
+    $data = json_decode(file_get_contents('php://input'), true);
+    $task->fetchTimeSpent($data['task_timespent_id']);
+
+    $task->delTimeSpent($user);
 }
 
 

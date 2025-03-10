@@ -1,4 +1,4 @@
-/* Copyright (C) 2023-2025 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2025 EVARISK <technique@evarisk.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,8 +58,9 @@ window.digiquali.task.event = function() {
   $(document).on('click', '.question__action .delete-task', window.digiquali.task.deleteTask);
   $(document).on('change', '.question__action-check input[type="checkbox"]', window.digiquali.task.checkTask);
 
-  $(document).on('click', '.answer-task-timespent-create', window.digiquali.task.createTimeSpent);
-  $(document).on('click', '.answer-task-timespent-delete', window.digiquali.task.deleteTimeSpent);
+  $(document).on('click', '.answer-task-timespent-create', window.digiquali.task.createTaskTimeSpent);
+  $(document).on('click', '.answer-task-timespent-update', window.digiquali.task.updateTaskTimeSpent);
+  $(document).on('click', '.answer-task-timespent-delete', window.digiquali.task.deleteTaskTimeSpent);
 };
 
 /**
@@ -84,6 +85,39 @@ window.digiquali.task.updateTaskModal = function() {
 }
 
 /**
+ * Add more open modal data.
+ *
+ * @memberof DoliSIRH_Task
+ *
+ * @since   1.4.0
+ * @version 1.4.0
+ *
+ * @return {void}
+ */
+window.saturne.modal.addMoreOpenModalData = function(modalToOpen, elementFrom) {
+  const token = window.saturne.toolbox.getToken();
+
+  const $modalOptions = elementFrom.find('.modal-options');
+  const fromId        = $modalOptions.data('from-id');
+
+  let action = 'fetch_task';
+  if (modalToOpen.match(/timespent_edit/)) {
+    action = 'fetch_task_timespent';
+  }
+
+  $.ajax({
+    url: `${document.URL}&action=${action}&token=${token}`,
+    type: 'POST',
+    data: JSON.stringify({
+      from_id: fromId,
+    }),
+    success: function(resp) {
+      $(`#${modalToOpen}`).replaceWith($(resp).find(`#${modalToOpen}`).addClass('modal-active'));
+    }
+  });
+};
+
+/**
  * Create task
  *
  * @since   20.2.0
@@ -92,89 +126,98 @@ window.digiquali.task.updateTaskModal = function() {
  * @return {void}
  */
 window.digiquali.task.createTask = function() {
-  const $this  = $(this);
-  const $modal = $this.closest('.wpeo-modal');
+  const token = window.saturne.toolbox.getToken();
+
+  const $this    = $(this);
+  const $modal   = $this.closest('#answer_task_add');
+  const fromId   = $modal.data('from-id');
+  const fromType = $modal.data('from-type');
+  const $list    = $(document).find(`#question_task_list${fromId}`);
 
   const label     = $modal.find('.answer-task-label').val();
   const startDate = $modal.find('.answer-task-start-date').val();
   const endDate   = $modal.find('.answer-task-end-date').val();
   const budget    = $modal.find('.answer-task-budget').val();
-
-  const projectId = $modal.data('project-id') ? $modal.data('project-id') : null;
-  const lineId    = $modal.data('line-id') ? $modal.data('line-id') : null;
-  const $list     = $(document).find(`#answer_task_list${lineId}`);
-
-  const token  = window.saturne.toolbox.getToken();
+  const projectId = $modal.data('project-id');
 
   window.saturne.loader.display($list);
   $.ajax({
     url: `${document.URL}&action=add_task&token=${token}`,
     type: 'POST',
     data: JSON.stringify({
-      label:         label,
-      date_start:    startDate,
-      date_end:      endDate,
-      budget_amount: budget,
-      fk_project:    projectId,
-      line_id:       lineId
+      objectLine_id:      fromId,
+      objectLine_element: fromType,
+      label:              label,
+      date_start:         startDate,
+      date_end:           endDate,
+      budget_amount:      budget,
+      fk_project:         projectId
     }),
-
     success: function(resp) {
-      $list.replaceWith($(resp).find(`#answer_task_list${lineId}`));
-      const $modals = $('.wpeo-modal');
-      $modals.each(function() {
-        const $this = $(this);
-        $this.replaceWith($(resp).find(`#${$this.attr('id')}`));
-      });
+      $modal.replaceWith($(resp).find('#answer_task_add'));
+      $list.replaceWith($(resp).find(`#question_task_list${fromId}`));
     }
   });
 };
 
+/**
+ * Update task
+ *
+ * @since   20.2.0
+ * @version 20.2.0
+ *
+ * @return {void}
+ */
 window.digiquali.task.updateTask = function() {
   const token  = window.saturne.toolbox.getToken();
 
   const $this  = $(this);
-  const $modal = $this.closest('.wpeo-modal');
+  const $modal = $this.closest('#answer_task_edit');
   const $form  = $modal.find('.answer-task-content');
-  const $list  = $(document).find(`#answer_task_list${$this.data('line-id')}`);
-
-  const progress  = $form.find('.answer-task-progress-checkbox').is(':checked') ? 100 : 0;
-  const label     = $form.find('.answer-task-label').val();
-  const startDate = $form.find('.answer-task-start-date').val();
-  const endDate   = $form.find('.answer-task-end-date').val();
-  const budget    = parseInt($form.find('.answer-task-budget').val());
-
   const taskId = $this.data('task-id');
+  const $list  = $(document).find(`#answer_task${taskId} .question__action-body`);
 
-  $modal.removeClass('modal-active');
+  const label     = $form.find('#answer-task-label').val();
+  const startDate = $form.find('#answer-task-start-date').val();
+  const endDate   = $form.find('#answer-task-end-date').val();
+  const budget    = $form.find('#answer-task-budget').val();
+
   window.saturne.loader.display($list);
   $.ajax({
-    url: `${document.URL}&action=update_task&task_id=${taskId}&token=${token}`,
+    url: `${document.URL}&action=update_task&token=${token}`,
     type: 'POST',
     data: JSON.stringify({
-      task_id:       taskId,
-      progress:      progress,
-      label:         label,
-      date_start:    startDate,
-      date_end:      endDate,
-      budget_amount: budget
+      task_id:    taskId,
+      label:      label,
+      date_start: startDate,
+      date_end:   endDate,
+      budget:     budget
     }),
-
     success: function(resp) {
-      $list.replaceWith($(resp).find(`#answer_task_list${$this.data('line-id')}`));
+      $modal.removeClass('modal-active');
+      $list.replaceWith($(resp).find(`#answer_task${taskId} .question__action-body`));
     }
   });
-
 };
 
+/**
+ * Delete task
+ *
+ * @since   20.2.0
+ * @version 20.2.0
+ *
+ * @return {void}
+ */
 window.digiquali.task.deleteTask = function() {
-  const $this   = $(this);
-  const $list   = $this.closest('.question__list-actions');
-  const taskId  = $this.data('task-id');
-  const message = $this.data('message');
-  const token   = window.saturne.toolbox.getToken();
+  const token = window.saturne.toolbox.getToken();
 
-  const listId  = $list.attr('id');
+  const $this = $(this);
+  const $list = $this.closest('.question__list-actions');
+
+  const objectLineId      = $list.data('task-id');
+  const objectLineElement = $list.data('task-id');
+  const taskId            = $this.data('task-id');
+  const message           = $this.data('message');
 
   if (!confirm(message)) {
     return;
@@ -182,76 +225,120 @@ window.digiquali.task.deleteTask = function() {
 
   window.saturne.loader.display($list);
   $.ajax({
-    url: `${document.URL}&action=delete_task&task_id=${taskId}&token=${token}`,
+    url: `${document.URL}&action=delete_task&token=${token}`,
     type: 'POST',
+    data: JSON.stringify({
+      objectLine_id:      objectLineId,
+      objectLine_element: objectLineElement,
+      task_id:            taskId
+    }),
     success: function(resp) {
-      $list.replaceWith($(resp).find(`#${listId}`));
+      const questionId = $list.attr('id');
+      $list.replaceWith($(resp).find(`#${questionId}`));
     }
   });
-}
+};
 
 window.digiquali.task.checkTask = function() {
-  const $this  = $(this);
-  const taskId = $this.data('task-id');
   const token  = window.saturne.toolbox.getToken();
 
+  const $this  = $(this);
+  const $task  = $this.closest('.question__action');
+  const taskId = $task.data('task-id');
+
+  window.saturne.loader.display($task);
   $.ajax({
     url: `${document.URL}&action=check_task&task_id=${taskId}&token=${token}`,
     type: 'POST',
-    success: function(resp) {}
+    success: function(resp) {
+      $task.replaceWith($(resp).find(`#answer_task${taskId}`));
+    }
   });
 };
 
-window.digiquali.task.createTimeSpent = function() {
-  const $this = $(this);
-  const $modal = $this.closest('.wpeo-modal');
-
-  const date      = $modal.find('.answer-task-timespent-date').val();
-  const hour      = $modal.find('.answer-task-timespent-datehour').val();
-  const minute    = $modal.find('.answer-task-timespent-datemin').val();
-  const comment   = $modal.find('.answer-task-timespent-comment').val();
-  const timeSpent = $modal.find('.answer-task-timespent-duration').val();
-
-  const taskId = $this.data('task-id');
-
+window.digiquali.task.createTaskTimeSpent = function() {
   const token = window.saturne.toolbox.getToken();
 
-  const $list = $(document).find(`#answer-task-timespent-list${taskId}`);
-  window.saturne.loader.display($list);
+  const $this  = $(this);
+  const $modal = $this.closest('#answer_task_timespent_add');
+  const taskId = $modal.data('task-id');
+  const $task  = $(document).find(`#answer_task${taskId}`);
+
+  const comment  = $modal.find('#answer-task-timespent-comment').val();
+  const date     = $modal.find('#answer-task-timespent-date').val();
+  const duration = $modal.find('#answer-task-timespent-duration').val();
+
+  window.saturne.loader.display($task);
   $.ajax({
-    url: `${document.URL}&action=add_task_timespend&task_id=${taskId}&token=${token}`,
+    url: `${document.URL}&action=add_task_timespent&token=${token}`,
     type: 'POST',
     data: JSON.stringify({
-      date:       date,
-      hour:       hour,
-      minute:     minute,
-      comment:    comment,
-      time_spent: timeSpent
+      task_id:  taskId,
+      comment:  comment,
+      date:     date,
+      duration: duration
     }),
-
     success: function(resp) {
-      $list.replaceWith($(resp).find(`#answer-task-timespent-list${taskId}`));
-      $modal.find(`#task-data${taskId}`).replaceWith($(resp).find(`#task-data${taskId}`));
+      $task.replaceWith($(resp).find(`#answer_task${taskId}`));
     }
-  })
+  });
 };
 
-window.digiquali.task.deleteTimeSpent = function() {
-  const $this = $(this);
-  const $modal = $this.closest('.wpeo-modal');
-  const timeSpentId = $this.data('timespent-id');
-
-  const taskId = $modal.data('task-id');
-  const $list = $modal.find(`#answer-task-timespent-list${taskId}`);
+window.digiquali.task.updateTaskTimeSpent = function() {
   const token = window.saturne.toolbox.getToken();
 
-  window.saturne.loader.display($list);
+  const $this           = $(this);
+  const $modal          = $this.closest('#answer_task_timespent_edit');
+  const taskTimeSpentId = $modal.data('task-timespent-id');
+  const $taskTimeSpent  = $(document).find(`#answer_task_timespent_view${taskTimeSpentId}`);
+
+  const comment  = $modal.find('#answer-task-timespent-comment').val();
+  const date     = $modal.find('#answer-task-timespent-date').val();
+  const duration = $modal.find('#answer-task-timespent-duration').val();
+
+  window.saturne.loader.display($taskTimeSpent);
   $.ajax({
-    url: `${document.URL}&action=delete_task_timespent&timespent_id=${timeSpentId}&token=${token}`,
+    url: `${document.URL}&action=update_task_timespent&token=${token}`,
     type: 'POST',
+    data: JSON.stringify({
+      task_timespent_id: taskTimeSpentId,
+      comment:           comment,
+      date:              date,
+      duration:          duration
+    }),
     success: function(resp) {
-      $list.replaceWith($(resp).find(`#answer-task-timespent-list${taskId}`));
-      $(document).find(`#task-data${taskId}`).replaceWith($(resp).find(`#task-data${taskId}`));
+      $taskTimeSpent.replaceWith($(resp).find(`#answer_task_timespent_view${taskTimeSpentId}`));
+    }
+  });
+};
+
+window.digiquali.task.deleteTaskTimeSpent = function() {
+  const token = window.saturne.toolbox.getToken();
+
+  const $this  = $(this);
+  const $modal = $this.closest('#answer_task_timespent_list');
+  const $list  = $modal.find('.answer-task-timespent-container');
+  const taskId = $modal.data('task-id');
+  const $task  = $(document).find(`#answer_task${taskId} .question__action-body`);
+
+  const taskTimeSpentId = $this.data('task-timespent-id');
+  const message         = $this.data('message');
+
+  if (!confirm(message)) {
+    return;
+  }
+
+  window.saturne.loader.display($list);
+  window.saturne.loader.display($task);
+  $.ajax({
+    url: `${document.URL}&action=delete_task_timespent&token=${token}`,
+    type: 'POST',
+    data: JSON.stringify({
+      task_timespent_id: taskTimeSpentId
+    }),
+    success: function(resp) {
+      $list.replaceWith($(resp).find(`#answer_task_timespent_list[data-task-id="${taskId}"] .answer-task-timespent-container`));
+      $task.replaceWith($(resp).find(`#answer_task${taskId} .question__action-body`));
     }
   });
 };
