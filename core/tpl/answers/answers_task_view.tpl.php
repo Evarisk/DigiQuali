@@ -23,8 +23,9 @@
 
 /**
  * The following vars must be defined:
- * Global  : $langs
- * Objects : $objectLine
+ * Global    : $langs, $object
+ * Objects   : $objectLine
+ * Variables : $permissionToAddTask, $permissionToDeleteTask, $permissionToManageTaskTimeSpent
  */ ?>
 
 <div class="question__list-actions" id="question_task_list<?php echo $objectLine->id ?>" data-objectLine-id="<?php echo $objectLine->id ?>" data-objectLine-element="<?php echo $objectLine->element ?>">
@@ -42,13 +43,17 @@
                     <span class="question__action-metas-author"><?php echo $taskInfos['task']['author']; ?></span>
                     <span class="question__action-metas-date"><i class="fas fa-calendar-alt pictofixedwidth"></i><?php echo $taskInfos['task']['date']; ?></span>
                     <div class="modal-open">
-                        <input type="hidden" class="modal-options" data-modal-to-open="answer_task_timespent_list" data-from-id="<?php echo $task->id; ?>" data-from-module="<?php echo $object->module; ?>">
+                        <?php if (!empty($permissionToManageTaskTimeSpent)) : ?>
+                            <input type="hidden" class="modal-options" data-modal-to-open="answer_task_timespent_list" data-from-id="<?php echo $task->id; ?>" data-from-module="<?php echo $object->module; ?>">
+                        <?php endif; ?>
                         <span class="question__action-metas-time"><i class="fas fa-clock pictofixedwidth"></i><?php echo $taskInfos['task']['time']; ?></span>
                     </div>
-                    <div class="modal-open">
-                        <input type="hidden" class="modal-options" data-modal-to-open="answer_task_timespent_add" data-from-id="<?php echo $task->id; ?>" data-from-module="<?php echo $object->module; ?>">
-                        <i class="fas fa-plus"></i>
-                    </div>
+                    <?php if (!empty($permissionToManageTaskTimeSpent)) : ?>
+                        <div class="modal-open">
+                            <input type="hidden" class="modal-options" data-modal-to-open="answer_task_timespent_add" data-from-id="<?php echo $task->id; ?>" data-from-module="<?php echo $object->module; ?>">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    <?php endif; ?>
                     <span class="question__action-metas-budget"><i class="fas fa-coins pictofixedwidth"></i><?php echo $taskInfos['task']['budget']; ?></span>
                 </div>
                 <div class="question__action-content"><?php echo $taskInfos['task']['label']; ?></div>
@@ -59,10 +64,12 @@
                         <input type="hidden" class="modal-options" data-modal-to-open="answer_task_edit" data-from-id="<?php echo $task->id; ?>" data-from-module="<?php echo $object->module; ?>">
                         <i class="fas fa-pencil-alt button-icon"></i>
                     </div>
+                <?php endif;
+                if (!empty($permissionToDeleteTask)) : ?>
+                    <div class="wpeo-button button-square-40 button-transparent delete-task" data-message="<?php echo $langs->transnoentities('DeleteTask') . ' ' . $task->ref; ?>" data-task-id="<?php echo $task->id; ?>">
+                        <i class="fas fa-trash button-icon"></i>
+                    </div>
                 <?php endif; ?>
-                <div class="wpeo-button button-square-40 button-transparent delete-task" data-message="<?php echo $langs->transnoentities('DeleteTask') . ' ' . $task->ref; ?>" data-task-id="<?php echo $task->id; ?>">
-                    <i class="fas fa-trash button-icon"></i>
-                </div>
             </div>
         </div>
     <?php endforeach; ?>

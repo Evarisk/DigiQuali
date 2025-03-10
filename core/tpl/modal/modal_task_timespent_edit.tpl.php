@@ -23,9 +23,8 @@
 
 /**
  * The following vars must be defined:
- * Global   : $langs
- * Objects  : $object, $task
- * Variable : $permissionToAddTask, $taskNextValue
+ * Global  : $langs
+ * Objects : $task
  */
 
 $taskInfos = get_task_infos($task); ?>

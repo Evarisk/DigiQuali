@@ -23,10 +23,9 @@
 
 /**
  * The following vars must be defined:
- * Global     : $conf, $langs, $user
- * Parameters : $permissiontoaddtask
- * Objects    : $answer, $object, $objectLine, $sheet, $project
- * Variable   : $publicInterface
+ * Global    : $conf, $langs, $user
+ * Objects   : $object, $sheet
+ * Variables : $permissionToAddTask, $permissionToReadTask
  */
 
 if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->linkedObjects['digiquali_question'])) {
@@ -100,7 +99,9 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                             <?php echo saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/' . $object->element . '/' . $object->ref . '/answer_photo/' . $question->ref, 'small', '', 0, 0, 0, 50, 50, 0, 0, 0, $object->element . '/' . $object->ref . '/answer_photo/' . $question->ref, $question, '', 0, $object->status == 0, 1); ?>
                         </div>
                     <?php endif;
-                    require __DIR__ . '/answers/answers_task_view.tpl.php'; ?>
+                    if (!empty($permissionToReadTask)) :
+                        require __DIR__ . '/answers/answers_task_view.tpl.php';
+                    endif; ?>
                 </div>
             </div>
         <?php endif;

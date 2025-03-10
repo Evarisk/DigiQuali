@@ -23,8 +23,9 @@
 
 /**
  * The following vars must be defined:
- * Global  : $langs
- * Objects : $task
+ * Global    : $langs
+ * Objects   : $task
+ * Variables : $permissionToManageTaskTimeSpent
  */
 
 $taskInfos = get_task_infos($task); ?>
@@ -49,12 +50,10 @@ $taskInfos = get_task_infos($task); ?>
                         <div class="question__action-content"><?php echo $timespent['comment']; ?></div>
                     </div>
                     <div class="question__action-buttons">
-                        <?php if (!empty($permissionToAddTask)) : ?>
-                            <div class="wpeo-button button-square-40 button-transparent modal-open">
-                                <input type="hidden" class="modal-options" data-modal-to-open="answer_task_timespent_edit" data-from-id="<?php echo $timespent['id']; ?>" data-from-module="<?php echo $object->module; ?>">
-                                <i class="fas fa-pencil-alt button-icon"></i>
-                            </div>
-                        <?php endif; ?>
+                        <div class="wpeo-button button-square-40 button-transparent modal-open">
+                            <input type="hidden" class="modal-options" data-modal-to-open="answer_task_timespent_edit" data-from-id="<?php echo $timespent['id']; ?>" data-from-module="<?php echo $object->module; ?>">
+                            <i class="fas fa-pencil-alt button-icon"></i>
+                        </div>
                         <div class="wpeo-button button-square-40 button-transparent answer-task-timespent-delete" data-message="<?php echo $langs->transnoentities('DeleteTaskTimeSpent') . ' ' . $task->ref; ?>" data-task-timespent-id="<?php echo $timespent['id']; ?>">
                             <i class="fas fa-trash button-icon"></i>
                         </div>

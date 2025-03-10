@@ -41,25 +41,25 @@
                 <div class="answer-task">
                     <label>
                         <span class="title"><?php echo $langs->trans('Label'); ?></span>
-                        <input type="text" name="label" class="answer-task-label">
+                        <input type="text" id="answer-task-label" name="label">
                     </label>
                     <div class="answer-task-date wpeo-gridlayout grid-3">
                         <div>
                             <label>
                                 <span class="title"><?php echo $langs->trans('DateStart'); ?></span>
-                                <input type="datetime-local" name="date_start" class="answer-task-date-start" value="<?php echo dol_print_date(dol_now('tzuser'), '%Y-%m-%dT%H:%M'); ?>">
+                                <input type="datetime-local" id="answer-task-start-date" name="date_start" value="<?php echo dol_print_date(dol_now('tzuser'), '%Y-%m-%dT%H:%M'); ?>">
                             <label>
                         </div>
                         <div>
                             <label>
                                 <span class="title"><?php echo $langs->trans('Deadline'); ?></span>
-                                <input type="datetime-local" name="date_end" class="answer-task-date-start">
+                                <input type="datetime-local" id="answer-task-end-date" name="date_end">
                             <label>
                         </div>
                         <div>
                             <label>
                                 <span class="title"><?php echo $langs->trans('Budget'); ?></span>
-                                <input type="number" name="budget" class="answer-task-budget" min="0">
+                                <input type="number" id="answer-task-budget" name="budget" min="0">
                             <label>
                         </div>
                     </div>

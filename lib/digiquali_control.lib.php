@@ -324,8 +324,8 @@ function get_control_infos(CommonObject $linkedObject): array
 /**
  * Get task infos
  *
- * @param  Task $task Task object
- * @return array       $out  Array of task infos to display
+ * @param  Task  $task Task object
+ * @return array $out  Array of task infos to display
  * @throws Exception
  */
 function get_task_infos(Task $task): array

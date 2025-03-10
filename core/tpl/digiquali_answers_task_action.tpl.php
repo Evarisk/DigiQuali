@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-global $langs;
 
 /**
  * \file    core/tpl/digiquali_answers_task_action.tpl.php
@@ -24,10 +23,10 @@ global $langs;
 
 /**
  * The following vars must be defined:
- * Global     : $conf, $langs, $user
+ * Global     : $langs, $user
  * Parameters : $action
  * Objects    : $task
- * Variable   : $permissionToAddTask, $taskNextValue
+ * Variables  : $permissionToAddTask, $permissionToDeleteTask, $permissionToManageTaskTimeSpent, $taskNextValue
  */
 
 // Task action
@@ -37,9 +36,9 @@ if ($action == 'add_task' && !empty($permissionToAddTask)) {
     $task->ref        = $taskNextValue;
     $task->label      = $data['label'];
     $task->fk_project = $data['fk_project'];
-    $task->datec      = dol_now();
+    $task->date_c     = dol_now();
     if (!empty($data['date_start'])) {
-        $task->date_start = dol_stringtotime(['date_start']);
+        $task->date_start = dol_stringtotime($data['date_start']);
     } else {
         $task->date_start = dol_now('tzuser');
     }
@@ -49,13 +48,9 @@ if ($action == 'add_task' && !empty($permissionToAddTask)) {
     $task->budget_amount  = $data['budget_amount'] ?? null;
     $task->fk_task_parent = 0;
 
-    $result = $task->create($user);
-
-    if ($result > 0) {
-        $task->add_object_linked($data['objectLine_element'], $data['objectLine_id']);
-    } else {
-        // @todo manage error
-    }
+    $task->create($user);
+    $task->add_object_linked($data['objectLine_element'], $data['objectLine_id']);
+    // @todo manage error
 }
 
 if ($action == 'fetch_task') {
@@ -82,13 +77,13 @@ if ($action == 'update_task' && !empty($permissionToAddTask)) {
     // @todo manage error
 }
 
-if ($action == 'delete_task' && !empty($permissionToAddTask)) {
+if ($action == 'delete_task' && !empty($permissionToDeleteTask)) {
     $data = json_decode(file_get_contents('php://input'), true);
     $task->fetch($data['task_id']);
 
     $result = $task->delete($user);
     if ($result > 0) {
-        $task->deleteObjectLinked($data['objectLine_id'], $data['objectLine_element'], $taskId, $task->element);
+        $task->deleteObjectLinked($data['objectLine_id'], $data['objectLine_element'], $data['task_id'], $task->element);
     } else {
         // Delete task KO
         header('HTTP/1.1 500 Internal Server');
@@ -115,7 +110,7 @@ if ($action == 'check_task' && !empty($permissionToAddTask)) {
 }
 
 // Task time spent action
-if ($action == 'add_task_timespent' && !empty($permissionToAddTask)) {
+if ($action == 'add_task_timespent' && !empty($permissionToManageTaskTimeSpent)) {
     $data = json_decode(file_get_contents('php://input'), true);
 
     $taskId   = $data['task_id'];
@@ -143,7 +138,7 @@ if ($action == 'fetch_task_timespent') {
     $task->fetchTimeSpent($data['from_id']);
 }
 
-if ($action == 'update_task_timespent' && !empty($permissionToAddTask)) {
+if ($action == 'update_task_timespent' && !empty($permissionToManageTaskTimeSpent)) {
     $data = json_decode(file_get_contents('php://input'), true);
     $task->fetchTimeSpent($data['task_timespent_id']);
 
@@ -160,11 +155,10 @@ if ($action == 'update_task_timespent' && !empty($permissionToAddTask)) {
     // @todo manage error
 }
 
-if ($action == 'delete_task_timespent' && !empty($permissionToAddTask)) {
+if ($action == 'delete_task_timespent' && !empty($permissionToManageTaskTimeSpent)) {
     $data = json_decode(file_get_contents('php://input'), true);
     $task->fetchTimeSpent($data['task_timespent_id']);
 
     $task->delTimeSpent($user);
+    // @todo manage error
 }
-
-

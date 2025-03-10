@@ -129,7 +129,13 @@ $permissiontoread       = $user->rights->digiquali->control->read;
 $permissiontoadd        = $user->rights->digiquali->control->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 $permissiontodelete     = $user->rights->digiquali->control->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
 $permissiontosetverdict = $user->rights->digiquali->control->setverdict;
-$permissionToAddTask    = $user->hasRight('project', 'write');
+
+// Permissions for tasks management
+$permissionToReadTask            = $user->hasRight('project', 'lire') || $user->hasRight('project', 'all', 'lire');
+$permissionToAddTask             = $user->hasRight('project', 'creer') || $user->hasRight('project', 'all', 'creer');
+$permissionToDeleteTask          = $user->hasRight('project', 'supprimer') || $user->hasRight('project', 'all', 'supprimer');
+$permissionToManageTaskTimeSpent = $user->hasRight('project', 'time');
+
 $upload_dir = $conf->digiquali->multidir_output[isset($object->entity) ? $object->entity : 1];
 
 // Security check - Protection if external user
@@ -922,12 +928,16 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 <?php if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
         print load_fiche_titre($langs->transnoentities('LinkedQuestionsList', $questionCounter), '', '');
         print '<div id="tablelines" class="question-answer-container noborder noshadow">';
-        if (!empty($object->project) && !empty($permissionToAddTask)) {
-            require_once __DIR__ . '/../../core/tpl/modal/modal_task_add.tpl.php';
-            require_once __DIR__ . '/../../core/tpl/modal/modal_task_edit.tpl.php';
-            require_once __DIR__ . '/../../core/tpl/modal/modal_task_timespent_list.tpl.php';
-            require_once __DIR__ . '/../../core/tpl/modal/modal_task_timespent_add.tpl.php';
-            require_once __DIR__ . '/../../core/tpl/modal/modal_task_timespent_edit.tpl.php';
+        if (!empty($object->project)) {
+            if (!empty($permissionToAddTask)) {
+                require_once __DIR__ . '/../../core/tpl/modal/modal_task_add.tpl.php';
+                require_once __DIR__ . '/../../core/tpl/modal/modal_task_edit.tpl.php';
+            }
+            if (!empty($permissionToManageTaskTimeSpent)) {
+                require_once __DIR__ . '/../../core/tpl/modal/modal_task_timespent_list.tpl.php';
+                require_once __DIR__ . '/../../core/tpl/modal/modal_task_timespent_add.tpl.php';
+                require_once __DIR__ . '/../../core/tpl/modal/modal_task_timespent_edit.tpl.php';
+            }
         }
         require_once __DIR__ . '/../../core/tpl/digiquali_answers.tpl.php';
         print '</div>';

@@ -19,10 +19,13 @@
  * \ingroup digiquali
  * \brief   JavaScript tasks file
  */
+
 'use strict';
 
 /**
  * Init task JS
+ *
+ * @memberof DigiQuali_Task
  *
  * @since   20.2.0
  * @version 20.2.0
@@ -31,6 +34,8 @@ window.digiquali.task = {};
 
 /**
  * Task init
+ *
+ * @memberof DigiQuali_Task
  *
  * @since   20.2.0
  * @version 20.2.0
@@ -44,53 +49,61 @@ window.digiquali.task.init = function() {
 /**
  * Task event
  *
+ * @memberof DigiQuali_Task
+ *
  * @since   20.2.0
  * @version 20.2.0
  *
  * @return {void}
  */
 window.digiquali.task.event = function() {
-
-  $(document).on('input', '.answer-task-label', window.digiquali.task.updateTaskModal);
-
+  // Task event
+  $(document).on('input', '#answer-task-label', window.digiquali.task.updateModalTaskAddButton);
   $(document).on('click', '.answer-task-create:not(.button-disable)', window.digiquali.task.createTask);
   $(document).on('click', '.answer-task-save', window.digiquali.task.updateTask);
   $(document).on('click', '.question__action .delete-task', window.digiquali.task.deleteTask);
   $(document).on('change', '.question__action-check input[type="checkbox"]', window.digiquali.task.checkTask);
 
+  // Task timespent event
   $(document).on('click', '.answer-task-timespent-create', window.digiquali.task.createTaskTimeSpent);
   $(document).on('click', '.answer-task-timespent-update', window.digiquali.task.updateTaskTimeSpent);
   $(document).on('click', '.answer-task-timespent-delete', window.digiquali.task.deleteTaskTimeSpent);
 };
 
 /**
- * Update task modal
+ * Update modal task add button state when input change value
  *
  * @since   20.2.0
  * @version 20.2.0
  *
  * @return {void}
  */
-window.digiquali.task.updateTaskModal = function() {
-  const $this = $(this);
-  const $modal = $this.closest('.wpeo-modal');
+window.digiquali.task.updateModalTaskAddButton = function() {
+  const $this   = $(this);
+  const $modal  = $this.closest('#answer_task_add');
   const $button = $modal.find('.wpeo-button.answer-task-create');
-  const value = $this.val();
+  const value   = $this.val();
 
   if (value.length > 0) {
     $button.removeClass('button-disable');
   } else {
     $button.addClass('button-disable');
   }
-}
+};
 
 /**
- * Add more open modal data.
+ * Adds additional data when opening a modal
  *
- * @memberof DoliSIRH_Task
+ * This function allows passing extra information to a modal
+ * when it is opened, based on the triggering element
  *
- * @since   1.4.0
- * @version 1.4.0
+ * @memberof DigiQuali_Task
+ *
+ * @since   20.2.0
+ * @version 20.2.0
+ *
+ * @param {String} modalToOpen - The modal element to be opened
+ * @param {jQuery} elementFrom - The triggering element from which data is retrieved
  *
  * @return {void}
  */
@@ -120,6 +133,8 @@ window.saturne.modal.addMoreOpenModalData = function(modalToOpen, elementFrom) {
 /**
  * Create task
  *
+ * @memberof DigiQuali_Task
+ *
  * @since   20.2.0
  * @version 20.2.0
  *
@@ -134,10 +149,10 @@ window.digiquali.task.createTask = function() {
   const fromType = $modal.data('from-type');
   const $list    = $(document).find(`#question_task_list${fromId}`);
 
-  const label     = $modal.find('.answer-task-label').val();
-  const startDate = $modal.find('.answer-task-start-date').val();
-  const endDate   = $modal.find('.answer-task-end-date').val();
-  const budget    = $modal.find('.answer-task-budget').val();
+  const label     = $modal.find('#answer-task-label').val();
+  const startDate = $modal.find('#answer-task-start-date').val();
+  const endDate   = $modal.find('#answer-task-end-date').val();
+  const budget    = $modal.find('#answer-task-budget').val();
   const projectId = $modal.data('project-id');
 
   window.saturne.loader.display($list);
@@ -162,6 +177,8 @@ window.digiquali.task.createTask = function() {
 
 /**
  * Update task
+ *
+ * @memberof DigiQuali_Task
  *
  * @since   20.2.0
  * @version 20.2.0
@@ -203,6 +220,8 @@ window.digiquali.task.updateTask = function() {
 /**
  * Delete task
  *
+ * @memberof DigiQuali_Task
+ *
  * @since   20.2.0
  * @version 20.2.0
  *
@@ -239,6 +258,16 @@ window.digiquali.task.deleteTask = function() {
   });
 };
 
+/**
+ * Check task
+ *
+ * @memberof DigiQuali_Task
+ *
+ * @since   20.2.0
+ * @version 20.2.0
+ *
+ * @return {void}
+ */
 window.digiquali.task.checkTask = function() {
   const token  = window.saturne.toolbox.getToken();
 
@@ -256,6 +285,16 @@ window.digiquali.task.checkTask = function() {
   });
 };
 
+/**
+ * Create task time spent
+ *
+ * @memberof DigiQuali_Task
+ *
+ * @since   20.2.0
+ * @version 20.2.0
+ *
+ * @return {void}
+ */
 window.digiquali.task.createTaskTimeSpent = function() {
   const token = window.saturne.toolbox.getToken();
 
@@ -284,6 +323,16 @@ window.digiquali.task.createTaskTimeSpent = function() {
   });
 };
 
+/**
+ * Update task timespent
+ *
+ * @memberof DigiQuali_Task
+ *
+ * @since   20.2.0
+ * @version 20.2.0
+ *
+ * @return {void}
+ */
 window.digiquali.task.updateTaskTimeSpent = function() {
   const token = window.saturne.toolbox.getToken();
 
@@ -312,6 +361,16 @@ window.digiquali.task.updateTaskTimeSpent = function() {
   });
 };
 
+/**
+ * Delete task time spent
+ *
+ * @memberof DigiQuali_Task
+ *
+ * @since   20.2.0
+ * @version 20.2.0
+ *
+ * @return {void}
+ */
 window.digiquali.task.deleteTaskTimeSpent = function() {
   const token = window.saturne.toolbox.getToken();
 
