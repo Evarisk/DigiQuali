@@ -9,6 +9,11 @@ body:not(.page-public-card) .question-answer-container {
     }
 
     .question__header {
+
+      @media ( max-width: $media__small ) {
+        flex-direction: column;
+      }
+
       .question-description {
       }
       .select-answer {
@@ -25,6 +30,29 @@ body:not(.page-public-card) .question-answer-container {
           height: 40px;
           font-size: 18px;
         }
+      }
+    }
+
+    .percentage-cell {
+      input[type=range]::-webkit-slider-thumb {
+        width: 30px;
+        height: 30px;
+        margin-top: -8px;
+        border: 6px solid #fff;
+      }
+      input[type=range]::-webkit-slider-runnable-track {
+        height: 15px;
+      }
+
+      input[type=range]::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        margin-top: -5px;
+        border: 6px solid #fff;
+      }
+
+      input[type=range]::-moz-range-track {
+        height: 15px;
       }
     }
   }

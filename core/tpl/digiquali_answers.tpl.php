@@ -44,12 +44,18 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
 
         if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER or empty($questionAnswer)) : ?>
             <div class="question table-id-<?php echo $question->id ?>" data-autoSave="<?php echo getDolGlobalInt('DIGIQUALI_' . dol_strtoupper($object->element) . 'DET_AUTO_SAVE_ACTION'); ?>">
-                <div class="question__header-medias">
-                    <?php if ($question->show_photo > 0 && getDolGlobalInt('DIGIQUALI_' . dol_strtoupper($object->element) . '_DISPLAY_MEDIAS') && !empty($user->conf->DIGIQUALI_SHOW_OK_KO_PHOTOS)) {
-                        print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/' . $question->ref . '/photo_ok', 'small', '', 0, 0, 0, 200, 200, 0, 0, 1, 'question/' . $question->ref . '/photo_ok', $question, 'photo_ok', 0, 0, 0, 1, 'photo-ok', 0);
-                        print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/' . $question->ref . '/photo_ko', 'small', '', 0, 0, 0, 200, 200, 0, 0, 1, 'question/' . $question->ref . '/photo_ko', $question, 'photo_ko', 0, 0, 0, 1, 'photo-ko', 0);
-                    } ?>
-                </div>
+                <?php if ($question->show_photo > 0 && getDolGlobalInt('DIGIQUALI_' . dol_strtoupper($object->element) . '_DISPLAY_MEDIAS') && !empty($user->conf->DIGIQUALI_SHOW_OK_KO_PHOTOS)) { ?>
+                    <div class="question__header-medias">
+                        <div class="question__photo-ref-ok">
+                            <i class="question__photo-ref-icon fas fa-check"></i>
+                            <?php print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/' . $question->ref . '/photo_ok', 'small', '', 0, 0, 0, 200, 200, 0, 0, 1, 'question/' . $question->ref . '/photo_ok', $question, 'photo_ok', 0, 0, 0, 1, 'photo-ok', 0); ?>
+                        </div>
+                        <div class="question__photo-ref-ko">
+                            <i class="question__photo-ref-icon fas fa-times"></i>
+                            <?php print saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/question/' . $question->ref . '/photo_ko', 'small', '', 0, 0, 0, 200, 200, 0, 0, 1, 'question/' . $question->ref . '/photo_ko', $question, 'photo_ko', 0, 0, 0, 1, 'photo-ko', 0); ?>
+                        </div>
+                    </div>
+                <?php } ?>
                 <div class="question__container">
                     <div class="question__header">
                         <div class="question__header-content">
