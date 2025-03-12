@@ -141,17 +141,19 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                 }
 
                 $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
-                foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
-                    $objectLine->ref         = $objectLine->getNextNumRef();
-                    $fk_element              = 'fk_'. $object->element;
-                    $objectLine->$fk_element = $object->id;
-                    $objectLine->fk_question = $question->id;
-                    $objectLine->answer      = '';
-                    $objectLine->comment     = '';
-                    $objectLine->entity      = $conf->entity;
-                    $objectLine->status      = 1;
-
-                    $objectLine->create($user);
+                if (!empty($sheet->linkedObjects['digiquali_question'])) {
+                    foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
+                        $objectLine->ref         = $objectLine->getNextNumRef();
+                        $fk_element              = 'fk_'. $object->element;
+                        $objectLine->$fk_element = $object->id;
+                        $objectLine->fk_question = $question->id;
+                        $objectLine->answer      = '';
+                        $objectLine->comment     = '';
+                        $objectLine->entity      = $conf->entity;
+                        $objectLine->status      = 1;
+    
+                        $objectLine->create($user);
+                    }
                 }
 
                 $elementArray = [];
