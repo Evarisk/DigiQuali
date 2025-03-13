@@ -155,7 +155,6 @@ window.digiquali.task.createTask = function() {
   const budget    = $modal.find('#answer-task-budget').val();
   const projectId = $modal.data('project-id');
 
-  window.saturne.loader.display($list);
   $.ajax({
     url: `${document.URL}&action=add_task&token=${token}`,
     type: 'POST',
@@ -199,7 +198,6 @@ window.digiquali.task.updateTask = function() {
   const endDate   = $form.find('#answer-task-end-date').val();
   const budget    = $form.find('#answer-task-budget').val();
 
-  window.saturne.loader.display($list);
   $.ajax({
     url: `${document.URL}&action=update_task&token=${token}`,
     type: 'POST',
@@ -233,8 +231,8 @@ window.digiquali.task.deleteTask = function() {
   const $this = $(this);
   const $list = $this.closest('.question__list-actions');
 
-  const objectLineId      = $list.data('task-id');
-  const objectLineElement = $list.data('task-id');
+  const objectLineId      = $list.data('objectline-id');
+  const objectLineElement = $list.data('objectline-element');
   const taskId            = $this.data('task-id');
   const message           = $this.data('message');
 
@@ -242,7 +240,6 @@ window.digiquali.task.deleteTask = function() {
     return;
   }
 
-  window.saturne.loader.display($list);
   $.ajax({
     url: `${document.URL}&action=delete_task&token=${token}`,
     type: 'POST',
