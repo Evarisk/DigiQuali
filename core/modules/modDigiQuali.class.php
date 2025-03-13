@@ -828,6 +828,50 @@ class modDigiQuali extends DolibarrModules
 			dolibarr_set_const($this->db, 'DIGIQUALI_QUESTION_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
 		}
 
+        if (getDolGlobalInt('DIGIQUALI_CONTROL_ANSWER_BACKWARD') == 0 && $result > 0) {
+
+            require_once __DIR__ . '/../../class/control.class.php';
+            require_once __DIR__ . '/../../class/sheet.class.php';
+
+            $control    = new Control($this->db);
+            $sheet      = new Sheet($this->db);
+            $objectLine = new ControlLine($this->db);
+
+            $controls = $control->fetchAll();
+            if (is_array($controls) && !empty($controls)) {
+                foreach ($controls as $control) {
+                    if (empty($control->fk_sheet)) {
+                        continue;
+                    }
+
+                    $sheet->fetch($control->fk_sheet);
+                    $sheet->fetchObjectLinked($control->fk_sheet, 'digiquali_' . $sheet->element);
+                    if (empty($sheet->linkedObjects['digiquali_question'])) {
+                        continue;
+                    }
+
+                    $firstQuestion = current($sheet->linkedObjects['digiquali_question']);
+                    $res           = $objectLine->fetchFromParentWithQuestion($control->id, $firstQuestion->id);
+                    if (empty($res)) {
+                        foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
+                            $objectLine->ref         = $objectLine->getNextNumRef();
+                            $fk_element              = 'fk_'. $control->element;
+                            $objectLine->$fk_element = $control->id;
+                            $objectLine->fk_question = $question->id;
+                            $objectLine->answer      = '';
+                            $objectLine->comment     = '';
+                            $objectLine->entity      = $conf->entity;
+                            $objectLine->status      = 1;
+
+                            $objectLine->create($user);
+                        }
+                    }
+                }
+            }
+
+            dolibarr_set_const($this->db, 'DIGIQUALI_CONTROL_ANSWER_BACKWARD', 1, 'integer', 0, '', $conf->entity);
+        }
+
         require_once DOL_DOCUMENT_ROOT . '/cron/class/cronjob.class.php';
 
         $cronJob = new Cronjob($this->db);
