@@ -324,7 +324,7 @@ if (empty($reshook)) {
                     $answer->fk_question = $result;
                     $answer->value       = $langs->transnoentities('NonApplicable');
                     $answer->pictogram   = 'N/A';
-                    $answer->color       = '#2b2b2b';
+                    $answer->color       = '#989898';
 
                     $answer->create($user);
                 }
@@ -513,7 +513,7 @@ if (empty($reshook)) {
 						$answer->fk_question = $result;
 						$answer->value = $langs->transnoentities('NonApplicable');
 						$answer->pictogram = 'N/A';
-						$answer->color = '#2b2b2b';
+						$answer->color = '#989898';
 
 						$answer->create($user);
 					}

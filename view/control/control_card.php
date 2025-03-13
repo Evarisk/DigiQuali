@@ -927,7 +927,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 <?php if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
         print load_fiche_titre($langs->transnoentities('LinkedQuestionsList', $questionCounter), '', '');
-        print '<div id="tablelines" class="question-answer-container noborder noshadow">';
+        print '<div id="tablelines" class="question-answer-container">';
         if (!empty($object->project)) {
             if (!empty($permissionToAddTask)) {
                 require_once __DIR__ . '/../../core/tpl/modal/modal_task_add.tpl.php';

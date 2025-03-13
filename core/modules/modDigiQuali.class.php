@@ -77,7 +77,7 @@ class modDigiQuali extends DolibarrModules
 		$this->editor_url = 'https://evarisk.com/';
 
 		// Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-		$this->version = '21.0.0';
+		$this->version = '20.1.0';
 		// Url to the file with your last numberversion of this module
 		//$this->url_last_version = 'http://www.example.com/versionmodule.txt';
 
@@ -819,7 +819,7 @@ class modDigiQuali extends DolibarrModules
 					$answer->fk_question = $question->id;
 					$answer->value       = $langs->transnoentities('NonApplicable');
 					$answer->pictogram   = 'N/A';
-					$answer->color       = '#2b2b2b';
+					$answer->color       = '#989898';
 
 					$answer->create($user);
 				}
