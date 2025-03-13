@@ -168,9 +168,9 @@ class Sheet extends SaturneObject
     public $status;
 
     /**
-     * @var string Type
+     * @var string|null Type
      */
-    public string $type = 'control';
+    public ?string $type = 'control';
 
     /**
      * @var string Label.

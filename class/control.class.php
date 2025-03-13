@@ -21,7 +21,7 @@
  * \brief   This file is a CRUD class file for Control (Create/Read/Update/Delete).
  */
 
-// Load Dolibarr libraries.
+// Load Dolibarr libraries
 require_once DOL_DOCUMENT_ROOT . '/core/lib/ticket.lib.php';
 
 // Load Saturne libraries.
@@ -201,11 +201,6 @@ class Control extends SaturneObject
     public ?string $photo = '';
 
     /**
-     * @var string|null TrackID.
-     */
-    public ?string $track_id;
-
-    /**
      * @var int|string NextControlDate.
      */
     public $next_control_date;
@@ -280,18 +275,21 @@ class Control extends SaturneObject
         if ($result > 0) {
             global $conf;
 
-            require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
+            require_once __DIR__ . '/sheet.class.php';
 
-            $url = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $this->track_id . '&entity=' . $conf->entity, 3);
+            $sheet = new Sheet($this->db);
+            $sheet->fetch($this->fk_sheet);
 
-            $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
+            if (!empty($sheet->photo)) {
+                dol_mkdir($conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/photos/');
+                $file = $conf->digiquali->multidir_output[$conf->entity] . '/sheet/' . $sheet->ref . '/photos/' . $sheet->photo;
 
-            dol_mkdir($conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/');
-            $file = $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/qrcode/' . 'barcode_' . $this->track_id . '.png';
-
-            $imageData = $barcode->getBarcodePngData();
-            $imageData = imagecreatefromstring($imageData);
-            imagepng($imageData, $file);
+                if (file_exists($file)) {
+                    dol_copy($file, $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/photos/' . $sheet->photo);
+                    $this->photo = $sheet->photo;
+                    $this->setValueFrom('photo', $this->photo, '', '', 'text', '', $user);
+                }
+            }
         }
 
         return $result;
@@ -641,6 +639,17 @@ class Control extends SaturneObject
                 dol_mkdir($dir . '/' . $objectFromClone->ref . '/photos');
                 dolCopyDir($path,$dir . '/' . $objectFromClone->ref . '/photos', 0, 1);
             }
+
+            // Add control equipments
+            if (!empty($options['control_equipments'])) {
+                $controlEquipment  = new ControlEquipment($this->db);
+                $controlEquipments = $controlEquipment->fetchFromParent($fromID);
+                if (is_array($controlEquipments) && !empty($controlEquipments)) {
+                    foreach ($controlEquipments as $controlEquipment) {
+                        $controlEquipment->createFromClone($user, $controlEquipment->id, $controlID);
+                    }
+                }
+            }
         } else {
             $error++;
             $this->error  = $object->error;
@@ -755,15 +764,55 @@ class Control extends SaturneObject
     }
 
     /**
+     * Return HTML string to put an input field into a page
+     * Code very similar with showInputField of extra fields
+     *
+     * @param  string          $key         Key of attribute
+     * @param  string|string[] $value       Preselected value to show (for date type it must be in timestamp format, for amount or price it must be a php numeric value, for array type must be array)
+     * @param  string          $moreparam   To add more parameters on html input tag
+     * @param  string          $keysuffix   Suffix string to add into name and id of field (can be used to avoid duplicate names)
+     * @param  string          $keyprefix   Prefix string to add into name and id of field (can be used to avoid duplicate names)
+     * @param  string|int      $morecss     Value for css to define style/length of field. May also be a numeric
+     * @param  int<0,1>        $nonewbutton Force to not show the new button on field that are links to object
+     * @return string          $out         HTML string to put an input field into a page
+     * @throws Exception
+     */
+    public function showInputField($val, $key, $value, $moreparam = '', $keysuffix = '', $keyprefix = '', $morecss = 0, $nonewbutton = 0): string
+    {
+        $linkableElements = get_sheet_linkable_objects();
+        foreach($linkableElements as $linkableElement) {
+            if ($linkableElement['conf'] > 0 && $key == $linkableElement['post_name']) {
+                $out          = '';
+                $objectArrays = [];
+                $objects      = saturne_fetch_all_object_type($linkableElement['className']);
+                if (is_array($objects) && !empty($objects)) {
+                    $nameFields = explode(', ', $linkableElement['name_field']);
+                    foreach ($objects as $object) {
+                        $objectArrays[$object->id] = array_reduce($nameFields, function($carry, $field) use ($object) {
+                            return $carry . ' ' . $object->{$field};
+                        });
+                    }
+
+                    $out = Form::selectarray($keyprefix . $key . $keysuffix, $objectArrays, $value, 1, 0, 0, '', 0, 0, 0, '', !empty($val['css']) ? $val['css'] : 'minwidth200 maxwidth300 widthcentpercentminusx');
+                }
+
+                return $out;
+            }
+        }
+
+        return parent::showInputField($val, $key, $value, $moreparam, $keysuffix, $keyprefix, $morecss, $nonewbutton);
+    }
+
+    /**
      * Get next control date color
      *
      * @return string $nextControlDateColor Next control date color
      */
     function getNextControlDateColor(): string
     {
-        $nextControl                = floor(($this->next_control_date - dol_now('tzuser'))/(3600 * 24));
-        $nextControlDateColor       = '#47E58E';
-        $nextControlDateFrequencies = [0 => '#E05353', 30 => '#FF6900', 60 => '#E9AD4F', 90 => '#47E58E'];
+        $nextControl                = (int) round(($this->next_control_date - dol_now('tzuser'))/(3600 * 24));
+        $nextControlDateColor       = getDolGlobalString('DIGIQUALI_NEXT_CONTROL_DATE_COLOR_90', '#C7BA10');
+        $nextControlDateFrequencies = [0 => '#FF3535', 30 => '#FD7E00', 60 => '#FFB700', 90 => '#C7BA10'];
         foreach ($nextControlDateFrequencies as $nextControlDateFrequency => $nextControlDateFrequencyDefaultColor) {
             if ($nextControl <= $nextControlDateFrequency) {
                 $nextControlDateColor = getDolGlobalString('DIGIQUALI_NEXT_CONTROL_DATE_COLOR_' . $nextControlDateFrequency, $nextControlDateFrequencyDefaultColor);
@@ -1035,7 +1084,7 @@ class Control extends SaturneObject
                                 $sheet->fetch($control->fk_sheet);
 
                                 if (!empty($control->next_control_date)) {
-                                    $nextControl          = floor(($control->next_control_date - dol_now('tzuser'))/(3600 * 24));
+                                    $nextControl          = (int) round(($control->next_control_date - dol_now('tzuser'))/(3600 * 24));
                                     $nextControlDateColor = $control->getNextControlDateColor();
                                     $verdictColor         = $control->verdict == 1 ? 'green' : ($control->verdict == 2 ? 'red' : 'grey');
 
@@ -1471,4 +1520,55 @@ class ControlEquipment extends SaturneObject
         return $this->fetchAll('', '', $limit, 0, ['customsql' => 'fk_control = ' . $control_id . ' AND status > 0']);
     }
 
+    /**
+     * Clone an object into another one
+     *
+     * @param  User       $user      User that creates
+     * @param  int        $fromID    ID of object to clone
+     * @param  int        $controlID ID of control
+     * @return int                   New object created, <0 if KO
+     * @throws Exception
+     */
+    public function createFromClone(User $user, int $fromID, int $controlID): int
+    {
+        dol_syslog(__METHOD__, LOG_DEBUG);
+
+        $object = new self($this->db);
+
+        $this->db->begin();
+
+        // Load source object
+        $object->fetchCommon($fromID);
+
+        // Reset some properties
+        unset($object->id);
+
+        // Clear fields
+        if (property_exists($object, 'ref')) {
+            $object->ref = $object->getNextNumRef();
+        }
+        if (property_exists($object, 'date_creation')) {
+            $object->date_creation = dol_now();
+        }
+        if (property_exists($object, 'fk_control')) {
+            $object->fk_control = $controlID;
+        }
+        if (property_exists($object, 'status')) {
+            $object->status = self::STATUS_ENABLED;
+        }
+
+        // Create clone
+        $object->context['createfromclone'] = 'createfromclone';
+        $result                             = $object->createCommon($user);
+        unset($object->context['createfromclone']);
+
+        // End
+        if ($result > 0) {
+            $this->db->commit();
+            return $result;
+        } else {
+            $this->db->rollback();
+            return -1;
+        }
+    }
 }

@@ -146,9 +146,10 @@ if (empty($resHook)) {
 
 	// Action clone object
 	if ($action == 'confirm_clone' && $confirm == 'yes') {
-        $options['label']      = GETPOST('clone_label');
-        $options['attendants'] = GETPOST('clone_attendants');
-        $options['photos']     = GETPOST('clone_photos');
+        $options['label']              = GETPOST('clone_label');
+        $options['attendants']         = GETPOST('clone_attendants');
+        $options['photos']             = GETPOST('clone_photos');
+        $options['control_equipments'] = GETPOST('clone_control_equipments');
         if ($object->id > 0) {
             $result = $object->createFromClone($user, $object->id, $options);
             if ($result > 0) {
@@ -200,14 +201,12 @@ if (empty($resHook)) {
         }
     }
 
-    if ($action == 'show_only_questions_with_no_answer') {
+    if ($action == 'show_only_questions_with_no_answer' || $action == 'show_ok_ko_photos') {
         $data = json_decode(file_get_contents('php://input'), true);
-
-        $showOnlyQuestionsWithNoAnswer = $data['showOnlyQuestionsWithNoAnswer'];
-
-        $tabParam['DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER'] = $showOnlyQuestionsWithNoAnswer;
-
-        dol_set_user_param($db, $conf, $user, $tabParam);
+        if (isset($data[$action])) {
+            $tabParam['DIGIQUALI_' . dol_strtoupper($action)] = $data[$action];
+            dol_set_user_param($db, $conf, $user, $tabParam);
+        }
     }
 
     require_once __DIR__ . '/../../core/tpl/digiquali_answers_save_action.tpl.php';
@@ -368,7 +367,7 @@ if ($action == 'create') {
         $filter          = 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED;
         $filter         .= (!empty($filterType) ? ' AND s.element_linked LIKE "%' . $filterType . '%"' : '');
         print '<tr><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('Sheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
-        print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet') ?: $sheet->id, 'fk_sheet', $filter, 0);
+        print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet') ?: $sheet->id, 'fk_sheet', $filter, 1);
         if ($source != 'pwa') {
             print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/custom/digiquali/view/sheet/sheet_card.php?action=create" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('AddSheet') . '"></span></a>';
         }
@@ -539,8 +538,9 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         // Define confirmation messages
         $formQuestionClone = [
             ['type' => 'text',     'name' => 'clone_label', 'label' => $langs->trans('NewLabelForClone', $langs->transnoentities('The' . ucfirst($object->element))), 'value' => $langs->trans('CopyOf') . ' ' . $object->label ?: $object->ref, 'size' => 24],
-            ['type' => 'checkbox', 'name' => 'clone_attendants', 'label' => $langs->trans('CloneAttendants'), 'value' => 1],
-            ['type' => 'checkbox', 'name' => 'clone_photos',     'label' => $langs->trans('ClonePhotos'),     'value' => 1]
+            ['type' => 'checkbox', 'name' => 'clone_attendants',         'label' => $langs->trans('CloneAttendants'),        'value' => 1],
+            ['type' => 'checkbox', 'name' => 'clone_photos',             'label' => $langs->trans('ClonePhotos'),            'value' => 1],
+            ['type' => 'checkbox', 'name' => 'clone_control_equipments', 'label' => $langs->trans('CloneControlEquipments'), 'value' => 1]
         ];
 
         $formConfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('CloneObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmCloneObject', $langs->transnoentities('The' . ucfirst($object->element)), $object->ref), 'confirm_clone', $formQuestionClone, 'yes', 'actionButtonClone', 350, 600);
@@ -577,12 +577,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     unset($object->fields['projectid']); // Hide field already shown in banner
 
     if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {
-        $publicInterfaceUrl = dol_buildpath('custom/digiquali/public/control/public_control.php?track_id=' . $object->track_id . '&entity=' . $conf->entity, 3);
-        print '<tr><td class="titlefield">' . $langs->trans('PublicInterface') . ' <a href="' . $publicInterfaceUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
-        print showValueWithClipboardCPButton($publicInterfaceUrl, 0, '&nbsp;');
-        print '</td>';
-        print '<td>' . saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$conf->entity] . '/control/' . $object->ref . '/qrcode/', 'small', 1, 0, 0, 0, 80, 80, 0, 0, 0, 'control/' . $object->ref . '/qrcode/', $object, '', 0, 0) . '</td></tr>';
-
         // Answer public interface
         $publicAnswerUrl = dol_buildpath('custom/digiquali/public/public_answer.php?track_id=' . $object->track_id . '&object_type=' . $object->element . '&document_type=ControlDocument&entity=' . $conf->entity, 3);
         print '<tr><td class="titlefield">' . $langs->trans('PublicAnswer') . ' <a href="' . $publicAnswerUrl . '" target="_blank"><i class="fas fa-qrcode"></i></a>';
@@ -901,15 +895,18 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             <div class="progress progress-bar-success" style="width:<?php print ($questionCounter > 0 ? ($answerCounter / $questionCounter) * 100 : 0) . '%'; ?>;" title="<?php print($questionCounter > 0 ? $answerCounter . '/' . $questionCounter : 0); ?>"></div>
         </div>
         <?php if ($answerCounter != $questionCounter) {
-            print $user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? img_picto($langs->trans('Enabled'), 'switch_on', 'class="show-only-questions-with-no-answer marginrightonly"') : img_picto($langs->trans('Disabled'), 'switch_off', 'class="show-only-questions-with-no-answer marginrightonly"');
-            print $form->textwithpicto($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>', $langs->trans('ShowOnlyQuestionsWithNoAnswer'));
+            print img_picto($langs->trans(!empty($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER) ? 'Enabled' : 'Disabled'), !empty($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER) ? 'switch_on' : 'switch_off', 'data-toggle-action="show_only_questions_with_no_answer" data-toggle-key="show_only_questions_with_no_answer" data-update-targets=".progress-info,.question-answer-container" class="marginrightonly"');
+            print $form->textwithpicto($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>', $langs->trans('ShowOnlyQuestionsWithNoAnswer'), 1, 'help', 'marginrightonly');
         } else {
             $user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER = 0;
-        } ?>
+        }
+        print img_picto($langs->trans(!empty($user->conf->DIGIQUALI_SHOW_OK_KO_PHOTOS) ? 'Enabled' : 'Disabled'), !empty($user->conf->DIGIQUALI_SHOW_OK_KO_PHOTOS) ? 'switch_on' : 'switch_off', 'data-toggle-action="show_ok_ko_photos" data-toggle-key="show_ok_ko_photos" data-update-targets=".progress-info,.question-answer-container" class="marginrightonly"');
+        print $form->textwithpicto(img_picto('', 'fa-image'), $langs->trans('DisplayMediasSample'));
+        ?>
     </div>
 
 <?php if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
-        print load_fiche_titre($langs->trans('LinkedQuestionsList'), '', '');
+        print load_fiche_titre($langs->transnoentities('LinkedQuestionsList', $questionCounter), '', '');
         print '<div id="tablelines" class="question-answer-container noborder noshadow">';
         require_once __DIR__ . '/../../core/tpl/digiquali_answers.tpl.php';
         print '</div>';

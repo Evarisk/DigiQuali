@@ -32,11 +32,19 @@ window.digiquali.control.event = function() {
   $( document ).on( 'change', '#fk_sheet', window.digiquali.control.showSelectObjectLinked);
   $( document ).on( 'click', '.clipboard-copy', window.digiquali.control.copyToClipboard );
   $( document ).on( 'change', '#productId', window.digiquali.control.refreshLotSelector );
-  $( document ).on( 'click', '.switch-public-control-view', window.digiquali.control.switchPublicControlView );
-  $(document).on('click', '.show-only-questions-with-no-answer', window.digiquali.control.showOnlyQuestionsWithNoAnswer);
+  $(document).on('click', '.switch-public-control-view', window.digiquali.control.switchPublicControlView);
   $(document).on('click', '.photo-sheet-category', window.digiquali.control.getSheetCategoryID);
   $(document).on('click', '.photo-sheet-sub-category', window.digiquali.control.getSheetSubCategoryID);
   $(document).on('click', '.photo-sheet', window.digiquali.control.getSheetID);
+
+  $(document).on('click', '[data-toggle-action]', function() {
+    let action = $(this).data('toggle-action');
+    let key    = $(this).data('toggle-key');
+
+    if (action && key) {
+      window.saturne.utils.toggleSetting.call(this, action, key);
+    }
+  });
 };
 
 /**
@@ -145,77 +153,29 @@ window.digiquali.control.refreshLotSelector = function(  event ) {
 };
 
 /**
- * Switch public control history mode
+ * Switch public control mode
  *
- * @since   1.8.0
- * @version 1.8.0
- *
- * @param  {MouseEvent} event Les attributs lors du clic.
- * @return {void}
- */
-window.digiquali.control.switchPublicControlView = function(  event ) {
-
-  var publicControlViewMode = $(this).find('.public-control-view').val()
-  let token                 = window.saturne.toolbox.getToken();
-  let urlToGo               = document.URL + '&token=' + token
-
-  if (publicControlViewMode == 0) {
-    urlToGo += '&show_control_list=1'
-  } else {
-    urlToGo += '&show_last_control=1'
-  }
-
-  window.saturne.loader.display($('.signature-container'))
-
-  $.ajax({
-    url: urlToGo,
-    type: "POST",
-    processData: false,
-    contentType: false,
-    success: function ( resp ) {
-      $('#publicControlHistory').replaceWith($(resp).find('#publicControlHistory'))
-    },
-    error: function ( ) {
-    }
-  });
-};
-
-/**
- * Enables/disables the configuration to display only questions with no answer
- *
- * @memberof DigiQuali_Control
- *
- * @since   1.9.0
- * @version 1.9.0
+ * @since   20.1.0
+ * @version 20.1.0
  *
  * @return {void}
  */
-window.digiquali.control.showOnlyQuestionsWithNoAnswer = function() {
-  let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
-  let token          = window.saturne.toolbox.getToken();
-
-  let showOnlyQuestionsWithNoAnswer;
-  if ($(this).hasClass('fa-toggle-off')) {
-    showOnlyQuestionsWithNoAnswer = 1;
-  } else {
-    showOnlyQuestionsWithNoAnswer = 0;
-  }
+window.digiquali.control.switchPublicControlView = function() {
+  const route = $(this).data('route');
 
   window.saturne.loader.display($(this));
 
   $.ajax({
-    url: document.URL + querySeparator + "action=show_only_questions_with_no_answer&token=" + token,
-    type: "POST",
+    url: document.URL + '&route=' + route,
+    type: 'POST',
     processData: false,
-    data: JSON.stringify({
-      showOnlyQuestionsWithNoAnswer: showOnlyQuestionsWithNoAnswer
-    }),
     contentType: false,
-    success: function(resp) {
-      $('.progress-info').replaceWith($(resp).find('.progress-info'));
-      $('.question-answer-container').replaceWith($(resp).find('.question-answer-container'));
+    success: function (resp) {
+      $('.public-card__container').children().fadeOut(300, function () {
+        $('#publicControlHistory').replaceWith($(resp).find('#publicControlHistory'));
+      });
     },
-    error: function() {}
+    error: function () {}
   });
 };
 
