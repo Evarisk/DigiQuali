@@ -127,7 +127,8 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
         $file->name_field = $out['linkedObject']['name_field'];
     }
 
-    if (!empty($linkedObject->array_options['options_qc_frequency'])) {
+    get_parent_linked_object_qc_frequency($linkedObject, $linkableElements);
+    if (!empty($linkedObject->array_options['options_qc_frequency']) && getDolGlobalInt('DIGIQUALI_SHOW_QC_FREQUENCY_PUBLIC_INTERFACE')) {
         $out['linkedObject']['qc_frequency'] = '<i class="objet-icon fas fa-history"></i>' . $linkedObject->array_options['options_qc_frequency'] . ' ' . $langs->transnoentities('Days');
     }
 
@@ -319,4 +320,39 @@ function get_control_infos(CommonObject $linkedObject): array
     }
 
     return $out;
+}
+
+/**
+ * Get parent linked object qc frequency
+ *
+ * @param  CommonObject $linkedObject     Linked object (product, productlot, project, etc.)
+ * @param  array        $linkableElements Array of linkable elements infos (product, productlot, project, etc.)
+ * $param  bool         $showInherited    Show inherited langs trans for user interface
+ */
+function get_parent_linked_object_qc_frequency(CommonObject $linkedObject, array $linkableElements, bool $showInherited = true): void
+{
+    global $db, $langs;
+
+    $langs->load('users');
+
+    $linkableElement = $linkableElements[$linkedObject->element];
+    if (isset($linkableElement['fk_parent'])) {
+        $linkedObjectParentData = [];
+        foreach ($linkableElements as $value) {
+            if (isset($value['post_name']) && $value['post_name'] === $linkableElement['fk_parent']) {
+                $linkedObjectParentData = $value;
+                break;
+            }
+        }
+
+        if (!empty($linkedObjectParentData['class_path'])) {
+            $parentLinkedObject = new $linkedObjectParentData['className']($db);
+
+            $parentLinkedObject->fetch($linkedObject->{$linkableElement['fk_parent']});
+
+            if (empty($linkedObject->array_options['options_qc_frequency']) && !empty($parentLinkedObject->array_options['options_qc_frequency'])) {
+                $linkedObject->array_options['options_qc_frequency'] = $parentLinkedObject->array_options['options_qc_frequency'] . ($showInherited ? ' (' . $langs->transnoentities('Inherited') . ')' : '');
+            }
+        }
+    }
 }
