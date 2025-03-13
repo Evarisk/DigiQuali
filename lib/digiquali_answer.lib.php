@@ -97,8 +97,65 @@ function get_answer_pictos_array(): array
 			'picto_source' => 'N/A',
 			'position' => 4
 		],
+		'smile' => [
+			'name' => $langs->transnoentities('Smile'),
+			'picto_source' => '<i class="fas fa-smile"></i>',
+			'position' => 5
+		],
+		'meh' => [
+			'name' => $langs->transnoentities('Meh'),
+			'picto_source' => '<i class="fas fa-meh"></i>',
+			'position' => 6
+		],
+		'sad' => [
+			'name' => $langs->transnoentities('Sad'),
+			'picto_source' => '<i class="fas fa-frown"></i>',
+			'position' => 7
+		]
 	];
 	return $pictosArray;
+}
+
+/**
+ * Interpolate between two colors in a gradient
+ *
+ * @param  array $gradient   Array of colors with their positions
+ * @param  float $percentage Percentage to interpolate
+ * @return string           Interpolated color in hex format
+ */
+function interpolateColor(array $gradient, float $percentage): string {
+    ksort($gradient);
+    $positions = array_keys($gradient);
+    
+    // Find the positions surrounding the percentage
+    $pos1 = 0;
+    foreach ($positions as $pos) {
+        if ($pos <= $percentage) {
+            $pos1 = $pos;
+        } else {
+            $pos2 = $pos;
+            break;
+        }
+    }
+    
+    // If exact match or at edge of gradient
+    if (!isset($pos2) || $pos1 == $percentage) {
+        return $gradient[$pos1];
+    }
+    
+    // Extract RGB components
+    list($r1, $g1, $b1) = sscanf($gradient[$pos1], "#%02x%02x%02x");
+    list($r2, $g2, $b2) = sscanf($gradient[$pos2], "#%02x%02x%02x");
+    
+    // Calculate interpolation factor
+    $ratio = ($percentage - $pos1) / ($pos2 - $pos1);
+    
+    // Interpolate RGB values
+    $r = round($r1 + ($r2 - $r1) * $ratio);
+    $g = round($g1 + ($g2 - $g1) * $ratio);
+    $b = round($b1 + ($b2 - $b1) * $ratio);
+    
+    return sprintf("#%02X%02X%02X", $r, $g, $b);
 }
 
 /**
@@ -120,54 +177,51 @@ function show_answer_from_question(Question $question, CommonObject $object, str
     $disabled       = ($object->status > $object::STATUS_DRAFT ? ' disabled' : '');
     $questionConfig = json_decode($question->json, true)['config'];
 
-    switch ($question->type) {
-        case 'Text':
-            $out .= '<div>';
-            $out .= '<textarea class="question-textarea question-answer" name="answer' . $question->id . '" placeholder="' . $langs->transnoentities('WriteAnswer') . '"' . $disabled . '>' . $questionAnswer . '</textarea>';
-            $out .= '</div>';
-            break;
-        case 'Percentage':
-            $step = 100;
-            if (!empty($questionConfig[$question->type]['step'])) {
-                $step = $questionConfig[$question->type]['step'];
-            }
+    if ($question->type == 'Text') {
+        $out .= '<div>';
+        $out .= '<textarea class="question-textarea question-answer" name="answer' . $question->id . '" placeholder="' . $langs->transnoentities('WriteAnswer') . '"' . $disabled . '>' . $questionAnswer . '</textarea>';
+        $out .= '</div>';
+    } else if ($question->type == 'Percentage' && $questionConfig[$question->type]['isCursor']) {
+        $step = 100;
+        if (!empty($questionConfig[$question->type]['step'])) {
+            $step = $questionConfig[$question->type]['step'];
+        }
 
-            $out .= '<div class="percentage-cell">';
-            $out .= img_picto('', 'fontawesome_fa-frown_fas_#D53C3D_3em', 'class="range-image"');
-            $out .= '<input type="range" class="search_component_input range question-answer" name="answer' . $question->id . '" min="0" max="100" step="' . 100/($step - 1) . '" value="' . $questionAnswer . '"' . $disabled . '>';
-            $out .= img_picto('', 'fontawesome_fa-grin_fas_#57AD39_3em', 'class="range-image"');
-            $out .= '</div>';
-            break;
-        case 'Range':
-            $out .= '<div class="question-number">';
-            $out .= '<input type="number" class="question-answer" name="answer' . $question->id . '" placeholder="0" value="' . $questionAnswer . '"' . $disabled . '>';
-            $out .= '</div>';
-            break;
-        case 'UniqueChoice':
-        case 'OkKo':
-        case 'OkKoToFixNonApplicable':
-        case 'MultipleChoices':
-            $answers = $answer->fetchAll('ASC', 'position', 0, 0, ['customsql' => 't.status = ' . Answer::STATUS_VALIDATED . ' AND t.fk_question = ' . $question->id]);
-            $pictos  = get_answer_pictos_array();
+        $out .= '<div class="percentage-cell">';
+        $out .= img_picto('', 'fontawesome_fa-frown_fas_#D53C3D_3em', 'class="range-image"');
+        $out .= '<input type="range" class="search_component_input range question-answer" name="answer' . $question->id . '" min="0" max="100" step="' . 100/($step - 1) . '" value="' . $questionAnswer . '"' . $disabled . '>';
+        $out .= img_picto('', 'fontawesome_fa-grin_fas_#57AD39_3em', 'class="range-image"');
+        $out .= '</div>';
+    } else if ($question->type == 'Range') {
+        $out .= '<div class="question-number">';
+        $out .= '<input type="number" class="question-answer" name="answer' . $question->id . '" placeholder="0" value="' . $questionAnswer . '"' . $disabled . '>';
+        $out .= '</div>';
+    } else if ($question->type == 'UniqueChoice' || 
+               $question->type == 'OkKo' || 
+               $question->type == 'OkKoToFixNonApplicable' || 
+               $question->type == 'MultipleChoices' || 
+               ($question->type == 'Percentage' && !$questionConfig[$question->type]['isCursor'])) {
+        
+        $answers = $answer->fetchAll('ASC', 'position', 0, 0, ['customsql' => 't.status = ' . Answer::STATUS_VALIDATED . ' AND t.fk_question = ' . $question->id]);
+        $pictos  = get_answer_pictos_array();
 
-            if (strpos($questionAnswer, ',') !== false) {
-                $questionAnswers = explode(',', $questionAnswer);
-            } else {
-                $questionAnswers = [$questionAnswer];
-            }
+        if (strpos($questionAnswer, ',') !== false) {
+            $questionAnswers = explode(',', $questionAnswer);
+        } else {
+            $questionAnswers = [$questionAnswer];
+        }
 
-            $out .= '<div class="table-cell select-answer answer-cell">';
-            $out .= '<input type="hidden" class="question-answer" name="answer' . $question->id . '" value="0">';
-            if (is_array($answers) && !empty($answers)) {
-                foreach($answers as $answer) {
-                    $out .= '<input type="hidden" class="answer-color answer-color-' . $answer->position . '" value="' . $answer->color . '">';
-                    $out .= '<span class="answer' . (!empty($answer->pictogram) ? ' answer-icon' : '' ) . ($question->type == 'MultipleChoices' ? ' multiple-answers square' : ' single-answer') . (in_array($answer->position, $questionAnswers) ? ' active' : '') . ($object->status > 0 ? ' disable' : '') . '" style="' . (in_array($answer->position, $questionAnswers) ? 'background:' . $answer->color . '; ' : '') . 'color:' . $answer->color . ';' . 'box-shadow: 0 0 0 3px ' . $answer->color . ';" value="' . $answer->position . '">';
-                    $out .= !empty($answer->pictogram) ? $pictos[$answer->pictogram]['picto_source'] : $answer->value;
-                    $out .= '</span>';
-                }
+        $out .= '<div class="table-cell select-answer answer-cell">';
+        $out .= '<input type="hidden" class="question-answer" name="answer' . $question->id . '" value="0">';
+        if (is_array($answers) && !empty($answers)) {
+            foreach($answers as $answer) {
+                $out .= '<input type="hidden" class="answer-color answer-color-' . $answer->position . '" value="' . $answer->color . '">';
+                $out .= '<span class="answer' . (!empty($answer->pictogram) ? ' answer-icon' : '' ) . ($question->type == 'MultipleChoices' ? ' multiple-answers square' : ' single-answer') . (in_array($answer->position, $questionAnswers) ? ' active' : '') . ($object->status > 0 ? ' disable' : '') . '" style="' . (in_array($answer->position, $questionAnswers) ? 'background:' . $answer->color . '; ' : '') . 'color:' . $answer->color . ';' . 'box-shadow: 0 0 0 3px ' . $answer->color . ';" value="' . $answer->position . '">';
+                $out .= !empty($answer->pictogram) ? $pictos[$answer->pictogram]['picto_source'] : $answer->value;
+                $out .= '</span>';
             }
-            $out .= '</div>';
-            break;
+        }
+        $out .= '</div>';
     }
 
     return $out;

@@ -726,7 +726,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             $percentQuestionCounter++;
             foreach ($object->lines as $line) {
                 if ($line->fk_question === $questionLinked->id) {
-                    $averagePercentageQuestions += $line->answer;
+
+                    $config = json_decode($questionLinked->json, true);
+                    if (!isset($config['config'][$questionLinked->type]['isCursor']) || !empty($config['config'][$questionLinked->type]['isCursor'])) {
+                        $averagePercentageQuestions += $line->answer;
+                    } else {
+                        $averagePercentageQuestions += (($line->answer - 1) / ($config['config'][$questionLinked->type]['step'] - 1)) * 100;
+                    }
+    
                 }
             }
         }

@@ -129,8 +129,10 @@ window.digiquali.question.selectAnswerPicto = function() {
 window.digiquali.question.changeQuestionType = function() {
   let questionType = $(this).val();
   if (questionType === 'Percentage') {
-    $(document).find('#percentage-question-step').removeClass('hidden');
+    $(document).find('#percentage-question-step').fadeIn();
+    $(document).find('#percentage-question-is-percentage').fadeIn();
   } else {
-    $(document).find('#percentage-question-step').addClass('hidden');
+    $(document).find('#percentage-question-step').fadeOut();
+    $(document).find('#percentage-question-is-percentage').fadeOut();
   }
 };
