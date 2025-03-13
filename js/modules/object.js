@@ -62,12 +62,14 @@ window.digiquali.object.init = function() {
  */
 window.digiquali.object.event = function() {
   $(document).on( 'change', '.object-table.linked-objects select', window.digiquali.object.disableOtherSelectors);
-  $(document).on( 'click', '.answer:not(.disable)', window.digiquali.object.selectAnswer);
   $(document).on( 'input', '.input-answer:not(.disable)', window.digiquali.object.selectAnswer);
   $(document).on( 'keyup', '.question-comment', window.digiquali.object.showCommentUnsaved);
   $(document).on( 'change', '.question-answer', window.digiquali.object.changeStatusQuestion);
   $(document).on( 'click', '.answer:not(.disable)', window.digiquali.object.changeStatusQuestion);
   $(document).on('input', '.question-answer[type="range"]', window.digiquali.object.rangePercent);
+
+  $(document).on( 'click', '.answer:not(.disable)', window.digiquali.object.selectAnswer);
+  $(document).on('change', '.input-answer:not(.disable)', window.digiquali.object.changeAnswer);
 };
 
 /**
@@ -132,16 +134,29 @@ window.digiquali.object.selectAnswer = function() {
     $(this).closest('.answer-cell').find('.question-answer').val(answer);
   }
 
-  if (!publicInterface && autoSave == 1 && !$(this).hasClass('multiple-answers')) {
+  if (!publicInterface && autoSave == 1) {
     window.digiquali.object.saveAnswer(questionId, answer, comment);
-  } else {
-    window.digiquali.object.updateButtonsStatus();
   }
+  window.digiquali.object.updateButtonsStatus();
 };
 
 window.digiquali.object.changeStatusQuestion = function() {
   $(this).closest('.question').addClass('question-complete');
 };
+
+window.digiquali.object.changeAnswer = function() {
+
+  let questionId      = $(this).attr('id').replace('answer', '');
+  let publicInterface = $(this).closest('.table-id-' + questionId).attr('data-publicInterface');
+  let autoSave        = $(this).closest('.table-id-' + questionId).attr('data-autoSave');
+  let comment         = $(this).closest('.table-id-' + questionId).find('#comment' + questionId).val();
+  let answer          = $(this).val();
+
+  if (!publicInterface && autoSave == 1) {
+    window.digiquali.object.saveAnswer(questionId, answer, comment);
+  }
+  window.digiquali.object.updateButtonsStatus();
+}
 
 /**
  * Show a comment for a question answer if focus out
@@ -193,7 +208,6 @@ window.digiquali.object.updateButtonsStatus = function() {
 window.digiquali.object.saveAnswer = function(questionId, answer, comment) {
   let token          = window.saturne.toolbox.getToken();
   let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
-  window.saturne.loader.display($('.table-id-' + questionId));
 
   $.ajax({
     url: document.URL + querySeparator + 'action=save&token=' + token,
@@ -206,10 +220,7 @@ window.digiquali.object.saveAnswer = function(questionId, answer, comment) {
     }),
     processData: false,
     contentType: false,
-    success: function(resp) {
-      $('.fiche').replaceWith($(resp).find('.fiche'));
-      $('#dialog-confirm-actionButtonValidate>.confirmmessage').replaceWith($(resp).find('#dialog-confirm-actionButtonValidate>.confirmmessage'));
-    },
+    success: function(resp) {},
     error: function() {}
   });
 };
@@ -253,7 +264,6 @@ window.digiquali.object.rangePercent = function() {
 
   rangePercent.css('left', titlePos);
   slider.attr('value', rangePercentValue);
-
   slider.parent().append(rangePercent);
 }
 

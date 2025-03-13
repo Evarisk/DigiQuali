@@ -62,17 +62,15 @@ if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->link
                             <div class="question-answer-text">
                                 <?php
                                 $object->status > $object::STATUS_DRAFT ? print $questionAnswer :
-                                    print '<textarea' . ($object->status > $object::STATUS_DRAFT ? ' disabled' : '') . ' name="answer' . $question->id . '" id="answer' . $question->id . '"class="question-textarea input-answer ' . ($object->status > 0 ? 'disable' : '') . '" value="' . $questionAnswer . '"></textarea>'; ?>
-                            <?php endif; ?>
-                            <?php if ($question->enter_comment > 0) : ?>
-                                <?php print $langs->trans('Comment') . ' : '; ?>
-                            <?php endif; ?>
-                            <?php if ($question->enter_comment > 0) : ?>
-                                <?php if ($object->status > 0 ) : ?>
-                                    <?php print $comment; ?>
-                                <?php else : ?>
-                                    <?php print '<input class="question-textarea question-comment" name="comment' . $question->id . '" id="comment' . $question->id . '" value="' . $comment .  '" ' . ($object->status == 2 ? 'disabled' : '') . '>'; ?>
+                                    print '<textarea' . ($object->status > $object::STATUS_DRAFT ? ' disabled' : '') . ' name="answer' . $question->id . '" id="answer' . $question->id . '"class="question-textarea input-answer ' . ($object->status > 0 ? 'disable' : '') . '">' . $questionAnswer . '</textarea>'; ?>
+                                <?php if ($question->enter_comment > 0) : ?>
+                                    <?php if ($object->status > 0 ) : ?>
+                                        <?php print $comment; ?>
+                                    <?php else : ?>
+                                        <?php print '<input class="question-textarea question-comment" name="comment' . $question->id . '" id="comment' . $question->id . '" value="' . $comment .  '" ' . ($object->status == 2 ? 'disabled' : '') . '>'; ?>
+                                    <?php endif; ?>
                                 <?php endif; ?>
+                            </div>
                             <?php endif; ?>
                         </div>
                     </div>

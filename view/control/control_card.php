@@ -705,7 +705,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
             $percentQuestionCounter++;
             foreach ($object->lines as $line) {
-                if ($line->fk_question === $questionLinked->id) {
+                if ($line->fk_question === $questionLinked->id && is_numeric($line->answer)) {
                     $averagePercentageQuestions += $line->answer;
                 }
             }

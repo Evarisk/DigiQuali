@@ -45,7 +45,11 @@ if ($action == 'save') {
                             $questionAnswer = GETPOST('answer' . $question->id);
                         }
                         if (!empty($questionAnswer)) {
-                            $line->answer = $questionAnswer;
+                            if (gettype($questionAnswer) === 'array') {
+                                $line->answer = implode(',', $questionAnswer);
+                            } else {
+                                $line->answer = $questionAnswer;
+                            }
                         }
 
                         // Save answer comment
