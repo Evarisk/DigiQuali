@@ -725,15 +725,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
             $percentQuestionCounter++;
             foreach ($object->lines as $line) {
-                if ($line->fk_question === $questionLinked->id) {
-
+                if ($line->fk_question === $questionLinked->id && is_numeric($line->answer)) {
                     $config = json_decode($questionLinked->json, true);
                     if (!isset($config['config'][$questionLinked->type]['isCursor']) || !empty($config['config'][$questionLinked->type]['isCursor'])) {
                         $averagePercentageQuestions += $line->answer;
+                    } elseif ($line->answer - 1 == 0) {
+                        $averagePercentageQuestions += 0;
+                    } elseif ($line->answer == $config['config'][$questionLinked->type]['step']) {
+                        $averagePercentageQuestions += 100;
                     } else {
-                        $averagePercentageQuestions += (($line->answer - 1) / ($config['config'][$questionLinked->type]['step'] - 1)) * 100;
+                        $averagePercentageQuestions += (($line->answer) / ($config['config'][$questionLinked->type]['step'])) * 100;
                     }
-    
                 }
             }
         }
