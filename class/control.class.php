@@ -1047,6 +1047,7 @@ class Control extends SaturneObject
      */
     public function getControlListsByNextControl(): array
     {
+        // require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
         global $langs;
 
         // Graph Title parameters.
@@ -1065,6 +1066,10 @@ class Control extends SaturneObject
         if (is_array($controls) && !empty($controls)) {
             foreach ($controls as $control) {
                 $control->fetchObjectLinked('', '', $control->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
+                if (!empty($control->projectid)) {
+                    $control->fk_project = $control->projectid;
+                    $control->fetch_project();
+                }
                 $linkedObjectsInfos = $control->getLinkedObjectsWithQcFrequency($elementArray);
                 $linkedObjects      = $linkedObjectsInfos['linkedObjects'];
                 $qcFrequencyArray   = $linkedObjectsInfos['qcFrequencyArray'];
@@ -1076,11 +1081,9 @@ class Control extends SaturneObject
                                 require_once __DIR__ . '/sheet.class.php';
 
                                 $userTmp = new User($this->db);
-                                $project = new Project($this->db);
                                 $sheet   = new Sheet($this->db);
 
                                 $userTmp->fetch($control->fk_user_controller);
-                                $project->fetch($control->projectid);
                                 $sheet->fetch($control->fk_sheet);
 
                                 if (!empty($control->next_control_date)) {
@@ -1091,7 +1094,7 @@ class Control extends SaturneObject
                                     $arrayControlListsByNextControl[$control->id]['Ref']['value']            = $control->getNomUrl(1);
                                     $arrayControlListsByNextControl[$control->id]['LinkedObject']['value']   = $currentObject->getNomUrl(1);
                                     $arrayControlListsByNextControl[$control->id]['UserController']['value'] = $userTmp->getNomUrl(1);
-                                    $arrayControlListsByNextControl[$control->id]['Project']['value']        = $project->id > 0 ? $project->getNomUrl(1) : '';
+                                    $arrayControlListsByNextControl[$control->id]['Project']['value']        = $control->project->id > 0 ? $control->project->getNomUrl(1) : '';
                                     $arrayControlListsByNextControl[$control->id]['Sheet']['value']          = $sheet->getNomUrl(1);
                                     $arrayControlListsByNextControl[$control->id]['ControlDate']['value']    = dol_print_date($control->date_creation, 'day');
                                     $arrayControlListsByNextControl[$control->id]['NextControl']['value']    = '<div class="wpeo-button" style="background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor . ' ">' . $nextControl . '<br>' . $langs->trans('Days') . '</div>';
