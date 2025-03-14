@@ -445,17 +445,13 @@ function get_sheet_linkable_objects(): array
 //    }
 
     // Hook to add controllable objects from other modules
-	if ( ! is_object($hookmanager)) {
-		include_once DOL_DOCUMENT_ROOT . '/core/class/hookmanager.class.php';
-		$hookmanager = new HookManager($db);
-	}
-	$hookmanager->initHooks(['get_sheet_linkable_objects']);
+    $hookmanager->initHooks(['get_sheet_linkable_objects']);
 
-	$resHook = $hookmanager->executeHooks('extendSheetLinkableObjectsList', $linkableObjectTypes);
-
-	if (empty($resHook) && is_array($hookmanager->resArray) && !empty($hookmanager->resArray)) {
-		$linkableObjectTypes = $hookmanager->resArray;
-	}
+    $parameters = ['linkableObjectTypes' => $linkableObjectTypes];
+    $resHook    = $hookmanager->executeHooks('extendSheetLinkableObjectsList', $parameters);
+    if (empty($resHook) && !empty($hookmanager->resArray)) {
+        $linkableObjectTypes = array_merge($linkableObjectTypes, $hookmanager->resArray);
+    }
 
 	$linkableObjects = [];
 	if (is_array($linkableObjectTypes) && !empty($linkableObjectTypes)) {
