@@ -117,6 +117,7 @@ class doc_surveydocument_odt extends SaturneDocumentModel
                                     $tmpArray['description'] = strip_tags($question->description);
                                     $tmpArray['ref_answer']  = $line->ref;
                                     $tmpArray['comment']     = dol_htmlentitiesbr_decode(strip_tags($line->comment, '<br>'));
+                                    $tmpArray['answer']      = '';
 
                                     $answersArray = [];
                                     $answers      = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $line->fk_question]);
@@ -137,7 +138,20 @@ class doc_surveydocument_odt extends SaturneDocumentModel
                                             $tmpArray['answer'] = $line->answer;
                                             break;
                                         case 'Percentage' :
-                                            $tmpArray['answer'] = $line->answer . ' %';
+                                            $config = json_decode($question->json, true);
+
+                                            if (!isset($config['config'][$question->type]['isCursor']) || !empty($config['config'][$question->type]['isCursor'])) {
+                                                $tmpArray['answer'] .= $line->answer;
+                                            } else {
+                                                $result = $answer->fetch('', '', ' AND t.status = ' . Answer::STATUS_VALIDATED . ' AND t.fk_question = ' . $question->id . ' AND t.position = ' . $line->answer);
+                                                if ($result <= 0) {
+                                                    $tmpArray['answer'] = '0';
+                                                } else {
+                                                    $tmpArray['answer'] = $answer->value;
+                                                }
+                                            }
+
+                                            $tmpArray['answer'] .= ' %';
                                             break;
                                         case 'MultipleChoices' :
                                             $tmpArray['answer'] = '';
@@ -295,6 +309,8 @@ class doc_surveydocument_odt extends SaturneDocumentModel
 
         $averagePercentageQuestions = 0;
         $percentQuestionCounter     = 0;
+        $answer                     = new Answer($this->db);
+
         foreach ($sheet->linkedObjects['digiquali_question'] as $questionLinked) {
             if ($questionLinked->type !== 'Percentage') {
                 continue; // Skip non-percentage questions
@@ -302,15 +318,17 @@ class doc_surveydocument_odt extends SaturneDocumentModel
 
             $percentQuestionCounter++;
             foreach ($object->lines as $line) {
-                if ($line->fk_question === $questionLinked->id) {
-
-                    $config = json_decode($questionLinked->json, true);
-                    if (!isset($config['config'][$questionLinked->type]['isCursor']) || !empty($config['config'][$questionLinked->type]['isCursor'])) {
-                        $averagePercentageQuestions += $line->answer;
-                    } else {
-                        $averagePercentageQuestions += (($line->answer - 1) / ($config['config'][$questionLinked->type]['step'] - 1)) * 100;
-                    }
+                $config = json_decode($questionLinked->json, true);
     
+                if ($line->fk_question === $questionLinked->id && is_numeric($line->answer) && (!isset($config['config'][$question->type]['isCursor']) || !empty($config['config'][$question->type]['isCursor']))) {
+                    $averagePercentageQuestions += $line->answer;
+                } else {
+                    $result = $answer->fetch('', '', ' AND t.status = ' . Answer::STATUS_VALIDATED . ' AND t.fk_question = ' . $questionLinked->id . ' AND t.position = ' . $line->answer);
+                
+                    if ($result <= 0) {
+                        continue; // Skip if answer is not valid
+                    }
+                    $averagePercentageQuestions += $answer->value;
                 }
             }
         }

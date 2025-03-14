@@ -524,6 +524,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     $averagePercentageQuestions = 0;
     $percentQuestionCounter     = 0;
+    $answer                     = new Answer($db);
+
     foreach ($sheet->linkedObjects['digiquali_question'] as $questionLinked) {
         if ($questionLinked->type !== 'Percentage') {
             continue; // Skip non-percentage questions
@@ -531,17 +533,17 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
         $percentQuestionCounter++;
         foreach ($object->lines as $line) {
-            if ($line->fk_question === $questionLinked->id && is_numeric($line->answer)) {
-                $config = json_decode($questionLinked->json, true);
-                if (!isset($config['config'][$questionLinked->type]['isCursor']) || !empty($config['config'][$questionLinked->type]['isCursor'])) {
-                    $averagePercentageQuestions += $line->answer;
-                } elseif ($line->answer - 1 == 0) {
-                    $averagePercentageQuestions += 0;
-                } elseif ($line->answer == $config['config'][$questionLinked->type]['step']) {
-                    $averagePercentageQuestions += 100;
-                } else {
-                    $averagePercentageQuestions += (($line->answer) / ($config['config'][$questionLinked->type]['step'])) * 100;
+            $config = json_decode($question->json, true);
+
+            if ($line->fk_question === $questionLinked->id && is_numeric($line->answer) && (!isset($config['config'][$question->type]['isCursor']) || !empty($config['config'][$question->type]['isCursor']))) {
+                $averagePercentageQuestions += $line->answer;
+            } else {
+                $result = $answer->fetch('', '', ' AND t.status = ' . Answer::STATUS_VALIDATED . ' AND t.fk_question = ' . $questionLinked->id . ' AND t.position = ' . $line->answer);
+            
+                if ($result <= 0) {
+                    continue; // Skip if answer is not valid
                 }
+                $averagePercentageQuestions += $answer->value;
             }
         }
     }

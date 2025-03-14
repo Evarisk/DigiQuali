@@ -142,6 +142,7 @@ class doc_controldocument_odt extends SaturneDocumentModel
                                 $questionAnswerLine     = array_shift($controldets);
                                 $tmpArray['ref_answer'] = $questionAnswerLine->ref;
                                 $tmpArray['comment']    = $questionAnswerLine->comment ? dol_htmlentitiesbr_decode(strip_tags($questionAnswerLine->comment, '<br>')) : $langs->transnoentities('NoObservations');
+                                $tmpArray['answer']     = '';
 
                                 $answerResult = $questionAnswerLine->answer;
 
@@ -166,7 +167,20 @@ class doc_controldocument_odt extends SaturneDocumentModel
                                         $tmpArray['answer'] = $answerResult;
                                         break;
                                     case 'Percentage' :
-                                        $tmpArray['answer'] = $answerResult . ' %';
+                                        $config = json_decode($question->json, true);
+
+                                        if (!isset($config['config'][$question->type]['isCursor']) || !empty($config['config'][$question->type]['isCursor'])) {
+                                            $tmpArray['answer'] .= $questionAnswerLine->answer;
+                                        } else {
+                                            $result = $answer->fetch('', '', ' AND t.status = ' . Answer::STATUS_VALIDATED . ' AND t.fk_question = ' . $question->id . ' AND t.position = ' . $questionAnswerLine->answer);
+                                            if ($result <= 0) {
+                                                $tmpArray['answer'] = '0';
+                                            } else {
+                                                $tmpArray['answer'] = $answer->value;
+                                            }
+                                        }
+
+                                        $tmpArray['answer'] .= ' %';
                                         break;
                                     case 'MultipleChoices' :
                                         $answers = explode(',', $answerResult);

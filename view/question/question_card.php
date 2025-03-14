@@ -491,6 +491,17 @@ if (empty($reshook)) {
 					$object->$type = '';
 				}
 			}
+
+			$oldConfig = json_decode($object->json, true) ?? [];
+
+			$objectConfig = ['config' => []];
+			if ($object->type == 'Percentage') {
+				$objectConfig['config'][$object->type]['step']     = !empty(GETPOSTINT('step')) ? GETPOSTINT('step') : $oldConfig['config'][$object->type]['step'];
+				$objectConfig['config'][$object->type]['isCursor'] = GETPOST('is_cursor') == 'on' ? 1 : 0;
+			}
+
+			$object->json = json_encode($objectConfig);
+
 			$result = $object->update($user);
 
 			$newType = $object->type;
@@ -538,7 +549,25 @@ if (empty($reshook)) {
 					}
 				}
 
+				if (!empty($oldConfig['config'][$object->type]['isCursor']) && empty($objectConfig['config'][$object->type]['isCursor'])) {
+					$count = 0;
+					for ($i = 0; $i < 100; $i += 100 / ($objectConfig['config'][$object->type]['step'] - 1)) {
 
+						$answer->fk_question = $result;
+						$answer->value       = ceil($i);
+						$answer->pictogram   = $i > 66 ? 'smile' : ($i > 33 ? 'meh' : 'sad');
+						$answer->color       = interpolateColor([0 => '#D53C3D', 25 =>'#ED911D', 50 => '#F2C32E', 75 => '#92D444', 100 => '#57AD39'], $i);
+						$answer->create($user);
+						$count++;
+					}
+					if ($count < $objectConfig['config'][$object->type]['step'] && $answer->value != 100) {
+						$answer->fk_question = $result;
+						$answer->value       = 100;
+						$answer->pictogram   = 'smile';
+						$answer->color       = '#57AD39';
+						$answer->create($user);
+					}
+				}
 			}
 
 			$urltogo = $backtopage ? str_replace('__ID__', $result, $backtopage) : $backurlforlist;
@@ -900,12 +929,12 @@ if (($id || $ref) && $action == 'edit') {
 
     // Step for percentage question type default hidden
     print '<tr class="' . ($object->type == 'Percentage' ? '' : 'hidden') . '" id="percentage-question-step"><td class="fieldrequired"><label for="step">' . $langs->transnoentities('PercentageQuestionStep') . '</label></td><td>';
-    print '<input type="number" name="step" id="step" min="1" value="' . ($objectConfig['config'][$object->type]['step'] ?? 100) . '">';
+    print '<input type="number" name="step" id="step" min="1" value="' . ($objectConfig['config'][$object->type]['step'] ?? 100) . '"' . (!isset($objectConfig['config'][$object->type]['isCursor']) || $objectConfig['config'][$object->type]['isCursor'] ? '' : 'disabled') . '>';
     print '</td></tr>';
 
 	// Is percentage or emoji question type
 	print '<tr class="' . ($object->type == 'Percentage' ? '' : 'hidden') . '" id="percentage-question-is-percentage"><td class="fieldrequired"><label for="is_cursor">' . $langs->transnoentities('IsCursorPercentageQuestion') . '</label></td><td>';
-	print '<input type="checkbox" id="is_cursor" name="is_cursor"' . (empty($objectConfig['config'][$object->type]['isCursor']) ? '' : ' checked=""') . '>';
+	print '<input type="checkbox" id="is_cursor" name="is_cursor"' . (isset($objectConfig['config'][$object->type]['isCursor']) && !$objectConfig['config'][$object->type]['isCursor'] ? '' : ' checked') . ' ' . (!isset($objectConfig['config'][$object->type]['isCursor']) || $objectConfig['config'][$object->type]['isCursor'] ? '' : 'disabled') .'>';
 	print $form->textwithpicto('', $langs->transnoentities('IsCursorPercentageTooltip'));
 	print '</td></tr>';
 
