@@ -28,7 +28,7 @@
  * Variables : $permissionToAddTask, $permissionToDeleteTask, $permissionToManageTaskTimeSpent
  */ ?>
 
-<div class="question__list-actions" id="question_task_list<?php echo $objectLine->id ?>" data-objectLine-id="<?php echo $objectLine->id ?>" data-objectLine-element="<?php echo $objectLine->element ?>">
+<div class="question__list-actions" id="question_task_list<?php echo $objectLine->id ?>" data-objectline-id="<?php echo $objectLine->id ?>" data-objectline-element="<?php echo $objectLine->element ?>">
     <?php foreach ($objectLine->linkedObjects['project_task'] ?? [] as $task) :
         $taskInfos = get_task_infos($task); ?>
         <div class="question__action" id="answer_task<?php echo $task->id ?>" data-task-id="<?php echo $task->id; ?>">
