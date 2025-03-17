@@ -318,14 +318,13 @@ class ActionsDigiquali
      * Overloading the printFieldListWhere function : replacing the parent's function with the one below
      *
      * @param  array $parameters Hook metadata (context, etc...)
-     * @param  object $object    Current object
      * @return int               0 < on error, 0 on success, 1 to replace standard code
      * @throws Exception
      */
-    public function printFieldListWhere(array $parameters, object $object): int
+    public function printFieldListWhere(array $parameters): int
     {
         if (strpos($parameters['context'], 'controllist') !== false) {
-            if ($parameters['search']['verdict'] == 0) {
+            if ($parameters['search']['verdict'] != '' && $parameters['search']['verdict'] == 0) {
                 $sql = ' OR (t.verdict IS NULL)';
                 $this->resprints = $sql;
             }
@@ -350,14 +349,6 @@ class ActionsDigiquali
         }
 
         return 0; // or return 1 to replace standard code
-
-        if (strpos($parameters['context'], 'controllist') !== false) {
-            if ($parameters['key'] == 'verdict' && $parameters['val'] == 0) {
-                $sql = ' AND (t.verdict IS NULL)';
-                $this->resprints = $sql;
-            }
-        }
-
     }
 
     /**
@@ -1021,6 +1012,53 @@ class ActionsDigiquali
     }
 
     /**
+     * Overloading the saturneExtendGetObjectsMetadata function : replacing the parent's function with the one below
+     *
+     * @param  array $parameters Hook metadata (context, etc...)
+     * @return int               0 < on error, 0 on success, 1 to replace standard code
+     */
+    public function saturneExtendGetObjectsMetadata(array $parameters): int
+    {
+
+        //@todo faire les autres object
+
+        /*
+            sheet prob sur fk_skeet/fatal sur sheet
+            control problème
+        */
+        $objects = ['question' => 'comments', 'answer' => 'arrow-right', /*'sheet' => 'list', */ 'control' => 'tasks', 'survey' => 'marker'];
+        foreach ($objects as $objectName => $picto) {
+            $objectsMetadata['digiquali_' . $objectName] = [
+                'mainmenu'       => 'digiquali',
+                'leftmenu'       => '',
+                'langs'          => ucfirst($objectName),
+                'langfile'       => 'digiquali@digiquali',
+                'picto'          => 'fontawesome_fa-' . $picto . '_fas_#d35968',
+                'color'          => '#d35968',
+                'class_name'     => ucfirst($objectName),
+                'post_name'      => 'fk_' . $objectName,
+                'link_name'      => 'digiquali_' . $objectName,
+                'tab_type'       => $objectName,
+                'table_element'  => 'digiquali_' . $objectName,
+                'name_field'     => 'ref, label',
+                'label_field'    => 'label',
+                'hook_name_card' => $objectName . 'list',
+                'hook_name_list' => $objectName . 'card',
+                'create_url'     => 'custom/digiquali/view/' . $objectName . '/' . $objectName . '_card.php?action=create',
+                'class_path'     => 'custom/digiquali/class/' . $objectName . '.class.php',
+                'lib_path'       => 'custom/digiquali/lib/digiquali_' . $objectName . '.lib.php'
+            ];
+        }
+
+        // objects specificataions
+        $objectsMetadata['digiquali_answer']['create_url'] = '';
+
+        $this->results = $objectsMetadata;
+
+        return 0; // or return 1 to replace standard code
+    }
+
+    /**
      * Overloading the saturneMoreObjectsMetadata function : replacing the parent's function with the one below
      *
      * @param  array $parameters Hook metadata (context, etc...)
@@ -1028,7 +1066,7 @@ class ActionsDigiquali
      */
     public function saturneMoreObjectsMetadata(array $parameters): int
     {
-        if (preg_match('/surveylist|digiqualiindex|sheetadmin|controlcard|controllist|sheetcard/', $parameters['context'])) {
+        if (preg_match('/surveycard|surveylist|digiqualiindex|sheetadmin|controlcard|controllist|sheetcard/', $parameters['context'])) {
             $confCode = 'DIGIQUALI_SHEET_LINK_' . dol_strtoupper($parameters['objectType']);
             $moreObjectsMetadata = [
                 'code'       => $confCode,
