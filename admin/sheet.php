@@ -70,6 +70,8 @@ foreach ($tmptype2label as $key => $val) {
 $elementtype = 'digiquali_sheet'; // Must be the $table_element of the class that manage extrafield.
 $error = 0; // Error counter.
 
+$hookmanager->initHooks([$object->element . 'admin', 'globalcard']); // Note that conf->hooks_modules contains array
+
 // Security check - Protection if external user.
 $permissiontoread = $user->rights->digiquali->adminpage->read;
 saturne_check_access($permissiontoread);
@@ -204,11 +206,9 @@ $constArray[$moduleNameLowerCase] = [
 	],
 ];
 
-$linkableObjects = get_sheet_linkable_objects();
-
-if (is_array($linkableObjects) && !empty($linkableObjects)) {
-	$constArray[$moduleNameLowerCase] = array_merge($constArray[$moduleNameLowerCase], $linkableObjects);
-}
+//@todo add only wanted keys
+$objectsMetadata                  = saturne_get_objects_metadata();
+$constArray[$moduleNameLowerCase] = array_merge($constArray[$moduleNameLowerCase], $objectsMetadata);
 
 require_once __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
 
