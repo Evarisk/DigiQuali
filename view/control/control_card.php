@@ -427,10 +427,11 @@ if ($action == 'create') {
             $objectPostName = $objectMetadata['post_name'];
             $objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $objectMetadata['link_name'] ? GETPOST('fromid') : '');
 
+            $objectFilter = [];
             if ((dol_strlen($objectMetadata['fk_parent']) > 0 && GETPOST($objectMetadata['parent_post']) > 0)) {
                 $objectFilter = ['customsql' => $objectMetadata['fk_parent'] . ' = ' . GETPOST($objectMetadata['parent_post'])];
-            } else {
-                $objectFilter = [];
+            } elseif (!empty($objectMetadata['filter'])) {
+                $objectFilter = ['customsql' => $objectMetadata['filter']];
             }
             $objectList = saturne_fetch_all_object_type($objectMetadata['class_name'], '', '', 0, 0, $objectFilter);
 

@@ -190,12 +190,10 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
                 }
 
                 if ($object->context != 'createfromclone') {
-                    $elementArray = get_sheet_linkable_objects();
-                    if (!empty($elementArray)) {
-                        foreach ($elementArray as $linkableElement) {
-                            if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
-                                $object->add_object_linked($linkableElement['link_name'], GETPOST($linkableElement['post_name']));
-                            }
+                    $objectsMetadata = saturne_get_objects_metadata();
+                    foreach ($objectsMetadata as $objectType => $objectMetadata) {
+                        if (!empty(GETPOST($objectMetadata['post_name'])) && GETPOST($objectMetadata['post_name']) > 0) {
+                            $object->add_object_linked($objectMetadata['link_name'], GETPOST($objectMetadata['post_name']));
                         }
                     }
                 }
