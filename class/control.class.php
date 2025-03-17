@@ -130,7 +130,7 @@ class Control extends SaturneObject
         'track_id'           => ['type' => 'text',         'label' => 'TrackID',          'enabled' => 1, 'position' => 190, 'notnull' => 0, 'visible' => -2],
         'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserAuthor',  'picto' => 'user',                            'enabled' => 1, 'position' => 200, 'notnull' => 1, 'visible' => -2, 'csslist' => 'maxwidth200', 'foreignkey' => 'user.rowid'],
         'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserModif',   'picto' => 'user',                            'enabled' => 1, 'position' => 210, 'notnull' => 0, 'visible' => -2, 'foreignkey' => 'user.rowid'],
-        'fk_sheet'           => ['type' => 'integer:Sheet:digiquali/class/sheet.class.php',    'label' => 'Sheet',       'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_sheet.rowid'],
+        'fk_sheet'           => ['type' => 'integer:Sheet:digiquali/class/sheet.class.php',    'label' => 'Sheet',       'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'css' => 'minwidth150 maxwidth500 widthcentpercentminusxx', 'csslist' => 'minwidth150', 'foreignkey' => 'digiquali_sheet.rowid'],
         'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1',         'label' => 'Controller',  'picto' => 'user',                            'enabled' => 1, 'position' => 50,  'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'user.rowid',   'positioncard' => 1],
         'projectid'          => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project',     'picto' => 'project',                         'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'projet.rowid', 'positioncard' => 2]
     ];
@@ -228,7 +228,7 @@ class Control extends SaturneObject
     /**
      * @var int Sheet ID.
      */
-    public int $fk_sheet;
+    public int $fk_sheet = 0;
 
     /**
      * @var int|string|null User ID.
@@ -793,7 +793,7 @@ class Control extends SaturneObject
                         });
                     }
 
-                    $out = Form::selectarray($keyprefix . $key . $keysuffix, $objectArrays, $value, 1, 0, 0, '', 0, 0, 0, '', !empty($val['css']) ? $val['css'] : 'minwidth200 maxwidth300 widthcentpercentminusx');
+                    $out = Form::selectarray($keyprefix . $key . $keysuffix, $objectArrays, $value, 1, 0, 0, '', 0, 0, 0, '', $val['csslist'] ?: '');
                 }
 
                 return $out;

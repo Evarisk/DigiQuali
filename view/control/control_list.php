@@ -114,6 +114,7 @@ foreach($objectsMetadata as $objectMetadata) {
             'enabled'     => 1,
             'position'    => $objectPosition,
             'visible'     => 2,
+            'csslist'     => 'minwidth150 maxwidth200',
             'disablesort' => 1
         ];
 
