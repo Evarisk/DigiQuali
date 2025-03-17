@@ -111,28 +111,28 @@ class Control extends SaturneObject
      * @var array Array with all fields and their property. Do not use it as a static var. It may be modified by constructor.
      */
     public $fields = [
-        'rowid'              => ['type' => 'integer',      'label' => 'TechnicalID',      'enabled' => 1, 'position' => 10,   'notnull' => 1, 'visible' => 0, 'showinpwa' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'Id'],
-        'ref'                => ['type' => 'varchar(128)', 'label' => 'Ref',              'enabled' => 1, 'position' => 20,  'notnull' => 1, 'visible' => 4, 'showinpwa' => 1, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
-        'ref_ext'            => ['type' => 'varchar(128)', 'label' => 'RefExt',           'enabled' => 1, 'position' => 70,  'notnull' => 0, 'visible' => 0, 'showinpwa' => 0],
-        'entity'             => ['type' => 'integer',      'label' => 'Entity',           'enabled' => 1, 'position' => 80,  'notnull' => 1, 'visible' => 0, 'showinpwa' => 0, 'index' => 1],
+        'rowid'              => ['type' => 'integer',      'label' => 'TechnicalID',      'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => -2, 'noteditable' => 1, 'index' => 1],
+        'ref'                => ['type' => 'varchar(128)', 'label' => 'Ref',              'enabled' => 1, 'position' => 20,  'notnull' => 1, 'visible' => 4, 'showinpwa' => 1, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1],
+        'ref_ext'            => ['type' => 'varchar(128)', 'label' => 'RefExt',           'enabled' => 1, 'position' => 70,  'notnull' => 0, 'visible' => -2],
+        'entity'             => ['type' => 'integer',      'label' => 'Entity',           'enabled' => 1, 'position' => 80,  'notnull' => 1, 'visible' => -2, 'index' => 1],
         'date_creation'      => ['type' => 'datetime',     'label' => 'DateCreation',     'enabled' => 1, 'position' => 90,  'notnull' => 1, 'visible' => 2, 'showinpwa' => 1, 'positioncard' => 10],
-        'tms'                => ['type' => 'timestamp',    'label' => 'DateModification', 'enabled' => 1, 'position' => 100,  'notnull' => 0, 'visible' => 0, 'showinpwa' => 0],
-        'import_key'         => ['type' => 'varchar(14)',  'label' => 'ImportId',         'enabled' => 1, 'position' => 110,  'notnull' => 0, 'visible' => 0, 'showinpwa' => 0, 'index' => 0],
-        'control_date'       => ['type' => 'date',         'label' => 'ControlDate',      'enabled' => 1, 'position' => 120,  'notnull' => 0, 'visible' => 2, 'showinpwa' => 0],
-        'next_control_date'  => ['type' => 'date',         'label' => 'NextControlDate',  'enabled' => 1, 'position' => 130,  'notnull' => 0, 'visible' => 2, 'showinpwa' => 0],
-        'success_rate'       => ['type' => 'real',         'label' => 'SuccessScore',     'enabled' => 1, 'position' => 140,  'notnull' => 0, 'visible' => 2, 'showinpwa' => 0, 'help' => 'PercentageValue'],
-        'status'             => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 220,  'notnull' => 1, 'visible' => 5, 'showinpwa' => 0, 'index' => 1, 'default' => 0, 'arrayofkeyval' => [0 => 'StatusDraft', 1 => 'Validated', 2 => 'Locked', 3 => 'Archived', 'specialCase' => 'DraftValidatedLocked']],
+        'tms'                => ['type' => 'timestamp',    'label' => 'DateModification', 'enabled' => 1, 'position' => 100, 'notnull' => 0, 'visible' => -2],
+        'import_key'         => ['type' => 'varchar(14)',  'label' => 'ImportId',         'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => -2, 'index' => 0],
+        'control_date'       => ['type' => 'date',         'label' => 'ControlDate',      'enabled' => 1, 'position' => 120, 'notnull' => 0, 'visible' => 2],
+        'next_control_date'  => ['type' => 'date',         'label' => 'NextControlDate',  'enabled' => 1, 'position' => 130, 'notnull' => 0, 'visible' => 2],
+        'success_rate'       => ['type' => 'real',         'label' => 'SuccessScore',     'enabled' => 1, 'position' => 140, 'notnull' => 0, 'visible' => 2, 'help' => 'PercentageValue'],
+        'status'             => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 220, 'notnull' => 1, 'visible' => 5, 'index' => 1, 'searchmulti' => 1, 'default' => 0, 'arrayofkeyval' => [0 => 'StatusDraft', 1 => 'Validated', 2 => 'Locked', 3 => 'Archived'], 'csslist' => 'minwidth200'],
         'label'              => ['type' => 'varchar(255)', 'label' => 'Label',            'enabled' => 1, 'position' => 30,  'notnull' => 0, 'visible' => 1, 'showinpwa' => 1, 'searchall' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx'],
-        'note_public'        => ['type' => 'html',         'label' => 'NotePublic',       'enabled' => 1, 'position' => 150,  'notnull' => 0, 'visible' => 0, 'showinpwa' => 0],
-        'note_private'       => ['type' => 'html',         'label' => 'NotePrivate',      'enabled' => 1, 'position' => 160,  'notnull' => 0, 'visible' => 0, 'showinpwa' => 0],
-        'verdict'            => ['type' => 'smallint',     'label' => 'Verdict',          'enabled' => 1, 'position' => 170, 'notnull' => 0, 'visible' => 5, 'showinpwa' => 1, 'index' => 1, 'positioncard' => 20, 'arrayofkeyval' => [0 => '', 1 => 'OK', 2 => 'KO', 3 => 'N/A']],
-        'photo'              => ['type' => 'text',         'label' => 'Photo',            'enabled' => 1, 'position' => 180, 'notnull' => 0, 'visible' => 0, 'showinpwa' => 0],
-        'track_id'           => ['type' => 'text',         'label' => 'TrackID',          'enabled' => 1, 'position' => 190, 'notnull' => 0, 'visible' => 2, 'showinpwa' => 0],
-        'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserAuthor',  'picto' => 'user',                            'enabled' => 1, 'position' => 200, 'notnull' => 1, 'visible' => 0, 'showinpwa' => 0, 'foreignkey' => 'user.rowid'],
-        'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserModif',   'picto' => 'user',                            'enabled' => 1, 'position' => 210, 'notnull' => 0, 'visible' => 0, 'showinpwa' => 0, 'foreignkey' => 'user.rowid'],
-        'fk_sheet'           => ['type' => 'integer:Sheet:digiquali/class/sheet.class.php',    'label' => 'Sheet',       'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 5, 'showinpwa' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_sheet.rowid'],
-        'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1',         'label' => 'Controller',  'picto' => 'user',                            'enabled' => 1, 'position' => 50,  'notnull' => 1, 'visible' => 1, 'showinpwa' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'user.rowid',   'positioncard' => 1],
-        'projectid'          => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project',     'picto' => 'project',                         'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 1, 'showinpwa' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'projet.rowid', 'positioncard' => 2]
+        'note_public'        => ['type' => 'html',         'label' => 'NotePublic',       'enabled' => 1, 'position' => 150, 'notnull' => 0, 'visible' => -2],
+        'note_private'       => ['type' => 'html',         'label' => 'NotePrivate',      'enabled' => 1, 'position' => 160, 'notnull' => 0, 'visible' => -2],
+        'verdict'            => ['type' => 'smallint',     'label' => 'Verdict',          'enabled' => 1, 'position' => 170, 'notnull' => 0, 'visible' => 2, 'showinpwa' => 1, 'index' => 1, 'positioncard' => 20, 'arrayofkeyval' => [0 => 'N/A', 1 => 'OK', 2 => 'KO'], 'csslist' => 'center'],
+        'photo'              => ['type' => 'text',         'label' => 'Photo',            'enabled' => 1, 'position' => 180, 'notnull' => 0, 'visible' => -2],
+        'track_id'           => ['type' => 'text',         'label' => 'TrackID',          'enabled' => 1, 'position' => 190, 'notnull' => 0, 'visible' => -2],
+        'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserAuthor',  'picto' => 'user',                            'enabled' => 1, 'position' => 200, 'notnull' => 1, 'visible' => -2, 'csslist' => 'maxwidth200', 'foreignkey' => 'user.rowid'],
+        'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserModif',   'picto' => 'user',                            'enabled' => 1, 'position' => 210, 'notnull' => 0, 'visible' => -2, 'foreignkey' => 'user.rowid'],
+        'fk_sheet'           => ['type' => 'integer:Sheet:digiquali/class/sheet.class.php',    'label' => 'Sheet',       'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_sheet.rowid'],
+        'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1',         'label' => 'Controller',  'picto' => 'user',                            'enabled' => 1, 'position' => 50,  'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'user.rowid',   'positioncard' => 1],
+        'projectid'          => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project',     'picto' => 'project',                         'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'projet.rowid', 'positioncard' => 2]
     ];
 
     /**
@@ -484,7 +484,7 @@ class Control extends SaturneObject
 	 *
 	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function isErasable() {
+	public function is_erasable() {
 		return $this->isLinkedToOtherObjects();
 	}
 
@@ -779,14 +779,14 @@ class Control extends SaturneObject
      */
     public function showInputField($val, $key, $value, $moreparam = '', $keysuffix = '', $keyprefix = '', $morecss = 0, $nonewbutton = 0): string
     {
-        $linkableElements = get_sheet_linkable_objects();
-        foreach($linkableElements as $linkableElement) {
-            if ($linkableElement['conf'] > 0 && $key == $linkableElement['post_name']) {
+        $objectsMetadata = saturne_get_objects_metadata();
+        foreach($objectsMetadata as $objectMetadata) {
+            if ($objectMetadata['conf'] > 0 && $key == $objectMetadata['post_name']) {
                 $out          = '';
                 $objectArrays = [];
-                $objects      = saturne_fetch_all_object_type($linkableElement['className']);
+                $objects      = saturne_fetch_all_object_type($objectMetadata['class_name']);
                 if (is_array($objects) && !empty($objects)) {
-                    $nameFields = explode(', ', $linkableElement['name_field']);
+                    $nameFields = explode(', ', $objectMetadata['name_field']);
                     foreach ($objects as $object) {
                         $objectArrays[$object->id] = array_reduce($nameFields, function($carry, $field) use ($object) {
                             return $carry . ' ' . $object->{$field};
@@ -1040,68 +1040,64 @@ class Control extends SaturneObject
     }
 
     /**
-     * Get controls list by next control.
+     * Get controls list by next control
      *
-     * @return array     Graph datas (label/color/type/title/data etc..).
+     * @return array    $array Graph datas (label/color/type/title/data etc..)
      * @throws Exception
      */
     public function getControlListsByNextControl(): array
     {
         global $langs;
 
-        // Graph Title parameters.
+        // Graph Title parameters
         $array['title'] = $langs->transnoentities('ControlListsByNextControl');
         $array['name']  = 'ControlListsByNextControl';
         $array['picto'] = $this->picto;
 
-        // Graph parameters.
+        // Graph parameters
         $array['type']   = 'list';
         $array['labels'] = ['Ref', 'LinkedObject', 'Controller', 'Project', 'Sheet', 'ControlDate', 'NextControl', 'Verdict'];
 
         $arrayControlListsByNextControl = [];
-
-        $elementArray = get_sheet_linkable_objects();
-        $controls     = $this->fetchAll('ASC', 'next_control_date', 10, 0, ['customsql' => 't.status = ' . self::STATUS_LOCKED . ' AND t.next_control_date IS NOT NULL']);
+        $controls                       = $this->fetchAll('ASC', 'next_control_date', 10, 0, ['customsql' => 't.status = ' . self::STATUS_LOCKED . ' AND t.next_control_date IS NOT NULL']);
         if (is_array($controls) && !empty($controls)) {
+            require_once __DIR__ . '/sheet.class.php';
+
+            $objectsMetadata = saturne_get_objects_metadata();
             foreach ($controls as $control) {
-                $control->fetchObjectLinked('', '', $control->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
-                $linkedObjectsInfos = $control->getLinkedObjectsWithQcFrequency($elementArray);
-                $linkedObjects      = $linkedObjectsInfos['linkedObjects'];
-                $qcFrequencyArray   = $linkedObjectsInfos['qcFrequencyArray'];
-                foreach ($elementArray as $linkableObjectType => $linkableObject) {
-                    if (is_object($linkedObjects[$linkableObjectType])) {
-                        if ($linkableObject['conf'] > 0 && (!empty($control->linkedObjectsIds[$linkableObject['link_name']]))) {
-                            $currentObject = $linkedObjects[$linkableObjectType];
-                            if ($qcFrequencyArray[$linkableObjectType] > 0) {
-                                require_once __DIR__ . '/sheet.class.php';
+                $control->fetchObjectLinked('', '', $control->id, 'digiquali_control');
+                $linkedObjectType = key($control->linkedObjects);
+                if (!isset($control->linkedObjects) && $objectsMetadata[$linkedObjectType]['conf'] < 0) {
+                    continue;
+                }
 
-                                $userTmp = new User($this->db);
-                                $project = new Project($this->db);
-                                $sheet   = new Sheet($this->db);
+                if (!empty($control->projectid)) {
+                    $control->fk_project = $control->projectid; // Need special case because projectid is only on control object
+                    $control->fetch_project();
+                }
 
-                                $userTmp->fetch($control->fk_user_controller);
-                                $project->fetch($control->projectid);
-                                $sheet->fetch($control->fk_sheet);
+                $userTmp = new User($this->db);
+                $sheet   = new Sheet($this->db);
 
-                                if (!empty($control->next_control_date)) {
-                                    $nextControl          = (int) round(($control->next_control_date - dol_now('tzuser'))/(3600 * 24));
-                                    $nextControlDateColor = $control->getNextControlDateColor();
-                                    $verdictColor         = $control->verdict == 1 ? 'green' : ($control->verdict == 2 ? 'red' : 'grey');
+                $userTmp->fetch($control->fk_user_controller);
+                $sheet->fetch($control->fk_sheet);
 
-                                    $arrayControlListsByNextControl[$control->id]['Ref']['value']            = $control->getNomUrl(1);
-                                    $arrayControlListsByNextControl[$control->id]['LinkedObject']['value']   = $currentObject->getNomUrl(1);
-                                    $arrayControlListsByNextControl[$control->id]['UserController']['value'] = $userTmp->getNomUrl(1);
-                                    $arrayControlListsByNextControl[$control->id]['Project']['value']        = $project->id > 0 ? $project->getNomUrl(1) : '';
-                                    $arrayControlListsByNextControl[$control->id]['Sheet']['value']          = $sheet->getNomUrl(1);
-                                    $arrayControlListsByNextControl[$control->id]['ControlDate']['value']    = dol_print_date($control->date_creation, 'day');
-                                    $arrayControlListsByNextControl[$control->id]['NextControl']['value']    = '<div class="wpeo-button" style="background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor . ' ">' . $nextControl . '<br>' . $langs->trans('Days') . '</div>';
-                                    $arrayControlListsByNextControl[$control->id]['NextControl']['morecss']  = 'dashboard-control';
-                                    $arrayControlListsByNextControl[$control->id]['Verdict']['value']        = '<div class="wpeo-button button-'. $verdictColor .'">' . $control->fields['verdict']['arrayofkeyval'][(!empty($control->verdict)) ?: 3] . '</div>';
-                                    $arrayControlListsByNextControl[$control->id]['Verdict']['morecss']      = 'dashboard-control';
-                                }
-                            }
-                        }
-                    }
+                if (!empty($control->next_control_date)) {
+                    $nextControl          = (int) round(($control->next_control_date - dol_now('tzuser'))/(3600 * 24));
+                    $nextControlDateColor = $control->getNextControlDateColor();
+                    $verdictColor         = $control->verdict == 1 ? 'green' : ($control->verdict == 2 ? 'red' : 'grey');
+
+                    $arrayControlListsByNextControl[$control->id]['Ref']['value']           = $control->getNomUrl(1);
+                    $arrayControlListsByNextControl[$control->id]['Ref']['morecss']         = 'left';
+                    $arrayControlListsByNextControl[$control->id]['LinkedObject']['value']  = $control->linkedObjects[$linkedObjectType][key($control->linkedObjects[$linkedObjectType])]->getNomUrl(1);
+                    $arrayControlListsByNextControl[$control->id]['Controller']['value']    = $userTmp->getNomUrl(1);
+                    $arrayControlListsByNextControl[$control->id]['Project']['value']       = !empty($control->projectid) ? $control->project->getNomUrl(1) : '';
+                    $arrayControlListsByNextControl[$control->id]['Sheet']['value']         = $sheet->getNomUrl(1);
+                    $arrayControlListsByNextControl[$control->id]['ControlDate']['value']   = dol_print_date($control->date_creation, 'day');
+                    $arrayControlListsByNextControl[$control->id]['NextControl']['value']   = '<div class="wpeo-button" style="background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor . ' ">' . $nextControl . '<br>' . $langs->trans('Days') . '</div>';
+                    $arrayControlListsByNextControl[$control->id]['NextControl']['morecss'] = 'dashboard-control';
+                    $arrayControlListsByNextControl[$control->id]['Verdict']['value']       = '<div class="wpeo-button button-'. $verdictColor .'">' . $control->fields['verdict']['arrayofkeyval'][(!empty($control->verdict)) ?: 3] . '</div>';
+                    $arrayControlListsByNextControl[$control->id]['Verdict']['morecss']     = 'dashboard-control';
                 }
             }
         }
@@ -1109,44 +1105,6 @@ class Control extends SaturneObject
 
         return $array;
     }
-
-	/**
-	 * Get control linked objects with qc frequencies.
-	 *
-	 * @return array
-	 * @throws Exception
-	 */
-	public function getLinkedObjectsWithQcFrequency($linkableObjects): array
-	{
-		global $db;
-
-		$qcFrequencyArray = [];
-		$linkedObjects    = [];
-
-		foreach($linkableObjects as $linkableElementType => $linkableElement) {
-			if ($linkableElement['conf'] > 0 && (!empty($this->linkedObjectsIds[$linkableElement['link_name']]))) {
-				$className = $linkableElement['className'];
-				$linkedObject = new $className($db);
-
-				$linkedObjectKey = array_key_first($this->linkedObjectsIds[$linkableElement['link_name']]);
-				$linkedObjectId  = $this->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
-
-				$result = $linkedObject->fetch($linkedObjectId);
-				if ($result > 0) {
-					$linkedObjects[$linkableElementType] = $linkedObject;
-					if (array_key_exists('options_qc_frequency', $linkedObject->array_options)) {
-						if ($linkedObject->array_options['options_qc_frequency'] > 0) {
-							$qcFrequencyArray[$linkableElementType] = $linkedObject->array_options['options_qc_frequency'];
-						}
-					}
-				}
-			}
-		}
-		return [
-			'qcFrequencyArray' => $qcFrequencyArray,
-			'linkedObjects'    => $linkedObjects
-			];
-	}
 
 	/**
 	 * Write information of trigger description
