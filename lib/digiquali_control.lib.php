@@ -67,7 +67,7 @@ function control_prepare_head(Control $object): array
  * @param  CommonObject $linkedObject     Linked object (product, productlot, project, etc.)
  * @param  array        $linkableElements Array of linkable elements infos (product, productlot, project, etc.)
  * @return array        $out              Array of linked object infos to display on public interface
- * @see    get_sheet_linkable_objects()   Get linkable objects for sheet for example (product, productlot, project, etc.)
+ * @see    saturne_get_objects_metadata() Get linkable objects for sheet for example (product, productlot, project, etc.)
  */
 function get_linked_object_infos(CommonObject $linkedObject, array $linkableElements): array
 {
@@ -90,12 +90,8 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
     if ($linkedObject->element == 'product') {
         $modulePart = 'produit';
     }
-    if ($linkedObject->element == 'productlot') {
-        $linkedObject->element = 'productbatch';
-    }
-
     $out['linkedObject']['images'] = saturne_show_medias_linked($modulePart, $conf->{$linkedObject->element}->multidir_output[$conf->entity] . '/' . $linkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $linkedObject->ref . '/', $linkedObject, 'photo', 0, 0,0, 1);
-    if ($linkedObject->element == 'productbatch') {
+    if ($linkedObject->element == 'productlot') {
         $linkedObject->element = 'product_lot';
     }
 
@@ -254,10 +250,6 @@ function get_control_infos(CommonObject $linkedObject): array
         $out['nextControl']['next_control_date_color'] = $lastControl->getNextControlDateColor();
         $out['nextControl']['next_control']            = '<i class="objet-icon far fa-clock"></i>' . $langs->transnoentities('In') . ' ' . $nextControl . ' ' . $langs->transnoentities('Days');
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWriteControl) {
-            if ($linkedObject->element == 'productlot') {
-                $linkedObject->element = 'productbatch';
-            }
-
             $arraySelected = '';
             if (isModEnabled('categorie')) {
                 require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
@@ -270,9 +262,6 @@ function get_control_infos(CommonObject $linkedObject): array
 
             $moreParams = '&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id . '&fk_sheet=' . $lastControl->fk_sheet . '&fk_user_controller=' . $lastControl->fk_user_controller . '&projectid=' . $lastControl->projectid . $arraySelected;
             $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1) . '" target="_blank"><i class="button-icon fas fa-plus"></i></a>';
-            if ($linkedObject->element == 'productbatch') {
-                $linkedObject->element = 'productlot';
-            }
         }
         $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
         $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
@@ -280,10 +269,6 @@ function get_control_infos(CommonObject $linkedObject): array
     } else {
         $out['nextControl']['title'] = $langs->transnoentities('NoPeriodicityControl');
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWriteControl) {
-            if ($linkedObject->element == 'productlot') {
-                $linkedObject->element = 'productbatch';
-            }
-
             $arraySelected = '';
             if (isModEnabled('categorie')) {
                 require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
@@ -296,9 +281,6 @@ function get_control_infos(CommonObject $linkedObject): array
 
             $moreParams = '&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id . '&fk_sheet=' . $lastControl->fk_sheet . '&fk_user_controller=' . $lastControl->fk_user_controller . '&projectid=' . $lastControl->projectid . $arraySelected;
             $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1) . '" target="_blank"><i class="button-icon fas fa-plus"></i></a>';
-            if ($linkedObject->element == 'productbatch') {
-                $linkedObject->element = 'productlot';
-            }
         }
         $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
         $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
@@ -309,13 +291,7 @@ function get_control_infos(CommonObject $linkedObject): array
         $out['nextControl']['verdict'] = '';
         $out['nextControl']['title']   = $langs->transnoentities('NoControl');
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWriteControl) {
-            if ($linkedObject->element == 'productlot') {
-                $linkedObject->element = 'productbatch';
-            }
             $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id, 1). '" target="_blank"><i class="button-icon fas fa-plus"></i></a>';
-            if ($linkedObject->element == 'productbatch') {
-                $linkedObject->element = 'productlot';
-            }
         }
     }
 
