@@ -48,7 +48,7 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
         $this->name        = preg_replace('/^Interface/i', '', get_class($this));
         $this->family      = 'demo';
         $this->description = 'DigiQuali triggers.';
-        $this->version     = '20.1.0';
+        $this->version     = '21.0.0';
         $this->picto       = 'digiquali@digiquali';
     }
 
@@ -158,12 +158,10 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
 
                 $elementArray = [];
                 if ($object->context != 'createfromclone') {
-                    $elementArray = get_sheet_linkable_objects();
-                    if (!empty($elementArray)) {
-                        foreach ($elementArray as $linkableElementType => $linkableElement) {
-                            if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
-                                $object->add_object_linked($linkableElement['link_name'], GETPOST($linkableElement['post_name']));
-                            }
+                    $objectsMetadata = saturne_get_objects_metadata();
+                    foreach ($objectsMetadata as $objectType => $objectMetadata) {
+                        if (!empty(GETPOST($objectMetadata['post_name'])) && GETPOST($objectMetadata['post_name']) > 0) {
+                            $object->add_object_linked($objectMetadata['link_name'], GETPOST($objectMetadata['post_name']));
                         }
                     }
 

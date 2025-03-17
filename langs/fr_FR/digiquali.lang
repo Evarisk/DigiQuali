@@ -164,8 +164,6 @@ CategoriesGeneration           = Cette option permet la génération des catégo
 UniqueLinkedElement            = Liaison unique sur les éléments de Dolibarr
 UniqueLinkedElementDescription = Lier un seul élément de Dolibarr à un modèle
 ErrorSheetUsedInControl        = Le modèle %s ne peut pas être supprimé, il est utilisé dans un ou plusieurs contrôles/questionnaires.
-ConfigElementLinked            = Vous n'avez pas configuré d'éléments liés, veuillez cliquer ici pour vous rendre sur la page de configuration
-ConfigSheet                    = Page de configuration des modèles
 AddSheetIntoCategory           = Assigner cette catégorie au modèle
 QuestionMandatorized           = La question %s a été rendue obligatoire
 QuestionUnMandatorized         = La question %s n'est plus obligatoire
@@ -178,6 +176,10 @@ ToImportDataGoToImportPage     = Pour importer des données, veuillez vous rendr
 NbQuestions                    = Nombre de questions
 SuccessScore                   = Score de réussite
 PercentageValue                = Valeur en pourcentage
+
+# Notice - notice
+MissingConfigElementTypeTitle   = Configuration manquante pour les éléments liés
+MissingConfigElementTypeMessage = Veuillez cliquer sur le lien pour configurer les éléments liés
 
 
 
@@ -350,7 +352,6 @@ ControlReminderFrequency                       = Fréquence de rappel d'évènem
 ControlReminderFrequencyDescription            = Choisir la fréquence de rappel d'évènement de contrôle <br> (par défaut : Un rappel 30 jours, 60 jours et 90 jours avant le contrôle)
 ControlReminderType                            = Type de rappel d'évènement de contrôle
 ControlReminderTypeDescription                 = Choisir le type de rappel d'évènement de contrôle <br> (par défaut : navigateur)
-controlled                                     = contrôlé(e)
 PublicAnswer                                   = Interface publique de réponse
 YourAnswersHaveBeenSaved                       = Vos réponses ont bien été sauvegardées
 DaysBeforeNextControl                          = Jours avant prochain contrôle
