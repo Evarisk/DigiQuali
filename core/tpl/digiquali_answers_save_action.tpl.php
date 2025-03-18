@@ -30,20 +30,45 @@
 
 if ($action == 'save') {
     $data = json_decode(file_get_contents('php://input'), true);
-
     $sheet->fetch($object->fk_sheet);
-    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element);
-    if (!empty($sheet->linkedObjects['digiquali_question'])) {
-        foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
+    $questionAndGroups = $sheet->fetchQuestionsAndGroups();
+    $object->fetchLinesCommon();
+
+    $questions = [];
+    if (is_array($questionAndGroups) && !empty($questionAndGroups)) {
+        foreach($questionAndGroups as $questionOrGroup) {
+            if ($questionOrGroup->element == 'questiongroup') {
+                $groupQuestions = $questionOrGroup->fetchQuestionsOrderedByPosition();
+                if (is_array($groupQuestions) && !empty($groupQuestions)) {
+                    foreach($groupQuestions as $groupQuestion) {
+                        $groupQuestion->fk_question_group = $questionOrGroup->id;
+                        $questions[] = $groupQuestion;
+                    }
+                }
+            } else {
+                $questionOrGroup->fk_question_group = 0;
+                $questions[] = $questionOrGroup;
+            }
+        }
+    }
+
+
+    if (!empty($questions)) {
+        foreach ($questions as $question) {
             if (!empty($object->lines)) {
                 foreach ($object->lines as $line) {
-                    if ($line->fk_question === $question->id) {
+
+
+
+                    if ($line->fk_question === $question->id && $line->fk_question_group === $question->fk_question_group) {
+
                         // Save answer value
                         if ($data['autoSave'] && $question->id == $data['questionId']) {
                             $questionAnswer = $data['answer'];
                         } else {
-                            $questionAnswer = GETPOST('answer' . $question->id);
+                            $questionAnswer = GETPOST('answer' . $question->id . '_' . $question->fk_question_group);
                         }
+
                         if (!empty($questionAnswer)) {
                             $line->answer = $questionAnswer;
                         }
@@ -52,11 +77,13 @@ if ($action == 'save') {
                         if ($data['autoSave'] && $question->id == $data['questionId']) {
                             $comment = $data['comment'];
                         } else {
-                            $comment = GETPOST('comment' . $question->id);
+                            $comment = GETPOST('comment' . $question->id . '_' . $question->fk_question_group);
                         }
                         if (dol_strlen($comment) > 0) {
                             $line->comment = $comment;
                         }
+
+                        $line->fk_question_group = $question->fk_question_group;
 
                         $line->update($user);
                     }

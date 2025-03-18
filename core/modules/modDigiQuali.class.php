@@ -203,6 +203,7 @@ class modDigiQuali extends DolibarrModules
 
 			// CONST QUESTION
 			$i++ => ['DIGIQUALI_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'],
+			$i++ => ['DIGIQUALI_QUESTIONGROUP_ADDON', 'chaine', 'mod_questiongroup_standard', '', 0, 'current'],
             $i++ => ['DIGIQUALI_QUESTION_BACKWARD_COMPATIBILITY', 'integer', 1, '', 0, 'current'],
 
 			// CONST ANSWER
@@ -441,6 +442,22 @@ class modDigiQuali extends DolibarrModules
 		$this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
 		$r++;
 
+        $this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
+        $this->rights[$r][1] = $langs->transnoentities('ReadObjects',$langs->transnoentities('QuestionGroup')); // Permission label
+        $this->rights[$r][4] = 'questiongroup'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
+        $this->rights[$r][5] = 'read'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
+        $r++;
+        $this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
+        $this->rights[$r][1] = $langs->transnoentities('CreateObjects', $langs->transnoentities('QuestionGroup')); // Permission label
+        $this->rights[$r][4] = 'questiongroup'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
+        $this->rights[$r][5] = 'write'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
+        $r++;
+        $this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
+        $this->rights[$r][1] = $langs->transnoentities('DeleteObjects', $langs->transnoentities('QuestionGroup')); // Permission label
+        $this->rights[$r][4] = 'questiongroup'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
+        $this->rights[$r][5] = 'delete'; // In php code, permission will be checked by test if ($user->rights->digiquali->level1->level2)
+        $r++;
+
 		/* SHEET PERMISSSIONS */
 		$this->rights[$r][0] = $this->numero . sprintf('%02d', $r + 1); // Permission id (must not be already used)
 		$this->rights[$r][1] = $langs->transnoentities('ReadObjects',$langs->transnoentities('Sheets')); // Permission label
@@ -627,6 +644,37 @@ class modDigiQuali extends DolibarrModules
             'position' => 1000 + $r,
             'enabled'  => '$conf->digiquali->enabled && $conf->categorie->enabled && $user->rights->digiquali->survey->read',
             'perms'    => '$user->rights->digiquali->survey->read',
+            'target'   => '',
+            'user'     => 0,
+        ];
+
+        $this->menu[$r++] = [
+            'fk_menu'  => 'fk_mainmenu=digiquali',
+            'type'     => 'left',
+            'titre'    => $langs->transnoentities('QuestionGroup'),
+            'prefix'   => '<i class="fas fa-folder pictofixedwidth"></i>',
+            'mainmenu' => 'digiquali',
+            'leftmenu' => 'digiquali_questiongroup',
+            'url'      => '/digiquali/view/questiongroup/questiongroup_list.php',
+            'langs'    => 'digiquali@digiquali',
+            'position' => 1000 + $r,
+            'enabled'  => '$conf->digiquali->enabled && $user->rights->digiquali->questiongroup->read',
+            'perms'    => '$user->rights->digiquali->questiongroup->read',
+            'target'   => '',
+            'user'     => 0,
+        ];
+
+        $this->menu[$r++] = [
+            'fk_menu'  => 'fk_mainmenu=digiquali,fk_leftmenu=digiquali_questiongroup',
+            'type'     => 'left',
+            'titre'    => '<i class="fas fa-tags pictofixedwidth" style="padding-right: 4px;"></i>' . $langs->transnoentities('Categories'),
+            'mainmenu' => 'digiquali',
+            'leftmenu' => 'digiquali_questiongrouptags',
+            'url'      => '/categories/index.php?type=questiongroup',
+            'langs'    => 'digiquali@digiquali',
+            'position' => 1000 + $r,
+            'enabled'  => '$conf->digiquali->enabled && $conf->categorie->enabled && $user->rights->digiquali->questiongroup->read',
+            'perms'    => '$user->rights->digiquali->questiongroup->read',
             'target'   => '',
             'user'     => 0,
         ];

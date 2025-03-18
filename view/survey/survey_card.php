@@ -41,6 +41,7 @@ require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
 require_once __DIR__ . '/../../class/survey.class.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
+require_once __DIR__ . '/../../class/questiongroup.class.php';
 require_once __DIR__ . '/../../class/answer.class.php';
 require_once __DIR__ . '/../../class/digiqualidocuments/surveydocument.class.php';
 require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
@@ -66,15 +67,16 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 
 // Initialize objects
 // Technical objets
-$object      = new Survey($db);
-$objectLine  = new SurveyLine($db);
-$document    = new SurveyDocument($db);
-$signatory   = new SaturneSignature($db, 'digiquali');
-$sheet       = new Sheet($db);
-$question    = new Question($db);
-$answer      = new Answer($db);
-$extraFields = new ExtraFields($db);
-$category    = new Categorie($db);
+$object        = new Survey($db);
+$objectLine    = new SurveyLine($db);
+$document      = new SurveyDocument($db);
+$signatory     = new SaturneSignature($db, 'digiquali');
+$sheet         = new Sheet($db);
+$question      = new Question($db);
+$answer        = new Answer($db);
+$questionGroup = new QuestionGroup($db);
+$extraFields   = new ExtraFields($db);
+$category      = new Categorie($db);
 
 // View objects
 $form = new Form($db);
@@ -342,8 +344,22 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', '', !empty($object->photo));
 
     $sheet->fetch($object->fk_sheet);
-    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
-    $questionIds = $sheet->linkedObjectsIds['digiquali_question'];
+    $questionsAndGroups = $sheet->fetchQuestionsAndGroups();
+
+    foreach($questionsAndGroups as $questionOrGroup) {
+        if ($questionOrGroup->element == 'questiongroup') {
+            $questionGroup->fetch($questionOrGroup->id);
+            $groupQuestions = $questionGroup->fetchQuestionsOrderedByPosition();
+            if (is_array($groupQuestions) && !empty($groupQuestions)) {
+                foreach($groupQuestions as $groupQuestion) {
+                    $questionIds[] = $groupQuestion->id;
+                }
+            }
+
+        } else {
+            $questionIds[] = $questionOrGroup->id;
+        }
+    }
 
     $questionCounter = 0;
     if (!empty($questionIds)) {
@@ -513,14 +529,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     $averagePercentageQuestions = 0;
     $percentQuestionCounter     = 0;
-    foreach ($sheet->linkedObjects['digiquali_question'] as $questionLinked) {
+    foreach ($questionIds as $questionId) {
         if ($questionLinked->type !== 'Percentage') {
             continue; // Skip non-percentage questions
         }
 
         $percentQuestionCounter++;
         foreach ($object->lines as $line) {
-            if ($line->fk_question === $questionLinked->id) {
+            if ($line->fk_question === $questionId) {
                 $averagePercentageQuestions += $line->answer;
             }
         }

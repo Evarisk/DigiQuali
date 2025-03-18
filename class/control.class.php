@@ -306,14 +306,36 @@ class Control extends SaturneObject
                 }
             }
 
-            $sheet->fetchObjectLinked($this->fk_sheet, 'digiquali_' . $sheet->element);
-            if (!empty($sheet->linkedObjects['digiquali_question'])) {
-                foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
-                    $controlLine->ref                     = $controlLine->getNextNumRef();
-                    $controlLine->entity                  = $this->entity;
-                    $controlLine->status                  = 1;
-                    $controlLine->{'fk_'. $this->element} = $this->id;
-                    $controlLine->fk_question             = $question->id;
+            $questionAndGroups = $sheet->fetchQuestionsAndGroups();
+
+            $questions = [];
+            if (is_array($questionAndGroups) && !empty($questionAndGroups)) {
+                foreach($questionAndGroups as $questionOrGroup) {
+                    if ($questionOrGroup->element == 'questiongroup') {
+                        $groupQuestions = $questionOrGroup->fetchQuestionsOrderedByPosition();
+                        if (is_array($groupQuestions) && !empty($groupQuestions)) {
+                            foreach($groupQuestions as $groupQuestion) {
+                                $groupQuestion->fk_question_group = $questionOrGroup->id;
+                                $questions[] = $groupQuestion;
+                            }
+                        }
+                    } else {
+                        $questionOrGroup->fk_question_group = 0;
+                        $questions[] = $questionOrGroup;
+                    }
+                }
+            }
+            if (!empty($questions)) {
+                foreach ($questions as $question) {
+                    $controlLine->ref         = $controlLine->getNextNumRef();
+                    $fk_element              = 'fk_'. $object->element;
+                    $controlLine->fk_control = $this->id;
+                    $controlLine->fk_question = $question->id;
+                    $controlLine->fk_question_group = $question->fk_question_group;
+                    $controlLine->answer      = '';
+                    $controlLine->comment     = '';
+                    $controlLine->entity      = $conf->entity;
+                    $controlLine->status      = 1;
 
                     $controlLine->create($user);
                 }
@@ -1341,22 +1363,23 @@ class ControlLine extends SaturneObject
      * @var array Array with all fields and their property. Do not use it as a static var. It may be modified by constructor
      */
     public $fields = [
-        'rowid'         => ['type' => 'integer',      'label' => 'TechnicalID',      'enabled' => 1, 'position' => 1,   'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'Id'],
-        'ref'           => ['type' => 'varchar(128)', 'label' => 'Ref',              'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 1, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
-        'ref_ext'       => ['type' => 'varchar(128)', 'label' => 'RefExt',           'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0],
-        'entity'        => ['type' => 'integer',      'label' => 'Entity',           'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'index' => 1],
-        'date_creation' => ['type' => 'datetime',     'label' => 'DateCreation',     'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 0],
-        'tms'           => ['type' => 'timestamp',    'label' => 'DateModification', 'enabled' => 1, 'position' => 50,  'notnull' => 0, 'visible' => 0],
-        'import_key'    => ['type' => 'varchar(14)',  'label' => 'ImportId',         'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
-        'status'        => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 0, 'index' => 1, 'default' => 1],
-        'type'          => ['type' => 'varchar(128)', 'label' => 'Type',             'enabled' => 0, 'position' => 80,  'notnull' => 0, 'visible' => 0],
-        'answer'        => ['type' => 'text',         'label' => 'Answer',           'enabled' => 1, 'position' => 90,  'notnull' => 0, 'visible' => 0],
-        'answer_photo'  => ['type' => 'text',         'label' => 'AnswerPhoto',      'enabled' => 0, 'position' => 100, 'notnull' => 0, 'visible' => 0],
-        'comment'       => ['type' => 'text',         'label' => 'Comment',          'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 0],
-        'fk_user_creat' => ['type' => 'integer:User:user/class/user.class.php',              'label' => 'UserAuthor', 'picto' => 'user',                                'enabled' => 1, 'position' => 120, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
-        'fk_user_modif' => ['type' => 'integer:User:user/class/user.class.php',              'label' => 'UserModif',  'picto' => 'user',                                'enabled' => 1, 'position' => 130, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
-        'fk_control'    => ['type' => 'integer:Control:digiquali/class/survey.class.php',    'label' => 'Control',    'picto' => 'fontawesome_fa-tasks_fas_#d35968',    'enabled' => 1, 'position' => 140,  'notnull' => 1, 'visible' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_survey.rowid'],
-        'fk_question'   => ['type' => 'integer:Question:digiquali/class/question.class.php', 'label' => 'Question',   'picto' => 'fontawesome_fa-question_fas_#d35968', 'enabled' => 1, 'position' => 150,  'notnull' => 1, 'visible' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_question.rowid'],
+        'rowid'             => ['type' => 'integer',      'label' => 'TechnicalID',      'enabled' => 1, 'position' => 1,   'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'Id'],
+        'ref'               => ['type' => 'varchar(128)', 'label' => 'Ref',              'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 1, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
+        'ref_ext'           => ['type' => 'varchar(128)', 'label' => 'RefExt',           'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0],
+        'entity'            => ['type' => 'integer',      'label' => 'Entity',           'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'index' => 1],
+        'date_creation'     => ['type' => 'datetime',     'label' => 'DateCreation',     'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 0],
+        'tms'               => ['type' => 'timestamp',    'label' => 'DateModification', 'enabled' => 1, 'position' => 50,  'notnull' => 0, 'visible' => 0],
+        'import_key'        => ['type' => 'varchar(14)',  'label' => 'ImportId',         'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
+        'status'            => ['type' => 'smallint',     'label' => 'Status',           'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 0, 'index' => 1, 'default' => 1],
+        'type'              => ['type' => 'varchar(128)', 'label' => 'Type',             'enabled' => 0, 'position' => 80,  'notnull' => 0, 'visible' => 0],
+        'answer'            => ['type' => 'text',         'label' => 'Answer',           'enabled' => 1, 'position' => 90,  'notnull' => 0, 'visible' => 0],
+        'answer_photo'      => ['type' => 'text',         'label' => 'AnswerPhoto',      'enabled' => 0, 'position' => 100, 'notnull' => 0, 'visible' => 0],
+        'comment'           => ['type' => 'text',         'label' => 'Comment',          'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 0],
+        'fk_user_creat'     => ['type' => 'integer:User:user/class/user.class.php',              'label' => 'UserAuthor', 'picto' => 'user',                                'enabled' => 1, 'position' => 120, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
+        'fk_user_modif'     => ['type' => 'integer:User:user/class/user.class.php',              'label' => 'UserModif',  'picto' => 'user',                                'enabled' => 1, 'position' => 130, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
+        'fk_control'        => ['type' => 'integer:Control:digiquali/class/survey.class.php',    'label' => 'Control',    'picto' => 'fontawesome_fa-tasks_fas_#d35968',    'enabled' => 1, 'position' => 140,  'notnull' => 1, 'visible' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_survey.rowid'],
+        'fk_question'       => ['type' => 'integer:Question:digiquali/class/question.class.php', 'label' => 'Question',   'picto' => 'fontawesome_fa-question_fas_#d35968', 'enabled' => 1, 'position' => 150,  'notnull' => 1, 'visible' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'digiquali_question.rowid'],
+        'fk_question_group' => ['type' => 'integer:QuestionGroup:digiquali/class/questiongroup.class.php', 'label' => 'QuestionGroup', 'picto' => 'fontawesome_fa-folder_fas_#d35968', 'enabled' => 1, 'position' => 160, 'notnull' => 1, 'default' => 0, 'visible' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx'],
     ];
 
     /**
@@ -1440,6 +1463,11 @@ class ControlLine extends SaturneObject
     public int $fk_question;
 
     /**
+     * @var int Question group ID
+     */
+    public int $fk_question_group;
+
+    /**
      * Constructor
      *
      * @param DoliDb $db Database handler
@@ -1457,9 +1485,9 @@ class ControlLine extends SaturneObject
      * @return array|int              Int <0 if KO, array of pages if OK
      * @throws Exception
      */
-    public function fetchFromParentWithQuestion(int $controlID, int $questionID)
+    public function fetchFromParentWithQuestion(int $controlID, int $questionID, int $questionGroupId = 0)
     {
-        return $this->fetchAll('', '', 1, 0, ['customsql' => 't.fk_control = ' . $controlID . ' AND t.fk_question = ' . $questionID . ' AND t.status > 0']);
+        return $this->fetchAll('', '', 1, 0, ['customsql' => 't.fk_control = ' . $controlID . ' AND t.fk_question = ' . $questionID . ' AND t.status > 0 AND t.fk_question_group = ' . $questionGroupId]);
     }
 }
 

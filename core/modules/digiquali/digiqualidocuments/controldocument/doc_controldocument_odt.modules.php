@@ -121,18 +121,45 @@ class doc_controldocument_odt extends SaturneDocumentModel
 
                 if (!empty($object)) {
                     $sheet = new Sheet($this->db);
+                    $questionGroup = new QuestionGroup($this->db);
 
-                    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_sheet', null, '', 'OR', 1, 'position', 0);
-                    $questionIds = $sheet->linkedObjectsIds;
+                    $sheet->fetch($object->fk_sheet);
+                    $questionsAndGroups = $sheet->fetchQuestionsAndGroups();
 
-                    if (is_array($questionIds['digiquali_question']) && !empty($questionIds['digiquali_question'])) {
+                    foreach($questionsAndGroups as $questionOrGroup) {
+                        if ($questionOrGroup->element == 'questiongroup') {
+                            $questionGroup->fetch($questionOrGroup->id);
+                            $groupQuestions = $questionGroup->fetchQuestionsOrderedByPosition();
+                            if (is_array($groupQuestions) && !empty($groupQuestions)) {
+                                foreach($groupQuestions as $groupQuestion) {
+                                    $questionIds[] = [$questionOrGroup->id => $groupQuestion->id];
+                                }
+                            }
+
+                        } else {
+                            $questionIds[] = [0 => $questionOrGroup->id];
+                        }
+                    }
+
+
+                    if (is_array($questionIds) && !empty($questionIds)) {
                         $controldet = new ControlLine($this->db);
                         $question   = new Question($this->db);
                         $answer     = new Answer($this->db);
-                        foreach ($questionIds['digiquali_question'] as $questionId) {
-                            $question->fetch($questionId);
+                        foreach ($questionIds as $questionData) {
 
-                            $controldets = $controldet->fetchFromParentWithQuestion($object->id, $questionId);
+                            $questionGroupId = key($questionData);
+                            $questionId      = current($questionData);
+
+                            if ($questionGroupId > 0) {
+                                $questionGroup->fetch($questionGroupId);
+                                $tmpArray['group_label'] = $questionGroup->label . ' - ';
+                            } else {
+                                $tmpArray['group_label'] = ' ';
+                            }
+
+                            $question->fetch($questionId);
+                            $controldets = $controldet->fetchFromParentWithQuestion($object->id, $questionId, $questionGroupId);
 
                             $tmpArray['ref']         = $question->ref;
                             $tmpArray['label']       = $question->label;
@@ -201,7 +228,6 @@ class doc_controldocument_odt extends SaturneDocumentModel
                     }
                 }
             }
-
             // Get equipment.
             $foundTagForLines = 1;
             try {

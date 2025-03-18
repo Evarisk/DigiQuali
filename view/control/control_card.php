@@ -49,6 +49,7 @@ require_once __DIR__ . '/../../../saturne/class/task/saturnetask.class.php';
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
+require_once __DIR__ . '/../../class/questiongroup.class.php';
 require_once __DIR__ . '/../../class/answer.class.php';
 require_once __DIR__ . '/../../class/digiqualidocuments/controldocument.class.php';
 require_once __DIR__ . '/../../lib/digiquali_control.lib.php';
@@ -87,6 +88,7 @@ $controlEquipment = new ControlEquipment($db);
 $product          = new Product($db);
 $sheet            = new Sheet($db);
 $question         = new Question($db);
+$questionGroup    = new QuestionGroup($db);
 $answer           = new Answer($db);
 $usertmp          = new User($db);
 $thirdparty       = new Societe($db);
@@ -504,8 +506,22 @@ if ($object->id > 0 && (empty($action) || ($action != 'create'))) {
     saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', '', !empty($object->photo));
 
     $sheet->fetch($object->fk_sheet);
-    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
-    $questionIds = $sheet->linkedObjectsIds['digiquali_question'];
+    $questionsAndGroups = $sheet->fetchQuestionsAndGroups();
+
+    foreach($questionsAndGroups as $questionOrGroup) {
+        if ($questionOrGroup->element == 'questiongroup') {
+            $questionGroup->fetch($questionOrGroup->id);
+            $groupQuestions = $questionGroup->fetchQuestionsOrderedByPosition();
+            if (is_array($groupQuestions) && !empty($groupQuestions)) {
+                foreach($groupQuestions as $groupQuestion) {
+                    $questionIds[] = $groupQuestion->id;
+                }
+            }
+
+        } else {
+            $questionIds[] = $questionOrGroup->id;
+        }
+    }
 
     $questionCounter = 0;
     if (!empty($questionIds)) {

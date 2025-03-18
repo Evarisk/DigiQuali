@@ -36,6 +36,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 // Load DigiQuali libraries
 require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
+require_once __DIR__ . '/../../class/questiongroup.class.php';
 require_once __DIR__ . '/../../class/answer.class.php';
 require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
 
@@ -53,6 +54,7 @@ $action = GETPOST('action', 'aZ09');
 // Initialize technical objects
 $object   = new Sheet($db);
 $question = new Question($db);
+$questionGroup = new QuestionGroup($db);
 $answer   = new Answer($db);
 
 $hookmanager->initHooks(['sheetexport', 'globalcard']); // Note that conf->hooks_modules contains array
@@ -171,6 +173,8 @@ $title   = $langs->trans('Export', 'DigiQuali');
 $helpUrl = 'FR:Module_DigiQuali';
 
 saturne_header(0,'', $title, $helpUrl);
+print $object->getQuestionAndGroupsTree();
+print '<div id="cardContent" class="margin-for-tree">';
 
 saturne_get_fiche_head($object, 'export', $title);
 saturne_banner_tab($object);
@@ -203,6 +207,7 @@ print '</form>';
 
 print $langs->trans('ToImportDataGoToImportPage') . ' <a href="' . dol_buildpath('custom/digiquali/view/digiqualitools.php', 1) . '">' . $langs->trans('ClickHere') . '</a>';
 
+print '</div>';
 // End of page
 llxFooter();
 $db->close();
