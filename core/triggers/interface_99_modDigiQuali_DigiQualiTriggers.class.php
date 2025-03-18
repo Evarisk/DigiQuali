@@ -109,8 +109,24 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
             $actioncomm->note_private = method_exists($object, 'getTriggerDescription') ? $object->getTriggerDescription($object) : '';
         }
 
-        switch ($action) {
-            case 'QUESTION_CREATE' :
+		switch ($action) {
+			case 'QUESTION_CREATE' :
+				if (GETPOST('question_group_id') > 0) {
+					$questionGroup = new QuestionGroup($this->db);
+					$questionGroup->fetch(GETPOST('question_group_id'));
+					$questionGroup->addQuestion($object->id);
+				}
+
+            case 'QUESTIONGROUP_CREATE':
+                if (GETPOST('sheet_id') > 0) {
+                    $sheet = new Sheet($this->db);
+                    $sheet->fetch(GETPOST('sheet_id'));
+
+                    $object->add_object_linked('digiquali_sheet',GETPOST('sheet_id'));
+
+                    $sheet->updateQuestionsAndGroupsPosition([], [], true);
+                }
+
             case 'SHEET_CREATE' :
                 $object->fetch($object->id);
                 $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';

@@ -203,6 +203,7 @@ class modDigiQuali extends DolibarrModules
 
 			// CONST QUESTION
 			$i++ => ['DIGIQUALI_QUESTION_ADDON', 'chaine', 'mod_question_standard', '', 0, 'current'],
+			$i++ => ['DIGIQUALI_QUESTIONGROUP_ADDON', 'chaine', 'mod_questiongroup_standard', '', 0, 'current'],
             $i++ => ['DIGIQUALI_QUESTION_BACKWARD_COMPATIBILITY', 'integer', 1, '', 0, 'current'],
 
 			// CONST ANSWER
@@ -621,10 +622,26 @@ class modDigiQuali extends DolibarrModules
         $this->menu[$r++] = [
             'fk_menu'  => 'fk_mainmenu=digiquali,fk_leftmenu=digiquali_survey',
             'type'     => 'left',
+            'titre'    => $langs->transnoentities('QuestionGroup'),
+            'prefix'   => '<i class="fas fa-group pictofixedwidth"></i>',
+            'mainmenu' => 'digiquali',
+            'leftmenu' => 'digiquali_question_group',
+            'url'      => '/digiquali/view/question_group/question_group_list.php',
+            'langs'    => 'digiquali@digiquali',
+            'position' => 1000 + $r,
+            'enabled'  => '$conf->digiquali->enabled && $user->rights->digiquali->question_group->read',
+            'perms'    => '$user->rights->digiquali->question_group->read',
+            'target'   => '',
+            'user'     => 0,
+        ];
+
+        $this->menu[$r++] = [
+            'fk_menu'  => 'fk_mainmenu=digiquali,fk_leftmenu=digiquali_question_group',
+            'type'     => 'left',
             'titre'    => '<i class="fas fa-tags pictofixedwidth" style="padding-right: 4px;"></i>' . $langs->transnoentities('Categories'),
             'mainmenu' => 'digiquali',
-            'leftmenu' => 'digiquali_surveytags',
-            'url'      => '/categories/index.php?type=survey',
+            'leftmenu' => 'digiquali_question_groupytags',
+            'url'      => '/categories/index.php?type=question_group',
             'langs'    => 'digiquali@digiquali',
             'position' => 1000 + $r,
             'enabled'  => '$conf->digiquali->enabled && $conf->categorie->enabled && $user->rights->digiquali->survey->read',
