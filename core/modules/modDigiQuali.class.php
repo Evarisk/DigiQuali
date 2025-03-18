@@ -828,48 +828,56 @@ class modDigiQuali extends DolibarrModules
 			dolibarr_set_const($this->db, 'DIGIQUALI_QUESTION_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
 		}
 
-        if (getDolGlobalInt('DIGIQUALI_CONTROL_ANSWER_BACKWARD') == 0 && $result > 0) {
+        if (getDolGlobalInt('DIGIQUALI_ANSWER_BACKWARD') == 0 && $result > 0) {
 
             require_once __DIR__ . '/../../class/control.class.php';
-            require_once __DIR__ . '/../../class/sheet.class.php';
+            require_once __DIR__ . '/../../class/survey.class.php';
+			require_once __DIR__ . '/../../class/sheet.class.php';
 
-            $control    = new Control($this->db);
-            $sheet      = new Sheet($this->db);
-            $objectLine = new ControlLine($this->db);
+            $control     = new Control($this->db);
+			$survey      = new Survey($this->db);
+            $sheet       = new Sheet($this->db);
+			$controlLine = new ControlLine($this->db);
+			$surveyLine  = new SurveyLine($this->db);
 
-            $controls = $control->fetchAll();
-            if (is_array($controls) && !empty($controls)) {
-                foreach ($controls as $control) {
-                    if (empty($control->fk_sheet)) {
-                        continue;
-                    }
 
-                    $sheet->fetch($control->fk_sheet);
-                    $sheet->fetchObjectLinked($control->fk_sheet, 'digiquali_' . $sheet->element);
-                    if (empty($sheet->linkedObjects['digiquali_question'])) {
-                        continue;
-                    }
+			$elements = [$control, $survey];
+			$lines    = [$controlLine, $surveyLine];
+			foreach ($elements as $idx => $elementObject) {
+				$arrayElements = $elementObject->fetchAll();
+				if (is_array($arrayElements) && !empty($arrayElements)) {
+					foreach ($arrayElements as $element) {
+						if (empty($element->fk_sheet)) {
+							continue;
+						}
 
-                    $firstQuestion = current($sheet->linkedObjects['digiquali_question']);
-                    $res           = $objectLine->fetchFromParentWithQuestion($control->id, $firstQuestion->id);
-                    if (empty($res)) {
-                        foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
-                            $objectLine->ref         = $objectLine->getNextNumRef();
-                            $fk_element              = 'fk_'. $control->element;
-                            $objectLine->$fk_element = $control->id;
-                            $objectLine->fk_question = $question->id;
-                            $objectLine->answer      = '';
-                            $objectLine->comment     = '';
-                            $objectLine->entity      = $conf->entity;
-                            $objectLine->status      = 1;
+						$sheet->fetch($element->fk_sheet);
+						$sheet->fetchObjectLinked($element->fk_sheet, 'digiquali_' . $sheet->element);
+						if (empty($sheet->linkedObjects['digiquali_question'])) {
+							continue;
+						}
 
-                            $objectLine->create($user);
-                        }
-                    }
-                }
-            }
+						$firstQuestion = current($sheet->linkedObjects['digiquali_question']);
+						$res           = $lines[$idx]->fetchFromParentWithQuestion($element->id, $firstQuestion->id);
+						if (empty($res)) {
+							foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
+								$lines[$idx]->ref         = $lines[$idx]->getNextNumRef();
+								$fk_element              = 'fk_'. $element->element;
+								$lines[$idx]->$fk_element = $element->id;
+								$lines[$idx]->fk_question = $question->id;
+								$lines[$idx]->answer      = '';
+								$lines[$idx]->comment     = '';
+								$lines[$idx]->entity      = $conf->entity;
+								$lines[$idx]->status      = 1;
 
-            dolibarr_set_const($this->db, 'DIGIQUALI_CONTROL_ANSWER_BACKWARD', 1, 'integer', 0, '', $conf->entity);
+								$lines[$idx]->create($user);
+							}
+						}
+					}
+				}
+			}
+
+            dolibarr_set_const($this->db, 'DIGIQUALI_ANSWER_BACKWARD', 1, 'integer', 0, '', $conf->entity);
         }
 
         require_once DOL_DOCUMENT_ROOT . '/cron/class/cronjob.class.php';

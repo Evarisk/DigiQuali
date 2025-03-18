@@ -611,8 +611,10 @@ while ($i < $imaxinloop) {
                             $sheet->fetch($object->fk_sheet);
                             $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
                             $questions = $sheet->linkedObjects['digiquali_question'];
-                            foreach ($questions as $question) {
-                                $questions[$question->id] = $question;
+                            if (is_array($questions) && !empty($questions)) {
+                                foreach ($questions as $question) {
+                                    $questions[$question->id] = $question;
+                                }
                             }
 
                             $answers = [];
