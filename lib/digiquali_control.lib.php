@@ -142,7 +142,7 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
         if (!empty($linkedObjectParentData['class_path'])) {
             require_once DOL_DOCUMENT_ROOT . '/' . $linkedObjectParentData['class_path'];
 
-            $parentLinkedObject = new $linkedObjectParentData['className']($db);
+            $parentLinkedObject = new $linkedObjectParentData['class_name']($db);
 
             $parentLinkedObject->fetch($linkedObject->{$linkableElement['fk_parent']});
 
@@ -243,30 +243,8 @@ function get_control_infos(CommonObject $linkedObject): array
         }
     }
 
-    if (!empty($lastControl->next_control_date)) {
-        $nextControl                                   = (int) round(($lastControl->next_control_date - dol_now('tzuser'))/(3600 * 24));
-        $out['nextControl']['title']                   = $langs->transnoentities('NextControl');
-        $out['nextControl']['next_control_date']       = '<i class="objet-icon far fa-calendar"></i>' . dol_print_date($lastControl->next_control_date, 'day');
-        $out['nextControl']['next_control_date_color'] = $lastControl->getNextControlDateColor();
-        $out['nextControl']['next_control']            = '<i class="objet-icon far fa-clock"></i>' . $langs->transnoentities('In') . ' ' . $nextControl . ' ' . $langs->transnoentities('Days');
-        if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWriteControl) {
-            $arraySelected = '';
-            if (isModEnabled('categorie')) {
-                require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
-                $category   = new Categorie($db);
-                $categories = $category->containing($lastControl->id, $lastControl->element);
-                if (is_array($categories) && !empty($categories)) {
-                    $arraySelected = '&categories=' . implode(',', array_column($categories, 'id'));
-                }
-            }
-
-            $moreParams = '&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id . '&fk_sheet=' . $lastControl->fk_sheet . '&fk_user_controller=' . $lastControl->fk_user_controller . '&projectid=' . $lastControl->projectid . $arraySelected;
-            $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1) . '" target="_blank"><i class="button-icon fas fa-plus"></i></a>';
-        }
-        $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
-        $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
-        $out['nextControl']['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
-    } else {
+    if (!empty($lastControl)) {
+        $nextControl                 = (int) round(($lastControl->next_control_date - dol_now('tzuser'))/(3600 * 24));
         $out['nextControl']['title'] = $langs->transnoentities('NoPeriodicityControl');
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWriteControl) {
             $arraySelected = '';
@@ -279,17 +257,22 @@ function get_control_infos(CommonObject $linkedObject): array
                 }
             }
 
-            $moreParams = '&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id . '&fk_sheet=' . $lastControl->fk_sheet . '&fk_user_controller=' . $lastControl->fk_user_controller . '&projectid=' . $lastControl->projectid . $arraySelected;
+            $moreParams = '&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id . '&fk_sheet=' . $lastControl->fk_sheet . '&fk_user_controller=' . $lastControl->fk_user_controller . (!empty($lastControl->projectid) ? '&projectid=' . $lastControl->projectid : '') . $arraySelected;
             $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1) . '" target="_blank"><i class="button-icon fas fa-plus"></i></a>';
         }
-        $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
-        $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
+        $verdictControlColor           = $nextControl > 0 && $lastControl->verdict == 1 ? 'green' : 'red';
+        $pictoControlColor             = $nextControl > 0 && $lastControl->verdict == 1 ? 'check' : 'exclamation';
         $out['nextControl']['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
+        if (!empty($lastControl->next_control_date)) {
+            $out['nextControl']['title']                   = $langs->transnoentities('NextControl');
+            $out['nextControl']['next_control_date']       = '<i class="objet-icon far fa-calendar"></i>' . dol_print_date($lastControl->next_control_date, 'day');
+            $out['nextControl']['next_control_date_color'] = $lastControl->getNextControlDateColor();
+            $out['nextControl']['next_control']            = '<i class="objet-icon far fa-clock"></i>' . $nextControl . ' ' . $langs->transnoentities('Days');
+        }
     }
 
     if (empty($filteredControls)) {
-        $out['nextControl']['verdict'] = '';
-        $out['nextControl']['title']   = $langs->transnoentities('NoControl');
+        $out['nextControl']['title'] = $langs->transnoentities('NoControl');
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWriteControl) {
             $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id, 1). '" target="_blank"><i class="button-icon fas fa-plus"></i></a>';
         }

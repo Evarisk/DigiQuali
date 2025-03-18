@@ -720,13 +720,16 @@ class modDigiQuali extends DolibarrModules
         // Create extrafields during init.
         include_once DOL_DOCUMENT_ROOT . '/core/class/extrafields.class.php';
         $extraFields = new ExtraFields($this->db);
-        $objectsMetadata    = saturne_get_objects_metadata();
 
+        $objectsMetadata = saturne_get_objects_metadata();
         foreach($objectsMetadata as $objectMetadataType => $objectMetadata) {
             $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, $objectMetadata['table_element'], 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', 1, '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
-
-            $extraFields->update('control_history_link', 'ControlHistoryLink', 'varchar', 255, $objectMetadata['table_element'], 0, 0, 110, '', 0, '', 5, '', '', '', 0, 'digiquali@digiquali', '$conf->digiquali->enabled');
-            $extraFields->addExtraField('control_history_link', 'ControlHistoryLink', 'varchar', 110, 255, $objectMetadata['table_element'], 0, 0, '', '', 0, '', 5, '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
+            if ($objectMetadataType == 'productlot') {
+                $extraFields->update('control_history_link', 'ControlHistoryLink', 'varchar', 255, $objectMetadata['table_element'], 0, 0, 110, '', 0, '', 5, '', '', '', 0, 'digiquali@digiquali', '$conf->digiquali->enabled');
+                $extraFields->addExtraField('control_history_link', 'ControlHistoryLink', 'varchar', 110, 255, $objectMetadata['table_element'], 0, 0, '', '', 0, '', 5, '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
+            } else {
+                $extraFields->delete('control_history_link', $objectMetadata['table_element']);
+            }
         }
 
 		if ($result < 0) {
