@@ -244,7 +244,6 @@ if (empty($resHook)) {
             $result = $object->update($user);
             if ($result > 0) {
                 // Set verdict Control
-                $object->call_trigger('CONTROL_VERDICT', $user);
                 $urltogo = str_replace('__ID__', $result, $backtopage);
                 $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
                 header('Location: ' . $urltogo);
@@ -322,6 +321,7 @@ if ($action == 'create') {
 
     print '<table class="border centpercent tableforfieldcreate control-table">';
 
+    $object->fields['fk_user_controller']['visible'] = 1;
     $object->fields['fk_user_controller']['default'] = $user->id;
 
     if (!empty(GETPOST('fk_sheet'))) {
@@ -554,7 +554,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     if (($action == 'clone' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
         // Define confirmation messages
         $formQuestionClone = [
-            ['type' => 'text',     'name' => 'clone_label', 'label' => $langs->trans('NewLabelForClone', $langs->transnoentities('The' . ucfirst($object->element))), 'value' => $langs->trans('CopyOf') . ' ' . $object->label ?: $object->ref, 'size' => 24],
+            ['type' => 'text',     'name' => 'clone_label', 'label' => $langs->trans('NewLabelForClone', $langs->transnoentities('The' . ucfirst($object->element))), 'value' => $langs->trans('CopyOf') . ' ' . ($object->label ?: $object->ref), 'size' => 24],
             ['type' => 'checkbox', 'name' => 'clone_attendants',         'label' => $langs->trans('CloneAttendants'),        'value' => 1],
             ['type' => 'checkbox', 'name' => 'clone_photos',             'label' => $langs->trans('ClonePhotos'),            'value' => 1],
             ['type' => 'checkbox', 'name' => 'clone_control_equipments', 'label' => $langs->trans('CloneControlEquipments'), 'value' => 1]
@@ -591,6 +591,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     print '<table class="border centpercent tableforfield">';
 
     // Common attributes
+    unset($object->fields['label']);     // Hide field already shown in banner
     unset($object->fields['projectid']); // Hide field already shown in banner
 
     if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {

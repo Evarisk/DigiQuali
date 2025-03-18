@@ -131,7 +131,7 @@ class Control extends SaturneObject
         'fk_user_creat'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserAuthor',  'picto' => 'user',                            'enabled' => 1, 'position' => 200, 'notnull' => 1, 'visible' => -2, 'csslist' => 'maxwidth200', 'foreignkey' => 'user.rowid'],
         'fk_user_modif'      => ['type' => 'integer:User:user/class/user.class.php',           'label' => 'UserModif',   'picto' => 'user',                            'enabled' => 1, 'position' => 210, 'notnull' => 0, 'visible' => -2, 'foreignkey' => 'user.rowid'],
         'fk_sheet'           => ['type' => 'integer:Sheet:digiquali/class/sheet.class.php',    'label' => 'Sheet',       'picto' => 'fontawesome_fa-list_fas_#d35968', 'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'css' => 'minwidth150 maxwidth500 widthcentpercentminusxx', 'csslist' => 'minwidth150', 'foreignkey' => 'digiquali_sheet.rowid'],
-        'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1',         'label' => 'Controller',  'picto' => 'user',                            'enabled' => 1, 'position' => 50,  'notnull' => 1, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'user.rowid',   'positioncard' => 1],
+        'fk_user_controller' => ['type' => 'integer:User:user/class/user.class.php:1',         'label' => 'Controller',  'picto' => 'user',                            'enabled' => 1, 'position' => 50,  'notnull' => 1, 'visible' => 0, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'user.rowid',   'positioncard' => 1],
         'projectid'          => ['type' => 'integer:Project:projet/class/project.class.php:1', 'label' => 'Project',     'picto' => 'project',                         'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 1, 'index' => 1, 'css' => 'maxwidth500 widthcentpercentminusxx', 'foreignkey' => 'projet.rowid', 'positioncard' => 2]
     ];
 
@@ -216,6 +216,10 @@ class Control extends SaturneObject
     public $success_rate;
 
     /**
+     * @var string|null Track ID
+     */
+    public ?string $track_id;
+    /**
      * @var int User ID.
      */
     public $fk_user_creat;
@@ -251,34 +255,45 @@ class Control extends SaturneObject
     public $lines = [];
 
     /**
-     * Constructor.
+     * Constructor
      *
-     * @param DoliDb $db Database handler.
+     * @param DoliDb $db Database handler
      */
     public function __construct(DoliDB $db)
     {
         parent::__construct($db, $this->module, $this->element);
+
+        // Set default values
+        $this->control_date = dol_now('tzuser');
+        $this->track_id     = generate_random_id();
     }
 
     /**
-     * Create object into database.
+     * Create object into database
      *
-     * @param  User $user      User that creates.
-     * @param  bool $notrigger false = launch triggers after, true = disable triggers.
-     * @return int             0 < if KO, ID of created object if OK.
+     * @param  User      $user      User that creates
+     * @param  bool      $notrigger false = launch triggers after, true = disable triggers
+     * @return int                  0 < if KO, ID of created object if OK
+     * @throws Exception
      */
     public function create(User $user, bool $notrigger = false): int
     {
-        $this->track_id = generate_random_id();
+        global $conf;
+
         $result = parent::create($user, $notrigger);
-
         if ($result > 0) {
-            global $conf;
-
+            // Load Digiquali libraries
             require_once __DIR__ . '/sheet.class.php';
 
-            $sheet = new Sheet($this->db);
+            $sheet       = new Sheet($this->db);
+            $controlLine = new ControlLine($this->db);
+
             $sheet->fetch($this->fk_sheet);
+
+            if ($sheet->success_rate > 0) {
+                $this->success_rate = $sheet->success_rate;
+                $this->setValueFrom('success_rate', $this->success_rate, '', '', 'text', '', $user);
+            }
 
             if (!empty($sheet->photo)) {
                 dol_mkdir($conf->digiquali->multidir_output[$conf->entity] . '/control/' . $this->ref . '/photos/');
@@ -289,6 +304,34 @@ class Control extends SaturneObject
                     $this->photo = $sheet->photo;
                     $this->setValueFrom('photo', $this->photo, '', '', 'text', '', $user);
                 }
+            }
+
+            $sheet->fetchObjectLinked($this->fk_sheet, 'digiquali_' . $sheet->element);
+            if (!empty($sheet->linkedObjects['digiquali_question'])) {
+                foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
+                    $controlLine->ref                     = $controlLine->getNextNumRef();
+                    $controlLine->entity                  = $this->entity;
+                    $controlLine->status                  = 1;
+                    $controlLine->{'fk_'. $this->element} = $this->id;
+                    $controlLine->fk_question             = $question->id;
+
+                    $controlLine->create($user);
+                }
+            }
+
+            if ($this->context != 'createfromclone') {
+                $objectsMetadata = saturne_get_objects_metadata();
+                foreach ($objectsMetadata as $objectMetadata) {
+                    if (!empty(GETPOST($objectMetadata['post_name'])) && GETPOST($objectMetadata['post_name']) > 0) {
+                        $this->add_object_linked($objectMetadata['link_name'], GETPOST($objectMetadata['post_name']));
+                    }
+                }
+
+                // Load Saturne libraries
+                require_once __DIR__ . '/../../saturne/class/saturnesignature.class.php';
+
+                $signatory = new SaturneSignature($this->db, $this->module, $this->element);
+                $signatory->setSignatory($this->id, $this->element, 'user', [$this->fk_user_controller], 'Controller', 1);
             }
         }
 
@@ -478,6 +521,88 @@ class Control extends SaturneObject
         return $this->setStatusCommon($user, self::STATUS_DRAFT, $notrigger, 'CONTROL_UNVALIDATE');
     }
 
+    /**
+     * Set locked status
+     *
+     * @param  User     $user      Object user that modify
+     * @param  int      $notrigger 1 = Does not execute triggers, 0 = Execute triggers
+     * @return int                 0 < if KO, > 0 if OK
+     * @throws Exception
+     */
+    public function setLocked(User $user, int $notrigger = 0): int
+    {
+        global $langs;
+
+        require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
+
+        $qcFrequency = 0;
+        $this->fetchObjectLinked('', '', '', $this->module . '_' . $this->element);
+        $linkedObjectType = key($this->linkedObjects);
+        $linkedObject     = current($this->linkedObjects[$linkedObjectType]);
+        if ($this->verdict == 1 && !empty($linkedObject->array_options['options_qc_frequency'])) {
+            $qcFrequency = $linkedObject->array_options['options_qc_frequency'];
+        } elseif ($this->verdict == 2) {
+            $qcFrequency = 30;
+        }
+
+        // Next control date is automatically calculated if not set
+        if (dol_strlen($this->next_control_date) <= 0) {
+            if (($this->verdict == 1 && !empty($linkedObject->array_options['options_qc_frequency'])) || $this->verdict == 2) {
+                $this->next_control_date = $this->db->idate(dol_time_plus_duree(dol_now('tzuser'), $qcFrequency, 'd'));
+                $this->setValueFrom('next_control_date', $this->next_control_date, '', '', 'date', '', $user);
+            }
+        }
+
+        if (!empty($this->next_control_date)) {
+            // Get object metadata infos on current linked object
+            $objectMetadataInfos = [];
+            $objectsMetadata     = saturne_get_objects_metadata();
+            foreach ($objectsMetadata as $objectMetadata) {
+                if ($objectMetadata['link_name'] != $linkedObjectType) {
+                    continue;
+                }
+                $objectMetadataInfos = $objectMetadata;
+            }
+
+            // Create actioncomm for control reminder
+            $actionComm = new ActionComm($this->db);
+
+            $actionComm->code        = 'AC_' . dol_strtoupper($this->element) . '_REMINDER';
+            $actionComm->type_code   = 'AC_OTH_AUTO';
+            $actionComm->fk_element  = $linkedObject->id;
+            $actionComm->elementtype = $linkedObject->element;
+            $actionComm->label       = $langs->transnoentities(ucfirst($this->element) . 'ReminderTrigger', $langs->transnoentities($objectMetadataInfos['langs']) . ' ' . $linkedObject->{$objectMetadataInfos['name_field']}, $qcFrequency);
+            $actionComm->datep       = dol_now();
+            $actionComm->datef       = dol_time_plus_duree(dol_now(), $qcFrequency, 'd');
+            $actionComm->userownerid = $user->id;
+            $actionComm->percentage  = ActionComm::EVENT_TODO;
+            $actioncommID            = $actionComm->create($user);
+
+            // Create reminders
+            if ($actioncommID > 0 && getDolGlobalInt(dol_strtoupper($this->module) . '_' . dol_strtoupper($this->element) . '_REMINDER_ENABLED') && (getDolGlobalString('AGENDA_REMINDER_BROWSER') || getDolGlobalString('AGENDA_REMINDER_EMAIL'))) {
+                $actionCommReminder = new ActionCommReminder($this->db);
+
+                $actionCommReminder->status        = ActionCommReminder::STATUS_TODO;
+                $actionCommReminder->fk_actioncomm = $actioncommID;
+                $actionCommReminder->fk_user       = $user->id;
+
+                $nextControlDate = is_int($this->next_control_date) ? $this->next_control_date : dol_stringtotime($this->next_control_date);
+                $reminderArray   = explode(',' , getDolGlobalString(dol_strtoupper($this->module) . '_' . dol_strtoupper($this->element) . '_REMINDER_FREQUENCY'));
+                foreach ($reminderArray as $reminder) {
+                    if ($qcFrequency >= $reminder) {
+                        $actionCommReminder->dateremind  = dol_time_plus_duree($nextControlDate, -$reminder, 'd');
+                        $actionCommReminder->offsetvalue = $reminder;
+                        $actionCommReminder->offsetunit  = 'd';
+                        $actionCommReminder->typeremind  = getDolGlobalString(dol_strtoupper($this->module) . '_' . dol_strtoupper($this->element) . '_REMINDER_TYPE');
+                        $actionCommReminder->create($user);
+                    }
+                }
+            }
+        }
+
+        return parent::setLocked($user, $notrigger);
+    }
+
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
 	 *  Return if a control can be deleted
@@ -577,7 +702,7 @@ class Control extends SaturneObject
             $object->photo = '';
         }
         if (property_exists($object, 'control_date')) {
-            $object->control_date = '';
+            $object->control_date = dol_now('tzuser');
         }
         if (property_exists($object, 'next_control_date')) {
             $object->next_control_date = '';
@@ -603,18 +728,13 @@ class Control extends SaturneObject
                 $object->setCategories($categoryIds);
             }
 
-            // Add objects linked.
-			$linkableElements = get_sheet_linkable_objects();
-
-			if (!empty($linkableElements)) {
-				foreach($linkableElements as $linkableElement) {
-                    if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-						foreach($object->linkedObjectsIds[$linkableElement['link_name']] as $linkedElementId) {
-							$objectFromClone->add_object_linked($linkableElement['link_name'], $linkedElementId);
-						}
-					}
-				}
-			}
+            // Add objects linked
+            $objectsMetadata = saturne_get_objects_metadata();
+            foreach ($objectsMetadata as $objectMetadata) {
+                if (!empty($object->linkedObjectsIds[$objectMetadata['link_name']])) {
+                    $object->add_object_linked($objectMetadata['link_name'], current($object->linkedObjectsIds[$objectMetadata['link_name']]));
+                }
+            }
 
             // Add Attendants.
             $signatory = new SaturneSignature($this->db);
@@ -1106,42 +1226,37 @@ class Control extends SaturneObject
         return $array;
     }
 
-	/**
-	 * Write information of trigger description
-	 *
-	 * @param  Object $object Object calling the trigger
-	 * @return string         Description to display in actioncomm->note_private
-	 */
-	public function getTriggerDescription(SaturneObject $object): string
-	{
-		global $db, $langs;
+    /**
+     * Write information of trigger description
+     *
+     * @param  SaturneObject $object Object calling the trigger
+     * @return string                Description to display in actioncomm->note_private
+     */
+    public function getTriggerDescription(SaturneObject $object): string
+    {
+        global $db, $langs;
 
         // Load DigiQuali libraries
         require_once __DIR__ . '/../class/sheet.class.php';
 
-		$sheet = new Sheet($db);
-		$sheet->fetch($object->fk_sheet);
+        $sheet = new Sheet($db);
+        $sheet->fetch($object->fk_sheet);
 
-		$ret  = parent::getTriggerDescription($object);
-		$ret .= $langs->transnoentities('Sheet') . ' : ' . $sheet->ref . ' - ' . $sheet->label . '</br>';
-		if ($object->fk_user_controller > 0) {
-			$user = new User($db);
-			$user->fetch($object->fk_user_controller);
-			$ret .= $langs->transnoentities('Controller') . ' : ' . ucfirst($user->firstname) . ' ' . dol_strtoupper($user->lastname) . '</br>';
-		}
-		if ($object->projectid > 0) {
-			require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
-			$project = new Project($db);
-			$project->fetch($object->projectid);
-			$ret .= $langs->transnoentities('Project') . ' : ' . $project->ref . ' ' . $project->title . '</br>';
-		}
-		$ret  .= (!empty($object->note_public) ? $langs->transnoentities('NotePublic') . ' : ' . $object->note_public . '</br>' : '');
-		$ret  .= (!empty($object->note_private) ? $langs->transnoentities('NotePrivate') . ' : ' . $object->note_private . '</br>' : '');
-		$ret  .= (!empty($object->verdict) ? $langs->transnoentities('Verdict') . ' : ' . $object->verdict . '</br>' : '');
-		$ret  .= (!empty($object->photo) ? $langs->transnoentities('Photo') . ' : ' . $object->photo . '</br>' : '');
+        $ret  = parent::getTriggerDescription($object);
+        $ret .= $langs->transnoentities('Sheet') . ' : ' . $sheet->ref . ' - ' . $sheet->label . '<br>';
+        if ($object->fk_user_controller > 0) {
+            $user = new User($db);
+            $user->fetch($object->fk_user_controller);
+            $ret .= $langs->transnoentities('Controller') . ' : ' . ucfirst($user->firstname) . ' ' . dol_strtoupper($user->lastname) . '<br>';
+        }
+        if (!empty($object->project)) {
+            $ret .= $langs->transnoentities('Project') . ' : ' . $object->project->ref . ' ' . $object->project->title . '<br>';
+        }
+        $ret .= (!empty($object->verdict) ? $langs->transnoentities('Verdict') . ' : ' . $langs->transnoentities($object->fields['verdict']['arrayofkeyval'][$object->verdict]) . '<br>' : '');
+        $ret .= (!empty($object->photo) ? $langs->transnoentities('Photo') . ' : ' . $object->photo . '<br>' : '');
 
-		return $ret;
-	}
+        return $ret;
+    }
 }
 
 /**

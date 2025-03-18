@@ -233,35 +233,58 @@ class Survey extends SaturneObject
     public function __construct(DoliDB $db)
     {
         parent::__construct($db, $this->module, $this->element);
+
+        // Set default values
+        $this->track_id = generate_random_id();
     }
 
     /**
      * Create object into database
      *
-     * @param  User $user      User that creates
-     * @param  bool $notrigger false = launch triggers after, true = disable triggers
-     * @return int             0 < if KO, ID of created object if OK
+     * @param  User      $user      User that creates
+     * @param  bool      $notrigger false = launch triggers after, true = disable triggers
+     * @return int                  0 < if KO, ID of created object if OK
+     * @throws Exception
      */
     public function create(User $user, bool $notrigger = false): int
     {
-        $this->track_id = generate_random_id();
+        global $conf;
         $result = parent::create($user, $notrigger);
-
         if ($result > 0) {
-            global $conf;
+            // Load Digiquali libraries
+            require_once __DIR__ . '/sheet.class.php';
 
-            require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
+            $sheet      = new Sheet($this->db);
+            $surveyLine = new SurveyLine($this->db);
 
-            $url = dol_buildpath('custom/digiquali/public/survey/public_survey.php?track_id=' . $this->track_id . '&entity=' . $conf->entity, 3);
+            $sheet->fetch($this->fk_sheet);
 
-            $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
+            if ($sheet->success_rate > 0) {
+                $this->success_rate = $sheet->success_rate;
+                $this->setValueFrom('success_rate', $this->success_rate, '', '', 'text', '', $user);
+            }
 
-            dol_mkdir($conf->digiquali->multidir_output[$conf->entity] . '/survey/' . $this->ref . '/qrcode/');
-            $file = $conf->digiquali->multidir_output[$conf->entity] . '/survey/' . $this->ref . '/qrcode/' . 'barcode_' . $this->track_id . '.png';
+            $sheet->fetchObjectLinked($this->fk_sheet, 'digiquali_' . $sheet->element);
+            if (!empty($sheet->linkedObjects['digiquali_question'])) {
+                foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
+                    $surveyLine->ref                     = $surveyLine->getNextNumRef();
+                    $surveyLine->entity                  = $this->entity;
+                    $surveyLine->status                  = 1;
+                    $surveyLine->{'fk_'. $this->element} = $this->id;
+                    $surveyLine->fk_question             = $question->id;
 
-            $imageData = $barcode->getBarcodePngData();
-            $imageData = imagecreatefromstring($imageData);
-            imagepng($imageData, $file);
+                    $surveyLine->create($user);
+                }
+            }
+
+            if ($this->context != 'createfromclone') {
+                $objectsMetadata = saturne_get_objects_metadata();
+                foreach ($objectsMetadata as $objectMetadata) {
+                    if (!empty(GETPOST($objectMetadata['post_name'])) && GETPOST($objectMetadata['post_name']) > 0) {
+                        $this->add_object_linked($objectMetadata['link_name'], GETPOST($objectMetadata['post_name']));
+                    }
+                }
+            }
         }
 
         return $result;
@@ -391,14 +414,10 @@ class Survey extends SaturneObject
             }
 
             // Add objects linked
-            $linkableElements = get_sheet_linkable_objects();
-            if (!empty($linkableElements)) {
-                foreach($linkableElements as $linkableElement) {
-                    if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-                        foreach($object->linkedObjectsIds[$linkableElement['link_name']] as $linkedElementId) {
-                            $objectFromClone->add_object_linked($linkableElement['link_name'], $linkedElementId);
-                        }
-                    }
+            $objectsMetadata = saturne_get_objects_metadata();
+            foreach ($objectsMetadata as $objectMetadata) {
+                if (!empty($object->linkedObjectsIds[$objectMetadata['link_name']])) {
+                    $object->add_object_linked($objectMetadata['link_name'], current($object->linkedObjectsIds[$objectMetadata['link_name']]));
                 }
             }
 

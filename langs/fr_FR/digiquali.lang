@@ -138,7 +138,7 @@ PercentageQuestionStep        = Nombre d'étapes du curseur
 #
 
 # Trigger - Déclencheur
-SheetAddQuestionTrigger = Question ajoutée
+ObjectAddQuestionTrigger = Question ajoutée au modèle %s %s
 
 # Data - Donnée
 Sheet                          = Modèle
@@ -210,12 +210,8 @@ IndustrialVehicles  = Véhicule industriel
 #
 
 # Trigger - Déclencheur
-ControlSetUserControllerTrigger = Changement du contrôleur par défaut par %s
-ControlSetVerdictTrigger        = Verdict défini sur %s
-AnswerSaveTrigger               = Réponses sauvergardées
-ControlReminderTrigger          = %s doit être controlé(e) dans %s jours au plus tard
-ObjectSetVerdictTrigger         = Le verdict du contrôle a été défini à %s
-
+ObjectSaveanswerTrigger = Réponses sauvergardées - %s %s
+ControlReminderTrigger  = %s doit être controlé(e) dans %s jours au plus tard
 
 # Data - Donnée
 Control                                        = Contrôle
