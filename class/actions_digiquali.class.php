@@ -193,7 +193,9 @@ class ActionsDigiquali
                     $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
                     $extraFieldsNames = ['qc_frequency', 'control_history_link'];
                     foreach ($extraFieldsNames as $extraFieldsName) {
-                        $extrafields->attributes[$object->table_element]['label'][$extraFieldsName] = $picto . $langs->transnoentities($extrafields->attributes[$object->table_element]['label'][$extraFieldsName]);
+                        if (isset($extrafields->attributes[$object->table_element]['label'][$extraFieldsName])) {
+                            $extrafields->attributes[$object->table_element]['label'][$extraFieldsName] = $picto . $langs->transnoentities($extrafields->attributes[$object->table_element]['label'][$extraFieldsName]);
+                        }
                     }
                 }
             }
@@ -238,11 +240,10 @@ class ActionsDigiquali
      * Overloading the saturnePrintFieldListLoopObject function : replacing the parent's function with the one below
      *
      * @param  array $parameters Hook metadata (context, etc...)
-     * @param  object $object    Current object
      * @return int               0 < on error, 0 on success, 1 to replace standard code
      * @throws Exception
      */
-    public function printFieldListSelect(array $parameters, object $object): int
+    public function printFieldListSelect(array $parameters): int
     {
         if (strpos($parameters['context'], 'sheetlist') !== false) {
             $sql = ',COUNT(ee.fk_target) AS nb_question';
@@ -390,7 +391,9 @@ class ActionsDigiquali
                     $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
                     $extraFieldsNames = ['qc_frequency', 'control_history_link'];
                     foreach ($extraFieldsNames as $extraFieldsName) {
-                        $extrafields->attributes[$object->table_element]['label'][$extraFieldsName] = $picto . $langs->transnoentities($extrafields->attributes[$object->table_element]['label'][$extraFieldsName]);
+                        if (isset($extrafields->attributes[$object->table_element]['label'][$extraFieldsName])) {
+                            $extrafields->attributes[$object->table_element]['label'][$extraFieldsName] = $picto . $langs->transnoentities($extrafields->attributes[$object->table_element]['label'][$extraFieldsName]);
+                        }
                     }
                 }
             }
