@@ -670,7 +670,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             $linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
 
             $result = $linkedObject->fetch($linkedObjectId);
-
+            get_parent_linked_object_qc_frequency($linkedObject, $elementArray);
             if ($result > 0) {
                 print '<tr><td class="titlefield">';
                 print $langs->trans($linkableElement['langs']);
