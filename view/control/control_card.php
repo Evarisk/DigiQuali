@@ -665,7 +665,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         }
 
         $linkedObject = $object->linkedObjects[$objectMetadata['link_name']][key($object->linkedObjects[$objectMetadata['link_name']])];
-        get_parent_linked_object_qc_frequency($linkedObject, $elementArray);
+        get_parent_linked_object_qc_frequency($linkedObject, $objectsMetadata);
         print '<tr><td class="titlefield">';
         print $langs->trans($objectMetadata['langs']);
         print '</td><td>';

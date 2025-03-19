@@ -57,6 +57,7 @@ function control_prepare_head(Control $object): array
 
 	$moreparam['documentType']       = 'ControlDocument';
     $moreparam['attendantTableMode'] = 'simple';
+    $moreparam['handlePhoto']        = true;
 
     return saturne_object_prepare_head($object, $head, $moreparam, true);
 }
