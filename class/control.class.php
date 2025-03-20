@@ -953,14 +953,18 @@ class Control extends SaturneObject
     {
         global $user, $langs;
 
-        $confName        = dol_strtoupper($this->module) . '_DASHBOARD_CONFIG';
+        $confName = dol_strtoupper($this->module) . '_DASHBOARD_CONFIG';
         $dashboardConfig = json_decode($user->conf->$confName);
         $array = ['graphs' => [], 'lists' => [], 'disabledGraphs' => []];
 
-        if (empty($dashboardConfig->graphs->ControlsTagsRepartition->hide)) {
-            $array['graphs'][] = $this->getNbControlsTagsByVerdict();
-        } else {
-            $array['disabledGraphs']['ControlsTagsRepartition'] = $langs->transnoentities('ControlsTagsRepartition');
+        if (isModEnabled('categorie')) {
+            if (empty($dashboardConfig->graphs->ControlsTagsRepartition->hide)) {
+                $array['graphs'][] = $this->getNbControlsTagsByVerdict();
+            } else {
+                $array['disabledGraphs']['ControlsTagsRepartition'] = $langs->transnoentities(
+                    'ControlsTagsRepartition'
+                );
+            }
         }
         if (empty($dashboardConfig->graphs->ControlsRepartition->hide)) {
             $array['graphs'][] = $this->getNbControlsByVerdict();
@@ -1075,7 +1079,8 @@ class Control extends SaturneObject
             ]
         ];
 
-        $categories = $category->get_all_categories('control');
+        $array['data'] = [];
+        $categories    = $category->get_all_categories('control');
         if (is_array($categories) && !empty($categories)) {
             foreach ($categories as $category) {
                 $arrayNbControlByVerdict = [];
@@ -1140,8 +1145,8 @@ class Control extends SaturneObject
             ]
         ];
 
-        $arrayNbControls = [];
-        for ($i = 1; $i < 13; $i++) {
+        $arrayNbControls = array_fill(0, count($years), array_fill(1, 12, 0));
+        for ($i = 1; $i <= 12; $i++) {
             foreach ($years as $key => $year) {
                 $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'MONTH (t.date_creation) = ' . $i . ' AND YEAR (t.date_creation) = ' . $year . ' AND t.status >= 0']);
                 if (is_array($controls) && !empty($controls)) {
@@ -1149,10 +1154,14 @@ class Control extends SaturneObject
                 }
             }
 
-            $month    = $langs->transnoentitiesnoconv('MonthShort'.sprintf('%02d', $i));
-            $arrayKey = $i - $startMonth;
-            $arrayKey = $arrayKey >= 0 ? $arrayKey : $arrayKey + 12;
-            $array['data'][$arrayKey] = [$month, $arrayNbControls[0][$i], $arrayNbControls[1][$i], $arrayNbControls[2][$i]];
+            $month    = $langs->transnoentitiesnoconv('MonthShort' . sprintf('%02d', $i));
+            $arrayKey = ($i - $startMonth + 12) % 12;
+            $array['data'][$arrayKey] = [
+                $month,
+                $arrayNbControls[0][$i],
+                $arrayNbControls[1][$i],
+                $arrayNbControls[2][$i]
+            ];
         }
         ksort($array['data']);
 

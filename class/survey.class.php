@@ -616,8 +616,8 @@ class Survey extends SaturneObject
             ]
         ];
 
-        $arrayNbSurveys = [];
-        for ($i = 1; $i < 13; $i++) {
+        $arrayNbSurveys = array_fill(0, count($years), array_fill(1, 12, 0));
+        for ($i = 1; $i <= 12; $i++) {
             foreach ($years as $key => $year) {
                 $surveys = $this->fetchAll('', '', 0, 0, ['customsql' => 'MONTH (t.date_creation) = ' . $i . ' AND YEAR (t.date_creation) = ' . $year . ' AND t.status >= 0']);
                 if (is_array($surveys) && !empty($surveys)) {
@@ -626,9 +626,13 @@ class Survey extends SaturneObject
             }
 
             $month    = $langs->transnoentitiesnoconv('MonthShort' . sprintf('%02d', $i));
-            $arrayKey = $i - $startMonth;
-            $arrayKey = $arrayKey >= 0 ? $arrayKey : $arrayKey + 12;
-            $array['data'][$arrayKey] = [$month, $arrayNbSurveys[0][$i], $arrayNbSurveys[1][$i], $arrayNbSurveys[2][$i]];
+            $arrayKey = ($i - $startMonth + 12) % 12;
+            $array['data'][$arrayKey] = [
+                $month,
+                $arrayNbSurveys[0][$i],
+                $arrayNbSurveys[1][$i],
+                $arrayNbSurveys[2][$i]
+            ];
         }
         ksort($array['data']);
 
