@@ -325,7 +325,7 @@ class ActionsDigiquali
     public function printFieldListWhere(array $parameters): int
     {
         if (strpos($parameters['context'], 'controllist') !== false) {
-            if ($parameters['search']['verdict'] != '' && $parameters['search']['verdict'] == 0) {
+            if (isset($parameters['search']['verdict']) && $parameters['search']['verdict'] != '' && $parameters['search']['verdict'] == 0) {
                 $sql = ' OR (t.verdict IS NULL)';
                 $this->resprints = $sql;
             }
@@ -750,11 +750,12 @@ class ActionsDigiquali
 
             $filter      = ['customsql' => 'fk_object = ' . $object->id . ' AND status > 0 AND object_type = "' . $object->element . '"'];
             $signatories = $signatory->fetchAll('', 'role', 0, 0, $filter);
+
             $conf->cache['signatories'] = $signatories;
+            $conf->cache['contact']     = [];
+            $conf->cache['user']        = [];
+            $conf->cache['thirdparty']  = [];
             if (is_array($signatories) && !empty($signatories)) {
-                $conf->cache['contact']    = [];
-                $conf->cache['user']       = [];
-                $conf->cache['thirdparty'] = [];
                 foreach ($signatories as $signatory) {
                     // fetch user or contact depending on the element type of the signatory
                     if ($signatory->element_type == 'user') {

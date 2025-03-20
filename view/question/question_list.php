@@ -128,7 +128,7 @@ foreach ($object->fields as $key => $val) {
             'checked'  => (($visible < 0) ? 0 : 1),
             'enabled'  => ($visible != 3 && dol_eval($val['enabled'])),
             'position' => $val['position'],
-            'help'     => $val['help']
+            'help'     => $val['help'] ?? '',
         ];
     }
 }
