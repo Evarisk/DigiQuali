@@ -57,6 +57,7 @@ function control_prepare_head(Control $object): array
 
 	$moreparam['documentType']       = 'ControlDocument';
     $moreparam['attendantTableMode'] = 'simple';
+    $moreparam['handlePhoto']        = true;
 
     return saturne_object_prepare_head($object, $head, $moreparam, true);
 }
@@ -67,7 +68,7 @@ function control_prepare_head(Control $object): array
  * @param  CommonObject $linkedObject     Linked object (product, productlot, project, etc.)
  * @param  array        $linkableElements Array of linkable elements infos (product, productlot, project, etc.)
  * @return array        $out              Array of linked object infos to display on public interface
- * @see    get_sheet_linkable_objects()   Get linkable objects for sheet for example (product, productlot, project, etc.)
+ * @see    saturne_get_objects_metadata() Get linkable objects for sheet for example (product, productlot, project, etc.)
  */
 function get_linked_object_infos(CommonObject $linkedObject, array $linkableElements): array
 {
@@ -90,12 +91,8 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
     if ($linkedObject->element == 'product') {
         $modulePart = 'produit';
     }
-    if ($linkedObject->element == 'productlot') {
-        $linkedObject->element = 'productbatch';
-    }
-
     $out['linkedObject']['images'] = saturne_show_medias_linked($modulePart, $conf->{$linkedObject->element}->multidir_output[$conf->entity] . '/' . $linkedObject->ref . '/', 'small', 1, 0, 0, 0, 100, 100, 0, 0, 1,  $linkedObject->ref . '/', $linkedObject, 'photo', 0, 0,0, 1);
-    if ($linkedObject->element == 'productbatch') {
+    if ($linkedObject->element == 'productlot') {
         $linkedObject->element = 'product_lot';
     }
 
@@ -127,9 +124,9 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
         $file->name_field = $out['linkedObject']['name_field'];
     }
 
-    get_parent_linked_object_qc_frequency($linkedObject, $linkableElements);
-    if (!empty($linkedObject->array_options['options_qc_frequency']) && getDolGlobalInt('DIGIQUALI_SHOW_QC_FREQUENCY_PUBLIC_INTERFACE')) {
-        $out['linkedObject']['qc_frequency'] = '<i class="objet-icon fas fa-history"></i>' . $linkedObject->array_options['options_qc_frequency'];
+    $qcFrequency = get_parent_linked_object_qc_frequency($linkedObject, $linkableElements);
+    if ($qcFrequency > 0 && getDolGlobalInt('DIGIQUALI_SHOW_QC_FREQUENCY_PUBLIC_INTERFACE')) {
+        $out['linkedObject']['qc_frequency'] = '<i class="objet-icon fas fa-history"></i>' . $qcFrequency;
     }
 
     $out['parentLinkedObject']['files']  = [];
@@ -146,7 +143,7 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
         if (!empty($linkedObjectParentData['class_path'])) {
             require_once DOL_DOCUMENT_ROOT . '/' . $linkedObjectParentData['class_path'];
 
-            $parentLinkedObject = new $linkedObjectParentData['className']($db);
+            $parentLinkedObject = new $linkedObjectParentData['class_name']($db);
 
             $parentLinkedObject->fetch($linkedObject->{$linkableElement['fk_parent']});
 
@@ -247,43 +244,10 @@ function get_control_infos(CommonObject $linkedObject): array
         }
     }
 
-    if (!empty($lastControl->next_control_date)) {
-        $nextControl                                   = (int) round(($lastControl->next_control_date - dol_now('tzuser'))/(3600 * 24));
-        $out['nextControl']['title']                   = $langs->transnoentities('NextControl');
-        $out['nextControl']['next_control_date']       = '<i class="objet-icon far fa-calendar"></i>' . dol_print_date($lastControl->next_control_date, 'day');
-        $out['nextControl']['next_control_date_color'] = $lastControl->getNextControlDateColor();
-        $out['nextControl']['next_control']            = '<i class="objet-icon far fa-clock"></i>' . $langs->transnoentities('In') . ' ' . $nextControl . ' ' . $langs->transnoentities('Days');
-        if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWriteControl) {
-            if ($linkedObject->element == 'productlot') {
-                $linkedObject->element = 'productbatch';
-            }
-
-            $arraySelected = '';
-            if (isModEnabled('categorie')) {
-                require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
-                $category   = new Categorie($db);
-                $categories = $category->containing($lastControl->id, $lastControl->element);
-                if (is_array($categories) && !empty($categories)) {
-                    $arraySelected = '&categories=' . implode(',', array_column($categories, 'id'));
-                }
-            }
-
-            $moreParams = '&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id . '&fk_sheet=' . $lastControl->fk_sheet . '&fk_user_controller=' . $lastControl->fk_user_controller . '&projectid=' . $lastControl->projectid . $arraySelected;
-            $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1) . '" target="_blank"><i class="button-icon fas fa-plus"></i></a>';
-            if ($linkedObject->element == 'productbatch') {
-                $linkedObject->element = 'productlot';
-            }
-        }
-        $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
-        $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
-        $out['nextControl']['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
-    } else {
+    if (!empty($lastControl)) {
+        $nextControl                 = (int) round(($lastControl->next_control_date - dol_now('tzuser'))/(3600 * 24));
         $out['nextControl']['title'] = $langs->transnoentities('NoPeriodicityControl');
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWriteControl) {
-            if ($linkedObject->element == 'productlot') {
-                $linkedObject->element = 'productbatch';
-            }
-
             $arraySelected = '';
             if (isModEnabled('categorie')) {
                 require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
@@ -294,28 +258,24 @@ function get_control_infos(CommonObject $linkedObject): array
                 }
             }
 
-            $moreParams = '&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id . '&fk_sheet=' . $lastControl->fk_sheet . '&fk_user_controller=' . $lastControl->fk_user_controller . '&projectid=' . $lastControl->projectid . $arraySelected;
+            $moreParams = '&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id . '&fk_sheet=' . $lastControl->fk_sheet . '&fk_user_controller=' . $lastControl->fk_user_controller . (!empty($lastControl->projectid) ? '&projectid=' . $lastControl->projectid : '') . $arraySelected;
             $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create' . $moreParams, 1) . '" target="_blank"><i class="button-icon fas fa-plus"></i></a>';
-            if ($linkedObject->element == 'productbatch') {
-                $linkedObject->element = 'productlot';
-            }
         }
-        $verdictControlColor           = $lastControl->verdict == 1 ? 'green' : 'red';
-        $pictoControlColor             = $lastControl->verdict == 1 ? 'check' : 'exclamation';
+        $verdictControlColor           = $nextControl > 0 && $lastControl->verdict == 1 ? 'green' : 'red';
+        $pictoControlColor             = $nextControl > 0 && $lastControl->verdict == 1 ? 'check' : 'exclamation';
         $out['nextControl']['verdict'] = '<div class="wpeo-button button-square-60 button-radius-1 button-' . $verdictControlColor . ' button-disable-hover button-flex"><i class="button-icon fas fa-' . $pictoControlColor . '"></i></div>';
+        if (!empty($lastControl->next_control_date)) {
+            $out['nextControl']['title']                   = $langs->transnoentities('NextControl');
+            $out['nextControl']['next_control_date']       = '<i class="objet-icon far fa-calendar"></i>' . dol_print_date($lastControl->next_control_date, 'day');
+            $out['nextControl']['next_control_date_color'] = $lastControl->getNextControlDateColor();
+            $out['nextControl']['next_control']            = '<i class="objet-icon far fa-clock"></i>' . $nextControl . ' ' . $langs->transnoentities('Days');
+        }
     }
 
     if (empty($filteredControls)) {
-        $out['nextControl']['verdict'] = '';
-        $out['nextControl']['title']   = $langs->transnoentities('NoControl');
+        $out['nextControl']['title'] = $langs->transnoentities('NoControl');
         if (getDolGlobalInt('DIGIQUALI_SHOW_ADD_CONTROL_BUTTON_ON_PUBLIC_INTERFACE') && $permissionToWriteControl) {
-            if ($linkedObject->element == 'productlot') {
-                $linkedObject->element = 'productbatch';
-            }
             $out['nextControl']['create_button'] = '<a class="wpeo-button button-square-60 button-radius-1 button-primary button-flex" href="' . dol_buildpath('custom/digiquali/view/control/control_card.php?action=create&fromtype=' . $linkedObject->element . '&fromid=' . $linkedObject->id, 1). '" target="_blank"><i class="button-icon fas fa-plus"></i></a>';
-            if ($linkedObject->element == 'productbatch') {
-                $linkedObject->element = 'productlot';
-            }
         }
     }
 
@@ -325,35 +285,39 @@ function get_control_infos(CommonObject $linkedObject): array
 /**
  * Get parent linked object qc frequency
  *
- * @param  CommonObject $linkedObject     Linked object (product, productlot, project, etc.)
- * @param  array        $linkableElements Array of linkable elements infos (product, productlot, project, etc.)
+ * @param  CommonObject $linkedObject    Linked object (product, productlot, project, etc.)
+ * @param  array        $objectsMetadata Array of objects with metadata  (product, productlot, project, etc.)
+ * @return int          $qcFrequency     QC frequency
+ * @throws Exception
  */
-function get_parent_linked_object_qc_frequency(CommonObject $linkedObject, array $linkableElements): void
+function get_parent_linked_object_qc_frequency(CommonObject $linkedObject, array $objectsMetadata): int
 {
-    global $db, $langs;
+    // Load Objects metadata
+    if (empty($objectsMetadata)) {
+        $objectsMetadata = saturne_get_objects_metadata();
+    }
 
-    $langs->load('users');
-
-    $linkableElement = $linkableElements[$linkedObject->element];
-    if (isset($linkableElement['fk_parent'])) {
-        $linkedObjectParentData = [];
-        foreach ($linkableElements as $value) {
-            if (isset($value['post_name']) && $value['post_name'] === $linkableElement['fk_parent']) {
-                $linkedObjectParentData = $value;
+    $qcFrequency    = 0;
+    $objectMetadata = $objectsMetadata[$linkedObject->element];
+    if (isset($objectMetadata['fk_parent'])) {
+        $parentLinkedObject = null;
+        foreach ($objectsMetadata as $objectMetadata) {
+            if (isset($objectMetadata['post_name']) && $objectMetadata['post_name'] === $objectMetadata['fk_parent']) {
+                $parentLinkedObject = $objectMetadata['object'];
                 break;
             }
         }
 
-        if (!empty($linkedObjectParentData['class_path'])) {
-            $parentLinkedObject = new $linkedObjectParentData['className']($db);
-
-            $parentLinkedObject->fetch($linkedObject->{$linkableElement['fk_parent']});
-
+        if ($parentLinkedObject != null) {
+            $parentLinkedObject->fetch($linkedObject->{$objectMetadata['fk_parent']});
             if (empty($linkedObject->array_options['options_qc_frequency']) && !empty($parentLinkedObject->array_options['options_qc_frequency'])) {
-                $linkedObject->array_options['options_qc_frequency'] = $parentLinkedObject->array_options['options_qc_frequency'] . ' ' . $langs->transnoentities('Days') . ' (' . $langs->transnoentities('Inherited') . ')';
+                $qcFrequency = $parentLinkedObject->array_options['options_qc_frequency'];
+                //. ' ' . $langs->transnoentities('Days') . ' (' . $langs->transnoentities('Inherited') . ')';
             }
         }
     }
+
+    return $qcFrequency;
 }
 
 /**

@@ -72,7 +72,7 @@ if ($action == 'save') {
         }
     }
 
-    $object->call_trigger('OBJECT_SAVEANSWER', $user);
+    $object->call_trigger(dol_strtoupper($object->element) . '_SAVEANSWER', $user);
     setEventMessages($langs->trans('AnswerSaved'), []);
     header('Location: ' . $_SERVER['PHP_SELF'] . (GETPOSTISSET('track_id') ? '?track_id=' . GETPOST('track_id', 'alpha')  . '&object_type=' . GETPOST('object_type', 'alpha') . '&document_type=' . GETPOST('document_type', 'alpha') . '&entity=' . $conf->entity : '?id=' . GETPOST('id', 'int')));
     exit;

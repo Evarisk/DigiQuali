@@ -233,35 +233,58 @@ class Survey extends SaturneObject
     public function __construct(DoliDB $db)
     {
         parent::__construct($db, $this->module, $this->element);
+
+        // Set default values
+        $this->track_id = generate_random_id();
     }
 
     /**
      * Create object into database
      *
-     * @param  User $user      User that creates
-     * @param  bool $notrigger false = launch triggers after, true = disable triggers
-     * @return int             0 < if KO, ID of created object if OK
+     * @param  User      $user      User that creates
+     * @param  bool      $notrigger false = launch triggers after, true = disable triggers
+     * @return int                  0 < if KO, ID of created object if OK
+     * @throws Exception
      */
     public function create(User $user, bool $notrigger = false): int
     {
-        $this->track_id = generate_random_id();
+        global $conf;
         $result = parent::create($user, $notrigger);
-
         if ($result > 0) {
-            global $conf;
+            // Load Digiquali libraries
+            require_once __DIR__ . '/sheet.class.php';
 
-            require_once TCPDF_PATH . 'tcpdf_barcodes_2d.php';
+            $sheet      = new Sheet($this->db);
+            $surveyLine = new SurveyLine($this->db);
 
-            $url = dol_buildpath('custom/digiquali/public/survey/public_survey.php?track_id=' . $this->track_id . '&entity=' . $conf->entity, 3);
+            $sheet->fetch($this->fk_sheet);
 
-            $barcode = new TCPDF2DBarcode($url, 'QRCODE,L');
+            if ($sheet->success_rate > 0) {
+                $this->success_rate = $sheet->success_rate;
+                $this->setValueFrom('success_rate', $this->success_rate, '', '', 'text', '', $user);
+            }
 
-            dol_mkdir($conf->digiquali->multidir_output[$conf->entity] . '/survey/' . $this->ref . '/qrcode/');
-            $file = $conf->digiquali->multidir_output[$conf->entity] . '/survey/' . $this->ref . '/qrcode/' . 'barcode_' . $this->track_id . '.png';
+            $sheet->fetchObjectLinked($this->fk_sheet, 'digiquali_' . $sheet->element);
+            if (!empty($sheet->linkedObjects['digiquali_question'])) {
+                foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
+                    $surveyLine->ref                     = $surveyLine->getNextNumRef();
+                    $surveyLine->entity                  = $this->entity;
+                    $surveyLine->status                  = 1;
+                    $surveyLine->{'fk_'. $this->element} = $this->id;
+                    $surveyLine->fk_question             = $question->id;
 
-            $imageData = $barcode->getBarcodePngData();
-            $imageData = imagecreatefromstring($imageData);
-            imagepng($imageData, $file);
+                    $surveyLine->create($user);
+                }
+            }
+
+            if ($this->context != 'createfromclone') {
+                $objectsMetadata = saturne_get_objects_metadata();
+                foreach ($objectsMetadata as $objectMetadata) {
+                    if (!empty(GETPOST($objectMetadata['post_name'])) && GETPOST($objectMetadata['post_name']) > 0) {
+                        $this->add_object_linked($objectMetadata['link_name'], GETPOST($objectMetadata['post_name']));
+                    }
+                }
+            }
         }
 
         return $result;
@@ -287,7 +310,7 @@ class Survey extends SaturneObject
      *
      * @return int 0 < if KO, > 0 if OK
      */
-    public function isErasable(): int
+    public function is_erasable(): int
     {
         return $this->isLinkedToOtherObjects();
     }
@@ -391,14 +414,10 @@ class Survey extends SaturneObject
             }
 
             // Add objects linked
-            $linkableElements = get_sheet_linkable_objects();
-            if (!empty($linkableElements)) {
-                foreach($linkableElements as $linkableElement) {
-                    if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-                        foreach($object->linkedObjectsIds[$linkableElement['link_name']] as $linkedElementId) {
-                            $objectFromClone->add_object_linked($linkableElement['link_name'], $linkedElementId);
-                        }
-                    }
+            $objectsMetadata = saturne_get_objects_metadata();
+            foreach ($objectsMetadata as $objectMetadata) {
+                if (!empty($object->linkedObjectsIds[$objectMetadata['link_name']])) {
+                    $object->add_object_linked($objectMetadata['link_name'], current($object->linkedObjectsIds[$objectMetadata['link_name']]));
                 }
             }
 
@@ -493,6 +512,47 @@ class Survey extends SaturneObject
     }
 
     /**
+     * Return HTML string to put an input field into a page
+     * Code very similar with showInputField of extra fields
+     *
+     * @param  string          $key         Key of attribute
+     * @param  string|string[] $value       Preselected value to show (for date type it must be in timestamp format, for amount or price it must be a php numeric value, for array type must be array)
+     * @param  string          $moreparam   To add more parameters on html input tag
+     * @param  string          $keysuffix   Suffix string to add into name and id of field (can be used to avoid duplicate names)
+     * @param  string          $keyprefix   Prefix string to add into name and id of field (can be used to avoid duplicate names)
+     * @param  string|int      $morecss     Value for css to define style/length of field. May also be a numeric
+     * @param  int<0,1>        $nonewbutton Force to not show the new button on field that are links to object
+     * @return string          $out         HTML string to put an input field into a page
+     * @throws Exception
+     */
+    public function showInputField($val, $key, $value, $moreparam = '', $keysuffix = '', $keyprefix = '', $morecss = 0, $nonewbutton = 0): string
+    {
+        $objectsMetadata = saturne_get_objects_metadata();
+        foreach($objectsMetadata as $objectMetadata) {
+            if ($objectMetadata['conf'] > 0 && $key == $objectMetadata['post_name']) {
+                $out          = '';
+                $objectArrays = [];
+                $objects      = saturne_fetch_all_object_type($objectMetadata['class_name']);
+                if (is_array($objects) && !empty($objects)) {
+                    $nameFields = explode(', ', $objectMetadata['name_field']);
+                    foreach ($objects as $object) {
+                        $objectArrays[$object->id] = array_reduce($nameFields, function($carry, $field) use ($object) {
+                            return $carry . ' ' . $object->{$field};
+                        });
+                    }
+
+                    $out = Form::selectarray($keyprefix . $key . $keysuffix, $objectArrays, $value, 1, 0, 0, '', 0, 0, 0, '', !empty($val['css']) ? $val['css'] : 'minwidth200 maxwidth300 widthcentpercentminusx');
+                }
+
+                return $out;
+            }
+        }
+
+        return parent::showInputField($val, $key, $value, $moreparam, $keysuffix, $keyprefix, $morecss, $nonewbutton);
+    }
+
+
+    /**
      * Load dashboard info
      *
      * @return array
@@ -503,7 +563,7 @@ class Survey extends SaturneObject
         global $user, $langs;
 
         $confName        = dol_strtoupper($this->module) . '_DASHBOARD_CONFIG';
-        $dashboardConfig = json_decode($user->conf->$confName);
+        $dashboardConfig = property_exists($user->conf, $confName) ? json_decode($user->conf->$confName) : null;
         $array = ['graphs' => [], 'disabledGraphs' => []];
 
         if (empty($dashboardConfig->graphs->SurveysByFiscalYear->hide)) {
@@ -556,8 +616,8 @@ class Survey extends SaturneObject
             ]
         ];
 
-        $arrayNbSurveys = [];
-        for ($i = 1; $i < 13; $i++) {
+        $arrayNbSurveys = array_fill(0, count($years), array_fill(1, 12, 0));
+        for ($i = 1; $i <= 12; $i++) {
             foreach ($years as $key => $year) {
                 $surveys = $this->fetchAll('', '', 0, 0, ['customsql' => 'MONTH (t.date_creation) = ' . $i . ' AND YEAR (t.date_creation) = ' . $year . ' AND t.status >= 0']);
                 if (is_array($surveys) && !empty($surveys)) {
@@ -566,9 +626,13 @@ class Survey extends SaturneObject
             }
 
             $month    = $langs->transnoentitiesnoconv('MonthShort' . sprintf('%02d', $i));
-            $arrayKey = $i - $startMonth;
-            $arrayKey = $arrayKey >= 0 ? $arrayKey : $arrayKey + 12;
-            $array['data'][$arrayKey] = [$month, $arrayNbSurveys[0][$i], $arrayNbSurveys[1][$i], $arrayNbSurveys[2][$i]];
+            $arrayKey = ($i - $startMonth + 12) % 12;
+            $array['data'][$arrayKey] = [
+                $month,
+                $arrayNbSurveys[0][$i],
+                $arrayNbSurveys[1][$i],
+                $arrayNbSurveys[2][$i]
+            ];
         }
         ksort($array['data']);
 

@@ -325,7 +325,7 @@ $title    = $langs->trans('Sheet');
 $help_url = 'FR:Module_DigiQuali';
 $moreJS   = ['/saturne/js/includes/hammer.min.js'];
 
-$elementArray = get_sheet_linkable_objects();
+$objectsMetadata = saturne_get_objects_metadata();
 
 saturne_header(1,'', $title, $help_url, '', 0, 0, $moreJS);
 
@@ -359,30 +359,28 @@ if ($action == 'create') {
     print $form::selectarray('type', $object->fields['type']['arrayofkeyval'], GETPOST('type'));
     print '</td></tr>';
 
-	//FK Element
-	$linkableObject = 0;
-	foreach ($elementArray as $key => $element) {
-		if (!empty($element['conf'])) {
-			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
-			$linkedObjects = empty(GETPOST("linked_object")) ? [] : GETPOST("linked_object");
-			if ($conf->global->DIGIQUALI_SHEET_UNIQUE_LINKED_ELEMENT) {
-				print '<input type="radio" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
-			} else {
-				print '<input type="checkbox" id="show_' . $key . '" name="linked_object[]" value="'.$key.'" '. (in_array($key, $linkedObjects) ? 'checked' : '') .'>';
-			}
-			print '</td></tr>';
-			$linkableObject++;
-		}
-	}
+    //FK Element
+    $nbLinkableElements = 0;
+    foreach ($objectsMetadata as $objectType => $objectMetadata) {
+        if ($objectMetadata['conf'] == 0) {
+            continue;
+        }
 
-	if ($linkableObject == 0) {
-		print '<div class="wpeo-notice notice-warning notice-red">';
-		print '<div class="notice-content">';
-		print '<a href="' . dol_buildpath('/custom/digiquali/admin/sheet.php', 2) . '">' . '<b><div class="notice-subtitle">'.$langs->trans("ConfigElementLinked") . ' : ' . $langs->trans('ConfigSheet') . '</b></a>';
-		print '</div>';
-		print '</div>';
-		print '</div>';
-	}
+        print '<tr><td class="">' . img_picto('', $objectMetadata['picto'], 'class="paddingrightonly"') . $langs->trans($objectMetadata['langs']) . '</td><td>';
+        $linkedObjects = empty(GETPOST('linked_object')) ? [] : GETPOST('linked_object');
+        if ($conf->global->DIGIQUALI_SHEET_UNIQUE_LINKED_ELEMENT) {
+            print '<input type="radio" id="show_' . $objectType . '" name="linked_object[]" value="' . $objectType . '"' . (in_array($objectType, $linkedObjects) ? 'checked' : '') .'>';
+        } else {
+            print '<input type="checkbox" id="show_' . $objectType . '" name="linked_object[]" value="' . $objectType . '"' . (in_array($objectType, $linkedObjects) ? 'checked' : '') .'>';
+        }
+        print '</td></tr>';
+        $nbLinkableElements++;
+    }
+
+    if ($nbLinkableElements == 0) {
+        $noticeMessage = '<a href="' . dol_buildpath('custom/digiquali/admin/sheet.php', 1) . '">' . $langs->transnoentities('MissingConfigElementTypeMessage') . '</a>';
+        print saturne_show_notice($langs->transnoentities('MissingConfigElementTypeTitle'), $noticeMessage, 'error', 'notice-infos', true);
+    }
 
 	if (!empty($conf->categorie->enabled)) {
 		// Categories

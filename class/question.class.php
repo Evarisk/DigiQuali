@@ -115,7 +115,7 @@ class Question extends SaturneObject
         'date_creation'          => ['type' => 'datetime',     'label' => 'DateCreation',         'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 2],
         'tms'                    => ['type' => 'timestamp',    'label' => 'DateModification',     'enabled' => 1, 'position' => 50,  'notnull' => 0, 'visible' => 0],
         'import_key'             => ['type' => 'varchar(14)',  'label' => 'ImportId',             'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
-        'status'                 => ['type' => 'smallint',     'label' => 'Status',               'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'default' => 0, 'arrayofkeyval' => ['specialCase' => 'InProgressAndLocked', 1 => 'InProgress', 2 => 'Locked', 3 => 'Archived'], 'css' => 'minwidth200'],
+        'status'                 => ['type' => 'smallint',     'label' => 'Status',               'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'searchmulti' => 1, 'default' => 0, 'arrayofkeyval' => [1 => 'InProgress', 2 => 'Locked', 3 => 'Archived'], 'css' => 'minwidth200'],
 		'type'                   => ['type' => 'varchar(128)', 'label' => 'Type',                 'enabled' => 1, 'position' => 80,  'notnull' => 1, 'visible' => 1],
 		'label'                  => ['type' => 'varchar(255)', 'label' => 'Label',                'enabled' => 1, 'position' => 11,  'notnull' => 1, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200', 'showoncombobox' => 1],
 		'description'            => ['type' => 'html',         'label' => 'Description',          'enabled' => 1, 'position' => 12, 'notnull' => 0, 'visible' => 1],
@@ -255,7 +255,7 @@ class Question extends SaturneObject
 	 *
 	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function isErasable() {
+	public function is_erasable() {
 		return $this->isLinkedToOtherObjects();
 	}
 

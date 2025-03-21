@@ -120,7 +120,7 @@ if (!isModEnabled('multicompany')) {
 $conf->setEntityValues($db, $entity);
 
 // Load linkable elements
-$linkableElements = get_sheet_linkable_objects();
+$linkableElements = saturne_get_objects_metadata();
 
 // Load object
 $objectDataJson = base64_decode($trackId);
@@ -133,14 +133,7 @@ $linkedObject = new $objectType($db);
 $linkedObject->fetch($objectId);
 
 $linkableElement = $linkableElements[$linkedObject->element];
-// TODO voir si on peut pas enlever ce if
-if ($linkedObject->element == 'productlot') {
-    $linkedObject->element = 'productbatch';
-}
 $linkedObject->fetchObjectLinked($objectId, $linkedObject->element, '', 'digiquali_control');
-if ($linkedObject->element == 'productbatch') {
-    $linkedObject->element = 'productlot';
-}
 
 // Routes to display different views
 $routes = [

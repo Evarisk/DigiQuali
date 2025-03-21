@@ -130,3 +130,7 @@ ALTER TABLE `llx_digiquali_control` ADD `label` VARCHAR(255) NULL AFTER `status`
 
 -- 20.1.0
 ALTER TABLE `llx_digiquali_question` ADD `json` TEXT NULL AFTER `photo_ko`;
+
+-- 21.1.0
+UPDATE llx_element_element SET sourcetype = 'productlot' WHERE sourcetype = 'productbatch' AND targettype = 'digiquali_control';
+UPDATE llx_element_element SET sourcetype = 'productlot' WHERE sourcetype = 'productbatch' AND targettype = 'digiquali_survey';

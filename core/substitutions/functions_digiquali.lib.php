@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2024 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2024-2025 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,13 +26,16 @@
  * functions xxx_completesubstitutionarray are called by make_substitutions() if file
  * is inside directory htdocs/core/substitutions
  *
- * @param  array              $substitutionarray Array with substitution key => val
- * @param  Translate          $langs             Output langs
- * @param  Object|string|null $object            Object to use to get values
- * @return void                                  The entry parameter $substitutionarray is modified
- * @throws Exception
+ * @param  array         $substitutionarray Array with substitution key => val
+ * @param  Translate     $outputLangs       Output langs
+ * @param  ?CommonObject $object            Object to use to get values
+ * @return void                             The entry parameter $substitutionarray is modified
  */
-function digiquali_completesubstitutionarray(array &$substitutionarray, Translate $langs, $object)
+function digiquali_completesubstitutionarray(array &$substitutionarray, Translate $outputLangs, ?CommonObject $object): void
 {
-    $substitutionarray['__OBJECT_ELEMENT_REF__'] = $langs->transnoentities('The' . ucfirst($object->element)) . ' ' . $object->ref;
+    if (!is_object($object)) {
+        return;
+    }
+
+    $substitutionarray['__OBJECT_ELEMENT_REF__'] = $outputLangs->transnoentities('The' . ucfirst($object->element)) . ' ' . $object->ref;
 }

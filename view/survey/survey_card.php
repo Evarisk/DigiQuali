@@ -102,6 +102,8 @@ if (empty($action) && empty($id) && empty($ref)) {
 // Load object
 require_once DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php'; // Must be included, not include_once
 
+$objectsMetadata = saturne_get_objects_metadata();
+
 $upload_dir = $conf->digiquali->multidir_output[$object->entity ?? 1];
 
 // Security check - Protection if external user
@@ -152,14 +154,10 @@ if (empty($resHook)) {
     }
 
     if ($action == 'add' && !$cancel) {
-        $linkableElements = get_sheet_linkable_objects();
         $linkedObjectSelected = 0;
-
-        if (!empty($linkableElements)) {
-            foreach ($linkableElements as $linkableElementType => $linkableElement) {
-                if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
-                    $linkedObjectSelected++;
-                }
+        foreach ($objectsMetadata as $objectType => $objectMetadata) {
+            if (!empty(GETPOST($objectMetadata['post_name'])) && GETPOST($objectMetadata['post_name']) > 0) {
+                $linkedObjectSelected++;
             }
         }
 
@@ -228,8 +226,6 @@ $moreJS  = ['/saturne/js/includes/hammer.min.js'];
 
 saturne_header(1,'', $title, $helpUrl, '', 0, 0, $moreJS);
 
-$elementArray = get_sheet_linkable_objects();
-
 // Part to create
 if ($action == 'create') {
     if (empty($permissiontoadd)) {
@@ -282,26 +278,26 @@ if ($action == 'create') {
 
     print '<div class="fields-content">';
 
-    foreach($elementArray as $linkableElementType => $linkableElement) {
-        if (!empty($linkableElement['conf'] && preg_match('/"' . $linkableElementType . '":1/', $sheet->element_linked))) {
-
+    foreach($objectsMetadata as $objectType => $objectMetadata) {
+        if (!empty($objectMetadata['conf'] && preg_match('/"' . $objectType . '":1/', $sheet->element_linked))) {
             $objectArray    = [];
-            $objectPostName = $linkableElement['post_name'];
-            $objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $linkableElement['link_name'] ? GETPOST('fromid') : '');
+            $objectPostName = $objectMetadata['post_name'];
+            $objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $objectMetadata['link_name'] ? GETPOST('fromid') : '');
 
-            if ((dol_strlen($linkableElement['fk_parent']) > 0 && GETPOST($linkableElement['parent_post']) > 0)) {
+            $objectFilter = [];
+            if ((dol_strlen($objectMetadata['fk_parent']) > 0 && GETPOST($objectMetadata['parent_post']) > 0)) {
                 $objectFilter = [
-                    'customsql' => $linkableElement['fk_parent'] . ' = ' . GETPOST($linkableElement['parent_post'])
+                    'customsql' => $objectMetadata['fk_parent'] . ' = ' . GETPOST($objectMetadata['parent_post'])
                 ];
-            } else {
-                $objectFilter = [];
+            } elseif (!empty($objectMetadata['filter'])) {
+                $objectFilter = ['customsql' => $objectMetadata['filter']];
             }
 
-            $objectList = saturne_fetch_all_object_type($linkableElement['className'], '', '', 0, 0, $objectFilter);
+            $objectList = saturne_fetch_all_object_type($objectMetadata['class_name'], '', '', 0, 0, $objectFilter);
             if (is_array($objectList) && !empty($objectList)) {
                 foreach($objectList as $objectSingle) {
                     $objectName = '';
-                    $nameField = $linkableElement['name_field'];
+                    $nameField = $objectMetadata['name_field'];
                     if (strstr($nameField, ',')) {
                         $nameFields = explode(', ', $nameField);
                         if (is_array($nameFields) && !empty($nameFields)) {
@@ -316,10 +312,10 @@ if ($action == 'create') {
                 }
             }
 
-            print '<tr><td class="titlefieldcreate">' . $langs->transnoentities($linkableElement['langs']) . '</td><td>';
-            print img_picto('', $linkableElement['picto'], 'class="pictofixedwidth"');
-            print $form::selectarray($objectPostName, $objectArray, $objectPost, $langs->trans('Select') . ' ' . strtolower($langs->trans($linkableElement['langs'])), 0, 0, '', 0, 0, dol_strlen(GETPOST('fromtype')) > 0 && GETPOST('fromtype') != $linkableElement['link_name'], '', 'maxwidth500 widthcentpercentminusxx');
-            print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/' . $linkableElement['create_url'] . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('Create') . ' ' . strtolower($langs->trans($linkableElement['langs'])) . '"></span></a>';
+            print '<tr><td class="titlefieldcreate">' . $langs->transnoentities($objectMetadata['langs']) . '</td><td>';
+            print img_picto('', $objectMetadata['picto'], 'class="pictofixedwidth"');
+            print $form::selectarray($objectPostName, $objectArray, $objectPost, $langs->trans('Select') . ' ' . strtolower($langs->trans($objectMetadata['langs'])), 0, 0, '', 0, 0, dol_strlen(GETPOST('fromtype')) > 0 && GETPOST('fromtype') != $objectMetadata['link_name'], '', 'maxwidth500 widthcentpercentminusxx');
+            print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/' . $objectMetadata['create_url'] . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('Create') . ' ' . strtolower($langs->trans($objectMetadata['langs'])) . '"></span></a>';
             print '</td></tr>';
         }
     }
@@ -476,28 +472,21 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print '</tr>';
     }
 
-    $object->fetchObjectLinked('', '', $object->id, 'digiquali_survey', 'OR', 1, 'sourcetype', 0);
-
-    foreach($elementArray as $linkableElementType => $linkableElement) {
-        if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-            $className    = $linkableElement['className'];
-            $linkedObject = new $className($db);
-
-            $linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
-            $linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
-
-            $result = $linkedObject->fetch($linkedObjectId);
-
-            if ($result > 0) {
-                print '<tr><td class="titlefield">';
-                print $langs->trans($linkableElement['langs']);
-                print '</td>';
-                print '<td>';
-
-                print $linkedObject->getNomUrl(1);
-                print '<td></tr>';
-            }
+    $object->fetchObjectLinked('', '', $object->id, 'digiquali_survey');
+    $linkedObjectType = key($object->linkedObjects);
+    foreach($objectsMetadata as $objectMetadata) {
+        if ($objectMetadata['conf'] == 0 || $objectMetadata['link_name'] != $linkedObjectType) {
+            continue;
         }
+
+        $linkedObject = $object->linkedObjects[$objectMetadata['link_name']][key($object->linkedObjects[$objectMetadata['link_name']])];
+
+        print '<tr><td class="titlefield">';
+        print $langs->trans($objectMetadata['langs']);
+        print '</td><td>';
+        print $linkedObject->getNomUrl(1);
+        print property_exists($linkedObject, $objectMetadata['label_field']) ? '<span class="opacitymedium">' . ' - ' . dol_trunc($linkedObject->{$objectMetadata['label_field']}) . '</span>' : '';
+        print '<td></tr>';
     }
 
     print '<tr class="linked-medias photo question-table"><td class=""><label for="photos">' . $langs->trans('Photo') . '</label></td><td class="linked-medias-list">';
