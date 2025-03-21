@@ -665,14 +665,14 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         }
 
         $linkedObject = $object->linkedObjects[$objectMetadata['link_name']][key($object->linkedObjects[$objectMetadata['link_name']])];
-        get_parent_linked_object_qc_frequency($linkedObject, $objectsMetadata);
         print '<tr><td class="titlefield">';
         print $langs->trans($objectMetadata['langs']);
         print '</td><td>';
         print $linkedObject->getNomUrl(1);
         print property_exists($linkedObject, $objectMetadata['label_field']) ? '<span class="opacitymedium">' . ' - ' . dol_trunc($linkedObject->{$objectMetadata['label_field']}) . '</span>' : '';
-        if ($linkedObject->array_options['options_qc_frequency'] > 0) {
-            print '<br><b>' . $langs->transnoentities('QcFrequency') . ' : ' . $linkedObject->array_options['options_qc_frequency'] . '</b>';
+        $qcFrequency = get_parent_linked_object_qc_frequency($linkedObject, $objectsMetadata);
+        if ($qcFrequency > 0 || !empty($linkedObject->array_options['options_qc_frequency'])) {
+            print '<br><b>' . $langs->transnoentities('QcFrequency') . ' : ' . ($qcFrequency > 0 ? $qcFrequency . '(' . $langs->transnoentities('Inherited') . ')' : $linkedObject->array_options['options_qc_frequency']) . '</b>';
         }
         print '<td></tr>';
     }
@@ -856,8 +856,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             $displayButton = $onPhone ? '<i class="fas fa-envelope fa-2x"></i>' : '<i class="fas fa-envelope"></i>' . ' ' . $langs->trans('SendMail') . ' ';
             if ($object->status == $object::STATUS_LOCKED) {
                 $fileparams = dol_most_recent_file($upload_dir . '/' . $object->element . 'document' . '/' . $object->ref);
-                $file       = $fileparams['fullname'];
-                if (file_exists($file) && !strstr($fileparams['name'], 'specimen')) {
+                if (!empty($fileparams) && file_exists($fileparams['fullname']) && !strstr($fileparams['name'], 'specimen')) {
                     $forcebuilddoc = 0;
                 } else {
                     $forcebuilddoc = 1;

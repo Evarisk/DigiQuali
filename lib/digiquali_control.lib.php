@@ -124,9 +124,9 @@ function get_linked_object_infos(CommonObject $linkedObject, array $linkableElem
         $file->name_field = $out['linkedObject']['name_field'];
     }
 
-    get_parent_linked_object_qc_frequency($linkedObject, $linkableElements);
-    if (!empty($linkedObject->array_options['options_qc_frequency']) && getDolGlobalInt('DIGIQUALI_SHOW_QC_FREQUENCY_PUBLIC_INTERFACE')) {
-        $out['linkedObject']['qc_frequency'] = '<i class="objet-icon fas fa-history"></i>' . $linkedObject->array_options['options_qc_frequency'];
+    $qcFrequency = get_parent_linked_object_qc_frequency($linkedObject, $linkableElements);
+    if ($qcFrequency > 0 && getDolGlobalInt('DIGIQUALI_SHOW_QC_FREQUENCY_PUBLIC_INTERFACE')) {
+        $out['linkedObject']['qc_frequency'] = '<i class="objet-icon fas fa-history"></i>' . $qcFrequency;
     }
 
     $out['parentLinkedObject']['files']  = [];
@@ -285,35 +285,39 @@ function get_control_infos(CommonObject $linkedObject): array
 /**
  * Get parent linked object qc frequency
  *
- * @param  CommonObject $linkedObject     Linked object (product, productlot, project, etc.)
- * @param  array        $linkableElements Array of linkable elements infos (product, productlot, project, etc.)
+ * @param  CommonObject $linkedObject    Linked object (product, productlot, project, etc.)
+ * @param  array        $objectsMetadata Array of objects with metadata  (product, productlot, project, etc.)
+ * @return int          $qcFrequency     QC frequency
+ * @throws Exception
  */
-function get_parent_linked_object_qc_frequency(CommonObject $linkedObject, array $linkableElements): void
+function get_parent_linked_object_qc_frequency(CommonObject $linkedObject, array $objectsMetadata): int
 {
-    global $db, $langs;
+    // Load Objects metadata
+    if (empty($objectsMetadata)) {
+        $objectsMetadata = saturne_get_objects_metadata();
+    }
 
-    $langs->load('users');
-
-    $linkableElement = $linkableElements[$linkedObject->element];
-    if (isset($linkableElement['fk_parent'])) {
-        $linkedObjectParentData = [];
-        foreach ($linkableElements as $value) {
-            if (isset($value['post_name']) && $value['post_name'] === $linkableElement['fk_parent']) {
-                $linkedObjectParentData = $value;
+    $qcFrequency    = 0;
+    $objectMetadata = $objectsMetadata[$linkedObject->element];
+    if (isset($objectMetadata['fk_parent'])) {
+        $parentLinkedObject = null;
+        foreach ($objectsMetadata as $objectMetadata) {
+            if (isset($objectMetadata['post_name']) && $objectMetadata['post_name'] === $objectMetadata['fk_parent']) {
+                $parentLinkedObject = $objectMetadata['object'];
                 break;
             }
         }
 
-        if (!empty($linkedObjectParentData['class_path'])) {
-            $parentLinkedObject = new $linkedObjectParentData['className']($db);
-
-            $parentLinkedObject->fetch($linkedObject->{$linkableElement['fk_parent']});
-
+        if ($parentLinkedObject != null) {
+            $parentLinkedObject->fetch($linkedObject->{$objectMetadata['fk_parent']});
             if (empty($linkedObject->array_options['options_qc_frequency']) && !empty($parentLinkedObject->array_options['options_qc_frequency'])) {
-                $linkedObject->array_options['options_qc_frequency'] = $parentLinkedObject->array_options['options_qc_frequency'] . ' ' . $langs->transnoentities('Days') . ' (' . $langs->transnoentities('Inherited') . ')';
+                $qcFrequency = $parentLinkedObject->array_options['options_qc_frequency'];
+                //. ' ' . $langs->transnoentities('Days') . ' (' . $langs->transnoentities('Inherited') . ')';
             }
         }
     }
+
+    return $qcFrequency;
 }
 
 /**

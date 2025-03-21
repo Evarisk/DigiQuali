@@ -563,7 +563,7 @@ class Survey extends SaturneObject
         global $user, $langs;
 
         $confName        = dol_strtoupper($this->module) . '_DASHBOARD_CONFIG';
-        $dashboardConfig = json_decode($user->conf->$confName);
+        $dashboardConfig = property_exists($user->conf, $confName) ? json_decode($user->conf->$confName) : null;
         $array = ['graphs' => [], 'disabledGraphs' => []];
 
         if (empty($dashboardConfig->graphs->SurveysByFiscalYear->hide)) {

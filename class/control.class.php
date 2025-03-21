@@ -953,9 +953,9 @@ class Control extends SaturneObject
     {
         global $user, $langs;
 
-        $confName = dol_strtoupper($this->module) . '_DASHBOARD_CONFIG';
-        $dashboardConfig = json_decode($user->conf->$confName);
-        $array = ['graphs' => [], 'lists' => [], 'disabledGraphs' => []];
+        $confName        = dol_strtoupper($this->module) . '_DASHBOARD_CONFIG';
+        $dashboardConfig = property_exists($user->conf, $confName) ? json_decode($user->conf->$confName) : null;
+        $array           = ['graphs' => [], 'lists' => [], 'disabledGraphs' => []];
 
         if (isModEnabled('categorie')) {
             if (empty($dashboardConfig->graphs->ControlsTagsRepartition->hide)) {
@@ -1083,7 +1083,7 @@ class Control extends SaturneObject
         $categories    = $category->get_all_categories('control');
         if (is_array($categories) && !empty($categories)) {
             foreach ($categories as $category) {
-                $arrayNbControlByVerdict = [];
+                $arrayNbControlByVerdict = [0 => 0, 1 => 0, 2 => 0];
                 $controls = $this->fetchAll('', '', 0, 0, ['customsql' => 'cp.fk_categorie = ' . $category->id . ' AND t.status >= 0'], 'AND', true);
                 if (is_array($controls) && !empty($controls)) {
                     foreach ($controls as $control) {
@@ -1599,7 +1599,7 @@ class ControlEquipment extends SaturneObject
      */
     public function fetchFromParent($control_id, $limit = 0)
     {
-        return $this->fetchAll('', '', $limit, 0, ['customsql' => 'fk_control = ' . $control_id . ' AND status > 0']);
+        return $this->fetchAll('', '', $limit, 0, ['customsql' => 'fk_control = ' . $control_id]);
     }
 
     /**
