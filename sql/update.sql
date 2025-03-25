@@ -130,3 +130,9 @@ ALTER TABLE `llx_digiquali_control` ADD `label` VARCHAR(255) NULL AFTER `status`
 
 -- 20.1.0
 ALTER TABLE `llx_digiquali_question` ADD `json` TEXT NULL AFTER `photo_ko`;
+
+-- 1.15.0
+ALTER TABLE `llx_digiquali_controldet` ADD `fk_question_group` integer DEFAULT 0 NOT NULL AFTER `fk_question`;
+ALTER TABLE `llx_digiquali_surveydet` ADD `fk_question_group` integer DEFAULT 0 NOT NULL AFTER `fk_question`;
+UPDATE `llx_digiquali_controldet` SET `fk_question_group` = 0 WHERE `fk_question_group` IS NULL;
+UPDATE `llx_digiquali_surveydet` SET `fk_question_group` = 0 WHERE `fk_question_group` IS NULL;
