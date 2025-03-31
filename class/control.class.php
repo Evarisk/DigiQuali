@@ -1225,7 +1225,7 @@ class Control extends SaturneObject
                     $arrayControlListsByNextControl[$control->id]['ControlDate']['value']   = dol_print_date($control->date_creation, 'day');
                     $arrayControlListsByNextControl[$control->id]['NextControl']['value']   = '<div class="wpeo-button" style="background-color: ' . $nextControlDateColor .'; border-color: ' . $nextControlDateColor . ' ">' . $nextControl . '<br>' . $langs->trans('Days') . '</div>';
                     $arrayControlListsByNextControl[$control->id]['NextControl']['morecss'] = 'dashboard-control';
-                    $arrayControlListsByNextControl[$control->id]['Verdict']['value']       = '<div class="wpeo-button button-'. $verdictColor .'">' . $control->fields['verdict']['arrayofkeyval'][(!empty($control->verdict)) ?: 3] . '</div>';
+                    $arrayControlListsByNextControl[$control->id]['Verdict']['value']       = '<div class="wpeo-button button-'. $verdictColor .'">' . $control->fields['verdict']['arrayofkeyval'][!is_null($control->verdict) ? $control->verdict : 3] . '</div>';
                     $arrayControlListsByNextControl[$control->id]['Verdict']['morecss']     = 'dashboard-control';
                 }
             }
