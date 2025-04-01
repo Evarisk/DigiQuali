@@ -118,7 +118,7 @@ function show_answer_from_question(Question $question, CommonObject $object, str
 
     $out            = '';
     $disabled       = ($object->status > $object::STATUS_DRAFT ? ' disabled' : '');
-    $questionConfig = json_decode($question->json, true)['config'];
+    $questionConfig = json_decode($question->json, true)['config'] ?? [];
 
     switch ($question->type) {
         case 'Text':
