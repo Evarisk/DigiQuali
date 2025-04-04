@@ -447,7 +447,7 @@ if (($id || $ref) && $action == 'edit') {
     //FK Element
 	$elementLinked = json_decode($object->element_linked);
 
-	foreach ($elementArray as $key => $element) {
+	foreach ($objectsMetadata as $key => $element) {
 		if (!empty($element['conf'])) {
 			print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';
 			if ($conf->global->DIGIQUALI_SHEET_UNIQUE_LINKED_ELEMENT) {
@@ -570,7 +570,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 	$elementLinked = json_decode($object->element_linked);
 
 	//FK Element
-	foreach ($elementArray as $key => $element) {
+	foreach ($objectsMetadata as $key => $element) {
 		if ($elementLinked->$key > 0) {
 			if (!empty($element['conf'])) {
 				print '<tr><td class="">' . img_picto('', $element['picto'], 'class="paddingrightonly"') . $langs->trans($element['langs']) . '</td><td>';

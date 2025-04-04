@@ -22,6 +22,7 @@ INSERT INTO `llx_c_question_type` (`rowid`, `entity`, `ref`, `label`, `descripti
 INSERT INTO `llx_c_question_type` (`rowid`, `entity`, `ref`, `label`, `description`, `active`, `position`) VALUES(5, 0, 'Range', 'Range', '', 1, 40);
 INSERT INTO `llx_c_question_type` (`rowid`, `entity`, `ref`, `label`, `description`, `active`, `position`) VALUES(6, 0, 'OkKo', 'OkKo', '', 1, 50);
 INSERT INTO `llx_c_question_type` (`rowid`, `entity`, `ref`, `label`, `description`, `active`, `position`) VALUES(7, 0, 'OkKoToFixNonApplicable', 'OkKoToFixNonApplicable', '', 1, 60);
+INSERT INTO `llx_c_question_type` (`rowid`, `entity`, `ref`, `label`, `description`, `active`, `position`) VALUES(8, 0, 'RangeOfValue', 'RangeOfValue', '', 1, 70);
 
 INSERT INTO `llx_c_control_attendants_role` (`rowid`, `entity`, `ref`, `label`, `description`, `active`, `position`) VALUES(1, 0, 'Controller', 'Controller', '', 1, 1);
 INSERT INTO `llx_c_control_attendants_role` (`rowid`, `entity`, `ref`, `label`, `description`, `active`, `position`) VALUES(2, 0, 'Attendant', 'Attendant', '', 1, 20);
