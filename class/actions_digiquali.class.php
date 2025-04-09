@@ -186,6 +186,8 @@ class ActionsDigiquali
     {
         global $conf, $extrafields, $langs, $user;
 
+        require_once __DIR__ . '/../../saturne/lib/object.lib.php';
+
         $objectsMetadata = saturne_get_objects_metadata();
         foreach($objectsMetadata as $objectMetadata) {
             if ($objectMetadata['tab_type'] == $object->element) {
@@ -295,6 +297,8 @@ class ActionsDigiquali
         }
 
         if (preg_match('/surveylist|controllist/', $parameters['context'])) {
+            require_once __DIR__ . '/../../saturne/lib/object.lib.php';
+
             $objectsMetadata = saturne_get_objects_metadata();
             foreach($objectsMetadata as $objectMetadata) {
                 if ($objectMetadata['conf'] == 0) {
@@ -383,6 +387,8 @@ class ActionsDigiquali
     public function printFieldListOption(array $parameters, $object): int
     {
         global $extrafields, $langs;
+
+        require_once __DIR__ . '/../../saturne/lib/object.lib.php';
 
         $objectsMetadata = saturne_get_objects_metadata();
         foreach($objectsMetadata as $objectMetadata) {
