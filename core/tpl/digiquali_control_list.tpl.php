@@ -414,7 +414,7 @@ while ($i < ($limit ? min($num, $limit) : $num))
 	// Store properties in $object
 	$object->setVarsFromFetchObj($obj);
 
-    $filter      = ['customsql' => 'fk_object=' . $object->id . ' AND status > 0 AND object_type="' . $object->element . '"'];
+    $filter      = ['customsql' => 'fk_object=' . $object->id . ' AND status > 0 AND object_type=\'' . $object->element . '\''];
     $signatories = $signatory->fetchAll('', 'role', 0, 0, $filter);
 
 	// Show here line of result
