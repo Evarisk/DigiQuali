@@ -37,7 +37,7 @@ $sql = preg_replace('/,\s*$/', '', $sql);
 foreach($elementElementFields as $genericName => $elementElementName) {
     if (GETPOST('search_' . $genericName) > 0 || $fromtype == $elementElementName) {
         $id_tosearch = GETPOST('search' . $genericName) ?: $fromid;
-        $sql .= ',' .  $elementElementName . '.fk_source, ';
+        $sql .= ', ' .  $elementElementName . '.fk_source, ';
     }
 }
 $sql = rtrim($sql, ', ');
