@@ -540,8 +540,8 @@ while ($i < ($limit ? min($num, $limit) : $num))
 
                         $actioncomm = new ActionComm($db);
 
-                        $lastValidateAction = $actioncomm->getActions(0, $object->id, 'control@digiquali', ' AND a.code = "AC_CONTROL_VALIDATE"', 'a.datep', 'DESC', 1);
-                        $lastReOpenAction   = $actioncomm->getActions(0, $object->id, 'control@digiquali', ' AND a.code = "AC_CONTROL_UNVALIDATE"', 'a.datep', 'DESC', 1);
+                        $lastValidateAction = $actioncomm->getActions(0, $object->id, 'control@digiquali', ' AND a.code = \'AC_CONTROL_VALIDATE\'', 'a.datep', 'DESC', 1);
+                        $lastReOpenAction   = $actioncomm->getActions(0, $object->id, 'control@digiquali', ' AND a.code = \'AC_CONTROL_UNVALIDATE\'', 'a.datep', 'DESC', 1);
 
                         $lastValidateDate   = (is_array($lastValidateAction) && !empty($lastValidateAction) ? $lastValidateAction[0]->datec : 0);
                         $lastReOpenDate     = (is_array($lastReOpenAction) && !empty($lastReOpenAction) ? $lastReOpenAction[0]->datec : '');
