@@ -211,7 +211,7 @@ class ActionsDigiquali
             if (isModEnabled('easyurl')) {
                 require_once DOL_DOCUMENT_ROOT . '/custom/easyurl/class/shortener.class.php';
                 $shortener = new Shortener($this->db);
-                $result    = $shortener->fetch('', '', ' AND t.original_url = "' . $publicControlInterfaceUrl . '"');
+                $result    = $shortener->fetch('', '', ' AND t.original_url = \'' . $publicControlInterfaceUrl . '\'');
                 if ($result > 0) {
                     $publicControlInterfaceUrl = $shortener->short_url;
                 } else {
@@ -289,7 +289,7 @@ class ActionsDigiquali
             if (isModEnabled('easyurl')) {
                 require_once DOL_DOCUMENT_ROOT . '/custom/easyurl/class/shortener.class.php';
                 $shortener = new Shortener($this->db);
-                $result    = $shortener->fetch('', '', ' AND t.original_url = "' . $publicControlInterfaceUrl . '"');
+                $result    = $shortener->fetch('', '', ' AND t.original_url = \'' . $publicControlInterfaceUrl . '\'');
                 if ($result > 0) {
                     $publicControlInterfaceUrl = $shortener->short_url;
                 } else {
