@@ -37,12 +37,12 @@ if (is_array($extrafields->attributes[$object->table_element]['label']) && count
 foreach($elementElementFields as $genericName => $elementElementName) {
 	if (GETPOST('search_'.$genericName) > 0 || $fromtype == $elementElementName) {
 		$id_to_search = GETPOST('search_'.$genericName) ?: $fromid;
-		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementName .' on ('. $elementElementName .'.fk_source = ' . $id_to_search . ' AND '. $elementElementName .'.sourcetype="'. $elementElementName .'" AND '. $elementElementName .'.targettype = "digiquali_survey")';
+		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementName .' on ('. $elementElementName .'.fk_source = ' . $id_to_search . ' AND '. $elementElementName .'.sourcetype=\''. $elementElementName .'\' AND '. $elementElementName .'.targettype = "digiquali_survey")';
 	}
 }
 
 if (array_key_exists($sortfield,$elementElementFields) && !preg_match('/' . 'LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementFields[$sortfield] .'/', $sql)) {
-	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementFields[$sortfield] .' on ( '. $elementElementFields[$sortfield] .'.sourcetype="'. $elementElementFields[$sortfield] .'" AND '. $elementElementFields[$sortfield] .'.targettype = "digiquali_survey" AND '. $elementElementFields[$sortfield] .'.fk_target = t.rowid)';
+	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementFields[$sortfield] .' on ( '. $elementElementFields[$sortfield] .'.sourcetype=\''. $elementElementFields[$sortfield] .'\' AND '. $elementElementFields[$sortfield] .'.targettype = "digiquali_survey" AND '. $elementElementFields[$sortfield] .'.fk_target = t.rowid)';
 }
 
 // Add table from hooks
@@ -449,7 +449,7 @@ while ($i < $imaxinloop) {
     // Store properties in $object
     $object->setVarsFromFetchObj($obj);
 
-    $filter      = ['customsql' => 'fk_object = ' . $object->id . ' AND status > 0 AND object_type = "' . $object->element . '"'];
+    $filter      = ['customsql' => 'fk_object = ' . $object->id . ' AND status > 0 AND object_type = \'' . $object->element . '\''];
     $signatories = $signatory->fetchAll('', 'role', 0, 0, $filter);
 
     if ($mode == 'kanban') {
@@ -594,8 +594,8 @@ while ($i < $imaxinloop) {
 
                             $actioncomm = new ActionComm($db);
 
-                            $lastValidateAction = $actioncomm->getActions(0, $object->id, 'survey@digiquali', ' AND a.code = "AC_SURVEY_VALIDATE"', 'a.datep', 'DESC', 1);
-                            $lastReOpenAction   = $actioncomm->getActions(0, $object->id, 'survey@digiquali', ' AND a.code = "AC_SURVEY_UNVALIDATE"', 'a.datep', 'DESC', 1);
+                            $lastValidateAction = $actioncomm->getActions(0, $object->id, 'survey@digiquali', ' AND a.code = \'AC_SURVEY_VALIDATE\'', 'a.datep', 'DESC', 1);
+                            $lastReOpenAction   = $actioncomm->getActions(0, $object->id, 'survey@digiquali', ' AND a.code = \'AC_SURVEY_UNVALIDATE\'', 'a.datep', 'DESC', 1);
 
                             $lastValidateDate = (is_array($lastValidateAction) && !empty($lastValidateAction) ? $lastValidateAction[0]->datec : 0);
                             $lastReOpenDate   = (is_array($lastReOpenAction) && !empty($lastReOpenAction) ? $lastReOpenAction[0]->datec : 0);
