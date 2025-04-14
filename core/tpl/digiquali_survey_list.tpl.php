@@ -21,12 +21,12 @@ $sql = preg_replace('/,\s*$/', '', $sql);
 foreach($elementElementFields as $genericName => $elementElementName) {
     if (GETPOST('search_' . $genericName) > 0 || $fromtype == $elementElementName) {
         $id_tosearch = GETPOST('search' . $genericName) ?: $fromid;
-        $sql .= ',' .  $elementElementName . '.fk_source, ';
+        $sql .= ', "' .  $elementElementName . '".fk_source, ';
     }
 }
 $sql = rtrim($sql, ', ');
 if (array_key_exists($sortfield, $elementElementFields) && !preg_match('/' . 'LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as ' . $elementElementFields[$sortfield] . '/', $sql)) {
-    $sql .= ',' .  $elementElementFields[$sortfield] . '.fk_source';
+    $sql .= ', "' .  $elementElementFields[$sortfield] . '".fk_source';
 }
 $sql .= ' FROM ' . MAIN_DB_PREFIX . $object->table_element . ' as t';
 if (!empty($conf->categorie->enabled)) {
@@ -37,12 +37,12 @@ if (is_array($extrafields->attributes[$object->table_element]['label']) && count
 foreach($elementElementFields as $genericName => $elementElementName) {
 	if (GETPOST('search_'.$genericName) > 0 || $fromtype == $elementElementName) {
 		$id_to_search = GETPOST('search_'.$genericName) ?: $fromid;
-		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementName .' on ('. $elementElementName .'.fk_source = ' . $id_to_search . ' AND '. $elementElementName .'.sourcetype=\''. $elementElementName .'\' AND '. $elementElementName .'.targettype = "digiquali_survey")';
+		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as "'. $elementElementName .'" on ("'. $elementElementName .'".fk_source = ' . $id_to_search . ' AND "'. $elementElementName .'".sourcetype=\''. $elementElementName .'\' AND "'. $elementElementName .'".targettype = \'digiquali_survey\')';
 	}
 }
 
 if (array_key_exists($sortfield,$elementElementFields) && !preg_match('/' . 'LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementFields[$sortfield] .'/', $sql)) {
-	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementFields[$sortfield] .' on ( '. $elementElementFields[$sortfield] .'.sourcetype=\''. $elementElementFields[$sortfield] .'\' AND '. $elementElementFields[$sortfield] .'.targettype = "digiquali_survey" AND '. $elementElementFields[$sortfield] .'.fk_target = t.rowid)';
+	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as "'. $elementElementFields[$sortfield] .'" on ( "'. $elementElementFields[$sortfield] .'".sourcetype=\''. $elementElementFields[$sortfield] .'\' AND "'. $elementElementFields[$sortfield] .'".targettype = \'digiquali_survey\' AND "'. $elementElementFields[$sortfield] .'".fk_target = t.rowid)';
 }
 
 // Add table from hooks
@@ -58,7 +58,7 @@ $sql .= ' AND t.status >= ' . Survey::STATUS_DRAFT;
 
 foreach($elementElementFields as $genericName => $elementElementName) {
     if (GETPOST('search_'.$genericName) > 0 || $fromtype == $elementElementName) {
-        $sql .= ' AND t.rowid = ' . $elementElementName . '.fk_target ';
+        $sql .= ' AND t.rowid = "' . $elementElementName . '".fk_target ';
     }
 }
 
@@ -130,7 +130,7 @@ if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST)) {
 
 // Complete request and execute it with limit
 if (array_key_exists($sortfield, $elementElementFields)) {
-    $sql .= ' ORDER BY '. $elementElementFields[$sortfield] . '.fk_source ' . $sortorder;
+    $sql .= ' ORDER BY "'. $elementElementFields[$sortfield] . '".fk_source ' . $sortorder;
 } else {
     $sql .= $db->order($sortfield, $sortorder);
 }
