@@ -546,8 +546,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     }
 
     // Lock confirmation
+    $nextControlExist = 0;
+    $days             = 0;
+    if (strlen($object->next_control_date > 0)) {
+        $nextControlExist = 1;
+        $days             = abs($object->next_control_date - $object->control_date);
+        $days             = floor($days / (60 * 60 * 24));
+    }
     if (($action == 'lock' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
-        $formConfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmLockObject', $langs->transnoentities('The' . ucfirst($object->element))) . ($object->verdict == 2 ? '<br>' . $langs->transnoentities('BeCarefullVerdictKO') : ''), 'confirm_lock', '', 'yes', 'actionButtonLock', 350, 600);
+        $formConfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmLockObject', $langs->transnoentities('The' . ucfirst($object->element))) . ($object->verdict == 2 ? '<br>' . $langs->transnoentities('BeCarefullVerdictKO') : '' . '<br><br>' . $langs->transnoentities('LockControlDate', dol_print_date($object->control_date), $nextControlExist == 1 ? dol_print_date($object->next_control_date) : $langs->transnoentities('NA'), $days)), 'confirm_lock', '', 'yes', 'actionButtonLock', 350, 600);
     }
 
     // Clone confirmation

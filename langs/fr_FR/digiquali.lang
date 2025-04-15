@@ -377,6 +377,7 @@ DraftValidatedLocked                           = -- (Brouillon + validé + verro
 CloneControlEquipments                         = Cloner les moyens de contrôle
 NoControl                                      = Aucun contrôle
 NoPeriodicityControl                           = Aucune périodicité de contrôle
+LockControlDate                                = Le verrouillage de ce contrôle en date du %s entrainera une date de prochain contrôle pour le %s soit dans %d jours.
 
 
 
