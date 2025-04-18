@@ -256,14 +256,14 @@ class ActionsDigiquali
     }
 
     /**
-     * Overloading the saturnePrintFieldListLoopObject function : replacing the parent's function with the one below
+     * Overloading the printFieldListFrom function : replacing the parent's function with the one below
      *
-     * @param  array $parameters Hook metadata (context, etc...)
-     * @param  object $object    Current object
-     * @return int               0 < on error, 0 on success, 1 to replace standard code
+     * @param  array       $parameters Hook metadata (context, etc...)
+     * @param  object|null $object     Current object
+     * @return int                     0 < on error, 0 on success, 1 to replace standard code
      * @throws Exception
      */
-    public function printFieldListFrom(array $parameters, object $object): int
+    public function printFieldListFrom(array $parameters, ?object $object): int
     {
         if (strpos($parameters['context'], 'sheetlist') !== false) {
             $sql = ' LEFT JOIN ' . $this->db->prefix() . 'element_element AS ee ON (t.rowid = ee.fk_source AND ee.sourcetype = "' .  $object->module . '_' . $object->element . '" AND ee.targettype = "digiquali_question")';
@@ -380,26 +380,26 @@ class ActionsDigiquali
      * Overloading the printFieldListOption function : replacing the parent's function with the one below
      *
      * @param  array        $parameters Hook metadata (context, etc...)
-     * @param  CommonObject $object     Current object
      * @return int                      0 < on error, 0 on success, 1 to replace standard code
      * @throws Exception
      */
-    public function printFieldListOption(array $parameters, $object): int
+    public function printFieldListOption(array $parameters): int
     {
-        global $extrafields, $langs;
+        global $extrafields, $object, $langs;
 
         require_once __DIR__ . '/../../saturne/lib/object.lib.php';
 
         $objectsMetadata = saturne_get_objects_metadata();
         foreach($objectsMetadata as $objectMetadata) {
-            if ($objectMetadata['tab_type'] == $object->element) {
-                if (preg_match('/' . $objectMetadata['hook_name_list'] . '|projecttaskscard/', $parameters['context'])) {
-                    $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
-                    $extraFieldsNames = ['qc_frequency', 'control_history_link'];
-                    foreach ($extraFieldsNames as $extraFieldsName) {
-                        if (isset($extrafields->attributes[$object->table_element]['label'][$extraFieldsName])) {
-                            $extrafields->attributes[$object->table_element]['label'][$extraFieldsName] = $picto . $langs->transnoentities($extrafields->attributes[$object->table_element]['label'][$extraFieldsName]);
-                        }
+            if ($objectMetadata['tab_type'] != $object->element) {
+                continue;
+            }
+            if (preg_match('/' . $objectMetadata['hook_name_list'] . '|projecttaskscard/', $parameters['context'])) {
+                $picto            = img_picto('', 'fontawesome_fa-clipboard-check_fas_#d35968', 'class="pictofixedwidth"');
+                $extraFieldsNames = ['qc_frequency', 'control_history_link'];
+                foreach ($extraFieldsNames as $extraFieldsName) {
+                    if (isset($extrafields->attributes[$object->table_element]['label'][$extraFieldsName])) {
+                        $extrafields->attributes[$object->table_element]['label'][$extraFieldsName] = $picto . $langs->transnoentities($extrafields->attributes[$object->table_element]['label'][$extraFieldsName]);
                     }
                 }
             }
@@ -689,11 +689,11 @@ class ActionsDigiquali
     /**
      * Overloading the doPreMassActions function : replacing the parent's function with the one below
      *
-     * @param  array  $parameters Hook metadata (context, etc...)
-     * @param  object $object     Current object
-     * @return int                0 < on error, 0 on success, 1 to replace standard code
+     * @param  array    $parameters Hook metadata (context, etc...)
+     * @return int                  0 < on error, 0 on success, 1 to replace standard code
+     * @throws Exception
      */
-    public function doPreMassActions(array $parameters, object $object): int
+    public function doPreMassActions(array $parameters): int
     {
         global $form, $langs;
 
@@ -772,7 +772,7 @@ class ActionsDigiquali
                             $contact = new Contact($this->db);
                             $contact->fetch($userTmp->contact_id);
                         }
-                        $conf->cache['user'][$signatory->id] = $userTmp;
+                        $conf->cache['user'][$signatory->role][$signatory->id] = $userTmp;
                     } elseif ($signatory->element_type == 'socpeople') {
                         $contact = new Contact($this->db);
                         $contact->fetch($signatory->element_id);
@@ -780,8 +780,8 @@ class ActionsDigiquali
                     if (!empty($contact->fk_soc)) {
                         $thirdparty = new Societe($this->db);
                         $thirdparty->fetch($contact->fk_soc);
-                        $conf->cache['contact'][$signatory->id]    = $contact;
-                        $conf->cache['thirdparty'][$signatory->id] = $thirdparty;
+                        $conf->cache['contact'][$signatory->role][$signatory->id] = $contact;
+                        $conf->cache['thirdparty'][$signatory->id]                = $thirdparty;
                     }
                 }
             }
@@ -953,12 +953,12 @@ class ActionsDigiquali
                                         $userIcon  = 'fa-user';
                                         break;
                                 }
-                                if (is_array($users) && !empty($users)) {
-                                    $out[$parameters['key']] .= $users[$signatory->id]->getNomUrl(1, '', 0, 0, 24, 1);
-                                } elseif (is_array($contacts) && !empty($contacts)) {
-                                    $out[$parameters['key']] .= $contacts[$signatory->id]->getNomUrl(1);
+                                if (is_array($users[$signatory->role]) && !empty($users[$signatory->role])) {
+                                    $out[$parameters['key']] .= $users[$signatory->role][$signatory->id]->getNomUrl(1, '', 0, 0, 24, 1);
+                                } elseif (is_array($contacts[$signatory->role]) && !empty($contacts[$signatory->role])) {
+                                    $out[$parameters['key']] .= $contacts[$signatory->role][$signatory->id]->getNomUrl(1);
                                 }
-                                if ((is_array($users) && !empty($users)) || (is_array($contacts) && !empty($contacts))) {
+                                if ((is_array($users[$signatory->role]) && !empty($users[$signatory->role])) || (is_array($contacts[$signatory->role]) && !empty($contacts[$signatory->role]))) {
                                     $out[$parameters['key']] .= ' - ' . $signatory->getLibStatut(3);
                                     $out[$parameters['key']] .= ' - <i class="fas ' . $userIcon . '" style="color: ' . $cssButton . '"></i><br>';
                                 }
