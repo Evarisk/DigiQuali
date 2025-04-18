@@ -247,7 +247,7 @@ class ActionsDigiquali
      */
     public function printFieldListSelect(array $parameters): int
     {
-        if (strpos($parameters['context'], 'sheetlist') !== false) {
+        if (preg_match('/\bsheetlist\b/', $parameters['context'])) {
             $sql = ',COUNT(ee.fk_target) AS nb_question';
             $this->resprints = $sql;
         }
@@ -265,7 +265,7 @@ class ActionsDigiquali
      */
     public function printFieldListFrom(array $parameters, ?object $object): int
     {
-        if (strpos($parameters['context'], 'sheetlist') !== false) {
+        if (preg_match('/\bsheetlist\b/', $parameters['context'])) {
             $sql = ' LEFT JOIN ' . $this->db->prefix() . 'element_element AS ee ON (t.rowid = ee.fk_source AND ee.sourcetype = "' .  $object->module . '_' . $object->element . '" AND ee.targettype = "digiquali_question")';
             $this->resprints = $sql;
         }
@@ -290,7 +290,7 @@ class ActionsDigiquali
     {
         global $conf;
 
-        if (strpos($parameters['context'], 'sheetlist') !== false) {
+        if (preg_match('/\bsheetlist\b/', $parameters['context'])) {
             if ($parameters['key'] == 'nb_questions') {
                 return 1; // or return 1 to replace standard code
             }
@@ -348,7 +348,7 @@ class ActionsDigiquali
      */
     public function printFieldListGroupBy(array $parameters, object $object): int
     {
-        if (strpos($parameters['context'], 'sheetlist') !== false) {
+        if (preg_match('/\bsheetlist\b/', $parameters['context'])) {
             $sql = ' GROUP BY t.rowid';
             $this->resprints = $sql;
         }
@@ -366,7 +366,7 @@ class ActionsDigiquali
      */
     public function printFieldListHaving(array $parameters, object $object): int
     {
-        if (strpos($parameters['context'], 'sheetlist') !== false) {
+        if (preg_match('/\bsheetlist\b/', $parameters['context'])) {
             if (!empty($parameters['search']['nb_questions']) && (int) $parameters['search']['nb_questions'] != 0) {
                 $sql = ' HAVING nb_question = ' . (int) $parameters['search']['nb_questions'];
                 $this->resprints = $sql;
@@ -812,7 +812,7 @@ class ActionsDigiquali
             $this->results = $out;
         }
 
-        if (strpos($parameters['context'], 'sheetlist') !== false) {
+        if (preg_match('/\bsheetlist\b/', $parameters['context'])) {
             $out = [];
 
             if ($parameters['key'] == 'nb_questions') {
