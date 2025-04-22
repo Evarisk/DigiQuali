@@ -73,6 +73,9 @@ $backtopage          = GETPOST('backtopage', 'alpha');
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 $source              = GETPOST('source', 'alpha'); // source PWA
 $viewmode            = (GETPOSTISSET('viewmode') ? GETPOST('viewmode', 'alpha') : 'list'); // view mode for new control
+$fromType            = GETPOST('fromtype', 'aZ');
+$fromId              = GETPOSTINT('fromid');
+$fkSheet             = GETPOST('fk_sheet', 'int');
 
 // Initialize objects
 // Technical objets
@@ -184,6 +187,22 @@ if (empty($resHook)) {
     }
 
     if ($action == 'add' && !$cancel) {
+        $urlParameters = [
+            'action'   => 'create',
+            'viewmode' => $viewmode,
+            'source'   => $source,
+            'fk_sheet' => $fkSheet,
+            'fromtype' => $fromType,
+            'fromid'   => $fromId
+        ];
+        $urlParameters = http_build_query($urlParameters);
+
+        if ($fkSheet < 0) {
+            setEventMessages($langs->trans('NeedFkSheet'), [], 'errors');
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?' . $urlParameters);
+            exit;
+        }
+
         $controlledObjectSelected = 0;
         foreach ($objectsMetadata as $objectType => $objectMetadata) {
             if (!empty(GETPOST($objectMetadata['post_name'])) && GETPOST($objectMetadata['post_name']) > 0) {
@@ -191,15 +210,9 @@ if (empty($resHook)) {
             }
         }
 
-        if (GETPOST('fk_sheet') > 0) {
-            if ($controlledObjectSelected == 0) {
-                setEventMessages($langs->trans('NeedObjectToControl'), [], 'errors');
-                header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&fk_sheet=' . GETPOST('fk_sheet') . '&viewmode=' . $viewmode . '&source=' . $source);
-                exit;
-            }
-        } else {
-            setEventMessages($langs->trans('NeedFkSheet'), [], 'errors');
-            header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&viewmode=' . $viewmode . '&source=' . $source);
+        if ($controlledObjectSelected == 0) {
+            setEventMessages($langs->trans('NeedObjectToControl'), [], 'errors');
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?' . $urlParameters);
             exit;
         }
     }
@@ -308,7 +321,15 @@ if ($action == 'create') {
     $moreHtmlRight .= '<a class="btnTitle butActionNew ' . (($viewmode == 'list') ? 'btnTitleSelected' : '') . '" href="' . $_SERVER['PHP_SELF'] . '?action=create&viewmode=list&source=' . $source . '"><span class="fas fa-3x fa-list valignmiddle paddingleft" title="' . $langs->trans('ViewModeList') . '"></span></a>';
     print load_fiche_titre($langs->trans('NewControl'), $moreHtmlRight, 'object_' . $object->picto);
 
-    print '<form method="POST" id="createObjectForm" action="' . $_SERVER['PHP_SELF'] . '?viewmode=' . $viewmode . '&source=' . $source . '">';
+    $urlParameters = [
+        'viewmode' => $viewmode,
+        'source'   => $source,
+        'fromtype' => $fromType,
+        'fromid'   => $fromId
+    ];
+    $urlParameters = http_build_query($urlParameters);
+
+    print '<form method="POST" id="createObjectForm" action="' . $_SERVER['PHP_SELF'] . '?' . $urlParameters . '">';
     print '<input type="hidden" name="token" value="' . newToken() . '">';
     print '<input type="hidden" name="action" value="add">';
     if ($backtopage) {
@@ -324,8 +345,8 @@ if ($action == 'create') {
     $object->fields['fk_user_controller']['visible'] = 1;
     $object->fields['fk_user_controller']['default'] = $user->id;
 
-    if (!empty(GETPOST('fk_sheet'))) {
-        $sheet->fetch(GETPOST('fk_sheet'));
+    if ($fkSheet > 0) {
+        $sheet->fetch($fkSheet);
         $_POST['label'] = $sheet->label;
     }
 
@@ -378,10 +399,8 @@ if ($action == 'create') {
         print '</div></div>';
     } else {
         //FK SHEET
-        $objectTypeArray = (!empty(GETPOST('fromtype')) ? saturne_get_objects_metadata(GETPOST('fromtype')) : []);
-        $filterType      = (!empty($objectTypeArray) ? dol_strtolower($objectTypeArray['name']) : '');
         $filter          = 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED;
-        $filter         .= (!empty($filterType) ? ' AND s.element_linked LIKE "%' . $filterType . '%"' : '');
+        $filter         .= !empty(GETPOST('fromtype')) ? ' AND s.element_linked LIKE "%' . GETPOST('fromtype') . '%"' : '';
         print '<tr><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('Sheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
         print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet') ?: $sheet->id, 'fk_sheet', $filter, 1);
         if ($source != 'pwa') {
@@ -478,7 +497,7 @@ if ($action == 'create') {
 }
 
 // Part to show record
-if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
+if ($object->id > 0 && (empty($action) || ($action != 'create'))) {
     $object->fetch_optionals();
 
     saturne_get_fiche_head($object, 'card', $title);
