@@ -643,8 +643,6 @@ class Sheet extends SaturneObject
     {
         global $conf;
 
-
-
         $questionAndGroups = $this->fetchQuestionsAndGroups();
         $questionGroupCardUrl = dol_buildpath('/custom/digiquali/view/questiongroup/questiongroup_card.php', 1);
         $questionCardUrl = dol_buildpath('/custom/digiquali/view/question/question_card.php', 1);
@@ -669,7 +667,6 @@ class Sheet extends SaturneObject
 
         if (!empty($questionAndGroups)) {
 
-            // Début de la liste
             $out .= '        <ul class="question-list">';
             foreach ($questionAndGroups as $questionOrGroup) {
                 if ($questionOrGroup->element == 'questiongroup') {
@@ -687,7 +684,6 @@ class Sheet extends SaturneObject
                     $out .= '    </a>';
                     $out .= '  </li>';
 
-                    // Afficher les questions du groupe
                     $questionsInGroup = $questionOrGroup->fetchQuestionsOrderedByPosition();
                     if (!empty($questionsInGroup)) {
                         $out .= '  <ul class="sub-questions">';
@@ -705,7 +701,6 @@ class Sheet extends SaturneObject
                         $out .= '  </ul>';
                     }
                 } else {
-                    // C'est une question "isolée" sans groupe
                     $out .= '  <li class="question-item '. ($typeSelected == 'question' && $idSelected == $questionOrGroup->id ? 'selected' : '') .'" data-id="'. $questionOrGroup->id .'" data-group-id="0">';
                     $out .= '    <span class="icon fas fa-question fa-2x" ></span>';
                     $out .= '    <a href="'. $questionCardUrl . '?id=' . $questionOrGroup->id . '&sheet_id='. $this->id .'" class="question-item-link">';
@@ -734,28 +729,22 @@ class Sheet extends SaturneObject
                             }
                         });
                     </script>';
-
-
-
         }
 
-        // ICI on ajoute deux boutons pour créer question / groupe de questions
         $out .= '        <div class="create-buttons-container" style="display:flex; flex-direction:row; gap:10px; margin-top:10px;">';
-        // Bouton pour créer un groupe de questions
         $out .= '          <a href="'. $questionGroupCardUrl . '?action=create&sheet_id='. $this->id .'" class="btn btn-square">';
         $out .= '            <span class="icon fas fa-copy fa-fw"></span> Nouveau groupe';
         $out .= '          </a>';
-        // Bouton pour créer une question
         $out .= '          <a href="'. $questionCardUrl . '?action=create&sheet_id='. $this->id .'" class="btn btn-square">';
         $out .= '            <span class="icon fas fa-question fa-fw"></span> Nouvelle question';
         $out .= '          </a>';
         $out .= '        </div>';
-        $out .= '      </div>'; // .navigation-container
-        $out .= '    </div>';   // .digirisk-wrap wpeo-wrap
-        $out .= '  </div>';     // #id-left
-        $out .= '</div>';       // .side-nav
+        $out .= '      </div>';
+        $out .= '    </div>';
+        $out .= '  </div>';
+        $out .= '</div>';
 
-        $out .= '</div>';       // #id-container
+        $out .= '</div>';
         return $out;
     }
 

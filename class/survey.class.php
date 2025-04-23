@@ -264,16 +264,36 @@ class Survey extends SaturneObject
                 $this->setValueFrom('success_rate', $this->success_rate, '', '', 'text', '', $user);
             }
 
-            $sheet->fetchObjectLinked($this->fk_sheet, 'digiquali_' . $sheet->element);
-            if (!empty($sheet->linkedObjects['digiquali_question'])) {
-                foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
+            $questionAndGroups = $sheet->fetchQuestionsAndGroups();
+
+            $questions = [];
+            if (is_array($questionAndGroups) && !empty($questionAndGroups)) {
+                foreach($questionAndGroups as $questionOrGroup) {
+                    if ($questionOrGroup->element == 'questiongroup') {
+                        $groupQuestions = $questionOrGroup->fetchQuestionsOrderedByPosition();
+                        if (is_array($groupQuestions) && !empty($groupQuestions)) {
+                            foreach($groupQuestions as $groupQuestion) {
+                                $groupQuestion->fk_question_group = $questionOrGroup->id;
+                                $questions[] = $groupQuestion;
+                            }
+                        }
+                    } else {
+                        $questionOrGroup->fk_question_group = 0;
+                        $questions[] = $questionOrGroup;
+                    }
+                }
+            }
+
+            if (!empty($questions)) {
+                foreach ($questions as $question) {
                     $surveyLine->ref                     = $surveyLine->getNextNumRef();
                     $surveyLine->entity                  = $this->entity;
                     $surveyLine->status                  = 1;
                     $surveyLine->{'fk_'. $this->element} = $this->id;
                     $surveyLine->fk_question             = $question->id;
+                    $surveyLine->fk_question_group       = $question->fk_question_group;
 
-                    $surveyLine->create($user);
+                    $test = $surveyLine->create($user);
                 }
             }
 

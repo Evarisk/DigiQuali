@@ -246,7 +246,24 @@ class Question extends SaturneObject
         $this->ref      = $this->getNextNumRef();
 		$this->status   = $this->status ?: 1;
 
-        return parent::create($user, $notrigger);
+        $result = parent::create($user, $notrigger);
+
+        if ($result > 0) {
+            if (GETPOST('question_group_id') > 0) {
+                $questionGroup = new QuestionGroup($this->db);
+                $questionGroup->fetch(GETPOST('question_group_id'));
+                $questionGroup->addQuestion($this->id);
+            } else if (GETPOST('sheet_id') > 0) {
+               $sheet = new Sheet($this->db);
+               $this->add_object_linked('digiquali_' . $sheet->element, GETPOST('sheet_id'));
+
+               $sheet->updateQuestionsAndGroupsPosition([], [], true);
+
+               $sheet->call_trigger('SHEET_ADDQUESTION', $user);
+           }
+        }
+
+        return $result;
     }
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps

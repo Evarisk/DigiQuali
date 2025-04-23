@@ -107,47 +107,6 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
         }
 
         switch ($action) {
-            case 'QUESTION_CREATE' :
-                if (GETPOST('question_group_id') > 0) {
-                    $questionGroup = new QuestionGroup($this->db);
-                    $questionGroup->fetch(GETPOST('question_group_id'));
-                    $questionGroup->addQuestion($object->id);
-                } else if (GETPOST('sheet_id') > 0) {
-                   $sheet = new Sheet($this->db);
-                   $object->add_object_linked('digiquali_' . $sheet->element,GETPOST('sheet_id'));
-
-                   $sheet->updateQuestionsAndGroupsPosition([], [], true);
-
-                   $sheet->call_trigger('SHEET_ADDQUESTION', $user);
-               }
-            break;
-            case 'SURVEY_CREATE' :
-                // Load Digiquali libraries
-                require_once __DIR__ . '/../../class/sheet.class.php';
-
-                $sheet = new Sheet($this->db);
-
-                $sheet->fetch($object->fk_sheet);
-                if ($sheet->success_rate > 0) {
-                    $object->success_rate = $sheet->success_rate;
-                    $object->setValueFrom('success_rate', $object->success_rate, '', '', 'text', '', $user);
-                }
-
-                if ($object->context != 'createfromclone') {
-                    $elementArray = get_sheet_linkable_objects();
-                    if (!empty($elementArray)) {
-                        foreach ($elementArray as $linkableElement) {
-                            if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
-                                $object->add_object_linked($linkableElement['link_name'], GETPOST($linkableElement['post_name']));
-                            }
-                        }
-                    }
-                }
-
-                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
-                $actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->create($user);
-                break;
             case 'ANSWER_CREATE' :
             case 'ANSWER_MODIFY' :
             case 'ANSWER_DELETE' :

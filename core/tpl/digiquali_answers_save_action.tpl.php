@@ -57,9 +57,6 @@ if ($action == 'save') {
         foreach ($questions as $question) {
             if (!empty($object->lines)) {
                 foreach ($object->lines as $line) {
-
-
-
                     if ($line->fk_question === $question->id && $line->fk_question_group === $question->fk_question_group) {
 
                         // Save answer value
