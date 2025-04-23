@@ -227,7 +227,7 @@ class QuestionGroup extends SaturneObject
 	 *
 	 *  @return    int         <=0 if no, >0 if yes
 	 */
-	public function isErasable() {
+	public function is_erasable() {
 		return $this->isLinkedToOtherObjects();
 	}
 
