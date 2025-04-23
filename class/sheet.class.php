@@ -624,7 +624,7 @@ class Sheet extends SaturneObject
 
 
         $res = $this->db->query($sql);
-        $questionAndGroupIds = [];
+        $questionAndGroups = [];
         if ($res) {
             while ($obj = $this->db->fetch_object($res)) {
                 $question = new Question($this->db);
@@ -632,14 +632,14 @@ class Sheet extends SaturneObject
 
                 if ($obj->targettype == 'digiquali_question') {
                     $question->fetch($obj->fk_target);
-                    $questionAndGroupIds[] = $question;
+                    $questionAndGroups[] = $question;
                 } else {
                     $questionGroup->fetch($obj->fk_target);
-                    $questionAndGroupIds[] = $questionGroup;
+                    $questionAndGroups[] = $questionGroup;
                 }
             }
         }
-        return $questionAndGroupIds;
+        return $questionAndGroups;
 
     }
 	/**
