@@ -622,7 +622,6 @@ class Sheet extends SaturneObject
         $sql .= ' AND (ee.targettype = "digiquali_question" OR ee.targettype = "digiquali_questiongroup")';
         $sql .= ' ORDER BY ee.position ASC';
 
-
         $res = $this->db->query($sql);
         $questionAndGroups = [];
         if ($res) {

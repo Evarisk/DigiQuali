@@ -17,16 +17,16 @@
  */
 
 /**
- *  \file    core/modules/digiquali/question/mod_question_standard.php
+ *  \file    core/modules/digiquali/question/mod_questiongroup_standard.php
  *  \ingroup digiquali
- *  \brief   File of class to manage question numbering rules standard.
+ *  \brief   File of class to manage question group numbering rules standard.
  */
 
 // Load Saturne libraries.
 require_once __DIR__ . '/../../../../../saturne/core/modules/saturne/modules_saturne.php';
 
 /**
- *	Class to manage question numbering rules standard.
+ *	Class to manage question group numbering rules standard.
  */
 class mod_questiongroup_standard extends ModeleNumRefSaturne
 {

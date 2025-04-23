@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022-2024 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2025 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,14 @@
 /**
  * \file    class/question_group.class.php
  * \ingroup digiquali
- * \brief   This file is a CRUD class file for Question (Create/Read/Update/Delete)
+ * \brief   This file is a CRUD class file for QuestionGroup (Create/Read/Update/Delete)
  */
 
 // Load Saturne libraries.
 require_once __DIR__ . '/../../saturne/class/saturneobject.class.php';
 
 /**
- * Class for Question.
+ * Class for QuestionGroup.
  */
 class QuestionGroup extends SaturneObject
 {
@@ -104,37 +104,22 @@ class QuestionGroup extends SaturneObject
      * Note: To have value dynamic, you can set value to 0 in definition and edit the value on the fly into the constructor
      */
 
-//CREATE TABLE llx_digiquali_question_group(
-//rowid                  integer AUTO_INCREMENT PRIMARY KEY NOT NULL,
-//ref                    varchar(128) DEFAULT '(PROV)' NOT NULL,
-//ref_ext                varchar(128),
-//entity                 integer DEFAULT 1 NOT NULL,
-//date_creation          datetime NOT NULL,
-//tms                    timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-//import_key             varchar(14),
-//status                 integer DEFAULT 1 NOT NULL,
-//label                  varchar(255) NOT NULL,
-//description            text,
-//fk_user_creat          integer NOT NULL,
-//fk_user_modif          integer
-//) ENGINE=innodb;
-
     /**
      * @var array Array with all fields and their property. Do not use it as a static var. It may be modified by constructor
      */
 	public $fields = [
-        'rowid'                  => ['type' => 'integer',      'label' => 'TechnicalID',          'enabled' => 1, 'position' => 1,   'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'Id'],
-        'ref'                    => ['type' => 'varchar(128)', 'label' => 'Ref',                  'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 4, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
-        'ref_ext'                => ['type' => 'varchar(128)', 'label' => 'RefExt',               'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'External reference of object'],
-        'entity'                 => ['type' => 'integer',      'label' => 'Entity',               'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'default' => 1, 'index' => 1, 'comment' => 'Entity'],
-        'date_creation'          => ['type' => 'datetime',     'label' => 'DateCreation',         'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'default' => '@NOW@', 'index' => 1, 'comment' => 'Creation date'],
-        'tms'                    => ['type' => 'timestamp',    'label' => 'DateModification',     'enabled' => 1, 'position' => 50,  'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'default' => 'CURRENT_TIMESTAMP', 'index' => 1, 'comment' => 'Timestamp'],
-        'import_key'             => ['type' => 'varchar(14)',  'label' => 'ImportKey',            'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'Import key'],
-        'status'                 => ['type' => 'integer',      'label' => 'Status',               'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'default' => 1, 'index' => 1, 'comment' => 'Status'],
-        'label'                  => ['type' => 'varchar(255)', 'label' => 'Label',                'enabled' => 1, 'position' => 80,  'notnull' => 1, 'visible' => 1, 'noteditable' => 0, 'index' => 1, 'comment' => 'Label'],
-        'description'            => ['type' => 'text',         'label' => 'Description',          'enabled' => 1, 'position' => 90,  'notnull' => 0, 'visible' => 1, 'noteditable' => 0, 'comment' => 'Description'],
-        'fk_user_creat'          => ['type' => 'integer',      'label' => 'UserCreation',         'enabled' => 1, 'position' => 100, 'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'User ID of creation'],
-        'fk_user_modif'          => ['type' => 'integer',      'label' => 'UserModification',     'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'User ID of modification'],
+        'rowid'                  => ['type' => 'integer',      'label' => 'TechnicalID',          'enabled' => 1, 'position' => 1,   'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1],
+        'ref'                    => ['type' => 'varchar(128)', 'label' => 'Ref',                  'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 4, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1],
+        'ref_ext'                => ['type' => 'varchar(128)', 'label' => 'RefExt',               'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0, 'noteditable' => 1, 'index' => 1],
+        'entity'                 => ['type' => 'integer',      'label' => 'Entity',               'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'default' => 1, 'index' => 1],
+        'date_creation'          => ['type' => 'datetime',     'label' => 'DateCreation',         'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'default' => 'CURRENT_TIMESTAMP', 'index' => 1],
+        'tms'                    => ['type' => 'timestamp',    'label' => 'DateModification',     'enabled' => 1, 'position' => 50,  'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'default' => 'CURRENT_TIMESTAMP', 'index' => 1],
+        'import_key'             => ['type' => 'varchar(14)',  'label' => 'ImportKey',            'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'noteditable' => 1, 'index' => 1],
+        'status'                 => ['type' => 'integer',      'label' => 'Status',               'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'default' => 1, 'index' => 1],
+        'label'                  => ['type' => 'varchar(255)', 'label' => 'Label',                'enabled' => 1, 'position' => 80,  'notnull' => 1, 'visible' => 1, 'noteditable' => 0, 'index' => 1],
+        'description'            => ['type' => 'text',         'label' => 'Description',          'enabled' => 1, 'position' => 90,  'notnull' => 0, 'visible' => 1, 'noteditable' => 0],
+        'fk_user_creat'          => ['type' => 'integer',      'label' => 'UserCreation',         'enabled' => 1, 'position' => 100, 'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1],
+        'fk_user_modif'          => ['type' => 'integer',      'label' => 'UserModification',     'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 0, 'noteditable' => 1, 'index' => 1],
     ];
 
     /**
@@ -513,23 +498,6 @@ class QuestionGroup extends SaturneObject
 
 		if ($outputmode) return $outarray;
 		return $out;
-	}
-
-	/**
-	 * Write information of trigger description
-	 *
-	 * @param  Object $object Object calling the trigger
-	 * @return string         Description to display in actioncomm->note_private
-	 */
-	public function getTriggerDescription(SaturneObject $object): string
-	{
-		global $langs;
-
-		$ret   = parent::getTriggerDescription($object);
-		$ret  .= (dol_strlen($object->photo_ok) > 0 ? $langs->transnoentities('PhotoOK') . ' : ' . $object->photo_ok . '</br>' : '');
-		$ret  .= (dol_strlen($object->photo_ko) > 0 ? $langs->transnoentities('PhotoKO') . ' : ' . $object->photo_ko . '</br>' : '');
-
-		return $ret;
 	}
 
     /**

@@ -275,7 +275,7 @@ class Survey extends SaturneObject
                     $surveyLine->fk_question             = $question->id;
                     $surveyLine->fk_question_group       = $question->fk_question_group;
 
-                    $test = $surveyLine->create($user);
+                    $surveyLine->create($user);
                 }
             }
 
