@@ -31,9 +31,8 @@
 if ($action == 'save') {
     $data = json_decode(file_get_contents('php://input'), true);
     $sheet->fetch($object->fk_sheet);
-    $object->fetchLinesCommon();
 
-    $questions = $this->fetchAllQuestions();
+    $questions = $sheet->fetchAllQuestions();
 
     if (!empty($questions)) {
         foreach ($questions as $question) {
@@ -61,8 +60,6 @@ if ($action == 'save') {
                         if (dol_strlen($comment) > 0) {
                             $line->comment = $comment;
                         }
-
-                        $line->fk_question_group = $question->fk_question_group;
 
                         $line->update($user);
                     }
