@@ -579,8 +579,41 @@ class Sheet extends SaturneObject
     }
 
 
-    public function fetchQuestionsAndGroups() {
 
+    /**
+     * Return all questions of sheet with their groups
+     *
+     * @param array $question Array containing questions with fk_question_group
+     */
+    public function fetchAllQuestions() {
+        $questionAndGroups = $this->fetchQuestionsAndGroups();
+        $questions = [];
+        if (is_array($questionAndGroups) && !empty($questionAndGroups)) {
+            foreach($questionAndGroups as $questionOrGroup) {
+                if ($questionOrGroup->element == 'questiongroup') {
+                    $groupQuestions = $questionOrGroup->fetchQuestionsOrderedByPosition();
+                    if (is_array($groupQuestions) && !empty($groupQuestions)) {
+                        foreach($groupQuestions as $groupQuestion) {
+                            $groupQuestion->fk_question_group = $questionOrGroup->id;
+                            $questions[] = $groupQuestion;
+                        }
+                    }
+                } else {
+                    $questionOrGroup->fk_question_group = 0;
+                    $questions[] = $questionOrGroup;
+                }
+            }
+        }
+
+        return $questions;
+    }
+
+    /**
+     * Fetch all questions and groups of sheet
+     *
+     * @return array Array containing questions and groups
+     */
+    public function fetchQuestionsAndGroups() {
 
         $sql = 'SELECT ee.fk_target, ee.targettype, ee.position';
         $sql .= ' FROM ' . MAIN_DB_PREFIX . 'element_element as ee';
@@ -597,7 +630,6 @@ class Sheet extends SaturneObject
                 $question = new Question($this->db);
                 $questionGroup = new QuestionGroup($this->db);
 
-                //turn objects into real objects
                 if ($obj->targettype == 'digiquali_question') {
                     $question->fetch($obj->fk_target);
                     $questionAndGroupIds[] = $question;

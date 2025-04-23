@@ -264,25 +264,7 @@ class Survey extends SaturneObject
                 $this->setValueFrom('success_rate', $this->success_rate, '', '', 'text', '', $user);
             }
 
-            $questionAndGroups = $sheet->fetchQuestionsAndGroups();
-
-            $questions = [];
-            if (is_array($questionAndGroups) && !empty($questionAndGroups)) {
-                foreach($questionAndGroups as $questionOrGroup) {
-                    if ($questionOrGroup->element == 'questiongroup') {
-                        $groupQuestions = $questionOrGroup->fetchQuestionsOrderedByPosition();
-                        if (is_array($groupQuestions) && !empty($groupQuestions)) {
-                            foreach($groupQuestions as $groupQuestion) {
-                                $groupQuestion->fk_question_group = $questionOrGroup->id;
-                                $questions[] = $groupQuestion;
-                            }
-                        }
-                    } else {
-                        $questionOrGroup->fk_question_group = 0;
-                        $questions[] = $questionOrGroup;
-                    }
-                }
-            }
+            $questions = $sheet->fetchAllQuestions();
 
             if (!empty($questions)) {
                 foreach ($questions as $question) {

@@ -31,27 +31,9 @@
 if ($action == 'save') {
     $data = json_decode(file_get_contents('php://input'), true);
     $sheet->fetch($object->fk_sheet);
-    $questionAndGroups = $sheet->fetchQuestionsAndGroups();
     $object->fetchLinesCommon();
 
-    $questions = [];
-    if (is_array($questionAndGroups) && !empty($questionAndGroups)) {
-        foreach($questionAndGroups as $questionOrGroup) {
-            if ($questionOrGroup->element == 'questiongroup') {
-                $groupQuestions = $questionOrGroup->fetchQuestionsOrderedByPosition();
-                if (is_array($groupQuestions) && !empty($groupQuestions)) {
-                    foreach($groupQuestions as $groupQuestion) {
-                        $groupQuestion->fk_question_group = $questionOrGroup->id;
-                        $questions[] = $groupQuestion;
-                    }
-                }
-            } else {
-                $questionOrGroup->fk_question_group = 0;
-                $questions[] = $questionOrGroup;
-            }
-        }
-    }
-
+    $questions = $this->fetchAllQuestions();
 
     if (!empty($questions)) {
         foreach ($questions as $question) {
