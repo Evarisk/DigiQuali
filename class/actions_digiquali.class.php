@@ -281,12 +281,11 @@ class ActionsDigiquali
     /**
      * Overloading the printFieldListSearch function : replacing the parent's function with the one below
      *
-     * @param  array $parameters Hook metadata (context, etc...)
-     * @param  object $object    Current object
-     * @return int               0 < on error, 0 on success, 1 to replace standard code
+     * @param  array     $parameters Hook metadata (context, etc...)
+     * @return int                   0 < on error, 0 on success, 1 to replace standard code
      * @throws Exception
      */
-    public function printFieldListSearch(array $parameters, object $object): int
+    public function printFieldListSearch(array $parameters): int
     {
         global $conf;
 
@@ -341,12 +340,11 @@ class ActionsDigiquali
     /**
      * Overloading the printFieldListGroupBy function : replacing the parent's function with the one below
      *
-     * @param  array $parameters Hook metadata (context, etc...)
-     * @param  object $object    Current object
-     * @return int               0 < on error, 0 on success, 1 to replace standard code
+     * @param  array      $parameters Hook metadata (context, etc...)
+     * @return int                    0 < on error, 0 on success, 1 to replace standard code
      * @throws Exception
      */
-    public function printFieldListGroupBy(array $parameters, object $object): int
+    public function printFieldListGroupBy(array $parameters): int
     {
         if (preg_match('/\bsheetlist\b/', $parameters['context'])) {
             $sql = ' GROUP BY t.rowid';
@@ -359,12 +357,11 @@ class ActionsDigiquali
     /**
      * Overloading the saturnePrintFieldListLoopObject function : replacing the parent's function with the one below
      *
-     * @param  array $parameters Hook metadata (context, etc...)
-     * @param  object $object    Current object
-     * @return int               0 < on error, 0 on success, 1 to replace standard code
+     * @param array      $parameters Hook metadata (context, etc...)
+     * @return int                   0 < on error, 0 on success, 1 to replace standard code
      * @throws Exception
      */
-    public function printFieldListHaving(array $parameters, object $object): int
+    public function printFieldListHaving(array $parameters): int
     {
         if (preg_match('/\bsheetlist\b/', $parameters['context'])) {
             if (!empty($parameters['search']['nb_questions']) && (int) $parameters['search']['nb_questions'] != 0) {
@@ -379,13 +376,13 @@ class ActionsDigiquali
     /**
      * Overloading the printFieldListOption function : replacing the parent's function with the one below
      *
-     * @param  array        $parameters Hook metadata (context, etc...)
-     * @return int                      0 < on error, 0 on success, 1 to replace standard code
+     * @param  array    $parameters Hook metadata (context, etc...)
+     * @return int                  0 < on error, 0 on success, 1 to replace standard code
      * @throws Exception
      */
     public function printFieldListOption(array $parameters): int
     {
-        global $extrafields, $object, $langs;
+        global $extrafields, $langs, $object;
 
         require_once __DIR__ . '/../../saturne/lib/object.lib.php';
 

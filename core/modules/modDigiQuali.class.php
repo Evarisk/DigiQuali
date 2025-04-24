@@ -875,18 +875,4 @@ class modDigiQuali extends DolibarrModules
 
 		 return $result;
 	}
-
-	/**
-	 *  Function called when module is disabled.
-	 *  Remove from database constants, boxes and permissions from Dolibarr database.
-	 *  Data directories are not deleted
-	 *
-	 *  @param      string	$options    Options when enabling module ('', 'noboxes')
-	 *  @return     int                 1 if OK, 0 if KO
-	 */
-	public function remove($options = ''): int
-	{
-		$sql = [];
-		return $this->_remove($sql, $options);
-	}
 }
