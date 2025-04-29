@@ -1,4 +1,4 @@
--- Copyright (C) 2022 EVARISK <technique@evarisk.com>
+-- Copyright (C) 2025 EVARISK <technique@evarisk.com>
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -13,8 +13,8 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see https://www.gnu.org/licenses/.
 
-CREATE TABLE llx_categorie_questiongroup(
+CREATE TABLE llx_categorie_question_group(
 	fk_categorie  integer NOT NULL,
-  fk_questiongroup   integer NOT NULL,
+  fk_question_group   integer NOT NULL,
   import_key    varchar(14)
 ) ENGINE=innodb;

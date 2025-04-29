@@ -1,4 +1,4 @@
--- Copyright (C) 2022 EVARISK <technique@evarisk.com>
+-- Copyright (C) 2025 EVARISK <technique@evarisk.com>
 --
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -13,8 +13,8 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program.  If not, see https://www.gnu.org/licenses/.
 
-ALTER TABLE llx_categorie_questiongroup ADD PRIMARY KEY pk_categorie_question (fk_categorie, fk_question);
-ALTER TABLE llx_categorie_questiongroup ADD INDEX idx_categorie_question_fk_categorie (fk_categorie);
-ALTER TABLE llx_categorie_questiongroup ADD INDEX idx_categorie_question_fk_question (fk_question);
-ALTER TABLE llx_categorie_questiongroup ADD CONSTRAINT fk_categorie_questiongroup_categorie_rowid FOREIGN KEY (fk_categorie) REFERENCES llx_categorie (rowid);
-ALTER TABLE llx_categorie_questiongroup ADD CONSTRAINT fk_categorie_questiongroup_digiquali_questiongroup_rowid FOREIGN KEY (fk_question) REFERENCES llx_digiquali_questiongroup (rowid);
+ALTER TABLE llx_categorie_question_group ADD PRIMARY KEY pk_categorie_question_group (fk_categorie, fk_question_group);
+ALTER TABLE llx_categorie_question_group ADD INDEX idx_categorie_question_group_fk_categorie (fk_categorie);
+ALTER TABLE llx_categorie_question_group ADD INDEX idx_categorie_question_group_fk_question_group (fk_question_group);
+ALTER TABLE llx_categorie_question_group ADD CONSTRAINT fk_categorie_question_group_categorie_rowid FOREIGN KEY (fk_categorie) REFERENCES llx_categorie (rowid);
+ALTER TABLE llx_categorie_question_group ADD CONSTRAINT fk_categorie_question_group_digiquali_question_group_rowid FOREIGN KEY (fk_question) REFERENCES llx_digiquali_question_group (rowid);
