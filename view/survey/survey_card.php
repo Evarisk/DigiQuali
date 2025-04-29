@@ -345,25 +345,11 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     $sheet->fetch($object->fk_sheet);
     $questionsAndGroups = $sheet->fetchQuestionsAndGroups();
-
-    foreach($questionsAndGroups as $questionOrGroup) {
-        if ($questionOrGroup->element == 'questiongroup') {
-            $questionGroup->fetch($questionOrGroup->id);
-            $groupQuestions = $questionGroup->fetchQuestionsOrderedByPosition();
-            if (is_array($groupQuestions) && !empty($groupQuestions)) {
-                foreach($groupQuestions as $groupQuestion) {
-                    $questionIds[] = $groupQuestion->id;
-                }
-            }
-
-        } else {
-            $questionIds[] = $questionOrGroup->id;
-        }
-    }
+    $questions = $sheet->fetchAllQuestions();
 
     $questionCounter = 0;
-    if (!empty($questionIds)) {
-        $questionCounter = count($questionIds);
+    if (!empty($questions)) {
+        $questionCounter = count($questions);
     }
 
     $answerCounter = 0;
@@ -529,14 +515,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     $averagePercentageQuestions = 0;
     $percentQuestionCounter     = 0;
-    foreach ($questionIds as $questionId) {
+
+    foreach ($questions as $questionLinked) {
         if ($questionLinked->type !== 'Percentage') {
             continue; // Skip non-percentage questions
         }
 
         $percentQuestionCounter++;
         foreach ($object->lines as $line) {
-            if ($line->fk_question === $questionId) {
+            if ($line->fk_question === $questionLinked->id) {
                 $averagePercentageQuestions += $line->answer;
             }
         }
@@ -578,11 +565,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     // @TODO pas opti
     $cantValidateSurvey = 0;
     $mandatoryArray     = json_decode($sheet->mandatory_questions, true);
-    if (is_array($mandatoryArray) && !empty($mandatoryArray) && is_array($questionIds) && !empty($questionIds)) {
-        foreach ($questionIds as $questionId) {
-            if (in_array($questionId, $mandatoryArray)) {
-                $resultQuestion = $question->fetch($questionId);
-                $resultAnswer   = $objectLine->fetchFromParentWithQuestion($object->id, $questionId);
+    if (is_array($mandatoryArray) && !empty($mandatoryArray) && is_array($questions) && !empty($questions)) {
+        foreach ($questions as $resultQuestion) {
+            if (in_array($resultQuestion->id, $mandatoryArray)) {
+                $resultAnswer   = $objectLine->fetchFromParentWithQuestion($object->id, $resultQuestion->id);
                 if (($resultAnswer > 0 && is_array($resultAnswer)) || !empty($objectLine)) {
                     $itemSurveyDet = !empty($resultAnswer) ? array_shift($resultAnswer) : $objectLine;
                     if ($resultQuestion > 0) {
@@ -689,10 +675,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     // QUESTION LINES
     print '<div class="div-table-responsive-no-min questionLines" style="overflow-x: unset !important;">';
-
-    if (is_array($questionIds) && !empty($questionIds)) {
-        ksort($questionIds);
-    } ?>
+ ?>
 
     <div class="progress-info">
         <span class="badge badge-info" style="margin-right: 10px;"><?php print $answerCounter . '/' . $questionCounter; ?></span>
