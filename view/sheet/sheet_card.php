@@ -728,7 +728,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
                 print '<tr id="group-' . $group->id . '" class="line-row question-group">';
                 print '<td colspan="9">';
-                print '<div class="group-header" onclick="toggleGroup(' . $group->id . ')">';
+                print '<div class="group-header" onclick="window.digiquali.sheet.toggleGroup(' . $group->id . ')">';
                 print '<span class="group-title">' . $group->getNomUrl(1) . '</span>';
                 print '<span class="toggle-icon">+</span>';
                 print '</div>';

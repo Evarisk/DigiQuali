@@ -33,44 +33,39 @@ window.digiquali.sheet.event = function() {
 };
 
 window.digiquali.sheet.buttonActions = function() {
-    const addQuestionRow = document.getElementById("addQuestionRow");
-    const addGroupRow = document.getElementById("addGroupRow");
+  const addQuestionRow = $('#addQuestionRow');
+  const addGroupRow = $('#addGroupRow');
 
-    if ($(this).attr('id') === 'addQuestionButton') {
-      addQuestionRow.classList.remove("hidden");
-      addGroupRow.classList.add("hidden");
-    } else {
-      addGroupRow.classList.remove("hidden");
-      addQuestionRow.classList.add("hidden");
-    }
+  if ($(this).attr('id') === 'addQuestionButton') {
+    addQuestionRow.removeClass('hidden');
+    addGroupRow.addClass('hidden');
+  } else {
+    addGroupRow.removeClass('hidden');
+    addQuestionRow.addClass('hidden');
+  }
 }
 
-function toggleGroup(groupId) {
-  const groupQuestions = $(`.group-question-${groupId}`);
-  const toggleIcon = document.querySelector(`#group-${groupId} .toggle-icon`);
 
+window.digiquali.sheet.toggleGroup = function(groupId) {
+  const groupQuestions = $(`.group-question-${groupId}`);
+  const toggleIcon = $(`#group-${groupId} .toggle-icon`);
 
   groupQuestions.each(function () {
     const question = $(this);
-    question.toggleClass('hidden');
-    const isHidden = question.hasClass('hidden');
-    toggleIcon.textContent = isHidden ? '+' : '-';
+    const isHidden = question.toggleClass('hidden').hasClass('hidden');
+    toggleIcon.text(isHidden ? '+' : '-');
   });
 }
+
 
 window.digiquali.sheet.closeAllGroups = function () {
-  const groupQuestions = document.querySelectorAll('.group-question');
+  const groupQuestions = $('.group-question');
+  const toggleIcons = $('.toggle-icon');
 
-  groupQuestions.forEach(question => {
-    question.classList.add('hidden');
-  });
-
-  const toggleIcons = document.querySelectorAll('.toggle-icon');
-
-  toggleIcons.forEach(icon => {
-    icon.textContent = '+';
-  });
+  groupQuestions.addClass('hidden');
+  toggleIcons.text('+');
 }
+
 
 window.digiquali.sheet.toggleGroupInTree = function () {
   let subQuestions = $(this).closest('.group-item').next()[0];
@@ -81,85 +76,15 @@ window.digiquali.sheet.toggleGroupInTree = function () {
   }
 }
 
-window.digiquali.sheet.showQuestionGroupCard = function () {
-  window.digiquali.sheet.greyOut();
-  const id = $(this).data("id");
-  const token = window.saturne.toolbox.getToken()
-  const url = $('#questionGroupCardUrl').val() + '?id=' + id;
-  $.ajax({
-    url: url + '&token=' + token,
-    type: "POST",
-    processData: false,
-    contentType: false,
-    success: function( resp ) {
-      $('#cardContent').html($(resp).find('#cardContent').html());
-      $(`.group-item[data-id=${id}]`).addClass('selected');
-
-      window.digiquali.sheet.hookAjaxForms();
-      window.digiquali.sheet.hookAjaxLinks();
-    }
-    },
-  );
-}
-
-window.digiquali.sheet.showQuestionCard = function () {
-  window.digiquali.sheet.greyOut();
-  const id = $(this).data("id");
-  const groupId = $(this).data("group-id")
-  const token = window.saturne.toolbox.getToken()
-  const url = $('#questionCardUrl').val() + '?id=' + id;
-  $.ajax({
-      url: url + '&token=' + token,
-      type: "POST",
-      processData: false,
-      contentType: false,
-      success: function( resp ) {
-        $('#cardContent').html($(resp).find('#cardContent').html());
-        $(`.question-item[data-id='${id}'][data-group-id='${groupId}']`).addClass('selected');
-      }
-    },
-  );
-}
-
-window.digiquali.sheet.showSheet = function () {
-  window.digiquali.sheet.greyOut();
-  const id = $(this).data("id");
-  const token = window.saturne.toolbox.getToken();
-  const url = $('#sheetCardUrl').val() + '?id=' + id;
-
-  $.ajax({
-      url: url + '&token=' + token,
-      type: "POST",
-      processData: false,
-      contentType: false,
-      success: function(resp) {
-        let newContent = $(resp).find('#cardContent').removeClass('margin-for-tree');
-        $('#cardContent').children().remove();
-        $('#cardContent').append(newContent.children());
-        $(`.sheet-header[data-id=${id}]`).addClass('selected');
-      }
-    }
-  );
-};
-
 window.digiquali.sheet.greyOut = function () {
-  const questionGroups = document.querySelectorAll('.group-item');
-  const questions = document.querySelectorAll('.question-item');
-  const sheets = document.querySelectorAll('.sheet-header');
+  const questionGroups = $('.group-item');
+  const questions = $('.question-item');
+  const sheets = $('.sheet-header');
 
-  questionGroups.forEach(group => {
-    group.classList.remove('selected');
-  });
-
-  questions.forEach(question => {
-    question.classList.remove('selected');
-  });
-
-  sheets.forEach(sheet => {
-    sheet.classList.remove('selected');
-  });
+  questionGroups.removeClass('selected');
+  questions.removeClass('selected');
+  sheets.removeClass('selected');
 }
-
 
 /**
  * Drag and drop on move-line action
@@ -196,13 +121,9 @@ window.digiquali.sheet.draganddrop = function () {
         lineOrder.push($(this).attr('id'));
       });
 
-      const token = $('.fiche').find('input[name="token"]').val();
+      const token = window.saturne.utils.getToken();
 
-      let separator = '&';
-      if (document.URL.match(/action=/)) {
-        document.URL = document.URL.split(/\?/)[0];
-        separator = '?';
-      }
+      let separator = window.saturne.utils.getQuerySeparator();
 
       $.ajax({
         url: document.URL + separator + "action=moveLine&token=" + token,
@@ -212,12 +133,6 @@ window.digiquali.sheet.draganddrop = function () {
         }),
         processData: false,
         contentType: 'application/json',
-        success: function () {
-          console.log('Order successfully updated');
-        },
-        error: function () {
-          console.error('Failed to update order');
-        },
       });
     },
     receive: function (event, ui) {
