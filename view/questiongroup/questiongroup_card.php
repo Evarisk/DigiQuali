@@ -42,7 +42,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once '../../class/questiongroup.class.php';
 require_once '../../class/question.class.php';
 require_once '../../class/sheet.class.php';
-require_once '../../core/modules/digiquali/question_group/mod_questiongroup_standard.php';
+require_once '../../core/modules/digiquali/questiongroup/mod_questiongroup_standard.php';
 require_once '../../class/answer.class.php';
 require_once '../../lib/digiquali_questiongroup.lib.php';
 require_once '../../lib/digiquali_answer.lib.php';

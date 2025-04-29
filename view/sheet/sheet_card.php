@@ -721,7 +721,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     print '<td class="center">' . $langs->trans('Action') . '</td>';
     print '<td class="center"></td>';
     print '</tr></thead>';
-    print '<tbody>'; 
+    print '<tbody>';
 
     if (is_array($questionsAndGroups) && !empty($questionsAndGroups)) {
         foreach ($questionsAndGroups as $questionOrGroup) {
