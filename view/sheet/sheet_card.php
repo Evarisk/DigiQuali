@@ -690,9 +690,15 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</div>';
 	}
 
+    if (is_array($questionsAndGroups) && !empty($questionsAndGroups)) {
+        $questionCounter = count($questionsAndGroups);
+    } else {
+        $questionCounter = 0;
+    }
+
 // QUESTIONS LINES
     print '<div class="div-table-responsive-no-min">';
-    print load_fiche_titre($langs->trans("LinkedQuestionsList"), '', '', 0, 'questionList');
+    print load_fiche_titre($langs->trans("LinkedQuestionsList", $questionCounter), '', '', 0, 'questionList');
     print '<table id="tablelines" class="centpercent noborder noshadow">'; ?>
     <script>
         $(document).ready(function(){
