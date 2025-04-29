@@ -18,7 +18,7 @@
 /**
  * \file    lib/digiquali_questiongroup.lib.php
  * \ingroup digiquali
- * \brief   Library files with common functions for Question.
+ * \brief   Library files with common functions for QuestionGroup.
  */
 
 // Load Saturne libraries.
