@@ -152,9 +152,8 @@ if (empty($reshook)) {
 
 $title    = $langs->trans(ucfirst($object->element));
 $help_url = 'FR:Module_DigiQuali';
-$moreJS   = ['/saturne/js/includes/hammer.min.js'];
 
-saturne_header(1,'', $title, $help_url, '', 0, 0, $moreJS);
+saturne_header(0,'', $title, $help_url);
 if ($sheetId > 0) {
     $sheet->fetch($sheetId);
     print $sheet->getQuestionAndGroupsTree($object->element, $object->id);
@@ -162,12 +161,11 @@ if ($sheetId > 0) {
 
 print '<div id="cardContent" '. ($sheetId > 0 ? 'class="margin-for-tree"' : '') .'>';
 
-print '<div id="cardContent">';
 // Part to create
 if ($action == 'create') {
 	print load_fiche_titre($langs->trans('NewQuestionGroup'), '', 'object_'.$object->picto);
 
-	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'" id="createQuestionForm" enctype="multipart/form-data">';
+	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'" id="createQuestionGroupForm" enctype="multipart/form-data">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="add">';
     print '<input type="hidden" name="sheet_id" value="' . $sheetId . '">';
@@ -280,8 +278,6 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		// Define confirmation messages
 		$formquestion_groupclone = [
 			['type' => 'text', 'name' => 'clone_label', 'label' => $langs->trans('NewLabelForClone', $langs->transnoentities('The' . ucfirst($object->element))), 'value' => $langs->trans('CopyOf') . ' ' . $object->ref, 'size' => 24],
-			['type' => 'checkbox', 'name' => 'clone_photos', 'label' => $langs->trans('ClonePhotos'), 'value' => 1],
-			['type' => 'checkbox', 'name' => 'clone_categories', 'label' => $langs->trans('CloneCategories'), 'value' => 1],
 		];
 		$formconfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('CloneObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmCloneObject', $langs->transnoentities('The' . ucfirst($object->element)), $object->ref), 'confirm_clone', $formquestion_groupclone, 'yes', 'actionButtonClone', 350, 600);
 	}
@@ -351,9 +347,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 			}
 
 			// Lock
-			if (($object->type == 'UniqueChoice' || $object->type == 'MultipleChoices') && empty($answerList)) {
-				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('AnswerMustBeCreated')) . '"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
-			} else if ($object->status == $object::STATUS_VALIDATED) {
+			if ($object->status == $object::STATUS_VALIDATED) {
 				print '<span class="butAction" id="actionButtonLock"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeValidated', $langs->transnoentities('The' . ucfirst($object->element)))) . '"><i class="fas fa-lock"></i> ' . $langs->trans('Lock') . '</span>';
@@ -375,7 +369,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		print '</div>';
 	}
 
-    // ANSWERS LINES
+    // QUESTIONS LINES
     print '<div class="div-table-responsive-no-min" style="overflow-x: unset !important">';
     print load_fiche_titre($langs->trans("QuestionList"), '', '', 0, 'questionList');
     print '<table id="tablelines" class="centpercent noborder noshadow">';
