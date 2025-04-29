@@ -122,10 +122,6 @@ if (empty($reshook)) {
 		}
 	}
 
-	if ($cancel && $action != 'update') {
-		$backtopage .= '#answerList';
-	}
-
 	if ($action == 'add' && !empty($permissiontoadd)) {
 		foreach ($object->fields as $key => $val) {
 			if ($object->fields[$key]['type'] == 'duration') {
@@ -865,6 +861,7 @@ if (($id || $ref) && $action == 'edit') {
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="update">';
 	print '<input type="hidden" name="id" value="'.$object->id.'">';
+    print '<input type="hidden" name="sheet_id" value="'.$sheetId.'">';
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 	if ($backtopageforcancel) print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
 
@@ -1140,7 +1137,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		if (empty($reshook) && $permissiontoadd) {
 			// Modify
 			if ($object->status == $object::STATUS_VALIDATED) {
-				print '<a class="butAction" id="actionButtonEdit" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit' . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</a>';
+				print '<a class="butAction" id="actionButtonEdit" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit' . ($sheetId > 0 ? '&sheet_id=' . $sheetId : '') . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</a>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeDraft', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</span>';
 			}
