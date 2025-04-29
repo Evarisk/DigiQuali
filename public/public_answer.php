@@ -91,6 +91,7 @@ $sheet         = new Sheet($db);
 $question      = new Question($db);
 $answer        = new Answer($db);
 $questionGroup = new QuestionGroup($db);
+
 if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY')) {
     $fileExists = file_exists('../../' . $moduleNameLowerCase . '/class/' . $moduleNameLowerCase . 'documents/' . strtolower($documentType) . '.class.php');
     if ($fileExists && GETPOSTISSET('document_type')) {
@@ -167,7 +168,7 @@ if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_SHOW_TITLE')) {
 $publicInterface = true;
 
 $sheet->fetch($object->fk_sheet);
-$questionsAndGroups = $sheet->fetchQuestionsAndGroups();
+$questions = $sheet->fetchAllQuestions();
 
 require_once __DIR__ . '/../core/tpl/frontend/digiquali_answers_frontend.tpl.php';
 if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY') && $signatory->id > 0) {

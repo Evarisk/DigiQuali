@@ -28,8 +28,8 @@
  * Objects    : $answer, $object, $objectLine, $sheet
  */
 
-if (is_array($sheet->linkedObjects['digiquali_question']) && !empty($sheet->linkedObjects['digiquali_question'])) {
-    foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
+if (is_array($questions) && !empty($questions)) {
+    foreach ($questions as $question) {
         $questionAnswer = '';
         $comment        = '';
         $result         = $objectLine->fetchFromParentWithQuestion($object->id, $question->id);
