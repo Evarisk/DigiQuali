@@ -794,4 +794,78 @@ class Sheet extends SaturneObject
         return parent::setLocked($user, $notrigger);
     }
 
+    /**
+     * Show answer repartition
+     *
+     * @param int $questionId        Question ID
+     * @param array $answers           Array of answers
+     * @param array $questionAnswerStats Array of answer stats
+     *
+     * @return void
+     */
+    public function showAnswerRepartition(int $questionId, array $answers, array $questionAnswerStats): void
+    {
+
+        global $langs;
+
+        require_once __DIR__ . '/../../saturne/class/saturnedashboard.class.php';
+
+        $data = [];
+        $labels = [];
+
+        foreach ($answers as $a) {
+            $count = $questionAnswerStats[$questionId][$a->position]['nb_answers'] ?? 0;
+            if ($count > 0) {
+                $data[] = [$a->value, $count];
+                $labels[] = ['label' => $a->value, 'color' => $a->color];
+            }
+        }
+
+
+        if (!empty($data)) {
+            $uniqueKey = 'q_' . $questionId . '_pie';
+            $fileName = $uniqueKey . '.png';
+            $fileUrl = DOL_URL_ROOT . '/viewimage.php?modulepart=digiquali&file=' . $fileName;
+
+            $graph = new DolGraph();
+            $graph->SetData($data);
+            $graph->SetDataColor(array_column($labels, 'color'));
+            $graph->SetType(['pie']);
+            $graph->SetWidth(120);
+            $graph->SetHeight(120);
+            $graph->setShowLegend(0);
+            $graph->draw($fileName, $fileUrl);
+            print $graph->show();
+        } else {
+            print '<span class="opacitymedium">' . $langs->trans('NoData') . '</span>';
+        }
+    }
+
+    /**
+     * Get average verdict
+     *
+     * @param array $controls Array of controls
+     *
+     * @return float
+     */
+    public function getAverageVerdict(array $controls): float
+    {
+
+        $controlsNumber = count($controls);
+
+        if ($controlsNumber > 0) {
+            $verdictSum = 0;
+
+            foreach ($controls as $control) {
+                if (!empty($control->verdict)) {
+                    $verdictSum += $control->verdict;
+                }
+            }
+
+            return $verdictSum / $controlsNumber;
+        }
+        return 0;
+    }
+
 }
+
