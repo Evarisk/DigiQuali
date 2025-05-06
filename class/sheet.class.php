@@ -848,7 +848,7 @@ class Sheet extends SaturneObject
                 break;
             case 'Percentage':
                 $averagePercent = 0;
-                
+
                 if (!empty($questionAnswerStats[$question->id])) {
                     $answerCounter = 0;
                     $answerSum = 0;
@@ -870,7 +870,27 @@ class Sheet extends SaturneObject
 
             case 'Text':
                 break;
+
             case 'Range':
+                $average = 0;
+                $count = 0;
+                foreach ($questionAnswerStats[$question->id] as $questionAnswer) {
+                    if (isset($questionAnswer['range'])) {
+                        $average += $questionAnswer['range'];
+                        $count++;
+                    }
+                }
+
+                $average = $count > 0 ? $average / $count : 0;
+
+                print '<div class="range-bar-container">';
+                print '<div class="range-average-indicator">';
+                print '<div class="range-average-value">';
+                print '<i class="fa fa-bullseye" aria-hidden="true"></i> ' . round($average, 1);
+                print '</div>';
+                print '<div class="range-average-label">' . $langs->trans("AverageValue") . '</div>';
+                print '</div>';
+                print '</div>';
                 break;
 
             default:

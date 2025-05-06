@@ -144,6 +144,8 @@ if (!empty($questions) && !empty($controls)) {
             $questionAnswerStats[$question->id][] = [
                 'percentage' => 0,
             ];
+        } else if ($question->type == 'Range') {
+            $questionAnswerStats[$question->id] = [];
         }
 
     }
@@ -161,6 +163,12 @@ if (!empty($questions) && !empty($controls)) {
                 $questionAnswerStats[$controlAnswer->fk_question][$i] = [
                     'percentage' => $controlAnswer->answer,
                 ];
+            } else if ($questionLinked->type == 'Range') {
+                if (is_numeric($controlAnswer->answer)) {
+                    $questionAnswerStats[$controlAnswer->fk_question][] = [
+                        'range' => $controlAnswer->answer,
+                    ];
+                }
             }
         }
         $i++;
