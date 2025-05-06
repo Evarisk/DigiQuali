@@ -131,22 +131,39 @@ if (!empty($questions) && !empty($controls)) {
     $questionAnswerStats = [];
 
     foreach ($questions as $question) {
-        $possibleAnswers = $answer->fetchAll('ASC', 'position', 0, 0,  ['customsql' => 't.status > ' . Answer::STATUS_DELETED . ' AND t.fk_question = ' . $question->id]);
-        if (!empty($possibleAnswers)) {
-            foreach ($possibleAnswers as $possibleAnswer) {
-                $questionAnswerStats[$question->id][$possibleAnswer->id] = [
-                    'nb_answers' => 0,
-                ];
+        if (in_array($question->type, ['UniqueChoice', 'OkKo', 'OkKoToFixNonApplicable', 'MultipleChoices'])) {
+            $possibleAnswers = $answer->fetchAll('ASC', 'position', 0, 0,  ['customsql' => 't.status > ' . Answer::STATUS_DELETED . ' AND t.fk_question = ' . $question->id]);
+            if (!empty($possibleAnswers)) {
+                foreach ($possibleAnswers as $possibleAnswer) {
+                    $questionAnswerStats[$question->id][$possibleAnswer->id] = [
+                        'nb_answers' => 0,
+                    ];
+                }
             }
+        } else if ($question->type == 'Percentage') {
+            $questionAnswerStats[$question->id][] = [
+                'percentage' => 0,
+            ];
         }
+
     }
+    $i = 0;
     foreach ($controls as $control) {
         $control->fetchLines();
         foreach ($control->lines as $controlAnswer) {
-            if ($controlAnswer->answer > 0) {
-                $questionAnswerStats[$controlAnswer->fk_question][$controlAnswer->answer]['nb_answers'] += 1;
+            $questionLinked = new Question($db);
+            $questionLinked->fetch($controlAnswer->fk_question);
+            if (in_array($questionLinked->type, ['UniqueChoice', 'OkKo', 'OkKoToFixNonApplicable', 'MultipleChoices'])) {
+                if ($controlAnswer->answer > 0) {
+                    $questionAnswerStats[$controlAnswer->fk_question][$controlAnswer->answer]['nb_answers'] += 1;
+                }
+            } else if ($questionLinked->type == 'Percentage') {
+                $questionAnswerStats[$controlAnswer->fk_question][$i] = [
+                    'percentage' => $controlAnswer->answer,
+                ];
             }
         }
+        $i++;
     }
 
     print '<div class="stats-section">';
@@ -204,11 +221,12 @@ if (!empty($questions) && !empty($controls)) {
 
             print '</td>';
 
-            print '<td class="answer-pie-container">';
-
-            $object->showAnswerRepartition($question->id, $answers, $questionAnswerStats);
-
         }
+
+        print '<td class="answer-pie-container">';
+
+        $object->showAnswerRepartition($question, $answers, $questionAnswerStats);
+
         print '</td>';
         print '</tr>';
 
