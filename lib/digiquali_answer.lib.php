@@ -168,7 +168,36 @@ function show_answer_from_question(Question $question, CommonObject $object, str
             }
             $out .= '</div>';
             break;
-    }
+		case 'RangeOfValue':
+			$pictos = get_answer_pictos_array();
+
+			$out .= '<div>';
+			$out .= '<span>' . $questionConfig[$question->type]['minimum'] . ' ' . $questionConfig[$question->type]['unit'] . ' <= <i class="fas fa-check"></i> <= ' . $questionConfig[$question->type]['maximum'] . ' ' . $questionConfig[$question->type]['unit'] . '</span>';
+			$out .= '<div class="question-number select-answer answer-cell" data-min="' . $questionConfig[$question->type]['minimum'] . '" data-max="' . $questionConfig[$question->type]['maximum'] . '">';
+			$out .= '<input type="number" class="question-answer rangeofvalue" name="answer' . $question->id . '" placeholder="0" value="' . $questionAnswer . '"' . $disabled . '>';
+			$picto = [
+				['type' => 'check', 'color' => '#57AD39', 'name' => 'ok'],
+				['type' => 'times', 'color' => '#D53C3D', 'name' => 'ko'],
+				['type' => 'N/A', 'color' => '#D3D3D3', 'name' => 'na'],
+			];
+
+			$visible = ($questionAnswer !== '' && $questionAnswer >= $questionConfig[$question->type]['minimum'] && $questionAnswer <= $questionConfig[$question->type]['maximum'] ? '' : 'display: none;');
+			$out .= '<span class="answer answer-icon disable" id="' . $picto[0]['name'] . '" style="' . $visible . 'background:' . $picto[0]['color'] . '; color: #FFF;' . 'box-shadow: 0 0 0 3px ' . $picto[0]['color'] . ';">';
+			$out .= $pictos[$picto[0]['type']]['picto_source'];
+			$out .= '</span>';
+
+			$visible = ($questionAnswer !== '' && ($questionAnswer < $questionConfig[$question->type]['minimum'] || $questionAnswer > $questionConfig[$question->type]['maximum']) ? '' : 'display: none;');
+			$out .= '<span class="answer answer-icon disable" id="' . $picto[1]['name'] . '" style="' . $visible . 'background:' . $picto[1]['color'] . '; color: #FFF;' . 'box-shadow: 0 0 0 3px ' . $picto[1]['color'] . ';">';
+			$out .= $pictos[$picto[1]['type']]['picto_source'];
+			$out .= '</span>';
+
+			$visible = ($questionAnswer === '' ? '' : 'display: none;');
+			$out .= '<span class="answer answer-icon disable" id="' . $picto[2]['name'] . '" style="' . $visible . 'background:' . $picto[2]['color'] . '; color: #FFF;' . 'box-shadow: 0 0 0 3px ' . $picto[2]['color'] . ';">';
+			$out .= $pictos[$picto[2]['type']]['picto_source'];
+			$out .= '</span>';
+			
+			$out .= '</div></div>';
+	}
 
     return $out;
 }

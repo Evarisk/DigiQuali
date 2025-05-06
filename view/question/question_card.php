@@ -283,10 +283,13 @@ if (empty($reshook)) {
 			}
 
             $objectConfig = ['config' => []];
-            if (GETPOSTISSET('step') && !empty(GETPOSTINT('step'))) {
+            if ($object->type == 'Percentage') {
                 $objectConfig['config'][$object->type]['step'] = GETPOSTINT('step');
-            }
-
+            } elseif ($object->type == 'RangeOfValue') {
+                $objectConfig['config'][$object->type]['minimum']      = GETPOSTINT('minimum');
+				$objectConfig['config'][$object->type]['maximum']  = GETPOSTINT('maximum');
+				$objectConfig['config'][$object->type]['unit']     = GETPOST('unit');
+			}
 
 			$result = $object->create($user);
 			if ($result > 0) {
@@ -294,8 +297,7 @@ if (empty($reshook)) {
                 // Category association
                 $categories = GETPOST('categories', 'array');
                 $object->setCategories($categories);
-                $object->json = json_encode($objectConfig);
-                $object->update($user);
+                $object->setValueFrom('json', json_encode($objectConfig));
 
                 if ($object->type == 'OkKo' || $object->type == 'OkKoToFixNonApplicable') {
                     $answer->fk_question = $result;
@@ -746,9 +748,24 @@ if ($action == 'create') {
 	print '</td></tr>';
 
     // Step for percentage question type default hidden
-    print '<tr class="' . (GETPOST('type') == 'Percentage' ? '' : 'hidden') . '" id="percentage-question-step"><td class="fieldrequired"><label for="step">' . $langs->transnoentities('PercentageQuestionStep') . '</label></td><td>';
-    print '<input type="number" name="step" id="step" min="2" value="' . (!empty(GETPOSTINT('step')) ? GETPOSTINT('step') : 2) . '">';
+    print '<tr class="' . (GETPOST('type') == 'Percentage' ? '' : 'hidden disabled') . '" id="percentage-question-step"><td class="fieldrequired"><label for="step">' . $langs->transnoentities('PercentageQuestionStep') . '</label></td><td>';
+    print '<input type="number" name="step" id="step" min="2" value="' . (!empty(GETPOSTINT('step')) ? GETPOSTINT('step') : 2) . '" required>';
     print '</td></tr>';
+
+	// Range Of Values Minimum
+	print '<tr class="' . (GETPOST('type') == 'RangeOfValue' ? '' : 'hidden') . '" id="range-of-values-minimum"><td class="fieldrequired"><label for="minimum">' . $langs->transnoentities('Minimum') . '</label></td><td>';
+	print '<input type="number" name="minimum" id="minimum" value="' . (!empty(GETPOSTINT('minimum')) ? GETPOSTINT('minimum') : 0) . '" required ' . (GETPOST('type') == 'RangeOfValue' ? '' : 'disabled') . '>';
+	print '</td></tr>';
+
+    // Range Of Values Maximum
+	print '<tr class="' . (GETPOST('type') == 'RangeOfValue' ? '' : 'hidden') . '" id="range-of-values-maximum"><td class="fieldrequired"><label for="maximum">' . $langs->transnoentities('Maximum') . '</label></td><td>';
+	print '<input type="number" name="maximum" id="maximum" value="' . (!empty(GETPOSTINT('maximum')) ? GETPOSTINT('maximum') : 0) . '" required ' . (GETPOST('type') == 'RangeOfValue' ? '' : 'disabled') . '>';
+	print '</td></tr>';
+
+	// Range Of Values Unit
+	print '<tr class="' . (GETPOST('type') == 'RangeOfValue' ? '' : 'hidden') . '" id="range-of-values-unit"><td class="fieldrequired"><label for="unit">' . $langs->transnoentities('Unit') . '</label></td><td>';
+	print '<input type="text" name="unit" id="unit" value="' . GETPOST('unit') . '" required ' . (GETPOST('type') == 'RangeOfValue' ? '' : 'disabled') . '>';
+	print '</td></tr>';
 
 	// Description -- Description
 	print '<tr><td class=""><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
@@ -830,7 +847,7 @@ if ($action == 'create') {
 	print dol_get_fiche_end();
 
 	print '<div class="center">';
-	print '<input type="submit" class="button wpeo-button" name="add" value="'.dol_escape_htmltag($langs->trans("Create")).'">';
+	print '<input type="submit" class="button" name="add" value="'.dol_escape_htmltag($langs->trans("Create")).'">';
 	print '&nbsp; ';
 	print ' &nbsp; <input type="button" id ="actionButtonCancelCreate" class="button" name="cancel" value="' . $langs->trans("Cancel") . '" onClick="javascript:history.go(-1)">';
 	print '</div>';
@@ -877,6 +894,21 @@ if (($id || $ref) && $action == 'edit') {
     print '<tr class="' . ($object->type == 'Percentage' ? '' : 'hidden') . '" id="percentage-question-step"><td class="fieldrequired"><label for="step">' . $langs->transnoentities('PercentageQuestionStep') . '</label></td><td>';
     print '<input type="number" name="step" id="step" min="1" value="' . ($objectConfig['config'][$object->type]['step'] ?? 100) . '">';
     print '</td></tr>';
+
+    // Range Of Values Minimum
+	print '<tr class="' . ($object->type == 'RangeOfValue' ? '' : 'hidden') . '" id="range-of-values-minimum"><td class="fieldrequired"><label for="minimum">' . $langs->transnoentities('Minimum') . '</label></td><td>';
+	print '<input type="number" name="minimum" id="minimum" value="' . ($objectConfig['config'][$object->type]['minimum'] ?? 0) . '" required ' . (GETPOST('type') == 'RangeOfValue' ? '' : 'disabled') . '>';
+	print '</td></tr>';
+
+	// Range Of Values Maximum
+	print '<tr class="' . ($object->type == 'RangeOfValue' ? '' : 'hidden') . '" id="range-of-values-maximum"><td class="fieldrequired"><label for="maximum">' . $langs->transnoentities('Maximum') . '</label></td><td>';
+	print '<input type="number" name="maximum" id="maximum" value="' . ($objectConfig['config'][$object->type]['maximum'] ?? 0) . '" required ' . (GETPOST('type') == 'RangeOfValue' ? '' : 'disabled') . '>';
+	print '</td></tr>';
+
+	// Range Of Values Unit
+	print '<tr class="' . ($object->type == 'RangeOfValue' ? '' : 'hidden') . '" id="range-of-values-unit"><td class="fieldrequired"><label for="unit">' . $langs->transnoentities('Unit') . '</label></td><td>';
+	print '<input type="text" name="unit" id="unit" value="' . ($objectConfig['config'][$object->type]['unit'] ?? '') . '" required ' . (GETPOST('type') == 'RangeOfValue' ? '' : 'disabled') . '>';
+	print '</td></tr>';
 
 	//Description -- Description
 	print '<tr><td><label class="" for="description">' . $langs->trans("Description") . '</label></td><td>';
@@ -974,7 +1006,7 @@ if (($id || $ref) && $action == 'edit') {
 
 	print dol_get_fiche_end();
 
-	print '<div class="center"><input type="submit" class="button button-save wpeo-button" name="save" value="'.$langs->trans("Save").'">';
+	print '<div class="center"><input type="submit" class="button button-save" name="save" value="'.$langs->trans("Save").'">';
 	print ' &nbsp; <input type="submit" class="button button-cancel" name="cancel" value="'.$langs->trans("Cancel").'">';
 	print '</div>';
 
@@ -1051,6 +1083,28 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print $langs->transnoentities('PercentageQuestionStep');
         print '</td><td>';
         print $objectConfig[$object->type]['step'];
+        print '</td></tr>';
+    }
+    if ($object->type == 'RangeOfValue') {
+        // Minimum value
+        print '<tr><td class="titlefield">';
+        print $langs->transnoentities('Minimum');
+        print '</td><td>';
+        print $objectConfig[$object->type]['minimum'];
+        print '</td></tr>';
+
+        // Maximum value
+        print '<tr><td class="titlefield">';
+        print $langs->transnoentities('Maximum');
+        print '</td><td>';
+        print $objectConfig[$object->type]['maximum'];
+        print '</td></tr>';
+
+        // Unit
+        print '<tr><td class="titlefield">';
+        print $langs->transnoentities('Unit');
+        print '</td><td>';
+        print $objectConfig[$object->type]['unit'];
         print '</td></tr>';
     }
 

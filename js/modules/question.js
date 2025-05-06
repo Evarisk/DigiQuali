@@ -128,9 +128,28 @@ window.digiquali.question.selectAnswerPicto = function() {
  */
 window.digiquali.question.changeQuestionType = function() {
   let questionType = $(this).val();
+  
   if (questionType === 'Percentage') {
     $(document).find('#percentage-question-step').removeClass('hidden');
+    $(document).find('#percentage-question-step input').prop('disabled', false);
   } else {
     $(document).find('#percentage-question-step').addClass('hidden');
+    $(document).find('#percentage-question-step input').prop('disabled', true);
+  }
+
+  if (questionType === 'RangeOfValue') {
+    $(document).find('#range-of-values-maximum').removeClass('hidden');
+    $(document).find('#range-of-values-maximum input').prop('disabled', false);
+    $(document).find('#range-of-values-minimum').removeClass('hidden');
+    $(document).find('#range-of-values-minimum input').prop('disabled', false);
+    $(document).find('#range-of-values-unit').removeClass('hidden');
+    $(document).find('#range-of-values-unit input').prop('disabled', false);
+  } else {
+    $(document).find('#range-of-values-maximum').addClass('hidden');
+    $(document).find('#range-of-values-maximum input').prop('disabled', true);
+    $(document).find('#range-of-values-minimum').addClass('hidden');
+    $(document).find('#range-of-values-minimum input').prop('disabled', true);
+    $(document).find('#range-of-values-unit').addClass('hidden');
+    $(document).find('#range-of-values-unit input').prop('disabled', true);
   }
 };

@@ -68,6 +68,7 @@ window.digiquali.object.event = function() {
   $(document).on( 'change', '.question-answer', window.digiquali.object.changeStatusQuestion);
   $(document).on( 'click', '.answer:not(.disable)', window.digiquali.object.changeStatusQuestion);
   $(document).on('input', '.question-answer[type="range"]', window.digiquali.object.rangePercent);
+  $(document).on('input', '.question-answer.rangeofvalue', window.digiquali.object.rangeOfValue);
 };
 
 /**
@@ -268,4 +269,39 @@ window.digiquali.object.placePercents = function() {
   $('.question-answer[type="range"]').each(function() {
     window.digiquali.object.rangePercent.call(this);
   });
+}
+
+/**
+ * Range of value
+ *
+ * @since   1.11.0
+ * @version 1.11.0
+ *
+ * @return {void}
+ */
+window.digiquali.object.rangeOfValue = function() {
+  $this = $(this);
+  $parent = $this.parent();
+  const value = parseFloat($this.val());
+
+  const min   = parseFloat($parent.data('min'));
+  const max   = parseFloat($parent.data('max'));
+
+  $parent.find('#ok').hide();
+  $parent.find('#ko').hide();
+  $parent.find('#na').hide();
+
+  console.table({
+    value: value,
+    min: min,
+    max: max
+  });
+
+  if (value >= min && value <= max) {
+    $parent.find('#ok').show();
+  } else if (value < min || value > max) {
+    $parent.find('#ko').show();
+  } else {
+    $parent.find('#na').show();
+  }
 }
