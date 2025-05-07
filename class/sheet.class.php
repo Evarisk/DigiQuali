@@ -486,9 +486,9 @@ class Sheet extends SaturneObject
             $sql  = 'UPDATE '. MAIN_DB_PREFIX . 'element_element';
             $sql .= ' SET position = ' . $position;
             $sql .= ' WHERE fk_source = ' . $this->id;
-            $sql .= ' AND sourcetype = \'digiquali_sheet\'';
+            $sql .= ' AND sourcetype = "digiquali_sheet"';
             $sql .= ' AND fk_target = ' . $questionIds[$position];
-            $sql .= ' AND targettype = \'digiquali_question\'';
+            $sql .= ' AND targettype = "digiquali_question"';
             $res  = $this->db->query($sql);
 
             if (!$res) {
