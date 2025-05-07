@@ -364,7 +364,7 @@ if ($action == 'create') {
         //FK SHEET
         $objectTypeArray = (!empty(GETPOST('fromtype')) ? saturne_get_objects_metadata(GETPOST('fromtype')) : []);
         $filterType      = (!empty($objectTypeArray) ? dol_strtolower($objectTypeArray['name']) : '');
-        $filter          = 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED;
+        $filter          = 's.type = \'' . $object->element . '\' AND s.status = ' . Sheet::STATUS_LOCKED;
         $filter         .= (!empty($filterType) ? ' AND s.element_linked LIKE "%' . $filterType . '%"' : '');
         print '<tr><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('Sheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
         print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet') ?: $sheet->id, 'fk_sheet', $filter, 1);

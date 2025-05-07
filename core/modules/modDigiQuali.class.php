@@ -792,7 +792,7 @@ class modDigiQuali extends DolibarrModules
 			$question  = new Question($this->db);
 			$answer    = new Answer($this->db);
 
-			$questions = $question->fetchAll('', '', 0, 0, ['customsql' => 't.type = "OkKoToFixNonApplicable"']);
+			$questions = $question->fetchAll('', '', 0, 0, ['customsql' => 't.type = \'OkKoToFixNonApplicable\'']);
 			if (is_array($questions) && !empty($questions)) {
 				foreach ($questions as $question) {
 					$answer->fk_question = $question->id;

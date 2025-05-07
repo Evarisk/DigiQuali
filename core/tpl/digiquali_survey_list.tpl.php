@@ -21,12 +21,12 @@ $sql = preg_replace('/,\s*$/', '', $sql);
 foreach($elementElementFields as $genericName => $elementElementName) {
     if (GETPOST('search_' . $genericName) > 0 || $fromtype == $elementElementName) {
         $id_tosearch = GETPOST('search' . $genericName) ?: $fromid;
-        $sql .= ',' .  $elementElementName . '.fk_source, ';
+        $sql .= ', "' .  $elementElementName . '".fk_source, ';
     }
 }
 $sql = rtrim($sql, ', ');
 if (array_key_exists($sortfield, $elementElementFields) && !preg_match('/' . 'LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as ' . $elementElementFields[$sortfield] . '/', $sql)) {
-    $sql .= ',' .  $elementElementFields[$sortfield] . '.fk_source';
+    $sql .= ', "' .  $elementElementFields[$sortfield] . '".fk_source';
 }
 $sql .= ' FROM ' . MAIN_DB_PREFIX . $object->table_element . ' as t';
 if (!empty($conf->categorie->enabled)) {
@@ -37,12 +37,12 @@ if (is_array($extrafields->attributes[$object->table_element]['label']) && count
 foreach($elementElementFields as $genericName => $elementElementName) {
 	if (GETPOST('search_'.$genericName) > 0 || $fromtype == $elementElementName) {
 		$id_to_search = GETPOST('search_'.$genericName) ?: $fromid;
-		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementName .' on ('. $elementElementName .'.fk_source = ' . $id_to_search . ' AND '. $elementElementName .'.sourcetype="'. $elementElementName .'" AND '. $elementElementName .'.targettype = "digiquali_survey")';
+		$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as "'. $elementElementName .'" on ("'. $elementElementName .'".fk_source = ' . $id_to_search . ' AND "'. $elementElementName .'".sourcetype=\''. $elementElementName .'\' AND "'. $elementElementName .'".targettype = \'digiquali_survey\')';
 	}
 }
 
 if (array_key_exists($sortfield,$elementElementFields) && !preg_match('/' . 'LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementFields[$sortfield] .'/', $sql)) {
-	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as '. $elementElementFields[$sortfield] .' on ( '. $elementElementFields[$sortfield] .'.sourcetype="'. $elementElementFields[$sortfield] .'" AND '. $elementElementFields[$sortfield] .'.targettype = "digiquali_survey" AND '. $elementElementFields[$sortfield] .'.fk_target = t.rowid)';
+	$sql .= ' LEFT JOIN ' . MAIN_DB_PREFIX . 'element_element as "'. $elementElementFields[$sortfield] .'" on ( "'. $elementElementFields[$sortfield] .'".sourcetype=\''. $elementElementFields[$sortfield] .'\' AND "'. $elementElementFields[$sortfield] .'".targettype = \'digiquali_survey\' AND "'. $elementElementFields[$sortfield] .'".fk_target = t.rowid)';
 }
 
 // Add table from hooks
@@ -58,7 +58,7 @@ $sql .= ' AND t.status >= ' . Survey::STATUS_DRAFT;
 
 foreach($elementElementFields as $genericName => $elementElementName) {
     if (GETPOST('search_'.$genericName) > 0 || $fromtype == $elementElementName) {
-        $sql .= ' AND t.rowid = ' . $elementElementName . '.fk_target ';
+        $sql .= ' AND t.rowid = "' . $elementElementName . '".fk_target ';
     }
 }
 
@@ -130,7 +130,7 @@ if (empty($conf->global->MAIN_DISABLE_FULL_SCANLIST)) {
 
 // Complete request and execute it with limit
 if (array_key_exists($sortfield, $elementElementFields)) {
-    $sql .= ' ORDER BY '. $elementElementFields[$sortfield] . '.fk_source ' . $sortorder;
+    $sql .= ' ORDER BY "'. $elementElementFields[$sortfield] . '".fk_source ' . $sortorder;
 } else {
     $sql .= $db->order($sortfield, $sortorder);
 }
@@ -334,7 +334,7 @@ foreach ($object->fields as $key => $val)
 			print $form->selectarray('search_' . $key, $val['arrayofkeyval'], $search[$key], $val['notnull'], 0, 0, '', 1, 0, 0, '', 'minwidth200', 1);
 		}
 		elseif ($key == 'fk_sheet') {
-			print $sheet->selectSheetList(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : ($search['fk_sheet'] ?: 0), 'search_fk_sheet', 's.type = ' . '"' . $object->element . '"');
+			print $sheet->selectSheetList(GETPOST('fromtype') == 'fk_sheet' ? GETPOST('fromid') : ($search['fk_sheet'] ?: 0), 'search_fk_sheet', 's.type = \'' . $object->element . '\'');
 		}
 		elseif (strpos($val['type'], 'integer:') === 0) {
 			print $object->showInputField($val, $key, $search[$key], '', '', 'search_', 'minwidth100 maxwidth125 widthcentpercentminusxx', 1);
@@ -449,7 +449,7 @@ while ($i < $imaxinloop) {
     // Store properties in $object
     $object->setVarsFromFetchObj($obj);
 
-    $filter      = ['customsql' => 'fk_object = ' . $object->id . ' AND status > 0 AND object_type = "' . $object->element . '"'];
+    $filter      = ['customsql' => 'fk_object = ' . $object->id . ' AND status > 0 AND object_type = \'' . $object->element . '\''];
     $signatories = $signatory->fetchAll('', 'role', 0, 0, $filter);
 
     if ($mode == 'kanban') {
@@ -594,8 +594,8 @@ while ($i < $imaxinloop) {
 
                             $actioncomm = new ActionComm($db);
 
-                            $lastValidateAction = $actioncomm->getActions(0, $object->id, 'survey@digiquali', ' AND a.code = "AC_SURVEY_VALIDATE"', 'a.datep', 'DESC', 1);
-                            $lastReOpenAction   = $actioncomm->getActions(0, $object->id, 'survey@digiquali', ' AND a.code = "AC_SURVEY_UNVALIDATE"', 'a.datep', 'DESC', 1);
+                            $lastValidateAction = $actioncomm->getActions(0, $object->id, 'survey@digiquali', ' AND a.code = \'AC_SURVEY_VALIDATE\'', 'a.datep', 'DESC', 1);
+                            $lastReOpenAction   = $actioncomm->getActions(0, $object->id, 'survey@digiquali', ' AND a.code = \'AC_SURVEY_UNVALIDATE\'', 'a.datep', 'DESC', 1);
 
                             $lastValidateDate = (is_array($lastValidateAction) && !empty($lastValidateAction) ? $lastValidateAction[0]->datec : 0);
                             $lastReOpenDate   = (is_array($lastReOpenAction) && !empty($lastReOpenAction) ? $lastReOpenAction[0]->datec : 0);
