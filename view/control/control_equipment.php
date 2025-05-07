@@ -187,7 +187,7 @@ if ($id > 0 || !empty($ref)) {
         $productLotFilter['fk_product'] = GETPOST('fk_product');
     }
     if (dol_strlen($excludeFilter) > 0) {
-        $productLotFilter['customsql'] = '`rowid` NOT IN (' . $excludeFilter . ')';
+        $productLotFilter['customsql'] = 'rowid NOT IN (' . $excludeFilter . ')';
     }
 
     $productLots      = saturne_fetch_all_object_type('ProductLot', '', '', 0, 0, $productLotFilter);
