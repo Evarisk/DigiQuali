@@ -41,6 +41,7 @@ require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
 require_once __DIR__ . '/../../class/survey.class.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
+require_once __DIR__ . '/../../class/questiongroup.class.php';
 require_once __DIR__ . '/../../class/answer.class.php';
 require_once __DIR__ . '/../../class/digiqualidocuments/surveydocument.class.php';
 require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
@@ -66,15 +67,16 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 
 // Initialize objects
 // Technical objets
-$object      = new Survey($db);
-$objectLine  = new SurveyLine($db);
-$document    = new SurveyDocument($db);
-$signatory   = new SaturneSignature($db, 'digiquali');
-$sheet       = new Sheet($db);
-$question    = new Question($db);
-$answer      = new Answer($db);
-$extraFields = new ExtraFields($db);
-$category    = new Categorie($db);
+$object        = new Survey($db);
+$objectLine    = new SurveyLine($db);
+$document      = new SurveyDocument($db);
+$signatory     = new SaturneSignature($db, 'digiquali');
+$sheet         = new Sheet($db);
+$question      = new Question($db);
+$answer        = new Answer($db);
+$questionGroup = new QuestionGroup($db);
+$extraFields   = new ExtraFields($db);
+$category      = new Categorie($db);
 
 // View objects
 $form = new Form($db);
@@ -342,12 +344,12 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     saturne_banner_tab($object, 'ref', '', 1, 'ref', 'ref', '', !empty($object->photo));
 
     $sheet->fetch($object->fk_sheet);
-    $sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
-    $questionIds = $sheet->linkedObjectsIds['digiquali_question'];
+    $questionsAndGroups = $sheet->fetchQuestionsAndGroups();
+    $questions = $sheet->fetchAllQuestions();
 
     $questionCounter = 0;
-    if (!empty($questionIds)) {
-        $questionCounter = count($questionIds);
+    if (!empty($questions)) {
+        $questionCounter = count($questions);
     }
 
     $answerCounter = 0;
@@ -513,7 +515,8 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     $averagePercentageQuestions = 0;
     $percentQuestionCounter     = 0;
-    foreach ($sheet->linkedObjects['digiquali_question'] as $questionLinked) {
+
+    foreach ($questions as $questionLinked) {
         if ($questionLinked->type !== 'Percentage') {
             continue; // Skip non-percentage questions
         }
@@ -562,11 +565,10 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     // @TODO pas opti
     $cantValidateSurvey = 0;
     $mandatoryArray     = json_decode($sheet->mandatory_questions, true);
-    if (is_array($mandatoryArray) && !empty($mandatoryArray) && is_array($questionIds) && !empty($questionIds)) {
-        foreach ($questionIds as $questionId) {
-            if (in_array($questionId, $mandatoryArray)) {
-                $resultQuestion = $question->fetch($questionId);
-                $resultAnswer   = $objectLine->fetchFromParentWithQuestion($object->id, $questionId);
+    if (is_array($mandatoryArray) && !empty($mandatoryArray) && is_array($questions) && !empty($questions)) {
+        foreach ($questions as $resultQuestion) {
+            if (in_array($resultQuestion->id, $mandatoryArray)) {
+                $resultAnswer   = $objectLine->fetchFromParentWithQuestion($object->id, $resultQuestion->id);
                 if (($resultAnswer > 0 && is_array($resultAnswer)) || !empty($objectLine)) {
                     $itemSurveyDet = !empty($resultAnswer) ? array_shift($resultAnswer) : $objectLine;
                     if ($resultQuestion > 0) {
@@ -673,10 +675,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
     // QUESTION LINES
     print '<div class="div-table-responsive-no-min questionLines" style="overflow-x: unset !important;">';
-
-    if (is_array($questionIds) && !empty($questionIds)) {
-        ksort($questionIds);
-    } ?>
+ ?>
 
     <div class="progress-info">
         <span class="badge badge-info" style="margin-right: 10px;"><?php print $answerCounter . '/' . $questionCounter; ?></span>

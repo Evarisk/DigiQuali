@@ -36,6 +36,7 @@ require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 // Load DigiQuali libraries
 require_once __DIR__ . '/../../class/sheet.class.php';
 require_once __DIR__ . '/../../class/question.class.php';
+require_once __DIR__ . '/../../class/questiongroup.class.php';
 require_once __DIR__ . '/../../class/answer.class.php';
 require_once __DIR__ . '/../../lib/digiquali_sheet.lib.php';
 
@@ -51,8 +52,9 @@ $ref    = GETPOST('ref', 'alpha');
 $action = GETPOST('action', 'aZ09');
 
 // Initialize technical objects
-$object   = new Sheet($db);
-$question = new Question($db);
+$object        = new Sheet($db);
+$question      = new Question($db);
+$questionGroup = new QuestionGroup($db);
 $answer   = new Answer($db);
 
 $hookmanager->initHooks(['sheetexport', 'globalcard']); // Note that conf->hooks_modules contains array
@@ -92,40 +94,53 @@ if (empty($resHook)) {
 
         $digiqualiExportArray['sheets'][$object->id] = $sheetExportArray;
 
-        $object->fetchObjectLinked($object->id, 'digiquali_' . $object->element, null, '', 'OR', 1, 'position');
-        $questionsLinked = $object->linkedObjects['digiquali_question'];
+        $questionsAndGroupsLinked = $object->fetchQuestionsAndGroups();
 
-        if (is_array($questionsLinked) && !empty($questionsLinked)) {
-            foreach ($questionsLinked as $key => $questionSingle) {
-                $digiqualiExportArray['element_element'][$object->id][$key] = $questionSingle->id;
-                $questionExportArray['rowid']                               = $questionSingle->id;
-                $questionExportArray['ref']                                 = $questionSingle->ref;
-                $questionExportArray['status']                              = $questionSingle->status;
-                $questionExportArray['type']                                = $questionSingle->type;
-                $questionExportArray['label']                               = $questionSingle->label;
-                $questionExportArray['description']                         = $questionSingle->description;
-                $questionExportArray['show_photo']                          = $questionSingle->show_photo;
-                $questionExportArray['authorize_answer_photo']              = $questionSingle->authorize_answer_photo;
-                $questionExportArray['enter_comment']                       = $questionSingle->enter_comment;
+        if (is_array($questionsAndGroupsLinked) && !empty($questionsAndGroupsLinked)) {
+            foreach ($questionsAndGroupsLinked as $key => $questionOrGroupSingle) {
+                if ($questionOrGroupSingle->element == 'question') {
+                    $questionSingle = $questionOrGroupSingle;
+                    $digiqualiExportArray['element_element_questions'][$object->id][$key] = $questionSingle->id;
+                    $questionExportArray['rowid']                               = $questionSingle->id;
+                    $questionExportArray['ref']                                 = $questionSingle->ref;
+                    $questionExportArray['status']                              = $questionSingle->status;
+                    $questionExportArray['type']                                = $questionSingle->type;
+                    $questionExportArray['label']                               = $questionSingle->label;
+                    $questionExportArray['description']                         = $questionSingle->description;
+                    $questionExportArray['show_photo']                          = $questionSingle->show_photo;
+                    $questionExportArray['authorize_answer_photo']              = $questionSingle->authorize_answer_photo;
+                    $questionExportArray['enter_comment']                       = $questionSingle->enter_comment;
 
-                $digiqualiExportArray['questions'][$questionSingle->id] = $questionExportArray;
+                    $digiqualiExportArray['questions'][$questionSingle->id] = $questionExportArray;
 
-                $answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $questionSingle->id]);
+                    $answerList = $answer->fetchAll('ASC', 'position', 0, 0, ['fk_question' => $questionSingle->id]);
 
-                if (is_array($answerList) && !empty($answerList)) {
-                    foreach ($answerList as $answerSingle) {
-                        $answerExportArray['rowid']       = $answerSingle->id;
-                        $answerExportArray['ref']         = $answerSingle->ref;
-                        $answerExportArray['status']      = $answerSingle->status;
-                        $answerExportArray['value']       = $answerSingle->value;
-                        $answerExportArray['position']    = $answerSingle->position;
-                        $answerExportArray['pictogram']   = $answerSingle->pictogram;
-                        $answerExportArray['color']       = $answerSingle->color;
-                        $answerExportArray['fk_question'] = $answerSingle->fk_question;
+                    if (is_array($answerList) && !empty($answerList)) {
+                        foreach ($answerList as $answerSingle) {
+                            $answerExportArray['rowid']       = $answerSingle->id;
+                            $answerExportArray['ref']         = $answerSingle->ref;
+                            $answerExportArray['status']      = $answerSingle->status;
+                            $answerExportArray['value']       = $answerSingle->value;
+                            $answerExportArray['position']    = $answerSingle->position;
+                            $answerExportArray['pictogram']   = $answerSingle->pictogram;
+                            $answerExportArray['color']       = $answerSingle->color;
+                            $answerExportArray['fk_question'] = $answerSingle->fk_question;
 
-                        $digiqualiExportArray['questions'][$answerSingle->fk_question]['answers'][$answerSingle->id] = $answerExportArray;
+                            $digiqualiExportArray['questions'][$answerSingle->fk_question]['answers'][$answerSingle->id] = $answerExportArray;
+                        }
                     }
+                } else if ($questionOrGroupSingle->element == 'questiongroup') {
+                    $questionGroupSingle = $questionOrGroupSingle;
+                    $digiqualiExportArray['element_element_questiongroups'][$object->id][$key] = $questionGroupSingle->id;
+                    $questionGroupExportArray['rowid']       = $questionGroupSingle->id;
+                    $questionGroupExportArray['ref']         = $questionGroupSingle->ref;
+                    $questionGroupExportArray['status']      = $questionGroupSingle->status;
+                    $questionGroupExportArray['label']       = $questionGroupSingle->label;
+                    $questionGroupExportArray['description'] = $questionGroupSingle->description;
+
+                    $digiqualiExportArray['questiongroups'][$questionGroupSingle->id] = $questionGroupExportArray;
                 }
+
             }
         }
 
@@ -171,6 +186,8 @@ $title   = $langs->trans('Export', 'DigiQuali');
 $helpUrl = 'FR:Module_DigiQuali';
 
 saturne_header(0,'', $title, $helpUrl);
+print $object->getQuestionAndGroupsTree();
+print '<div id="cardContent" class="margin-for-tree">';
 
 saturne_get_fiche_head($object, 'export', $title);
 saturne_banner_tab($object);
@@ -203,6 +220,7 @@ print '</form>';
 
 print $langs->trans('ToImportDataGoToImportPage') . ' <a href="' . dol_buildpath('custom/digiquali/view/digiqualitools.php', 1) . '">' . $langs->trans('ClickHere') . '</a>';
 
+print '</div>';
 // End of page
 llxFooter();
 $db->close();

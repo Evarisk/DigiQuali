@@ -132,6 +132,15 @@ AddToSheet                    = Ajouter au modèle
 PercentageQuestionStep        = Nombre d'étapes du curseur
 
 
+#
+# QuestionGroups
+#
+
+# Data - Donnée
+QuestionGroup    = Groupe de questions
+Questiongroup    = Groupe de questions
+QuestionGroups   = Groupes de questions
+NewQuestionGroup = Nouveau groupe de questions
 
 #
 # Sheet

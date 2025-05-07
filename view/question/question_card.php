@@ -39,7 +39,9 @@ require_once DOL_DOCUMENT_ROOT.'/categories/class/categorie.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 
+require_once '../../class/sheet.class.php';
 require_once '../../class/question.class.php';
+require_once '../../class/questiongroup.class.php';
 require_once '../../class/answer.class.php';
 require_once '../../lib/digiquali_question.lib.php';
 require_once '../../lib/digiquali_answer.lib.php';
@@ -53,6 +55,8 @@ saturne_load_langs();
 // Get parameters
 $id                  = GETPOST('id', 'int');
 $ref                 = GETPOST('ref', 'alpha');
+$sheetId             = GETPOST('sheet_id', 'int');
+$questionGroupId     = GETPOST('question_group_id', 'int');
 $action              = GETPOST('action', 'aZ09');
 $subaction           = GETPOST('subaction', 'aZ09');
 $confirm             = GETPOST('confirm', 'alpha');
@@ -64,6 +68,8 @@ $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 // Initialize objects
 // Technical objets
 $object         = new Question($db);
+$sheet          = new Sheet($db);
+$questiongroup  = new QuestionGroup($db);
 $answer         = new Answer($db);
 $extrafields    = new ExtraFields($db);
 
@@ -112,12 +118,8 @@ if (empty($reshook)) {
 	if (empty($backtopage) || ($cancel && empty($id))) {
 		if (empty($backtopage) || ($cancel && strpos($backtopage, '__ID__'))) {
 			if (empty($id) && (($action != 'add' && $action != 'create') || $cancel)) $backtopage = $backurlforlist;
-			else $backtopage = dol_buildpath('/digiquali/view/question/question_card.php', 1).'?id='.($id > 0 ? $id : '__ID__');
+			else $backtopage = dol_buildpath('/digiquali/view/question/question_card.php', 1).'?id='.($id > 0 ? $id : '__ID__') . ($sheetId ? '&sheet_id=' . $sheetId : '');
 		}
-	}
-
-	if ($cancel && $action != 'update') {
-		$backtopage .= '#answerList';
 	}
 
 	if ($action == 'add' && !empty($permissiontoadd)) {
@@ -720,7 +722,12 @@ $help_url = 'FR:Module_DigiQuali';
 $moreJS   = ['/saturne/js/includes/hammer.min.js'];
 
 saturne_header(1,'', $title, $help_url, '', 0, 0, $moreJS);
+if ($sheetId > 0) {
+    $sheet->fetch($sheetId);
+    print $sheet->getQuestionAndGroupsTree($object->element, $object->id, $questionGroupId);
+}
 
+print '<div id="cardContent" '. ($sheetId > 0 ? 'class="margin-for-tree"' : '') .'>';
 // Part to create
 if ($action == 'create') {
 	print load_fiche_titre($langs->trans('NewQuestion'), '', 'object_'.$object->picto);
@@ -728,6 +735,9 @@ if ($action == 'create') {
 	print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'" id="createQuestionForm" enctype="multipart/form-data">';
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="add">';
+    print '<input type="hidden" name="sheet_id" value="'.$sheetId.'">';
+	print '<input type="hidden" name="question_group_id" value="'.$questionGroupId.'">';
+
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 	if ($backtopageforcancel) print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
 
@@ -851,6 +861,7 @@ if (($id || $ref) && $action == 'edit') {
 	print '<input type="hidden" name="token" value="'.newToken().'">';
 	print '<input type="hidden" name="action" value="update">';
 	print '<input type="hidden" name="id" value="'.$object->id.'">';
+    print '<input type="hidden" name="sheet_id" value="'.$sheetId.'">';
 	if ($backtopage) print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 	if ($backtopageforcancel) print '<input type="hidden" name="backtopageforcancel" value="'.$backtopageforcancel.'">';
 
@@ -1126,7 +1137,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 		if (empty($reshook) && $permissiontoadd) {
 			// Modify
 			if ($object->status == $object::STATUS_VALIDATED) {
-				print '<a class="butAction" id="actionButtonEdit" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit' . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</a>';
+				print '<a class="butAction" id="actionButtonEdit" href="' . $_SERVER['PHP_SELF'] . '?id=' . $object->id . '&action=edit' . ($sheetId > 0 ? '&sheet_id=' . $sheetId : '') . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</a>';
 			} else {
 				print '<span class="butActionRefused classfortooltip" title="' . dol_escape_htmltag($langs->trans('ObjectMustBeDraft', ucfirst($langs->transnoentities('The' . ucfirst($object->element))))) . '"><i class="fas fa-edit"></i> ' . $langs->trans('Modify') . '</span>';
 			}
@@ -1326,6 +1337,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 	print '</div></div>';
 }
+print '</div>';
 
 // End of page
 llxFooter();

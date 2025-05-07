@@ -65,6 +65,7 @@ if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY')) {
 require_once __DIR__ . '/../class/' . $objectType . '.class.php';
 require_once __DIR__ . '/../class/sheet.class.php';
 require_once __DIR__ . '/../class/question.class.php';
+require_once __DIR__ . '/../class/questiongroup.class.php';
 require_once __DIR__ . '/../class/answer.class.php';
 require_once __DIR__ . '/../lib/digiquali_sheet.lib.php';
 require_once __DIR__ . '/../lib/digiquali_answer.lib.php';
@@ -82,13 +83,15 @@ $action    = GETPOST('action');
 $subaction = GETPOST('subaction');
 
 // Initialize technical objects
-$className  = ucfirst($objectType);
-$object     = new $className($db);
-$className  = $className . 'Line';
-$objectLine = new $className($db);
-$sheet      = new Sheet($db);
-$question   = new Question($db);
-$answer     = new Answer($db);
+$className     = ucfirst($objectType);
+$object        = new $className($db);
+$className     = $className . 'Line';
+$objectLine    = new $className($db);
+$sheet         = new Sheet($db);
+$question      = new Question($db);
+$answer        = new Answer($db);
+$questionGroup = new QuestionGroup($db);
+
 if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY')) {
     $fileExists = file_exists('../../' . $moduleNameLowerCase . '/class/' . $moduleNameLowerCase . 'documents/' . strtolower($documentType) . '.class.php');
     if ($fileExists && GETPOSTISSET('document_type')) {
@@ -163,7 +166,10 @@ if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_SHOW_TITLE')) {
     print '<h2 class="page-title center">' . (dol_strlen($answerPublicInterfaceTitle) > 0 ? $answerPublicInterfaceTitle : $langs->transnoentities('AnswerPublicInterface')) . '</h2>';
 }
 $publicInterface = true;
-$sheet->fetchObjectLinked($object->fk_sheet, 'digiquali_' . $sheet->element, null, '', 'OR', 1, 'position');
+
+$sheet->fetch($object->fk_sheet);
+$questions = $sheet->fetchAllQuestions();
+
 require_once __DIR__ . '/../core/tpl/frontend/digiquali_answers_frontend.tpl.php';
 if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY') && $signatory->id > 0) {
     $previousStatus        = $object->status;

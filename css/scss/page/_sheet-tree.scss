@@ -1,0 +1,308 @@
+.page-ut-gp-list {
+  margin-left: -40px;
+  box-sizing: border-box;
+  display: block !important;
+  width: 100%;
+
+  * {
+    box-sizing: border-box;
+  }
+  .fiche {
+    margin-right: 0 !important;
+  }
+}
+
+/** Screen */
+#id-right .margin-for-tree {
+  padding-left: 200px;
+  width: 100%;
+  display: block;
+}
+
+
+/** UT / GP Navigation */
+.page-ut-gp-list .side-nav {
+  position: absolute;
+  height: 100%;
+  top: 0;
+  padding-top: 50px;
+  box-sizing: border-box;
+  box-shadow: none;
+
+  .side-nav-responsive {
+    display: none;
+  }
+  #id-left {
+    width: 200px;
+    padding-top: 0;
+  }
+  .digirisk-wrap {
+    padding: 0 !important;
+  }
+  .navigation-container {
+    //padding-left: 10px;
+    //padding-right: 10px;
+    max-height:1000px;
+    overflow-y: auto;
+    height: 90vh;
+  }
+
+  .add-container {
+    position: absolute;
+    right: 0;
+    bottom: 5px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease-out;
+  }
+
+  #id-left.active .add-container {
+    opacity: 1;
+  }
+
+}
+
+/** Header */
+.page-ut-gp-list .side-nav .sheet-header {
+  padding-top: 27px;
+  position: relative;
+  padding-left: 10px;
+  padding-right: 10px;
+  line-height: 1;
+  border-bottom: 1px solid rgba(0,0,0,0.2);
+  padding-bottom: 10px;
+  display: flex;
+  width: 100%;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &.selected {
+    background: rgba(0,0,0,0.1);
+  }
+
+  .title {
+    font-weight: 700;
+  }
+
+
+  &:hover .add-container {
+    opacity: 1;
+    pointer-events: all;
+  }
+}
+
+
+/** ─────────────────────────────────────────────
+    LISTE DES GROUPES / QUESTIONS
+───────────────────────────────────────────── **/
+
+.page-ut-gp-list .side-nav .question-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/** GROUPE (ex: GP5 + "Industrie Standard") **/
+.page-ut-gp-list .side-nav .group-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+  margin-left: 0px;
+  position: relative;
+  border-left: 4px solid transparent;
+  margin-bottom: 1px;
+  background: #f8f8f8;
+  border-radius: 5px;
+}
+
+.page-ut-gp-list .side-nav .group-item.selected {
+  background: rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #1E437B;
+}
+
+/* Chevron pour dérouler/replier */
+.page-ut-gp-list .side-nav .group-item .toggle-group-in-tree {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Conteneur du texte */
+.page-ut-gp-list .side-nav .group-item .title-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+  flex-grow: 1;
+}
+
+/* Bouton d'ajout de question en hover sur un groupe */
+.page-ut-gp-list .side-nav .group-item .add-question-btn {
+  display: none;
+  position: absolute;
+  right: 10px;
+  color: #1E437B;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.page-ut-gp-list .side-nav .group-item:hover .add-question-btn {
+  display: block;
+}
+
+.page-ut-gp-list .side-nav .group-item .add-question-btn:hover {
+  color: #3e67a8;
+  transform: scale(1.2);
+}
+
+/* Référence (ex: GP5) */
+.page-ut-gp-list .side-nav .group-item .title-container .ref {
+  font-size: 10px;
+  color: #fff;
+  text-transform: uppercase;
+  width: max-content;
+  border-radius: 6px;
+  font-weight: 600;
+  display: inline-block;
+  background: #263c5c;
+  padding: .2em .4em;
+}
+
+/* Label (ex: Industrie Standard) */
+.page-ut-gp-list .side-nav .group-item .title-container .label {
+  font-size: 14px;
+  color: #000;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* Survol d'un groupe */
+.page-ut-gp-list .side-nav .group-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-left-color: #999;
+}
+
+/** QUESTIONS (ex: WU5 + "Bureaux - Administration") **/
+.page-ut-gp-list .side-nav .question-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 13px;
+  transition: background 0.2s ease-in-out;
+  position: relative;
+  border-left: 4px solid transparent;
+  margin-bottom: 1px;
+  background: #fff;
+  border-radius: 5px;
+}
+
+.page-ut-gp-list .side-nav .question-item.selected {
+  background: rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #1E437B;
+}
+
+.page-ut-gp-list .side-nav .icon {
+  font-size: 18px;
+  color: #666;
+}
+/* Conteneur texte */
+.page-ut-gp-list .side-nav .question-item .title-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+}
+
+/* Référence (ex: WU5) */
+.page-ut-gp-list .side-nav .question-item .title-container .ref {
+  font-size: 10px;
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: 600;
+  display: inline-block;
+  width: max-content;
+  border-radius: 6px;
+  background: #0d8aff;
+  padding: .2em .4em;
+}
+
+/* Label (ex: Bureaux - Administration) */
+.page-ut-gp-list .side-nav .question-item .title-container .label {
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* Survol question */
+.page-ut-gp-list .side-nav .question-item:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/** SOUS-NIVEAUX (Sub-Questions) **/
+.page-ut-gp-list .side-nav .sub-questions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  margin-left: 20px;
+}
+
+/* Affichage/masquage des sous-questions */
+.page-ut-gp-list .side-nav .sub-questions.collapsed {
+  display: none;
+}
+
+/** ─────────────────────────────────────────────
+    BOUTONS EN BAS
+───────────────────────────────────────────── **/
+.create-buttons-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+/* Boutons carrés */
+.create-buttons-container .btn-square {
+  flex: 1;
+  width: 100px; /* Taille fixe pour garder la forme carrée */
+  height: 100px; /* Assure la symétrie */
+  background-color: #e0e0e0;
+  color: #000;
+  border: 1px solid #ccc;
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column; /* Alignement vertical */
+  justify-content: flex-start; /* Aligne en haut */
+  align-items: center;
+  transition: background-color 0.2s ease;
+  text-decoration: none;
+  border-radius: 5px;
+  padding-top: 10px; /* Ajoute un espace entre le haut du carré et l'icône */
+}
+
+.create-buttons-container .btn-square .icon {
+  font-size: 24px; /* Taille plus grande pour bien voir */
+  margin-bottom: 8px; /* Espace entre le picto et le texte */
+}
+
+.create-buttons-container .btn-square:hover {
+  background-color: #ccc;
+}
+
+/* Suppression soulignement liens */
+.page-ut-gp-list .side-nav a {
+  text-decoration: none;
+}
+
+.page-ut-gp-list .side-nav a:hover,
+.page-ut-gp-list .side-nav a:focus,
+.page-ut-gp-list .side-nav a:active {
+  text-decoration: none;
+}
