@@ -48,28 +48,8 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
         $this->name        = preg_replace('/^Interface/i', '', get_class($this));
         $this->family      = 'demo';
         $this->description = 'DigiQuali triggers.';
-        $this->version     = '21.0.0';
+        $this->version     = '21.1.0';
         $this->picto       = 'digiquali@digiquali';
-    }
-
-    /**
-     * Trigger name
-     *
-     * @return string Name of trigger file
-     */
-    public function getName(): string
-    {
-        return parent::getName();
-    }
-
-    /**
-     * Trigger description
-     *
-     * @return string Description of trigger file
-     */
-    public function getDesc(): string
-    {
-        return parent::getDesc();
     }
 
     /**
@@ -95,282 +75,54 @@ class InterfaceDigiQualiTriggers extends DolibarrTriggers
         dol_syslog("Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . '. id=' . $object->id);
 
         require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
-        $now = dol_now();
-        $actioncomm = new ActionComm($this->db);
 
-        $actioncomm->elementtype  = $object->element . '@digiquali';
-        $actioncomm->type_code    = 'AC_OTH_AUTO';
-        $actioncomm->datep        = $now;
-        $actioncomm->fk_element   = $object->id;
-        $actioncomm->userownerid  = $user->id;
-        $actioncomm->percentage   = -1;
+        $actionComm = new ActionComm($this->db);
 
-        if ($conf->global->DIGIQUALI_ADVANCED_TRIGGER && !empty($object->fields)) {
-            $actioncomm->note_private = method_exists($object, 'getTriggerDescription') ? $object->getTriggerDescription($object) : '';
+        $triggerType = dol_ucfirst(dol_strtolower(explode('_', $action)[1]));
+
+        $actionComm->code         = 'AC_' . $action;
+        $actionComm->type_code    = 'AC_OTH_AUTO';
+        $actionComm->fk_element   = $object->id;
+        $actionComm->elementtype  = $object->element . '@' . $object->module;
+        $actionComm->label        = $langs->transnoentities('Object' . $triggerType . 'Trigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
+        $actionComm->datep        = dol_now();
+        $actionComm->userownerid  = $user->id;
+        $actionComm->percentage   = -1;
+
+        if (getDolGlobalInt('DIGIQUALI_ADVANCED_TRIGGER') && !empty($object->fields)) {
+            $actionComm->note_private = method_exists($object, 'getTriggerDescription') ? $object->getTriggerDescription($object) : '';
+        }
+
+        $objects      = ['QUESTION', 'SHEET', 'CONTROL', 'SURVEY'];
+        $triggerTypes = ['CREATE', 'MODIFY', 'DELETE', 'VALIDATE', 'LOCK', 'ARCHIVE'];
+        $extraActions = ['CONTROL_UNVALIDATE', 'SURVEY_UNVALIDATE', 'CONTROL_SENTBYMAIL', 'SURVEY_SENTBYMAIL', 'CONTROL_SAVEANSWER', 'SURVEY_SAVEANSWER', 'SHEET_ADDQUESTION'];
+
+        $actions = array_merge(
+            array_merge(...array_map(fn($s) => array_map(fn($p) => "{$p}_{$s}", $objects), $triggerTypes)),
+            $extraActions
+        );
+
+        if (in_array($action, $actions, true)) {
+            $actionComm->create($user);
         }
 
         switch ($action) {
-            case 'QUESTION_CREATE' :
-            case 'SHEET_CREATE' :
-                $object->fetch($object->id);
-                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
-                $actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->create($user);
-                break;
-
             case 'ANSWER_CREATE' :
-                $object->fetch($object->id);
-                $actioncomm->elementtype = 'question@digiquali';
-                $actioncomm->fk_element  = $object->fk_question;
-                $actioncomm->code        = 'AC_' . strtoupper($object->element) . '_CREATE';
-                $actioncomm->label       = $langs->trans('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->create($user);
-                break;
-
-            case 'CONTROL_CREATE' :
-                // Load Digiquali libraries
-                require_once __DIR__ . '/../../class/sheet.class.php';
-
-                $sheet = new Sheet($this->db);
-
-                $sheet->fetch($object->fk_sheet);
-                if ($sheet->success_rate > 0) {
-                    $object->success_rate = $sheet->success_rate;
-                    $object->setValueFrom('success_rate', $object->success_rate, '', '', 'text', '', $user);
-                }
-
-                $elementArray = [];
-                if ($object->context != 'createfromclone') {
-                    $elementArray = get_sheet_linkable_objects();
-                    if (!empty($elementArray)) {
-                        foreach ($elementArray as $linkableElementType => $linkableElement) {
-                            if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
-                                $object->add_object_linked($linkableElement['link_name'], GETPOST($linkableElement['post_name']));
-                            }
-                        }
-                    }
-
-                    // Load Saturne libraries.
-                    require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
-
-                    $signatory = new SaturneSignature($this->db, 'digiquali');
-                    $signatory->setSignatory($object->id, $object->element, 'user', [$object->fk_user_controller], 'Controller', 1);
-                }
-
-                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
-                $actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->create($user);
-                break;
-
-            case 'SURVEY_CREATE' :
-                // Load Digiquali libraries
-                require_once __DIR__ . '/../../class/sheet.class.php';
-
-                $sheet = new Sheet($this->db);
-
-                $sheet->fetch($object->fk_sheet);
-                if ($sheet->success_rate > 0) {
-                    $object->success_rate = $sheet->success_rate;
-                    $object->setValueFrom('success_rate', $object->success_rate, '', '', 'text', '', $user);
-                }
-
-                if ($object->context != 'createfromclone') {
-                    $elementArray = get_sheet_linkable_objects();
-                    if (!empty($elementArray)) {
-                        foreach ($elementArray as $linkableElement) {
-                            if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
-                                $object->add_object_linked($linkableElement['link_name'], GETPOST($linkableElement['post_name']));
-                            }
-                        }
-                    }
-                }
-
-                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_CREATE';
-                $actioncomm->label = $langs->transnoentities('ObjectCreateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->create($user);
-                break;
-
-            case 'QUESTION_MODIFY' :
-            case 'SHEET_MODIFY' :
-            case 'CONTROL_MODIFY' :
-            case 'SURVEY_MODIFY' :
-                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_MODIFY';
-                $actioncomm->label = $langs->transnoentities('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->create($user);
-                break;
-
             case 'ANSWER_MODIFY' :
-                $actioncomm->elementtype = 'question@digiquali';
-                $actioncomm->fk_element  = $object->fk_question;
-                $actioncomm->code        = 'AC_' . strtoupper($object->element) . '_MODIFY';
-                $actioncomm->label       = $langs->trans('ObjectModifyTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->create($user);
-                break;
-
-            case 'QUESTION_DELETE' :
-            case 'SHEET_DELETE' :
-            case 'CONTROL_DELETE' :
-            case 'SURVEY_DELETE' :
-                $actioncomm->code  = 'AC_ ' . strtoupper($object->element) . '_DELETE';
-                $actioncomm->label = $langs->transnoentities('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->create($user);
-                break;
-
             case 'ANSWER_DELETE' :
-                $actioncomm->elementtype = 'question@digiquali';
-                $actioncomm->fk_element  = $object->fk_question;
-                $actioncomm->code        = 'AC_' . strtoupper($object->element) . '_DELETE';
-                $actioncomm->label       = $langs->trans('ObjectDeleteTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->create($user);
-                break;
-
-            case 'QUESTION_VALIDATE' :
-            case 'SHEET_VALIDATE' :
-            case 'CONTROL_VALIDATE' :
-            case 'SURVEY_VALIDATE' :
-                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_VALIDATE';
-                $actioncomm->label = $langs->transnoentities('ObjectValidateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->create($user);
-                break;
-
-            case 'CONTROL_UNVALIDATE' :
-            case 'SURVEY_UNVALIDATE' :
-                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_UNVALIDATE';
-                $actioncomm->label = $langs->transnoentities('ObjectUnValidateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->create($user);
-                break;
-
-            case 'QUESTION_LOCK' :
-            case 'SHEET_LOCK' :
-            case 'SURVEY_LOCK' :
-                $actioncomm->code          = 'AC_' . strtoupper($object->element) . '_LOCK';
-                $actioncomm->label         = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Locked') . '</br>';
-                $actioncomm->create($user);
-                break;
-
-            case 'CONTROL_LOCK' :
-                $actioncomm->code          = 'AC_' . strtoupper($object->element) . '_LOCK';
-                $actioncomm->label         = $langs->transnoentities('ObjectLockedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Locked') . '</br>';
-                $actioncomm->create($user);
-
-                $actioncommID = 0;
-                $elementArray = get_sheet_linkable_objects();
-                $object->fetchObjectLinked('', '', '', 'digiquali_control', 'OR', 1, 'sourcetype', 0);
-                if (!empty($elementArray)) {
-                    foreach($elementArray as $linkableElement) {
-                        if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-                            $className    = $linkableElement['className'];
-                            $linkedObject = new $className($this->db);
-
-                            $linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
-                            $linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
-
-                            $result = $linkedObject->fetch($linkedObjectId);
-
-                            if ($result > 0) {
-                                $linkedObject->fetch_optionals();
-                                if (!empty($linkedObject->array_options['options_qc_frequency'])) {
-                                    $qcFrequency = $linkedObject->array_options['options_qc_frequency'];
-
-                                    if (dol_strlen($object->next_control_date) <= 0) {
-                                        if ($object->verdict == 2) {
-                                            $object->next_control_date = $this->db->idate($now);
-                                        } else {
-                                            $object->next_control_date = $this->db->idate(dol_time_plus_duree($now, $qcFrequency, 'd'));
-                                        }
-                                    }
-                                    $object->status = $object::STATUS_LOCKED;
-                                    $object->update($user, true);
-
-                                    $actioncomm->code        = 'AC_' . strtoupper($object->element) . '_REMINDER';
-                                    $actioncomm->label       = $langs->transnoentities('ControlReminderTrigger', $langs->transnoentities(ucfirst($linkedObject->element)) . ' ' . $linkedObject->ref, $qcFrequency);
-                                    $actioncomm->elementtype = $linkedObject->element;
-                                    $actioncomm->datep       = dol_time_plus_duree($now, $qcFrequency, 'd');
-                                    $actioncomm->fk_element  = $linkedObject->id;
-                                    $actioncomm->userownerid = $user->id;
-                                    $actioncomm->percentage  = ActionComm::EVENT_TODO;
-                                    $actioncommID            = $actioncomm->create($user);
-                                }
-                                if (dol_strlen($object->control_date) <= 0) {
-                                    $object->control_date = $this->db->idate($now);
-                                    $object->setValueFrom('control_date', $object->control_date, '', '', 'date', '', $user);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Create reminders
-                if ($actioncommID > 0 && !empty($object->next_control_date) && getDolGlobalInt('DIGIQUALI_CONTROL_REMINDER_ENABLED') && (getDolGlobalString('AGENDA_REMINDER_BROWSER') || getDolGlobalString('AGENDA_REMINDER_EMAIL'))) {
-                    $actionCommReminder = new ActionCommReminder($this->db);
-
-                    $actionCommReminder->status        = ActionCommReminder::STATUS_TODO;
-                    $actionCommReminder->fk_actioncomm = $actioncommID;
-                    $actionCommReminder->fk_user       = $user->id;
-
-                    $nextControlDate = is_int($object->next_control_date) ? $object->next_control_date : dol_stringtotime($object->next_control_date);
-                    $nextControl     = floor($nextControlDate - dol_now('tzuser'))/(3600 * 24);
-                    $reminderArray   = explode(',' , getDolGlobalString('DIGIQUALI_CONTROL_REMINDER_FREQUENCY'));
-                    foreach ($reminderArray as $reminder) {
-                        if ($nextControl >= $reminder) {
-                            $dateReminder = dol_time_plus_duree($nextControlDate, -$reminder, 'd');
-
-                            $actionCommReminder->dateremind  = $dateReminder;
-                            $actionCommReminder->offsetvalue = $reminder;
-                            $actionCommReminder->offsetunit  = 'd';
-                            $actionCommReminder->typeremind  = getDolGlobalString('DIGIQUALI_CONTROL_REMINDER_TYPE');
-                            $actionCommReminder->create($user);
-                        }
-                    }
-                }
-                break;
-
-            case 'QUESTION_ARCHIVE' :
-            case 'SHEET_ARCHIVE' :
-            case 'CONTROL_ARCHIVE' :
-            case 'SURVEY_ARCHIVE' :
-                $actioncomm->code          = 'AC_' . strtoupper($object->element) . '_ARCHIVE';
-                $actioncomm->label         = $langs->transnoentities('ObjectArchivedTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->note_private .= $langs->trans('Status') . ' : ' . $langs->trans('Archived') . '</br>';
-                $actioncomm->create($user);
-                break;
-
-            case 'SHEET_ADDQUESTION':
-                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_ADDQUESTION';
-                $actioncomm->label = $langs->transnoentities('ObjectAddQuestionTrigger');
-                $actioncomm->create($user);
-                break;
-
-            case 'OBJECT_SAVEANSWER' :
-                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_SAVEANSWER';
-                $actioncomm->label = $langs->transnoentities('AnswerSaveTrigger');
-                $actioncomm->create($user);
-                break;
-
-            case 'CONTROL_VERDICT' :
-                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_VERDICT';
-                $actioncomm->label = $langs->transnoentities('ObjectSetVerdictTrigger', $object->fields['verdict']['arrayofkeyval'][$object->verdict]);
-                $actioncomm->create($user);
-                break;
-
-            case 'CONTROL_SENTBYMAIL' :
-            case 'SURVEY_SENTBYMAIL' :
-                $actioncomm->code  = 'AC_' . strtoupper($object->element) . '_SENTBYMAIL';
-                $actioncomm->label = $langs->transnoentities('ObjectSentByMailTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->create($user);
+                $actionComm->fk_element  = $object->fk_question;
+                $actionComm->elementtype = 'question@' . $object->module;
+                $actionComm->create($user);
                 break;
 
             case 'CONTROLDOCUMENT_GENERATE' :
             case 'SURVEYDOCUMENT_GENERATE' :
-                $actioncomm->elementtype = $object->parent_type . '@digiquali';
-                $actioncomm->fk_element  = $object->parent_id;
-                $actioncomm->code        = 'AC_' . strtoupper($object->element) . '_GENERATE';
-                $actioncomm->label       = $langs->transnoentities('ObjectGenerateTrigger', $langs->transnoentities(ucfirst($object->element)), $object->ref);
-                $actioncomm->create($user);
+                $actionComm->fk_element  = $object->parent_id;
+                $actionComm->elementtype = $object->parent_type . '@' . $object->module;
+                $actionComm->create($user);
                 break;
         }
+
         return 0;
     }
 }

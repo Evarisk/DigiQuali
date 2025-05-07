@@ -336,14 +336,14 @@ class doc_controldocument_odt extends SaturneDocumentModel
         $projecttmp->fetch($object->projectid);
 
         $object->fetchObjectLinked('', '', $object->id, 'digiquali_control',  'OR', 1, 'sourcetype', 0);
-		$linkableElements = get_sheet_linkable_objects();
+		$linkableElements = saturne_get_objects_metadata();
 
 		if (is_array($linkableElements) && !empty($linkableElements)) {
 			foreach ($linkableElements as $linkableElement) {
 				$nameField[$linkableElement['link_name']] = $linkableElement['name_field'];
 				$objectInfo[$linkableElement['link_name']] = [
 					'title' => $linkableElement['langs'],
-					'className' => $linkableElement['className']
+					'className' => $linkableElement['class_name']
 				];
 			}
 			foreach ($object->linkedObjectsIds as $linkedObjectType => $linkedObjectsIds) {

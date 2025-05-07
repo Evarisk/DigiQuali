@@ -37,12 +37,14 @@ require_once DOL_DOCUMENT_ROOT . '/contact/class/contact.class.php';
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
 require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmdirectory.class.php';
 require_once DOL_DOCUMENT_ROOT . '/categories/class/categorie.class.php';
+require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/images.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/files.lib.php';
 require_once DOL_DOCUMENT_ROOT . '/core/lib/functions2.lib.php';
 
 // Load Saturne libraries.
 require_once __DIR__ . '/../../../saturne/class/saturnesignature.class.php';
+require_once __DIR__ . '/../../../saturne/class/task/saturnetask.class.php';
 
 require_once __DIR__ . '/../../class/control.class.php';
 require_once __DIR__ . '/../../class/sheet.class.php';
@@ -71,6 +73,9 @@ $backtopage          = GETPOST('backtopage', 'alpha');
 $backtopageforcancel = GETPOST('backtopageforcancel', 'alpha');
 $source              = GETPOST('source', 'alpha'); // source PWA
 $viewmode            = (GETPOSTISSET('viewmode') ? GETPOST('viewmode', 'alpha') : 'list'); // view mode for new control
+$fromType            = GETPOST('fromtype', 'aZ');
+$fromId              = GETPOSTINT('fromid');
+$fkSheet             = GETPOST('fk_sheet', 'int');
 
 // Initialize objects
 // Technical objets
@@ -90,6 +95,10 @@ $extrafields      = new ExtraFields($db);
 $ecmfile          = new EcmFiles($db);
 $ecmdir           = new EcmDirectory($db);
 $category         = new Categorie($db);
+$task             = new SaturneTask($db);
+
+list($refTaskMod)    = saturne_require_objects_mod(['project/task' => $conf->global->PROJECT_TASK_ADDON]);
+$taskNextValue       = $refTaskMod->getNextValue($object->id, $object->element);
 
 // View objects
 $form = new Form($db);
@@ -113,10 +122,25 @@ if (empty($action) && empty($id) && empty($ref)) $action = 'view';
 // Load object
 include DOL_DOCUMENT_ROOT . '/core/actions_fetchobject.inc.php'; // Must be include, not include_once.
 
+// Load project object
+if (!empty($object->projectid)) {
+    $object->fk_project = $object->projectid; // Need special case because projectid is only on control object
+    $object->fetch_project();
+}
+
+$objectsMetadata = saturne_get_objects_metadata();
+
 $permissiontoread       = $user->rights->digiquali->control->read;
 $permissiontoadd        = $user->rights->digiquali->control->write; // Used by the include of actions_addupdatedelete.inc.php and actions_lineupdown.inc.php
 $permissiontodelete     = $user->rights->digiquali->control->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
 $permissiontosetverdict = $user->rights->digiquali->control->setverdict;
+
+// Permissions for tasks management
+$permissionToReadTask            = $user->hasRight('project', 'lire') || $user->hasRight('project', 'all', 'lire');
+$permissionToAddTask             = $user->hasRight('project', 'creer') || $user->hasRight('project', 'all', 'creer');
+$permissionToDeleteTask          = $user->hasRight('project', 'supprimer') || $user->hasRight('project', 'all', 'supprimer');
+$permissionToManageTaskTimeSpent = $user->hasRight('project', 'time');
+
 $upload_dir = $conf->digiquali->multidir_output[isset($object->entity) ? $object->entity : 1];
 
 // Security check - Protection if external user
@@ -163,26 +187,32 @@ if (empty($resHook)) {
     }
 
     if ($action == 'add' && !$cancel) {
-        $linkableElements = get_sheet_linkable_objects();
-        $controlledObjectSelected = 0;
+        $urlParameters = [
+            'action'   => 'create',
+            'viewmode' => $viewmode,
+            'source'   => $source,
+            'fk_sheet' => $fkSheet,
+            'fromtype' => $fromType,
+            'fromid'   => $fromId
+        ];
+        $urlParameters = http_build_query($urlParameters);
 
-        if (!empty($linkableElements)) {
-            foreach ($linkableElements as $linkableElementType => $linkableElement) {
-                if (!empty(GETPOST($linkableElement['post_name'])) && GETPOST($linkableElement['post_name']) > 0) {
-                    $controlledObjectSelected++;
-                }
+        if ($fkSheet < 0) {
+            setEventMessages($langs->trans('NeedFkSheet'), [], 'errors');
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?' . $urlParameters);
+            exit;
+        }
+
+        $controlledObjectSelected = 0;
+        foreach ($objectsMetadata as $objectType => $objectMetadata) {
+            if (!empty(GETPOST($objectMetadata['post_name'])) && GETPOST($objectMetadata['post_name']) > 0) {
+                $controlledObjectSelected++;
             }
         }
 
-        if (GETPOST('fk_sheet') > 0) {
-            if ($controlledObjectSelected == 0) {
-                setEventMessages($langs->trans('NeedObjectToControl'), [], 'errors');
-                header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&fk_sheet=' . GETPOST('fk_sheet') . '&viewmode=' . $viewmode . '&source=' . $source);
-                exit;
-            }
-        } else {
-            setEventMessages($langs->trans('NeedFkSheet'), [], 'errors');
-            header('Location: ' . $_SERVER['PHP_SELF'] . '?action=create&viewmode=' . $viewmode . '&source=' . $source);
+        if ($controlledObjectSelected == 0) {
+            setEventMessages($langs->trans('NeedObjectToControl'), [], 'errors');
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?' . $urlParameters);
             exit;
         }
     }
@@ -211,6 +241,8 @@ if (empty($resHook)) {
 
     require_once __DIR__ . '/../../core/tpl/digiquali_answers_save_action.tpl.php';
 
+    require_once __DIR__ . '/../../core/tpl/digiquali_answers_task_action.tpl.php';
+
     // Actions builddoc, forcebuilddoc, remove_file.
     require_once __DIR__ . '/../../../saturne/core/tpl/documents/documents_action.tpl.php';
 
@@ -225,7 +257,6 @@ if (empty($resHook)) {
             $result = $object->update($user);
             if ($result > 0) {
                 // Set verdict Control
-                $object->call_trigger('CONTROL_VERDICT', $user);
                 $urltogo = str_replace('__ID__', $result, $backtopage);
                 $urltogo = preg_replace('/--IDFORBACKTOPAGE--/', $id, $urltogo); // New method to autoselect project after a New on another form object creation
                 header('Location: ' . $urltogo);
@@ -283,9 +314,6 @@ if ($source == 'pwa') {
 }
 
 saturne_header(1,'', $title, $help_url, '', 0, 0, $moreJS);
-$object->fetch(GETPOST('id'));
-
-$elementArray = get_sheet_linkable_objects();
 
 // Part to create
 if ($action == 'create') {
@@ -293,7 +321,15 @@ if ($action == 'create') {
     $moreHtmlRight .= '<a class="btnTitle butActionNew ' . (($viewmode == 'list') ? 'btnTitleSelected' : '') . '" href="' . $_SERVER['PHP_SELF'] . '?action=create&viewmode=list&source=' . $source . '"><span class="fas fa-3x fa-list valignmiddle paddingleft" title="' . $langs->trans('ViewModeList') . '"></span></a>';
     print load_fiche_titre($langs->trans('NewControl'), $moreHtmlRight, 'object_' . $object->picto);
 
-    print '<form method="POST" id="createObjectForm" action="' . $_SERVER['PHP_SELF'] . '?viewmode=' . $viewmode . '&source=' . $source . '">';
+    $urlParameters = [
+        'viewmode' => $viewmode,
+        'source'   => $source,
+        'fromtype' => $fromType,
+        'fromid'   => $fromId
+    ];
+    $urlParameters = http_build_query($urlParameters);
+
+    print '<form method="POST" id="createObjectForm" action="' . $_SERVER['PHP_SELF'] . '?' . $urlParameters . '">';
     print '<input type="hidden" name="token" value="' . newToken() . '">';
     print '<input type="hidden" name="action" value="add">';
     if ($backtopage) {
@@ -306,10 +342,11 @@ if ($action == 'create') {
 
     print '<table class="border centpercent tableforfieldcreate control-table">';
 
+    $object->fields['fk_user_controller']['visible'] = 1;
     $object->fields['fk_user_controller']['default'] = $user->id;
 
-    if (!empty(GETPOST('fk_sheet'))) {
-        $sheet->fetch(GETPOST('fk_sheet'));
+    if ($fkSheet > 0) {
+        $sheet->fetch($fkSheet);
         $_POST['label'] = $sheet->label;
     }
 
@@ -362,10 +399,8 @@ if ($action == 'create') {
         print '</div></div>';
     } else {
         //FK SHEET
-        $objectTypeArray = (!empty(GETPOST('fromtype')) ? saturne_get_objects_metadata(GETPOST('fromtype')) : []);
-        $filterType      = (!empty($objectTypeArray) ? dol_strtolower($objectTypeArray['name']) : '');
         $filter          = 's.type = ' . '"' . $object->element . '" AND s.status = ' . Sheet::STATUS_LOCKED;
-        $filter         .= (!empty($filterType) ? ' AND s.element_linked LIKE "%' . $filterType . '%"' : '');
+        $filter         .= !empty(GETPOST('fromtype')) ? ' AND s.element_linked LIKE "%' . GETPOST('fromtype') . '%"' : '';
         print '<tr><td class="fieldrequired">' . ($source != 'pwa' ? $langs->trans('Sheet') : img_picto('', $sheet->picto . '_2em', 'class="pictofixedwidth"')) . '</td><td>';
         print ($source != 'pwa' ? img_picto('', $sheet->picto, 'class="pictofixedwidth"') : '') . $sheet->selectSheetList(GETPOST('fk_sheet') ?: $sheet->id, 'fk_sheet', $filter, 1);
         if ($source != 'pwa') {
@@ -405,23 +440,24 @@ if ($action == 'create') {
     print '<tr><td>';
     print '<div class="fields-content">';
 
-    foreach($elementArray as $linkableElementType => $linkableElement) {
-        if (!empty($linkableElement['conf'] && (!empty(GETPOST('fromtype')) && GETPOST('fromtype') == $linkableElement['link_name']) || (preg_match('/"'. $linkableElementType .'":1/',$sheet->element_linked)))) {
+    foreach($objectsMetadata as $objectType => $objectMetadata) {
+        if (!empty($objectMetadata['conf'] && (!empty(GETPOST('fromtype')) && GETPOST('fromtype') == $objectMetadata['link_name']) || (preg_match('/"'. $objectType .'":1/',$sheet->element_linked)))) {
             $objectArray    = [];
-            $objectPostName = $linkableElement['post_name'];
-            $objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $linkableElement['link_name'] ? GETPOST('fromid') : '');
+            $objectPostName = $objectMetadata['post_name'];
+            $objectPost     = GETPOST($objectPostName) ?: (GETPOST('fromtype') == $objectMetadata['link_name'] ? GETPOST('fromid') : '');
 
-            if ((dol_strlen($linkableElement['fk_parent']) > 0 && GETPOST($linkableElement['parent_post']) > 0)) {
-                $objectFilter = ['customsql' => $linkableElement['fk_parent'] . ' = ' . GETPOST($linkableElement['parent_post'])];
-            } else {
-                $objectFilter = [];
+            $objectFilter = [];
+            if ((dol_strlen($objectMetadata['fk_parent']) > 0 && GETPOST($objectMetadata['parent_post']) > 0)) {
+                $objectFilter = ['customsql' => $objectMetadata['fk_parent'] . ' = ' . GETPOST($objectMetadata['parent_post'])];
+            } elseif (!empty($objectMetadata['filter'])) {
+                $objectFilter = ['customsql' => $objectMetadata['filter']];
             }
-            $objectList = saturne_fetch_all_object_type($linkableElement['className'], '', '', 0, 0, $objectFilter);
+            $objectList = saturne_fetch_all_object_type($objectMetadata['class_name'], '', '', 0, 0, $objectFilter);
 
             if (is_array($objectList) && !empty($objectList)) {
                 foreach ($objectList as $objectSingle) {
                     $objectName = '';
-                    $nameField = $linkableElement['name_field'];
+                    $nameField = $objectMetadata['name_field'];
                     if (strstr($nameField, ',')) {
                         $nameFields = explode(', ', $nameField);
                         if (is_array($nameFields) && !empty($nameFields)) {
@@ -436,11 +472,11 @@ if ($action == 'create') {
                 }
             }
 
-            print '<tr><td class="titlefieldcreate">' . ($source != 'pwa' ? $langs->transnoentities($linkableElement['langs']) : img_picto('', $linkableElement['picto'], 'class="pictofixedwidth fa-3x"')) . '</td><td>';
-            print($source != 'pwa' ? img_picto('', $linkableElement['picto'], 'class="pictofixedwidth"') : '');
-            print $form->selectArray($objectPostName, $objectArray, $objectPost, $langs->trans('Select') . ' ' . strtolower($langs->trans($linkableElement['langs'])), 0, 0, '', 0, 0, dol_strlen(GETPOST('fromtype')) > 0 && GETPOST('fromtype') != $linkableElement['link_name'], '', 'maxwidth500 widthcentpercentminusxx');
+            print '<tr><td class="titlefieldcreate">' . ($source != 'pwa' ? $langs->transnoentities($objectMetadata['langs']) : img_picto('', $objectMetadata['picto'], 'class="pictofixedwidth fa-3x"')) . '</td><td>';
+            print($source != 'pwa' ? img_picto('', $objectMetadata['picto'], 'class="pictofixedwidth"') : '');
+            print $form->selectArray($objectPostName, $objectArray, $objectPost, $langs->trans('Select') . ' ' . strtolower($langs->trans($objectMetadata['langs'])), 0, 0, '', 0, 0, dol_strlen(GETPOST('fromtype')) > 0 && GETPOST('fromtype') != $objectMetadata['link_name'], '', 'maxwidth500 widthcentpercentminusxx');
             if ($source != 'pwa') {
-                print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/' . $linkableElement['create_url'] . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('Create') . ' ' . strtolower($langs->trans($linkableElement['langs'])) . '"></span></a>';
+                print '<a class="butActionNew" href="' . DOL_URL_ROOT . '/' . $objectMetadata['create_url'] . '?action=create&backtopage=' . urlencode($_SERVER['PHP_SELF'] . '?action=create') . '" target="_blank"><span class="fa fa-plus-circle valignmiddle paddingleft" title="' . $langs->trans('Create') . ' ' . strtolower($langs->trans($objectMetadata['langs'])) . '"></span></a>';
             }
             print '</td></tr>';
         }
@@ -461,7 +497,7 @@ if ($action == 'create') {
 }
 
 // Part to show record
-if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create'))) {
+if ($object->id > 0 && (empty($action) || ($action != 'create'))) {
     $object->fetch_optionals();
 
     saturne_get_fiche_head($object, 'card', $title);
@@ -529,15 +565,24 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     }
 
     // Lock confirmation
+    $nextControlExist = 0;
+    $days             = 0;
+    if (strlen($object->next_control_date > 0)) {
+        $nextControlExist = 1;
+        $days             = abs($object->next_control_date - $object->control_date);
+        $days             = floor($days / (60 * 60 * 24));
+    }
     if (($action == 'lock' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
-        $formConfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmLockObject', $langs->transnoentities('The' . ucfirst($object->element))) . ($object->verdict == 2 ? '<br>' . $langs->transnoentities('BeCarefullVerdictKO') : ''), 'confirm_lock', '', 'yes', 'actionButtonLock', 350, 600);
+        $formConfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmLockObject', $langs->transnoentities('The' . ucfirst($object->element))) . ($object->verdict == 2 ? '<br>' . $langs->transnoentities('BeCarefullVerdictKO') : '' . '<br><br>' . $langs->transnoentities('LockControlDate', dol_print_date($object->control_date), $nextControlExist == 1 ? dol_print_date($object->next_control_date) : $langs->transnoentities('NA'), $days)), 'confirm_lock', '', 'yes', 'actionButtonLock', 350, 600);
     }
 
     // Clone confirmation
     if (($action == 'clone' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
         // Define confirmation messages
+        $object->fetchObjectLinked('', '', $object->id, 'digiquali_control');
+        $linkedObjectType  = key($object->linkedObjects);
         $formQuestionClone = [
-            ['type' => 'text',     'name' => 'clone_label', 'label' => $langs->trans('NewLabelForClone', $langs->transnoentities('The' . ucfirst($object->element))), 'value' => $langs->trans('CopyOf') . ' ' . $object->label ?: $object->ref, 'size' => 24],
+            ['type' => 'text',     'name' => 'clone_label', 'label' => $langs->trans('NewLabelForClone', $langs->transnoentities('The' . ucfirst($object->element))), 'value' => dol_print_date($object->control_date, '%Y%m%d') . '-' . $object->linkedObjects[$linkedObjectType][key($object->linkedObjects[$linkedObjectType])]->label, 'size' => 24],
             ['type' => 'checkbox', 'name' => 'clone_attendants',         'label' => $langs->trans('CloneAttendants'),        'value' => 1],
             ['type' => 'checkbox', 'name' => 'clone_photos',             'label' => $langs->trans('ClonePhotos'),            'value' => 1],
             ['type' => 'checkbox', 'name' => 'clone_control_equipments', 'label' => $langs->trans('CloneControlEquipments'), 'value' => 1]
@@ -574,6 +619,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     print '<table class="border centpercent tableforfield">';
 
     // Common attributes
+    unset($object->fields['label']);     // Hide field already shown in banner
     unset($object->fields['projectid']); // Hide field already shown in banner
 
     if (getDolGlobalInt('SATURNE_ENABLE_PUBLIC_INTERFACE')) {
@@ -602,7 +648,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
     print $langs->trans('Verdict');
     print '</td><td class="valuefield fieldname_verdict">';
     $verdictColor = $object->verdict == 1 ? 'green' : ($object->verdict == 2 ? 'red' : 'grey');
-    print dol_strlen($object->verdict) > 0 ? '<div class="wpeo-button button-' . $verdictColor . '">' . $object->fields['verdict']['arrayofkeyval'][(!empty($object->verdict)) ? $object->verdict : 3] . '</div>' : 'N/A';
+    print '<div class="wpeo-button button-' . $verdictColor . '">' . $object->fields['verdict']['arrayofkeyval'][(!empty($object->verdict)) ? $object->verdict : 0] . '</div>';
     print '</td>';
 
     require_once DOL_DOCUMENT_ROOT . '/core/tpl/commonfields_view.tpl.php';
@@ -639,38 +685,24 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
         print '</tr>';
     }
 
-    $object->fetchObjectLinked('', '', $object->id, 'digiquali_control', 'OR', 1, 'sourcetype', 0);
-
-    foreach ($elementArray as $linkableElementType => $linkableElement) {
-        if ($linkableElement['conf'] > 0 && (!empty($object->linkedObjectsIds[$linkableElement['link_name']]))) {
-            $className    = $linkableElement['className'];
-            $linkedObject = new $className($db);
-
-            $linkedObjectKey = array_key_first($object->linkedObjectsIds[$linkableElement['link_name']]);
-            $linkedObjectId  = $object->linkedObjectsIds[$linkableElement['link_name']][$linkedObjectKey];
-
-            $result = $linkedObject->fetch($linkedObjectId);
-
-            if ($result > 0) {
-                print '<tr><td class="titlefield">';
-                print $langs->trans($linkableElement['langs']);
-                print '</td>';
-                print '<td>';
-
-                print $linkedObject->getNomUrl(1);
-                print property_exists($linkedObject, 'label') ? '<span class="opacitymedium">' . ' - ' . dol_trunc($linkedObject->label) . '</span>' : '';
-
-
-                if ($linkedObject->array_options['options_qc_frequency'] > 0) {
-                    print ' ';
-                    print '<strong>';
-                    print $langs->transnoentities('QcFrequency') . ' : ' . $linkedObject->array_options['options_qc_frequency'];
-                    print '</strong>';
-                }
-
-                print '<td></tr>';
-            }
+    $object->fetchObjectLinked('', '', $object->id, 'digiquali_control');
+    $linkedObjectType = key($object->linkedObjects);
+    foreach ($objectsMetadata as $objectMetadata) {
+        if ($objectMetadata['conf'] == 0 || $objectMetadata['link_name'] != $linkedObjectType) {
+            continue;
         }
+
+        $linkedObject = $object->linkedObjects[$objectMetadata['link_name']][key($object->linkedObjects[$objectMetadata['link_name']])];
+        print '<tr><td class="titlefield">';
+        print $langs->trans($objectMetadata['langs']);
+        print '</td><td>';
+        print $linkedObject->getNomUrl(1);
+        print property_exists($linkedObject, $objectMetadata['label_field']) ? '<span class="opacitymedium">' . ' - ' . dol_trunc($linkedObject->{$objectMetadata['label_field']}) . '</span>' : '';
+        $qcFrequency = get_parent_linked_object_qc_frequency($linkedObject, $objectsMetadata);
+        if ($qcFrequency > 0 || !empty($linkedObject->array_options['options_qc_frequency'])) {
+            print '<br><b>' . $langs->transnoentities('QcFrequency') . ' : ' . ($qcFrequency > 0 ? $qcFrequency . '(' . $langs->transnoentities('Inherited') . ')' : $linkedObject->array_options['options_qc_frequency']) . '</b>';
+        }
+        print '<td></tr>';
     }
 
     print '<tr class="linked-medias photo question-table"><td class=""><label for="photos">' . $langs->trans("Photo") . '</label></td><td class="linked-medias-list">';
@@ -852,8 +884,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             $displayButton = $onPhone ? '<i class="fas fa-envelope fa-2x"></i>' : '<i class="fas fa-envelope"></i>' . ' ' . $langs->trans('SendMail') . ' ';
             if ($object->status == $object::STATUS_LOCKED) {
                 $fileparams = dol_most_recent_file($upload_dir . '/' . $object->element . 'document' . '/' . $object->ref);
-                $file       = $fileparams['fullname'];
-                if (file_exists($file) && !strstr($fileparams['name'], 'specimen')) {
+                if (!empty($fileparams) && file_exists($fileparams['fullname']) && !strstr($fileparams['name'], 'specimen')) {
                     $forcebuilddoc = 0;
                 } else {
                     $forcebuilddoc = 1;
@@ -907,7 +938,18 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
 
 <?php if (!$user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER || $answerCounter != $questionCounter) {
         print load_fiche_titre($langs->transnoentities('LinkedQuestionsList', $questionCounter), '', '');
-        print '<div id="tablelines" class="question-answer-container noborder noshadow">';
+        print '<div id="tablelines" class="question-answer-container">';
+        if (!empty($object->project)) {
+            if (!empty($permissionToAddTask)) {
+                require_once __DIR__ . '/../../core/tpl/modal/modal_task_add.tpl.php';
+                require_once __DIR__ . '/../../core/tpl/modal/modal_task_edit.tpl.php';
+            }
+            if (!empty($permissionToManageTaskTimeSpent)) {
+                require_once __DIR__ . '/../../core/tpl/modal/modal_task_timespent_list.tpl.php';
+                require_once __DIR__ . '/../../core/tpl/modal/modal_task_timespent_add.tpl.php';
+                require_once __DIR__ . '/../../core/tpl/modal/modal_task_timespent_edit.tpl.php';
+            }
+        }
         require_once __DIR__ . '/../../core/tpl/digiquali_answers.tpl.php';
         print '</div>';
     }

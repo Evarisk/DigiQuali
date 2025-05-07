@@ -77,7 +77,7 @@ class modDigiQuali extends DolibarrModules
 		$this->editor_url = 'https://evarisk.com/';
 
 		// Possible values for version are: 'development', 'experimental', 'dolibarr', 'dolibarr_deprecated' or a version string like 'x.y.z'
-		$this->version = '21.0.0';
+		$this->version = '21.1.0';
 		// Url to the file with your last numberversion of this module
 		//$this->url_last_version = 'http://www.example.com/versionmodule.txt';
 
@@ -302,25 +302,23 @@ class modDigiQuali extends DolibarrModules
 		$this->tabs   = [];
 		$pictopath    = dol_buildpath('/custom/digiquali/img/digiquali_color.png', 1);
 		$pictoDigiQuali = img_picto('', $pictopath, '', 1, 0, 0, '', 'pictoModule');
-		$linkableElements = get_sheet_linkable_objects();
+        $objectsMetadata = saturne_get_objects_metadata();
 
-		if (is_array($linkableElements) && !empty($linkableElements)) {
-			foreach($linkableElements as $linkableElementType => $linkableElement) {
-                if (preg_match('/_/', $linkableElementType)) {
-					$splittedElementType = preg_split('/_/', $linkableElementType);
-					$moduleName = $splittedElementType[0];
-					$objectName = strtolower($linkableElement['className']);
-					$objectType = $objectName . '@' . $moduleName;
-				} else {
-                    $objectType = $linkableElement['tab_type'];
-                }
-				$this->tabs[] = ['data' => $objectType . ':+control:' . $pictoDigiQuali . $langs->trans('Controls') . ':digiquali@digiquali:$user->rights->digiquali->control->read:/custom/digiquali/view/control/control_list.php?fromid=__ID__&fromtype=' . $linkableElement['link_name']];
-				$this->tabs[] = ['data' => $objectType . ':+survey:' . $pictoDigiQuali . $langs->trans('Surveys') . ':digiquali@digiquali:$user->rights->digiquali->survey->read:/custom/digiquali/view/survey/survey_list.php?fromid=__ID__&fromtype=' . $linkableElement['link_name']];
+        foreach($objectsMetadata as $objectType => $objectMetadata) {
+            if (preg_match('/_/', $objectType)) {
+                $splittedElementType = explode('_', $objectType);
+                $moduleName = $splittedElementType[0];
+                $objectName = dol_strtolower($objectMetadata['class_name']);
+                $objectType = $objectName . '@' . $moduleName;
+            } else {
+                $objectType = $objectMetadata['tab_type'];
+            }
+            $this->tabs[] = ['data' => $objectType . ':+control:' . $pictoDigiQuali . $langs->trans('Controls') . ':digiquali@digiquali:$user->rights->digiquali->control->read:/custom/digiquali/view/control/control_list.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
+            $this->tabs[] = ['data' => $objectType . ':+survey:' . $pictoDigiQuali . $langs->trans('Surveys') . ':digiquali@digiquali:$user->rights->digiquali->survey->read:/custom/digiquali/view/survey/survey_list.php?fromid=__ID__&fromtype=' . $objectMetadata['link_name']];
 
-                $this->module_parts['hooks'][] = $linkableElement['hook_name_list'];
-                $this->module_parts['hooks'][] = $linkableElement['hook_name_card'];
-			}
-		}
+            $this->module_parts['hooks'][] = $objectMetadata['hook_name_list'];
+            $this->module_parts['hooks'][] = $objectMetadata['hook_name_card'];
+        }
 
         // Dictionaries
         $this->dictionaries = [
@@ -722,20 +720,17 @@ class modDigiQuali extends DolibarrModules
         // Create extrafields during init.
         include_once DOL_DOCUMENT_ROOT . '/core/class/extrafields.class.php';
         $extraFields = new ExtraFields($this->db);
-		$linkableElements = get_sheet_linkable_objects();
 
-		if (is_array($linkableElements) && !empty($linkableElements)) {
-			foreach($linkableElements as $linkableElementType => $linkableElement) {
-				$className      = $linkableElement['className'];
-				$linkableObject = new $className($this->db);
-				$tableElement   = $linkableObject->table_element;
-
-                $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, $tableElement, 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', 1, '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
-
-                $extraFields->update('control_history_link', 'ControlHistoryLink', 'varchar', 255, $tableElement, 0, 0, 110, '', 0, '', 5, '', '', '', 0, 'digiquali@digiquali', '$conf->digiquali->enabled');
-                $extraFields->addExtraField('control_history_link', 'ControlHistoryLink', 'varchar', 110, 255, $tableElement, 0, 0, '', '', 0, '', 5, '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
-			}
-		}
+        $objectsMetadata = saturne_get_objects_metadata();
+        foreach($objectsMetadata as $objectMetadataType => $objectMetadata) {
+            $extraFields->addExtraField('qc_frequency', 'QcFrequency', 'int', 100, 10, $objectMetadata['table_element'], 0, 0, '', 'a:1:{s:7:"options";a:1:{s:0:"";N;}}', 1, '', 1, '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
+            if ($objectMetadataType == 'productlot') {
+                $extraFields->update('control_history_link', 'ControlHistoryLink', 'varchar', 255, $objectMetadata['table_element'], 0, 0, 110, '', 0, '', 5, '', '', '', 0, 'digiquali@digiquali', '$conf->digiquali->enabled');
+                $extraFields->addExtraField('control_history_link', 'ControlHistoryLink', 'varchar', 110, 255, $objectMetadata['table_element'], 0, 0, '', '', 0, '', 5, '','',0, 'digiquali@digiquali', '$conf->digiquali->enabled');
+            } else {
+                $extraFields->delete('control_history_link', $objectMetadata['table_element']);
+            }
+        }
 
 		if ($result < 0) {
 			return -1;
@@ -792,7 +787,7 @@ class modDigiQuali extends DolibarrModules
 			$question  = new Question($this->db);
 			$answer    = new Answer($this->db);
 
-			$questions = $question->fetchAll('', '', 0, 0, ['customsql' => 't.type = "OkKoToFixNonApplicable"']);
+			$questions = $question->fetchAll('', '', 0, 0, ['customsql' => 't.type = \'OkKoToFixNonApplicable\'']);
 			if (is_array($questions) && !empty($questions)) {
 				foreach ($questions as $question) {
 					$answer->fk_question = $question->id;
@@ -819,7 +814,7 @@ class modDigiQuali extends DolibarrModules
 					$answer->fk_question = $question->id;
 					$answer->value       = $langs->transnoentities('NonApplicable');
 					$answer->pictogram   = 'N/A';
-					$answer->color       = '#2b2b2b';
+					$answer->color       = '#989898';
 
 					$answer->create($user);
 				}
@@ -828,6 +823,50 @@ class modDigiQuali extends DolibarrModules
 			dolibarr_set_const($this->db, 'DIGIQUALI_QUESTION_BACKWARD_COMPATIBILITY', 1, 'integer', 0, '', $conf->entity);
 		}
 
+        if (getDolGlobalInt('DIGIQUALI_CONTROL_ANSWER_BACKWARD') == 0 && $result > 0) {
+
+            require_once __DIR__ . '/../../class/control.class.php';
+            require_once __DIR__ . '/../../class/sheet.class.php';
+
+            $control    = new Control($this->db);
+            $sheet      = new Sheet($this->db);
+            $objectLine = new ControlLine($this->db);
+
+            $controls = $control->fetchAll();
+            if (is_array($controls) && !empty($controls)) {
+                foreach ($controls as $control) {
+                    if (empty($control->fk_sheet)) {
+                        continue;
+                    }
+
+                    $sheet->fetch($control->fk_sheet);
+                    $sheet->fetchObjectLinked($control->fk_sheet, 'digiquali_' . $sheet->element);
+                    if (empty($sheet->linkedObjects['digiquali_question'])) {
+                        continue;
+                    }
+
+                    $firstQuestion = current($sheet->linkedObjects['digiquali_question']);
+                    $res           = $objectLine->fetchFromParentWithQuestion($control->id, $firstQuestion->id);
+                    if (empty($res)) {
+                        foreach ($sheet->linkedObjects['digiquali_question'] as $question) {
+                            $objectLine->ref         = $objectLine->getNextNumRef();
+                            $fk_element              = 'fk_'. $control->element;
+                            $objectLine->$fk_element = $control->id;
+                            $objectLine->fk_question = $question->id;
+                            $objectLine->answer      = '';
+                            $objectLine->comment     = '';
+                            $objectLine->entity      = $conf->entity;
+                            $objectLine->status      = 1;
+
+                            $objectLine->create($user);
+                        }
+                    }
+                }
+            }
+
+            dolibarr_set_const($this->db, 'DIGIQUALI_CONTROL_ANSWER_BACKWARD', 1, 'integer', 0, '', $conf->entity);
+        }
+
         require_once DOL_DOCUMENT_ROOT . '/cron/class/cronjob.class.php';
 
         $cronJob = new Cronjob($this->db);
@@ -835,19 +874,5 @@ class modDigiQuali extends DolibarrModules
         $cronJob->reprogram_jobs($user->login, dol_now());
 
 		 return $result;
-	}
-
-	/**
-	 *  Function called when module is disabled.
-	 *  Remove from database constants, boxes and permissions from Dolibarr database.
-	 *  Data directories are not deleted
-	 *
-	 *  @param      string	$options    Options when enabling module ('', 'noboxes')
-	 *  @return     int                 1 if OK, 0 if KO
-	 */
-	public function remove($options = ''): int
-	{
-		$sql = [];
-		return $this->_remove($sql, $options);
 	}
 }
