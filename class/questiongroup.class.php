@@ -1,5 +1,5 @@
 <?php
-/* Copyright (C) 2022-2025 EVARISK <technique@evarisk.com>
+/* Copyright (C) 2025 EVARISK <technique@evarisk.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,18 +16,18 @@
  */
 
 /**
- * \file    class/question.class.php
+ * \file    class/question_group.class.php
  * \ingroup digiquali
- * \brief   This file is a CRUD class file for Question (Create/Read/Update/Delete)
+ * \brief   This file is a CRUD class file for QuestionGroup (Create/Read/Update/Delete)
  */
 
 // Load Saturne libraries.
 require_once __DIR__ . '/../../saturne/class/saturneobject.class.php';
 
 /**
- * Class for Question.
+ * Class for QuestionGroup.
  */
-class Question extends SaturneObject
+class QuestionGroup extends SaturneObject
 {
     /**
      * @var string Module name
@@ -37,12 +37,12 @@ class Question extends SaturneObject
     /**
      * @var string Element type of object
      */
-    public $element = 'question';
+    public $element = 'questiongroup';
 
     /**
      * @var string Name of table without prefix where object is stored. This is also the key used for extrafields management
      */
-    public $table_element = 'digiquali_question';
+    public $table_element = 'digiquali_question_group';
 
     /**
      * @var int Does this object support multicompany module ?
@@ -58,7 +58,7 @@ class Question extends SaturneObject
     /**
      * @var string Name of icon for control. Must be a 'fa-xxx' fontawesome code (or 'fa-xxx_fa_color_size') or 'control@digiquali' if picto is file 'img/object_control.png'
      */
-    public string $picto = 'fontawesome_fa-question_fas_#d35968';
+    public string $picto = 'fontawesome_fa-folder_fas_#d35968';
 
     public const STATUS_DELETED   = -1;
     public const STATUS_DRAFT     = 0;
@@ -108,25 +108,18 @@ class Question extends SaturneObject
      * @var array Array with all fields and their property. Do not use it as a static var. It may be modified by constructor
      */
 	public $fields = [
-        'rowid'                  => ['type' => 'integer',      'label' => 'TechnicalID',          'enabled' => 1, 'position' => 1,   'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1, 'comment' => 'Id'],
-        'ref'                    => ['type' => 'varchar(128)', 'label' => 'Ref',                  'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 4, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1, 'comment' => 'Reference of object'],
-        'ref_ext'                => ['type' => 'varchar(128)', 'label' => 'RefExt',               'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0],
-        'entity'                 => ['type' => 'integer',      'label' => 'Entity',               'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'index' => 1],
-        'date_creation'          => ['type' => 'datetime',     'label' => 'DateCreation',         'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 2],
-        'tms'                    => ['type' => 'timestamp',    'label' => 'DateModification',     'enabled' => 1, 'position' => 50,  'notnull' => 0, 'visible' => 0],
-        'import_key'             => ['type' => 'varchar(14)',  'label' => 'ImportId',             'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'index' => 0],
-        'status'                 => ['type' => 'smallint',     'label' => 'Status',               'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 5, 'index' => 1, 'searchmulti' => 1, 'default' => 0, 'arrayofkeyval' => [1 => 'InProgress', 2 => 'Locked', 3 => 'Archived'], 'css' => 'minwidth200'],
-		'type'                   => ['type' => 'varchar(128)', 'label' => 'Type',                 'enabled' => 1, 'position' => 80,  'notnull' => 1, 'visible' => 1],
-		'label'                  => ['type' => 'varchar(255)', 'label' => 'Label',                'enabled' => 1, 'position' => 11,  'notnull' => 1, 'visible' => 1, 'searchall' => 1, 'css' => 'minwidth200', 'showoncombobox' => 1],
-		'description'            => ['type' => 'html',         'label' => 'Description',          'enabled' => 1, 'position' => 12, 'notnull' => 0, 'visible' => 1],
-		'show_photo'             => ['type' => 'boolean',      'label' => 'ShowPhoto',            'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 0],
-		'authorize_answer_photo' => ['type' => 'boolean',      'label' => 'AuthorizeAnswerPhoto', 'enabled' => 1, 'position' => 120, 'notnull' => 0, 'visible' => 0],
-		'enter_comment'          => ['type' => 'boolean',      'label' => 'EnterComment',         'enabled' => 1, 'position' => 130, 'notnull' => 0, 'visible' => 0],
-        'photo_ok'               => ['type' => 'text',         'label' => 'PhotoOK',              'enabled' => 1, 'position' => 140, 'notnull' => 0, 'visible' => 3],
-		'photo_ko'               => ['type' => 'text',         'label' => 'PhotoKO',              'enabled' => 1, 'position' => 150, 'notnull' => 0, 'visible' => 3],
-        'json'                   => ['type' => 'text',         'label' => 'JSON',                 'enabled' => 1, 'position' => 160, 'notnull' => 0, 'visible' => 0],
-		'fk_user_creat'          => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserAuthor', 'picto' => 'user', 'enabled' => 1, 'position' => 170, 'notnull' => 1, 'visible' => 0, 'foreignkey' => 'user.rowid'],
-		'fk_user_modif'          => ['type' => 'integer:User:user/class/user.class.php', 'label' => 'UserModif',  'picto' => 'user', 'enabled' => 1, 'position' => 180, 'notnull' => 0, 'visible' => 0, 'foreignkey' => 'user.rowid'],
+        'rowid'                  => ['type' => 'integer',      'label' => 'TechnicalID',          'enabled' => 1, 'position' => 1,   'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1],
+        'ref'                    => ['type' => 'varchar(128)', 'label' => 'Ref',                  'enabled' => 1, 'position' => 10,  'notnull' => 1, 'visible' => 4, 'noteditable' => 1, 'default' => '(PROV)', 'index' => 1, 'searchall' => 1, 'showoncombobox' => 1, 'validate' => 1],
+        'ref_ext'                => ['type' => 'varchar(128)', 'label' => 'RefExt',               'enabled' => 1, 'position' => 20,  'notnull' => 0, 'visible' => 0, 'noteditable' => 1, 'index' => 1],
+        'entity'                 => ['type' => 'integer',      'label' => 'Entity',               'enabled' => 1, 'position' => 30,  'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'default' => 1, 'index' => 1],
+        'date_creation'          => ['type' => 'datetime',     'label' => 'DateCreation',         'enabled' => 1, 'position' => 40,  'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'default' => 'CURRENT_TIMESTAMP', 'index' => 1],
+        'tms'                    => ['type' => 'timestamp',    'label' => 'DateModification',     'enabled' => 1, 'position' => 50,  'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'default' => 'CURRENT_TIMESTAMP', 'index' => 1],
+        'import_key'             => ['type' => 'varchar(14)',  'label' => 'ImportKey',            'enabled' => 1, 'position' => 60,  'notnull' => 0, 'visible' => 0, 'noteditable' => 1, 'index' => 1],
+        'status'                 => ['type' => 'integer',      'label' => 'Status',               'enabled' => 1, 'position' => 70,  'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'default' => 1, 'index' => 1],
+        'label'                  => ['type' => 'varchar(255)', 'label' => 'Label',                'enabled' => 1, 'position' => 80,  'notnull' => 1, 'visible' => 1, 'noteditable' => 0, 'index' => 1],
+        'description'            => ['type' => 'text',         'label' => 'Description',          'enabled' => 1, 'position' => 90,  'notnull' => 0, 'visible' => 1, 'noteditable' => 0],
+        'fk_user_creat'          => ['type' => 'integer',      'label' => 'UserCreation',         'enabled' => 1, 'position' => 100, 'notnull' => 1, 'visible' => 0, 'noteditable' => 1, 'index' => 1],
+        'fk_user_modif'          => ['type' => 'integer',      'label' => 'UserModification',     'enabled' => 1, 'position' => 110, 'notnull' => 0, 'visible' => 0, 'noteditable' => 1, 'index' => 1],
     ];
 
     /**
@@ -150,12 +143,12 @@ class Question extends SaturneObject
     public $entity;
 
     /**
-     * @var int|string Creation date
+     * @var string Date creation
      */
     public $date_creation;
 
     /**
-     * @var int|string Timestamp
+     * @var string Timestamp
      */
     public $tms;
 
@@ -170,49 +163,15 @@ class Question extends SaturneObject
     public $status;
 
     /**
-     * @var string Type
-     */
-    public string $type;
-
-    /**
      * @var string Label
      */
-    public string $label;
+    public $label;
 
     /**
-     * @var string|null Description
+     * @var string Description
      */
-    public ?string $description;
+    public $description;
 
-    /**
-     * @var bool|null Show photo
-     */
-    public ?bool $show_photo = null;
-
-    /**
-     * @var bool|null Authorize answer photo
-     */
-    public ?bool $authorize_answer_photo = null;
-
-    /**
-     * @var bool|null Comment
-     */
-    public ?bool $enter_comment = null;
-
-    /**
-     * @var string|null Photo OK
-     */
-    public ?string $photo_ok = '';
-
-    /**
-     * @var string|null Photo KO
-     */
-    public ?string $photo_ko = '';
-
-    /**
-     * @var string|null JSON
-     */
-    public ?string $json = '';
 
     /**
      * @var int User ID
@@ -249,26 +208,22 @@ class Question extends SaturneObject
         $result = parent::create($user, $notrigger);
 
         if ($result > 0) {
-            if (GETPOST('question_group_id') > 0) {
-                $questionGroup = new QuestionGroup($this->db);
-                $questionGroup->fetch(GETPOST('question_group_id'));
-                $questionGroup->addQuestion($this->id);
-            } else if (GETPOST('sheet_id') > 0) {
-               $sheet = new Sheet($this->db);
-               $this->add_object_linked('digiquali_' . $sheet->element, GETPOST('sheet_id'));
+            if (GETPOST('sheet_id') > 0) {
+                $sheet = new Sheet($this->db);
+                $sheet->fetch(GETPOST('sheet_id'));
 
-               $sheet->updateQuestionsAndGroupsPosition([], [], true);
+                $this->add_object_linked('digiquali_sheet', GETPOST('sheet_id'));
 
-               $sheet->call_trigger('SHEET_ADDQUESTION', $user);
-           }
+                $sheet->updateQuestionsAndGroupsPosition([], [], true);
+            }
         }
-
         return $result;
+
     }
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *  Return if a question can be deleted
+	 *  Return if a question_group can be deleted
 	 *
 	 *  @return    int         <=0 if no, >0 if yes
 	 */
@@ -278,7 +233,7 @@ class Question extends SaturneObject
 
 	// phpcs:disable PEAR.NamingConventions.ValidFunctionName.ScopeNotCamelCaps
 	/**
-	 *  Return if a question is linked to another object
+	 *  Return if a question_group is linked to another object
 	 *
 	 *  @return    int         <=0 if no, >0 if yes
 	 */
@@ -403,7 +358,7 @@ class Question extends SaturneObject
 		if ($result > 0) {
 			if (!empty($options['categories'])) {
 				$cat        = new Categorie($this->db);
-				$categories = $cat->containing($fromid, 'question');
+				$categories = $cat->containing($fromid, 'question_group');
 				if (is_array($categories) && !empty($categories)) {
 					foreach ($categories as $cat) {
 						$categoryIds[] = $cat->id;
@@ -412,57 +367,6 @@ class Question extends SaturneObject
 					$object->setCategories($categoryIds);
 				}
 			}
-			if (!empty($options['photos'])) {
-				$dirFiles = $conf->digiquali->multidir_output[$object->entity ?? 1] . '/question/';
-				$oldDirFiles = $dirFiles . $oldRef;
-				$newDirFiles = $dirFiles . $object->ref;
-
-				$photoOkList = dol_dir_list($oldDirFiles . '/photo_ok', 'files');
-				$photoKoList = dol_dir_list($oldDirFiles . '/photo_ko', 'files');
-
-				$photoOkThumbsList = dol_dir_list($oldDirFiles . '/photo_ok/thumbs', 'files');
-				$photoKoThumbsList = dol_dir_list($oldDirFiles . '/photo_ko/thumbs', 'files');
-
-				$photoOkPath = $newDirFiles . '/photo_ok';
-				dol_mkdir($photoOkPath);
-				if (is_array($photoOkList) && !empty($photoOkList)) {
-					foreach ($photoOkList as $photoOk) {
-						copy($photoOk['fullname'], $photoOkPath . '/' . $photoOk['name']);
-					}
-				}
-
-				$photoKoPath = $newDirFiles . '/photo_ko';
-				dol_mkdir($photoKoPath);
-				if (is_array($photoKoList) && !empty($photoKoList)) {
-					foreach ($photoKoList as $photoKo) {
-						copy($photoKo['fullname'], $photoKoPath . '/' . $photoKo['name']);
-					}
-				}
-
-				$photoOkThumbsPath = $newDirFiles . '/photo_ok/thumbs';
-				dol_mkdir($photoOkThumbsPath);
-				if (is_array($photoOkThumbsList) && !empty($photoOkThumbsList)) {
-					foreach ($photoOkThumbsList as $photoOkThumbs) {
-						copy($photoOkThumbs['fullname'], $photoOkThumbsPath . '/' . $photoOkThumbs['name']);
-					}
-				}
-
-				$photoKoThumbsPath = $newDirFiles . '/photo_ok/thumbs';
-				dol_mkdir($photoKoThumbsPath);
-				if (is_array($photoKoThumbsList) && !empty($photoKoThumbsList)) {
-					foreach ($photoKoThumbsList as $photoKoThumbs) {
-						copy($photoKoThumbs['fullname'], $photoKoThumbsPath . '/' . $photoKoThumbs['name']);
-					}
-				}
-			}
-
-            $answersToClone = $answer->fetchAll('', '', 0 , 0, ['customsql' => 'fk_question = ' . $fromid]);
-            if (is_array($answersToClone) && !empty($answersToClone)) {
-                foreach ($answersToClone as $answerToClone) {
-                    $answerToClone->fk_question = $result;
-                    $answerToClone->create($user);
-                }
-            }
 		} else {
 			$error++;
 			$this->error  = $object->error;
@@ -512,7 +416,7 @@ class Question extends SaturneObject
 	 * @return       string      HTML string with
 	 * @throws Exception
 	 */
-	public function selectQuestionList($selected = '', $htmlname = 'socid', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth100', $moreparam = '', $multiple = false, $alreadyAdded = array())
+	public function selectQuestionGroupList($selected = '', $htmlname = 'socid', $filter = '', $showempty = '1', $showtype = 0, $forcecombo = 0, $events = array(), $filterkey = '', $outputmode = 0, $limit = 0, $morecss = 'minwidth100', $moreparam = '', $multiple = false, $alreadyAdded = array())
 	{
 		$out      = '';
 		$num      = 0;
@@ -529,7 +433,7 @@ class Question extends SaturneObject
 		}
 		// On recherche les societes
 		$sql  = "SELECT *";
-		$sql .= " FROM " . MAIN_DB_PREFIX . "digiquali_question as s";
+		$sql .= " FROM " . MAIN_DB_PREFIX . "digiquali_question_group as s";
 
 		$sql              .= " WHERE s.entity IN (" . getEntity($this->table_element) . ")";
 		if ($filter) $sql .= " AND (" . $filter . ")";
@@ -540,6 +444,7 @@ class Question extends SaturneObject
 		// Build output string
 		dol_syslog(get_class($this) . "::selectQuestionList", LOG_DEBUG);
 		$resql = $this->db->query($sql);
+
 		if ($resql) {
 			if ( ! $forcecombo) {
 				include_once DOL_DOCUMENT_ROOT . '/core/lib/ajax.lib.php';
@@ -551,7 +456,6 @@ class Question extends SaturneObject
 
 			$num                  = $this->db->num_rows($resql);
 			$i                    = 0;
-
             if ($showempty)
             {
                 if ($showempty === '1') $out .= '<option value="0" selected>'. dol_escape_htmltag('&nbsp;') . '</option>';
@@ -590,56 +494,71 @@ class Question extends SaturneObject
 			dol_print_error($this->db);
 		}
 
-		$this->result = array('nbofquestions' => $num);
+		$this->result = array('nbofquestion_groups' => $num);
 
 		if ($outputmode) return $outarray;
 		return $out;
 	}
 
-	/**
-	 *	Update questions position in sheet
-	 *
-	 *	@param	array	$idsArray			Array containing position and ids of questions in sheet
-	 */
-	public function updateAnswersPosition($idsArray)
-	{
-		$this->db->begin();
+    /**
+     * Add question into question group
+     *
+     * @param  int $questionId ID of question
+     */
+    public function addQuestion($questionId) {
+        $this->add_object_linked('digiquali_question', $questionId, $this->id, 'question_group');
+    }
 
-		foreach ($idsArray as $position => $answerId) {
-			$sql = 'UPDATE '. MAIN_DB_PREFIX . 'digiquali_answer';
-			$sql .= ' SET position =' . $position;
-			$sql .= ' WHERE fk_question = ' . $this->id;
-			$sql .= ' AND rowid =' . $answerId;
-			$res = $this->db->query($sql);
+    /**
+     * Move questions
+     */
+    public function updateQuestionGroupPosition($questionIds)
+    {
 
-			if (!$res) {
-				$error++;
-			}
-		}
-		if ($error) {
-			$this->db->rollback();
-		} else {
-			$this->db->commit();
-		}
-	}
+        foreach ($questionIds as $position => $questionId) {
+            $sql = 'UPDATE ' . MAIN_DB_PREFIX . 'element_element';
+            $sql .= ' SET position =' . $position;
+            $sql .= ' WHERE fk_source = ' . $questionId;
+            $sql .= ' AND sourcetype = \'digiquali_question\'';
+            $sql .= ' AND fk_target = ' . $this->id;
+            $sql .= ' AND targettype = \'digiquali_question_group\'';
+            $res = $this->db->query($sql);
 
-	/**
-	 * Write information of trigger description
-	 *
-	 * @param  Object $object Object calling the trigger
-	 * @return string         Description to display in actioncomm->note_private
-	 */
-	public function getTriggerDescription(SaturneObject $object): string
-	{
-		global $langs;
+            if (!$res) {
+                $error++;
+            }
+        }
+        if ($error) {
+            $this->db->rollback();
+        } else {
+            $this->db->commit();
+        }
+    }
 
-		$ret   = parent::getTriggerDescription($object);
-		$ret  .= $langs->transnoentities('ShowPhoto') . ' : ' . ($object->show_photo ? $langs->transnoentities('Yes') : $langs->transnoentities('No')) . '</br>';
-		$ret  .= $langs->transnoentities('AuthorizeAnswerPhoto') . ' : ' . ($object->authorize_answer_photo ? $langs->transnoentities('Yes') : $langs->transnoentities('No')) . '</br>';
-		$ret  .= $langs->transnoentities('EnterComment') . ' : ' . ($object->enter_comment ? $langs->transnoentities('Yes') : $langs->transnoentities('No')) . '</br>';
-		$ret  .= (dol_strlen($object->photo_ok) > 0 ? $langs->transnoentities('PhotoOK') . ' : ' . $object->photo_ok . '</br>' : '');
-		$ret  .= (dol_strlen($object->photo_ko) > 0 ? $langs->transnoentities('PhotoKO') . ' : ' . $object->photo_ko . '</br>' : '');
+    /**
+     * Get questions
+     *
+     * @return array
+     */
+    public function fetchQuestionsOrderedByPosition()
+    {
+        $questions = [];
+        $sql = 'SELECT fk_source';
+        $sql .= ' FROM ' . MAIN_DB_PREFIX . 'element_element';
+        $sql .= ' WHERE fk_target = ' . $this->id;
+        $sql .= ' AND targettype = \'digiquali_questiongroup\'';
+        $sql .= ' AND sourcetype = \'digiquali_question\'';
+        $sql .= ' ORDER BY position ASC';
+        $res = $this->db->query($sql);
+        if ($res) {
+            while ($obj = $this->db->fetch_object($res)) {
 
-		return $ret;
-	}
+                $question = new Question($this->db);
+
+                $question->fetch($obj->fk_source);
+                $questions[] = $question;
+            }
+        }
+        return $questions;
+    }
 }

@@ -313,7 +313,7 @@ class Sheet extends SaturneObject
 
         $object->context = 'createfromclone';
 
-        $object->fetchObjectLinked($object->id, 'digiquali_' . $object->element);
+        $questionAndGroups = $object->fetchQuestionsAndGroups();
 
         $sheetID = $object->create($user);
         if ($sheetID > 0) {
@@ -328,11 +328,19 @@ class Sheet extends SaturneObject
                 $object->setCategories($categoryIds);
             }
 
-            // Add objects linked
-            if (is_array($object->linkedObjects['digiquali_question']) && !empty($object->linkedObjects['digiquali_question'])) {
-                foreach ($object->linkedObjects['digiquali_question'] as $question) {
-                    $question->add_object_linked('digiquali_' . $object->element, $sheetID);
+            $questionIds = [];
+            $questionGroupIds = [];
+
+            if (is_array($questionAndGroups) && !empty($questionAndGroups)) {
+                foreach ($questionAndGroups as $position => $questionOrGroup) {
+                    $questionOrGroup->add_object_linked('digiquali_' . $object->element, $sheetID);
+                    if ($questionOrGroup instanceof Question) {
+                        $questionIds[$position] = $questionOrGroup->id;
+                    } else {
+                        $questionGroupIds[$position] = $questionOrGroup->id;
+                    }
                 }
+                $object->updateQuestionsAndGroupsPosition($questionIds, $questionGroupIds);
             }
         } else {
             $error++;
@@ -502,6 +510,137 @@ class Sheet extends SaturneObject
         }
     }
 
+    /**
+     * Update questions position in sheet
+     *
+     * @param array $questionIds Array containing position and ids of questions and group questions in sheet
+     */
+    public function updateQuestionsAndGroupsPosition(array $questionIds, array $questionGroupIds, $reindexLast = false)
+    {
+        $this->db->begin();
+
+        if ($reindexLast) {
+            $sql = 'UPDATE ' . MAIN_DB_PREFIX . 'element_element';
+            $sql .= ' SET position = ( SELECT MAX(position) + 1 FROM llx_element_element WHERE fk_source = 11 AND sourcetype = "digiquali_sheet" )';
+            $sql .= ' WHERE fk_source = ' . $this->id;
+            $sql .= ' AND sourcetype = "digiquali_sheet"';
+            $sql .= ' AND (targettype = "digiquali_question" OR targettype = "digiquali_questiongroup")';
+            $sql .= ' AND position IS NULL';
+
+            $res = $this->db->query($sql);
+
+            if (!$res) {
+                $error++;
+            }
+        }
+
+        if (!empty($questionIds)) {
+            foreach($questionIds as $position => $questionId) {
+                $sql = 'UPDATE ' . MAIN_DB_PREFIX . 'element_element';
+                $sql .= ' SET position = ' . $position;
+                $sql .= ' WHERE fk_source = ' . $this->id;
+                $sql .= ' AND sourcetype = "digiquali_sheet"';
+                $sql .= ' AND fk_target = ' . $questionId;
+                $sql .= ' AND targettype = "digiquali_question"';
+
+                $res = $this->db->query($sql);
+
+                if (!$res) {
+                    $error++;
+                }
+            }
+        }
+
+        if (!empty($questionGroupIds)) {
+            foreach($questionGroupIds as $position => $questionGroupId) {
+                $sql = 'UPDATE ' . MAIN_DB_PREFIX . 'element_element';
+                $sql .= ' SET position = ' . $position;
+                $sql .= ' WHERE fk_source = ' . $this->id;
+                $sql .= ' AND sourcetype = "digiquali_sheet"';
+                $sql .= ' AND fk_target = ' . $questionGroupId;
+                $sql .= ' AND targettype = "digiquali_questiongroup"';
+
+                $res = $this->db->query($sql);
+
+                if (!$res) {
+                    $error++;
+                }
+            }
+        }
+
+        if ($error) {
+            $this->db->rollback();
+            return -1;
+        } else {
+            $this->db->commit();
+            return 1;
+        }
+
+    }
+
+
+
+    /**
+     * Return all questions of sheet with their groups
+     *
+     * @param array $question Array containing questions with fk_question_group
+     */
+    public function fetchAllQuestions() {
+        $questionAndGroups = $this->fetchQuestionsAndGroups();
+        $questions = [];
+        if (is_array($questionAndGroups) && !empty($questionAndGroups)) {
+            foreach($questionAndGroups as $questionOrGroup) {
+                if ($questionOrGroup->element == 'questiongroup') {
+                    $groupQuestions = $questionOrGroup->fetchQuestionsOrderedByPosition();
+                    if (is_array($groupQuestions) && !empty($groupQuestions)) {
+                        foreach($groupQuestions as $groupQuestion) {
+                            $groupQuestion->fk_question_group = $questionOrGroup->id;
+                            $questions[] = $groupQuestion;
+                        }
+                    }
+                } else {
+                    $questionOrGroup->fk_question_group = 0;
+                    $questions[] = $questionOrGroup;
+                }
+            }
+        }
+
+        return $questions;
+    }
+
+    /**
+     * Fetch all questions and groups of sheet
+     *
+     * @return array Array containing questions and groups
+     */
+    public function fetchQuestionsAndGroups() {
+
+        $sql = 'SELECT ee.fk_target, ee.targettype, ee.position';
+        $sql .= ' FROM ' . MAIN_DB_PREFIX . 'element_element as ee';
+        $sql .= ' WHERE ee.fk_source = ' . $this->id;
+        $sql .= ' AND ee.sourcetype = "digiquali_sheet"';
+        $sql .= ' AND (ee.targettype = "digiquali_question" OR ee.targettype = "digiquali_questiongroup")';
+        $sql .= ' ORDER BY ee.position ASC';
+
+        $res = $this->db->query($sql);
+        $questionAndGroups = [];
+        if ($res) {
+            while ($obj = $this->db->fetch_object($res)) {
+                $question = new Question($this->db);
+                $questionGroup = new QuestionGroup($this->db);
+
+                if ($obj->targettype == 'digiquali_question') {
+                    $question->fetch($obj->fk_target);
+                    $questionAndGroups[] = $question;
+                } else {
+                    $questionGroup->fetch($obj->fk_target);
+                    $questionAndGroups[] = $questionGroup;
+                }
+            }
+        }
+        return $questionAndGroups;
+
+    }
 	/**
 	 * Write information of trigger description
 	 *
@@ -530,4 +669,262 @@ class Sheet extends SaturneObject
 
 		return $ret;
 	}
+
+    public function getQuestionAndGroupsTree($typeSelected = 'sheet', $idSelected = 0, $parentGroupId = 0)
+    {
+        global $conf;
+
+        $questionAndGroups = $this->fetchQuestionsAndGroups();
+        $questionGroupCardUrl = dol_buildpath('/custom/digiquali/view/questiongroup/questiongroup_card.php', 1);
+        $questionCardUrl = dol_buildpath('/custom/digiquali/view/question/question_card.php', 1);
+        $sheetCardUrl = dol_buildpath('/custom/digiquali/view/sheet/sheet_card.php', 1);
+
+        $out = '<div id="id-container" class="id-container page-ut-gp-list">';
+        $out .= '<input type="hidden" name="token" value="'. newToken() . '"/>';
+        $out .= '<input type="hidden" id="questionGroupCardUrl" value="'. $questionGroupCardUrl . '" />';
+        $out .= '<input type="hidden" id="questionCardUrl" value="'. $questionCardUrl . '" />';
+        $out .= '<input type="hidden" id="sheetCardUrl" value="'. $sheetCardUrl . '" />';
+
+        $out .= '<div class="side-nav">';
+        $out .= '  <div id="id-left">';
+        $out .= '    <div class="digirisk-wrap wpeo-wrap">';
+        $out .= '      <div class="navigation-container">';
+        $out .= '      <a href="'. $sheetCardUrl . '?id=' . $this->id . '" class="sheet-item-link">';
+        $out .= '        <div class="sheet-header '. ($typeSelected == 'sheet' ? 'selected' : '') .'" data-id="'. $this->id .'">';
+        $out .= '            <span class="icon fas fa-list fa-fw"></span>';
+        $out .= '            <div class="title">&nbsp;' . $this->label .'</div>';
+        $out .= '        </div>';
+        $out .= '      </a>';
+
+        if (!empty($questionAndGroups)) {
+
+            $out .= '        <ul class="question-list">';
+            foreach ($questionAndGroups as $questionOrGroup) {
+                if ($questionOrGroup->element == 'questiongroup') {
+                    $out .= '  <li class="group-item '. ($typeSelected == 'questiongroup' && $idSelected == $questionOrGroup->id ? 'selected' : '') .'" data-id="'. $questionOrGroup->id .'">';
+                    $out .= '    <span class="icon fas fa-chevron-down fa-fw toggle-group-in-tree" style="margin-right: 10px;"></span>';
+                    $out .= '    <span class="icon fas fa-folder fa-2x"></span>';
+                    $out .= '    <a href="'. $questionGroupCardUrl . '?id=' . $questionOrGroup->id . '&sheet_id='. $this->id .'" class="group-item-link">';
+                    $out .= '      <div class="title-container">';
+                    $out .= '          <span class="ref">' . $questionOrGroup->ref . '</span>';
+                    $out .= '          <span class="label">' . $questionOrGroup->label . '</span>';
+                    $out .= '      </div>';
+                    $out .= '    </a>';
+                    $out .= '    <a href="'. $questionCardUrl . '?action=create&sheet_id='. $this->id .'&question_group_id='. $questionOrGroup->id .'" class="add-question-btn" title="Ajouter une question">';
+                    $out .= '      <span class="fas fa-plus-circle"></span>';
+                    $out .= '    </a>';
+                    $out .= '  </li>';
+
+                    $questionsInGroup = $questionOrGroup->fetchQuestionsOrderedByPosition();
+                    if (!empty($questionsInGroup)) {
+                        $out .= '  <ul class="sub-questions">';
+                        foreach ($questionsInGroup as $q) {
+                            $out .= '    <li class="question-item '. ($typeSelected == 'question' && $idSelected == $q->id && $parentGroupId == $questionOrGroup->id ? 'selected' : '') .'" data-id="'. $q->id .'" data-group-id="'. $q->fk_question_group.'">';
+                            $out .= '      <span class="icon fas fa-question fa-2x"></span>';
+                            $out .= '      <a href="'. $questionCardUrl . '?id=' . $q->id . '&sheet_id='. $this->id .'&question_group_id='. $questionOrGroup->id .'" class="question-item-link">';
+                            $out .= '        <div class="title-container">';
+                            $out .= '            <span class="ref">' . $q->ref . '</span>';
+                            $out .= '            <span class="label">' . $q->label . '</span>';
+                            $out .= '        </div>';
+                            $out .= '      </a>';
+                            $out .= '    </li>';
+                        }
+                        $out .= '  </ul>';
+                    }
+                } else {
+                    $out .= '  <li class="question-item '. ($typeSelected == 'question' && $idSelected == $questionOrGroup->id ? 'selected' : '') .'" data-id="'. $questionOrGroup->id .'" data-group-id="0">';
+                    $out .= '    <span class="icon fas fa-question fa-2x" ></span>';
+                    $out .= '    <a href="'. $questionCardUrl . '?id=' . $questionOrGroup->id . '&sheet_id='. $this->id .'" class="question-item-link">';
+                    $out .= '      <div class="title-container">';
+                    $out .= '          <span class="ref">' . $questionOrGroup->ref . '</span>';
+                    $out .= '          <span class="label">' . $questionOrGroup->label . '</span>';
+                    $out .= '      </div>';
+                    $out .= '    </a>';
+                    $out .= '  </li>';
+                }
+            }
+            $out .= '        </ul>';
+
+            $out .= '<script>
+                        $(document).ready(function() {
+                            if (localStorage.maximized == "false") {
+                                $("#id-left").attr("style", "display:none !important");
+                            }
+
+                            var container = document.querySelector(".navigation-container");
+                            if (container) {
+                                var selectedEl = container.querySelector(".group-item.selected, .question-item.selected");
+                                if (selectedEl) {
+                                    selectedEl.scrollIntoView({ behavior: "smooth", block: "center" });
+                                }
+                            }
+                        });
+                    </script>';
+        }
+
+        $out .= '        <div class="create-buttons-container" style="display:flex; flex-direction:row; gap:10px; margin-top:10px;">';
+        $out .= '          <a href="'. $questionGroupCardUrl . '?action=create&sheet_id='. $this->id .'" class="btn btn-square">';
+        $out .= '            <span class="icon fas fa-copy fa-fw"></span> Nouveau groupe';
+        $out .= '          </a>';
+        $out .= '          <a href="'. $questionCardUrl . '?action=create&sheet_id='. $this->id .'" class="btn btn-square">';
+        $out .= '            <span class="icon fas fa-question fa-fw"></span> Nouvelle question';
+        $out .= '          </a>';
+        $out .= '        </div>';
+        $out .= '      </div>';
+        $out .= '    </div>';
+        $out .= '  </div>';
+        $out .= '</div>';
+
+        $out .= '</div>';
+        return $out;
+    }
+
+    public function setLocked(User $user, int $notrigger = 0): int
+    {
+        $questionsAndGroups = $this->fetchQuestionsAndGroups();
+
+        if (is_array($questionsAndGroups) && !empty($questionsAndGroups)) {
+            foreach($questionsAndGroups as $questionOrGroup) {
+                if ($questionOrGroup->status != $questionOrGroup::STATUS_LOCKED) {
+                    $questionOrGroup->setLocked($user, $notrigger);
+                }
+            }
+        }
+
+        return parent::setLocked($user, $notrigger);
+    }
+
+
+    /**
+     * Show answer repartition
+     *
+     * @param Question $question
+     * @param array $answers Array of answers
+     * @param array $questionAnswerStats Array of answer stats
+     *
+     * @return void
+     */
+    public function showAnswerRepartition(Question $question, array $answers, array $questionAnswerStats): void
+    {
+        global $langs;
+
+        require_once __DIR__ . '/../../saturne/class/saturnedashboard.class.php';
+
+        switch ($question->type) {
+            case 'UniqueChoice':
+            case 'OkKo':
+            case 'OkKoToFixNonApplicable':
+            case 'MultipleChoices':
+                if (!empty($answers)) {
+                    $data = [];
+                    $labels = [];
+
+                    foreach ($answers as $a) {
+                        $count = $questionAnswerStats[$question->id][$a->position]['nb_answers'] ?? 0;
+                        if ($count > 0) {
+                            $data[] = [$a->value, $count];
+                            $labels[] = ['label' => $a->value, 'color' => $a->color];
+                        }
+                    }
+
+                    if (!empty($data)) {
+                        $uniqueKey = 'q_' . $question->id . '_pie';
+                        $fileName = $uniqueKey . '.png';
+                        $fileUrl = DOL_URL_ROOT . '/viewimage.php?modulepart=digiquali&file=' . $fileName;
+
+                        $graph = new DolGraph();
+                        $graph->SetData($data);
+                        $graph->SetDataColor(array_column($labels, 'color'));
+                        $graph->SetType(['pie']);
+                        $graph->SetWidth(120);
+                        $graph->SetHeight(120);
+                        $graph->setShowLegend(0);
+                        $graph->draw($fileName, $fileUrl);
+                        print $graph->show();
+                    } else {
+                        print '<span class="opacitymedium">' . $langs->trans('NoData') . '</span>';
+                    }
+                }
+                break;
+            case 'Percentage':
+                $averagePercent = 0;
+
+                if (!empty($questionAnswerStats[$question->id])) {
+                    $answerCounter = 0;
+                    $answerSum = 0;
+
+                    foreach ($questionAnswerStats[$question->id] as $answerPercent) {
+                        $answerCounter++;
+                        $answerSum += $answerPercent['percentage'];
+                    }
+                    $averagePercent = $answerCounter > 0 ? $answerSum / $answerCounter : 0;
+                }
+
+                print '<div class="percentage-bar-container">';
+                print '<div class="percentage-bar-background">';
+                print '<div class="percentage-bar-fill" style="width: ' . $averagePercent . '%;"></div>';
+                print '</div>';
+                print '<div class="percentage-bar-label">' . $langs->trans("Average") . ' : ' . round($averagePercent) . '%</div>';
+                print '</div>';
+                break;
+
+            case 'Text':
+                break;
+
+            case 'Range':
+                $average = 0;
+                $count = 0;
+                foreach ($questionAnswerStats[$question->id] as $questionAnswer) {
+                    if (isset($questionAnswer['range'])) {
+                        $average += $questionAnswer['range'];
+                        $count++;
+                    }
+                }
+
+                $average = $count > 0 ? $average / $count : 0;
+
+                print '<div class="range-bar-container">';
+                print '<div class="range-average-indicator">';
+                print '<div class="range-average-value">';
+                print '<i class="fa fa-bullseye" aria-hidden="true"></i> ' . round($average, 1);
+                print '</div>';
+                print '<div class="range-average-label">' . $langs->trans("AverageValue") . '</div>';
+                print '</div>';
+                print '</div>';
+                break;
+
+            default:
+                print '<span class="opacitymedium">' . $langs->trans('UnsupportedQuestionType') . '</span>';
+                break;
+        }
+    }
+
+
+    /**
+     * Get average verdict
+     *
+     * @param array $controls Array of controls
+     *
+     * @return float
+     */
+    public function getAverageVerdict(array $controls): float
+    {
+
+        $controlsNumber = count($controls);
+
+        if ($controlsNumber > 0) {
+            $verdictSum = 0;
+
+            foreach ($controls as $control) {
+                if (!empty($control->verdict)) {
+                    $verdictSum += $control->verdict;
+                }
+            }
+
+            return $verdictSum / $controlsNumber;
+        }
+        return 0;
+    }
+
 }
+

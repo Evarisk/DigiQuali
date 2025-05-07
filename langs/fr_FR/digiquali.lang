@@ -132,6 +132,15 @@ AddToSheet                    = Ajouter au modèle
 PercentageQuestionStep        = Nombre d'étapes du curseur
 
 
+#
+# QuestionGroups
+#
+
+# Data - Donnée
+QuestionGroup    = Groupe de questions
+Questiongroup    = Groupe de questions
+QuestionGroups   = Groupes de questions
+NewQuestionGroup = Nouveau groupe de questions
 
 #
 # Sheet
@@ -476,3 +485,22 @@ WriteComment             = Écrire un commentaire
 WriteAnswer              = Écrire une réponse
 In                       = Dans
 See                      = Voir
+
+# Statistics
+
+Statistics = Statistiques
+GlobalStatistics = Statistiques globales
+QuestionsStatistics = Statistiques des questions
+NumberOfControls = Nombre de contrôles
+NumberOfAnswers = Nombre de réponses
+AverageValue = Valeur moyenne
+LastControlDate = Dernier contrôle
+OkAnswers = Réponses positives
+KoAnswers = Réponses négatives
+AverageScore = Score moyen
+AverageVerdictScore = Score moyen du verdict
+NoAnswersYet = Aucune réponse pour l'instant
+NoDetailedStatisticsAvailable = Pas de statistiques détaillées disponibles
+NoQuestionsLinked = Aucune question liée à cette fiche
+AnswersStatistics = Statistiques des réponses
+NoControlsLinked = Aucun contrôle lié à cette fiche

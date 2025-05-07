@@ -108,6 +108,8 @@ window.digiquali.object.selectAnswer = function() {
   let answer          = '';
   let answerValue     = $(this).hasClass('answer') ? $(this).attr('value') : $(this).val();
   let comment         = $(this).closest('.table-id-' + questionId).find('#comment' + questionId).val();
+  let questionGroup   = $(this).closest('.group-question').attr('id');
+
   if ($(this).closest('.table-cell').hasClass('select-answer')) {
     if ($(this).hasClass('multiple-answers')) {
       $(this).closest('span').toggleClass('active');
@@ -133,7 +135,7 @@ window.digiquali.object.selectAnswer = function() {
   }
 
   if (!publicInterface && autoSave == 1 && !$(this).hasClass('multiple-answers')) {
-    window.digiquali.object.saveAnswer(questionId, answer, comment);
+    window.digiquali.object.saveAnswer(questionId, answer, comment, questionGroup);
   } else {
     window.digiquali.object.updateButtonsStatus();
   }
@@ -190,7 +192,7 @@ window.digiquali.object.updateButtonsStatus = function() {
  * @param  {string} comment    Comment value
  * @return {void}
  */
-window.digiquali.object.saveAnswer = function(questionId, answer, comment) {
+window.digiquali.object.saveAnswer = function(questionId, answer, comment, questionGroup) {
   let token          = window.saturne.toolbox.getToken();
   let querySeparator = window.saturne.toolbox.getQuerySeparator(document.URL);
   window.saturne.loader.display($('.table-id-' + questionId));
@@ -202,7 +204,8 @@ window.digiquali.object.saveAnswer = function(questionId, answer, comment) {
       autoSave: true,
       questionId: questionId,
       answer: answer,
-      comment: comment
+      comment: comment,
+      questionGroup: questionGroup
     }),
     processData: false,
     contentType: false,
