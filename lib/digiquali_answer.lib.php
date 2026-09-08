@@ -208,3 +208,48 @@ function show_answer_from_question(Question $question, CommonObject $object, str
 
     return $out;
 }
+
+/**
+ * Check that a media block action targets one of the answered object's own directories
+ *
+ * The public answer page has no authenticated user: the track ID is its only credential, so the
+ * directory posted by js/modules/mediaBlock.js must be confined to the answered object. Without
+ * this, anyone holding a track ID could write into or delete from any directory of the module.
+ *
+ * @param  CommonObject $object Answered object (control or survey)
+ * @param  string       $action Action posted by the media block
+ * @return bool                 True when the posted target belongs to $object
+ */
+function digiquali_answer_media_dir_is_allowed(CommonObject $object, string $action): bool
+{
+    global $db;
+
+    $subDir = GETPOST('sub_dir', 'alpha');
+    if (dol_strtolower(GETPOST('module_name', 'alpha')) != 'digiquali' || strpos($subDir, '..') !== false) {
+        return false;
+    }
+
+    switch ($action) {
+        case 'uploadPhoto':
+        case 'deletePhoto':
+            // Answer photos are stored in <element>/<object ref>/answer_photo/<question ref>
+            $photoDir    = $object->element . '/' . dol_sanitizeFileName($object->ref) . '/answer_photo/';
+            $questionRef = strpos($subDir, $photoDir) === 0 ? substr($subDir, dol_strlen($photoDir)) : '';
+            return dol_strlen($questionRef) > 0 && strpos($questionRef, '/') === false;
+
+        case 'uploadFile':
+            // The upload resolves its directory from the answer line it creates, not from sub_dir
+            return $object->element == 'control' && GETPOSTINT('fk_control') == $object->id && GETPOSTINT('fk_question') > 0;
+
+        case 'deleteFile':
+            // Attached documents are stored in controldet/<answer line ref>
+            $lineRef = strpos($subDir, 'controldet/') === 0 ? substr($subDir, dol_strlen('controldet/')) : '';
+            if ($object->element != 'control' || dol_strlen($lineRef) == 0 || strpos($lineRef, '/') !== false) {
+                return false;
+            }
+            $objectLine = new ControlLine($db);
+            return $objectLine->fetch(0, $lineRef) > 0 && $objectLine->fk_control == $object->id;
+    }
+
+    return false;
+}

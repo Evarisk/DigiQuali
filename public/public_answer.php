@@ -148,6 +148,14 @@ if (empty($resHook)) {
     // Set user for action update and insert for prevent error on public interface
     $user->id = 1;
 
+    // Actions uploadPhoto, uploadFile, deletePhoto, deleteFile posted by the Saturne media block.
+    // It replays the HTML of the response to refresh itself, so this must not redirect
+    if (in_array($action, ['uploadPhoto', 'uploadFile', 'deletePhoto', 'deleteFile'])) {
+        if ($object->id > 0 && $object->status == $object::STATUS_DRAFT && digiquali_answer_media_dir_is_allowed($object, $action)) {
+            require_once __DIR__ . '/../core/tpl/actions/digiquali_media_block_actions.tpl.php';
+        }
+    }
+
     require_once __DIR__ . '/../core/tpl/digiquali_answers_save_action.tpl.php';
 }
 
@@ -213,6 +221,9 @@ $wizardSummaryExtraHtml = ob_get_clean();
 require __DIR__ . '/../core/tpl/frontend/digiquali_answer_wizard.tpl.php';
 print '</div>';
 print '</form>';
+
+// Required by the media block: without it, picking a photo silently does nothing
+require_once __DIR__ . '/../../saturne/core/tpl/medias/photo_editor_modal.tpl.php';
 
 llxFooter('', 'public');
 $db->close();
