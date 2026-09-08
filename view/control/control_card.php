@@ -651,16 +651,19 @@ if ($object->id > 0 && (empty($action) || ($action != 'create'))) {
         $formConfirm .= $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id . '&object_type=' . $object->element, $langs->trans('ReOpenObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmReOpenObject', $langs->transnoentities('The' . ucfirst($object->element)), $langs->transnoentities('The' . ucfirst($object->element))), 'confirm_set_reopen', '', 'yes', 'actionButtonInProgress', 350, 600);
     }
 
-    // Lock confirmation
-    $nextControlExist = 0;
-    $days             = 0;
-    if (strlen($object->next_control_date > 0)) {
-        $nextControlExist = 1;
-        $days             = abs($object->next_control_date - $object->control_date);
-        $days             = floor($days / (60 * 60 * 24));
-    }
+    // Lock confirmation. The next control date is only written in database by the lock itself :
+    // preview the date it will set, otherwise the confirmation always announces NA and 0 day.
+    $nextControlDate = $object->getNextControlDate();
+    $days            = $object->getNextControlDelay();
     if (($action == 'lock' && (empty($conf->use_javascript_ajax) || !empty($conf->dol_use_jmobile))) || (!empty($conf->use_javascript_ajax) && empty($conf->dol_use_jmobile))) {
-        $formConfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockObject', $langs->transnoentities('The' . ucfirst($object->element))), $langs->trans('ConfirmLockObject', $langs->transnoentities('The' . ucfirst($object->element))) . ($object->verdict == 2 ? '<br>' . $langs->transnoentities('BeCarefullVerdictKO') : '' . '<br><br>' . $langs->transnoentities('LockControlDate', dol_print_date($object->control_date), $nextControlExist == 1 ? dol_print_date($object->next_control_date) : $langs->transnoentities('NA'), $days)), 'confirm_lock', '', 'yes', 'actionButtonLock', 350, 600);
+        // A KO verdict has its own periodicity : the warning does not replace the announced dates
+        $lockConfirmContent = $langs->trans('ConfirmLockObject', $langs->transnoentities('The' . ucfirst($object->element)));
+        if ($object->verdict == 2) {
+            $lockConfirmContent .= '<br>' . $langs->transnoentities('BeCarefullVerdictKO');
+        }
+        $lockConfirmContent .= '<br><br>' . $langs->transnoentities('LockControlDate', dol_print_date($object->control_date), $nextControlDate > 0 ? dol_print_date($nextControlDate) : $langs->transnoentities('NA'), $days);
+
+        $formConfirm .= $form->formconfirm($_SERVER["PHP_SELF"] . '?id=' . $object->id, $langs->trans('LockObject', $langs->transnoentities('The' . ucfirst($object->element))), $lockConfirmContent, 'confirm_lock', '', 'yes', 'actionButtonLock', 350, 600);
     }
 
     // Clone confirmation

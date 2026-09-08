@@ -461,6 +461,96 @@ class Control extends SaturneObject
     }
 
     /**
+     * Get the control periodicity, in days, carried by the controlled object.
+     *
+     * A KO verdict imposes its own periodicity, an OK verdict takes the one of the controlled object.
+     *
+     * @return int<0,max> Periodicity in days, 0 when no periodicity applies
+     * @throws Exception
+     */
+    public function getQcFrequency(): int
+    {
+        if ($this->verdict == 2) {
+            return 30;
+        }
+
+        if ($this->verdict != 1) {
+            return 0;
+        }
+
+        if (empty($this->linkedObjects)) {
+            $this->fetchObjectLinked('', '', '', $this->module . '_' . $this->element);
+        }
+
+        // linkedObjects is empty when the control has no link, or when the linked object belongs to a
+        // module that has been disabled since : fetchObjectLinked() silently drops those types.
+        $linkedObjectType = !empty($this->linkedObjects) ? key($this->linkedObjects) : '';
+        $linkedObject     = !empty($linkedObjectType) ? current($this->linkedObjects[$linkedObjectType]) : null;
+
+        return !empty($linkedObject->array_options['options_qc_frequency']) ? (int) $linkedObject->array_options['options_qc_frequency'] : 0;
+    }
+
+    /**
+     * Get the date the control was performed as a timestamp.
+     *
+     * The property holds a timestamp once fetched, a date string when it comes from a form, and an
+     * empty value on a control that has not been performed yet : arithmetic on it needs this.
+     *
+     * @return int<0,max> Timestamp, 0 when the control has no date
+     */
+    public function getControlDateTimestamp(): int
+    {
+        if (empty($this->control_date)) {
+            return 0;
+        }
+
+        return is_numeric($this->control_date) ? (int) $this->control_date : (int) dol_stringtotime((string) $this->control_date);
+    }
+
+    /**
+     * Get the next control date, the one already set or the one the lock will compute.
+     *
+     * The next control date is only written in database when the control is locked : the lock
+     * confirmation has to announce the very date setLocked() will write, hence this shared computation.
+     *
+     * @return int<0,max> Timestamp of the next control date, 0 when no periodicity applies
+     * @throws Exception
+     */
+    public function getNextControlDate(): int
+    {
+        require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
+
+        if (dol_strlen($this->next_control_date) > 0) {
+            return is_numeric($this->next_control_date) ? (int) $this->next_control_date : (int) dol_stringtotime((string) $this->next_control_date);
+        }
+
+        $qcFrequency = $this->getQcFrequency();
+        if ($qcFrequency <= 0) {
+            return 0;
+        }
+
+        // The periodicity runs from the date the control was performed, the date the lock confirmation
+        // announces, not from the day the control happens to be locked.
+        return dol_time_plus_duree($this->getControlDateTimestamp() ?: dol_now('tzuser'), $qcFrequency, 'd');
+    }
+
+    /**
+     * Get the delay, in days, between the date the control was performed and the next control date.
+     *
+     * @return int<0,max> Number of days, 0 when there is no next control date
+     * @throws Exception
+     */
+    public function getNextControlDelay(): int
+    {
+        $nextControlDate = $this->getNextControlDate();
+        if ($nextControlDate <= 0) {
+            return 0;
+        }
+
+        return (int) floor(abs($nextControlDate - ($this->getControlDateTimestamp() ?: dol_now('tzuser'))) / (24 * 3600));
+    }
+
+    /**
      * Set locked status
      *
      * @param  User      $user      Object user that modify
@@ -473,25 +563,20 @@ class Control extends SaturneObject
 
         require_once DOL_DOCUMENT_ROOT . '/comm/action/class/actioncomm.class.php';
 
-        $qcFrequency = 0;
         $this->fetchObjectLinked('', '', '', $this->module . '_' . $this->element);
 
         // linkedObjects is empty when the control has no link, or when the linked object belongs to a
         // module that has been disabled since : fetchObjectLinked() silently drops those types.
         $linkedObjectType = !empty($this->linkedObjects) ? key($this->linkedObjects) : '';
         $linkedObject     = !empty($linkedObjectType) ? current($this->linkedObjects[$linkedObjectType]) : null;
-        if ($this->verdict == 1 && !empty($linkedObject->array_options['options_qc_frequency'])) {
-            $qcFrequency = $linkedObject->array_options['options_qc_frequency'];
-        } elseif ($this->verdict == 2) {
-            $qcFrequency = 30;
-        }
 
-        // Next control date is automatically calculated if not set
-        if (dol_strlen($this->next_control_date) <= 0) {
-            if (($this->verdict == 1 && !empty($linkedObject->array_options['options_qc_frequency'])) || $this->verdict == 2) {
-                $this->next_control_date = $this->db->idate(dol_time_plus_duree(dol_now('tzuser'), $qcFrequency, 'd'));
-                $this->setValueFrom('next_control_date', $this->next_control_date, '', '', 'date', '', $user);
-            }
+        $qcFrequency = $this->getQcFrequency();
+
+        // Next control date is automatically calculated if not set, the same date the lock
+        // confirmation announced to the user.
+        if (dol_strlen($this->next_control_date) <= 0 && $qcFrequency > 0) {
+            $this->next_control_date = $this->db->idate($this->getNextControlDate());
+            $this->setValueFrom('next_control_date', $this->next_control_date, '', '', 'date', '', $user);
         }
 
         // The reminder is about the linked object : without one there is nothing to remind about.
