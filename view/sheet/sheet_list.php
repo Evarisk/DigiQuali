@@ -37,6 +37,7 @@ if (isModEnabled('categorie')) {
 
 // load DigiQuali libraries
 require_once __DIR__ . '/../../class/sheet.class.php';
+require_once __DIR__ . '/../../../saturne/lib/object.lib.php';
 
 // Global variables definitions
 global $conf, $db, $hookmanager, $langs, $user;
@@ -94,6 +95,7 @@ if (!$sortorder) {
 }
 
 // Definition of custom fields for columns
+$conf->cache['objectsMetadata'] = saturne_get_objects_metadata(); // Read back by the saturnePrintFieldListLoopObject hook to render the element_linked column
 $object->fields['nb_questions'] = ['label' => 'NbQuestions', 'enabled' => 1, 'visible' => 2, 'position' => 16, 'disablesort' => 1, 'csslist' => 'center'];
 $excludeFields                  = ['nb_questions'];
 
