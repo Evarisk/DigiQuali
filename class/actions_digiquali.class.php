@@ -1165,6 +1165,28 @@ class ActionsDigiquali
                 $out[$parameters['key']] = saturne_show_medias_linked('digiquali', $conf->digiquali->multidir_output[$object->entity] . '/sheet/' . $object->ref . '/photos/', 'small', 0, 0, 0, 0, 50, 50, 0, 0, 0, 'sheet/' . $object->ref . '/photos/', $object, 'photo', 0, 0);
             }
 
+            // element_linked stores the controllable object types as a JSON map ({"project":1}), which the
+            // generic list would print as is: render the object labels instead of the raw JSON
+            if ($parameters['key'] == 'element_linked') {
+                $objectsMetadata = $conf->cache['objectsMetadata'] ?? [];
+                $linkedElements  = json_decode($object->element_linked ?? '', true);
+                $labels          = [];
+                if (is_array($linkedElements)) {
+                    foreach ($linkedElements as $objectType => $isObjectLinked) {
+                        if (empty($isObjectLinked)) {
+                            continue;
+                        }
+                        // An imported model can carry an object type this instance does not know (module
+                        // disabled or not installed): fall back on the type itself rather than dropping it
+                        $objectMetadata = $objectsMetadata[$objectType] ?? [];
+                        $picto          = !empty($objectMetadata['picto']) ? img_picto('', $objectMetadata['picto'], 'class="pictofixedwidth"') : '';
+                        $labels[]       = $picto . $langs->trans(!empty($objectMetadata['langs']) ? $objectMetadata['langs'] : ucfirst($objectType));
+                    }
+                }
+                // Always feed the column, an empty value would let the template fall back on the raw field
+                $out[$parameters['key']] = !empty($labels) ? implode('<br>', $labels) : '<span class="opacitymedium">' . $langs->trans('None') . '</span>';
+            }
+
             $this->results = $out;
         }
 

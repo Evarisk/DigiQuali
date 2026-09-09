@@ -50,6 +50,7 @@ DefaultControlTagsHelp         = Catégories qui seront pré-sélectionnées lor
 DefaultControlProject          = Projet par défaut du contrôle
 ConfigureYourObjectsHere       = Configurez vos Objets ici
 ControlledObjectsTitle         = Objets contrôlés par ce Contrôle/Questionnaire
+ElementLinked                  = Objets contrôlés
 
 # Control - Contrôle
 DisplayMediasSample                                = Afficher les médias d'exemple des questions

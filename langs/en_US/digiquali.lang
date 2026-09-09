@@ -53,6 +53,7 @@ LinkCall_listDescription=Allows linking between call lists and templates
 
 # Linkable elements
 LinkableElements                        = Linkable elements
+ElementLinked                           = Controlled objects
 LinkedObjectUsage                       = Usage
 LinkedObjectUsageDetail                 = %d link(s), %d control frequency value(s)
 NoLinkedObjectUsage                     = Not used
