@@ -328,6 +328,12 @@ class modDigiQuali extends DolibarrModules
             $linkableObjects = saturne_filter_linkable_objects(saturne_get_objects_metadata(), ['digiquali_']);
         }
         
+        // Dolibarr does not always name the tab type after the object: the intervention card completes
+        // its head with 'intervention', not 'fichinter'. And the supplier order key holds an underscore,
+        // so it would otherwise be split as if it came from an external module. Saturne's tab_type is
+        // left untouched, EasyURL stores it as the element type of its shortened links
+        $dolibarrTabTypes = ['ficheinter' => 'intervention', 'supplier_order' => 'supplier_order'];
+
         $enabledObjectTypes = [];
         if (function_exists('saturne_get_enabled_linked_object_types')) {
             $enabledObjectTypes = saturne_get_enabled_linked_object_types($linkableObjects, 'DIGIQUALI_SHEET_LINK_');
@@ -336,7 +342,9 @@ class modDigiQuali extends DolibarrModules
         foreach ($enabledObjectTypes as $objectType) {
             $objectMetadata = $linkableObjects[$objectType];
 
-            if (preg_match('/_/', $objectType)) {
+            if (isset($dolibarrTabTypes[$objectType])) {
+                $tabType = $dolibarrTabTypes[$objectType];
+            } elseif (preg_match('/_/', $objectType)) {
                 $splittedElementType = explode('_', $objectType);
                 $moduleName = $splittedElementType[0];
                 $objectName = dol_strtolower($objectMetadata['class_name']);
