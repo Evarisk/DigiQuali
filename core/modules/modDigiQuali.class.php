@@ -606,6 +606,9 @@ class modDigiQuali extends DolibarrModules
 		$this->menu = [];
 		$r = 0;
 
+		// Since Dolibarr 22, categories/index.php only lists the tag types and ignores the type parameter, the page dedicated to a single type is categorie_list.php
+		$tagListUrl = ((float) DOL_VERSION >= 22.0 ? '/categories/categorie_list.php?type=' : '/categories/index.php?type=');
+
 		// Add here entries to declare new menus
 		$this->menu[$r++] = [
 			'fk_menu'  => 'fk_mainmenu=digiquali',
@@ -661,7 +664,7 @@ class modDigiQuali extends DolibarrModules
 			'titre'    => '<i class="fas fa-tags pictofixedwidth" style="padding-right: 4px;"></i>' . $langs->transnoentities('Categories'),
 			'mainmenu' => 'digiquali',
 			'leftmenu' => 'digiquali_questiontags',
-			'url'      => '/categories/index.php?type=question',
+			'url'      => $tagListUrl . 'question',
 			'langs'    => 'digiquali@digiquali',
 			'position' => 1000 + $r,
 			'enabled'  => '$conf->digiquali->enabled && $conf->categorie->enabled && $user->rights->digiquali->question->read',
@@ -692,7 +695,7 @@ class modDigiQuali extends DolibarrModules
         //     'titre'    => '<i class="fas fa-tags pictofixedwidth" style="padding-right: 4px;"></i>' . $langs->transnoentities('Categories'),
         //     'mainmenu' => 'digiquali',
         //     'leftmenu' => 'digiquali_questiongrouptags',
-        //     'url'      => '/categories/index.php?type=question_group',
+        //     'url'      => $tagListUrl . 'question_group',
         //     'langs'    => 'digiquali@digiquali',
         //     'position' => 1000 + $r,
         //     'enabled'  => '$conf->digiquali->enabled && $conf->categorie->enabled && $user->rights->digiquali->questiongroup->read',
@@ -723,7 +726,7 @@ class modDigiQuali extends DolibarrModules
 			'titre'    => '<i class="fas fa-tags pictofixedwidth" style="padding-right: 4px;"></i>' . $langs->transnoentities('Categories'),
 			'mainmenu' => 'digiquali',
 			'leftmenu' => 'digiquali_sheettags',
-			'url'      => '/categories/index.php?type=sheet',
+			'url'      => $tagListUrl . 'sheet',
 			'langs'    => 'digiquali@digiquali',
 			'position' => 1000 + $r,
 			'enabled'  => '$conf->digiquali->enabled && $conf->categorie->enabled && $user->rights->digiquali->sheet->read',
@@ -769,7 +772,7 @@ class modDigiQuali extends DolibarrModules
 			'titre'    => '<i class="fas fa-tags pictofixedwidth" style="padding-right: 4px;"></i>' . $langs->transnoentities('Categories'),
 			'mainmenu' => 'digiquali',
 			'leftmenu' => 'digiquali_controltags',
-			'url'      => '/categories/index.php?type=control',
+			'url'      => $tagListUrl . 'control',
 			'langs'    => 'digiquali@digiquali',
 			'position' => 1000 + $r,
 			'enabled'  => '$conf->digiquali->enabled && $conf->categorie->enabled && $user->rights->digiquali->control->read',
@@ -800,7 +803,7 @@ class modDigiQuali extends DolibarrModules
             'titre'    => '<i class="fas fa-tags pictofixedwidth" style="padding-right: 4px;"></i>' . $langs->transnoentities('Categories'),
             'mainmenu' => 'digiquali',
             'leftmenu' => 'digiquali_surveytags',
-            'url'      => '/categories/index.php?type=survey',
+            'url'      => $tagListUrl . 'survey',
             'langs'    => 'digiquali@digiquali',
             'position' => 1000 + $r,
             'enabled'  => '$conf->digiquali->enabled && $conf->categorie->enabled && $user->rights->digiquali->survey->read',
