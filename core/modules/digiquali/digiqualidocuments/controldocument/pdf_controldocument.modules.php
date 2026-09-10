@@ -685,23 +685,35 @@ class pdf_controldocument extends SaturneDocumentModel
 
     private function drawGroupBanner($pdf, string $groupLabel, int $qCount, array $stats): void
     {
-        $pageW   = $pdf->getPageWidth();
-        $usableW = $pageW - $this->marge_gauche - $this->marge_droite;
-        $x       = $this->marge_gauche;
-        $y       = $pdf->GetY();
-        $h       = 7;
+        $pageW     = $pdf->getPageWidth();
+        $usableW   = $pageW - $this->marge_gauche - $this->marge_droite;
+        $x         = $this->marge_gauche;
+        $lineH     = 4;
+        $countText = $qCount . ' questions';
+
+        // The counter keeps a column of its own on the right, the label wraps in what is left
+        $pdf->SetFont('', '', 7.5);
+        $countW = $pdf->GetStringWidth($countText) + 4;
+        $labelW = $usableW - 6 - $countW;
+
+        // Height follows the wrapped label so a long group name never overflows the banner
+        $pdf->SetFont('', 'B', 8.5);
+        $labelH = max(1, $pdf->getNumLines($groupLabel, $labelW)) * $lineH;
+        $h      = max(7, $labelH + 3);
+
+        $this->checkPageBreak($pdf, $h + 5);
+        $y = $pdf->GetY();
 
         $this->fillRect($pdf, $x, $y, $usableW, $h, [232, 238, 245]);
 
         $pdf->SetTextColor(...$this->colorNavy);
         $pdf->SetFont('', 'B', 8.5);
-        $pdf->SetXY($x + 3, $y + 1.5);
-        $pdf->Cell(80, 4, $groupLabel, 0, 0, 'L');
+        $pdf->MultiCell($labelW, $lineH, $groupLabel, 0, 'L', 0, 0, $x + 3, $y + 1.5, true, 0, false, true, $h - 3, 'T', false);
 
         $pdf->SetTextColor(...$this->colorGray);
         $pdf->SetFont('', '', 7.5);
-        $pdf->SetXY($x + 84, $y + 1.5);
-        $pdf->Cell(30, 4, $qCount . ' questions', 0, 0, 'L');
+        $pdf->SetXY($x + 3 + $labelW, $y + 1.5);
+        $pdf->Cell($countW, $lineH, $countText, 0, 0, 'R');
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetDrawColor(128, 128, 128);
@@ -1494,7 +1506,6 @@ class pdf_controldocument extends SaturneDocumentModel
             }
 
             if ($group !== null) {
-                $this->checkPageBreak($pdf, 12);
                 $this->drawGroupBanner($pdf, 'Groupe : ' . $group->label, count($questions), $groupStats);
             }
 
