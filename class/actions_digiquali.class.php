@@ -1011,7 +1011,7 @@ class ActionsDigiquali
         global $langs;
 
         if (strpos($parameters['context'], 'questionlist') !== false) {
-            $arrayOfMassactions['prelock']           = '<span class="fas fa-lock paddingrightonly"></span>' . $langs->trans('Lock');
+            $arrayOfMassactions['prelock']           = '<span class="fas fa-lock-open paddingrightonly"></span>' . $langs->trans('Lock');
             $arrayOfMassactions['pre_add_questions'] = '<span class="fas fa-plus-circle paddingrightonly"></span>' . $langs->transnoentities('AddToSheet');
 
             $out  = '<option value="prelock" data-html="' . dol_escape_htmltag($arrayOfMassactions['prelock']) . '">' . $arrayOfMassactions['prelock'] . '</option>';
