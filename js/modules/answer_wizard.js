@@ -242,6 +242,14 @@ window.digiquali.answerWizard.isQuestionAnswered = function($question) {
     return $selectAnswer.find('.answer.active').length > 0;
   }
 
+  // A duration answer lives in the hidden total, the visible fields are only the hour/minute/second helper
+  const $duration = $question.find('.question-duration');
+  if ($duration.length) {
+    const duration = $duration.find('.question-answer').val();
+
+    return duration !== undefined && duration !== null && String(duration).trim() !== '';
+  }
+
   const $input = $question.find('.question-answer').not('[type="hidden"]');
   if (!$input.length) {
     return false;

@@ -33,6 +33,7 @@ require_once __DIR__ . '/../../../../../lib/digiquali_sheet.lib.php';
 require_once __DIR__ . '/../../../../../class/question.class.php';
 require_once __DIR__ . '/../../../../../class/sheet.class.php';
 require_once __DIR__ . '/../../../../../class/answer.class.php';
+require_once __DIR__ . '/../../../../../lib/digiquali_answer.lib.php';
 
 /**
  * Class to build documents using ODF templates generator
@@ -139,6 +140,9 @@ class doc_surveydocument_odt extends SaturneDocumentModel
                                             break;
                                         case 'Percentage' :
                                             $tmpArray['answer'] = $line->answer . ' %';
+                                            break;
+                                        case 'Duration' :
+                                            $tmpArray['answer'] = digiquali_format_duration($line->answer);
                                             break;
                                         case 'MultipleChoices' :
                                             $tmpArray['answer'] = '';

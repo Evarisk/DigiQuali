@@ -182,6 +182,7 @@ class Question extends SaturneObject
 	public const TYPE_TEXT = 'Text';
 	public const TYPE_PERCENTAGE = 'Percentage';
 	public const TYPE_RANGE = 'Range';
+	public const TYPE_DURATION = 'Duration';
 	public const TYPE_OK_KO = 'OkKo';
 	public const TYPE_OK_KO_TOFIX_NA = 'OkKoToFixNonApplicable';
 	public const TYPE_MARQUE_NF = 'MarqueNF';
@@ -212,6 +213,10 @@ class Question extends SaturneObject
 			'default_points' => 0,
 			'correctable' => true,
 			'bounds' => true,
+		],
+		self::TYPE_DURATION => [
+			'default_points' => 0,
+			'correctable' => false,
 		],
 		self::TYPE_OK_KO => [
 			'default_points' => 1,

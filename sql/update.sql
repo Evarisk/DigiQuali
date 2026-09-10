@@ -185,3 +185,4 @@ ALTER TABLE llx_digiquali_controldet ADD earned_points FLOAT AFTER comment;
 ALTER TABLE llx_digiquali_controldet ADD score_rate FLOAT AFTER earned_points;
 ALTER TABLE llx_digiquali_surveydet ADD earned_points FLOAT AFTER comment;
 ALTER TABLE llx_digiquali_surveydet ADD score_rate FLOAT AFTER earned_points;
+INSERT INTO llx_c_question_type (rowid, entity, ref, label, description, active, position) VALUES(10, 0, 'Duration', 'Duration', '', 1, 45) ON DUPLICATE KEY UPDATE ref = ref;

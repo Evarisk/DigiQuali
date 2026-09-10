@@ -41,6 +41,7 @@ require_once __DIR__ . '/../../../../../../digiquali/class/question.class.php';
 require_once __DIR__ . '/../../../../../../digiquali/class/questiongroup.class.php';
 require_once __DIR__ . '/../../../../../../digiquali/class/answer.class.php';
 require_once __DIR__ . '/../../../../../../digiquali/class/control.class.php';
+require_once __DIR__ . '/../../../../../../digiquali/lib/digiquali_answer.lib.php';
 
 /**
  * Class to build control document pdf
@@ -731,6 +732,7 @@ class pdf_controldocument extends SaturneDocumentModel
         $isText       = ($question->type === 'Text');
         $isPercentage = ($question->type === 'Percentage');
         $isRange      = ($question->type === 'Range');
+        $isDuration   = ($question->type === 'Duration');
 
         // ── Answer data ───────────────────────────────────────────────────────
 
@@ -753,12 +755,16 @@ class pdf_controldocument extends SaturneDocumentModel
         }
         $multiCount = count($selectedAnswers);
 
-        // Percentage / Range: pre-format the value string
+        // Percentage / Range / Duration: pre-format the value string
         $numericVal = '';
-        if (($isPercentage || $isRange) && !empty($controlLine) && $controlLine->answer !== null && $controlLine->answer !== '') {
-            $numericVal = $isPercentage
-                ? round((float)$controlLine->answer) . ' %'
-                : (string)$controlLine->answer;
+        if (($isPercentage || $isRange || $isDuration) && !empty($controlLine) && $controlLine->answer !== null && $controlLine->answer !== '') {
+            if ($isDuration) {
+                $numericVal = digiquali_format_duration($controlLine->answer);
+            } else {
+                $numericVal = $isPercentage
+                    ? round((float)$controlLine->answer) . ' %'
+                    : (string)$controlLine->answer;
+            }
         }
 
         // ── Right column dimensions ───────────────────────────────────────────
@@ -772,7 +778,7 @@ class pdf_controldocument extends SaturneDocumentModel
             $gap       = 2;
             $drawCount = max(1, $multiCount);
             $rightW    = $drawCount * $circleD + ($drawCount - 1) * $gap + 6;
-        } elseif ($isPercentage || $isRange) {
+        } elseif ($isPercentage || $isRange || $isDuration) {
             $rightW = $numericColW;                       // 26 mm — large numeric value
         } elseif ($isText && $answerText !== '') {
             $rightW = $textColW;                          // 44 mm — text answer column
@@ -854,7 +860,7 @@ class pdf_controldocument extends SaturneDocumentModel
                 $this->drawAnswerCircle($pdf, $circleCX, $circleCY, $circleR, $sel['abbrev'], $sel['rgb'], $sel['fa'] ?? null);
             }
 
-        } elseif ($isPercentage || $isRange) {
+        } elseif ($isPercentage || $isRange || $isDuration) {
             // Numeric value: large bold text centered in right column (no circle)
             $display = $numericVal !== '' ? $numericVal : '-';
             $rgb     = $isPercentage ? $this->colorTeal : $this->colorGray;

@@ -174,6 +174,12 @@ if (!empty($questions) && !empty($controls)) {
                         'range' => $controlAnswer->answer,
                     ];
                 }
+            } else if ($questionLinked->type == 'Duration') {
+                if (is_numeric($controlAnswer->answer)) {
+                    $questionAnswerStats[$controlAnswer->fk_question][] = [
+                        'duration' => $controlAnswer->answer,
+                    ];
+                }
             }
         }
         $i++;

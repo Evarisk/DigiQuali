@@ -69,6 +69,7 @@ window.digiquali.object.event = function() {
   $(document).on( 'blur', '.question-comment', window.digiquali.object.saveCommentAuto);
   $(document).on( 'blur', 'textarea.question-answer', window.digiquali.object.saveTextOrNumericAnswer);
   $(document).on( 'change', 'input[type="number"].question-answer', window.digiquali.object.saveTextOrNumericAnswer);
+  $(document).on( 'change', '.question-duration__input', window.digiquali.object.saveDurationAnswer);
   $(document).on( 'change', '.question-answer', window.digiquali.object.changeStatusQuestion);
   $(document).on( 'click', '.answer:not(.disable)', window.digiquali.object.changeStatusQuestion);
   $(document).on('input', '.question-answer[type="range"]', function () {
@@ -300,6 +301,58 @@ window.digiquali.object.saveTextOrNumericAnswer = function() {
     if (publicInterface) {
       window.digiquali.object.updateButtonsStatus();
     }
+  }
+};
+
+/**
+ * Auto-save a duration answer on change of one of its hour / minute / second fields
+ *
+ * The three fields are only an input helper : the answer itself is the total in seconds, carried by
+ * the hidden input named answer<questionId>, which is what the server reads.
+ *
+ * @since   23.0.0
+ * @version 23.0.0
+ *
+ * @return {void}
+ */
+window.digiquali.object.saveDurationAnswer = function() {
+  const $container = $(this).closest('.question-duration');
+  const questionId = $container.attr('data-question-id');
+  if (!questionId) {
+    return;
+  }
+
+  let filled = false;
+
+  const readUnit = function(unit) {
+    const raw = $container.find('[data-duration-unit="' + unit + '"]').val();
+    if (String(raw).trim() === '') {
+      return 0;
+    }
+    filled = true;
+    const parsed = parseInt(raw, 10);
+
+    return isNaN(parsed) || parsed < 0 ? 0 : parsed;
+  };
+
+  const seconds = (readUnit('hour') * 3600) + (readUnit('minute') * 60) + readUnit('second');
+  // Three empty fields is not an answer of zero : it has to stay an empty answer, like a cleared
+  // numeric question, otherwise the question counts as answered as soon as it is touched
+  const total   = filled ? seconds : '';
+  const $answer = $container.find('.question-answer');
+
+  $answer.val(total);
+  // Marks the question as complete and refreshes the save buttons, like any other answer input
+  $answer.trigger('change');
+
+  const comment         = $(this).closest('.table-id-' + questionId).find('textarea[name="comment' + questionId + '"]').val() || '';
+  const publicInterface = $(this).closest('.table-id-' + questionId).attr('data-publicInterface');
+
+  window.digiquali.object.updateLiveScore(questionId, total);
+  window.digiquali.object.saveAnswer(questionId, total, comment);
+
+  if (publicInterface) {
+    window.digiquali.object.updateButtonsStatus();
   }
 };
 

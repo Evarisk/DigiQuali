@@ -1,0 +1,27 @@
+// Answer input of a Duration question: three fields feeding the hidden total in seconds.
+// Rendered on the backoffice card, the public page and the PWA wizard alike, so it stays
+// self-contained and carries no outer margin.
+.question-duration {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5em;
+
+  .question-duration__unit {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25em;
+  }
+
+  // The answer containers stretch every input to width: 100% with a selector this rule cannot
+  // outweigh. flex-basis is what sizes a flex item, so it settles the width without a fight.
+  .question-duration__input {
+    flex: 0 0 5em;
+    min-width: 0;
+    text-align: right;
+  }
+
+  .question-duration__label {
+    opacity: 0.6;
+  }
+}
