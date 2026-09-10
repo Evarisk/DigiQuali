@@ -67,6 +67,7 @@ window.digiquali.object.event = function() {
   $(document).on( 'input', '.input-answer:not(.disable)', window.digiquali.object.selectAnswer);
   $(document).on( 'keyup', '.question-comment', window.digiquali.object.showCommentUnsaved);
   $(document).on( 'blur', '.question-comment', window.digiquali.object.saveCommentAuto);
+  $(document).on( 'click', '.question-comment-suggestion', window.digiquali.object.addCommentFromLibrary);
   $(document).on( 'blur', 'textarea.question-answer', window.digiquali.object.saveTextOrNumericAnswer);
   $(document).on( 'change', 'input[type="number"].question-answer', window.digiquali.object.saveTextOrNumericAnswer);
   $(document).on( 'change', '.question-duration__input', window.digiquali.object.saveDurationAnswer);
@@ -485,6 +486,35 @@ window.digiquali.object.placePercents = function() {
     window.digiquali.object.rangePercent.call(this, true);
   });
 }
+
+/**
+ * Add a comment of the library to the comment of a question
+ *
+ * The text is appended, never substituted : the operator picks several predefined comments in a
+ * row, and completes them by hand. The blur is then triggered so that the save goes through
+ * saveCommentAuto, the very path a typed comment takes.
+ *
+ * @since   23.5.0
+ * @version 23.5.0
+ *
+ * @returns {void}
+ */
+window.digiquali.object.addCommentFromLibrary = function(event) {
+  event.preventDefault();
+
+  let questionId  = $(this).attr('data-question-id');
+  let commentText = $(this).attr('data-comment-text');
+  let $comment    = $('.question-comment[name="comment' + questionId + '"]');
+
+  if (!$comment.length || $comment.prop('disabled') || !commentText) {
+    return;
+  }
+
+  let currentComment = $comment.val();
+  $comment.val(currentComment ? currentComment.replace(/\s+$/, '') + '\n' + commentText : commentText);
+
+  $comment.trigger('blur');
+};
 
 /**
  * Auto-save comment on blur

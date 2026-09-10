@@ -88,12 +88,25 @@ if (!isset($user->conf->DIGIQUALI_SHOW_ONLY_QUESTIONS_WITH_NO_ANSWER) || empty($
                     <?php endif; ?>
                 </div>
             </div>
-            <?php if ($question->enter_comment > 0) : ?>
+            <?php if ($question->enter_comment > 0) :
+                $commentDisabled = ($object->status == $object::STATUS_VALIDATED);
+                // Predefined comments of the dictionary, dropped into the comment with a single click
+                $commentLibrary = digiquali_get_comment_library(); ?>
                 <div class="question__footer">
                     <label class="question__footer-comment">
                         <i class="far fa-comment-dots question-comment-icon"></i>
-                        <textarea name="comment<?php echo $question->id ?>" class="question-textarea question-comment" placeholder="<?php echo $langs->transnoentities('WriteComment'); ?>" <?php echo ($object->status == $object::STATUS_VALIDATED ? 'disabled' : ''); ?>><?php echo $comment; ?></textarea>
+                        <textarea name="comment<?php echo $question->id ?>" class="question-textarea question-comment" placeholder="<?php echo $langs->transnoentities('WriteComment'); ?>" <?php echo ($commentDisabled ? 'disabled' : ''); ?>><?php echo $comment; ?></textarea>
                     </label>
+                    <?php if (!$commentDisabled && !empty($commentLibrary)) : ?>
+                        <div class="question__comment-library">
+                            <?php foreach ($commentLibrary as $commentLibraryEntry) :
+                                $commentLibraryText = digiquali_get_comment_library_text($commentLibraryEntry); ?>
+                                <button type="button" class="question-comment-suggestion wpeo-tooltip-event" data-question-id="<?php echo $question->id; ?>" data-comment-text="<?php echo dol_escape_htmltag($commentLibraryText); ?>" aria-label="<?php echo dol_escape_htmltag($commentLibraryText); ?>" data-direction="top">
+                                    <i class="fas fa-plus question-comment-suggestion-icon"></i><?php echo dol_escape_htmltag($commentLibraryEntry->label); ?>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
             <?php

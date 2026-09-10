@@ -123,6 +123,7 @@ AuthorizeAnswerPhotoTooltip   = Autorise l'envoi de photos sur les réponses de 
 NoteControl                   = Note publique
 EnterComment                  = Saisir les commentaires
 EnterCommentTooltip           = Saisit le commentaire sur les réponses de question
+CommentLibrary                = Bibliothèque de commentaires
 ErrorQuestionUsedInSheet      = La question %s ne peut pas être supprimée, elle est utilisée dans un ou plusieurs modèles.
 ErrorQuestionGroupUsedInSheet = Le groupe de questions %s ne peut pas être supprimé, il est utilisé dans un ou plusieurs modèles.
 ErrorNoQuestionSelected       = Aucune question sélectionnée
