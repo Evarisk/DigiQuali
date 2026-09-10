@@ -917,7 +917,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'create'))) {
             }
 
             // ReOpen
-            $displayButton = $onPhone ? '<i class="fas fa-lock-open fa-2x"></i>' : '<i class="fas fa-lock-open"></i>' . ' ' . $langs->trans('ReOpenDoli');
+            $displayButton = $onPhone ? '<i class="fas fa-lock fa-2x"></i>' : '<i class="fas fa-lock"></i>' . ' ' . $langs->trans('ReOpenDoli');
             if ($object->status == Control::STATUS_VALIDATED) {
                 print '<span class="butAction" id="actionButtonInProgress">' . $displayButton . '</span>';
             } elseif ($object->status > Control::STATUS_VALIDATED) {
@@ -947,7 +947,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'create'))) {
             }
 
             // Lock
-            $displayButton = $onPhone ? '<i class="fas fa-lock fa-2x"></i>' : '<i class="fas fa-lock"></i>' . ' ' . $langs->trans('Lock');
+            $displayButton = $onPhone ? '<i class="fas fa-lock-open fa-2x"></i>' : '<i class="fas fa-lock-open"></i>' . ' ' . $langs->trans('Lock');
             if ($object->status == $object::STATUS_VALIDATED && $object->verdict != null && $signatory->checkSignatoriesSignatures($object->id, $object->element) && !$equipmentOutdated) {
                 print '<span class="butAction" id="actionButtonLock">' . $displayButton . '</span>';
             } else {

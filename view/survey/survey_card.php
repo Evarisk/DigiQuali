@@ -611,7 +611,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             }
 
             // ReOpen
-            $displayButton = $onPhone ? '<i class="fas fa-lock-open fa-2x"></i>' : '<i class="fas fa-lock-open"></i>' . ' ' . $langs->trans('ReOpenDoli');
+            $displayButton = $onPhone ? '<i class="fas fa-lock fa-2x"></i>' : '<i class="fas fa-lock"></i>' . ' ' . $langs->trans('ReOpenDoli');
             if ($object->status == Survey::STATUS_VALIDATED) {
                 print '<span class="butAction" id="actionButtonInProgress">' . $displayButton . '</span>';
             } elseif ($object->status > Survey::STATUS_VALIDATED) {
@@ -627,7 +627,7 @@ if ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'crea
             }
 
             // Lock
-            $displayButton = $onPhone ? '<i class="fas fa-lock fa-2x"></i>' : '<i class="fas fa-lock"></i>' . ' ' . $langs->trans('Lock');
+            $displayButton = $onPhone ? '<i class="fas fa-lock-open fa-2x"></i>' : '<i class="fas fa-lock-open"></i>' . ' ' . $langs->trans('Lock');
             if ($object->status == Survey::STATUS_VALIDATED && $signatory->checkSignatoriesSignatures($object->id, $object->element)) {
                 print '<span class="butAction" id="actionButtonLock">' . $displayButton . '</span>';
             } else {
