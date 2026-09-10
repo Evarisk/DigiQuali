@@ -86,6 +86,8 @@ AnswerPublicInterfaceUseSignatory            = Activer la signature sur l'interf
 AnswerPublicInterfaceUseSignatoryDescription = Rend obligatoire l'utilisation de la signature sur l'interface publique de réponse aux questions
 AnswerPublicInterfaceShowTitle               = Activer le titre sur l'interface publique de réponse aux questions
 AnswerPublicInterfaceShowTitleDescription    = Permet d'afficher le titre du contrôle sur l'interface publique de réponse aux questions
+AnswerPublicInterfaceAddAction               = Activer les actions correctives sur l'interface publique de réponse aux questions
+AnswerPublicInterfaceAddActionDescription    = Permet de consulter les actions correctives d'une question et d'en ajouter depuis l'interface publique. Le contrôle doit être rattaché à un projet, dans lequel les actions sont créées. Le responsable, le budget et le temps passé restent réservés au back-office.
 
 #
 # Questions

@@ -746,8 +746,11 @@ class Survey extends SaturneObject
      */
     public function displayAnswers(SurveyLine $objectLine, array $questionsAndGroups, bool $isFrontend = false, int $level = 0)
     {
-        // $user is required by the included template, which reads the per-user display preferences
+        // $user is required by the included template, which reads the per-user display preferences.
+        // The task permissions and the public flag are page level variables the template needs too :
+        // without them a question rendered through here would silently lose its corrective actions
         global $conf, $langs, $user;
+        global $permissionToAddTask, $permissionToReadTask, $permissionToDeleteTask, $permissionToManageTaskTimeSpent, $taskPublicView;
 
         $object = $this;
 

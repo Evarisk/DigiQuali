@@ -130,3 +130,10 @@ AnswerWizardValidateText  = You answered %s question(s) out of %s. Once validate
 #
 
 CommentLibrary = Comment library
+
+#
+# Public interface
+#
+
+AnswerPublicInterfaceAddAction            = Enable corrective actions on the public answer interface
+AnswerPublicInterfaceAddActionDescription = Lets a visitor read the corrective actions of a question and add one from the public interface. The control has to be attached to a project, which the actions are created into. The assignee, the budget and the time spent stay a back-office matter.

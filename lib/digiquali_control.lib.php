@@ -787,6 +787,44 @@ function digiquali_count_control_actions(int $controlId): int
 }
 
 /**
+ * Ids of the tasks that make up the action plan of a control.
+ *
+ * The public answer interface has no logged in user to check rights against : what it is allowed to
+ * touch is what the control behind the track_id carries. This lists it in one query, without building
+ * every action the way digiquali_get_control_actions() does.
+ *
+ * @param  int   $controlId Id of the control
+ * @return int[]            Ids of the tasks carried by the answers of the control
+ */
+function digiquali_get_control_action_task_ids(int $controlId): array
+{
+    global $db;
+
+    if ($controlId <= 0) {
+        return [];
+    }
+
+    $lines  = '(SELECT rowid FROM ' . $db->prefix() . 'digiquali_controldet WHERE fk_control = ' . $controlId . ' AND status > 0)';
+    $sql    = "SELECT fk_source AS task_id FROM " . $db->prefix() . "element_element WHERE sourcetype = 'project_task' AND targettype = 'controldet' AND fk_target IN " . $lines;
+    $sql   .= ' UNION ';
+    $sql   .= "SELECT fk_target AS task_id FROM " . $db->prefix() . "element_element WHERE sourcetype = 'controldet' AND targettype = 'project_task' AND fk_source IN " . $lines;
+
+    $resql = $db->query($sql);
+    if (!$resql) {
+        dol_syslog('digiquali_get_control_action_task_ids ' . $db->lasterror(), LOG_ERR);
+        return [];
+    }
+
+    $taskIds = [];
+    while ($obj = $db->fetch_object($resql)) {
+        $taskIds[] = (int) $obj->task_id;
+    }
+    $db->free($resql);
+
+    return $taskIds;
+}
+
+/**
  * Keep the actions of a control action plan matching the filters of the page.
  *
  * An action is spread over a task, the control line it answers and the answer given to that line, so

@@ -76,7 +76,7 @@ require_once __DIR__ . '/../lib/digiquali_control.lib.php';
 global $conf, $db, $hookmanager, $moduleNameLowerCase, $langs, $user;
 
 // Load translation files required by the page
-saturne_load_langs();
+saturne_load_langs(['projects']);
 
 // Get parameters
 $trackID   = GETPOST('track_id', 'alpha');
@@ -129,6 +129,52 @@ if (getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_USE_SIGNATORY')) {
     $signatory->fetch(0, '', ' AND status >= ' . SaturneSignature::STATUS_REGISTERED . ' AND object_type= ' . "'" . $object->element . "'" . ' AND fk_object = ' . "'" . $object->id . "'");
 }
 
+// Corrective actions carried by the answers. An action is a project task linked to the answer of a
+// question, exactly as on the control card. The public interface only opens that door when the option
+// says so, and only for a control attached to the project the actions are created into
+$publicInterfaceActions = getDolGlobalInt('DIGIQUALI_ANSWER_PUBLIC_INTERFACE_ADD_ACTION') && $object->id > 0 && $object->element == 'control' && isModEnabled('projet');
+
+$task                            = null;
+$taskNextValue                   = '';
+$taskForcedProjectId             = 0;
+$permissionToReadTask            = 0;
+$permissionToAddTask             = 0;
+$permissionToDeleteTask          = 0;
+$permissionToManageTaskTimeSpent = 0;
+
+// Whoever opens the public link is anonymous until proven otherwise : sensitive content (who is on an
+// action, what it costs, how long it took, the links into the back office) is only ever shown to a
+// visitor who is logged in and allowed to read projects
+$visitorUser = new User($db);
+if (!empty($_SESSION['dol_login'])) {
+    $visitorUser->fetch('', $_SESSION['dol_login'], '', 1);
+    $visitorUser->getrights();
+}
+$taskPublicView = !($visitorUser->id > 0 && ($visitorUser->hasRight('project', 'lire') || $visitorUser->hasRight('project', 'all', 'lire')));
+
+if ($publicInterfaceActions) {
+    // Load Dolibarr libraries
+    require_once DOL_DOCUMENT_ROOT . '/projet/class/project.class.php';
+
+    // Load Saturne libraries
+    require_once __DIR__ . '/../../saturne/class/task/saturnetask.class.php';
+
+    if (!empty($object->projectid)) {
+        $object->fk_project = $object->projectid; // Need special case because projectid is only on control object
+        $object->fetch_project();
+    }
+    $taskForcedProjectId = (int) ($object->project->id ?? 0);
+
+    $task = new SaturneTask($db);
+    list($refTaskMod) = saturne_require_objects_mod(['project/task' => getDolGlobalString('PROJECT_TASK_ADDON')]);
+    $taskNextValue    = $refTaskMod->getNextValue($object->id, $object->element);
+
+    // There is no logged in user to check rights against : the option is what opens reading the actions
+    // of this control and adding one to it, and answers are only completed while the control is a draft
+    $permissionToReadTask = 1;
+    $permissionToAddTask  = ($object->status == $object::STATUS_DRAFT && $taskForcedProjectId > 0) ? 1 : 0;
+}
+
 /*
  * Actions
  */
@@ -153,6 +199,29 @@ if (empty($resHook)) {
     if (in_array($action, ['uploadPhoto', 'uploadFile', 'deletePhoto', 'deleteFile'])) {
         if ($object->id > 0 && $object->status == $object::STATUS_DRAFT && digiquali_answer_media_dir_is_allowed($object, $action)) {
             require_once __DIR__ . '/../core/tpl/actions/digiquali_media_block_actions.tpl.php';
+        }
+    }
+
+    // Actions add_task, fetch_task, update_task, update_task_progress, check_task posted by the corrective
+    // actions of a question. Deleting an action and logging time on it stay back-office matters
+    if ($publicInterfaceActions && in_array($action, ['add_task', 'fetch_task', 'update_task', 'update_task_progress', 'check_task'])) {
+        // An anonymous request must not reach past the control behind the track_id : the answer an action
+        // is attached to, and the action an update targets, both have to belong to this control
+        $taskRequestData = json_decode(file_get_contents('php://input'), true) ?: [];
+
+        if ($action == 'add_task') {
+            $answerLineClass   = get_class($objectLine);
+            $answerLine        = new $answerLineClass($db);
+            $taskActionAllowed = ($answerLine->fetch((int) ($taskRequestData['objectLine_id'] ?? 0)) > 0 && $answerLine->fk_control == $object->id);
+        } else {
+            // Opening the add modal also asks for a task, with the id of an answer line : it finds nothing
+            // here, which is right, the modal it renders does not need one
+            $requestedTaskId   = ($action == 'check_task' ? GETPOSTINT('task_id') : (int) ($taskRequestData['task_id'] ?? $taskRequestData['from_id'] ?? 0));
+            $taskActionAllowed = in_array($requestedTaskId, digiquali_get_control_action_task_ids($object->id), true);
+        }
+
+        if ($taskActionAllowed) {
+            require_once __DIR__ . '/../core/tpl/digiquali_answers_task_action.tpl.php';
         }
     }
 
@@ -193,6 +262,13 @@ print '<div class="question-answer-container question-answer-container-pwa publi
 $publicInterface = true;
 
 $isFrontend = true;
+
+// Modals of the corrective actions, inside the container the JS looks them up from
+if (!empty($permissionToAddTask)) {
+    $form = new Form($db);
+    require_once __DIR__ . '/../core/tpl/modal/modal_task_add.tpl.php';
+    require_once __DIR__ . '/../core/tpl/modal/modal_task_edit.tpl.php';
+}
 
 // Intro screen of the wizard: what is being controlled
 $wizardIntroHtml = '';
