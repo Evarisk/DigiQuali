@@ -51,6 +51,49 @@ function digiquali_format_duration($answer): string
 }
 
 /**
+ * Load the comment library, the dictionary of comments that can be dropped into a question comment
+ *
+ * The result is kept in a static : the question template is included once per question, so
+ * without it a sheet of eighty questions would run eighty times the same query.
+ *
+ * @return array Active entries of the dictionary, ordered by position
+ */
+function digiquali_get_comment_library(): array
+{
+    static $commentLibrary = null;
+
+    if ($commentLibrary === null) {
+        $commentLibrary = [];
+
+        $dictionaryEntries = saturne_fetch_dictionary('c_question_comment');
+        if (is_array($dictionaryEntries)) {
+            foreach ($dictionaryEntries as $dictionaryEntry) {
+                // saturne_fetch_dictionary() filters the entity but keeps the disabled entries
+                if (!empty($dictionaryEntry->active)) {
+                    $commentLibrary[$dictionaryEntry->id] = $dictionaryEntry;
+                }
+            }
+        }
+    }
+
+    return $commentLibrary;
+}
+
+/**
+ * Get the text a comment library entry drops into the comment
+ *
+ * The label is the short text shown on the button, the description the full sentence to write down.
+ * A library filled with short comments only has no description, so the label is the fallback.
+ *
+ * @param  stdClass $commentLibraryEntry Entry of the comment library
+ * @return string                        Text to add to the question comment
+ */
+function digiquali_get_comment_library_text(stdClass $commentLibraryEntry): string
+{
+    return dol_strlen($commentLibraryEntry->description) > 0 ? $commentLibraryEntry->description : $commentLibraryEntry->label;
+}
+
+/**
  * Create pictos dropdown string
  *
  * @param  CommonObject $object Object

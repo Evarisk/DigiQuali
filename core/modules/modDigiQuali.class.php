@@ -369,27 +369,32 @@ class modDigiQuali extends DolibarrModules
                 MAIN_DB_PREFIX . 'c_question_type',
                 MAIN_DB_PREFIX . 'c_control_attendants_role',
                 MAIN_DB_PREFIX . 'c_survey_attendants_role',
+                MAIN_DB_PREFIX . 'c_question_comment',
             ],
             // Label of tables
             'tablib' => [
                 'Question',
                 'Control',
-                'Survey'
+                'Survey',
+                'CommentLibrary'
             ],
             // Request to select fields
             'tabsql' => [
                 'SELECT f.rowid as rowid, f.ref, f.label, f.description, f.position, f.active  FROM ' . MAIN_DB_PREFIX . 'c_question_type as f',
                 'SELECT f.rowid as rowid, f.ref, f.label, f.description, f.position, f.active FROM ' . MAIN_DB_PREFIX . 'c_control_attendants_role as f',
-                'SELECT f.rowid as rowid, f.ref, f.label, f.description, f.position, f.active FROM ' . MAIN_DB_PREFIX . 'c_survey_attendants_role as f'
+                'SELECT f.rowid as rowid, f.ref, f.label, f.description, f.position, f.active FROM ' . MAIN_DB_PREFIX . 'c_survey_attendants_role as f',
+                'SELECT f.rowid as rowid, f.ref, f.label, f.description, f.position, f.active FROM ' . MAIN_DB_PREFIX . 'c_question_comment as f'
             ],
             // Sort order
             'tabsqlsort' => [
                 'label ASC',
                 'label ASC',
-                'label ASC'
+                'label ASC',
+                'position ASC'
             ],
             // List of fields (result of select to show dictionary)
             'tabfield' => [
+                'ref,label,description,position',
                 'ref,label,description,position',
                 'ref,label,description,position',
                 'ref,label,description,position'
@@ -398,10 +403,12 @@ class modDigiQuali extends DolibarrModules
             'tabfieldvalue' => [
                 'ref,label,description,position',
                 'ref,label,description,position',
+                'ref,label,description,position',
                 'ref,label,description,position'
             ],
             // List of fields (list of fields for insert)
             'tabfieldinsert' => [
+                'ref,label,description,position',
                 'ref,label,description,position',
                 'ref,label,description,position',
                 'ref,label,description,position'
@@ -410,10 +417,12 @@ class modDigiQuali extends DolibarrModules
             'tabrowid' => [
                 'rowid',
                 'rowid',
+                'rowid',
                 'rowid'
             ],
             // Condition to show each dictionary
             'tabcond' => [
+                $conf->digiquali->enabled,
                 $conf->digiquali->enabled,
                 $conf->digiquali->enabled,
                 $conf->digiquali->enabled

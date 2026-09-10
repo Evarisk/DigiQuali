@@ -124,3 +124,9 @@ AnswerWizardAllAnswered   = Every question has an answer
 AnswerWizardRemaining     = %s unanswered question(s)
 AnswerWizardValidateTitle = Finish and validate?
 AnswerWizardValidateText  = You answered %s question(s) out of %s. Once validated, the answers can no longer be changed.
+
+#
+# Comment library - Bibliotheque de commentaires
+#
+
+CommentLibrary = Comment library
