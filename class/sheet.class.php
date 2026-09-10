@@ -998,6 +998,30 @@ class Sheet extends SaturneObject
                 print '</div>';
                 break;
 
+            case 'Duration':
+                require_once __DIR__ . '/../lib/digiquali_answer.lib.php';
+
+                $totalSeconds = 0;
+                $count        = 0;
+                foreach ($questionAnswerStats[$question->id] as $questionAnswer) {
+                    if (isset($questionAnswer['duration'])) {
+                        $totalSeconds += (int) $questionAnswer['duration'];
+                        $count++;
+                    }
+                }
+
+                $averageSeconds = $count > 0 ? (int) round($totalSeconds / $count) : 0;
+
+                print '<div class="range-bar-container">';
+                print '<div class="range-average-indicator">';
+                print '<div class="range-average-value">';
+                print '<i class="fa fa-stopwatch" aria-hidden="true"></i> ' . digiquali_format_duration($averageSeconds);
+                print '</div>';
+                print '<div class="range-average-label">' . $langs->trans("AverageValue") . '</div>';
+                print '</div>';
+                print '</div>';
+                break;
+
             default:
                 print '<span class="opacitymedium">' . $langs->trans('UnsupportedQuestionType') . '</span>';
                 break;

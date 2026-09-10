@@ -23,6 +23,34 @@
 
 
 /**
+ * Format the answer of a Duration question for display
+ *
+ * The answer is stored as a number of seconds, like a Dolibarr duration extrafield, so every
+ * display (card, list, PDF, ODT) has to go through this to read as a time and not as a raw count.
+ *
+ * @param  string|int|null $answer Answer of the line, in seconds
+ * @return string                  Duration as HH:MM:SS, empty string when there is no answer
+ */
+function digiquali_format_duration($answer): string
+{
+    // Not loaded by every host page, and this library is included from public pages too
+    require_once DOL_DOCUMENT_ROOT . '/core/lib/date.lib.php';
+
+    if ($answer === null || $answer === '' || !is_numeric($answer)) {
+        return '';
+    }
+
+    $seconds = (int) $answer;
+
+    // convertSecondToTime() answers '0' instead of a padded time for an empty duration
+    if ($seconds <= 0) {
+        return '00:00:00';
+    }
+
+    return convertSecondToTime($seconds, 'allhourminsec');
+}
+
+/**
  * Create pictos dropdown string
  *
  * @param  CommonObject $object Object
@@ -170,6 +198,29 @@ function show_answer_from_question(Question $question, CommonObject $object, str
 
             $out .= '<div class="question-number' . ($answerCssClass ?? '') . '">';
             $out .= '<input type="number" step="any" class="question-answer" name="answer' . $question->id . '" placeholder="0" value="' . $questionAnswer . '"' . $disabled . '>';
+            $out .= '</div>';
+            break;
+        case 'Duration':
+            // Stored in seconds like a Dolibarr duration extrafield, but split into three fields so
+            // the answer is entered as a time. The total is carried by the hidden input, which is the
+            // only field named answer<id> : the save action and the auto-save both read that one.
+            $hasAnswer    = ($questionAnswer !== '' && $questionAnswer !== null && is_numeric($questionAnswer));
+            $totalSeconds = $hasAnswer ? max(0, (int) $questionAnswer) : 0;
+
+            $units = [
+                'hour'   => ['value' => (int) floor($totalSeconds / 3600),      'label' => $langs->transnoentities('HourShort'),   'max' => ''],
+                'minute' => ['value' => (int) floor(($totalSeconds % 3600) / 60), 'label' => $langs->transnoentities('MinuteShort'), 'max' => ' max="59"'],
+                'second' => ['value' => (int) ($totalSeconds % 60),             'label' => $langs->transnoentities('SecondShort'), 'max' => ' max="59"'],
+            ];
+
+            $out .= '<div class="question-duration" data-question-id="' . $question->id . '">';
+            $out .= '<input type="hidden" class="question-answer" name="answer' . $question->id . '" value="' . ($hasAnswer ? $totalSeconds : '') . '">';
+            foreach ($units as $unit => $unitConfig) {
+                $out .= '<span class="question-duration__unit">';
+                $out .= '<input type="number" min="0"' . $unitConfig['max'] . ' step="1" class="question-duration__input" data-duration-unit="' . $unit . '" placeholder="0" value="' . ($hasAnswer ? $unitConfig['value'] : '') . '"' . $disabled . '>';
+                $out .= '<span class="question-duration__label">' . $unitConfig['label'] . '</span>';
+                $out .= '</span>';
+            }
             $out .= '</div>';
             break;
         case 'UniqueChoice':

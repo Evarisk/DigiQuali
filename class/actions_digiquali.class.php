@@ -1408,9 +1408,20 @@ class ActionsDigiquali
                 }
             } elseif ($parameters['key'] == 'answer') {
                 if ($object->answer) {
-                    $answer = new Answer($db);
-                    $res = $answer->fetch(0, '', ' AND t.position ='.$object->answer.' AND t.fk_question = '.$object->fk_question);
-                    $out[$parameters['key']] = ($res != -1 && $answer->value ? $answer->value : '').($object->answer ? ' <span class="opacitymedium" title="value">('.$object->answer.')</span>' : '');
+                    // A duration answer is a number of seconds, not the position of an answer row
+                    require_once __DIR__ . '/../class/question.class.php';
+
+                    $question = new Question($db);
+                    $question->fetch($object->fk_question);
+
+                    if ($question->type == Question::TYPE_DURATION) {
+                        require_once __DIR__ . '/../lib/digiquali_answer.lib.php';
+                        $out[$parameters['key']] = digiquali_format_duration($object->answer);
+                    } else {
+                        $answer = new Answer($db);
+                        $res = $answer->fetch(0, '', ' AND t.position ='.$object->answer.' AND t.fk_question = '.$object->fk_question);
+                        $out[$parameters['key']] = ($res != -1 && $answer->value ? $answer->value : '').($object->answer ? ' <span class="opacitymedium" title="value">('.$object->answer.')</span>' : '');
+                    }
                 }
             }
 
