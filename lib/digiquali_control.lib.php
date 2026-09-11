@@ -585,6 +585,26 @@ function digiquali_get_product_lot_stock(int $productId): array
 }
 
 /**
+ * Can the corrective actions of a control still be managed?
+ *
+ * Adding, editing or deleting an action changes the content of the control, so it follows the state of
+ * that control like every other modification of the answers screen does. A locked control is the one
+ * case teams may want to reopen : corrective actions are often followed up long after the control itself
+ * has been closed, hence the setting. An archived control stays read-only whatever the setting says.
+ *
+ * @param  Control $control Control the action plan belongs to
+ * @return bool             True if the corrective actions of the control can be added, edited or deleted
+ */
+function digiquali_can_manage_control_actions(Control $control): bool
+{
+    if ($control->isModifiable()) {
+        return true;
+    }
+
+    return (int) $control->status === Control::STATUS_LOCKED && getDolGlobalInt('DIGIQUALI_CONTROL_MANAGE_ACTIONS_ON_LOCKED_CONTROL') > 0;
+}
+
+/**
  * Get the action plan of a control : the tasks carried by the answers of its questions.
  *
  * An action is a project task linked to a control line, the line being the answer given to one question

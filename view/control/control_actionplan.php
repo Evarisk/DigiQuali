@@ -87,11 +87,13 @@ $taskNextValue    = $refTaskMod->getNextValue($object->id, $object->element);
 $permissiontoread = $user->hasRight('digiquali', 'control', 'read');
 $permissiontoadd  = $user->hasRight('digiquali', 'control', 'write');
 
-// Permissions for tasks management, the actions of the plan being project tasks
+// Permissions for tasks management, the actions of the plan being project tasks. A control whose content
+// is read-only keeps its action plan visible but no longer editable, unless the setting reopens it
+$canManageControlActions         = digiquali_can_manage_control_actions($object);
 $permissionToReadTask            = $user->hasRight('project', 'lire') || $user->hasRight('project', 'all', 'lire');
-$permissionToAddTask             = $user->hasRight('project', 'creer') || $user->hasRight('project', 'all', 'creer');
-$permissionToDeleteTask          = $user->hasRight('project', 'supprimer') || $user->hasRight('project', 'all', 'supprimer');
-$permissionToManageTaskTimeSpent = $user->hasRight('project', 'time');
+$permissionToAddTask             = $canManageControlActions && ($user->hasRight('project', 'creer') || $user->hasRight('project', 'all', 'creer'));
+$permissionToDeleteTask          = $canManageControlActions && ($user->hasRight('project', 'supprimer') || $user->hasRight('project', 'all', 'supprimer'));
+$permissionToManageTaskTimeSpent = $canManageControlActions && $user->hasRight('project', 'time');
 
 // Security check
 saturne_check_access($permissiontoread, $object);
@@ -165,7 +167,8 @@ if ($object->id > 0) {
         'text'     => $searchText
     ]);
 
-    $actionPlanEdit           = $permissiontoadd && !empty($permissionToAddTask) && $object->status < Control::STATUS_LOCKED;
+    // What the control allows is already folded into the task permissions, the same way the answers screen reads them
+    $actionPlanEdit           = $permissiontoadd && !empty($permissionToAddTask);
     $actionPlanUrl            = $_SERVER['PHP_SELF'];
     $actionPlanFormParameters = ['id' => $object->id];
 

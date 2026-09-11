@@ -135,7 +135,13 @@ print dol_get_fiche_head($head, $object->element, $title, -1, 'digiquali_color@d
 
 require __DIR__ . '/../../saturne/core/tpl/admin/object/object_numbering_module_view.tpl.php';
 
-$constArray = $constArray ?? [];
+$constArray['digiquali'] = [
+    'ManageControlActionsOnLockedControl' => [
+        'name'        => 'ManageControlActionsOnLockedControl',
+        'description' => 'ManageControlActionsOnLockedControlDescription',
+        'code'        => 'DIGIQUALI_CONTROL_MANAGE_ACTIONS_ON_LOCKED_CONTROL'
+    ]
+];
 require __DIR__ . '/../../saturne/core/tpl/admin/object/object_const_view.tpl.php';
 
 /*

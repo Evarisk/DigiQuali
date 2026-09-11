@@ -144,11 +144,13 @@ $permissiontoadd        = $user->rights->digiquali->control->write; // Used by t
 $permissiontodelete     = $user->rights->digiquali->control->delete || ($permissiontoadd && isset($object->status) && $object->status == $object::STATUS_DRAFT);
 $permissiontosetverdict = $user->rights->digiquali->control->setverdict;
 
-// Permissions for tasks management
+// Permissions for tasks management, the corrective actions being project tasks. A control whose content
+// is read-only keeps its action plan visible but no longer editable, unless the setting reopens it
+$canManageControlActions         = digiquali_can_manage_control_actions($object);
 $permissionToReadTask            = $user->hasRight('project', 'lire') || $user->hasRight('project', 'all', 'lire');
-$permissionToAddTask             = $user->hasRight('project', 'creer') || $user->hasRight('project', 'all', 'creer');
-$permissionToDeleteTask          = $user->hasRight('project', 'supprimer') || $user->hasRight('project', 'all', 'supprimer');
-$permissionToManageTaskTimeSpent = $user->hasRight('project', 'time');
+$permissionToAddTask             = $canManageControlActions && ($user->hasRight('project', 'creer') || $user->hasRight('project', 'all', 'creer'));
+$permissionToDeleteTask          = $canManageControlActions && ($user->hasRight('project', 'supprimer') || $user->hasRight('project', 'all', 'supprimer'));
+$permissionToManageTaskTimeSpent = $canManageControlActions && $user->hasRight('project', 'time');
 
 $upload_dir = $conf->digiquali->multidir_output[isset($object->entity) ? $object->entity : 1];
 
