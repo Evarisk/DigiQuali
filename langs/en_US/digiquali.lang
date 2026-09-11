@@ -112,6 +112,9 @@ PublicActionPlan              = Public interface of the action plan
 GoToPublicActionPlanPage      = Go to the public action plan page
 PublicActionPlanDisabled      = The public interface of the action plan is not enabled
 
+ManageControlActionsOnLockedControl            = Manage the corrective actions of a locked control
+ManageControlActionsOnLockedControlDescription = Allows corrective actions of a locked control to be added, edited, deleted and followed up. Without this setting, the action plan of a locked control stays readable but can no longer be changed. An archived control is read-only in every case.
+
 #
 # Answer wizard (mobile)
 #
